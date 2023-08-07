@@ -1,0 +1,171 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.kaoto</groupId>
+    <artifactId>kaoto-camel-catalog-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>io.kaoto</groupId>
+  <artifactId>kaoto-camel-catalog</artifactId>
+  <packaging>pom</packaging>
+  <name>kaoto-camel-catalog</name>
+  <description>
+    The Apache Camel catalog and YAML DSL schema collection to be used in Kaoto.
+  </description>
+  <url>http://kaoto.io</url>
+
+  <properties>
+    <inputDirectory>${project.build.directory}/camel</inputDirectory>
+    <outputDirectory>${project.build.directory}/../../dist</outputDirectory>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-yaml-dsl-deserializers</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${version.maven-dependency-plugin}</version>
+        <executions>
+          <execution>
+            <id>Unpack Camel Artifacts</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>org.apache.camel</groupId>
+              <artifactId>camel-catalog</artifactId>
+              <includes>org/apache/camel/catalog/**</includes>
+              <outputDirectory>${inputDirectory}/catalog</outputDirectory>
+              <excludes>**/*.class</excludes>
+            </artifactItem>
+            <artifactItem>
+              <groupId>org.apache.camel.kamelets</groupId>
+              <artifactId>camel-kamelets</artifactId>
+              <version>${version.camel-kamelets}</version>
+              <outputDirectory>${inputDirectory}</outputDirectory>
+              <includes>kamelets/*</includes>
+            </artifactItem>
+            <!-- TODO: Uncomment when Camel K CRDs are available in Maven Central
+                 https://github.com/apache/camel-k/issues/4655
+            <artifactItem>
+              <groupId>org.apache.camel.k</groupId>
+              <artifactId>camel-k-crds</artifactId>
+              <version>${version.camel-k-crds}</version>
+              <outputDirectory>${inputDirectory}/camel-k</outputDirectory>
+              <includes>**/*.yaml</includes>
+            </artifactItem>
+            -->
+          </artifactItems>
+        </configuration>
+      </plugin>
+      <!-- TODO: A temporary workaround to download Camel K CRDs from GitHub
+           https://github.com/apache/camel-k/issues/4655 -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${version.maven-antrun-plugin}</version>
+        <executions>
+          <execution>
+            <id>download-files</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${inputDirectory}/crds"/>
+                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_integrations.yaml"
+                     dest="${inputDirectory}/crds/integration.yaml"
+                     verbose="true"
+                     usetimestamp="true"/>
+                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_kameletbindings.yaml"
+                     dest="${inputDirectory}/crds/kameletbinding.yaml"
+                     verbose="true"
+                     usetimestamp="true"/>
+                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_kamelets.yaml"
+                     dest="${inputDirectory}/crds/kamelet.yaml"
+                     verbose="true"
+                     usetimestamp="true"/>
+                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_pipes.yaml"
+                     dest="${inputDirectory}/crds/pipe.yaml"
+                     verbose="true"
+                     usetimestamp="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-yaml-dsl-maven-plugin</artifactId>
+        <executions>
+          <!-- camelCase -->
+          <execution>
+            <id>generate-yaml-schema-camelCase</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate-yaml-schema</goal>
+            </goals>
+            <configuration>
+              <kebabCase>false</kebabCase>
+              <outputFile>${inputDirectory}/schema/camelYamlDsl.json</outputFile>
+            </configuration>
+          </execution>
+          <!-- kebab-case -->
+          <execution>
+            <id>generate-yaml-schema-kebab-case</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate-yaml-schema</goal>
+            </goals>
+            <configuration>
+              <kebabCase>true</kebabCase>
+              <outputFile>${inputDirectory}/schema/camel-yaml-dsl.json</outputFile>
+              <!-- TODO: https://issues.apache.org/jira/projects/CAMEL/issues/CAMEL-19700 -->
+              <additionalProperties>true</additionalProperties>
+              <bannedDefinitions />
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.kaoto</groupId>
+        <artifactId>kaoto-camel-catalog-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Tailor Camel catalog and schema files for Kaoto</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>generate-kaoto-camel-catalog</goal>
+            </goals>
+            <configuration>
+              <inputDirectory>${inputDirectory}</inputDirectory>
+              <outputDirectory>${outputDirectory}</outputDirectory>
+              <catalogCategoryExclusions>
+                <catalogCategoryExclusion>main</catalogCategoryExclusion>
+                <catalogCategoryExclusion>others</catalogCategoryExclusion>
+                <catalogCategoryExclusion>releases</catalogCategoryExclusion>
+                <catalogCategoryExclusion>schemas</catalogCategoryExclusion>
+              </catalogCategoryExclusions>
+              <camelVersion>${version.camel}</camelVersion>
+              <camelKCRDVersion>${version.camel-k-crds}</camelKCRDVersion>
+              <kameletsVersion>${version.camel-kamelets}</kameletsVersion>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
