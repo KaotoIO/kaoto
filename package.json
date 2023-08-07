@@ -1,0 +1,13 @@
+{
+  "name": "kaoto-next",
+  "version": "0.0.0",
+  "description": "Next version of the UI of the Kaoto project",
+  "repository": "git@github.com:KaotoIO/kaoto-next.git",
+  "author": "The Kaoto Team",
+  "license": "Apache License v2.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "packageManager": "yarn@3.6.1"
+}
