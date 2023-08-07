@@ -1,0 +1,9 @@
+{
+  "name": "@kaoto-next/camel-catalog",
+  "version": "0.0.0",
+  "description": "Camel Catalog and schemas for Kaoto",
+  "repository": "git@github.com:KaotoIO/kaoto-next.git",
+  "author": "The Kaoto Team",
+  "license": "Apache License v2.0",
+  "private": true
+}

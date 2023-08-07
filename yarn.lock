@@ -4,6 +4,12 @@
 __metadata:
   version: 6
 
+"@kaoto-next/camel-catalog@workspace:packages/camel-catalog":
+  version: 0.0.0-use.local
+  resolution: "@kaoto-next/camel-catalog@workspace:packages/camel-catalog"
+  languageName: unknown
+  linkType: soft
+
 "kaoto-next@workspace:.":
   version: 0.0.0-use.local
   resolution: "kaoto-next@workspace:."
