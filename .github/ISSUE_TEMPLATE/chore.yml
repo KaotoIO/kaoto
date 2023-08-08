@@ -1,0 +1,11 @@
+name: '🧹 Chore'
+description: General maintenance and routine tasks
+labels: chore
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Please describe the task that needs to be done
+      description: A clear and concise description of what needs to be done, and why.
+    validations:
+      required: true
