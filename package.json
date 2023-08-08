@@ -9,5 +9,19 @@
   "workspaces": [
     "packages/*"
   ],
+  "resolutions": {
+    "@types/react": "18.2.15",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "uniforms": "4.0.0-alpha.0",
+    "uniforms-bridge-json-schema": "4.0.0-alpha.0"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3"
+  },
   "packageManager": "yarn@3.6.1"
 }

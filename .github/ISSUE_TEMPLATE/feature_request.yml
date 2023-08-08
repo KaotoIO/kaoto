@@ -1,0 +1,11 @@
+name: 🛠 Feature Request
+description: Suggest a new feature or idea for Kaoto
+labels: feature request
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Please describe the feature that you want to propose
+      description: A clear and concise description of what you are looking for, and why.
+    validations:
+      required: true
