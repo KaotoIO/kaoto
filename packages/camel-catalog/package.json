@@ -6,6 +6,12 @@
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
   "private": true,
+  "main": "./package.json",
+  "exports": {
+    ".": "./dist",
+    "./index.json": "./dist/index.json",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "yarn clean && yarn build:mvn",
     "build:mvn": "./mvnw clean install",
