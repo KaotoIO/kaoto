@@ -1,5 +1,5 @@
 {
-  "*.ts": "yarn lint \"src/**/*.ts\"",
-  "*.tsx": "yarn lint \"src/**/*.tsx\"",
+  "*.ts": "yarn workspace @kaoto-next/ui run lint \"src/**/*.ts\"",
+  "*.tsx": "yarn workspace @kaoto-next/ui run lint \"src/**/*.tsx\"",
   "*.scss": "echo 'scss linting not yet implemented'"
 }
