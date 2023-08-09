@@ -9,6 +9,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "postinstall": "yarn workspace @kaoto-next/camel-catalog run build"
+  },
   "resolutions": {
     "@types/react": "18.2.15",
     "react": "18.2.0",
