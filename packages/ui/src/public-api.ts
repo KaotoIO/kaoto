@@ -1,2 +1,2 @@
 /** Public components */
-export * from './pages/ErrorPage';
+export * from './components/Catalog';
