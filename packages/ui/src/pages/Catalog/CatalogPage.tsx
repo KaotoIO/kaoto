@@ -2,10 +2,11 @@ import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../../camel-utils';
 import { Catalog, ITile } from '../../components/Catalog';
 import { CatalogKind } from '../../models';
-import { useComponentsCatalogStore } from '../../store';
+import { useCatalogStore } from '../../store';
+import { Title } from '@patternfly/react-core';
 
-export const ComponentsCatalog: FunctionComponent = () => {
-  const { catalogs } = useComponentsCatalogStore((state) => state);
+export const CatalogPage: FunctionComponent = () => {
+  const { catalogs } = useCatalogStore((state) => state);
   const [tiles, setTiles] = useState<Record<string, ITile[]>>({});
 
   useEffect(() => {
@@ -22,7 +23,8 @@ export const ComponentsCatalog: FunctionComponent = () => {
 
   return (
     <>
-      <p>ComponentsCatalog Page</p>
+      <Title headingLevel="h1">Catalog browser</Title>
+
       <Catalog tiles={tiles} onTileClick={onTileClick} />
     </>
   );

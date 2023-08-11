@@ -14,8 +14,8 @@ export const router = createHashRouter([
         lazy: async () => import('./pages/Dashboard'),
       },
       {
-        path: Links.ComponentsCatalog,
-        lazy: async () => import('./pages/ComponentsCatalog'),
+        path: Links.Catalog,
+        lazy: async () => import('./pages/Catalog'),
       },
     ],
   },
