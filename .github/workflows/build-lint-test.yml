@@ -24,8 +24,18 @@ jobs:
       # Install dependencies
       - run: yarn
 
-      # Build each package of the monorepo, in topological order, meaning, dependencies first
-      - run: yarn workspaces foreach --topological-dev --verbose run build
+      # Lint files
+      - name: 💅 Run eslint
+        run: yarn lint-staged
 
-      # Build @kaoto-next/ui package in lib mode
-      - run: yarn workspace @kaoto-next/ui run build:lib
+      # Run tests
+      - name: 🧪 Run tests
+        run: yarn workspaces foreach --verbose run test
+
+      # Build packages
+      - name: Build @kaoto-next/ui web application
+        run: yarn workspace @kaoto-next/ui run build
+
+      # Build lib
+      - name: Build @kaoto-next/ui package in lib mode
+        run: yarn workspace @kaoto-next/ui run build:lib
