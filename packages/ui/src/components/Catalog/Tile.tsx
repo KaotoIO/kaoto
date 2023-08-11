@@ -41,8 +41,8 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       <CardBody className="tile__body">{props.tile.description}</CardBody>
 
       <CardFooter className="tile__header">
-        {props.tile.tags?.map((tag) => (
-          <Badge key={`${props.tile.name}-${tag}`} isRead>
+        {props.tile.tags?.map((tag, index) => (
+          <Badge key={`${props.tile.name}-${tag}-${index}`} isRead>
             {tag}
           </Badge>
         ))}

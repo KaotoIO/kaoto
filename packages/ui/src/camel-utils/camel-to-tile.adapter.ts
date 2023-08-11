@@ -11,7 +11,7 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
     headerTags.push(supportLevel);
   }
   if (label) {
-    tags.push(label);
+    tags.push(...label.split(','));
   }
   if (version) {
     tags.push(version);

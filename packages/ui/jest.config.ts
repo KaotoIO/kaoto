@@ -91,7 +91,8 @@ export default {
   // moduleNameMapper: {},
   moduleNameMapper: {
     '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.ts',
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.ts",
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+      '<rootDir>/__mocks__/fileMock.ts',
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -157,10 +158,7 @@ export default {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  // testMatch: [
-  //   '**/__tests__/**/*.[jt]s?(x)',
-  //   '**/?(*.)+(spec|test).[tj]s?(x)'
-  // ],
+  testMatch: ['**/?(*.)+(test).[tj]s?(x)'],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
