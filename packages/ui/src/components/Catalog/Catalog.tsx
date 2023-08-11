@@ -51,6 +51,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         {Object.entries(props.tiles).map(([key, value]) => (
           <Tab
             key={key}
+            data-testid={`${key}-catalog-tab`}
             eventKey={key}
             title={
               <>

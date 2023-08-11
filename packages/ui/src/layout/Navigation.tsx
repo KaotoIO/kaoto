@@ -24,7 +24,9 @@ export const NavigationSidebar: FunctionComponent<INavigationSidebar> = (props) 
           <NavList>
             {navElements.map((nav, index) => (
               <NavItem id={nav.title} key={nav.title} itemId={index} isActive={activeItem === index}>
-                <Link to={nav.to}>{nav.title}</Link>
+                <Link data-testid={nav.title} to={nav.to}>
+                  {nav.title}
+                </Link>
               </NavItem>
             ))}
           </NavList>
