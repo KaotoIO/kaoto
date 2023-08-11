@@ -52,7 +52,6 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
  */
 @Mojo(
         name = "generate-kaoto-camel-catalog",
-        inheritByDefault = false,
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.COMPILE,
         threadSafe = true,
