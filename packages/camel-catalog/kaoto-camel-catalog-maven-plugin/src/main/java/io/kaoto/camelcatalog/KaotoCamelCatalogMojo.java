@@ -40,7 +40,7 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
 /**
  * Collects the camel metadata files such as catalog and schema and
  * tailors them to fit with Kaoto needs.
- * This plugin expects the following directory structore under inputDirectory:
+ * This plugin expects the following directory structure under inputDirectory:
  * <ul>
  * <li>catalog/ - The root directory of extracted camel-catalog</li>
  * <li>crds/ - Holds Camel K CRD YAML files</li>
@@ -140,7 +140,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                 .resolve("catalog");
         try {
             Files.list(catalogRoot)
-                    .filter(f -> isSupportredCatalogCategory(f))
+                    .filter(f -> isSupportedCatalogCategory(f))
                     .sorted()
                     .forEach(f -> processCatalogCategory(f, index));
         } catch (Exception e) {
@@ -148,7 +148,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
     }
 
-    private boolean isSupportredCatalogCategory(Path category) {
+    private boolean isSupportedCatalogCategory(Path category) {
         return category.toFile().isDirectory()
                 && !catalogCategoryExclusions.contains(category.getFileName().toString());
     }
