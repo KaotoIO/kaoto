@@ -1,0 +1,17 @@
+{
+  "name": "@kaoto-next/ui-tests",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "e2e": "cypress open --config-file=cypress.config.ts",
+    "e2e:headless": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^12.17.3",
+    "start-server-and-test": "^2.0.0"
+  },
+  "dependencies": {
+    "typescript": "^5.1.6"
+  }
+}
