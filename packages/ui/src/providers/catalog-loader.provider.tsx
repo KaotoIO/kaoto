@@ -2,15 +2,15 @@ import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { CatalogKind } from '../models';
 import { CamelCatalogIndex, CatalogTypes, ComponentsCatalog } from '../models/camel-catalog-index';
-import { useComponentsCatalogStore } from '../store';
+import { useCatalogStore } from '../store';
 
-export const ComponentsCatalogContext = createContext<ComponentsCatalog>({});
+export const CatalogLoaderContext = createContext<ComponentsCatalog>({});
 
 /**
  * Loader for the components catalog.
  */
-export const ComponentsCatalogProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { catalogs, setCatalog } = useComponentsCatalogStore((state) => state);
+export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
+  const { catalogs, setCatalog } = useCatalogStore((state) => state);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +35,9 @@ export const ComponentsCatalogProvider: FunctionComponent<PropsWithChildren> = (
   }, []);
 
   return (
-    <ComponentsCatalogContext.Provider value={catalogs}>
+    <CatalogLoaderContext.Provider value={catalogs}>
       {isLoading ? <div>Loading...</div> : props.children}
-    </ComponentsCatalogContext.Provider>
+    </CatalogLoaderContext.Provider>
   );
 };
 

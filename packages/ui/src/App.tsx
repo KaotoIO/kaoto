@@ -1,13 +1,13 @@
 import { Outlet } from 'react-router-dom';
 import { Shell } from './layout/Shell';
-import { ComponentsCatalogProvider } from './providers/components-catalog.provider';
+import { CatalogLoaderProvider as CatalogLoaderProvider } from './providers/catalog-loader.provider';
 
 function App() {
   return (
     <Shell>
-      <ComponentsCatalogProvider>
+      <CatalogLoaderProvider>
         <Outlet />
-      </ComponentsCatalogProvider>
+      </CatalogLoaderProvider>
     </Shell>
   );
 }

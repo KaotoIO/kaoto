@@ -40,5 +40,5 @@ const navElements = [
   { title: 'Visualization', to: Links.Home },
   { title: 'Beans', to: Links.Beans },
   { title: 'Rest', to: Links.Rest },
-  { title: 'Catalog', to: Links.ComponentsCatalog },
+  { title: 'Catalog', to: Links.Catalog },
 ];

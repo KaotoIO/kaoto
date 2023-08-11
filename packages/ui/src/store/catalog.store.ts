@@ -2,12 +2,12 @@ import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { CatalogTypes, ComponentsCatalog } from '../models';
 
-interface ComponentsCatalogState {
+interface CatalogState {
   catalogs: ComponentsCatalog;
   setCatalog: (catalogKey: string, catalog: CatalogTypes) => void;
 }
 
-export const useComponentsCatalogStore = createWithEqualityFn<ComponentsCatalogState>(
+export const useCatalogStore = createWithEqualityFn<CatalogState>(
   (set) => ({
     catalogs: {},
     setCatalog: (catalogKey: string, catalog: CatalogTypes) => {
