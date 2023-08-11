@@ -8,7 +8,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>io.kaoto</groupId>
   <artifactId>kaoto-camel-catalog-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>kaoto-camel-catalog-maven-plugin</name>
