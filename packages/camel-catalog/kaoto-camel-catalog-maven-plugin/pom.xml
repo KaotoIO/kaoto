@@ -15,7 +15,7 @@
   <description>
     The maven plugin to generate a set of Camel catalog and schema files to be used in Kaoto.
   </description>
-  <url>http://kaoto.io</url>
+  <url>https://kaoto.io</url>
 
 
   <dependencies>
