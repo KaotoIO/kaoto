@@ -16,6 +16,9 @@
     "uniforms": "4.0.0-alpha.0",
     "uniforms-bridge-json-schema": "4.0.0-alpha.0"
   },
+  "scripts": {
+    "postinstall": "yarn workspace @kaoto-next/camel-catalog run build"
+  },
   "engines": {
     "node": "18.x"
   },
