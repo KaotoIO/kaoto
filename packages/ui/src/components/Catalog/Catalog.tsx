@@ -1,6 +1,7 @@
-import { Badge, Gallery, SearchInput, Tab, TabTitleText, Tabs } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useState } from 'react';
-import { Tile } from './Tile';
+import { BaseCatalog } from './BaseCatalog';
+import './Catalog.scss';
+import { CatalogFilter } from './CatalogFilter';
 import { ITile } from './Tile.models';
 
 interface CatalogProps {
@@ -9,23 +10,27 @@ interface CatalogProps {
 }
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
-  const [activeTabKey, setActiveTabKey] = useState<string | number>(getFirstTabKey(props.tiles));
   const [searchTerm, setSearchTerm] = useState('');
-
-  const onChange = (value: string) => {
-    setSearchTerm(value);
-  };
+  const [groups, setGroups] = useState<string[]>([]);
+  const [activeGroup, setActiveGroup] = useState<string>(getFirstActiveGroup(props.tiles));
+  const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
 
   useEffect(() => {
-    setActiveTabKey(getFirstTabKey(props.tiles));
+    setGroups(Object.keys(props.tiles));
+    setActiveGroup(getFirstActiveGroup(props.tiles));
   }, [props.tiles]);
 
-  const handleTabClick = useCallback(
-    (_event: React.MouseEvent<unknown> | React.KeyboardEvent | MouseEvent, tabIndex: string | number) => {
-      setActiveTabKey(tabIndex);
-    },
-    [],
-  );
+  useEffect(() => {
+    setFilteredTiles(
+      props.tiles[activeGroup]?.filter((tile) => {
+        return tile.name.includes(searchTerm) || tile.tags.some((tag) => tag.includes(searchTerm));
+      }),
+    );
+  }, [searchTerm, activeGroup, props.tiles]);
+
+  const onChange = useCallback((_event: unknown, value = '') => {
+    setSearchTerm(value);
+  }, []);
 
   const onTileClick = useCallback(
     (tile: ITile) => {
@@ -36,45 +41,20 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
 
   return (
     <>
-      <SearchInput
-        placeholder="Find by name"
-        value={searchTerm}
-        onChange={(_event, value) => {
-          onChange(value);
-        }}
-        onClear={() => {
-          onChange('');
-        }}
+      <CatalogFilter
+        className="catalog__filter"
+        searchTerm={searchTerm}
+        groups={groups}
+        activeGroup={activeGroup}
+        onChange={onChange}
+        setActiveGroup={setActiveGroup}
       />
 
-      <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label="Available catalogs" role="region">
-        {Object.entries(props.tiles).map(([key, value]) => (
-          <Tab
-            key={key}
-            data-testid={`${key}-catalog-tab`}
-            eventKey={key}
-            title={
-              <>
-                <TabTitleText>{key}</TabTitleText>
-                <Badge isRead>{value.length}</Badge>
-              </>
-            }
-            aria-label={`${key} catalog`}
-          >
-            <Gallery hasGutter>
-              {value
-                .filter((tile) => tile.name.includes(searchTerm))
-                .map((tile) => (
-                  <Tile key={tile.name} tile={tile} onClick={onTileClick} />
-                ))}
-            </Gallery>
-          </Tab>
-        ))}
-      </Tabs>
+      <BaseCatalog tiles={filteredTiles} onTileClick={onTileClick} />
     </>
   );
 };
 
-function getFirstTabKey(tiles: CatalogProps['tiles']): string | number {
+function getFirstActiveGroup(tiles: CatalogProps['tiles']): string {
   return Object.keys(tiles)[0];
 }
