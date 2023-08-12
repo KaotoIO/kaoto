@@ -2,7 +2,7 @@
 Next version of the UI of the Kaoto project
 
 ## Building the project
-This project leverages `vite`, you can find more information about it [here](https://vitejs.dev/config/)
+This project leverages `vite`, you can find more information about it [here](https://vitejs.dev/config/).
 
 ### Requirements
 - NodeJS (>v18.x)
