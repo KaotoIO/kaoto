@@ -9591,15 +9591,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms-bridge-json-schema@npm:4.0.0-alpha.0":
-  version: 4.0.0-alpha.0
-  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.0"
+"uniforms-bridge-json-schema@npm:4.0.0-alpha.5":
+  version: 4.0.0-alpha.5
+  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.5"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     tslib: ^2.2.0
-    uniforms: ^4.0.0-alpha.0
-  checksum: 8ce0dbc34e1aba32f6242c649b9a693f60d56aef129237b2a766aef2fb0c3c20ee7c236e748e391a829dacfe5c045e44e5d1f568b7dff4a00b3da0d0b6c238bf
+    uniforms: ^4.0.0-alpha.5
+  checksum: 7968c9a72f249189050c387a9dad7605d74fc28589c70c7dc323237596e01a56fc77950774eb42b49028a9e3efb747120e2470fec63fd0300f63a555c991d0e3
   languageName: node
   linkType: hard
 
