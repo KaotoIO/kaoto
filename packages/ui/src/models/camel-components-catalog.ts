@@ -4,7 +4,7 @@ export interface ICamelComponentDefinition {
   component: ICamelComponent;
   componentProperties: ICamelComponentProperties;
   headers: ICamelComponentHeaders;
-  properties: ICamelComponentProperties;
+  properties: Record<string, ICamelComponentProperties>;
 }
 
 export interface ICamelComponent {
@@ -46,7 +46,18 @@ export interface CatalogItemCommon {
 }
 
 export interface ICamelComponentProperties {
+  index: number;
+  kind: string;
+  displayName: string;
+  required: boolean;
   type: string;
+  javaType: string;
+  oneOf: string[];
+  deprecated: boolean;
+  autowired: boolean;
+  secret: boolean;
+  defaultValue: string;
+  description: string;
 }
 
 export interface ICamelComponentHeaders extends CatalogItemCommon {

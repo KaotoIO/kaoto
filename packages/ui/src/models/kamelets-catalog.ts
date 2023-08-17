@@ -39,8 +39,17 @@ export interface IKameletSpecDefinition {
   title: string;
   description?: string;
   type: string;
-  properties?: Record<string, IKameletDefinition>;
+  required?: string[];
+  properties?: Record<string, IKameletSpecProperties>;
   example?: string;
   default?: unknown;
   'x-descriptors'?: string[];
+}
+
+export interface IKameletSpecProperties {
+  title: string;
+  description: string;
+  type: string;
+  default?: string;
+  example?: string;
 }

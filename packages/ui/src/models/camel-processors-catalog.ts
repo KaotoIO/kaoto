@@ -2,9 +2,7 @@ import { CatalogKind } from './catalog-kind';
 
 export interface ICamelProcessorDefinition {
   model: ICamelProcessorModel;
-  properties: {
-    [K in string]: ICamelProcessorProperties;
-  };
+  properties: Record<string, ICamelProcessorProperties>;
 }
 
 export interface ICamelProcessorModel {
@@ -31,5 +29,6 @@ export interface ICamelProcessorProperties {
   deprecated: boolean;
   autowired: boolean;
   secret: boolean;
+  defaultValue: string;
   description: string;
 }
