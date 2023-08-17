@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
-import { IconResolver } from '.';
 import { CatalogKind } from '../../models';
 import { ITile } from '../Catalog';
+import { IconResolver } from './IconResolver';
 
 describe('IconResolver', () => {
   const mockTile: ITile = {

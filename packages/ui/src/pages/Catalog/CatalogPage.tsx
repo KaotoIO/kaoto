@@ -1,13 +1,16 @@
+import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../../camel-utils';
 import { Catalog, ITile } from '../../components/Catalog';
+import { PropertiesModal } from '../../components/PropertiesModal';
 import { CatalogKind } from '../../models';
 import { useCatalogStore } from '../../store';
-import { Title } from '@patternfly/react-core';
 
 export const CatalogPage: FunctionComponent = () => {
   const { catalogs } = useCatalogStore((state) => state);
   const [tiles, setTiles] = useState<Record<string, ITile[]>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTile, setModalTile] = useState<ITile>();
 
   useEffect(() => {
     setTiles({
@@ -18,14 +21,19 @@ export const CatalogPage: FunctionComponent = () => {
   }, [catalogs]);
 
   const onTileClick = useCallback((tile: ITile) => {
-    console.log('tile clicked', tile);
+    setIsModalOpen(!isModalOpen);
+    setModalTile(tile);
   }, []);
 
   return (
     <>
       <Title headingLevel="h1">Catalog browser</Title>
-
       <Catalog tiles={tiles} onTileClick={onTileClick} />
+      <PropertiesModal
+        tile={modalTile}
+        isModalOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      ></PropertiesModal>
     </>
   );
 };
