@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tile renders correctly 1`] = `
+<div
+  class="pf-v5-c-card pf-m-compact pf-m-clickable tile"
+  data-ouia-component-id="OUIA-Generated-Card-1"
+  data-ouia-component-type="PF5/Card"
+  data-ouia-safe="true"
+  id="tile-name"
+  role="button"
+>
+  <div
+    class="pf-v5-c-card__header"
+  >
+    <div
+      class="pf-v5-c-card__actions"
+    >
+      <div
+        class="pf-v5-c-card__selectable-actions"
+      >
+        <div
+          class="pf-v5-c-radio pf-m-standalone"
+        >
+          <input
+            aria-invalid="false"
+            aria-labelledby="Selectable tile-name"
+            class="pf-v5-c-radio__input pf-v5-screen-reader"
+            data-ouia-component-id="OUIA-Generated-Radio-1"
+            data-ouia-component-type="PF5/Radio"
+            data-ouia-safe="true"
+            id="tile-name"
+            name="tile-name"
+            type="radio"
+          />
+          <label
+            class="pf-v5-c-radio__label"
+            for="tile-name"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="pf-v5-c-card__header-main"
+    >
+      <div
+        class="tile__header"
+      >
+        <img
+          alt="Camel icon"
+          class="tile__icon"
+          src=""
+        />
+        <span
+          class="pf-v5-c-badge pf-m-read"
+        >
+          header-tag1
+        </span>
+        <span
+          class="pf-v5-c-badge pf-m-read"
+        >
+          header-tag2
+        </span>
+      </div>
+      <div
+        class="pf-v5-c-card__title"
+      >
+        <div
+          class="pf-v5-c-card__title-text tile__title"
+          id="tile-name-title"
+        >
+          <span>
+            tile-title
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="pf-v5-c-card__body tile__body"
+  >
+    tile-description
+  </div>
+  <div
+    class="pf-v5-c-card__footer tile__header"
+  >
+    <span
+      class="pf-v5-c-badge pf-m-read"
+    >
+      tag1
+    </span>
+    <span
+      class="pf-v5-c-badge pf-m-read"
+    >
+      tag2
+    </span>
+  </div>
+</div>
+`;

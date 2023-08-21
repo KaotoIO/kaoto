@@ -9,6 +9,7 @@
     "build:lib": "tsc && vite build --config vite.config.lib.ts",
     "preview": "vite preview",
     "test": "jest",
+    "test:watch": "jest --watch",
     "lint": "yarn eslint",
     "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix"
   },
