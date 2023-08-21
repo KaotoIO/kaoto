@@ -15,7 +15,15 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
   }, [props]);
 
   return (
-    <Card className="tile" isClickable isCompact key={props.tile.name} id={props.tile.name} onClick={onTileClick}>
+    <Card
+      className="tile"
+      isClickable
+      isCompact
+      role="button"
+      key={props.tile.name}
+      id={props.tile.name}
+      onClick={onTileClick}
+    >
       <CardHeader
         selectableActions={{
           variant: 'single',
