@@ -4,4 +4,6 @@ export * from './camel-processors-catalog';
 export * from './catalog-kind';
 export * from './flow';
 export * from './kamelets-catalog';
+export * from './react-component';
 export * from './schema';
+export * from './validation';
