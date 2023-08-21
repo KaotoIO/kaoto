@@ -1,6 +1,5 @@
 import { ITile } from '../components/Catalog/Tile.models';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition } from '../models';
-import { IKameletDefinition } from '../models/kamelets-catalog';
+import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
 
 export const camelComponentToTile = (componentDef: ICamelComponentDefinition): ITile => {
   const { name, title, description, supportLevel, label, version } = componentDef.component;

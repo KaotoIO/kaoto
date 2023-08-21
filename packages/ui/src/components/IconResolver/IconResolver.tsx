@@ -1,7 +1,6 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
 import defaultCamelIcon from '../../assets/camel-logo.svg';
-import { CatalogKind } from '../../models';
-import { IKameletDefinition } from '../../models/kamelets-catalog';
+import { CatalogKind, IKameletDefinition } from '../../models';
 import { ITile } from '../Catalog/Tile.models';
 
 interface IconResolverProps {
