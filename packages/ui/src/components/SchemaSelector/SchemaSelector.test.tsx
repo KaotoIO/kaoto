@@ -3,34 +3,29 @@ import { SchemaSelector } from './SchemaSelector';
 import userSchemaJson from '../../stubs/user-schema.json';
 
 describe('SchemaSelector', () => {
-  it('should render correctly', () => {
-    const props = {
-      schemas: [
-        {
-          name: 'name',
-          version: 'version',
-          schema: userSchemaJson,
-        },
-      ],
-    };
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
+  const props = {
+    schemas: [
+      {
+        name: 'name',
+        version: 'version',
+        tags: [],
+        schema: userSchemaJson,
+      },
+    ],
+    onClick: jest.fn(),
+  };
+
+  it('should render correctly', () => {
     const { container } = render(<SchemaSelector {...props} />);
 
     expect(container.firstChild).toMatchSnapshot();
   });
 
   it('should call onClick when a tile is clicked', () => {
-    const props = {
-      schemas: [
-        {
-          name: 'name',
-          version: 'version',
-          schema: userSchemaJson,
-        },
-      ],
-      onClick: jest.fn(),
-    };
-
     const { getByText } = render(<SchemaSelector {...props} />);
 
     fireEvent.click(getByText('name'));
