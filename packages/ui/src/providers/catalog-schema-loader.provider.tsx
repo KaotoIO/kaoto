@@ -1,7 +1,7 @@
 import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { CatalogKind } from '../models';
-import { CamelCatalogIndex, CatalogTypes, ComponentsCatalog } from '../models/camel-catalog-index';
+import { CamelSchemasProcessor } from '../camel-utils';
+import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
 import { useCatalogStore, useSchemasStore } from '../store';
 
 export const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
@@ -18,35 +18,23 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
     fetch(catalogIndex)
       .then((response) => response.json())
       .then((catalogIndex: CamelCatalogIndex) => {
-        const camelComponentsFiles = catalogIndex.catalogs.components.files.map(fetchCatalogFile);
-        const camelProcessorsFiles = catalogIndex.catalogs.models.files.map(fetchCatalogFile);
-        const kameletsFiles = catalogIndex.kamelets[0].files.map(fetchCatalogFile);
+        const camelComponentsFiles = fetchCatalogFile(catalogIndex.catalogs.components.file);
+        const camelProcessorsFiles = fetchCatalogFile(catalogIndex.catalogs.models.file);
+        const kameletsFiles = fetchCatalogFile(catalogIndex.catalogs.kamelets.file);
 
-        const schemaFiles = catalogIndex.schemas.map(async (schemaDef) => {
-          const schemaFiles = schemaDef.files.map(fetchCatalogFile);
-          const schema = await Promise.all(schemaFiles);
+        const schemaFiles = getSchemasFiles(catalogIndex.schemas);
 
-          return {
-            name: schemaDef.name,
-            version: schemaDef.version,
-            schema: schema[0],
-          };
-        });
+        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles, Promise.all(schemaFiles)]).then(
+          ([camelComponents, camelProcessors, kamelets, schemas]) => {
+            setCatalog(CatalogKind.Component, camelComponents);
+            setCatalog(CatalogKind.Processor, camelProcessors);
+            setCatalog(CatalogKind.Kamelet, kamelets);
 
-        Promise.all([
-          Promise.all(camelComponentsFiles),
-          Promise.all(camelProcessorsFiles),
-          Promise.all(kameletsFiles),
-          Promise.all(schemaFiles),
-        ]).then(([camelComponents, camelProcessors, kamelets, schemas]) => {
-          setCatalog(CatalogKind.Component, mergeCatalogs(camelComponents));
-          setCatalog(CatalogKind.Processor, mergeCatalogs(camelProcessors));
-          setCatalog(CatalogKind.Kamelet, mergeCatalogs(kamelets));
+            CamelSchemasProcessor.getSchemas(schemas).forEach(setSchema);
 
-          schemas.forEach(setSchema);
-
-          setIsLoading(false);
-        });
+            setIsLoading(false);
+          },
+        );
       });
   }, []);
 
@@ -62,6 +50,15 @@ async function fetchCatalogFile(file: string) {
   return await response.json();
 }
 
-function mergeCatalogs(catalogs: CatalogTypes[]): CatalogTypes {
-  return catalogs.reduce((acc, catalog) => ({ ...acc, ...catalog }), {} as CatalogTypes);
+function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<Schema>[] {
+  return schemaFiles.map(async (schemaDef) => {
+    const schema = await fetchCatalogFile(schemaDef.file);
+
+    return {
+      name: schemaDef.name,
+      tags: [],
+      version: schemaDef.version,
+      schema: schema,
+    };
+  });
 }

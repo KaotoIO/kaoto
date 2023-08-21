@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-record Entry(String name, String version, String... files) {}
+record Entry(String name, String version, String file) {}
 
 public class Index {
     public static final String COMPONENTS = "components";
@@ -31,7 +31,6 @@ public class Index {
     private Map<String, Entry> catalogs = new HashMap<>();
 
     private List<Entry> schemas = new ArrayList<>();
-    private List<Entry> kamelets = new ArrayList<>();
 
     public Map<String, Entry> getCatalogs() {
         return catalogs;
@@ -39,8 +38,4 @@ public class Index {
     public List<Entry> getSchemas() {
         return schemas;
     }
-    public List<Entry> getKamelets() {
-        return kamelets;
-    }
 }
-

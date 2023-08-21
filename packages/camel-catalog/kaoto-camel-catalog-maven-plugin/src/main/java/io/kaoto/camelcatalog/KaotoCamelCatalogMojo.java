@@ -219,7 +219,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             jsonMapper.writerWithDefaultPrettyPrinter().writeValue(output.toFile(), schema);
             var displayName = crd.getSpec().getNames().getKind();
             var indexEntry = new Entry(
-                    "Camel K Custom Resource JSON schema for " + displayName,
+                    displayName,
                     camelKCRDVersion,
                     outputFileName);
             index.getSchemas().add(indexEntry);
@@ -251,7 +251,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                     "Aggregated Kamelet definitions in JSON",
                     kameletsVersion,
                     outputFileName);
-            index.getKamelets().add(indexEntry);
+            index.getCatalogs().put(KAMELETS, indexEntry);
         } catch (Exception e) {
             getLog().error(e);
         }

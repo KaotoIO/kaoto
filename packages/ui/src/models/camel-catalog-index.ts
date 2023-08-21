@@ -6,7 +6,6 @@ import { IKameletDefinition } from './kamelets-catalog';
 export interface CamelCatalogIndex {
   catalogs: Catalogs;
   schemas: CatalogEntry[];
-  kamelets: CatalogEntry[];
 }
 
 export interface Catalogs {
@@ -14,12 +13,13 @@ export interface Catalogs {
   components: CatalogEntry;
   languages: CatalogEntry;
   dataformats: CatalogEntry;
+  kamelets: CatalogEntry;
 }
 
 export interface CatalogEntry {
   name: string;
   version: string;
-  files: string[];
+  file: string;
 }
 
 export type ComponentTypes = ICamelComponentDefinition | ICamelProcessorDefinition | IKameletDefinition;
