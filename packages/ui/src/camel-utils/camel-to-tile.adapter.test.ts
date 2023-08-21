@@ -1,6 +1,5 @@
-import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '.';
-import { ICamelComponentDefinition, CatalogKind, ICamelProcessorDefinition } from '../models';
-import { IKameletDefinition } from '../models/kamelets-catalog';
+import { camelComponentToTile, camelProcessorToTile, kameletToTile } from './camel-to-tile.adapter';
+import { ICamelComponentDefinition, CatalogKind, ICamelProcessorDefinition, IKameletDefinition } from '../models';
 
 describe('camelComponentToTile', () => {
   it('should return a tile with the correct type', () => {
