@@ -2,15 +2,16 @@ import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { CatalogKind } from '../models';
 import { CamelCatalogIndex, CatalogTypes, ComponentsCatalog } from '../models/camel-catalog-index';
-import { useCatalogStore } from '../store';
+import { useCatalogStore, useSchemasStore } from '../store';
 
-export const CatalogLoaderContext = createContext<ComponentsCatalog>({});
+export const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
 
 /**
- * Loader for the components catalog.
+ * Loader for the components catalog and schemas.
  */
-export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { catalogs, setCatalog } = useCatalogStore((state) => state);
+export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
+  const { setCatalog } = useCatalogStore((state) => state);
+  const { setSchema } = useSchemasStore((state) => state);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,23 +22,38 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         const camelProcessorsFiles = catalogIndex.catalogs.models.files.map(fetchCatalogFile);
         const kameletsFiles = catalogIndex.kamelets[0].files.map(fetchCatalogFile);
 
+        const schemaFiles = catalogIndex.schemas.map(async (schemaDef) => {
+          const schemaFiles = schemaDef.files.map(fetchCatalogFile);
+          const schema = await Promise.all(schemaFiles);
+
+          return {
+            name: schemaDef.name,
+            version: schemaDef.version,
+            schema: schema[0],
+          };
+        });
+
         Promise.all([
           Promise.all(camelComponentsFiles),
           Promise.all(camelProcessorsFiles),
           Promise.all(kameletsFiles),
-        ]).then(([camelComponents, camelProcessors, kamelets]) => {
+          Promise.all(schemaFiles),
+        ]).then(([camelComponents, camelProcessors, kamelets, schemas]) => {
           setCatalog(CatalogKind.Component, mergeCatalogs(camelComponents));
           setCatalog(CatalogKind.Processor, mergeCatalogs(camelProcessors));
           setCatalog(CatalogKind.Kamelet, mergeCatalogs(kamelets));
+
+          schemas.forEach(setSchema);
+
           setIsLoading(false);
         });
       });
   }, []);
 
   return (
-    <CatalogLoaderContext.Provider value={catalogs}>
+    <CatalogSchemaLoaderContext.Provider value={{}}>
       {isLoading ? <div>Loading...</div> : props.children}
-    </CatalogLoaderContext.Provider>
+    </CatalogSchemaLoaderContext.Provider>
   );
 };
 
