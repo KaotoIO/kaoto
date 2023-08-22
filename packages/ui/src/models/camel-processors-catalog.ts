@@ -29,6 +29,6 @@ export interface ICamelProcessorProperties {
   deprecated: boolean;
   autowired: boolean;
   secret: boolean;
-  defaultValue: string;
+  defaultValue?: string;
   description: string;
 }

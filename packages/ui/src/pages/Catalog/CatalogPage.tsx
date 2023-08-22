@@ -29,11 +29,13 @@ export const CatalogPage: FunctionComponent = () => {
     <>
       <Title headingLevel="h1">Catalog browser</Title>
       <Catalog tiles={tiles} onTileClick={onTileClick} />
-      <PropertiesModal
-        tile={modalTile}
-        isModalOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      ></PropertiesModal>
+      {modalTile && (
+        <PropertiesModal
+          tile={modalTile}
+          isModalOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        ></PropertiesModal>
+      )}
     </>
   );
 };

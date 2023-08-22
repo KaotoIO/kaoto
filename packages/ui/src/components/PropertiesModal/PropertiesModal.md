@@ -1,13 +1,26 @@
 ### PropertiesModal
 
-This folder contains `PropertiesModalTable` component and its subcomponent (`CamelComponentTable`,`KameletTable`) which define of which properties' columns should be shown in the properties table according to CatalogKind type.
+This folder contains `PropertiesModal` component which defines how the properties detail modal with the table is rendered. The table is rendered according to `IPropertiesTable` object. `PropertiesModal` component decides which columns are shown according to `CatalogKind` enum (from the input tile) and use `camel-to-table.adapter.ts` util to get corresponding `IPropertiesTable` model for render.
 
-`PropertiesModalTable` component decides which columns are shown according to `CatalogKind` enum (from the tile).
+To add a new column, extend `PropertiesTable.models.ts`, update `camel-to-table.adapter.ts` if the column is needed also for that definition, and update the table in `PropertiesModal`.
+To add a new type of catalog definition, extend the switch in `PropertiesModal` which will cover that new type case.
 
+__Make sure__ that orders of headers in the `IPropertiesTable.headers` match with the orders of element in a particular row `IPropertiesRow`
+
+e.g.
 ```
-IPropertiesModalTableProps.tsx
-├── CamelComponentTable.tsx ( for CatalogKind.Component and  CatalogKind.Processor since they have the same structure of properties, can be separated in the future if needed )
-│   └── EmptyTableState.tsx (If no properties are found)
-└── KameletTable.tsx ( for CatalogKind.Kamelet)
-    └── EmptyTableState.tsx (If no properties are found)
+{
+    headers: [
+      PropertiesHeaders.Name,
+      PropertiesHeaders.Type,
+      PropertiesHeaders.Required
+    ],
+    rows: [{
+        name: "xyz",
+        type: "xyz",
+        required: "xyz",
+    }],
+  }
+
+
 ```
