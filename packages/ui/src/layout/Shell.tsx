@@ -1,6 +1,6 @@
 import { Page, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback, useState } from 'react';
-import { NavigationSidebar } from './Navigation';
+import { Navigation } from './Navigation';
 import './Shell.scss';
 import { TopBar } from './TopBar';
 
@@ -12,7 +12,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   }, [isNavOpen]);
 
   return (
-    <Page header={<TopBar navToggle={navToggle} />} sidebar={<NavigationSidebar isNavOpen={isNavOpen} />}>
+    <Page header={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>
       <Panel>
         <PanelMain>
           <PanelMainBody>{props.children}</PanelMainBody>
