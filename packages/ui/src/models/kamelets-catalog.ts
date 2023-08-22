@@ -37,7 +37,7 @@ export interface IKameletSpec {
 
 export interface IKameletSpecDefinition {
   title: string;
-  description: string;
+  description?: string;
   type: string;
   properties?: Record<string, IKameletDefinition>;
   example?: string;

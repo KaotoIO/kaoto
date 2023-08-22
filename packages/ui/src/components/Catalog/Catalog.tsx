@@ -26,7 +26,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         return (
           tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           tile.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tile.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           tile.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       }),
