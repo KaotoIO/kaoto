@@ -11,7 +11,7 @@ export interface ICamelComponent {
   kind: CatalogKind.Component;
   name: string;
   title: string;
-  description: string;
+  description?: string;
   deprecated: boolean;
   firstVersion?: string;
   label: string;

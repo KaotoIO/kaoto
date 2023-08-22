@@ -11,7 +11,7 @@ export interface ICamelProcessorModel {
   kind: CatalogKind.Processor;
   name: string;
   title: string;
-  description: string;
+  description?: string;
   deprecated: boolean;
   label: string;
   javaType?: string;
