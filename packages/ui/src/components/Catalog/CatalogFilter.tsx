@@ -23,8 +23,8 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
         <GridItem>
           <FormGroup label="Search term" fieldId="search-term">
             <SearchInput
-              aria-label="Find by name or tag"
-              placeholder="Find by name or tag"
+              aria-label="Find by name, description or tag"
+              placeholder="Find by name, description or tag"
               value={props.searchTerm}
               onChange={props.onChange}
               onClear={props.onChange}

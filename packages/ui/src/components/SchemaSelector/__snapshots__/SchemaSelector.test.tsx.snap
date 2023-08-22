@@ -59,9 +59,9 @@ exports[`SchemaSelector should render correctly 1`] = `
                   </svg>
                 </span>
                 <input
-                  aria-label="Find by name or tag"
+                  aria-label="Find by name, description or tag"
                   class="pf-v5-c-text-input-group__text-input"
-                  placeholder="Find by name or tag"
+                  placeholder="Find by name, description or tag"
                   type="text"
                   value=""
                 />
