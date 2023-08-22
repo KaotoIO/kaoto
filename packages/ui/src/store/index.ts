@@ -1,7 +1,7 @@
 import { mountStoreDevtool } from 'simple-zustand-devtools';
 import { useSchemasStore } from './schemas.store';
 import { useCatalogStore } from './catalog.store';
-import { useFlowsStore } from './flows.store';
+import { useCamelEntitiesStore } from './camel-entities.store';
 
 let isDevMode = true;
 try {
@@ -12,10 +12,10 @@ try {
 
 if (isDevMode) {
   mountStoreDevtool('Catalog Store', useCatalogStore);
-  mountStoreDevtool('Flows Store', useFlowsStore);
+  mountStoreDevtool('Camel entities Store', useCamelEntitiesStore);
   mountStoreDevtool('Schemas Store', useSchemasStore);
 }
 
 export * from './catalog.store';
-export * from './flows.store';
+export * from './camel-entities.store';
 export * from './schemas.store';

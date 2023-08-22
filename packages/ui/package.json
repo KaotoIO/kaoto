@@ -19,6 +19,7 @@
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
     "@patternfly/react-icons": "^5.0.0",
+    "@types/uuid": "^9.0.2",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1",
     "react": "^18.2.0",
