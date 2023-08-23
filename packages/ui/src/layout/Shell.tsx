@@ -13,9 +13,9 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
 
   return (
     <Page header={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>
-      <Panel>
-        <PanelMain>
-          <PanelMainBody>{props.children}</PanelMainBody>
+      <Panel className="shell__body">
+        <PanelMain className="shell__body">
+          <PanelMainBody className="shell__body">{props.children}</PanelMainBody>
         </PanelMain>
       </Panel>
     </Page>
