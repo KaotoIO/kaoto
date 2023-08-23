@@ -2,4 +2,9 @@
   &__logo {
     max-width: 100px;
   }
+
+  &__body {
+    height: 100%;
+    position: relative;
+  }
 }

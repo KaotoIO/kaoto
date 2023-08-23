@@ -20,6 +20,7 @@
     "@patternfly/react-core": "^5.0.0",
     "@patternfly/react-icons": "^5.0.0",
     "@patternfly/react-table": "^5.0.0",
+    "@patternfly/react-topology": "^5.0.0",
     "@types/uuid": "^9.0.2",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1",

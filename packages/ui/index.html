@@ -7,6 +7,10 @@
     <title>Kaoto-next</title>
   </head>
   <body>
+    <script type="module">
+      // Temporary workaround for @patternfly/react-topology using global
+      window.global ||= window;
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
