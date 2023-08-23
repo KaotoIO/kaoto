@@ -11,7 +11,7 @@ export const router = createHashRouter([
     children: [
       {
         index: true,
-        lazy: async () => import('./pages/Canvas'),
+        lazy: async () => import('./pages/Design'),
       },
       {
         path: Links.SourceCode,

@@ -20,7 +20,7 @@ import {
   Visualization,
 } from '@patternfly/react-topology';
 import { v4 as uuidv4 } from 'uuid';
-import { Flow, Step } from '../../flows';
+import { CamelRoute, Step } from '../../camel-entities';
 
 export const enum LayoutType {
   BreadthFirst = 'BreadthFirst',
@@ -63,6 +63,7 @@ export class CanvasService {
     return {
       id: uuidv4(),
       type: 'group',
+      group: true,
       label,
       children,
       width: this.DEFAULT_NODE_DIAMETER,
@@ -124,16 +125,16 @@ export class CanvasService {
     }
   }
 
-  static getNodesAndEdges(flow: Flow): { nodes: NodeModel[]; edges: EdgeModel[] } {
-    const { nodes, edges } = this.getNodesAndEdgesFromSteps(flow.getSteps());
+  static getNodesAndEdges(flow: CamelRoute): { nodes: NodeModel[]; edges: EdgeModel[] } {
+    const { nodes, edges } = this.getNodesAndEdgesFromSteps(flow._getSteps());
 
-    // const group = this.getNewGroup(
-    //   nodes.map((node) => node.id),
-    //   flow.id,
-    // );
-    // nodes.push(group);
+    const group = this.getNewGroup(
+      nodes.map((node) => node.id),
+      flow._id,
+    );
+    nodes.push(group);
 
-    console.log({ nodes, edges });
+    console.log({ group, nodes, edges });
 
     return { nodes, edges };
   }
@@ -146,19 +147,7 @@ export class CanvasService {
       const { nodes: childNodes, edges: childEdges } = this.getNodesAndEdgesFromStep(childStep);
       nodes.push(...childNodes);
       edges.push(...childEdges);
-
-      console.log({ childNodes, childEdges });
     });
-
-    // const group = this.getNewGroup(
-    //   childNodes.map((node) => node.id),
-    //   step.name,
-    // );
-
-    // nodes.push(group);
-
-    // const edge = this.getNewEdge(node.id, group.id);
-    // edges.push(edge);
 
     return { nodes, edges };
   }
