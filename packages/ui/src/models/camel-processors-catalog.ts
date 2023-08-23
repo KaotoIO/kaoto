@@ -1,3 +1,4 @@
+import { CamelPropertiesCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
 
 export interface ICamelProcessorDefinition {
@@ -18,17 +19,6 @@ export interface ICamelProcessorModel {
   output?: boolean;
 }
 
-export interface ICamelProcessorProperties {
-  index: number;
-  kind: string;
-  displayName: string;
-  required: boolean;
-  type: string;
-  javaType: string;
-  oneOf: string[];
-  deprecated: boolean;
-  autowired: boolean;
-  secret: boolean;
-  defaultValue?: string;
-  description: string;
+export interface ICamelProcessorProperties extends CamelPropertiesCommon {
+  oneOf?: string[];
 }

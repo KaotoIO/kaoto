@@ -31,7 +31,7 @@ export const camelComponentToTable = (
 
 export const kameletToTable = (kameletDef: IKameletDefinition): IPropertiesTable => {
   const propertiesRows: IPropertiesRow[] = [];
-  if (kameletDef.spec.definition.properties != null) {
+  if (kameletDef.spec.definition.properties) {
     // required properties information are not in the property itself but in the .spec.definition.required
     const requiredProperties: string[] = kameletDef.spec.definition.required ?? [];
 
