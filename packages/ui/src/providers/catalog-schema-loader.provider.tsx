@@ -10,8 +10,8 @@ export const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
  * Loader for the components catalog and schemas.
  */
 export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { setCatalog } = useCatalogStore((state) => state);
-  const { setSchema } = useSchemasStore((state) => state);
+  const setCatalog = useCatalogStore((state) => state.setCatalog);
+  const setSchema = useSchemasStore((state) => state.setSchema);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

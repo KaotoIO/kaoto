@@ -7,6 +7,7 @@ import { CatalogKind } from '../../models';
 import { useCatalogStore } from '../../store';
 
 export const CatalogPage: FunctionComponent = () => {
+  /** TODO: Extract this logic into a separate provider */
   const { catalogs } = useCatalogStore((state) => state);
   const [tiles, setTiles] = useState<Record<string, ITile[]>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
