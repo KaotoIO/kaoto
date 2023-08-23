@@ -11,6 +11,7 @@ export type CamelEntities = BaseCamelEntity;
 
 export abstract class BaseCamelEntity {
   abstract id: string;
+  abstract name: string;
 
   /** Internal API fields */
   abstract readonly _id: string;
@@ -19,17 +20,23 @@ export abstract class BaseCamelEntity {
 
 export class CamelRoute implements BaseCamelEntity {
   id = '';
+  name = '';
+
   readonly _id = uuidv4();
   readonly _type = EntityType.Route;
 
-  private _steps: Step[] = [];
+  steps: Step[] = [];
 
-  constructor(flowProps: Partial<CamelRoute> = {}) {
-    Object.assign(this, flowProps);
+  updateModel(props: Partial<unknown> = {}) {
+    Object.assign(this, props);
+  }
+
+  _addStep(step: Step): void {
+    this.steps.push(step);
   }
 
   _getSteps(): Step[] {
-    return this._steps;
+    return this.steps;
   }
 }
 
