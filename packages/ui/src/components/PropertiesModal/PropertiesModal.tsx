@@ -1,5 +1,5 @@
 import { Modal } from '@patternfly/react-core';
-import { Caption, Table, Tbody, Td, Thead, Tr, Th } from '@patternfly/react-table';
+import { Caption, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent } from 'react';
 import { camelComponentToTable, kameletToTable } from '../../camel-utils/camel-to-table.adapter';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
@@ -31,23 +31,33 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
   }
 
   return (
-    <Modal className="properties-modal" title={props.tile.title} isOpen={props.isModalOpen} onClose={props.onClose} ouiaId="BasicModal">
-      <p>{props.tile.description}</p>
+    <Modal
+      className="properties-modal"
+      title={props.tile.title}
+      isOpen={props.isModalOpen}
+      onClose={props.onClose}
+      ouiaId="BasicModal"
+    >
+      <p data-testid="properties-modal-table-description">{props.tile.description}</p>
       <Table aria-label="Simple table" variant="compact">
-        <Caption>{'Available properties (' + table.rows.length + ')'}</Caption>
+        <Caption data-testid="properties-modal-table-caption">
+          {'Available properties (' + table.rows.length + ')'}
+        </Caption>
         <Thead>
           <Tr>
             {table.headers.map((header) => (
-              <Th key={header}>{header}</Th>
+              <Th data-testid={'header-' + header} key={header}>
+                {header}
+              </Th>
             ))}
           </Tr>
         </Thead>
         <Tbody>
           {table.rows.length != 0 &&
             table.rows.map((row, index) => (
-              <Tr key={index}>
+              <Tr data-testid={'row-' + index} key={index}>
                 {table.headers.map((header) => (
-                  <Td key={index + header} dataLabel={header}>
+                  <Td data-testid={'row-' + index + '-cell-' + header} key={index + header} dataLabel={header}>
                     {row[header]?.toString()}
                   </Td>
                 ))}

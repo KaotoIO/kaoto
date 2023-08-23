@@ -1,9 +1,10 @@
+import { CamelPropertiesCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
 
 export interface ICamelComponentDefinition {
   component: ICamelComponent;
-  componentProperties: ICamelComponentProperties;
-  headers: ICamelComponentHeaders;
+  componentProperties: Record<string, ICamelComponentProperties>;
+  headers: Record<string, ICamelComponentHeaders>;
   properties: Record<string, ICamelComponentProperties>;
 }
 
@@ -30,36 +31,12 @@ export interface ICamelComponent {
   lenientProperties?: boolean;
 }
 
-export interface CatalogItemCommon {
-  index: number;
-  kind: string;
-  displayName: string;
-  group: string;
-  label: string;
-  required: boolean;
-  javaType: string;
-  deprecated: boolean;
-  deprecationNote: string;
-  autowired: boolean;
-  secret: boolean;
-  description: string;
-}
 
-export interface ICamelComponentProperties {
-  index: number;
-  kind: string;
-  displayName: string;
-  required: boolean;
+// these interfaces don't contain all properties which are save in the component json object. If you need some new, add it here
+export interface ICamelComponentProperties extends CamelPropertiesCommon{
   type: string;
-  javaType: string;
-  oneOf: string[];
-  deprecated: boolean;
-  autowired: boolean;
-  secret: boolean;
-  defaultValue?: string;
-  description: string;
 }
 
-export interface ICamelComponentHeaders extends CatalogItemCommon {
+export interface ICamelComponentHeaders extends CamelPropertiesCommon {
   constantName: string;
 }
