@@ -1,11 +1,13 @@
-import { CamelPropertiesCommon } from './camel-properties-common';
+import { CamelPropertyCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
 
 export interface ICamelComponentDefinition {
   component: ICamelComponent;
-  componentProperties: Record<string, ICamelComponentProperties>;
-  headers: Record<string, ICamelComponentHeaders>;
-  properties: Record<string, ICamelComponentProperties>;
+  componentProperties: Record<string, ICamelComponentProperty>;
+  properties: Record<string, ICamelComponentProperty>;
+  headers?: Record<string, ICamelComponentHeader>;
+  apis?: Record<string, ICamelComponentApi>;
+  apiProperties?: Record<string, ICamelComponentApiProperty>;
 }
 
 export interface ICamelComponent {
@@ -31,12 +33,32 @@ export interface ICamelComponent {
   lenientProperties?: boolean;
 }
 
-
 // these interfaces don't contain all properties which are save in the component json object. If you need some new, add it here
-export interface ICamelComponentProperties extends CamelPropertiesCommon{
+export interface ICamelComponentProperty extends CamelPropertyCommon {
   type: string;
 }
 
-export interface ICamelComponentHeaders extends CamelPropertiesCommon {
+export interface ICamelComponentHeader extends CamelPropertyCommon {
   constantName: string;
+}
+
+// e.g. for as2/twilio component
+export interface ICamelComponentApi {
+  consumerOnly: boolean;
+  producerOnly: boolean;
+  description: string;
+  methods: Record<string, ICamelComponentApiMethod>;
+}
+
+export interface ICamelComponentApiMethod {
+  description: string;
+  signatures: string[];
+}
+
+export interface ICamelComponentApiProperty {
+  methods: Record<string, ICamelComponentApiPropertyMethod>;
+}
+
+export interface ICamelComponentApiPropertyMethod {
+  properties: Record<string, unknown>; // todo define in the future when will be needed
 }

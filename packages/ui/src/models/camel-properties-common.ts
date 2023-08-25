@@ -1,8 +1,9 @@
 // Properties which are common for components (in .properties, .headers, .componentProperties) and processors (in .properties)
-export interface CamelPropertiesCommon {
+export interface CamelPropertyCommon {
     index: number;
     kind: string;
     displayName: string;
+    group: string;
     label?: string;
     required: boolean;
     javaType: string;
