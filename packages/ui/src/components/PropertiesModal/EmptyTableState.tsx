@@ -3,7 +3,7 @@ import { SearchIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 interface IEmptyTableStateProps {
-  componentName: string;
+  name: string;
 }
 
 export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props) => {
@@ -13,7 +13,7 @@ export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props)
             <EmptyStateHeader
               data-testid={'empty-state'}
               icon={<EmptyStateIcon icon={SearchIcon} />}
-              titleText={'No properties found for ' + props.componentName}
+              titleText={'No properties found for ' + props.name}
               headingLevel="h2"
             />
           </EmptyState>
