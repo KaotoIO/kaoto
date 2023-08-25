@@ -5,12 +5,15 @@ import {
   ICamelComponentProperty,
   ICamelProcessorProperty,
   IKameletDefinition,
+  IKameletSpecProperty,
 } from '../models';
 
 export type ICamelComponentCommonProperties = ICamelComponentProperty | ICamelComponentHeader;
-export type IPropertiesTableFilter = { filterKey: string; filterValue: string };
+export type IPropertiesTableFilter = { filterKey: keyof IFilterableProperties; filterValue: string };
 
-function fullFillFilter(value: any, filter: IPropertiesTableFilter): boolean {
+export type IFilterableProperties = ICamelComponentProperty | ICamelComponentHeader | ICamelComponentApi | ICamelProcessorProperty | IKameletSpecProperty
+
+const fullFillFilter = (value: IFilterableProperties, filter: IPropertiesTableFilter): boolean => {
   return value[filter.filterKey] === filter.filterValue;
 }
 
