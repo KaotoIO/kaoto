@@ -1,36 +1,25 @@
 import { PropertiesHeaders } from '../components/PropertiesModal/PropertiesModal.models';
-import {
-  ICamelComponentDefinition,
-  ICamelComponentProperties,
-  IKameletDefinition,
-  IKameletSpecProperties,
-} from '../models';
-import { camelComponentToTable, kameletToTable } from './camel-to-table.adapter';
+import { ICamelComponentProperty, IKameletDefinition, IKameletSpecProperty } from '../models';
+import { camelComponentPropertiesToTable, kameletToPropertiesTable } from './camel-to-table.adapter';
 
 describe('camelComponentToTable', () => {
   it('should return a IPropertiesTable with the correct values', () => {
-    const componentDef = {
-      component: {
-        name: 'my-component',
-        title: 'My Component',
-        description: 'My Component Description',
+    const componentProperties = {
+      brokerURL: {
+        index: 0,
+        kind: 'property',
+        displayName: 'Broker URL',
+        required: false,
+        type: 'string',
+        javaType: 'java.lang.String',
+        deprecated: false,
+        secret: false,
+        description: 'url',
+        group: 'producer',
       },
-      properties: {
-        brokerURL: {
-          index: 0,
-          kind: 'property',
-          displayName: 'Broker URL',
-          required: false,
-          type: 'string',
-          javaType: 'java.lang.String',
-          deprecated: false,
-          secret: false,
-          description: 'url',
-        }
-      } as Record<string, ICamelComponentProperties>
-    } as ICamelComponentDefinition;
+    } as Record<string, ICamelComponentProperty>;
 
-    const table = camelComponentToTable(componentDef);
+    const table = camelComponentPropertiesToTable(componentProperties);
 
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -69,12 +58,12 @@ describe('kameletToTable', () => {
               default: 'hello',
               type: 'string',
             },
-          } as Record<string, IKameletSpecProperties>,
+          } as Record<string, IKameletSpecProperty>,
         },
       },
     } as IKameletDefinition;
 
-    const table = kameletToTable(kameletDef);
+    const table = kameletToPropertiesTable(kameletDef);
 
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -107,7 +96,7 @@ describe('kameletToTable', () => {
       },
     } as IKameletDefinition;
 
-    const table = kameletToTable(kameletDef);
+    const table = kameletToPropertiesTable(kameletDef);
 
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -130,13 +119,13 @@ describe('kameletToTable', () => {
               title: 'Cron Schedule',
               description: 'A cron example',
               type: 'number',
-            }
-          } as Record<string, IKameletSpecProperties>,
+            },
+          } as Record<string, IKameletSpecProperty>,
         },
       },
     } as IKameletDefinition;
 
-    const table = kameletToTable(kameletDef);
+    const table = kameletToPropertiesTable(kameletDef);
 
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Type);

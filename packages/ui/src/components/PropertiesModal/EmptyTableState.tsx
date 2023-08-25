@@ -8,8 +8,6 @@ interface IEmptyTableStateProps {
 
 export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props) => {
   return (
-    <tr>
-      <td colSpan={8}>
         <Bullseye>
           <EmptyState variant={EmptyStateVariant.sm}>
             <EmptyStateHeader
@@ -20,7 +18,5 @@ export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props)
             />
           </EmptyState>
         </Bullseye>
-      </td>
-    </tr>
   );
 };

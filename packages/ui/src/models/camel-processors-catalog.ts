@@ -1,9 +1,9 @@
-import { CamelPropertiesCommon } from './camel-properties-common';
+import { CamelPropertyCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
 
 export interface ICamelProcessorDefinition {
   model: ICamelProcessorModel;
-  properties: Record<string, ICamelProcessorProperties>;
+  properties: Record<string, ICamelProcessorProperty>;
 }
 
 export interface ICamelProcessorModel {
@@ -19,6 +19,7 @@ export interface ICamelProcessorModel {
   output?: boolean;
 }
 
-export interface ICamelProcessorProperties extends CamelPropertiesCommon {
+export interface ICamelProcessorProperty extends CamelPropertyCommon {
   oneOf?: string[];
+  type: string;
 }

@@ -40,13 +40,13 @@ export interface IKameletSpecDefinition {
   description?: string;
   type: string;
   required?: string[];
-  properties?: Record<string, IKameletSpecProperties>;
+  properties?: Record<string, IKameletSpecProperty>;
   example?: string;
   default?: unknown;
   'x-descriptors'?: string[];
 }
 
-export interface IKameletSpecProperties {
+export interface IKameletSpecProperty {
   title: string;
   description: string;
   type: string;
