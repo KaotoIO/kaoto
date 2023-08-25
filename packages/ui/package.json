@@ -1,8 +1,12 @@
 {
   "name": "@kaoto-next/ui",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Kaoto UI",
+  "repository": "git@github.com:KaotoIO/kaoto-next.git",
+  "author": "The Kaoto Team",
+  "license": "Apache License v2.0",
+  "private": true,
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build --config vite.config.cjs",
