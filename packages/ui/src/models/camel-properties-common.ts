@@ -3,7 +3,6 @@ export interface CamelPropertyCommon {
     index: number;
     kind: string;
     displayName: string;
-    group: string;
     label?: string;
     required: boolean;
     javaType: string;

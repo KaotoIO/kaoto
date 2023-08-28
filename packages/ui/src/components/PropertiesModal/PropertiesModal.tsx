@@ -67,7 +67,7 @@ const transformCamelComponentIntoTab = (
       [
         {
           transformFunction: camelComponentPropertiesToTable,
-          propertiesObject: componentDef.headers!,
+          propertiesObject: componentDef.headers,
         },
       ],
       'Message Headers',
@@ -81,7 +81,7 @@ const transformCamelComponentIntoTab = (
       [
         {
           transformFunction: camelComponentApisToTable,
-          propertiesObject: componentDef.apis!,
+          propertiesObject: componentDef.apis,
         },
       ],
       'APIs',
@@ -132,7 +132,6 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     }
     case CatalogKind.Kamelet: {
       transformKameletComponentIntoTab(tabs, props.tile.rawObject as IKameletDefinition);
-
       break;
     }
     default:
@@ -148,7 +147,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       onClose={props.onClose}
       ouiaId="BasicModal"
     >
-      <p data-testid="properties-modal-table-description">{props.tile.description}</p>
+      <p data-testid="properties-modal-description">{props.tile.description}</p>
       {tabs.length == 0 && <EmptyTableState name={props.tile.name}></EmptyTableState>}
       {tabs.length != 0 && <PropertiesTabs tabs={tabs}></PropertiesTabs>}
     </Modal>
