@@ -27,3 +27,8 @@ export type IPropertiesTable = {
   rows: IPropertiesRow[];
   caption?: string;
 };
+
+export interface IPropertiesTab {
+  rootName: string;
+  tables: IPropertiesTable[];
+}

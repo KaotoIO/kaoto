@@ -1,13 +1,7 @@
 import { Tab, Tabs } from '@patternfly/react-core';
-import { FunctionComponent, useState } from 'react';
-import { IPropertiesTable } from './PropertiesModal.models';
+import React, { FunctionComponent, useState } from 'react';
+import { IPropertiesTab } from './PropertiesModal.models';
 import { PropertiesTable } from './PropertiesTable';
-import React from 'react';
-
-export interface IPropertiesTab {
-  rootName: string;
-  tables: IPropertiesTable[];
-}
 
 interface IPropertiesTabsProps {
   tabs: IPropertiesTab[];
