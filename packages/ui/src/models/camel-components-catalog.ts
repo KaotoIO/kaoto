@@ -35,10 +35,12 @@ export interface ICamelComponent {
 
 // these interfaces don't contain all properties which are save in the component json object. If you need some new, add it here
 export interface ICamelComponentProperty extends CamelPropertyCommon {
+  group: string;
   type: string;
 }
 
 export interface ICamelComponentHeader extends CamelPropertyCommon {
+  group: string;
   constantName: string;
 }
 

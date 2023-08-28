@@ -24,10 +24,10 @@ export const PropertiesTabs: FunctionComponent<IPropertiesTabsProps> = (props) =
       isBox={true}
       role="region"
     >
-      {props.tabs.map((tab, index) => (
-        <Tab key={index} eventKey={index} title={tab.rootName}>
-          {tab.tables.map((table, index) => (
-            <PropertiesTable key={index} table={table}></PropertiesTable>
+      {props.tabs.map((tab, tab_index) => (
+        <Tab data-testid={'tab-' + tab_index} key={tab_index} eventKey={tab_index} title={tab.rootName}>
+          {tab.tables.map((table, table_index) => (
+            <PropertiesTable key={table_index} table={table} rootDataTestId={'tab-' + tab_index + '-table-' + table_index}></PropertiesTable>
           ))}
         </Tab>
       ))}

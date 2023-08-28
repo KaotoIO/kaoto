@@ -3,18 +3,19 @@ import { FunctionComponent } from 'react';
 import { IPropertiesTable, PropertiesHeaders } from './PropertiesModal.models';
 
 interface IPropertiesTableProps {
+  rootDataTestId: string;
   table: IPropertiesTable;
 }
 
 export const PropertiesTable: FunctionComponent<IPropertiesTableProps> = (props) => {
   const table = props.table;
   return (
-    <Table aria-label="Simple table" variant="compact">
-      <Caption data-testid="properties-modal-table-caption">{table.caption}</Caption>
+    <Table aria-label="Simple table" variant="compact" data-testid={props.rootDataTestId}>
+      <Caption data-testid={props.rootDataTestId + '-properties-modal-table-caption'}>{table.caption}</Caption>
       <Thead>
         <Tr>
           {table.headers.map((header) => (
-            <Th data-testid={'header-' + header} key={header}>
+            <Th data-testid={props.rootDataTestId + '-header-' + header} key={header}>
               {header}
             </Th>
           ))}
@@ -23,9 +24,9 @@ export const PropertiesTable: FunctionComponent<IPropertiesTableProps> = (props)
       <Tbody>
         {table.rows.length != 0 &&
           table.rows.map((row, index) => (
-            <Tr data-testid={'row-' + index} key={index}>
+            <Tr data-testid={props.rootDataTestId + '-row-' + index} key={index}>
               {table.headers.map((header) => (
-                <Td data-testid={'row-' + index + '-cell-' + header} key={index + header} dataLabel={header} modifier="wrap">
+                <Td data-testid={props.rootDataTestId + '-row-' + index + '-cell-' + header} key={index + header} dataLabel={header} modifier="wrap">
                   { header == PropertiesHeaders.Description && row.required
                         ?  <p><strong>Required</strong> {row[header]?.toString()}</p>
                         :  <p>{row[header]?.toString()}</p>
