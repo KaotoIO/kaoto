@@ -26,17 +26,18 @@ export const camelComponentPropertiesToTable = (
     if (filter && !fullFillFilter(value, filter)) continue;
     propertiesRows.push({
       name: key,
-      group: value.group,
       description: value.description,
       default: value.defaultValue,
       type: value.javaType.substring(value.javaType.lastIndexOf('.') + 1),
-      required: value.required,
+      rowAdditionalInfo: {
+        required: value.required,
+        group: value.group
+      }
     });
   }
   return {
     headers: [
       PropertiesHeaders.Name,
-      PropertiesHeaders.Group,
       PropertiesHeaders.Description,
       PropertiesHeaders.Default,
       PropertiesHeaders.Type,
@@ -60,6 +61,7 @@ export const camelComponentApisToTable = (
       name: key,
       description: value.description,
       type: getApiType(value.consumerOnly, value.producerOnly),
+      rowAdditionalInfo: {}
     });
   }
   return {
@@ -79,8 +81,10 @@ export const camelProcessorPropertiesToTable = (
       name: key,
       default: value.defaultValue,
       type: value.javaType.substring(value.javaType.lastIndexOf('.') + 1),
-      required: value.required,
       description: value.description,
+      rowAdditionalInfo: {
+        required: value.required,
+      }
     });
   }
   return {
@@ -106,8 +110,10 @@ export const kameletToPropertiesTable = (
         description: value.description,
         type: value.type,
         default: value.default,
-        required: requiredProperties.includes(key),
         example: value.example,
+        rowAdditionalInfo: {
+          required: requiredProperties.includes(key)
+        }
       });
     }
   }

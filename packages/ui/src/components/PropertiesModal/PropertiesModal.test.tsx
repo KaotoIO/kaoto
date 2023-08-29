@@ -39,7 +39,7 @@ describe('Component tile', () => {
         },
         hostname: {
           kind: 'parameter',
-          group: 'common',
+          group: 'advanced',
           required: false,
           javaType: 'java.lang.String',
           defaultValue: 'http',
@@ -93,14 +93,12 @@ describe('Component tile', () => {
     expect(screen.getByTestId('tab-0')).toHaveTextContent('Component Options (1)');
     // headers
     expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
-    expect(screen.getByTestId('tab-0-table-0-header-group')).toHaveTextContent('group');
     expect(screen.getByTestId('tab-0-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-0-table-0-header-default')).toHaveTextContent('default');
     expect(screen.getByTestId('tab-0-table-0-header-type')).toHaveTextContent('type');
 
     // rows
-    expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('bridgeErrorHandler');
-    expect(screen.getByTestId('tab-0-table-0-row-0-cell-group')).toHaveTextContent('common');
+    expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('bridgeErrorHandler (common)');
     expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
       'Required Allows for bridging the consumer to the Camel',
     );
@@ -113,13 +111,11 @@ describe('Component tile', () => {
     expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).toHaveTextContent('path parameters (1)');
     //headers
     expect(screen.getByTestId('tab-1-table-0-header-name')).toHaveTextContent('name');
-    expect(screen.getByTestId('tab-1-table-0-header-group')).toHaveTextContent('group');
     expect(screen.getByTestId('tab-1-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-1-table-0-header-default')).toHaveTextContent('default');
     expect(screen.getByTestId('tab-1-table-0-header-type')).toHaveTextContent('type');
     //rows
-    expect(screen.getByTestId('tab-1-table-0-row-0-cell-name')).toHaveTextContent('name');
-    expect(screen.getByTestId('tab-1-table-0-row-0-cell-group')).toHaveTextContent('common');
+    expect(screen.getByTestId('tab-1-table-0-row-0-cell-name')).toHaveTextContent('name (common)');
     expect(screen.getByTestId('tab-1-table-0-row-0-cell-description')).toHaveTextContent('Required Name of component');
     expect(screen.getByTestId('tab-1-table-0-row-0-cell-default')).toHaveTextContent('');
     expect(screen.getByTestId('tab-1-table-0-row-0-cell-type')).toHaveTextContent('String');
@@ -130,13 +126,11 @@ describe('Component tile', () => {
     );
     //headers
     expect(screen.getByTestId('tab-1-table-1-header-name')).toHaveTextContent('name');
-    expect(screen.getByTestId('tab-1-table-1-header-group')).toHaveTextContent('group');
     expect(screen.getByTestId('tab-1-table-1-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-1-table-1-header-default')).toHaveTextContent('default');
     expect(screen.getByTestId('tab-1-table-1-header-type')).toHaveTextContent('type');
     //rows
-    expect(screen.getByTestId('tab-1-table-1-row-0-cell-name')).toHaveTextContent('hostname');
-    expect(screen.getByTestId('tab-1-table-1-row-0-cell-group')).toHaveTextContent('common');
+    expect(screen.getByTestId('tab-1-table-1-row-0-cell-name')).toHaveTextContent('hostname (advanced)');
     expect(screen.getByTestId('tab-1-table-1-row-0-cell-description')).toHaveTextContent(
       'The hostname of the asterisk server',
     );
@@ -147,13 +141,11 @@ describe('Component tile', () => {
     expect(screen.getByTestId('tab-2')).toHaveTextContent('Message Headers (1)');
     //headers
     expect(screen.getByTestId('tab-2-table-0-header-name')).toHaveTextContent('name');
-    expect(screen.getByTestId('tab-2-table-0-header-group')).toHaveTextContent('group');
     expect(screen.getByTestId('tab-2-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-2-table-0-header-default')).toHaveTextContent('default');
     expect(screen.getByTestId('tab-2-table-0-header-type')).toHaveTextContent('type');
     //rows
-    expect(screen.getByTestId('tab-2-table-0-row-0-cell-name')).toHaveTextContent('CamelAsteriskEventName');
-    expect(screen.getByTestId('tab-2-table-0-row-0-cell-group')).toHaveTextContent('producer');
+    expect(screen.getByTestId('tab-2-table-0-row-0-cell-name')).toHaveTextContent('CamelAsteriskEventName (producer)');
     expect(screen.getByTestId('tab-2-table-0-row-0-cell-description')).toHaveTextContent(
       'The hostname of the asterisk server',
     );
