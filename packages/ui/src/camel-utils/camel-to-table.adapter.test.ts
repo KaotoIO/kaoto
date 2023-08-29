@@ -34,6 +34,7 @@ describe('camelComponentToTable', () => {
         type: 'string',
         javaType: 'java.lang.String',
         deprecated: false,
+        autowired: false,
         secret: false,
         description: 'url',
       },
@@ -49,6 +50,7 @@ describe('camelComponentToTable', () => {
         description: 'Name of component',
         type: 'string',
         deprecated: false,
+        autowired: true,
         secret: false,
       },
       hostname: {
@@ -61,6 +63,8 @@ describe('camelComponentToTable', () => {
         description: 'The hostname of the asterisk server',
         type: 'string',
         deprecated: false,
+        enum: ["first", "second"],
+        autowired: true,
         secret: false,
       },
     } as Record<string, ICamelComponentProperty>,
@@ -73,6 +77,7 @@ describe('camelComponentToTable', () => {
         description: 'Header asterisk',
         javaType: 'org.apache.camel.spi.ExceptionHandler',
         deprecated: false,
+        autowired: true,
         secret: false,
         required: false,
         constantName: '',
@@ -126,7 +131,7 @@ describe('camelComponentToTable', () => {
     } as Record<string, ICamelComponentApi>,
   } as ICamelComponentDefinition;
 
-  it('should return a properties IPropertiesTable with the correct values', () => {
+  it('should return a component properties IPropertiesTable with the correct values', () => {
     const table = camelComponentPropertiesToTable(componentDef.componentProperties);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
@@ -140,8 +145,10 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].type).toEqual('String');
     expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
     expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');
+    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(false);
+    expect(table.rows[0].rowAdditionalInfo.enum).toBeUndefined;
   });
-  it('should return a component properties IPropertiesTable with the correct values with filter', () => {
+  it('should return a properties IPropertiesTable with the correct values with filter', () => {
     const table = camelComponentPropertiesToTable(componentDef.properties, {
       filterKey: 'kind',
       filterValue: 'parameter',
@@ -158,6 +165,8 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].type).toEqual('String');
     expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
     expect(table.rows[0].rowAdditionalInfo.group).toEqual('common');
+    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
   it('should return a headers IPropertiesTable with the correct values', () => {
     let table = camelComponentPropertiesToTable(componentDef.headers!, { filterKey: 'kind', filterValue: 'parameter' });
@@ -175,6 +184,7 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].type).toEqual('ExceptionHandler');
     expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
     expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');  
+    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
   });
   it('should return a apis IPropertiesTable with the correct values', () => {
     const table = camelComponentApisToTable(componentDef.apis!);
@@ -231,6 +241,8 @@ describe('camelProcessorToTable', () => {
         description: 'Class name to use for marshal and unmarshalling',
         type: 'string',
         deprecated: false,
+        autowired: true,
+        enum: ["first", "second"],
         secret: false,
       },
     } as Record<string, ICamelProcessorProperty>,
@@ -248,7 +260,10 @@ describe('camelProcessorToTable', () => {
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].type).toEqual('String');
     expect(table.rows[0].description).toEqual('Class name to use for marshal and unmarshalling');
-    expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
+    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined;
+    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
 
   it('should return a properties IPropertiesTable with the correct values with filter', () => {
@@ -265,7 +280,10 @@ describe('camelProcessorToTable', () => {
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].type).toEqual('String');
     expect(table.rows[0].description).toEqual('Class name to use for marshal and unmarshalling');
-    expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
+    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined;
+    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
 });
 

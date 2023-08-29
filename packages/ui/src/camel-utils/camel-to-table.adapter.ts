@@ -31,7 +31,9 @@ export const camelComponentPropertiesToTable = (
       type: value.javaType.substring(value.javaType.lastIndexOf('.') + 1),
       rowAdditionalInfo: {
         required: value.required,
-        group: value.group
+        group: value.group,
+        autowired: value.autowired,
+        enum: value.enum
       }
     });
   }
@@ -84,6 +86,8 @@ export const camelProcessorPropertiesToTable = (
       description: value.description,
       rowAdditionalInfo: {
         required: value.required,
+        autowired: value.autowired,
+        enum: value.enum
       }
     });
   }

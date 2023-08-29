@@ -143,11 +143,11 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       className="properties-modal"
       title={props.tile.title}
       isOpen={props.isModalOpen}
-      position="top"
       onClose={props.onClose}
       ouiaId="BasicModal"
     >
       <p data-testid="properties-modal-description">{props.tile.description}</p>
+      <br/>
       {tabs.length == 0 && <EmptyTableState name={props.tile.name}></EmptyTableState>}
       {tabs.length != 0 && <PropertiesTabs tabs={tabs}></PropertiesTabs>}
     </Modal>
