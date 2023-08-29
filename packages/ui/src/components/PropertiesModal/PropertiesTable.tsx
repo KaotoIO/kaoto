@@ -27,9 +27,14 @@ export const PropertiesTable: FunctionComponent<IPropertiesTableProps> = (props)
             <Tr data-testid={props.rootDataTestId + '-row-' + index} key={index}>
               {table.headers.map((header) => (
                 <Td data-testid={props.rootDataTestId + '-row-' + index + '-cell-' + header} key={index + header} dataLabel={header} modifier="wrap">
-                  { header == PropertiesHeaders.Description && row.required
-                        ?  <p><strong>Required</strong> {row[header]?.toString()}</p>
-                        :  <p>{row[header]?.toString()}</p>
+                  { //suffix if needed
+                    (header == PropertiesHeaders.Description && row.rowAdditionalInfo.required) ? <span data-label="required">Required </span> : ""
+                  }
+                  {
+                    <span>{row[header]?.toString()}</span>
+                  }
+                  { //prefix if needed
+                    (header == PropertiesHeaders.Name && row.rowAdditionalInfo.group) ? <span data-label="group"> ({row.rowAdditionalInfo.group})</span> : ""
                   }
                 </Td>
               ))}

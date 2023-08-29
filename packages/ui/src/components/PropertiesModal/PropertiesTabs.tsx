@@ -10,7 +10,7 @@ interface IPropertiesTabsProps {
 export const PropertiesTabs: FunctionComponent<IPropertiesTabsProps> = (props) => {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const handleTabClick = (
-    event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
+    _event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
     tabIndex: string | number,
   ) => {
     setActiveTabKey(tabIndex);
