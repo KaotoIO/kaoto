@@ -1,27 +1,65 @@
 # kaoto-next
-Next version of the UI of the Kaoto project
+The next version of the UI for the Kaoto project.
 
-## Building the project
-This project leverages `vite`, you can find more information about it [here](https://vitejs.dev/config/).
+## Table of Contents
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Clone the Repository](#clone-the-repository)
+  - [Install Dependencies](#install-dependencies)
+- [Development](#development)
+  - [Web Application](#web-application)
+    - [Run](#run)
+    - [Build](#build)
+  - [Public Components](#public-components)
+- [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
 
-### Requirements
-- NodeJS (>v18.x)
-- yarn (>v3.x)
+## Requirements
+- NodeJS (v18.x or higher)
+- Yarn (v3.x or higher)
 
-### Steps
-1. Clone the repository
-2. In the recently cloned folder, run `yarn install` to install all the dependencies
-(By default, `@kaoto-next/camel-catalog` will be built as well, using the `mvn` wrapper)
+_For more information on Vite, check [Vite's documentation](https://vitejs.dev/config/)._
 
-#### Running the web application
-Run `yarn workspace @kaoto-next/ui run start` to start the development server. The application will be available at `http://localhost:5173` by default.
+## Getting Started
+### Clone the Repository
+First, clone the repository to your local machine.
 
-#### Building the web application
-Run `yarn workspace @kaoto-next/ui run build` to build the web application
+```sh
+git clone https://github.com/KaotoIO/kaoto-next
+```
+### Install Dependencies
 
-#### Building the public components
-Run `yarn workspace @kaoto-next/ui run build:lib` to build the public components
+Navigate to the cloned directory and install the necessary packages.
 
-#### Building the Camel Catalog and supporting schemas
-Run `yarn workspace @kaoto-next/camel-catalog run build` to build them.
-Optionally, you could update the Camel version in the `pom.xml` file, and then run `yarn workspace @kaoto-next/camel-catalog run build` again
+```sh
+cd kaoto-next
+yarn install
+```
+Note: By default, `@kaoto-next/camel-catalog` will also be built using the `mvn` wrapper.
+
+## Development
+### Web Application
+#### Run
+To start the development server, execute the following command:
+```sh
+yarn workspace @kaoto-next/ui run start
+```
+The application will be accessible at `http://localhost:5173` by default.
+
+#### Build
+To build the web application, execute:
+```sh
+yarn workspace @kaoto-next/ui run build
+```
+
+### Public Components
+To build the public components, execute:
+```sh
+yarn workspace @kaoto-next/ui run build:lib
+```
+
+## Camel Catalog and Supporting Schemas
+To build the Camel Catalog and the supporting schemas, run:
+```sh
+yarn workspace @kaoto-next/camel-catalog run build
+```
+Optional: You can update the Camel version in the pom.xml file and then run the build command again.
