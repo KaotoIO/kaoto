@@ -175,7 +175,7 @@ describe('Component tile', () => {
   });
 });
 
-describe('Component tile with empty properties', () => {
+describe('Component tile with empty properties and no headers/apis', () => {
   const tile: ITile = {
     type: 'component',
     name: 'atom',
@@ -191,9 +191,7 @@ describe('Component tile with empty properties', () => {
         description: 'Poll Atom RSS feeds.',
       },
       properties: {},
-      componentProperties: {},
-      headers: {},
-      apis: {},
+      componentProperties: {}
     },
   };
 
@@ -204,6 +202,61 @@ describe('Component tile with empty properties', () => {
     expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
     expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Poll Atom RSS feeds.');
     expect(screen.getByTestId('empty-state')).toHaveTextContent('No properties found for atom');
+  });
+});
+
+describe('Processor tile', () => {
+  const tile: ITile = {
+    type: 'model',
+    name: 'apiKey',
+    title: 'Api Key',
+    description: 'Rest security basic auth definition',
+    headerTags: ['Stable'],
+    tags: ['document', '4.0.0'],
+    rawObject: {
+      model: {
+        kind: 'model',
+        name: 'apiKey',
+        title: 'Api Key',
+        description: 'Rest security basic auth definition',
+      },
+      properties: {
+        instanceClassName: {
+          index: 0,
+          displayName: 'Instance Class Name',
+          kind: 'attribute',
+          required: true,
+          javaType: 'java.lang.String',
+          description: 'Class name to use for marshal and unmarshalling',
+          type: 'string',
+          deprecated: false,
+          autowired: false,
+          enum: ["first", "second"],
+          secret: false,
+        }
+      },
+    },
+  };
+
+  it('renders property modal correctly', () => {
+    // modal uses React portals so baseElement needs to be used here
+    const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+    // info
+    expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
+    expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Rest security basic auth definition');
+    expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (1)');
+    // headers
+    expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
+    expect(screen.getByTestId('tab-0-table-0-header-default')).toHaveTextContent('default');
+    expect(screen.getByTestId('tab-0-table-0-header-type')).toHaveTextContent('type');
+    expect(screen.getByTestId('tab-0-table-0-header-description')).toHaveTextContent('description');
+    // row
+    expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('instanceClassName');
+    expect(screen.getByTestId('tab-0-table-0-row-0-cell-default')).toHaveTextContent('');
+    expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('String');
+    expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
+      'Required Class name to use for marshal and unmarshalling',
+    );
   });
 });
 
@@ -222,7 +275,7 @@ describe('Processor tile with empty properties', () => {
         title: 'Api Key',
         description: 'Rest security basic auth definition',
       },
-      properties: {},
+      properties: {}
     },
   };
 
@@ -233,46 +286,6 @@ describe('Processor tile with empty properties', () => {
     expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
     expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Rest security basic auth definition');
     expect(screen.getByTestId('empty-state')).toHaveTextContent('No properties found for apiKey');
-  });
-});
-
-describe('Kamelet tile with empty properties', () => {
-  const tile: ITile = {
-    type: 'kamelet',
-    name: 'aws-ddb-streams-source',
-    title: 'AWS DynamoDB Streams Source',
-    description: 'Receive events from Amazon DynamoDB Streams.',
-    headerTags: ['Stable'],
-    tags: ['source', '4.0.0-RC1'],
-    rawObject: {
-      apiVersion: 'camel.apache.org/v1alpha1',
-      kind: 'Kamelet',
-      metadata: {
-        name: 'aws-ddb-streams-source',
-      },
-      spec: {
-        definition: {
-          title: 'AWS DynamoDB Streams Source',
-          description: 'Receive events',
-          required: ['table'],
-          type: 'object',
-          properties: {},
-        },
-      },
-    },
-  };
-
-  it('renders property modal correctly', () => {
-    // modal uses React portals so baseElement needs to be used here
-    const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
-    // info
-    expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
-      'AWS DynamoDB Streams Source',
-    );
-    expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
-      'Receive events from Amazon DynamoDB Streams.',
-    );
-    expect(screen.getByTestId('empty-state')).toHaveTextContent('No properties found for aws-ddb-streams-source');
   });
 });
 
@@ -347,6 +360,45 @@ describe('Kamelet tile', () => {
     expect(screen.getByTestId('tab-0-table-0-row-1-cell-type')).toHaveTextContent('string');
     expect(screen.getByTestId('tab-0-table-0-row-1-cell-default')).toHaveTextContent('amazonaws.com');
     expect(screen.getByTestId('tab-0-table-0-row-1-cell-example')).toHaveTextContent('whatever');
+  });
+});
+
+describe('Kamelet tile with no properties', () => {
+  const tile: ITile = {
+    type: 'kamelet',
+    name: 'aws-ddb-streams-source',
+    title: 'AWS DynamoDB Streams Source',
+    description: 'Receive events from Amazon DynamoDB Streams.',
+    headerTags: ['Stable'],
+    tags: ['source', '4.0.0-RC1'],
+    rawObject: {
+      apiVersion: 'camel.apache.org/v1alpha1',
+      kind: 'Kamelet',
+      metadata: {
+        name: 'aws-ddb-streams-source',
+      },
+      spec: {
+        definition: {
+          title: 'AWS DynamoDB Streams Source',
+          description: 'Receive events',
+          required: ['table'],
+          type: 'object',
+        },
+      },
+    },
+  };
+
+  it('renders property modal correctly', () => {
+    // modal uses React portals so baseElement needs to be used here
+    const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+    // info
+    expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
+      'AWS DynamoDB Streams Source',
+    );
+    expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
+      'Receive events from Amazon DynamoDB Streams.',
+    );
+    expect(screen.getByTestId('empty-state')).toHaveTextContent('No properties found for aws-ddb-streams-source');
   });
 });
 
