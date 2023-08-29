@@ -9,17 +9,19 @@ import {
 } from '../models';
 
 export type ICamelComponentCommonProperties = ICamelComponentProperty | ICamelComponentHeader;
-export type IPropertiesTableFilter = { filterKey: keyof IFilterableProperties; filterValue: string };
 
-export type IFilterableProperties = ICamelComponentProperty | ICamelComponentHeader | ICamelComponentApi | ICamelProcessorProperty | IKameletSpecProperty
-
-const fullFillFilter = (value: IFilterableProperties, filter: IPropertiesTableFilter): boolean => {
-  return value[filter.filterKey] === filter.filterValue;
+export interface IPropertiesTableFilter<T> {
+  filterKey: keyof T;
+  filterValue: T[keyof T];
 }
+
+const fullFillFilter = <T>(value: T, filter: IPropertiesTableFilter<T>): boolean => {
+  return value[filter.filterKey] === filter.filterValue;
+};
 
 export const camelComponentPropertiesToTable = (
   properties: Record<string, ICamelComponentCommonProperties>,
-  filter?: IPropertiesTableFilter,
+  filter?: IPropertiesTableFilter<ICamelComponentCommonProperties>,
 ): IPropertiesTable => {
   const propertiesRows: IPropertiesRow[] = [];
   for (const [key, value] of Object.entries(properties)) {
@@ -33,17 +35,12 @@ export const camelComponentPropertiesToTable = (
         required: value.required,
         group: value.group,
         autowired: value.autowired,
-        enum: value.enum
-      }
+        enum: value.enum,
+      },
     });
   }
   return {
-    headers: [
-      PropertiesHeaders.Name,
-      PropertiesHeaders.Description,
-      PropertiesHeaders.Default,
-      PropertiesHeaders.Type,
-    ],
+    headers: [PropertiesHeaders.Name, PropertiesHeaders.Description, PropertiesHeaders.Default, PropertiesHeaders.Type],
     rows: propertiesRows,
   };
 };
@@ -54,7 +51,7 @@ const getApiType = (consumerOnly: boolean, producerOnly: boolean): string => {
 
 export const camelComponentApisToTable = (
   properties: Record<string, ICamelComponentApi>,
-  filter?: IPropertiesTableFilter,
+  filter?: IPropertiesTableFilter<ICamelComponentApi>,
 ): IPropertiesTable => {
   const propertiesRows: IPropertiesRow[] = [];
   for (const [key, value] of Object.entries(properties)) {
@@ -63,7 +60,7 @@ export const camelComponentApisToTable = (
       name: key,
       description: value.description,
       type: getApiType(value.consumerOnly, value.producerOnly),
-      rowAdditionalInfo: {}
+      rowAdditionalInfo: {},
     });
   }
   return {
@@ -74,7 +71,7 @@ export const camelComponentApisToTable = (
 
 export const camelProcessorPropertiesToTable = (
   properties: Record<string, ICamelProcessorProperty>,
-  filter?: IPropertiesTableFilter,
+  filter?: IPropertiesTableFilter<ICamelProcessorProperty>,
 ): IPropertiesTable => {
   const propertiesRows: IPropertiesRow[] = [];
   for (const [key, value] of Object.entries(properties)) {
@@ -87,8 +84,8 @@ export const camelProcessorPropertiesToTable = (
       rowAdditionalInfo: {
         required: value.required,
         autowired: value.autowired,
-        enum: value.enum
-      }
+        enum: value.enum,
+      },
     });
   }
   return {
@@ -99,7 +96,7 @@ export const camelProcessorPropertiesToTable = (
 
 export const kameletToPropertiesTable = (
   kameletDef: IKameletDefinition,
-  filter?: IPropertiesTableFilter,
+  filter?: IPropertiesTableFilter<IKameletSpecProperty>,
 ): IPropertiesTable => {
   const propertiesRows: IPropertiesRow[] = [];
   if (kameletDef.spec.definition.properties) {
@@ -116,8 +113,8 @@ export const kameletToPropertiesTable = (
         default: value.default,
         example: value.example,
         rowAdditionalInfo: {
-          required: requiredProperties.includes(key)
-        }
+          required: requiredProperties.includes(key),
+        },
       });
     }
   }
