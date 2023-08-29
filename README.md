@@ -34,7 +34,7 @@ Navigate to the cloned directory and install the necessary packages.
 cd kaoto-next
 yarn install
 ```
-Note: By default, `@kaoto-next/camel-catalog` will also be built using the `mvn` wrapper.
+_Note: By default, `@kaoto-next/camel-catalog` will also be built using the `mvn` wrapper._
 
 ## Development
 ### Web Application
@@ -62,4 +62,4 @@ To build the Camel Catalog and the supporting schemas, run:
 ```sh
 yarn workspace @kaoto-next/camel-catalog run build
 ```
-Optional: You can update the Camel version in the pom.xml file and then run the build command again.
+_Optional: You can update the Camel version in the `pom.xml` file and then run the build command again._
