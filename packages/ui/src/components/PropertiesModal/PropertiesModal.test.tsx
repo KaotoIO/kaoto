@@ -34,6 +34,7 @@ describe('Component tile', () => {
           kind: 'path',
           group: 'common',
           required: true,
+          autowired: false,
           javaType: 'java.lang.String',
           description: 'Name of component',
         },
@@ -41,6 +42,7 @@ describe('Component tile', () => {
           kind: 'parameter',
           group: 'advanced',
           required: false,
+          autowired: true,
           javaType: 'java.lang.String',
           defaultValue: 'http',
           description: 'The hostname of the asterisk server',
@@ -51,8 +53,10 @@ describe('Component tile', () => {
           kind: 'header',
           displayName: '',
           group: 'producer',
-          description: 'The hostname of the asterisk server',
+          description: 'The event name header',
           javaType: 'org.apache.camel.spi.ExceptionHandler',
+          autowired: true,
+          enum: ['first', 'second'],
         },
       },
       apis: {
@@ -132,7 +136,7 @@ describe('Component tile', () => {
     //rows
     expect(screen.getByTestId('tab-1-table-1-row-0-cell-name')).toHaveTextContent('hostname (advanced)');
     expect(screen.getByTestId('tab-1-table-1-row-0-cell-description')).toHaveTextContent(
-      'The hostname of the asterisk server',
+      'Autowired The hostname of the asterisk server',
     );
     expect(screen.getByTestId('tab-1-table-1-row-0-cell-default')).toHaveTextContent('http');
     expect(screen.getByTestId('tab-1-table-1-row-0-cell-type')).toHaveTextContent('String');
@@ -147,8 +151,11 @@ describe('Component tile', () => {
     //rows
     expect(screen.getByTestId('tab-2-table-0-row-0-cell-name')).toHaveTextContent('CamelAsteriskEventName (producer)');
     expect(screen.getByTestId('tab-2-table-0-row-0-cell-description')).toHaveTextContent(
-      'The hostname of the asterisk server',
+      'Autowired The event name header',
     );
+    expect(screen.getByTestId('tab-2-table-0-row-0-cell-description-enum-0')).toHaveTextContent('first');
+    expect(screen.getByTestId('tab-2-table-0-row-0-cell-description-enum-1')).toHaveTextContent('second');
+
     expect(screen.getByTestId('tab-2-table-0-row-0-cell-type')).toHaveTextContent('ExceptionHandler');
     expect(screen.getByTestId('tab-2-table-0-row-0-cell-default')).toHaveTextContent('');
 

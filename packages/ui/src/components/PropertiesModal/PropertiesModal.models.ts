@@ -10,6 +10,8 @@ export const enum PropertiesHeaders {
 export interface IPropertiesRowAdditionalInfo {
   required?: boolean,
   group?: string,
+  autowired?: boolean,
+  enum?: string[],
 }
 
 export interface IPropertiesRow {

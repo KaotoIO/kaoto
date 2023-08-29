@@ -6,7 +6,8 @@ export interface CamelPropertyCommon {
     label?: string;
     required: boolean;
     javaType: string;
-    enum?: string;
+    enum?: string[];
+    autowired: boolean;
     defaultValue?: string;
     deprecated: boolean;
     secret: boolean;
