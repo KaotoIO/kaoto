@@ -134,3 +134,6 @@ dist
 **/cypress/videos/*
 
 .vscode/*
+
+# storybook
+storybook-static
