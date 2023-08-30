@@ -191,7 +191,7 @@ describe('Component tile with empty properties and no headers/apis', () => {
         description: 'Poll Atom RSS feeds.',
       },
       properties: {},
-      componentProperties: {}
+      componentProperties: {},
     },
   };
 
@@ -231,9 +231,9 @@ describe('Processor tile', () => {
           type: 'string',
           deprecated: false,
           autowired: false,
-          enum: ["first", "second"],
+          enum: ['first', 'second'],
           secret: false,
-        }
+        },
       },
     },
   };
@@ -275,7 +275,7 @@ describe('Processor tile with empty properties', () => {
         title: 'Api Key',
         description: 'Rest security basic auth definition',
       },
-      properties: {}
+      properties: {},
     },
   };
 

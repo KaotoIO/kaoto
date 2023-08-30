@@ -8,15 +8,15 @@ interface IEmptyTableStateProps {
 
 export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props) => {
   return (
-        <Bullseye>
-          <EmptyState variant={EmptyStateVariant.sm}>
-            <EmptyStateHeader
-              data-testid={'empty-state'}
-              icon={<EmptyStateIcon icon={SearchIcon} />}
-              titleText={'No properties found for ' + props.name}
-              headingLevel="h2"
-            />
-          </EmptyState>
-        </Bullseye>
+    <Bullseye>
+      <EmptyState variant={EmptyStateVariant.sm}>
+        <EmptyStateHeader
+          data-testid={'empty-state'}
+          icon={<EmptyStateIcon icon={SearchIcon} />}
+          titleText={'No properties found for ' + props.name}
+          headingLevel="h2"
+        />
+      </EmptyState>
+    </Bullseye>
   );
 };

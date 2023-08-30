@@ -4,4 +4,3 @@ export * from './PropertiesTable';
 export * from './EmptyTableState';
 export * from './PropertiesModal.models';
 export * from './PropertiesModal';
-

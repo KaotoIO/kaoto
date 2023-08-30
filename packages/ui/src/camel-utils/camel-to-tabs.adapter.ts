@@ -26,9 +26,9 @@ const transformPropertiesIntoTab = <K, T>(
   transformationsData: IPropertiesTransformToTable<K, T>[],
   tabTitle: string,
 ): IPropertiesTab | undefined => {
-  let tables = [];
-  for (let transformationData of transformationsData) {
-    let table = transformationData.transformFunction(transformationData.objectToTransform, transformationData.filter);
+  const tables = [];
+  for (const transformationData of transformationsData) {
+    const table = transformationData.transformFunction(transformationData.objectToTransform, transformationData.filter);
     if (table.rows.length == 0) continue; // we don't care about empty table
     if (transformationData.tableCaption)
       table.caption = transformationData.tableCaption + ' (' + table.rows.length + ')';
@@ -47,7 +47,7 @@ const transformPropertiesIntoTab = <K, T>(
 };
 
 export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefinition): IPropertiesTab[] => {
-  let finalTabs: IPropertiesTab[] = [];
+  const finalTabs: IPropertiesTab[] = [];
 
   let tab = transformPropertiesIntoTab(
     [
@@ -88,7 +88,7 @@ export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefi
 
   // headers, only if exists
   if (componentDef.headers) {
-    let tab = transformPropertiesIntoTab(
+    const tab = transformPropertiesIntoTab(
       [
         {
           transformFunction: camelComponentPropertiesToTable,
@@ -102,7 +102,7 @@ export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefi
 
   // apis, only if exists
   if (componentDef.apis) {
-    let tab = transformPropertiesIntoTab(
+    const tab = transformPropertiesIntoTab(
       [
         {
           transformFunction: camelComponentApisToTable,
@@ -117,8 +117,8 @@ export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefi
 };
 
 export const transformCamelProcessorComponentIntoTab = (processorDef: ICamelProcessorDefinition): IPropertiesTab[] => {
-  let finalTabs: IPropertiesTab[] = [];
-  let tab = transformPropertiesIntoTab(
+  const finalTabs: IPropertiesTab[] = [];
+  const tab = transformPropertiesIntoTab(
     [
       {
         transformFunction: camelProcessorPropertiesToTable,
@@ -132,8 +132,8 @@ export const transformCamelProcessorComponentIntoTab = (processorDef: ICamelProc
 };
 
 export const transformKameletComponentIntoTab = (kameletDef: IKameletDefinition): IPropertiesTab[] => {
-  let finalTabs: IPropertiesTab[] = [];
-  let tab = transformPropertiesIntoTab(
+  const finalTabs: IPropertiesTab[] = [];
+  const tab = transformPropertiesIntoTab(
     [
       {
         transformFunction: kameletToPropertiesTable,

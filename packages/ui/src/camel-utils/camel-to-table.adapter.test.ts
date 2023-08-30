@@ -63,7 +63,7 @@ describe('camelComponentToTable', () => {
         description: 'The hostname of the asterisk server',
         type: 'string',
         deprecated: false,
-        enum: ["first", "second"],
+        enum: ['first', 'second'],
         autowired: true,
         secret: false,
       },
@@ -183,7 +183,7 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].type).toEqual('ExceptionHandler');
     expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
-    expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');  
+    expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
   });
   it('should return a apis IPropertiesTable with the correct values', () => {
@@ -242,7 +242,7 @@ describe('camelProcessorToTable', () => {
         type: 'string',
         deprecated: false,
         autowired: true,
-        enum: ["first", "second"],
+        enum: ['first', 'second'],
         secret: false,
       },
     } as Record<string, ICamelProcessorProperty>,
