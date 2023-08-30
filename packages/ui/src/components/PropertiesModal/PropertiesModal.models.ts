@@ -8,10 +8,10 @@ export const enum PropertiesHeaders {
 }
 
 export interface IPropertiesRowAdditionalInfo {
-  required?: boolean,
-  group?: string,
-  autowired?: boolean,
-  enum?: string[],
+  required?: boolean;
+  group?: string;
+  autowired?: boolean;
+  enum?: string[];
 }
 
 export interface IPropertiesRow {
@@ -21,7 +21,7 @@ export interface IPropertiesRow {
   default?: string;
   type: string;
   example?: string;
-  rowAdditionalInfo: IPropertiesRowAdditionalInfo
+  rowAdditionalInfo: IPropertiesRowAdditionalInfo;
 }
 
 export type IPropertiesTable = {

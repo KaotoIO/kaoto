@@ -18,7 +18,7 @@ interface IPropertiesModalProps {
 }
 
 export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props) => {
-  let tabs = useMemo(() => {
+  const tabs = useMemo(() => {
     switch (props.tile.type) {
       case CatalogKind.Component: {
         return transformCamelComponentIntoTab(props.tile.rawObject as ICamelComponentDefinition);

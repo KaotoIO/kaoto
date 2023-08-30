@@ -16,7 +16,7 @@ import {
 } from './camel-to-tabs.adapter';
 
 describe('camelComponentToTab', () => {
-  let componentDef = {
+  const componentDef = {
     component: {
       name: 'my-component',
       title: 'My Component',
@@ -145,7 +145,7 @@ describe('camelComponentToTab', () => {
 });
 
 describe('camelProcessorToTab', () => {
-  let processDef = {
+  const processDef = {
     model: {
       name: 'my-processor',
       title: 'My Processor',
@@ -189,7 +189,7 @@ describe('camelProcessorToTab', () => {
 });
 
 describe('kameletToTab', () => {
-  let kameletDef = {
+  const kameletDef = {
     spec: {
       definition: {
         title: 'My Kamelet',
