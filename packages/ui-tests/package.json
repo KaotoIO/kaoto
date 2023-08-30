@@ -3,13 +3,48 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Kaoto UI tests and storybook",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/KaotoIO/kaoto-next.git"
+  },
+  "author": {
+    "name": "The Kaoto Team"
+  },
+  "license": "Apache License v2.0",
   "scripts": {
     "e2e": "cypress open --config-file=cypress.config.ts",
-    "e2e:headless": "cypress run"
+    "e2e:headless": "cypress run",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_7a4940aa65b14ab"
   },
   "devDependencies": {
+    "@kaoto-next/ui": "workspace:*",
+    "@storybook/addon-essentials": "^7.2.3",
+    "@storybook/addon-interactions": "^7.2.3",
+    "@storybook/addon-links": "^7.2.3",
+    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/blocks": "^7.2.3",
+    "@storybook/react": "^7.4.0",
+    "@storybook/react-vite": "^7.2.3",
+    "@storybook/testing-library": "^0.2.0",
+    "chromatic": "^6.24.1",
     "cypress": "^12.17.3",
+    "eslint-plugin-storybook": "^0.6.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "reactflow": "^11.7.4",
     "start-server-and-test": "^2.0.0",
+    "storybook-fixtures": "0.12.0",
     "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "storybook": "^7.2.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
   }
 }
