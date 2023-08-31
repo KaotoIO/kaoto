@@ -1,8 +1,8 @@
 import { Nav, NavExpandable, NavItem, NavList, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Links } from '../router/links';
-import { NavElements } from './navigation.model';
+import { Links } from '../router/links.models';
+import { NavElements } from './navigation.models';
 
 interface INavigationSidebar {
   isNavOpen: boolean;

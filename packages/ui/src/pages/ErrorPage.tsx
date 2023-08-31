@@ -12,7 +12,7 @@ import { ArrowLeftIcon } from '@patternfly/react-icons/dist/esm/icons/arrow-left
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent } from 'react';
 import { useRouteError } from 'react-router-dom';
-import { Links } from '../router/links';
+import { Links } from '../router/links.models';
 import './ErrorPage.scss';
 import { useComponentLink } from '../hooks/ComponentLink';
 

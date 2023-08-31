@@ -2,7 +2,7 @@ import { Button, Masthead, MastheadBrand, MastheadContent, MastheadMain, Masthea
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import { FunctionComponent, useRef } from 'react';
 import logo from '../assets/logo-kaoto.png';
-import { Links } from '../router/links';
+import { Links } from '../router/links.models';
 import { useComponentLink } from '../hooks/ComponentLink';
 
 interface ITopBar {
