@@ -1,4 +1,4 @@
-import { Links } from '../router/links';
+import { Links } from '../router/links.models';
 
 export interface SelectedNavItem {
   groupId: number | string;
