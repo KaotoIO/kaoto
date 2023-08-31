@@ -2333,7 +2333,15 @@ __metadata:
     "@storybook/testing-library": ^0.2.0
     chromatic: ^6.24.1
     cypress: ^13.0.0
+    eslint: ^8.45.0
+    eslint-config-prettier: ^9.0.0
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^27.2.1
+    eslint-plugin-prettier: ^5.0.0
+    eslint-plugin-react-hooks: ^4.6.0
+    eslint-plugin-react-refresh: ^0.4.3
     eslint-plugin-storybook: ^0.6.12
+    prettier: ^3.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
     reactflow: ^11.7.4
@@ -2341,6 +2349,7 @@ __metadata:
     storybook: ^7.2.3
     storybook-fixtures: 0.12.0
     typescript: ^5.0.2
+    vite: ^4.4.5
   languageName: unknown
   linkType: soft
 
