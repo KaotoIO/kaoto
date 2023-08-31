@@ -1,6 +1,6 @@
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
-import { BaseCamelEntity } from '../camel-entities';
+import { BaseCamelEntity } from '../models/camel-entities';
 
 interface CamelEntitiesState {
   entities: BaseCamelEntity[];
