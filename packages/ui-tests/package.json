@@ -30,7 +30,7 @@
     "@storybook/react-vite": "^7.2.3",
     "@storybook/testing-library": "^0.2.0",
     "chromatic": "^6.24.1",
-    "cypress": "^12.17.3",
+    "cypress": "^13.0.0",
     "eslint-plugin-storybook": "^0.6.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
