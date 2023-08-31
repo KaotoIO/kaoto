@@ -1,41 +1,104 @@
-import { CamelRoute, Step } from '../camel-entities';
+import { CamelRoute } from '../models/camel-entities';
 
 /**
- * This is a stub for a CamelRoute object.
+ * This is a stub Camel Route in YAML format.
  * It is used to test the Canvas component.
- * This stub is based on the following Camel YAML Route:
- *
- * - route:
- *     id: route-1525
- *     from:
- *       uri: 'timer:'
- *       steps:
- *       - choice:
- *           when:
- *           - steps:
- *             - log: {}
- *           otherwise:
- *             steps:
- *             - log: {}
- *       - log: {}
  */
-const timerStep = new Step({ id: 'timer', name: 'timer' });
+export const camelRouteYaml = `
+- route:
+    id: route-8888
+    from:
+      uri: timer:tutorial
+      steps:
+      - set-header:
+          simple: "\${random(2)}"
+          name: myChoice
+      - choice:
+          when:
+          - simple: "\${header.myChoice} == 1"
+            steps:
+            - log:
+                id: log-1
+                message: We got a one.
+          otherwise:
+            steps:
+            - to:
+                uri: 'amqp:queue:'
+            - to:
+                uri: 'amqp:queue:'
+            - log:
+                id: log-2
+                message: "We got a \${body}"
+      - to:
+          uri: direct:my-route
+          parameters:
+            bridgeErrorHandler: true
+`;
 
-const choiceStep = new Step({ id: 'choice', name: 'choice' });
-const whenStep = new Step({ id: 'when', name: 'when' });
-const whenLogStep = new Step({ id: 'whenLog', name: 'whenLog' });
-const otherwiseStep = new Step({ id: 'otherwise', name: 'otherwise' });
-const otherwiseLogStep = new Step({ id: 'otherwiseLog', name: 'otherwiseLog' });
+/**
+ * This is a stub Camel Route in JSON format.
+ * It is used to test the Canvas component.
+ */
+export const camelRouteJson = {
+  route: {
+    id: 'route-8888',
+    from: {
+      uri: 'timer:tutorial',
+      steps: [
+        {
+          'set-header': {
+            simple: '${random(2)}',
+            name: 'myChoice',
+          },
+        },
+        {
+          choice: {
+            when: [
+              {
+                simple: '${header.myChoice} == 1',
+                steps: [
+                  {
+                    log: {
+                      id: 'log-1',
+                      message: 'We got a one.',
+                    },
+                  },
+                ],
+              },
+            ],
+            otherwise: {
+              steps: [
+                {
+                  to: {
+                    uri: 'amqp:queue:',
+                  },
+                },
+                {
+                  to: {
+                    uri: 'amqp:queue:',
+                  },
+                },
+                {
+                  log: {
+                    id: 'log-2',
+                    message: 'We got a ${body}',
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          to: {
+            uri: 'direct:my-route',
+            parameters: {
+              bridgeErrorHandler: true,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
 
-const logStep = new Step({ id: 'log', name: 'log' });
-
-timerStep._getSteps().push(choiceStep, logStep);
-
-choiceStep._getSteps().push(whenStep, otherwiseStep);
-whenStep._getSteps().push(whenLogStep);
-otherwiseStep._getSteps().push(otherwiseLogStep);
-
-const camelRoute = new CamelRoute();
-camelRoute._getSteps().push(timerStep);
-
-export { camelRoute };
+export const camelRoute = new CamelRoute(camelRouteJson.route);
