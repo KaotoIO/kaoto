@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   projectId: 'ui-test',
-  videoUploadOnPasses: false,
+  video: true,
 
   e2e: {
     baseUrl: 'http://localhost:5173',
