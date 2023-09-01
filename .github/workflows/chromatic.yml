@@ -38,7 +38,7 @@ jobs:
         # Chromatic GitHub Action options
         with:
           #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: chpt_7a4940aa65b14ab
           token: ${{ secrets.GITHUB_TOKEN }}
           buildScriptName: build:storybook
           workingDir: packages/ui-tests
