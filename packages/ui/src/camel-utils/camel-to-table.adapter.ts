@@ -15,6 +15,35 @@ export interface IPropertiesTableFilter<T> {
   filterValue: T[keyof T];
 }
 
+const simpleClassNameRegex = RegExp('^[A-Za-z0-9]+$');
+const fullyQualifiedClassNameRegex = RegExp('^([a-z0-9A-Z._]+)\\.([A-Z][a-zA-Z0-9]+)(<)?.*$');
+
+/**
+ * Get class name from fully qualified name
+ * e.g.
+ * String => String
+ * java.util.Set<java.nio.file.OpenOption> => Set
+ * org.apache.camel.component.as2.AS2Component => AS2Component
+ * org.hl7.fhir.instance.model.api.IPrimitiveType<java.util.Date> => IPrimitiveType
+ * @param fullyQualifiedName - Fully qualified name
+ * @returns Class name only
+ */
+const getClassNameOnly = (fullyQualifiedName: string): string => {
+  if (simpleClassNameRegex.test(fullyQualifiedName)) {
+    // it is already class name only
+    return fullyQualifiedName;
+  }
+  let regex = fullyQualifiedClassNameRegex.exec(fullyQualifiedName);
+  if (regex && regex.length > 0) {
+    return regex[2];
+  } else {
+    console.log('[WARN] Not able to parse this fully qualified name: ' + fullyQualifiedName);
+    return fullyQualifiedName;
+  }
+};
+// only for testing private function in jest
+export const getClassNameOnlyFunctionExportedForTesting = getClassNameOnly;
+
 const fullFillFilter = <T>(value: T, filter: IPropertiesTableFilter<T>): boolean => {
   return value[filter.filterKey] === filter.filterValue;
 };
@@ -30,7 +59,7 @@ export const camelComponentPropertiesToTable = (
       name: key,
       description: value.description,
       default: value.defaultValue,
-      type: value.javaType.substring(value.javaType.lastIndexOf('.') + 1),
+      type: getClassNameOnly(value.javaType),
       rowAdditionalInfo: {
         required: value.required,
         group: value.group,
@@ -79,7 +108,7 @@ export const camelProcessorPropertiesToTable = (
     propertiesRows.push({
       name: key,
       default: value.defaultValue,
-      type: value.javaType.substring(value.javaType.lastIndexOf('.') + 1),
+      type: getClassNameOnly(value.javaType),
       description: value.description,
       rowAdditionalInfo: {
         required: value.required,
