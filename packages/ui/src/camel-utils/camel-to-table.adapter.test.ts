@@ -14,6 +14,7 @@ import {
   camelComponentApisToTable,
   camelComponentPropertiesToTable,
   camelProcessorPropertiesToTable,
+  getClassNameOnlyFunctionExportedForTesting,
   kameletToPropertiesTable,
 } from './camel-to-table.adapter';
 
@@ -434,5 +435,35 @@ describe('kameletToTable', () => {
     expect(table.rows[0].type).toEqual('number');
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
+  });
+});
+
+describe('getClassNameOnly', () => {
+  it.each([
+    ['boolean', 'boolean'],
+    ['String', 'String'],
+    ['java.lang.String', 'String'],
+    ['java.util.Set<java.nio.file.OpenOption>', 'Set'],
+    ['java.util.Map<java.lang.String, java.lang.String>', 'Map'],
+    [
+      'java.util.Comparator<org.apache.camel.component.file.GenericFile<org.apache.commons.net.ftp.FTPFile>>',
+      'Comparator',
+    ],
+    ['org.apache.camel.component.as2.AS2Component', 'AS2Component'],
+    ['org.apache.camel.component.aws2.ddbstream.Ddb2StreamConfiguration.StreamIteratorType', 'StreamIteratorType'],
+    ['org.hl7.fhir.instance.model.api.IPrimitiveType<java.util.Date>', 'IPrimitiveType'],
+    [
+      'org.apache.camel.component.kubernetes.config_maps.KubernetesConfigMapsComponent',
+      'KubernetesConfigMapsComponent',
+    ],
+  ])('for fully qualified name %p is expecting %p', (fullyQualifiedName: string, result: string) => {
+    expect(getClassNameOnlyFunctionExportedForTesting(fullyQualifiedName)).toEqual(result);
+  });
+
+  it('should report warning in console log if does not know', () => {
+    let invalidName = 'java.^#&.p@ckage.Cla$$';
+    const consoleSpy = jest.spyOn(console, 'log');
+    expect(getClassNameOnlyFunctionExportedForTesting(invalidName)).toEqual(invalidName);
+    expect(consoleSpy).toHaveBeenCalledWith('[WARN] Not able to parse this fully qualified name: ' + invalidName);
   });
 });
