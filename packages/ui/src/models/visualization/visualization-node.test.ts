@@ -3,12 +3,6 @@ import { VisualizationNode } from './visualization-node';
 describe('VisualizationNode', () => {
   let node: VisualizationNode;
 
-  beforeAll(() => {
-    jest
-      .spyOn(global, 'crypto', 'get')
-      .mockImplementation(() => ({ getRandomValues: () => [12345678] }) as unknown as Crypto);
-  });
-
   beforeEach(() => {
     node = new VisualizationNode('test');
   });
@@ -67,52 +61,66 @@ describe('VisualizationNode', () => {
     expect(child.getParentNode()).toBeUndefined();
   });
 
-  it('should return the node as a transformed node', () => {
-    const previousNode = new VisualizationNode('previous');
-    node.setPreviousNode(previousNode);
+  it('should remove a child', () => {
+    const child = new VisualizationNode('child');
+    node.addChild(child);
+    node.removeChild(child);
 
-    const transformedNode = node.toNode();
-    expect(transformedNode).toEqual({
-      id: 'test-1234',
-      type: 'default',
-      parentNode: undefined,
-      data: {
-        label: 'test',
-      },
-      position: { x: 0, y: 0 },
-      style: { borderRadius: '20px', padding: '10px', width: 150, height: 40 },
-    });
+    expect(node.getChildren()).toEqual([]);
+    expect(child.getParentNode()).toBeUndefined();
   });
 
-  it('should add this node to its parent if exists', () => {
-    const parentNode = new VisualizationNode('parent');
-    node.setParentNode(parentNode);
-    parentNode.addChild(node);
+  it('should remove a child from an existing children array', () => {
+    const child = new VisualizationNode('child');
+    node.setChildren([child]);
+    node.removeChild(child);
 
-    const transformedNode = node.toNode();
-    expect(transformedNode).toEqual({
-      id: 'test-1234',
-      type: 'default',
-      parentNode: 'parent-1234',
-      data: {
-        label: 'test',
-      },
-      position: { x: 0, y: 0 },
-      style: { borderRadius: '20px', padding: '10px', width: 150, height: 40 },
-    });
+    expect(node.getChildren()).toEqual([]);
+    expect(child.getParentNode()).toBeUndefined();
   });
 
-  it('should mark this node as first node if it does not have a parent neither a previous step', () => {
-    const transformedNode = node.toNode();
-    expect(transformedNode).toEqual({
-      id: 'test-1234',
-      type: 'input',
-      parentNode: undefined,
-      data: {
-        label: 'test',
-      },
-      position: { x: 0, y: 0 },
-      style: { borderRadius: '20px', padding: '10px', width: 150, height: 40 },
-    });
+  it('should not error when removing a non-existing child', () => {
+    const child = new VisualizationNode('child');
+    node.removeChild(child);
+
+    expect(node.getChildren()).toBeUndefined();
+    expect(child.getParentNode()).toBeUndefined();
+  });
+
+  it('should populate the leaf nodes ids - simple relationship', () => {
+    const child = new VisualizationNode('child');
+    node.addChild(child);
+
+    const leafNode = new VisualizationNode('leaf');
+    child.addChild(leafNode);
+
+    const ids: string[] = [];
+    node.populateLeafNodesIds(ids);
+
+    expect(ids).toEqual(['leaf-1234']);
+  });
+
+  it('should populate the leaf nodes ids - complex relationship', () => {
+    const choiceNode = new VisualizationNode('choice');
+    node.addChild(choiceNode);
+
+    const whenNode = new VisualizationNode('when');
+    choiceNode.addChild(whenNode);
+
+    const otherwiseNode = new VisualizationNode('otherwise');
+    choiceNode.addChild(otherwiseNode);
+
+    const whenLeafNode = new VisualizationNode('when-leaf');
+    whenNode.addChild(whenLeafNode);
+
+    const processNode = new VisualizationNode('process');
+    otherwiseNode.addChild(processNode);
+    const logNode = new VisualizationNode('log');
+    processNode.addChild(logNode);
+
+    const ids: string[] = [];
+    node.populateLeafNodesIds(ids);
+
+    expect(ids).toEqual(['when-leaf-1234', 'log-1234']);
   });
 });
