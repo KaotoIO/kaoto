@@ -123,21 +123,6 @@
               <outputFile>${inputDirectory}/schema/camelYamlDsl.json</outputFile>
             </configuration>
           </execution>
-          <!-- kebab-case -->
-          <execution>
-            <id>generate-yaml-schema-kebab-case</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>generate-yaml-schema</goal>
-            </goals>
-            <configuration>
-              <kebabCase>true</kebabCase>
-              <outputFile>${inputDirectory}/schema/camel-yaml-dsl.json</outputFile>
-              <!-- TODO: https://issues.apache.org/jira/projects/CAMEL/issues/CAMEL-19700 -->
-              <additionalProperties>true</additionalProperties>
-              <bannedDefinitions />
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>

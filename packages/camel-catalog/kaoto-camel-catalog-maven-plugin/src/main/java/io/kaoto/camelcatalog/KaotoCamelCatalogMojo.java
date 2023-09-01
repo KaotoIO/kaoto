@@ -59,7 +59,7 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
 public class KaotoCamelCatalogMojo extends AbstractMojo {
 
     private static final String SCHEMA = "schema";
-    private static final String CAMEL_YAML_DSL = "camel-yaml-dsl";
+    private static final String CAMEL_YAML_DSL = "camelYamlDsl";
     private static final String CAMEL_CATALOG_AGGREGATE = "camel-catalog-aggregate";
     private static final String CRDS = "crds";
     private static final String CRD_SCHEMA = "crd-schema";

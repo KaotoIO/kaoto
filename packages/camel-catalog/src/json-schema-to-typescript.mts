@@ -58,9 +58,9 @@ async function main() {
 
     let filename = schema.name;
 
-    if (schema.file.includes('camel-yaml-dsl')) {
+    if (schema.file.includes('camelYamlDsl')) {
       addTitleToDefinitions(schemaContent);
-      filename = 'camel-yaml-dsl';
+      filename = 'camelYamlDsl';
     }
 
     /** Remove the -4.0.0.json section of the filename */
