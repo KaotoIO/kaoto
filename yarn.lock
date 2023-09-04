@@ -2344,9 +2344,15 @@ __metadata:
     "@storybook/addon-links": ^7.2.3
     "@storybook/addon-onboarding": ^1.0.8
     "@storybook/blocks": ^7.2.3
+    "@storybook/channels": ^7.4.0
+    "@storybook/components": ^7.4.0
+    "@storybook/core-events": ^7.4.0
+    "@storybook/manager-api": ^7.4.0
+    "@storybook/preview-api": ^7.4.0
     "@storybook/react": ^7.4.0
     "@storybook/react-vite": ^7.2.3
     "@storybook/testing-library": ^0.2.0
+    "@storybook/theming": ^7.4.0
     chromatic: ^7.0.0
     cypress: ^13.0.0
     eslint: ^8.45.0
@@ -2360,6 +2366,7 @@ __metadata:
     prettier: ^3.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-router-dom: ^6.14.1
     reactflow: ^11.7.4
     start-server-and-test: ^2.0.0
     storybook: ^7.2.3
@@ -2382,6 +2389,7 @@ __metadata:
     "@kaoto-next/camel-catalog": "workspace:*"
     "@kie-tools/uniforms-patternfly": ^0.31.0
     "@patternfly/patternfly": ^5.0.0
+    "@patternfly/react-code-editor": ^5.0.0
     "@patternfly/react-core": ^5.0.0
     "@patternfly/react-icons": ^5.0.0
     "@patternfly/react-table": ^5.0.0
@@ -2410,9 +2418,12 @@ __metadata:
     eslint-plugin-react-refresh: ^0.4.3
     jest: ^29.4.2
     jest-environment-jsdom: ^29.4.2
+    monaco-editor: ^0.34.1
+    monaco-yaml: ^4.0.0
     prettier: ^3.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-monaco-editor: ^0.51.0
     react-router-dom: ^6.14.1
     react-test-renderer: ^18.2.0
     reactflow: ^11.8.3
@@ -2426,6 +2437,7 @@ __metadata:
     vite: ^4.4.5
     vite-plugin-dts: ^3.5.1
     vite-plugin-static-copy: ^0.17.0
+    yaml: ^2.3.2
     zustand: ^4.3.9
   languageName: unknown
   linkType: soft
@@ -2559,6 +2571,23 @@ __metadata:
   version: 5.0.2
   resolution: "@patternfly/patternfly@npm:5.0.2"
   checksum: 5b386efb172b553cf90622c613170c63ead66d388c4cb62bdf264ee9ba7f03df2fcaab497fd2d1390482e7e93dca36eab428a370e21578205a30b857c100bc10
+  languageName: node
+  linkType: hard
+
+"@patternfly/react-code-editor@npm:^5.0.0":
+  version: 5.1.0
+  resolution: "@patternfly/react-code-editor@npm:5.1.0"
+  dependencies:
+    "@patternfly/react-core": ^5.1.0
+    "@patternfly/react-icons": ^5.1.0
+    "@patternfly/react-styles": ^5.1.0
+    react-dropzone: 14.2.3
+    tslib: ^2.5.0
+  peerDependencies:
+    react: ^17 || ^18
+    react-dom: ^17 || ^18
+    react-monaco-editor: ^0.51.0
+  checksum: 5d6e9d32491effa040c75f748a042d25d4405dfd2ce462df1abdd1bd2ea3fb6173b4caab58f399c4a42e40db1a820fd6cc4f0412fc59e47797eda2c277a8f72c
   languageName: node
   linkType: hard
 
@@ -3940,7 +3969,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channels@npm:7.4.0":
+"@storybook/channels@npm:7.4.0, @storybook/channels@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/channels@npm:7.4.0"
   dependencies:
@@ -4077,7 +4106,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/components@npm:7.4.0":
+"@storybook/components@npm:7.4.0, @storybook/components@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/components@npm:7.4.0"
   dependencies:
@@ -4166,7 +4195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-events@npm:7.4.0":
+"@storybook/core-events@npm:7.4.0, @storybook/core-events@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/core-events@npm:7.4.0"
   dependencies:
@@ -4320,7 +4349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/manager-api@npm:7.4.0":
+"@storybook/manager-api@npm:7.4.0, @storybook/manager-api@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/manager-api@npm:7.4.0"
   dependencies:
@@ -4374,7 +4403,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/preview-api@npm:7.4.0":
+"@storybook/preview-api@npm:7.4.0, @storybook/preview-api@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/preview-api@npm:7.4.0"
   dependencies:
@@ -4579,7 +4608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:7.4.0":
+"@storybook/theming@npm:7.4.0, @storybook/theming@npm:^7.4.0":
   version: 7.4.0
   resolution: "@storybook/theming@npm:7.4.0"
   dependencies:
@@ -5253,7 +5282,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:^7.0.11, @types/json-schema@npm:^7.0.12, @types/json-schema@npm:^7.0.6, @types/json-schema@npm:^7.0.9":
+"@types/json-schema@npm:^7.0.0, @types/json-schema@npm:^7.0.11, @types/json-schema@npm:^7.0.12, @types/json-schema@npm:^7.0.6, @types/json-schema@npm:^7.0.9":
   version: 7.0.12
   resolution: "@types/json-schema@npm:7.0.12"
   checksum: 00239e97234eeb5ceefb0c1875d98ade6e922bfec39dd365ec6bd360b5c2f825e612ac4f6e5f1d13601b8b30f378f15e6faa805a3a732f4a1bbe61915163d293
@@ -11593,6 +11622,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonc-parser@npm:^3.0.0":
+  version: 3.2.0
+  resolution: "jsonc-parser@npm:3.2.0"
+  checksum: 946dd9a5f326b745aa326d48a7257e3f4a4b62c5e98ec8e49fa2bdd8d96cef7e6febf1399f5c7016114fd1f68a1c62c6138826d5d90bc650448e3cf0951c53c7
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^4.0.0":
   version: 4.0.0
   resolution: "jsonfile@npm:4.0.0"
@@ -12386,6 +12422,51 @@ __metadata:
   languageName: node
   linkType: hard
 
+"monaco-editor@npm:^0.34.1":
+  version: 0.34.1
+  resolution: "monaco-editor@npm:0.34.1"
+  checksum: 4c6b35d7c566ec414b758cdd45dfb08d6fe46e2e8fdeed88b619a52c47592ce6df476d9490a58e5d450339c4a93f09d500adc9c017a348179277b98aa6009fa4
+  languageName: node
+  linkType: hard
+
+"monaco-marker-data-provider@npm:^1.0.0":
+  version: 1.1.1
+  resolution: "monaco-marker-data-provider@npm:1.1.1"
+  peerDependencies:
+    monaco-editor: ">=0.30.0"
+  checksum: d24c3dbb5c859958dd23f86798ad22d5529b06390ef3f2fe0392e54438767df19c239402a1f98c9a1a9b30dc5c4aad4597c4583292465e70c0ecc95581914397
+  languageName: node
+  linkType: hard
+
+"monaco-worker-manager@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "monaco-worker-manager@npm:2.0.1"
+  peerDependencies:
+    monaco-editor: ">=0.30.0"
+  checksum: 269342261a182ba03eca7d450f0944a751e96bf1b3370c7c3f904d0448fcdbb05696d8cff2a0fa571280eca0f91bc84f5ec0a3a858949ddbe7e09b9cc7021b41
+  languageName: node
+  linkType: hard
+
+"monaco-yaml@npm:^4.0.0":
+  version: 4.0.4
+  resolution: "monaco-yaml@npm:4.0.4"
+  dependencies:
+    "@types/json-schema": ^7.0.0
+    jsonc-parser: ^3.0.0
+    monaco-marker-data-provider: ^1.0.0
+    monaco-worker-manager: ^2.0.0
+    path-browserify: ^1.0.0
+    prettier: ^2.0.0
+    vscode-languageserver-textdocument: ^1.0.0
+    vscode-languageserver-types: ^3.0.0
+    vscode-uri: ^3.0.0
+    yaml: ^2.0.0
+  peerDependencies:
+    monaco-editor: ">=0.30"
+  checksum: c9961a506d248a56bf327f62565a551c04320992f1894ccd2f9da2db138096b073c26db0fc1deddf020139ec819931023e5545fcd0d8b05f23b9400e6c0e34e7
+  languageName: node
+  linkType: hard
+
 "mri@npm:^1.2.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -12894,6 +12975,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-browserify@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "path-browserify@npm:1.0.1"
+  checksum: c6d7fa376423fe35b95b2d67990060c3ee304fc815ff0a2dc1c6c3cfaff2bd0d572ee67e18f19d0ea3bbe32e8add2a05021132ac40509416459fffee35200699
+  languageName: node
+  linkType: hard
+
 "path-exists@npm:^3.0.0":
   version: 3.0.0
   resolution: "path-exists@npm:3.0.0"
@@ -13122,7 +13210,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.6.2, prettier@npm:^2.8.0":
+"prettier@npm:^2.0.0, prettier@npm:^2.6.2, prettier@npm:^2.8.0":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
@@ -13462,7 +13550,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dropzone@npm:^14.2.3":
+"react-dropzone@npm:14.2.3, react-dropzone@npm:^14.2.3":
   version: 14.2.3
   resolution: "react-dropzone@npm:14.2.3"
   dependencies:
@@ -13538,6 +13626,19 @@ __metadata:
     react: ">0.13.0"
     react-dom: ">0.13.0"
   checksum: 75bd3cd74d96f3e83f0a42b8f59e8764e6a5eec994492e077c49a4fea0d0b27775a5154502aff2eee3f6af40650ce2e58ed18ac927a64013b14c9942cc9c4872
+  languageName: node
+  linkType: hard
+
+"react-monaco-editor@npm:^0.51.0":
+  version: 0.51.0
+  resolution: "react-monaco-editor@npm:0.51.0"
+  dependencies:
+    prop-types: ^15.8.1
+  peerDependencies:
+    "@types/react": ">=17 <= 18"
+    monaco-editor: ^0.34.1
+    react: ">=17 <= 18"
+  checksum: 93920bc51b16d047145284d69f6a973da6b307480425ac7ce69ce8248d83b5ffa1029a2f42f32754a84663c2ff1ee9b66226aac20c0d0cea6025744eed6568f6
   languageName: node
   linkType: hard
 
@@ -15899,6 +16000,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vscode-languageserver-textdocument@npm:^1.0.0":
+  version: 1.0.10
+  resolution: "vscode-languageserver-textdocument@npm:1.0.10"
+  checksum: 605ff0662535088567a145b48d28f0c41844d28269fa0b3fca3a1e179dd14baf7181150b274bf3840ef2a043ed8474a9227aaf169a6fae574516349a1b371a18
+  languageName: node
+  linkType: hard
+
+"vscode-languageserver-types@npm:^3.0.0":
+  version: 3.17.3
+  resolution: "vscode-languageserver-types@npm:3.17.3"
+  checksum: fbc8221297261f659a6482875ff2a419dc9d55965dc53745797da569ff9f819cd832e6f2699017baadd946548bbfe212e3f6971f3d960f12dc0ee9c629dacc07
+  languageName: node
+  linkType: hard
+
+"vscode-uri@npm:^3.0.0":
+  version: 3.0.7
+  resolution: "vscode-uri@npm:3.0.7"
+  checksum: c899a0334f9f6ba53021328e083f6307978c09b94407d7e5fe86fcd8fcb8f1da0cb344123a335e55769055007a46d51aff83f9ee1dfc0296ee54b78f34ef0e4f
+  languageName: node
+  linkType: hard
+
 "vue-template-compiler@npm:^2.7.14":
   version: 2.7.14
   resolution: "vue-template-compiler@npm:2.7.14"
@@ -16248,6 +16370,13 @@ __metadata:
   version: 2.3.1
   resolution: "yaml@npm:2.3.1"
   checksum: 2c7bc9a7cd4c9f40d3b0b0a98e370781b68b8b7c4515720869aced2b00d92f5da1762b4ffa947f9e795d6cd6b19f410bd4d15fdd38aca7bd96df59bd9486fb54
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.0.0, yaml@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "yaml@npm:2.3.2"
+  checksum: acd80cc24df12c808c6dec8a0176d404ef9e6f08ad8786f746ecc9d8974968c53c6e8a67fdfabcc5f99f3dc59b6bb0994b95646ff03d18e9b1dcd59eccc02146
   languageName: node
   linkType: hard
 
