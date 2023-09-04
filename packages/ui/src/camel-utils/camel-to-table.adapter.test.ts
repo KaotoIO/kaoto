@@ -219,7 +219,7 @@ describe('camelComponentToTable', () => {
   });
   it('should return a apis IPropertiesTable with the correct values', () => {
     const table = camelComponentApisToTable({ apis: componentDef.apis!, apiProperties: componentDef.apiProperties! });
-    expect(table.type).toEqual(PropertiesTableType.Simple);
+    expect(table.type).toEqual(PropertiesTableType.Tree);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -248,7 +248,7 @@ describe('camelComponentToTable', () => {
       { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
       { filterKey: 'description', filterValue: 'whatever' },
     );
-    expect(table.type).toEqual(PropertiesTableType.Simple);
+    expect(table.type).toEqual(PropertiesTableType.Tree);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);

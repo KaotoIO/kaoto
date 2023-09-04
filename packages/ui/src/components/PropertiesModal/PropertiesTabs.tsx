@@ -25,7 +25,7 @@ export const PropertiesTabs: FunctionComponent<IPropertiesTabsProps> = (props) =
                     key={table_index}
                     table={table}
                     rootDataTestId={'tab-' + tab_index + '-table-' + table_index}
-                  ></PropertiesTableSimple>
+                  />
                 );
               case PropertiesTableType.Tree:
                 return (
@@ -33,7 +33,7 @@ export const PropertiesTabs: FunctionComponent<IPropertiesTabsProps> = (props) =
                     key={table_index}
                     table={table}
                     rootDataTestId={'tab-' + tab_index + '-table-' + table_index}
-                  ></PropertiesTableTree>
+                  />
                 );
             }
           })}
