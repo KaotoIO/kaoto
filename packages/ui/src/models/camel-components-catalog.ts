@@ -62,5 +62,5 @@ export interface ICamelComponentApiProperty {
 }
 
 export interface ICamelComponentApiPropertyMethod {
-  properties: Record<string, unknown>; // todo define in the future when will be needed
+  properties: Record<string, ICamelComponentProperty>; // api.method.property is same as camelcomponentproperty
 }

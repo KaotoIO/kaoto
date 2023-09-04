@@ -7,9 +7,9 @@ import {
 } from '../../camel-utils';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
 import { ITile } from '../Catalog';
-import { EmptyTableState } from './EmptyTableState';
 import './PropertiesModal.scss';
 import { PropertiesTabs } from './PropertiesTabs';
+import { EmptyTableState } from './Tables';
 
 interface IPropertiesModalProps {
   tile: ITile;

@@ -1,6 +1,12 @@
-import { IPropertiesRow, IPropertiesTable, PropertiesHeaders } from '../components/PropertiesModal';
+import {
+  IPropertiesRow,
+  IPropertiesTable,
+  PropertiesHeaders,
+  PropertiesTableType,
+} from '../components/PropertiesModal';
 import {
   ICamelComponentApi,
+  ICamelComponentApiProperty,
   ICamelComponentHeader,
   ICamelComponentProperty,
   ICamelProcessorProperty,
@@ -69,6 +75,7 @@ export const camelComponentPropertiesToTable = (
     });
   }
   return {
+    type: PropertiesTableType.Simple,
     headers: [PropertiesHeaders.Name, PropertiesHeaders.Description, PropertiesHeaders.Default, PropertiesHeaders.Type],
     rows: propertiesRows,
   };
@@ -78,23 +85,54 @@ const getApiType = (consumerOnly: boolean, producerOnly: boolean): string => {
   return consumerOnly && producerOnly ? 'Both' : consumerOnly ? 'Consumer' : producerOnly ? 'Producer' : 'Both';
 };
 
+interface ICamelComponentApisToTableProps {
+  apis: Record<string, ICamelComponentApi>;
+  apiProperties: Record<string, ICamelComponentApiProperty>;
+}
+
 export const camelComponentApisToTable = (
-  properties: Record<string, ICamelComponentApi>,
+  camelApisInfo: ICamelComponentApisToTableProps,
   filter?: IPropertiesTableFilter<ICamelComponentApi>,
 ): IPropertiesTable => {
-  const propertiesRows: IPropertiesRow[] = [];
-  for (const [key, value] of Object.entries(properties)) {
-    if (filter && !fullFillFilter(value, filter)) continue;
-    propertiesRows.push({
-      name: key,
-      description: value.description,
-      type: getApiType(value.consumerOnly, value.producerOnly),
+  const apisRows: IPropertiesRow[] = [];
+  //go through APIs
+  for (const [apiName, api] of Object.entries(camelApisInfo.apis)) {
+    if (filter && !fullFillFilter(api, filter)) continue;
+    const methodsRows: IPropertiesRow[] = [];
+    //go through Methods
+    for (const [methodName, method] of Object.entries(api.methods)) {
+      const propertiesRows: IPropertiesRow[] = [];
+      //go through method properties
+      let properties = camelApisInfo.apiProperties[apiName]?.methods[methodName]?.properties;
+      if (!properties) continue // in case this method doesn't have any property
+      for (const [propertyName, property] of Object.entries(properties)) {
+        propertiesRows.push({
+          name: propertyName,
+          description: property.description,
+          type: property.type,
+          rowAdditionalInfo: {},
+        });
+      }
+      methodsRows.push({
+        name: methodName,
+        description: method.description,
+        type: '',
+        children: propertiesRows,
+        rowAdditionalInfo: {},
+      });
+    }
+    apisRows.push({
+      name: apiName,
+      description: api.description,
+      type: getApiType(api.consumerOnly, api.producerOnly),
+      children: methodsRows,
       rowAdditionalInfo: {},
     });
   }
   return {
+    type: PropertiesTableType.Simple,
     headers: [PropertiesHeaders.Name, PropertiesHeaders.Description, PropertiesHeaders.Type],
-    rows: propertiesRows,
+    rows: apisRows,
   };
 };
 
@@ -118,6 +156,7 @@ export const camelProcessorPropertiesToTable = (
     });
   }
   return {
+    type: PropertiesTableType.Simple,
     headers: [PropertiesHeaders.Name, PropertiesHeaders.Default, PropertiesHeaders.Type, PropertiesHeaders.Description],
     rows: propertiesRows,
   };
@@ -148,6 +187,7 @@ export const kameletToPropertiesTable = (
     }
   }
   return {
+    type: PropertiesTableType.Simple,
     headers: [
       PropertiesHeaders.Property,
       PropertiesHeaders.Name,

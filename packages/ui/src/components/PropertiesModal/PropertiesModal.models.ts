@@ -1,3 +1,8 @@
+export const enum PropertiesTableType {
+  Simple,
+  Tree,
+}
+
 export const enum PropertiesHeaders {
   Property = 'property',
   Name = 'name',
@@ -22,9 +27,11 @@ export interface IPropertiesRow {
   type: string;
   example?: string;
   rowAdditionalInfo: IPropertiesRowAdditionalInfo;
+  children?: IPropertiesRow[];
 }
 
 export type IPropertiesTable = {
+  type: PropertiesTableType;
   headers: PropertiesHeaders[];
   rows: IPropertiesRow[];
   caption?: string;
