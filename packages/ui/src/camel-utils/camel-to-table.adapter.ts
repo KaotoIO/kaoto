@@ -6,6 +6,7 @@ import {
 } from '../components/PropertiesModal';
 import {
   ICamelComponentApi,
+  ICamelComponentApiKind,
   ICamelComponentApiProperty,
   ICamelComponentHeader,
   ICamelComponentProperty,
@@ -109,8 +110,13 @@ export const camelComponentApisToTable = (
         propertiesRows.push({
           name: propertyName,
           description: property.description,
-          type: property.type,
-          rowAdditionalInfo: {},
+          type: getClassNameOnly(property.javaType),
+          rowAdditionalInfo: {
+            required: property.required,
+            autowired: property.autowired,
+            enum: property.enum,
+            apiKind: ICamelComponentApiKind.PARAM
+          },
         });
       }
       methodsRows.push({
@@ -118,7 +124,9 @@ export const camelComponentApisToTable = (
         description: method.description,
         type: '',
         children: propertiesRows,
-        rowAdditionalInfo: {},
+        rowAdditionalInfo: {
+          apiKind: ICamelComponentApiKind.METHOD
+        },
       });
     }
     apisRows.push({
@@ -126,11 +134,13 @@ export const camelComponentApisToTable = (
       description: api.description,
       type: getApiType(api.consumerOnly, api.producerOnly),
       children: methodsRows,
-      rowAdditionalInfo: {},
+      rowAdditionalInfo: {
+        apiKind: ICamelComponentApiKind.API
+      },
     });
   }
   return {
-    type: PropertiesTableType.Simple,
+    type: PropertiesTableType.Tree,
     headers: [PropertiesHeaders.Name, PropertiesHeaders.Description, PropertiesHeaders.Type],
     rows: apisRows,
   };

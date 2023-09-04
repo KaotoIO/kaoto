@@ -64,3 +64,9 @@ export interface ICamelComponentApiProperty {
 export interface ICamelComponentApiPropertyMethod {
   properties: Record<string, ICamelComponentProperty>; // api.method.property is same as camelcomponentproperty
 }
+
+export enum ICamelComponentApiKind {
+  API='Api',
+  METHOD='Method',
+  PARAM='Param',
+}

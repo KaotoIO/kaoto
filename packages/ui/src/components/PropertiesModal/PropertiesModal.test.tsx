@@ -66,7 +66,7 @@ describe('Component tile', () => {
           description: 'Client api',
           methods: {
             send: {
-              description: 'Client send',
+              description: 'Send ediMessage to trading partner',
               signatures: [''],
             },
           },
@@ -83,7 +83,26 @@ describe('Component tile', () => {
           },
         },
       },
-      apiProperties: {},
+      apiProperties: {
+        client: {
+          methods: {
+            send: {
+              properties: {
+                as2From: {
+                  index: 0,
+                  kind: 'parameter',
+                  displayName: 'As2 From',
+                  group: 'producer',
+                  required: true,
+                  type: 'String',
+                  javaType: 'java.lang.String',
+                  description: 'AS2 name of sender',
+                },
+              },
+            },
+          },
+        },
+      },
     },
   };
 
@@ -161,17 +180,73 @@ describe('Component tile', () => {
 
     //tab 3
     expect(screen.getByTestId('tab-3')).toHaveTextContent('APIs (2)');
-    //headers
+    // //headers
     expect(screen.getByTestId('tab-3-table-0-header-name')).toHaveTextContent('name');
     expect(screen.getByTestId('tab-3-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-3-table-0-header-type')).toHaveTextContent('type');
-    // rows
+    // // rows
+    expect(screen.getByTestId('tab-3-table-0-row-0-cell-apiKind')).toHaveTextContent('Api');
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-name')).toHaveTextContent('client');
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-description')).toHaveTextContent('Client api');
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-type')).toHaveTextContent('Both');
-    expect(screen.getByTestId('tab-3-table-0-row-1-cell-name')).toHaveTextContent('client2');
-    expect(screen.getByTestId('tab-3-table-0-row-1-cell-description')).toHaveTextContent('Client2 api');
-    expect(screen.getByTestId('tab-3-table-0-row-1-cell-type')).toHaveTextContent('Producer');
+
+    expect(screen.getByTestId('tab-3-table-0-row-1-cell-apiKind')).toHaveTextContent('Method');
+    expect(screen.getByTestId('tab-3-table-0-row-1-cell-name')).toHaveTextContent('send');
+    expect(screen.getByTestId('tab-3-table-0-row-1-cell-description')).toHaveTextContent(
+      'Send ediMessage to trading partner',
+    );
+    expect(screen.getByTestId('tab-3-table-0-row-1-cell-type')).toHaveTextContent('');
+
+    expect(screen.getByTestId('tab-3-table-0-row-2-cell-apiKind')).toHaveTextContent('Param');
+    expect(screen.getByTestId('tab-3-table-0-row-2-cell-name')).toHaveTextContent('as2From');
+    expect(screen.getByTestId('tab-3-table-0-row-2-cell-description')).toHaveTextContent('Required AS2 name of sender');
+    expect(screen.getByTestId('tab-3-table-0-row-2-cell-type')).toHaveTextContent('String');
+
+    expect(screen.getByTestId('tab-3-table-0-row-3-cell-apiKind')).toHaveTextContent('Api');
+    expect(screen.getByTestId('tab-3-table-0-row-3-cell-name')).toHaveTextContent('client2');
+    expect(screen.getByTestId('tab-3-table-0-row-3-cell-description')).toHaveTextContent('Client2 api');
+    expect(screen.getByTestId('tab-3-table-0-row-3-cell-type')).toHaveTextContent('Producer');
+  });
+
+  it('switchs between tabs and apis', async () => {
+    // modal uses React portals so baseElement needs to be used here
+    render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+    // switch to API tab
+    expect(screen.getByTestId('tab-0-table-0-properties-modal-table-caption')).toBeVisible();
+    expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-2-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-3-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-3')).toHaveAttribute('aria-selected', 'false');
+    screen.getByTestId('tab-3').click();
+    await new Promise(process.nextTick);
+    expect(screen.getByTestId('tab-0-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-2-table-0-properties-modal-table-caption')).not.toBeVisible();
+    expect(screen.getByTestId('tab-3-table-0-properties-modal-table-caption')).toBeVisible();
+    expect(screen.getByTestId('tab-3')).toHaveAttribute('aria-selected', 'true');
+
+    // expand api
+    expect(screen.getByLabelText('Expand row 0')).toHaveAttribute('aria-expanded', 'false');
+    screen.getByLabelText('Expand row 0').click();
+    await new Promise(process.nextTick);
+    expect(screen.getByLabelText('Collapse row 0')).toHaveAttribute('aria-expanded', 'true');
+
+    // expand method
+    expect(screen.getByLabelText('Expand row 1')).toHaveAttribute('aria-expanded', 'false');
+    screen.getByLabelText('Expand row 1').click();
+    await new Promise(process.nextTick);
+    expect(screen.getByLabelText('Collapse row 1')).toHaveAttribute('aria-expanded', 'true');
+
+    // close api, method is invisible but should still be expanded
+    screen.getByLabelText('Collapse row 0').click();
+    await new Promise(process.nextTick);
+    expect(screen.getByLabelText('Expand row 0')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByLabelText('Collapse row 1')).not.toBeVisible();
+    expect(screen.getByLabelText('Collapse row 1')).toHaveAttribute('aria-expanded', 'true');
+    screen.getByLabelText('Expand row 0').click();
+    await new Promise(process.nextTick);
+    expect(screen.getByLabelText('Collapse row 1')).toBeVisible();
+    expect(screen.getByLabelText('Collapse row 1')).toHaveAttribute('aria-expanded', 'true');
   });
 });
 
