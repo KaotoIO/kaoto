@@ -125,6 +125,7 @@ describe('camelComponentToTab', () => {
         } as Record<string, ICamelComponentApiMethod>,
       },
     } as Record<string, ICamelComponentApi>;
+    componentDef.apiProperties = {}
     const tab = transformCamelComponentIntoTab(componentDef);
 
     expect(tab).toHaveLength(3);

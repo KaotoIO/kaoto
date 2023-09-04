@@ -1,14 +1,14 @@
 import { List, ListItem } from '@patternfly/react-core';
 import { Caption, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent } from 'react';
-import { IPropertiesTable, PropertiesHeaders } from './PropertiesModal.models';
+import { IPropertiesTable, PropertiesHeaders } from '../PropertiesModal.models';
 
-interface IPropertiesTableProps {
+interface IPropertiesTableSimpleProps {
   rootDataTestId: string;
   table: IPropertiesTable;
 }
 
-export const PropertiesTable: FunctionComponent<IPropertiesTableProps> = (props) => {
+export const PropertiesTableSimple: FunctionComponent<IPropertiesTableSimpleProps> = (props) => {
   const table = props.table;
   return (
     <Table aria-label="Simple table" variant="compact" data-testid={props.rootDataTestId}>
