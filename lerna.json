@@ -4,8 +4,14 @@
   "npmClient": "yarn",
   "command": {
     "publish": {
+      // Check devDependencies as well for changed packages
+      "graphType": "all",
+
+      // Use commit prefix to determine minor vs major
       "conventionalCommits": true,
+
       "message": "chore(release): publish new version %v",
+
       "registry": "http://localhost:4873"
     }
   },
