@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/@lerna-lite/cli/schemas/lerna-schema.json",
+  "version": "independent",
+  "npmClient": "yarn",
+  "command": {
+    "publish": {
+      "conventionalCommits": true,
+      "message": "chore(release): publish new version %v",
+      "registry": "http://localhost:4873"
+    }
+  },
+  "useWorkspaces": true
+}

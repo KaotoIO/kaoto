@@ -1,12 +1,11 @@
 {
   "name": "@kaoto-next/ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "Kaoto UI",
   "repository": "git@github.com:KaotoIO/kaoto-next.git",
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
-  "private": true,
   "main": "src/public-api.ts",
   "scripts": {
     "start": "vite",
@@ -20,7 +19,7 @@
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.0.2",
-    "@kaoto-next/camel-catalog": "workspace:*",
+    "@kaoto-next/camel-catalog": "0.1.0",
     "@kie-tools/uniforms-patternfly": "^0.31.0",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
@@ -74,5 +73,9 @@
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.5.1",
     "vite-plugin-static-copy": "^0.17.0"
-  }
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
+  "gitHead": "a8c28b021c6e2d45c232f99b1974663e4bdf573d"
 }
