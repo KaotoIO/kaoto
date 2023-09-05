@@ -55,7 +55,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         setActiveGroup={setActiveGroup}
       />
 
-      <BaseCatalog tiles={filteredTiles} onTileClick={onTileClick} />
+      <BaseCatalog className="catalog__base" tiles={filteredTiles} onTileClick={onTileClick} />
     </>
   );
 };
