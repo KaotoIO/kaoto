@@ -1,21 +1,19 @@
-import { FunctionComponent, PropsWithChildren, useState } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import { CamelRoute } from '../../models/camel-entities';
-import { camelRoute } from '../../stubs/camel-route';
+import { BaseVisualCamelEntity } from '../../models/camel-entities';
 import { Canvas } from './Canvas';
 import './Visualization.scss';
 
 interface CanvasProps {
   className?: string;
+  entities: BaseVisualCamelEntity[];
 }
 
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
-  const [entities] = useState<CamelRoute[]>([camelRoute]);
-
   return (
     <div className={`canvasSurface ${props.className ?? ''}`}>
       <ReactFlowProvider>
-        <Canvas entities={entities} />
+        <Canvas entities={props.entities} />
       </ReactFlowProvider>
     </div>
   );

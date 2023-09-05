@@ -1,14 +1,16 @@
 import { Outlet } from 'react-router-dom';
 import { Shell } from './layout/Shell';
-import { CatalogSchemaLoaderProvider } from './providers/catalog-schema-loader.provider';
+import { CatalogSchemaLoaderProvider, EntitiesProvider } from './providers';
 
 function App() {
   return (
-    <Shell>
-      <CatalogSchemaLoaderProvider>
-        <Outlet />
-      </CatalogSchemaLoaderProvider>
-    </Shell>
+    <EntitiesProvider>
+      <Shell>
+        <CatalogSchemaLoaderProvider>
+          <Outlet />
+        </CatalogSchemaLoaderProvider>
+      </Shell>
+    </EntitiesProvider>
   );
 }
 

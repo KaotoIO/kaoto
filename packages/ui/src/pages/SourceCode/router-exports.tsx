@@ -1,3 +1,3 @@
-import { SourceCodePage } from './SourceCode';
+import { SourceCodePage } from './SourceCodePage';
 
 export const element = <SourceCodePage />;

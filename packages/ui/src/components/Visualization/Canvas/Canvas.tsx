@@ -10,14 +10,14 @@ import {
   createTopologyControlButtons,
   defaultControlButtonsOptions,
 } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { CamelRoute } from '../../../models/camel-entities';
-import { CanvasService } from './canvas.service';
+import { FunctionComponent, PropsWithChildren, ReactNode, useEffect, useMemo, useState } from 'react';
+import { BaseVisualCamelEntity } from '../../../models/camel-entities';
 import { CanvasEdge, CanvasNode } from './canvas.models';
+import { CanvasService } from './canvas.service';
 
 interface CanvasProps {
-  contextToolbar?: React.ReactNode;
-  entities: CamelRoute[];
+  contextToolbar?: ReactNode;
+  entities: BaseVisualCamelEntity[];
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {

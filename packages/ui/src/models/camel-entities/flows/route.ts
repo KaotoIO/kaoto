@@ -1,24 +1,11 @@
 /* eslint-disable no-case-declarations */
-import {
-  FromDefinition as CamelFromDefinition,
-  RouteDefinition as CamelRouteDefinition,
-  Choice,
-  To,
-} from '@kaoto-next/camel-catalog/types';
+import { Choice, To } from '@kaoto-next/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
 import { VisualizationNode } from '../../visualization';
-import { BaseCamelEntity, EntityType } from '../base-entity';
-import { CamelRouteStep } from './step';
+import { BaseVisualCamelEntity, EntityType } from '../base-entity';
+import { CamelRouteStep, RouteDefinition } from '../camel-overrides';
 
-interface FromDefinition extends Omit<CamelFromDefinition, 'steps'> {
-  steps: CamelRouteStep[];
-}
-
-interface RouteDefinition extends Omit<CamelRouteDefinition, 'from'> {
-  from: FromDefinition;
-}
-
-export class CamelRoute implements BaseCamelEntity {
+export class CamelRoute implements BaseVisualCamelEntity {
   readonly id = uuidv4();
   readonly type = EntityType.Route;
 
