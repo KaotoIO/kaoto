@@ -137,26 +137,26 @@ describe('camelComponentToTable', () => {
         methods: {
           send: {
             properties: {
-              request : {
+              request: {
                 index: 0,
-                kind: "parameter",
-                displayName: "Request Uri Pattern",
-                group: "consumer",
-                label: "",
+                kind: 'parameter',
+                displayName: 'Request Uri Pattern',
+                group: 'consumer',
+                label: '',
                 required: false,
-                type: "string",
-                javaType: "java.lang.String",
+                type: 'string',
+                javaType: 'java.lang.String',
                 deprecated: false,
                 autowired: false,
                 secret: false,
-                description: "Request uri",
-                optional: false
-              } as ICamelComponentProperty
-            } as Record<string, ICamelComponentProperty>
-          } as ICamelComponentApiPropertyMethod
-        } as Record<string, ICamelComponentApiPropertyMethod>
-      } as ICamelComponentApiProperty
-    } as Record<string, ICamelComponentApiProperty>
+                description: 'Request uri',
+                optional: false,
+              } as ICamelComponentProperty,
+            } as Record<string, ICamelComponentProperty>,
+          } as ICamelComponentApiPropertyMethod,
+        } as Record<string, ICamelComponentApiPropertyMethod>,
+      } as ICamelComponentApiProperty,
+    } as Record<string, ICamelComponentApiProperty>,
   } as ICamelComponentDefinition;
 
   it('should return a component properties IPropertiesTable with the correct values', () => {
@@ -177,6 +177,7 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(false);
     expect(table.rows[0].rowAdditionalInfo.enum).toBeUndefined;
   });
+
   it('should return a properties IPropertiesTable with the correct values with filter', () => {
     const table = camelComponentPropertiesToTable(componentDef.properties, {
       filterKey: 'kind',
@@ -198,6 +199,7 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
     expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
+
   it('should return a headers IPropertiesTable with the correct values', () => {
     let table = camelComponentPropertiesToTable(componentDef.headers!, { filterKey: 'kind', filterValue: 'parameter' });
     expect(table.type).toEqual(PropertiesTableType.Simple);
@@ -217,6 +219,7 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
   });
+
   it('should return a apis IPropertiesTable with the correct values', () => {
     const table = camelComponentApisToTable({ apis: componentDef.apis!, apiProperties: componentDef.apiProperties! });
     expect(table.type).toEqual(PropertiesTableType.Tree);
@@ -229,20 +232,21 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].description).toEqual('Client api');
     expect(table.rows[0].type).toEqual('Both');
     expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
-    expect(table.rows[0].children?.length).toEqual(1)
+    expect(table.rows[0].children?.length).toEqual(1);
     expect(table.rows[1].name).toEqual('client2');
     expect(table.rows[1].description).toEqual('Client2 api');
     expect(table.rows[1].type).toEqual('Both');
-    expect(table.rows[1].children?.length).toEqual(0)
+    expect(table.rows[1].children?.length).toEqual(0);
     expect(table.rows[2].name).toEqual('server');
     expect(table.rows[2].description).toEqual('Server api');
     expect(table.rows[2].type).toEqual('Consumer');
-    expect(table.rows[1].children?.length).toEqual(0)
+    expect(table.rows[1].children?.length).toEqual(0);
     expect(table.rows[3].name).toEqual('server2');
     expect(table.rows[3].description).toEqual('Server2 api');
     expect(table.rows[3].type).toEqual('Producer');
-    expect(table.rows[1].children?.length).toEqual(0)
+    expect(table.rows[1].children?.length).toEqual(0);
   });
+
   it('should return a apis IPropertiesTable with the correct values with filter', () => {
     let table = camelComponentApisToTable(
       { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
@@ -505,8 +509,8 @@ describe('getClassNameOnly', () => {
   });
 
   it('should report warning in console log if does not know', () => {
-    let invalidName = 'java.^#&.p@ckage.Cla$$';
-    const consoleSpy = jest.spyOn(console, 'log');
+    const invalidName = 'java.^#&.p@ckage.Cla$$';
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     expect(getClassNameOnlyFunctionExportedForTesting(invalidName)).toEqual(invalidName);
     expect(consoleSpy).toHaveBeenCalledWith('[WARN] Not able to parse this fully qualified name: ' + invalidName);
   });

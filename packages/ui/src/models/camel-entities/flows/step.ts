@@ -1,7 +1,4 @@
-import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
-
-export type CamelRouteStep = Step | ProcessorDefinition;
 
 export class Step {
   id = '';

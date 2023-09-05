@@ -1,10 +1,10 @@
 import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { CamelSchemasProcessor } from '../camel-utils';
+import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
 import { useCatalogStore, useSchemasStore } from '../store';
 
-export const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
+const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
 
 /**
  * Loader for the components catalog and schemas.
@@ -46,7 +46,7 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
 };
 
 async function fetchCatalogFile(file: string) {
-  const response = await fetch(`camel-catalog/${file}`);
+  const response = await fetch(`${DEFAULT_CATALOG_PATH}/${file}`);
   return await response.json();
 }
 
@@ -58,6 +58,7 @@ function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<Schema>[] {
       name: schemaDef.name,
       tags: [],
       version: schemaDef.version,
+      uri: `${DEFAULT_CATALOG_PATH}/${schemaDef.file}`,
       schema: schema,
     };
   });

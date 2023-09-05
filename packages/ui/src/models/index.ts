@@ -4,6 +4,7 @@ export * from './camel-processors-catalog';
 export * from './camel-properties-common';
 export * from './catalog-kind';
 export * from './kamelets-catalog';
+export * from './local-storage-keys';
 export * from './react-component';
 export * from './schema';
 export * from './validation';

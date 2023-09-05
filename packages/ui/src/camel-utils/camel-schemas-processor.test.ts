@@ -26,6 +26,7 @@ describe('camel-schemas-processor', () => {
     {
       name: 'user-schema',
       version: '3.2.0',
+      uri: 'https://camel.apache.org/schema/user-schema.json',
       tags: [],
       schema: userSchemaJson,
     },
@@ -51,7 +52,57 @@ describe('camel-schemas-processor', () => {
     expect(result[0].name).toEqual('user-schema');
     expect(result[0].version).toEqual('3.2.0');
     expect(result[0].tags).toEqual([]);
+    expect(result[0].uri).toEqual('https://camel.apache.org/schema/user-schema.json');
     expect(result[0].schema).toEqual(userSchemaJson);
+  });
+
+  it('should return a list of schemas for camel schemas', () => {
+    const result = CamelSchemasProcessor.getSchemas([{ ...schemas[0], schema: camelSchema }]);
+    const expected = [
+      {
+        name: 'user-schema',
+        schema: {
+          $schema: 'http://json-schema.org/draft-07/schema#',
+          items: {
+            definitions: {
+              route: {
+                properties: {
+                  id: {
+                    type: 'string',
+                  },
+                },
+                type: 'object',
+              },
+            },
+            properties: {
+              route: {
+                $ref: '#/definitions/route',
+              },
+            },
+          },
+          type: 'array',
+        },
+        tags: [],
+        uri: 'https://camel.apache.org/schema/user-schema.json',
+        version: '3.2.0',
+      },
+      {
+        name: 'route',
+        version: '3.2.0',
+        tags: ['visualization'],
+        uri: 'https://camel.apache.org/schema/user-schema.json',
+        schema: {
+          $schema: 'https://json-schema.org/draft-04/schema#',
+          type: 'object',
+          items: { definitions: camelSchema.items },
+          properties: {
+            route: camelSchema.items.properties.route,
+          },
+        },
+      },
+    ];
+
+    expect(result).toEqual(expected);
   });
 
   it.each([
@@ -61,7 +112,7 @@ describe('camel-schemas-processor', () => {
       [],
     ],
     ['userSchema', { ...schemas[0], schema: userSchemaJson }, []],
-    ['Route', { ...schemas[0], schema: camelSchema }, ['visualization']],
+    ['Route', { ...schemas[0], name: 'route', schema: camelSchema }, ['visualization']],
     ['Integration', { ...schemas[0], name: 'Integration' }, ['visualization']],
     ['Kamelet', { ...schemas[0], name: 'Kamelet' }, ['visualization']],
     ['KameletBinding', { ...schemas[0], name: 'KameletBinding' }, ['visualization']],

@@ -13,6 +13,7 @@ describe('SchemaSelector', () => {
         name: 'name',
         version: 'version',
         tags: [],
+        uri: 'uri',
         schema: userSchemaJson,
       },
     ],
