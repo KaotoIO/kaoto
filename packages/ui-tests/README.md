@@ -17,3 +17,5 @@ yarn workspace @kaoto-next/ui-tests run e2e:headless
 # options: chrome, chromium, edge, electron, firefox
 yarn workspace @kaoto-next/ui-tests run e2e:headless --browser firefox
 ```
+
+Fake change
