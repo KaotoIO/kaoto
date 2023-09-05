@@ -4,6 +4,7 @@ import { useState } from 'react';
 import aggregate from '../cypress/fixtures/aggregate.json';
 import cronSource from '../cypress/fixtures/cronSource.json';
 import activeMq from '../cypress/fixtures/activeMq.json';
+import box from '../cypress/fixtures/box.json';
 
 export default {
   title: 'Components/PropertiesModal',
@@ -35,4 +36,9 @@ SmallKameletPropertiesModal.args = {
 export const LargeComponentPropertiesModal = Template.bind({});
 LargeComponentPropertiesModal.args = {
   tile: activeMq as ITile,
+};
+
+export const LargeComponentPropertiesModalWithApi = Template.bind({});
+LargeComponentPropertiesModalWithApi.args = {
+  tile: box as ITile,
 };
