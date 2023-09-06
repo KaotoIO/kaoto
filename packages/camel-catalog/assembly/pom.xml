@@ -7,7 +7,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <groupId>io.kaoto</groupId>
   <artifactId>kaoto-camel-catalog</artifactId>
   <packaging>pom</packaging>
   <name>kaoto-camel-catalog</name>
@@ -58,54 +57,20 @@
               <outputDirectory>${inputDirectory}</outputDirectory>
               <includes>kamelets/*</includes>
             </artifactItem>
-            <!-- TODO: Uncomment when Camel K CRDs are available in Maven Central
-                 https://github.com/apache/camel-k/issues/4655
             <artifactItem>
               <groupId>org.apache.camel.k</groupId>
               <artifactId>camel-k-crds</artifactId>
               <version>${version.camel-k-crds}</version>
-              <outputDirectory>${inputDirectory}/camel-k</outputDirectory>
-              <includes>**/*.yaml</includes>
+              <outputDirectory>${inputDirectory}/crds</outputDirectory>
+              <includes>
+                camel.apache.org_integrations.yaml,
+                camel.apache.org_kameletbindings.yaml,
+                camel.apache.org_kamelets.yaml,
+                camel.apache.org_pipes.yaml
+              </includes>
             </artifactItem>
-            -->
           </artifactItems>
         </configuration>
-      </plugin>
-      <!-- TODO: A temporary workaround to download Camel K CRDs from GitHub
-           https://github.com/apache/camel-k/issues/4655 -->
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>${version.maven-antrun-plugin}</version>
-        <executions>
-          <execution>
-            <id>download-files</id>
-            <phase>process-sources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <mkdir dir="${inputDirectory}/crds"/>
-                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_integrations.yaml"
-                     dest="${inputDirectory}/crds/integration.yaml"
-                     verbose="true"
-                     usetimestamp="true"/>
-                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_kameletbindings.yaml"
-                     dest="${inputDirectory}/crds/kameletbinding.yaml"
-                     verbose="true"
-                     usetimestamp="true"/>
-                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_kamelets.yaml"
-                     dest="${inputDirectory}/crds/kamelet.yaml"
-                     verbose="true"
-                     usetimestamp="true"/>
-                <get src="https://raw.githubusercontent.com/apache/camel-k/v2.0.0/config/crd/bases/camel.apache.org_pipes.yaml"
-                     dest="${inputDirectory}/crds/pipe.yaml"
-                     verbose="true"
-                     usetimestamp="true"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.camel</groupId>
@@ -120,6 +85,7 @@
             </goals>
             <configuration>
               <kebabCase>false</kebabCase>
+              <additionalProperties>false</additionalProperties>
               <outputFile>${inputDirectory}/schema/camelYamlDsl.json</outputFile>
             </configuration>
           </execution>
