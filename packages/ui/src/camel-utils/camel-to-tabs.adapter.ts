@@ -106,7 +106,7 @@ export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefi
       [
         {
           transformFunction: camelComponentApisToTable,
-          objectToTransform: componentDef.apis,
+          objectToTransform: { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
         },
       ],
       'APIs',

@@ -1,7 +1,9 @@
-import { PropertiesHeaders } from '../components/PropertiesModal/PropertiesModal.models';
+import { PropertiesHeaders, PropertiesTableType } from '../components/PropertiesModal/PropertiesModal.models';
 import {
   ICamelComponentApi,
   ICamelComponentApiMethod,
+  ICamelComponentApiProperty,
+  ICamelComponentApiPropertyMethod,
   ICamelComponentDefinition,
   ICamelComponentHeader,
   ICamelComponentProperty,
@@ -130,10 +132,36 @@ describe('camelComponentToTable', () => {
         } as Record<string, ICamelComponentApiMethod>,
       },
     } as Record<string, ICamelComponentApi>,
+    apiProperties: {
+      client: {
+        methods: {
+          send: {
+            properties: {
+              request : {
+                index: 0,
+                kind: "parameter",
+                displayName: "Request Uri Pattern",
+                group: "consumer",
+                label: "",
+                required: false,
+                type: "string",
+                javaType: "java.lang.String",
+                deprecated: false,
+                autowired: false,
+                secret: false,
+                description: "Request uri",
+                optional: false
+              } as ICamelComponentProperty
+            } as Record<string, ICamelComponentProperty>
+          } as ICamelComponentApiPropertyMethod
+        } as Record<string, ICamelComponentApiPropertyMethod>
+      } as ICamelComponentApiProperty
+    } as Record<string, ICamelComponentApiProperty>
   } as ICamelComponentDefinition;
 
   it('should return a component properties IPropertiesTable with the correct values', () => {
     const table = camelComponentPropertiesToTable(componentDef.componentProperties);
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Default);
@@ -154,6 +182,7 @@ describe('camelComponentToTable', () => {
       filterKey: 'kind',
       filterValue: 'parameter',
     });
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Default);
@@ -171,6 +200,7 @@ describe('camelComponentToTable', () => {
   });
   it('should return a headers IPropertiesTable with the correct values', () => {
     let table = camelComponentPropertiesToTable(componentDef.headers!, { filterKey: 'kind', filterValue: 'parameter' });
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Default);
@@ -188,7 +218,8 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
   });
   it('should return a apis IPropertiesTable with the correct values', () => {
-    const table = camelComponentApisToTable(componentDef.apis!);
+    const table = camelComponentApisToTable({ apis: componentDef.apis!, apiProperties: componentDef.apiProperties! });
+    expect(table.type).toEqual(PropertiesTableType.Tree);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -198,24 +229,35 @@ describe('camelComponentToTable', () => {
     expect(table.rows[0].description).toEqual('Client api');
     expect(table.rows[0].type).toEqual('Both');
     expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
+    expect(table.rows[0].children?.length).toEqual(1)
     expect(table.rows[1].name).toEqual('client2');
     expect(table.rows[1].description).toEqual('Client2 api');
     expect(table.rows[1].type).toEqual('Both');
+    expect(table.rows[1].children?.length).toEqual(0)
     expect(table.rows[2].name).toEqual('server');
     expect(table.rows[2].description).toEqual('Server api');
     expect(table.rows[2].type).toEqual('Consumer');
+    expect(table.rows[1].children?.length).toEqual(0)
     expect(table.rows[3].name).toEqual('server2');
     expect(table.rows[3].description).toEqual('Server2 api');
     expect(table.rows[3].type).toEqual('Producer');
+    expect(table.rows[1].children?.length).toEqual(0)
   });
   it('should return a apis IPropertiesTable with the correct values with filter', () => {
-    let table = camelComponentApisToTable(componentDef.apis!, { filterKey: 'description', filterValue: 'whatever' });
+    let table = camelComponentApisToTable(
+      { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
+      { filterKey: 'description', filterValue: 'whatever' },
+    );
+    expect(table.type).toEqual(PropertiesTableType.Tree);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);
     expect(table.rows.length).toEqual(0);
 
-    table = camelComponentApisToTable(componentDef.apis!, { filterKey: 'description', filterValue: 'Server api' });
+    table = camelComponentApisToTable(
+      { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
+      { filterKey: 'description', filterValue: 'Server api' },
+    );
     expect(table.rows.length).toEqual(1);
     expect(table.rows[0].name).toEqual('server');
     expect(table.rows[0].description).toEqual('Server api');
@@ -251,6 +293,7 @@ describe('camelProcessorToTable', () => {
 
   it('should return a properties IPropertiesTable with the correct values', () => {
     const table = camelProcessorPropertiesToTable(processDef.properties);
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -269,6 +312,7 @@ describe('camelProcessorToTable', () => {
 
   it('should return a properties IPropertiesTable with the correct values with filter', () => {
     let table = camelProcessorPropertiesToTable(processDef.properties, { filterKey: 'kind', filterValue: 'path' });
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
@@ -360,6 +404,7 @@ describe('kameletToTable', () => {
     } as IKameletDefinition;
 
     let table = kameletToPropertiesTable(kameletDef, { filterKey: 'type', filterValue: 'string' });
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Property);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
@@ -391,7 +436,6 @@ describe('kameletToTable', () => {
     } as IKameletDefinition;
 
     const table = kameletToPropertiesTable(kameletDef);
-
     expect(table.headers).toContain(PropertiesHeaders.Property);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
@@ -420,7 +464,7 @@ describe('kameletToTable', () => {
     } as IKameletDefinition;
 
     const table = kameletToPropertiesTable(kameletDef);
-
+    expect(table.type).toEqual(PropertiesTableType.Simple);
     expect(table.headers).toContain(PropertiesHeaders.Property);
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
