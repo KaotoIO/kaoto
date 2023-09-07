@@ -18,7 +18,7 @@
     "build": "yarn clean && yarn build:mvn && yarn build:ts",
     "build:mvn": "./mvnw clean install",
     "build:ts": "ts-node --esm ./src/json-schema-to-typescript.mts",
-    "clean": "rm -rf dist"
+    "clean": "yarn rimraf ./dist"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
