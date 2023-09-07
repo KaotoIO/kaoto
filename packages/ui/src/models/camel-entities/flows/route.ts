@@ -10,11 +10,11 @@ import { VisualizationNode } from '../../visualization';
 import { BaseCamelEntity, EntityType } from '../base-entity';
 import { CamelRouteStep } from './step';
 
-interface FromDefinition extends Exclude<CamelFromDefinition, 'steps'> {
+interface FromDefinition extends Omit<CamelFromDefinition, 'steps'> {
   steps: CamelRouteStep[];
 }
 
-interface RouteDefinition extends Exclude<CamelRouteDefinition, 'from'> {
+interface RouteDefinition extends Omit<CamelRouteDefinition, 'from'> {
   from: FromDefinition;
 }
 
