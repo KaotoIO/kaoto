@@ -4,14 +4,16 @@
     margin: 0;
   }
 
-  &__header {
+  &__header,
+  &__footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-flow: wrap;
   }
 
   &__icon {
-    max-width: 25px;
+    width: 25px;
   }
 
   &__title {
@@ -22,5 +24,10 @@
     max-height: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  &__tags {
+    margin-right: 1px;
+    margin-left: 1px;
   }
 }

@@ -40,7 +40,7 @@ const getClassNameOnly = (fullyQualifiedName: string): string => {
     // it is already class name only
     return fullyQualifiedName;
   }
-  let regex = fullyQualifiedClassNameRegex.exec(fullyQualifiedName);
+  const regex = fullyQualifiedClassNameRegex.exec(fullyQualifiedName);
   if (regex && regex.length > 0) {
     return regex[2];
   } else {
@@ -104,8 +104,8 @@ export const camelComponentApisToTable = (
     for (const [methodName, method] of Object.entries(api.methods)) {
       const propertiesRows: IPropertiesRow[] = [];
       //go through method properties
-      let properties = camelApisInfo.apiProperties[apiName]?.methods[methodName]?.properties;
-      if (!properties) continue // in case this method doesn't have any property
+      const properties = camelApisInfo.apiProperties[apiName]?.methods[methodName]?.properties;
+      if (!properties) continue; // in case this method doesn't have any property
       for (const [propertyName, property] of Object.entries(properties)) {
         propertiesRows.push({
           name: propertyName,
@@ -115,7 +115,7 @@ export const camelComponentApisToTable = (
             required: property.required,
             autowired: property.autowired,
             enum: property.enum,
-            apiKind: ICamelComponentApiKind.PARAM
+            apiKind: ICamelComponentApiKind.PARAM,
           },
         });
       }
@@ -125,7 +125,7 @@ export const camelComponentApisToTable = (
         type: '',
         children: propertiesRows,
         rowAdditionalInfo: {
-          apiKind: ICamelComponentApiKind.METHOD
+          apiKind: ICamelComponentApiKind.METHOD,
         },
       });
     }
@@ -135,7 +135,7 @@ export const camelComponentApisToTable = (
       type: getApiType(api.consumerOnly, api.producerOnly),
       children: methodsRows,
       rowAdditionalInfo: {
-        apiKind: ICamelComponentApiKind.API
+        apiKind: ICamelComponentApiKind.API,
       },
     });
   }

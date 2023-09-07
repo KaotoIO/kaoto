@@ -1,5 +1,5 @@
+import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from './camel-to-tile.adapter';
-import { ICamelComponentDefinition, CatalogKind, ICamelProcessorDefinition, IKameletDefinition } from '../models';
 
 describe('camelComponentToTile', () => {
   it('should return a tile with the correct type', () => {
@@ -30,7 +30,7 @@ describe('camelComponentToTile', () => {
     expect(tile.headerTags).toEqual(['Preview']);
   });
 
-  it('should populate the tags', () => {
+  it('should populate the tags and version', () => {
     const componentDef = {
       component: {
         label: 'label1,label2',
@@ -40,7 +40,8 @@ describe('camelComponentToTile', () => {
 
     const tile = camelComponentToTile(componentDef);
 
-    expect(tile.tags).toEqual(['label1', 'label2', '4.0.0']);
+    expect(tile.tags).toEqual(['label1', 'label2']);
+    expect(tile.version).toEqual('4.0.0');
   });
 });
 
@@ -123,7 +124,7 @@ describe('kameletToTile', () => {
     expect(tile.tags).toEqual(['source']);
   });
 
-  it('should populate the tags for annotations', () => {
+  it('should populate the version for annotations', () => {
     const kameletDef = {
       metadata: {
         labels: {},
@@ -141,6 +142,27 @@ describe('kameletToTile', () => {
 
     const tile = kameletToTile(kameletDef);
 
-    expect(tile.tags).toEqual(['1.0.0']);
+    expect(tile.version).toEqual('1.0.0');
+  });
+
+  it('should populate the headerTags', () => {
+    const kameletDef = {
+      metadata: {
+        annotations: {
+          'camel.apache.org/kamelet.support.level': 'Preview',
+        },
+        labels: {},
+      },
+      spec: {
+        definition: {
+          title: 'My Kamelet',
+          description: 'My Kamelet Description',
+        },
+      },
+    } as IKameletDefinition;
+
+    const tile = kameletToTile(kameletDef);
+
+    expect(tile.headerTags).toEqual(['Preview']);
   });
 });

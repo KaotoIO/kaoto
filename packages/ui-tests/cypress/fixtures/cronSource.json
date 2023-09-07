@@ -3,7 +3,8 @@
   "name": "cron-source",
   "title": "Cron Source",
   "description": "Send events at specific time.",
-  "tags": ["source", "4.0.0-RC1"],
+  "tags": ["source"],
+  "version": ["4.0.0-RC1"],
   "rawObject": {
     "apiVersion": "camel.apache.org/v1alpha1",
     "kind": "Kamelet",
