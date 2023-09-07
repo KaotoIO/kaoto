@@ -51,14 +51,30 @@ exports[`Tile renders correctly 1`] = `
           src=""
         />
         <span
-          class="pf-v5-c-badge pf-m-read"
+          class="pf-v5-c-label pf-m-compact"
         >
-          header-tag1
+          <span
+            class="pf-v5-c-label__content"
+          >
+            <span
+              class="pf-v5-c-label__text"
+            >
+              header-tag1
+            </span>
+          </span>
         </span>
         <span
-          class="pf-v5-c-badge pf-m-read"
+          class="pf-v5-c-label pf-m-compact"
         >
-          header-tag2
+          <span
+            class="pf-v5-c-label__content"
+          >
+            <span
+              class="pf-v5-c-label__text"
+            >
+              header-tag2
+            </span>
+          </span>
         </span>
       </div>
       <div
@@ -81,17 +97,33 @@ exports[`Tile renders correctly 1`] = `
     tile-description
   </div>
   <div
-    class="pf-v5-c-card__footer tile__header"
+    class="pf-v5-c-card__footer tile__footer"
   >
     <span
-      class="pf-v5-c-badge pf-m-read"
+      class="pf-v5-c-label pf-m-compact tile__tags"
     >
-      tag1
+      <span
+        class="pf-v5-c-label__content"
+      >
+        <span
+          class="pf-v5-c-label__text"
+        >
+          tag1
+        </span>
+      </span>
     </span>
     <span
-      class="pf-v5-c-badge pf-m-read"
+      class="pf-v5-c-label pf-m-compact tile__tags"
     >
-      tag2
+      <span
+        class="pf-v5-c-label__content"
+      >
+        <span
+          class="pf-v5-c-label__text"
+        >
+          tag2
+        </span>
+      </span>
     </span>
   </div>
 </div>

@@ -66,7 +66,7 @@ export interface ICamelComponentApiPropertyMethod {
 }
 
 export enum ICamelComponentApiKind {
-  API='Api',
-  METHOD='Method',
-  PARAM='Param',
+  API = 'Api',
+  METHOD = 'Method',
+  PARAM = 'Param',
 }

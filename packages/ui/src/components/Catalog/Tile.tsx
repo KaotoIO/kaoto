@@ -1,8 +1,9 @@
-import { Badge, Card, CardBody, CardFooter, CardHeader, CardTitle } from '@patternfly/react-core';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Label } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
-import './Tile.scss';
 import { IconResolver } from '../IconResolver';
-import { ITile } from './Tile.models';
+import { ITile } from './Catalog.models';
+import './Tile.scss';
+import { getTagColor } from './tag-color-resolver';
 
 interface TileProps {
   tile: ITile;
@@ -34,10 +35,10 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       >
         <div className="tile__header">
           <IconResolver className="tile__icon" tile={props.tile} />
-          {props.tile.headerTags?.map((tag) => (
-            <Badge key={`${props.tile.name}-${tag}`} isRead>
+          {props.tile.headerTags?.map((tag, index) => (
+            <Label key={`${props.tile.name}-${tag}-${index}`} isCompact color={getTagColor(tag)}>
               {tag}
-            </Badge>
+            </Label>
           ))}
         </div>
 
@@ -48,12 +49,17 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
 
       <CardBody className="tile__body">{props.tile.description}</CardBody>
 
-      <CardFooter className="tile__header">
+      <CardFooter className="tile__footer">
         {props.tile.tags?.map((tag, index) => (
-          <Badge key={`${props.tile.name}-${tag}-${index}`} isRead>
+          <Label key={`${props.tile.name}-${tag}-${index}`} isCompact className={'tile__tags'} color={getTagColor(tag)}>
             {tag}
-          </Badge>
+          </Label>
         ))}
+        {props.tile.version && (
+          <Label key={`${props.tile.version}`} isCompact className={'tile__tags'} variant="outline">
+            {props.tile.version}
+          </Label>
+        )}
       </CardFooter>
     </Card>
   );

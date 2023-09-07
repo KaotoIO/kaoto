@@ -9,9 +9,9 @@
     "tags": [
       "cloud",
       "file",
-      "api",
-      "4.0.0"
+      "api"
     ],
+    "version": ["4.0.0"],
     "rawObject": {
       "component": {
         "kind": "component",
