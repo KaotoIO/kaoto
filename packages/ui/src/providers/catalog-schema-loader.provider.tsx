@@ -46,7 +46,8 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
 };
 
 async function fetchCatalogFile(file: string) {
-  const response = await fetch(`${DEFAULT_CATALOG_PATH}/${file}`);
+  /** The `.` is required to support relative routes in GitHub pages */
+  const response = await fetch(`.${DEFAULT_CATALOG_PATH}/${file}`);
   return await response.json();
 }
 
