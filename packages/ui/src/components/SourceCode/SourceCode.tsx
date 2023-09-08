@@ -11,6 +11,7 @@ import './workers/enable-workers';
 interface SourceCodeProps {
   code: string;
   onCodeChange?: (code: string) => void;
+  schemaBasePath: string;
 }
 
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
@@ -28,7 +29,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           schema: schemas[0].schema as any,
-          uri: schemas[0].uri,
+          uri: `${props.schemaBasePath}${schemas[0].uri}`,
           fileMatch: ['*'],
         },
       ],

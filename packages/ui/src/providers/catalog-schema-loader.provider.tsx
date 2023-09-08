@@ -1,10 +1,12 @@
 import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
+import { CamelSchemasProcessor } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
 import { useCatalogStore, useSchemasStore } from '../store';
 
 const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
+
+export const DEFAULT_CATALOG_PATH = '/camel-catalog';
 
 /**
  * Loader for the components catalog and schemas.

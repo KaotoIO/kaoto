@@ -1,7 +1,5 @@
 import { Schema } from '../models';
 
-export const DEFAULT_CATALOG_PATH = '/camel-catalog';
-
 export class CamelSchemasProcessor {
   static readonly VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
 
