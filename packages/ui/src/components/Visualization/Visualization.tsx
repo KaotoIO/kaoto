@@ -1,7 +1,9 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { BaseVisualCamelEntity } from '../../models/camel-entities';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
+import { CanvasFallback } from './CanvasFallback';
 import './Visualization.scss';
 
 interface CanvasProps {
@@ -12,9 +14,11 @@ interface CanvasProps {
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
   return (
     <div className={`canvasSurface ${props.className ?? ''}`}>
-      <ReactFlowProvider>
-        <Canvas entities={props.entities} />
-      </ReactFlowProvider>
+      <ErrorBoundary fallback={<CanvasFallback />}>
+        <ReactFlowProvider>
+          <Canvas entities={props.entities} />
+        </ReactFlowProvider>
+      </ErrorBoundary>
     </div>
   );
 };
