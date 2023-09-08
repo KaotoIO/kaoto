@@ -205,13 +205,27 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     }
 
     private void processCRDFile(Path file, Index index) {
-        var splitted = file.getFileName().toString().split("\\.");
-        if (splitted.length < 2) {
-            getLog().error(new Exception("Invalid file name: " + file.getFileName()));
+        var dotSplitted = file.getFileName().toString().split("\\.");
+        if (dotSplitted.length < 4
+                || !"camel".equalsIgnoreCase(dotSplitted[0])
+                || !"apache".equalsIgnoreCase(dotSplitted[1])
+                || !"yaml".equalsIgnoreCase(dotSplitted[3])) {
+            getLog().error(new Exception(
+                    "Invalid Camel K CRD file name, it is expected to be"
+                            + "'camel.apache.org_<CRD name>.yaml', but it was: "
+                            + file.getFileName()));
+            return;
+        }
+        var underscoreSplitted = dotSplitted[2].split("_");
+        if (underscoreSplitted.length < 2 || !"org".equals(underscoreSplitted[0])) {
+            getLog().error(new Exception(
+                    "Invalid Camel K CRD file name, it is expected to be"
+                            + "'camel.apache.org_<CRD name>.yaml', but it was: "
+                            + file.getFileName()));
             return;
         }
         var outputFileName = String.format(
-                "%s-%s-%s.json", CRD_SCHEMA, splitted[0], camelKCRDVersion);
+                "%s-%s-%s.json", CRD_SCHEMA, underscoreSplitted[1], camelKCRDVersion);
         var output = outputDirectory.toPath().resolve(outputFileName);
         try {
             var crd = yamlMapper.readValue(file.toFile(), CustomResourceDefinition.class);
