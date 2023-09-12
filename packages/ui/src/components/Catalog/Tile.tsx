@@ -1,13 +1,14 @@
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, Label } from '@patternfly/react-core';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
+import { CatalogTag, CatalogTagsPanel } from './Tags';
 import './Tile.scss';
-import { getTagColor } from './tag-color-resolver';
 
 interface TileProps {
   tile: ITile;
   onClick: (tile: ITile) => void;
+  onTagClick: (_event: unknown, value: string) => void;
 }
 
 export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => {
@@ -18,6 +19,7 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
   return (
     <Card
       className="tile"
+      data-testid={'tile-' + props.tile.name}
       isClickable
       isCompact
       role="button"
@@ -35,31 +37,25 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       >
         <div className="tile__header">
           <IconResolver className="tile__icon" tile={props.tile} />
-          {props.tile.headerTags?.map((tag, index) => (
-            <Label key={`${props.tile.name}-${tag}-${index}`} isCompact color={getTagColor(tag)}>
-              {tag}
-            </Label>
-          ))}
+          <LabelGroup isCompact aria-label="tile-headers-tags">
+            {props.tile.headerTags?.map((tag, index) => (
+              <CatalogTag key={`${props.tile.name}-${tag}-${index}`} tag={tag} />
+            ))}
+          </LabelGroup>
         </div>
 
         <CardTitle className="tile__title">
           <span>{props.tile.title}</span>
+          {props.tile.version && (
+            <CatalogTag key={`${props.tile.version}`} tag={props.tile.version} variant="outline" />
+          )}
         </CardTitle>
       </CardHeader>
 
       <CardBody className="tile__body">{props.tile.description}</CardBody>
 
-      <CardFooter className="tile__footer">
-        {props.tile.tags?.map((tag, index) => (
-          <Label key={`${props.tile.name}-${tag}-${index}`} isCompact className={'tile__tags'} color={getTagColor(tag)}>
-            {tag}
-          </Label>
-        ))}
-        {props.tile.version && (
-          <Label key={`${props.tile.version}`} isCompact className={'tile__tags'} variant="outline">
-            {props.tile.version}
-          </Label>
-        )}
+      <CardFooter>
+        <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
       </CardFooter>
     </Card>
   );

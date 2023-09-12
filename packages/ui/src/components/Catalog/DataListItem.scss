@@ -21,10 +21,6 @@
         flex-flow: wrap;
     }
 
-    &__tags {
-        margin-right: 5px;
-    }
-
     @media (min-width: 768px) {
         &__title-div-right {
             justify-content: right;

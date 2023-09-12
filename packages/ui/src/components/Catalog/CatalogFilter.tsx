@@ -1,4 +1,14 @@
-import { Form, FormGroup, Grid, GridItem, SearchInput, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
+import {
+  Form,
+  FormGroup,
+  Grid,
+  GridItem,
+  Label,
+  LabelGroup,
+  SearchInput,
+  ToggleGroup,
+  ToggleGroupItem,
+} from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { CatalogLayout } from './Catalog.models';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
@@ -10,9 +20,11 @@ interface CatalogFilterProps {
   layouts: CatalogLayout[];
   activeGroup: string;
   activeLayout: CatalogLayout;
+  filterTags: string[];
   onChange: (event: unknown, value?: string) => void;
   setActiveGroup: (group: string) => void;
   setActiveLayout: (layout: CatalogLayout) => void;
+  setFilterTags: (tags: string[]) => void;
 }
 
 export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
@@ -21,6 +33,10 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  const onClose = (tag: string) => {
+    props.setFilterTags(props.filterTags.filter((savedTag) => savedTag !== tag));
+  };
 
   return (
     <Form className={props.className}>
@@ -76,6 +92,13 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
           </FormGroup>
         </GridItem>
       </Grid>
+      <LabelGroup categoryName="Filtered tags" numLabels={10}>
+        {props.filterTags.map((tag, index) => (
+          <Label key={tag + index} id={tag + index} color="blue" onClose={() => onClose(tag)} isCompact>
+            {tag}
+          </Label>
+        ))}
+      </LabelGroup>
     </Form>
   );
 };

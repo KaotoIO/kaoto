@@ -14,17 +14,21 @@ describe('Tile', () => {
   };
 
   it('renders correctly', () => {
-    const { container } = render(<Tile tile={tile} onClick={jest.fn()} />);
+    const { container } = render(<Tile tile={tile} onClick={jest.fn()} onTagClick={jest.fn()} />);
 
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  it('calls onClick prop when clicked', () => {
+  it('calls onClick and onTagClick prop when clicked', () => {
     const onClick = jest.fn();
-    const { getByRole } = render(<Tile tile={tile} onClick={onClick} />);
+    const onTagClick = jest.fn();
 
-    fireEvent.click(getByRole('button'));
+    const { getByTestId } = render(<Tile tile={tile} onClick={onClick} onTagClick={onTagClick} />);
+
+    fireEvent.click(getByTestId('tile-tile-name'));
+    fireEvent.click(getByTestId('tag-tag1'));
 
     expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onTagClick).toHaveBeenCalledTimes(1);
   });
 });

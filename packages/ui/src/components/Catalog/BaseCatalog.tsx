@@ -9,6 +9,7 @@ interface BaseCatalogProps {
   tiles: ITile[];
   catalogLayout: CatalogLayout;
   onTileClick?: (tile: ITile) => void;
+  onTagClick: (_event: unknown, value: string) => void;
 }
 
 export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
@@ -34,12 +35,16 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
       </Title>
       {props.catalogLayout == CatalogLayout.List && (
         <DataList aria-label="Catalog list" onSelectDataListItem={onSelectDataListItem} isCompact>
-          {props.tiles?.map((tile) => <CatalogDataListItem key={tile.name} tile={tile} />)}
+          {props.tiles?.map((tile) => (
+            <CatalogDataListItem key={tile.name} tile={tile} onTagClick={props.onTagClick} />
+          ))}
         </DataList>
       )}
       {props.catalogLayout == CatalogLayout.Gallery && (
         <Gallery hasGutter>
-          {props.tiles?.map((tile) => <Tile key={tile.name} tile={tile} onClick={onTileClick} />)}
+          {props.tiles?.map((tile) => (
+            <Tile key={tile.name} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
+          ))}
         </Gallery>
       )}
     </div>
