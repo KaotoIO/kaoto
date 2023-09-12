@@ -16,9 +16,9 @@ import {
   Layout,
   Model,
   ModelKind,
-  NodeModel,
   NodeShape,
   Visualization,
+  withSelection,
 } from '@patternfly/react-topology';
 import { VisualizationNode } from '../../../models/visualization';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
@@ -29,7 +29,7 @@ export class CanvasService {
   static readonly DEFAULT_NODE_DIAMETER = 75;
   static readonly DEFAULT_GROUP_PADDING = 50;
 
-  static nodes: NodeModel[] = [];
+  static nodes: CanvasNode[] = [];
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
 
@@ -60,7 +60,7 @@ export class CanvasService {
           case ModelKind.graph:
             return GraphComponent;
           case ModelKind.node:
-            return DefaultNode;
+            return withSelection()(DefaultNode);
           case ModelKind.edge:
             return DefaultEdge;
           default:

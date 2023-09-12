@@ -56,25 +56,25 @@ describe('CanvasService', () => {
     it('should return the correct component for a group', () => {
       const component = CanvasService.baselineComponentFactory({} as ModelKind, 'group');
 
-      expect(component).toEqual(DefaultGroup);
+      expect(component).toBe(DefaultGroup);
     });
 
     it('should return the correct component for a graph', () => {
       const component = CanvasService.baselineComponentFactory(ModelKind.graph, 'graph');
 
-      expect(component).toEqual(GraphComponent);
+      expect(component).toBe(GraphComponent);
     });
 
     it('should return the correct component for a node', () => {
       const component = CanvasService.baselineComponentFactory(ModelKind.node, 'node');
 
-      expect(component).toEqual(DefaultNode);
+      expect(component).toBe(DefaultNode);
     });
 
     it('should return the correct component for an edge', () => {
       const component = CanvasService.baselineComponentFactory(ModelKind.edge, 'edge');
 
-      expect(component).toEqual(DefaultEdge);
+      expect(component).toBe(DefaultEdge);
     });
 
     it('should return undefined for an unknown type', () => {
