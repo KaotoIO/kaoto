@@ -17,7 +17,7 @@
   "scripts": {
     "build": "yarn clean && yarn build:mvn && yarn build:ts",
     "build:mvn": "./mvnw clean install",
-    "build:ts": "ts-node --esm ./src/json-schema-to-typescript.mts",
+    "build:ts": "node --loader ts-node/esm ./src/json-schema-to-typescript.mts",
     "clean": "yarn rimraf ./dist"
   },
   "devDependencies": {
