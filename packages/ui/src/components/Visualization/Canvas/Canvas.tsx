@@ -3,6 +3,7 @@ import {
   Model,
   SELECTION_EVENT,
   TopologyControlBar,
+  TopologySideBar,
   TopologyView,
   VisualizationProvider,
   VisualizationSurface,
@@ -10,7 +11,7 @@ import {
   createTopologyControlButtons,
   defaultControlButtonsOptions,
 } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, ReactNode, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseVisualCamelEntity } from '../../../models/camel-entities';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
@@ -64,8 +65,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     controller.fromModel(model, false);
   }, [controller, props.entities]);
 
+  const handleCloseSideBar = useCallback(() => setSelectedIds([]), []);
+
   return (
     <TopologyView
+      sideBar={
+        <TopologySideBar show={selectedIds.length > 0} onClose={handleCloseSideBar}>
+          <div style={{ marginTop: 27, marginLeft: 20, height: '800px' }}>{selectedIds[0]}</div>
+        </TopologySideBar>
+      }
       contextToolbar={props.contextToolbar}
       controlBar={
         <TopologyControlBar
