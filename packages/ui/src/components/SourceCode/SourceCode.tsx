@@ -1,5 +1,4 @@
-import { CodeEditor, Language } from '@patternfly/react-code-editor';
-import { editor } from 'monaco-editor';
+import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import { FunctionComponent, Ref, useCallback, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
@@ -42,7 +41,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
     editor?.focus();
   }, []);
 
-  const options: Ref<editor.IStandaloneEditorConstructionOptions> = useRef({
+  const options: Ref<CodeEditorProps['options']> = useRef({
     selectOnLineNumbers: true,
     readOnly: false,
     scrollbar: {
