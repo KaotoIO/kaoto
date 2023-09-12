@@ -5,16 +5,17 @@ import {
   DataListItemRow,
   Grid,
   GridItem,
-  Label,
+  LabelGroup,
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
 import './DataListItem.scss';
-import { getTagColor } from './tag-color-resolver';
+import { CatalogTag, CatalogTagsPanel } from './Tags';
 
 interface ICatalogDataListItemProps {
   tile: ITile;
+  onTagClick: (_event: unknown, value: string) => void;
 }
 
 const titleElementOrder = {
@@ -50,40 +51,28 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
                     <span id="clickable-action-item1" className="catalog-data-list-item__title-div-left__title">
                       {props.tile.title}
                     </span>
-                    {props.tile.headerTags?.map((tag, index) => (
-                      <Label
-                        key={`${props.tile.name}-${tag}-${index}`}
-                        className="catalog-data-list-item__tags"
-                        isCompact
-                        color={getTagColor(tag)}
-                      >
-                        {tag}
-                      </Label>
-                    ))}
-                    {props.tile.version && (
-                      <Label
-                        key={`${props.tile.version}`}
-                        isCompact
-                        className={'catalog-data-list-item__tags'}
-                        variant="outline"
-                      >
-                        {props.tile.version}
-                      </Label>
-                    )}
+                    <LabelGroup isCompact aria-label="data-list-item-headers-tags">
+                      {props.tile.headerTags?.map((tag, index) => (
+                        <CatalogTag
+                          key={`${props.tile.name}-${tag}-${index}`}
+                          tag={tag}
+                          className="catalog-data-list-item__tags"
+                        />
+                      ))}
+                      {props.tile.version && (
+                        <CatalogTag
+                          key={`${props.tile.version}`}
+                          tag={props.tile.version}
+                          className="catalog-data-list-item__tags"
+                          variant="outline"
+                        />
+                      )}
+                    </LabelGroup>
                   </div>
                 </GridItem>
                 <GridItem sm={12} md={6} order={tagsElementOrder}>
                   <div className="catalog-data-list-item__title-div-right">
-                    {props.tile.tags?.map((tag, index) => (
-                      <Label
-                        key={`${props.tile.name}-${tag}-${index}`}
-                        isCompact
-                        className={'catalog-data-list-item__tags'}
-                        color={getTagColor(tag)}
-                      >
-                        {tag}
-                      </Label>
-                    ))}
+                    <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
                   </div>
                 </GridItem>
                 <GridItem span={12} order={descriptionElementOrder}>

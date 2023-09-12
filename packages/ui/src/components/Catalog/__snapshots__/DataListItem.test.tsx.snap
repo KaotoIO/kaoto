@@ -36,45 +36,71 @@ exports[`DataListItem renders correctly 1`] = `
               >
                 tile-title
               </span>
-              <span
-                class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+              <div
+                class="pf-v5-c-label-group"
               >
-                <span
-                  class="pf-v5-c-label__content"
+                <div
+                  class="pf-v5-c-label-group__main"
                 >
-                  <span
-                    class="pf-v5-c-label__text"
+                  <ul
+                    aria-label="data-list-item-headers-tags"
+                    class="pf-v5-c-label-group__list"
+                    role="list"
                   >
-                    header-tag1
-                  </span>
-                </span>
-              </span>
-              <span
-                class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
-              >
-                <span
-                  class="pf-v5-c-label__content"
-                >
-                  <span
-                    class="pf-v5-c-label__text"
-                  >
-                    header-tag2
-                  </span>
-                </span>
-              </span>
-              <span
-                class="pf-v5-c-label pf-m-outline pf-m-compact catalog-data-list-item__tags"
-              >
-                <span
-                  class="pf-v5-c-label__content"
-                >
-                  <span
-                    class="pf-v5-c-label__text"
-                  >
-                    1.0
-                  </span>
-                </span>
-              </span>
+                    <li
+                      class="pf-v5-c-label-group__list-item"
+                    >
+                      <span
+                        class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+                      >
+                        <span
+                          class="pf-v5-c-label__content"
+                        >
+                          <span
+                            class="pf-v5-c-label__text"
+                          >
+                            header-tag1
+                          </span>
+                        </span>
+                      </span>
+                    </li>
+                    <li
+                      class="pf-v5-c-label-group__list-item"
+                    >
+                      <span
+                        class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+                      >
+                        <span
+                          class="pf-v5-c-label__content"
+                        >
+                          <span
+                            class="pf-v5-c-label__text"
+                          >
+                            header-tag2
+                          </span>
+                        </span>
+                      </span>
+                    </li>
+                    <li
+                      class="pf-v5-c-label-group__list-item"
+                    >
+                      <span
+                        class="pf-v5-c-label pf-m-outline pf-m-compact catalog-data-list-item__tags"
+                      >
+                        <span
+                          class="pf-v5-c-label__content"
+                        >
+                          <span
+                            class="pf-v5-c-label__text"
+                          >
+                            1.0
+                          </span>
+                        </span>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
           <div
@@ -84,32 +110,56 @@ exports[`DataListItem renders correctly 1`] = `
             <div
               class="catalog-data-list-item__title-div-right"
             >
-              <span
-                class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+              <div
+                class="pf-v5-c-label-group"
               >
-                <span
-                  class="pf-v5-c-label__content"
+                <div
+                  class="pf-v5-c-label-group__main"
                 >
-                  <span
-                    class="pf-v5-c-label__text"
+                  <ul
+                    aria-label="data-list-item-tags"
+                    class="pf-v5-c-label-group__list"
+                    role="list"
                   >
-                    tag1
-                  </span>
-                </span>
-              </span>
-              <span
-                class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
-              >
-                <span
-                  class="pf-v5-c-label__content"
-                >
-                  <span
-                    class="pf-v5-c-label__text"
-                  >
-                    tag2
-                  </span>
-                </span>
-              </span>
+                    <li
+                      class="pf-v5-c-label-group__list-item"
+                    >
+                      <span
+                        class="pf-v5-c-label pf-m-compact"
+                        data-testid="tag-tag1"
+                      >
+                        <a
+                          class="pf-v5-c-label__content"
+                        >
+                          <span
+                            class="pf-v5-c-label__text"
+                          >
+                            tag1
+                          </span>
+                        </a>
+                      </span>
+                    </li>
+                    <li
+                      class="pf-v5-c-label-group__list-item"
+                    >
+                      <span
+                        class="pf-v5-c-label pf-m-compact"
+                        data-testid="tag-tag2"
+                      >
+                        <a
+                          class="pf-v5-c-label__content"
+                        >
+                          <span
+                            class="pf-v5-c-label__text"
+                          >
+                            tag2
+                          </span>
+                        </a>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
           <div

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { ITile } from './Catalog.models';
 import { CatalogDataListItem } from './DataListItem';
 
@@ -15,8 +15,18 @@ describe('DataListItem', () => {
   };
 
   it('renders correctly', () => {
-    const { container } = render(<CatalogDataListItem key={tile.name} tile={tile} />);
+    const { container } = render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={jest.fn()} />);
 
     expect(container.firstChild).toMatchSnapshot();
+  });
+
+  it('calls onTagClick prop when clicked', () => {
+    const onTagClick = jest.fn();
+
+    const { getByTestId } = render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={onTagClick} />);
+
+    fireEvent.click(getByTestId('tag-tag1'));
+
+    expect(onTagClick).toHaveBeenCalledTimes(1);
   });
 });
