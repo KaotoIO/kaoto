@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { parse } from 'yaml';
 import { isCamelRoute } from '../camel-utils';
-import { BaseCamelEntity, BaseVisualCamelEntity, CamelRoute } from '../models/camel-entities';
+import { BaseCamelEntity, BaseVisualCamelEntity, CamelRoute, KameletBinding } from '../models/camel-entities';
 import { isDefined } from '../utils';
+import { isKameletBinding } from '../camel-utils/is-kamelet-binding';
 
 export const useEntities = () => {
   const [sourceCode, setSourceCode] = useState<string>('');
@@ -19,7 +20,7 @@ export const useEntities = () => {
         (acc, rawEntity) => {
           const entity = getEntity(rawEntity);
 
-          if (entity instanceof CamelRoute) {
+          if (entity instanceof CamelRoute || entity instanceof KameletBinding) {
             acc.visualEntities.push(entity);
           } else if (isDefined(entity) && typeof entity === 'object') {
             acc.entities.push(entity);
@@ -62,6 +63,8 @@ function getEntity(rawEntity: unknown): BaseCamelEntity | BaseVisualCamelEntity 
 
   if (isCamelRoute(rawEntity)) {
     return new CamelRoute(rawEntity.route);
+  } else if (isKameletBinding(rawEntity)) {
+    return new KameletBinding(rawEntity);
   }
 
   return rawEntity as BaseCamelEntity;

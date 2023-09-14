@@ -1,4 +1,4 @@
 export * from './base-entity';
 
-/** Camel Route definitions */
-export * from './flows/route';
+/** Routes definitions */
+export * from './flows/routes';
