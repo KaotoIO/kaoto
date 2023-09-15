@@ -37,7 +37,9 @@ export class CamelSchemasProcessor {
             schema: {
               $schema: 'https://json-schema.org/draft-04/schema#',
               type: 'object',
-              items: { definitions: schema.schema.items },
+              items: {
+                definitions: schema.schema.items.definitions,
+              },
               properties: {
                 [propertyRefName]: propertyRef,
               },
