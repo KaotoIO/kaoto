@@ -1,9 +1,20 @@
-import { Button, Masthead, MastheadBrand, MastheadContent, MastheadMain, MastheadToggle } from '@patternfly/react-core';
+import {
+  Button,
+  Icon,
+  Masthead,
+  MastheadBrand,
+  MastheadContent,
+  MastheadMain,
+  MastheadToggle,
+  ToolbarItem,
+} from '@patternfly/react-core';
+import { GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import { FunctionComponent, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo-kaoto.png';
-import { Links } from '../router/links.models';
 import { useComponentLink } from '../hooks/ComponentLink';
+import { ExternalLinks, Links } from '../router/links.models';
 
 interface ITopBar {
   navToggle: () => void;
@@ -27,7 +38,17 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
         </MastheadBrand>
       </MastheadMain>
 
-      <MastheadContent>{/* Topbar content goes here */}</MastheadContent>
+      <MastheadContent>
+        <ToolbarItem className="shell__link">
+          <Link to={ExternalLinks.GitHub} target="_blank" rel="noopener noreferrer">
+            <Button variant="plain" aria-label="edit">
+              <Icon size="lg">
+                <GithubIcon />
+              </Icon>
+            </Button>
+          </Link>
+        </ToolbarItem>
+      </MastheadContent>
     </Masthead>
   );
 };
