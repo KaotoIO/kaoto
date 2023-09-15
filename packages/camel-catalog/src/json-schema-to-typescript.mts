@@ -4,11 +4,12 @@
 /**
  * This script generates TypeScript types from the JSON schemas in the dist folder.
  */
-import { JSONSchema, compile } from 'json-schema-to-typescript';
 import { mkdir, writeFile } from 'fs/promises';
+import { JSONSchema, compile } from 'json-schema-to-typescript';
+import { pathToFileURL } from 'node:url';
 import { resolve } from 'path';
-import index from '../dist/index.json' assert { type: 'json' };
 import { rimraf } from 'rimraf';
+import index from '../dist/index.json' assert { type: 'json' };
 
 /** Function to ensure the dist/types folder is created and empty */
 const ensureTypesFolder = async () => {
@@ -54,7 +55,16 @@ async function main() {
   console.log('---');
   const schemaPromises = index.schemas.map(async (schema) => {
     const schemaFile = resolve(`./dist/${schema.file}`);
-    const schemaContent = (await import(resolve(`./dist/${schema.file}`), { assert: { type: 'json' } })).default;
+
+    /**
+     * In windows, path starting with C:\ are not supported
+     * We need to add file:// to the path to make it work
+     * [pathToFileURL](https://nodejs.org/api/url.html#url_url_pathtofileurl_path)
+     * Related issue: https://github.com/nodejs/node/issues/31710
+     */
+    const schemaFileUri = pathToFileURL(`./dist/${schema.file}`).toString();
+
+    const schemaContent = (await import(schemaFileUri, { assert: { type: 'json' } })).default;
 
     let filename = schema.name;
 
