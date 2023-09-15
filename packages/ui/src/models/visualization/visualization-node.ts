@@ -6,6 +6,7 @@ export class VisualizationNode<T = unknown> {
   private previousNode: VisualizationNode | undefined = undefined;
   private nextNode: VisualizationNode | undefined = undefined;
   private children: VisualizationNode[] | undefined;
+  path: string | undefined;
 
   constructor(
     public label: string,
@@ -16,6 +17,17 @@ export class VisualizationNode<T = unknown> {
 
   getData(): T | undefined {
     return this.data;
+  }
+
+  getRootNode(): VisualizationNode {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let rootNode = this;
+
+    while (rootNode.getPreviousNode() !== undefined || rootNode.getParentNode() !== undefined) {
+      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
+    }
+
+    return rootNode;
   }
 
   getParentNode(): VisualizationNode | undefined {

@@ -3,7 +3,6 @@ import {
   Model,
   SELECTION_EVENT,
   TopologyControlBar,
-  TopologySideBar,
   TopologyView,
   VisualizationProvider,
   VisualizationSurface,
@@ -13,6 +12,7 @@ import {
 } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseVisualCamelEntity } from '../../../models/camel-entities';
+import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
 
@@ -22,21 +22,33 @@ interface CanvasProps {
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
+  /** State for @patternfly/react-topology */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const controller = useMemo(() => CanvasService.createController(), []);
 
-  // Set up the controller one time
+  const handleSelection = useCallback((selectedIds: string[]) => {
+    setSelectedIds(selectedIds);
+
+    /** Current support for single selection at the moment */
+    const selectedId = selectedIds[0];
+    setSelectedNode(CanvasService.nodes.find((node) => node.id === selectedId));
+  }, []);
+
+  /** Set up the controller one time */
   useEffect(() => {
     const localController = controller;
     const graphLayoutEndFn = () => {
       localController.getGraph().fit(80);
     };
-    localController.addEventListener(SELECTION_EVENT, setSelectedIds);
+    localController.addEventListener(SELECTION_EVENT, handleSelection);
     localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
     return () => {
-      localController.removeEventListener(SELECTION_EVENT, setSelectedIds);
+      localController.removeEventListener(SELECTION_EVENT, handleSelection);
       localController.removeEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** Draw graph */
@@ -69,11 +81,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
 
   return (
     <TopologyView
-      sideBar={
-        <TopologySideBar show={selectedIds.length > 0} onClose={handleCloseSideBar}>
-          <div style={{ marginTop: 27, marginLeft: 20, height: '800px' }}>{selectedIds[0]}</div>
-        </TopologySideBar>
-      }
+      sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={props.contextToolbar}
       controlBar={
         <TopologyControlBar

@@ -136,7 +136,11 @@ export class CanvasService {
     const parentNode =
       vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
 
-    return this.getNode(vizNodeParam.id, { label: vizNodeParam.label, parentNode });
+    return this.getNode(vizNodeParam.id, {
+      label: vizNodeParam.label,
+      parentNode,
+      data: { vizNode: vizNodeParam },
+    });
   }
 
   private static getEdgesFromVizNode(vizNodeParam: VisualizationNode): CanvasEdge[] {
@@ -167,7 +171,7 @@ export class CanvasService {
 
   private static getNode(
     id: string,
-    options: { label?: string; parentNode?: string; data?: Record<string, string> } = {},
+    options: { label?: string; parentNode?: string; data?: CanvasNode['data'] } = {},
   ): CanvasNode {
     return {
       id,
