@@ -94,7 +94,7 @@ describe('camel-schemas-processor', () => {
         schema: {
           $schema: 'https://json-schema.org/draft-04/schema#',
           type: 'object',
-          items: { definitions: camelSchema.items },
+          items: { definitions: camelSchema.items.definitions },
           properties: {
             route: camelSchema.items.properties.route,
           },
