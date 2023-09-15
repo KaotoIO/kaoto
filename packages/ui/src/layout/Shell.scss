@@ -3,12 +3,16 @@
     max-width: 100px;
   }
 
+  &__link {
+    margin-left: auto;
+  }
+
   &__body {
     height: 100%;
     position: relative;
   }
 }
 
-.pf-v5-c-panel{
-  --pf-v5-c-panel--m-scrollable__main--MaxHeight: none
+.pf-v5-c-panel {
+  --pf-v5-c-panel--m-scrollable__main--MaxHeight: none;
 }

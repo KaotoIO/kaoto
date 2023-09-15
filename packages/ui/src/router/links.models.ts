@@ -5,3 +5,7 @@ export const enum Links {
   Rest = '/rest',
   Catalog = '/catalog',
 }
+
+export const enum ExternalLinks {
+  GitHub = 'https://github.com/KaotoIO/kaoto-next',
+}
