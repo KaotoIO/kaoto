@@ -1,4 +1,5 @@
 import { EdgeModel, NodeModel } from '@patternfly/react-topology';
+import { VisualizationNode } from '../../../models/visualization';
 
 export const enum LayoutType {
   BreadthFirst = 'BreadthFirst',
@@ -17,6 +18,9 @@ export const enum LayoutType {
  */
 export interface CanvasNode extends NodeModel {
   parentNode?: string;
+  data?: {
+    vizNode?: VisualizationNode;
+  };
 }
 
 export interface CanvasEdge extends EdgeModel {

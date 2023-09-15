@@ -120,10 +120,11 @@ describe('CanvasService', () => {
 
       expect(nodes).toEqual([
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
           label: 'node',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode },
         },
       ]);
       expect(edges).toEqual([]);
@@ -138,16 +139,18 @@ describe('CanvasService', () => {
 
       expect(nodes).toEqual([
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
           label: 'node',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'child-1234',
           label: 'child',
           parentNode: 'node-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: childNode },
         },
       ]);
       expect(edges).toEqual([
@@ -193,58 +196,67 @@ describe('CanvasService', () => {
 
       expect(nodes).toEqual([
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
           label: 'node',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'set-header-1234',
           label: 'set-header',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: setHeaderNode }
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'choice-1234',
           label: 'choice',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: choiceNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'when-1234',
           label: 'when',
           parentNode: 'choice-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: whenNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'when-leaf-1234',
           label: 'when-leaf',
           parentNode: 'when-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: whenLeafNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'otherwise-1234',
           label: 'otherwise',
           parentNode: 'choice-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: otherwiseNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'process-1234',
           label: 'process',
           parentNode: 'otherwise-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: processNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'log-1234',
           label: 'log',
           parentNode: 'process-1234',
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: logNode },
         },
         {
+          ...DEFAULT_NODE_PROPS,
           id: 'direct-1234',
           label: 'direct',
           parentNode: undefined,
-          ...DEFAULT_NODE_PROPS,
+          data: { vizNode: directNode },
         },
       ]);
       expect(edges).toEqual([

@@ -1,28 +1,32 @@
 /* eslint-disable no-case-declarations */
 import { Choice, To } from '@kaoto-next/camel-catalog/types';
-import { v4 as uuidv4 } from 'uuid';
+import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { VisualizationNode } from '../../visualization';
 import { BaseVisualCamelEntity, EntityType } from '../base-entity';
 import { CamelRouteStep, RouteDefinition } from '../camel-overrides';
 
 export class CamelRoute implements BaseVisualCamelEntity {
-  readonly id = uuidv4();
+  readonly id: string;
   readonly type = EntityType.Route;
 
-  constructor(public route: Partial<RouteDefinition> = {}) {}
+  constructor(public route: Partial<RouteDefinition> = {}) {
+    this.id = route.id ?? getCamelRandomId('route');
+    this.route.id = this.id;
+  }
 
   /** Internal API methods */
   getId(): string {
-    return (this.route.id as string) ?? '';
+    return this.id;
   }
 
   getSteps(): CamelRouteStep[] {
     return this.route.from?.steps ?? [];
   }
 
-  toVizNode(): VisualizationNode {
-    const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '');
-    const vizNodes = this.getVizNodesFromSteps(this.getSteps());
+  toVizNode(): VisualizationNode<{ route: Partial<RouteDefinition> }> {
+    const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', { route: this.route });
+    rootNode.path = 'route.from';
+    const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
 
     const firstVizNode = vizNodes[0];
     if (firstVizNode !== undefined) {
@@ -33,10 +37,10 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return rootNode;
   }
 
-  private getVizNodesFromSteps(camelRouteSteps: CamelRouteStep[] = []): VisualizationNode[] {
-    return camelRouteSteps.reduce((acc, camelRouteStep) => {
+  private getVizNodesFromSteps(camelRouteSteps: CamelRouteStep[] = [], path: string): VisualizationNode[] {
+    return camelRouteSteps.reduce((acc, camelRouteStep, index) => {
       const previousVizNode = acc[acc.length - 1];
-      const vizNode = this.getVizNodeFromStep(camelRouteStep);
+      const vizNode = this.getVizNodeFromStep(camelRouteStep, `${path}.${index}`);
 
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
@@ -48,15 +52,21 @@ export class CamelRoute implements BaseVisualCamelEntity {
     }, [] as VisualizationNode[]);
   }
 
-  private getVizNodeFromStep(step: CamelRouteStep): VisualizationNode {
+  private getVizNodeFromStep(step: CamelRouteStep, path: string): VisualizationNode {
     const stepName = Object.keys(step)[0];
     const parentStep = new VisualizationNode(stepName);
+    parentStep.path = path;
 
     switch (stepName) {
       case 'choice':
         /** Bring when nodes */
-        (step.choice as Choice).when?.forEach((when) => {
-          const whenNode = this.getChildren('when', when.steps as CamelRouteStep[]);
+        (step.choice as Choice).when?.forEach((when, index) => {
+          const whenNode = this.getChildren(
+            'when',
+            when.steps as CamelRouteStep[],
+            `${path}.choice.when.${index}.steps`,
+          );
+          whenNode.path = `${path}.choice.when.${index}`;
           parentStep.addChild(whenNode);
         });
 
@@ -64,7 +74,9 @@ export class CamelRoute implements BaseVisualCamelEntity {
         const otherwiseNode = this.getChildren(
           'otherwise',
           (step.choice as Choice).otherwise?.steps as CamelRouteStep[],
+          `${path}.choice.otherwise.steps`,
         );
+        otherwiseNode.path = `${path}.choice.otherwise`;
         parentStep.addChild(otherwiseNode);
 
         break;
@@ -77,9 +89,10 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return parentStep;
   }
 
-  private getChildren(label: string, steps: CamelRouteStep[]): VisualizationNode {
+  private getChildren(label: string, steps: CamelRouteStep[], path: string): VisualizationNode {
     const node = new VisualizationNode(label);
-    const children = this.getVizNodesFromSteps(steps);
+    node.path = path;
+    const children = this.getVizNodesFromSteps(steps, path);
     node.setChildren(children);
     children.forEach((child) => child.setParentNode(node));
 

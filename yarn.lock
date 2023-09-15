@@ -2926,6 +2926,7 @@ __metadata:
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.4.3
     "@types/jest": ^29.4.0
+    "@types/lodash.get": ^4.4.2
     "@types/node": ^18.0.0
     "@types/react": ^18.2.15
     "@types/react-dom": ^18.2.7
@@ -2945,6 +2946,7 @@ __metadata:
     eslint-plugin-react-refresh: ^0.4.3
     jest: ^29.4.2
     jest-environment-jsdom: ^29.4.2
+    lodash.get: ^4.4.2
     monaco-editor: ^0.34.1
     monaco-yaml: ^4.0.0
     prettier: ^3.0.0
@@ -6279,6 +6281,22 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/lodash.get@npm:^4.4.2":
+  version: 4.4.7
+  resolution: "@types/lodash.get@npm:4.4.7"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 0dbf1960606e4707c34e8ffbe97ffaad0e47fc5df7a6e24ea6e4fe5838d2468aa13360f38815c77b06e3c9932631ae15662b4139036a69ee16aeb54827a21405
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.14.198
+  resolution: "@types/lodash@npm:4.14.198"
+  checksum: b290e4480707151bcec738bca40527915defe52a0d8e26c83685c674163a265e1a88cb2ee56b0fb587a89819d0cd5df86ada836aec3e9c2e4bf516e7d348d524
   languageName: node
   linkType: hard
 
