@@ -34,7 +34,6 @@
     "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
-    "@dagrejs/dagre": "^1.0.2",
     "@kaoto-next/camel-catalog": "workspace:*",
     "@kie-tools/uniforms-patternfly": "^0.31.0",
     "@patternfly/patternfly": "^5.0.0",
@@ -52,7 +51,6 @@
     "react-dom": "^18.2.0",
     "react-monaco-editor": "^0.51.0",
     "react-router-dom": "^6.14.1",
-    "reactflow": "^11.8.3",
     "simple-zustand-devtools": "^1.1.0",
     "uniforms": "^4.0.0-alpha.0",
     "uniforms-bridge-json-schema": "^4.0.0-alpha.0",

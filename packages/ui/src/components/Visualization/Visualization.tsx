@@ -1,5 +1,4 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { ReactFlowProvider } from 'reactflow';
 import { BaseVisualCamelEntity } from '../../models/camel-entities';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
@@ -15,9 +14,7 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
   return (
     <div className={`canvasSurface ${props.className ?? ''}`}>
       <ErrorBoundary fallback={<CanvasFallback />}>
-        <ReactFlowProvider>
-          <Canvas entities={props.entities} />
-        </ReactFlowProvider>
+        <Canvas entities={props.entities} />
       </ErrorBoundary>
     </div>
   );
