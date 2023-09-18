@@ -7,6 +7,7 @@
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
   "private": true,
+  "module": "./dist/lib/kaoto-next-ui.js",
   "main": "src/public-api.ts",
   "exports": {
     ".": {
