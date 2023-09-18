@@ -1,4 +1,4 @@
-import { Navigation, Shell } from '@kaoto-next/ui';
+import { Navigation, Shell } from '@kaoto-next/ui/testing';
 import { StoryFn } from '@storybook/react';
 import { withRouter, reactRouterOutlet, reactRouterParameters } from 'storybook-addon-react-router-v6';
 
