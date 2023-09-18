@@ -8,10 +8,22 @@
   "license": "Apache License v2.0",
   "private": true,
   "main": "src/public-api.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/lib/kaoto-next-ui.js",
+      "require": "./dist/lib/kaoto-next-ui.umd.cjs"
+    },
+    "./testing": {
+      "import": "./dist/lib/kaoto-next-testing-ui.js",
+      "require": "./dist/lib/kaoto-next-testing-ui.umd.cjs"
+    }
+  },
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build --config vite.config.cjs",
-    "build:lib": "tsc && vite build --config vite.config.lib.ts",
+    "build:lib": "tsc && yarn build:public-lib && yarn build:testing-lib",
+    "build:public-lib": "vite build --config vite.config.lib.ts",
+    "build:testing-lib": "vite build --config vite.config.testing-lib.ts",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",

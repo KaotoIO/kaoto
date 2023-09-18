@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite';
+import { UserConfig, defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export const getConfig = (): UserConfig => ({
   plugins: [react(), dts({ rollupTypes: true })],
   build: {
     outDir: './dist/lib',
@@ -25,3 +25,5 @@ export default defineConfig({
     },
   },
 });
+
+export default defineConfig(getConfig());
