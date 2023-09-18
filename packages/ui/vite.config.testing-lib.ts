@@ -9,5 +9,13 @@ testingConfig.build!.lib = {
   name: '@kaoto-next/testing-ui',
   fileName: 'kaoto-next-testing-ui',
 };
+testingConfig.build!.rollupOptions!.output = {
+  ...testingConfig.build!.rollupOptions!.output,
+  globals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+  assetFileNames: 'testing-[name][extname]',
+};
 
 export default defineConfig(testingConfig);

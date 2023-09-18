@@ -17,7 +17,9 @@
     "./testing": {
       "import": "./dist/lib/kaoto-next-testing-ui.js",
       "require": "./dist/lib/kaoto-next-testing-ui.umd.cjs"
-    }
+    },
+    "./style.css": "./dist/lib/style.css",
+    "./testing-style.css": "./dist/lib/testing-style.css"
   },
   "scripts": {
     "start": "vite",
