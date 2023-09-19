@@ -49,7 +49,7 @@
     "monaco-yaml": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-monaco-editor": "^0.51.0",
+    "react-monaco-editor": "^0.54.0",
     "react-router-dom": "^6.14.1",
     "simple-zustand-devtools": "^1.1.0",
     "uniforms": "^4.0.0-alpha.0",

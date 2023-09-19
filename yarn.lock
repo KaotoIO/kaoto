@@ -2405,7 +2405,7 @@ __metadata:
     prettier: ^3.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
-    react-monaco-editor: ^0.51.0
+    react-monaco-editor: ^0.54.0
     react-router-dom: ^6.14.1
     react-test-renderer: ^18.2.0
     sass: ^1.63.6
@@ -13507,16 +13507,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-monaco-editor@npm:^0.51.0":
-  version: 0.51.0
-  resolution: "react-monaco-editor@npm:0.51.0"
+"react-monaco-editor@npm:^0.54.0":
+  version: 0.54.0
+  resolution: "react-monaco-editor@npm:0.54.0"
   dependencies:
     prop-types: ^15.8.1
   peerDependencies:
-    "@types/react": ">=17 <= 18"
-    monaco-editor: ^0.34.1
-    react: ">=17 <= 18"
-  checksum: 93920bc51b16d047145284d69f6a973da6b307480425ac7ce69ce8248d83b5ffa1029a2f42f32754a84663c2ff1ee9b66226aac20c0d0cea6025744eed6568f6
+    "@types/react": ">=16 <= 18"
+    monaco-editor: ^0.39.0
+    react: ">=16 <= 18"
+  checksum: 86ae96e92964f6f999ff5090482b76df412775edc51868f2b255005d5bf3c53c9193de3a398e48a2ba46c990d83d64cace8a3183f3121d79b21b4bc3fc5abed3
   languageName: node
   linkType: hard
 
