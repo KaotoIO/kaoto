@@ -7,6 +7,7 @@ export const enum EntityType {
   Pipe = 'pipe',
   Rest = 'rest',
   RestConfiguration = 'restConfiguration',
+  Beans = "beans",
 }
 
 export interface BaseCamelEntity {
