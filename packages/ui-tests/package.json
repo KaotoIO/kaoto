@@ -17,7 +17,7 @@
     "e2e:headless": "cypress run",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
-    "chromatic": "npx chromatic --project-token=chpt_7a4940aa65b14ab"
+    "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=chpt_7a4940aa65b14ab"
   },
   "devDependencies": {
     "@kaoto-next/ui": "workspace:*",

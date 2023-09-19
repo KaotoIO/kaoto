@@ -12,6 +12,7 @@ The next version of the UI for the Kaoto project.
     - [Build](#build)
   - [Public Components](#public-components)
 - [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
+- [Storybook](#storybook)
 
 ## Requirements
 - NodeJS (v18.x or higher) [+info](https://nodejs.org/en)
@@ -64,3 +65,16 @@ To build the Camel Catalog and the supporting schemas, run:
 yarn workspace @kaoto-next/camel-catalog run build
 ```
 _Optional: You can update the Camel version in the `pom.xml` file and then run the build command again._
+
+## Storybook
+
+To view the storybook stories, go to [Chromatic](https://main--64ef22df8bb709ffa98c7a47.chromatic.com/). The stories are built for non-Dependabot pull requests and the link to storybook generated for PR is linked once the storybook is published. You can learn more about how to create a story for your UI component [here](https://storybook.js.org/docs/react/writing-stories/introduction).
+
+To run Storybook locally:
+``` bash
+# first build the ui library
+yarn workspace @kaoto-next/ui build:lib
+# run the storybook 
+yarn workspace @kaoto-next/ui-tests storybook
+```
+To publish to Chromatic: `yarn workspace @kaoto-next/ui-tests chromatic`
