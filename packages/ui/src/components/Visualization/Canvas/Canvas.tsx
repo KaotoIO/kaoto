@@ -22,17 +22,20 @@ interface CanvasProps {
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const controller = useMemo(() => CanvasService.createController(), []);
 
-  const controller = useMemo(() => {
-    const newController = CanvasService.createController();
-    newController.addEventListener(SELECTION_EVENT, setSelectedIds);
-    newController.addEventListener(GRAPH_LAYOUT_END_EVENT, () =>
-      /** TODO: Schedule the layouting in a better fashion */
-      setTimeout(() => {
-        newController.getGraph().fit(80);
-      }, 100),
-    );
-    return newController;
+  // Set up the controller one time
+  useEffect(() => {
+    const localController = controller;
+    const graphLayoutEndFn = () => {
+      localController.getGraph().fit(80);
+    };
+    localController.addEventListener(SELECTION_EVENT, setSelectedIds);
+    localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
+    return () => {
+      localController.removeEventListener(SELECTION_EVENT, setSelectedIds);
+      localController.removeEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
+    };
   }, []);
 
   /** Draw graph */
@@ -72,7 +75,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
               controller.getGraph().scaleBy(4 / 3);
             }),
             zoomOutCallback: action(() => {
-              controller.getGraph().scaleBy(0.75);
+              controller.getGraph().scaleBy(3 / 4);
             }),
             fitToScreenCallback: action(() => {
               controller.getGraph().fit(80);
