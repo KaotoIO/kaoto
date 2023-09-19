@@ -2400,7 +2400,7 @@ __metadata:
     eslint-plugin-react-refresh: ^0.4.3
     jest: ^29.4.2
     jest-environment-jsdom: ^29.4.2
-    monaco-editor: ^0.34.1
+    monaco-editor: ^0.43.0
     monaco-yaml: ^4.0.0
     prettier: ^3.0.0
     react: ^18.2.0
@@ -12300,10 +12300,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.34.1":
-  version: 0.34.1
-  resolution: "monaco-editor@npm:0.34.1"
-  checksum: 4c6b35d7c566ec414b758cdd45dfb08d6fe46e2e8fdeed88b619a52c47592ce6df476d9490a58e5d450339c4a93f09d500adc9c017a348179277b98aa6009fa4
+"monaco-editor@npm:^0.43.0":
+  version: 0.43.0
+  resolution: "monaco-editor@npm:0.43.0"
+  checksum: eaebd9241f4fc2476d7eaf5f15fafc6c273675bba717bda5197576990d2b6a7189e282afe927e76cd46e60dfa8263eed6367c41b7ae8cea293b7d592e777cf52
   languageName: node
   linkType: hard
 
