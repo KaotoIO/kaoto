@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { useEntities } from '.';
+import { useEntities } from './entities';
 import { camelRouteYaml } from '../stubs/camel-route';
 
 describe('useEntities', () => {
