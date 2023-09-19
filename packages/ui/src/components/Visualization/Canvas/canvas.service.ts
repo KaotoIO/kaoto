@@ -14,6 +14,7 @@ import {
   GraphComponent,
   GridLayout,
   Layout,
+  Model,
   ModelKind,
   NodeModel,
   NodeShape,
@@ -37,6 +38,15 @@ export class CanvasService {
 
     newController.registerLayoutFactory(this.baselineLayoutFactory);
     newController.registerComponentFactory(this.baselineComponentFactory);
+
+    const defaultModel: Model = {
+      graph: {
+        id: 'default',
+        type: 'graph',
+      },
+    };
+
+    newController.fromModel(defaultModel, false);
 
     return newController;
   }
