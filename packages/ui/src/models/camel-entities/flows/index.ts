@@ -1,2 +1,2 @@
-export * from './routes';
-export * from './step';
+export * from './kamelet-binding';
+export * from './route';
