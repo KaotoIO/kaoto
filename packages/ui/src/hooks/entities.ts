@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { parse, stringify } from 'yaml';
-import { isCamelRoute, isKameletBinding, isPipe } from '../camel-utils';
+import { isCamelRoute, isKameletBinding, isPipe, isBeans } from '../camel-utils';
 import { BaseCamelEntity } from '../models/camel-entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { CamelRoute, KameletBinding, Pipe } from '../models/visualization/flows';
+import { Beans } from '../models/visualization/metadata';
 import { EventNotifier, isDefined } from '../utils';
 
 export interface EntitiesContextResult {
@@ -101,6 +102,8 @@ function getEntity(rawEntity: unknown): BaseCamelEntity | BaseVisualCamelEntity 
     return new KameletBinding(rawEntity);
   } else if (isPipe(rawEntity)) {
     return new Pipe(rawEntity);
+  } else if (isBeans(rawEntity)) {
+    return new Beans(rawEntity.beans);
   }
 
   return rawEntity as BaseCamelEntity;

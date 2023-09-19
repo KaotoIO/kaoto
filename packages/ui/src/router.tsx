@@ -21,6 +21,10 @@ export const router = createHashRouter([
         path: Links.Catalog,
         lazy: async () => import('./pages/Catalog'),
       },
+      {
+        path: Links.Beans,
+        lazy: async () => import('./pages/Beans'),
+      },
     ],
   },
 ]);
