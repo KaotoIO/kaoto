@@ -26,7 +26,8 @@ export class SchemaService {
     return new JSONSchemaBridge(schema, noopValidator);
   }
 
-  private createValidator<T>(schema: JSONSchemaType<T>) {
+  /** TODO: Set this property as private */
+  createValidator<T>(schema: JSONSchemaType<T>) {
     const validator = this.ajv.compile(schema);
 
     return (model: Record<string, unknown>) => {

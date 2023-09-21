@@ -77,7 +77,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     controller.fromModel(model, false);
   }, [controller, props.entities]);
 
-  const handleCloseSideBar = useCallback(() => setSelectedIds([]), []);
+  const handleCloseSideBar = useCallback(() => {
+    setSelectedIds([]);
+    setSelectedNode(undefined);
+  }, []);
 
   return (
     <TopologyView
