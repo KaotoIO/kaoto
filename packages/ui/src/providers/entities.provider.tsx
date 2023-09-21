@@ -1,6 +1,7 @@
 import { FunctionComponent, PropsWithChildren, createContext } from 'react';
 import { useEntities } from '../hooks';
-import { BaseCamelEntity, BaseVisualCamelEntity } from '../models/camel-entities';
+import { BaseCamelEntity } from '../models/camel-entities';
+import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 
 interface EntitiesContextResult {
   code: string;

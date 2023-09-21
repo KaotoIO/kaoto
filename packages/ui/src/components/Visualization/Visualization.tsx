@@ -1,5 +1,5 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { BaseVisualCamelEntity } from '../../models/camel-entities';
+import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
 import { CanvasFallback } from './CanvasFallback';

@@ -1,9 +1,12 @@
 /* eslint-disable no-case-declarations */
 import { Choice, To } from '@kaoto-next/camel-catalog/types';
+import get from 'lodash.get';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { VisualizationNode } from '../../visualization';
-import { BaseVisualCamelEntity, EntityType } from '../base-entity';
-import { CamelRouteStep, RouteDefinition } from '../camel-overrides';
+import { CatalogCamelComponent } from '../../camel-catalog-index';
+import { EntityType } from '../../camel-entities/base-entity';
+import { CamelRouteStep, RouteDefinition } from '../../camel-entities/camel-overrides';
+import { BaseVisualCamelEntity } from '../base-visual-entity';
+import { VisualizationNode } from '../visualization-node';
 
 export class CamelRoute implements BaseVisualCamelEntity {
   readonly id: string;
@@ -19,12 +22,16 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return this.id;
   }
 
+  getStepDefinition(path: string): CatalogCamelComponent {
+    const componentModel = get(this.route, path);
+  }
+
   getSteps(): CamelRouteStep[] {
     return this.route.from?.steps ?? [];
   }
 
-  toVizNode(): VisualizationNode<{ route: Partial<RouteDefinition> }> {
-    const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', { route: this.route });
+  toVizNode(): VisualizationNode {
+    const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', this);
     rootNode.path = 'route.from';
     const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
 

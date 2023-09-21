@@ -1,4 +1,4 @@
-import { EntityType } from '../base-entity';
+import { EntityType } from '../../camel-entities/base-entity';
 import { CamelRoute } from './route';
 
 describe('Camel Route', () => {
