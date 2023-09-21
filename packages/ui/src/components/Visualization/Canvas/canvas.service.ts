@@ -20,7 +20,7 @@ import {
   Visualization,
   withSelection,
 } from '@patternfly/react-topology';
-import { VisualizationNode } from '../../../models/visualization';
+import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
 export class CanvasService {
@@ -92,7 +92,7 @@ export class CanvasService {
     }
   }
 
-  static getFlowDiagram(vizNode: VisualizationNode): CanvasNodesAndEdges {
+  static getFlowDiagram(vizNode: IVisualizationNode): CanvasNodesAndEdges {
     this.nodes = [];
     this.edges = [];
     this.visitedNodes = [];
@@ -101,8 +101,8 @@ export class CanvasService {
     return { nodes: this.nodes, edges: this.edges };
   }
 
-  /** Method for iterating over all the VisualizationNode and its children using a depth-first algorithm */
-  private static appendNodesAndEdges(vizNodeParam: VisualizationNode): void {
+  /** Method for iterating over all the IVisualizationNode and its children using a depth-first algorithm */
+  private static appendNodesAndEdges(vizNodeParam: IVisualizationNode): void {
     if (this.visitedNodes.includes(vizNodeParam.id)) {
       return;
     }
@@ -131,7 +131,7 @@ export class CanvasService {
     }
   }
 
-  private static getCanvasNode(vizNodeParam: VisualizationNode): CanvasNode {
+  private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
     /** Join the parent if exist to form a group */
     const parentNode =
       vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
@@ -143,7 +143,7 @@ export class CanvasService {
     });
   }
 
-  private static getEdgesFromVizNode(vizNodeParam: VisualizationNode): CanvasEdge[] {
+  private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
 
     /** Connect to previous node if it doesn't have children */

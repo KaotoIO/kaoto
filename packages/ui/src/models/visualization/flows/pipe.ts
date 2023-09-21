@@ -1,6 +1,7 @@
 import { Pipe as PipeModel } from '@kaoto-next/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
-import { BaseVisualCamelEntity, EntityType } from '../base-entity';
+import { BaseVisualCamelEntity } from '../base-visual-entity';
+import { EntityType } from '../../camel-entities/base-entity';
 import { KameletBinding } from './kamelet-binding';
 
 export class Pipe extends KameletBinding implements BaseVisualCamelEntity {

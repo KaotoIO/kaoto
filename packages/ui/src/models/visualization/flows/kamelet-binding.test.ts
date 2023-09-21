@@ -1,4 +1,4 @@
-import { EntityType } from '../base-entity';
+import { EntityType } from '../../camel-entities/base-entity';
 import { KameletBinding } from './kamelet-binding';
 
 describe('Kamelet Binding', () => {

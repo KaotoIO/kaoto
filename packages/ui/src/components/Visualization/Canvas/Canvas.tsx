@@ -11,7 +11,7 @@ import {
   defaultControlButtonsOptions,
 } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { BaseVisualCamelEntity } from '../../../models/camel-entities';
+import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';

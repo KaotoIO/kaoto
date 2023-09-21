@@ -1,75 +1,76 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import { BaseVisualCamelEntity, IVisualizationNode } from './base-visual-entity';
 
-export class VisualizationNode<T = unknown> {
+export class VisualizationNode implements IVisualizationNode {
   readonly id: string;
-  private parentNode: VisualizationNode | undefined = undefined;
-  private previousNode: VisualizationNode | undefined = undefined;
-  private nextNode: VisualizationNode | undefined = undefined;
-  private children: VisualizationNode[] | undefined;
+  private parentNode: IVisualizationNode | undefined = undefined;
+  private previousNode: IVisualizationNode | undefined = undefined;
+  private nextNode: IVisualizationNode | undefined = undefined;
+  private children: IVisualizationNode[] | undefined;
   path: string | undefined;
 
   constructor(
     public label: string,
-    private data?: T,
+    private data?: BaseVisualCamelEntity,
   ) {
     this.id = getCamelRandomId(label);
   }
 
-  getData(): T | undefined {
+  getData(): BaseVisualCamelEntity | undefined {
     return this.data;
   }
 
-  getRootNode(): VisualizationNode {
+  getRootNode(): IVisualizationNode {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let rootNode = this;
+    let rootNode: IVisualizationNode | undefined = this;
 
-    while (rootNode.getPreviousNode() !== undefined || rootNode.getParentNode() !== undefined) {
+    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
       rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
     }
 
-    return rootNode;
+    return rootNode!;
   }
 
-  getParentNode(): VisualizationNode | undefined {
+  getParentNode(): IVisualizationNode | undefined {
     return this.parentNode;
   }
 
-  setParentNode(parentNode?: VisualizationNode) {
+  setParentNode(parentNode?: IVisualizationNode) {
     this.parentNode = parentNode;
   }
 
-  getPreviousNode(): VisualizationNode | undefined {
+  getPreviousNode(): IVisualizationNode | undefined {
     return this.previousNode;
   }
 
-  setPreviousNode(previousNode: VisualizationNode) {
+  setPreviousNode(previousNode: IVisualizationNode) {
     this.previousNode = previousNode;
   }
 
-  getNextNode(): VisualizationNode | undefined {
+  getNextNode(): IVisualizationNode | undefined {
     return this.nextNode;
   }
 
-  setNextNode(node: VisualizationNode) {
+  setNextNode(node: IVisualizationNode) {
     this.nextNode = node;
   }
 
-  getChildren(): VisualizationNode[] | undefined {
+  getChildren(): IVisualizationNode[] | undefined {
     return this.children;
   }
 
-  setChildren(children: VisualizationNode[]): void {
+  setChildren(children: IVisualizationNode[]): void {
     this.children = children;
   }
 
-  addChild(child: VisualizationNode): void {
+  addChild(child: IVisualizationNode): void {
     if (!Array.isArray(this.children)) this.children = [];
 
     this.children.push(child);
     child.setParentNode(this);
   }
 
-  removeChild(child: VisualizationNode): void {
+  removeChild(child: IVisualizationNode): void {
     const index = this.children?.findIndex((node) => node.id === child.id);
 
     if (index !== undefined && index > -1) {
