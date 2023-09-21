@@ -2,11 +2,11 @@
 import { Choice, To } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { CatalogCamelComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel-entities/base-entity';
 import { CamelRouteStep, RouteDefinition } from '../../camel-entities/camel-overrides';
-import { BaseVisualCamelEntity } from '../base-visual-entity';
+import { BaseVisualCamelEntity, VisualComponentSchema } from '../base-visual-entity';
 import { VisualizationNode } from '../visualization-node';
+import { CamelComponentSchemaService } from './camel-component-schema.service';
 
 export class CamelRoute implements BaseVisualCamelEntity {
   readonly id: string;
@@ -22,8 +22,13 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return this.id;
   }
 
-  getStepDefinition(path: string): CatalogCamelComponent {
+  getComponentSchema(path?: string): VisualComponentSchema | undefined {
+    if (!path) return undefined;
+
     const componentModel = get(this.route, path);
+    const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
+
+    return visualComponentSchema;
   }
 
   getSteps(): CamelRouteStep[] {
@@ -32,7 +37,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
 
   toVizNode(): VisualizationNode {
     const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', this);
-    rootNode.path = 'route.from';
+    rootNode.path = 'from';
     const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
 
     const firstVizNode = vizNodes[0];
