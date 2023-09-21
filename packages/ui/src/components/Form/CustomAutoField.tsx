@@ -1,9 +1,15 @@
-import { BoolField, DateField, ListField, NumField, RadioField, SelectField } from '@kie-tools/uniforms-patternfly';
-import invariant from 'invariant';
+import {
+  BoolField,
+  DateField,
+  ListField,
+  NumField,
+  RadioField,
+  SelectField,
+  TextField,
+} from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { CustomNestField } from './CustomNestField';
-import { CustomStepsField } from './CustomStepsField';
-import { CustomTextField } from './CustomTextField';
+import { DisabledField } from './DisabledStep';
 
 export const CustomAutoField = createAutoField((props) => {
   if (props.allowedValues) {
@@ -11,7 +17,7 @@ export const CustomAutoField = createAutoField((props) => {
   }
 
   if (props.name.endsWith('steps')) {
-    return CustomStepsField;
+    return DisabledField;
   }
 
   switch (props.fieldType) {
@@ -26,8 +32,11 @@ export const CustomAutoField = createAutoField((props) => {
     case Object:
       return CustomNestField;
     case String:
-      return CustomTextField;
+      return TextField;
   }
 
-  return invariant(false, 'Unsupported field type: %s', props.fieldType);
+  return DisabledField;
+
+  /** Once all the fields are supported, we could fail fast again and uncomment the following line */
+  /** return invariant(false, 'Unsupported field type: %s', props.fieldType); */
 });

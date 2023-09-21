@@ -45,6 +45,7 @@ filterDOMProps.register(
   'checkboxes',
   'helperText' as keyof FilterDOMProps,
   'initialCount' as keyof FilterDOMProps,
+  'deprecated' as keyof FilterDOMProps,
 );
 
 type WrapperProps = {

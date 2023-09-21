@@ -7,7 +7,7 @@ import {
   KameletBindingStep,
   KameletBindingSteps,
 } from '../../camel-entities/kamelet-binding-overrides';
-import { BaseVisualCamelEntity } from '../base-visual-entity';
+import { BaseVisualCamelEntity, VisualComponentSchema } from '../base-visual-entity';
 import { VisualizationNode } from '../visualization-node';
 
 export class KameletBinding implements BaseVisualCamelEntity {
@@ -19,6 +19,10 @@ export class KameletBinding implements BaseVisualCamelEntity {
   /** Internal API methods */
   getId(): string {
     return '';
+  }
+
+  getComponentSchema(): VisualComponentSchema | undefined {
+    return undefined;
   }
 
   getSteps() {

@@ -74,6 +74,7 @@ export interface IVisualizationNode {
  * the name and the schema of the component.
  */
 export interface VisualComponentSchema {
-  name: string;
+  title: string;
   schema: JSONSchemaType<unknown>;
+  definition: any;
 }

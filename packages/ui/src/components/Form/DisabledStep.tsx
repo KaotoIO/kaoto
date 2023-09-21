@@ -7,13 +7,13 @@ interface CustomStepsFieldProps {
   [key: string]: string;
 }
 
-export const CustomStepsField = connectField((props: ConnectedFieldProps<CustomStepsFieldProps>) => {
+export const DisabledField = connectField((props: ConnectedFieldProps<CustomStepsFieldProps>) => {
   return (
     <Card>
-      <CardTitle>Steps field</CardTitle>
+      <CardTitle>{props.label}</CardTitle>
       <CardBody>
         <ExpandableDetails details={props}>
-          <p>This field has been replaced</p>
+          <p>Configuring this field is not yet supported</p>
         </ExpandableDetails>
       </CardBody>
     </Card>
