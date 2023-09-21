@@ -11,10 +11,6 @@ testingConfig.build!.lib = {
 };
 testingConfig.build!.rollupOptions!.output = {
   ...testingConfig.build!.rollupOptions!.output,
-  globals: {
-    react: 'React',
-    'react-dom': 'ReactDOM',
-  },
   assetFileNames: 'testing-[name][extname]',
 };
 
