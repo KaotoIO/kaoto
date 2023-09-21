@@ -4,7 +4,7 @@ import { CanvasNode } from './canvas.models';
 export class FormService {
   static getSchema(node: CanvasNode) {
     const vizNode = node.data?.vizNode;
-    const definition = vizNode?.getRootNode().getData();
+    const definition = vizNode?.getRootNode().getBaseEntity();
     const path = vizNode?.path;
 
     if (!definition || !path) throw new Error('No definition or path');

@@ -1,4 +1,4 @@
-import { CatalogCamelComponent, CatalogCamelProcessor, CatalogKamelet } from '../camel-catalog-index';
+import type { JSONSchemaType } from 'ajv';
 import { BaseCamelEntity, EntityType } from '../camel-entities/base-entity';
 
 /**
@@ -15,7 +15,7 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   getId: () => string;
 
   /** Given a path, get the component type and definition */
-  getStepDefinition: (path: string) => CatalogCamelComponent | CatalogCamelProcessor | CatalogKamelet;
+  getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 
   /** Retrieve the steps from the underlying Camel entity */
   getSteps: () => unknown[];
@@ -37,7 +37,10 @@ export interface IVisualizationNode {
   path: string | undefined;
   label: string;
 
-  getData(): BaseVisualCamelEntity | undefined;
+  /** This property is only set on the root node */
+  getBaseEntity(): BaseVisualCamelEntity | undefined;
+
+  getComponentSchema(): VisualComponentSchema | undefined;
 
   getRootNode(): IVisualizationNode;
 
@@ -62,4 +65,15 @@ export interface IVisualizationNode {
   removeChild(child: IVisualizationNode): void;
 
   populateLeafNodesIds(ids: string[]): void;
+}
+
+/**
+ * VisualComponentSchema
+ *
+ * This interface is used to represent a component through
+ * the name and the schema of the component.
+ */
+export interface VisualComponentSchema {
+  name: string;
+  schema: JSONSchemaType<unknown>;
 }

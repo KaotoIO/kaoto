@@ -1,4 +1,3 @@
-import { EntityType } from '../camel-entities';
 import { BaseVisualCamelEntity } from './base-visual-entity';
 import { VisualizationNode } from './visualization-node';
 
@@ -13,17 +12,11 @@ describe('VisualizationNode', () => {
     expect(node.id).toEqual('test-1234');
   });
 
-  it('should return the data', () => {
-    const visualEntity: BaseVisualCamelEntity = {
-      id: 'id',
-      type: EntityType.Integration,
-      getId: () => 'id',
-      getSteps: () => [],
-      toVizNode: () => new VisualizationNode('test'),
-    };
+  it('should return the base visual entity', () => {
+    const visualEntity = {} as BaseVisualCamelEntity;
     node = new VisualizationNode('test', visualEntity);
 
-    expect(node.getData()).toEqual(visualEntity);
+    expect(node.getBaseEntity()).toEqual(visualEntity);
   });
 
   it('should set the parent node', () => {
