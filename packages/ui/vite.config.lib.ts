@@ -18,6 +18,7 @@ export const getConfig = (): UserConfig => ({
       external: [
         'react',
         'react-dom',
+        'react-router-dom',
         '@patternfly/patternfly',
         '@patternfly/react-code-editor',
         '@patternfly/react-core',
@@ -32,6 +33,7 @@ export const getConfig = (): UserConfig => ({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react-router-dom': 'react-router-dom',
           '@patternfly/patternfly': '@patternfly/patternfly',
           '@patternfly/react-code-editor': '@patternfly/react-code-editor',
           '@patternfly/react-core': '@patternfly/react-core',
