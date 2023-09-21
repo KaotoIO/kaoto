@@ -1,10 +1,9 @@
 /* eslint-disable no-case-declarations */
-import { Choice, To } from '@kaoto-next/camel-catalog/types';
+import { Choice, ProcessorDefinition, RouteDefinition, To } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { EntityType } from '../../camel-entities/base-entity';
-import { CamelRouteStep, RouteDefinition } from '../../camel-entities/camel-overrides';
-import { BaseVisualCamelEntity, VisualComponentSchema } from '../base-visual-entity';
+import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { VisualizationNode } from '../visualization-node';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 
@@ -31,11 +30,11 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return visualComponentSchema;
   }
 
-  getSteps(): CamelRouteStep[] {
+  getSteps(): ProcessorDefinition[] {
     return this.route.from?.steps ?? [];
   }
 
-  toVizNode(): VisualizationNode {
+  toVizNode(): IVisualizationNode {
     const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', this);
     rootNode.path = 'from';
     const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
@@ -49,7 +48,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
     return rootNode;
   }
 
-  private getVizNodesFromSteps(camelRouteSteps: CamelRouteStep[] = [], path: string): VisualizationNode[] {
+  private getVizNodesFromSteps(camelRouteSteps: ProcessorDefinition[] = [], path: string): IVisualizationNode[] {
     return camelRouteSteps.reduce((acc, camelRouteStep, index) => {
       const previousVizNode = acc[acc.length - 1];
       const vizNode = this.getVizNodeFromStep(camelRouteStep, `${path}.${index}`);
@@ -61,21 +60,21 @@ export class CamelRoute implements BaseVisualCamelEntity {
 
       acc.push(vizNode);
       return acc;
-    }, [] as VisualizationNode[]);
+    }, [] as IVisualizationNode[]);
   }
 
-  private getVizNodeFromStep(step: CamelRouteStep, path: string): VisualizationNode {
-    const stepName = Object.keys(step)[0];
-    const parentStep = new VisualizationNode(stepName);
-    parentStep.path = path;
+  private getVizNodeFromStep(processor: ProcessorDefinition, path: string): IVisualizationNode {
+    const processorName = Object.keys(processor)[0];
+    const parentStep = new VisualizationNode(processorName);
+    parentStep.path = `${path}.${processorName}`;
 
-    switch (stepName) {
+    switch (processorName) {
       case 'choice':
         /** Bring when nodes */
-        (step.choice as Choice).when?.forEach((when, index) => {
+        processor.choice?.when?.forEach((when, index) => {
           const whenNode = this.getChildren(
             'when',
-            when.steps as CamelRouteStep[],
+            when.steps as ProcessorDefinition[],
             `${path}.choice.when.${index}.steps`,
           );
           whenNode.path = `${path}.choice.when.${index}`;
@@ -85,7 +84,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
         /** Bring otherwise nodes */
         const otherwiseNode = this.getChildren(
           'otherwise',
-          (step.choice as Choice).otherwise?.steps as CamelRouteStep[],
+          (processor.choice as Choice).otherwise?.steps as ProcessorDefinition[],
           `${path}.choice.otherwise.steps`,
         );
         otherwiseNode.path = `${path}.choice.otherwise`;
@@ -94,14 +93,15 @@ export class CamelRoute implements BaseVisualCamelEntity {
         break;
 
       case 'to':
-        parentStep.label = typeof step.to === 'string' ? step.to : (step.to as Exclude<To, string>).uri ?? 'To';
+        parentStep.label =
+          typeof processor.to === 'string' ? processor.to : (processor.to as Exclude<To, string>).uri ?? 'To';
         break;
     }
 
     return parentStep;
   }
 
-  private getChildren(label: string, steps: CamelRouteStep[], path: string): VisualizationNode {
+  private getChildren(label: string, steps: ProcessorDefinition[], path: string): IVisualizationNode {
     const node = new VisualizationNode(label);
     node.path = path;
     const children = this.getVizNodesFromSteps(steps, path);

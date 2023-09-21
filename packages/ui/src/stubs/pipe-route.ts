@@ -1,4 +1,4 @@
-import { Pipe } from '../models/camel-entities';
+import { Pipe } from '../models/visualization/flows';
 
 /**
  * This is a stub Pipe in YAML format.

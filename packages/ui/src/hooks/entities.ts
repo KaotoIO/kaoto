@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { parse } from 'yaml';
 import { isCamelRoute, isKameletBinding, isPipe } from '../camel-utils';
-import { BaseCamelEntity, CamelRoute, KameletBinding, Pipe } from '../models/camel-entities';
+import { BaseCamelEntity } from '../models/camel-entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
+import { CamelRoute, KameletBinding, Pipe } from '../models/visualization/flows';
 import { isDefined } from '../utils';
 
 export const useEntities = () => {

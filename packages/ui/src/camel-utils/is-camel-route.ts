@@ -1,4 +1,4 @@
-import { RouteDefinition } from '../models/camel-entities/camel-overrides';
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { isDefined } from '../utils';
 
 /** Very basic check to determine whether this object is a Camel Route */
