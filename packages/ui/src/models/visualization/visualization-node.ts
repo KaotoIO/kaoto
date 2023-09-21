@@ -1,5 +1,5 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
-import { BaseVisualCamelEntity, IVisualizationNode } from './base-visual-entity';
+import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from './base-visual-entity';
 
 export class VisualizationNode implements IVisualizationNode {
   readonly id: string;
@@ -11,13 +11,17 @@ export class VisualizationNode implements IVisualizationNode {
 
   constructor(
     public label: string,
-    private data?: BaseVisualCamelEntity,
+    private entity?: BaseVisualCamelEntity,
   ) {
     this.id = getCamelRandomId(label);
   }
 
-  getData(): BaseVisualCamelEntity | undefined {
-    return this.data;
+  getBaseEntity(): BaseVisualCamelEntity | undefined {
+    return this.entity;
+  }
+
+  getComponentSchema(): VisualComponentSchema | undefined {
+    return this.getRootNode().getBaseEntity()?.getComponentSchema(this.path);
   }
 
   getRootNode(): IVisualizationNode {
