@@ -1,6 +1,6 @@
 import type { JSONSchemaType } from 'ajv';
 import { VisualComponentSchema } from '../base-visual-entity';
-import { CatalogKind } from '../..';
+import { CatalogKind } from '../../catalog-kind';
 
 export class CamelComponentSchemaService {
   static getVisualComponentSchema(path: string, model: Record<string, any>): VisualComponentSchema | undefined {

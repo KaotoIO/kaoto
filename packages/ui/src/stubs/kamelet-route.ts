@@ -1,4 +1,4 @@
-import { KameletBinding } from '../models/camel-entities';
+import { KameletBinding } from '../models/visualization/flows';
 
 /**
  * This is a stub KameletBinding in YAML format.

@@ -1,4 +1,4 @@
-import { CamelRoute } from '../models/camel-entities';
+import { CamelRoute } from '../models/visualization/flows';
 
 /**
  * This is a stub Camel Route in YAML format.
