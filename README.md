@@ -1,6 +1,8 @@
 # kaoto-next
 The next version of the UI for the Kaoto project.
 
+https://kaotoio.github.io/kaoto-next/
+
 ## Table of Contents
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
