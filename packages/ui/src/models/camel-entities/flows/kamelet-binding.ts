@@ -2,11 +2,16 @@ import { KameletBinding as KameletBindingModel } from '@kaoto-next/camel-catalog
 import { v4 as uuidv4 } from 'uuid';
 import { VisualizationNode } from '../../visualization';
 import { BaseVisualCamelEntity, EntityType } from '../base-entity';
-import { KameletBindingSink, KameletBindingSource, KameletBindingStep, KameletBindingSteps } from '../kamelet-binding';
+import {
+  KameletBindingSink,
+  KameletBindingSource,
+  KameletBindingStep,
+  KameletBindingSteps,
+} from '../kamelet-binding-overrides';
 
 export class KameletBinding implements BaseVisualCamelEntity {
   readonly id = uuidv4();
-  readonly type = EntityType.KameletBinding;
+  type = EntityType.KameletBinding;
 
   constructor(public route: Partial<KameletBindingModel> = {}) {}
 
