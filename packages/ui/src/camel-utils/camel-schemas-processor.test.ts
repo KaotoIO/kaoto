@@ -32,20 +32,6 @@ describe('camel-schemas-processor', () => {
     },
   ];
 
-  it.each([
-    [null, false],
-    [undefined, false],
-    [{}, false],
-    [{ schema: null }, false],
-    [{ schema: {} }, false],
-    [{ schema: { items: {} } }, false],
-    [{ name: "Camel YAML DSL JSON schema" }, true],
-  ])('should return whether or not the provided schema is a Camel YAML schema: %s', (schema, expected) => {
-    const result = CamelSchemasProcessor.isCamelCatalog(schema);
-
-    expect(result).toEqual(expected);
-  });
-
   it('should return a list of schemas', () => {
     const result = CamelSchemasProcessor.getSchemas(schemas);
 
@@ -86,20 +72,6 @@ describe('camel-schemas-processor', () => {
         tags: [],
         uri: 'https://camel.apache.org/schema/user-schema.json',
         version: '3.2.0',
-      },
-      {
-        name: 'route',
-        version: '3.2.0',
-        tags: ['visualization'],
-        uri: 'https://camel.apache.org/schema/user-schema.json',
-        schema: {
-          $schema: 'https://json-schema.org/draft-04/schema#',
-          type: 'object',
-          items: { definitions: camelSchema.items.definitions },
-          properties: {
-            route: camelSchema.items.properties.route,
-          },
-        },
       },
     ];
 
