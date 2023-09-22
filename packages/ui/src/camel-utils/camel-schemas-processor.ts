@@ -56,11 +56,6 @@ export class CamelSchemasProcessor {
   static isCamelCatalog(schema: any): schema is Schema & {
     schema: { items: { definitions: Record<string, unknown>; properties: Record<string, unknown> } };
   } {
-    return (
-      schema?.schema !== null &&
-      schema?.schema !== undefined &&
-      typeof schema.schema === 'object' &&
-      'items' in schema.schema
-    );
+    return schema?.name === `Camel YAML DSL JSON schema`;
   }
 }
