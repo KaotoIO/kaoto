@@ -15,6 +15,7 @@ interface SourceCodeProps {
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const schemas = useSchemasStore((state) => state.schemas);
+  const camelYamlDslSchema = schemas.find(s => s.name === 'camelYamlDsl');
 
   useEffect(() => {
     setDiagnosticsOptions({
@@ -26,8 +27,8 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
       schemas: [
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          schema: schemas[0].schema as any,
-          uri: schemas[0].uri,
+          schema: camelYamlDslSchema!.schema as any,
+          uri: camelYamlDslSchema!.uri,
           fileMatch: ['*'],
         },
       ],

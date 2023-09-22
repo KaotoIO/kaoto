@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-record Entry(String name, String version, String file) {}
+record Entry(String name, String description, String version, String file) {}
 
 public class Index {
     public static final String COMPONENTS = "components";

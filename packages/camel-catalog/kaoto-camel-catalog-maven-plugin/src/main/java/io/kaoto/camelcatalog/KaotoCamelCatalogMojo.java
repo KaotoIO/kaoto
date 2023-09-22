@@ -129,7 +129,11 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             getLog().error(e);
             return;
         }
-        var indexEntry = new Entry("Camel YAML DSL JSON schema", camelVersion, outputFileName);
+        var indexEntry = new Entry(
+                "camelYamlDsl",
+                "Camel YAML DSL JSON schema",
+                camelVersion,
+                outputFileName);
         index.getSchemas().add(indexEntry);
 
         try {
@@ -177,7 +181,11 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             var writer = new FileWriter(output.toFile());
             JsonGenerator gen = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(gen, answer);
-            var indexEntry = new Entry("Camel YAML DSL JSON schema: " + propName, camelVersion, outputFileName);
+            var indexEntry = new Entry(
+                    propName,
+                    "Camel YAML DSL JSON schema: " + propName,
+                    camelVersion,
+                    outputFileName);
             index.getSchemas().add(indexEntry);
         } catch (Exception e) {
             getLog().error(e);
@@ -242,7 +250,11 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             var writer = new FileWriter(output.toFile());
             var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(jsonGenerator, targetObject);
-            var indexEntry = new Entry("Aggregated Camel catalog for " + categoryName, camelVersion, outputFileName);
+            var indexEntry = new Entry(
+                    categoryName,
+                    "Aggregated Camel catalog for " + categoryName,
+                    camelVersion,
+                    outputFileName);
             index.getCatalogs().put(categoryName, indexEntry);
         } catch (Exception e) {
             getLog().error(e);
@@ -307,9 +319,11 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             var crd = yamlMapper.readValue(file.toFile(), CustomResourceDefinition.class);
             var schema = crd.getSpec().getVersions().get(0).getSchema().getOpenAPIV3Schema();
             jsonMapper.writerWithDefaultPrettyPrinter().writeValue(output.toFile(), schema);
-            var displayName = crd.getSpec().getNames().getKind();
+            var name = crd.getSpec().getNames().getKind();
+            var description = name;
             var indexEntry = new Entry(
-                    displayName,
+                    name,
+                    description,
                     camelKCRDVersion,
                     outputFileName);
             index.getSchemas().add(indexEntry);
@@ -338,6 +352,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(jsonGenerator, root);
             var indexEntry = new Entry(
+                    KAMELETS,
                     "Aggregated Kamelet definitions in JSON",
                     kameletsVersion,
                     outputFileName);
