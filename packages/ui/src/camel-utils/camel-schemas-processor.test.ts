@@ -38,7 +38,8 @@ describe('camel-schemas-processor', () => {
     [{}, false],
     [{ schema: null }, false],
     [{ schema: {} }, false],
-    [{ schema: { items: {} } }, true],
+    [{ schema: { items: {} } }, false],
+    [{ name: "Camel YAML DSL JSON schema" }, true],
   ])('should return whether or not the provided schema is a Camel YAML schema: %s', (schema, expected) => {
     const result = CamelSchemasProcessor.isCamelCatalog(schema);
 
@@ -57,10 +58,10 @@ describe('camel-schemas-processor', () => {
   });
 
   it('should return a list of schemas for camel schemas', () => {
-    const result = CamelSchemasProcessor.getSchemas([{ ...schemas[0], schema: camelSchema }]);
+    const result = CamelSchemasProcessor.getSchemas([{ ...schemas[0], name: "Camel YAML DSL JSON schema", schema: camelSchema }]);
     const expected = [
       {
-        name: 'user-schema',
+        name: 'Camel YAML DSL JSON schema',
         schema: {
           $schema: 'http://json-schema.org/draft-07/schema#',
           items: {
