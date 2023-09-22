@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,6 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -68,6 +70,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
 
     private static final ObjectMapper jsonMapper = new ObjectMapper();
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    private static final JsonFactory jsonFactory = new JsonFactory();
 
     @Parameter(required = true)
     private File inputDirectory;
@@ -128,6 +131,79 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
         var indexEntry = new Entry("Camel YAML DSL JSON schema", camelVersion, outputFileName);
         index.getSchemas().add(indexEntry);
+
+        try {
+            var rootSchema = (ObjectNode) jsonMapper.readTree(schema.toFile());
+            var items = rootSchema.withObject("/items");
+            var properties = items.withObject("/properties");
+            var definitions = items.withObject("/definitions");
+            var relocatedDefinitions = relocateToRootDefinitions(definitions);
+            properties.properties().forEach(p -> processSubSchema(p, relocatedDefinitions, rootSchema, index));
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+    }
+
+    private ObjectNode relocateToRootDefinitions(ObjectNode definitions) {
+        var relocatedDefinitions = definitions.deepCopy();
+        relocatedDefinitions.findParents("$ref").stream()
+                .map(ObjectNode.class::cast)
+                .forEach(n -> n.put("$ref", getRelocatedRef(n)));
+        return relocatedDefinitions;
+    }
+
+    private String getRelocatedRef(ObjectNode parent) {
+        return parent.get("$ref").asText().replace("#/items/definitions/", "#/definitions/");
+    }
+
+    private void processSubSchema(
+            java.util.Map.Entry<String, JsonNode> prop,
+            ObjectNode definitions,
+            ObjectNode rootSchema,
+            Index index
+    ) {
+        var propName = prop.getKey();
+        var answer = (ObjectNode) prop.getValue().deepCopy();
+        if (answer.has("$ref") && definitions.has(getNameFromRef((ObjectNode)answer))) {
+            answer = definitions.withObject("/" + getNameFromRef((ObjectNode)answer)).deepCopy();
+
+        }
+        answer.set("$schema", rootSchema.get("$schema"));
+        populateDefinitions(answer, definitions);
+        var outputFileName = String.format("%s-%s-%s.json", CAMEL_YAML_DSL, propName, camelVersion);
+        var output = outputDirectory.toPath().resolve(outputFileName);
+        try {
+            output.getParent().toFile().mkdirs();
+            var writer = new FileWriter(output.toFile());
+            JsonGenerator gen = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
+            jsonMapper.writeTree(gen, answer);
+            var indexEntry = new Entry("Camel YAML DSL JSON schema: " + propName, camelVersion, outputFileName);
+            index.getSchemas().add(indexEntry);
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+    }
+
+    private String getNameFromRef(ObjectNode parent) {
+        var ref = parent.get("$ref").asText();
+        return ref.contains("items") ? ref.replace("#/items/definitions/", "")
+                : ref.replace("#/definitions/", "");
+    }
+
+    private void populateDefinitions(ObjectNode schema, ObjectNode definitions) {
+        var schemaDefinitions = schema.withObject("/definitions");
+        boolean added = true;
+        while(added) {
+            added = false;
+            for (JsonNode refParent : schema.findParents("$ref")) {
+                var name = getNameFromRef((ObjectNode) refParent);
+                if (!schemaDefinitions.has(name)) {
+                    schemaDefinitions.set(name, definitions.withObject("/" + name));
+                    added = true;
+                    break;
+                }
+            }
+        }
     }
 
     private void processCatalog(Path inputDir, Index index) {
