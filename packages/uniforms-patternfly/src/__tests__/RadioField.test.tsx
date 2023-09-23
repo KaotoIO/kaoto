@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { RadioField } from "..";
+import RadioField from "../RadioField";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { usingUniformsContext } from "./test-utils";
 

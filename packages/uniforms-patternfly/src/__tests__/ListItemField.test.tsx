@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { ListItemField } from "../";
+import ListItemField from "../ListItemField";
 import { render, screen } from "@testing-library/react";
 import { usingUniformsContext } from "./test-utils";
 

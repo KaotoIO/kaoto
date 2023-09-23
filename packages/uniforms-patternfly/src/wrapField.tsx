@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import * as React from "react";
-import { FormGroup, FormGroupProps } from "@patternfly/react-core/dist/js/components/Form";
-import { filterDOMProps } from "uniforms";
+import * as React from 'react';
+import { FormGroup, FormGroupProps } from '@patternfly/react-core/dist/js/components/Form';
+import { FilterDOMProps, filterDOMProps } from 'uniforms';
 
-declare module "uniforms" {
+declare module 'uniforms' {
   interface FilterDOMProps {
     decimal: never;
     minCount: never;
@@ -35,13 +35,16 @@ declare module "uniforms" {
 }
 
 filterDOMProps.register(
-  "decimal",
-  "minCount",
-  "autoValue",
-  "isDisabled",
-  "exclusiveMaximum",
-  "exclusiveMinimum",
-  "menuAppendTo"
+  'decimal',
+  'minCount',
+  'autoValue',
+  'isDisabled',
+  'exclusiveMaximum',
+  'exclusiveMinimum',
+  'menuAppendTo',
+  'checkboxes',
+  'helperText' as keyof FilterDOMProps,
+  'initialCount' as keyof FilterDOMProps,
 );
 
 type WrapperProps = {
@@ -50,15 +53,15 @@ type WrapperProps = {
   errorMessage?: string;
   help?: string;
   showInlineError?: boolean;
-} & Omit<FormGroupProps, "onChange" | "fieldId">;
+} & Omit<FormGroupProps, 'onChange' | 'fieldId'>;
 
 export default function wrapField(
   { id, label, type, disabled, error, errorMessage, showInlineError, help, required, ...props }: WrapperProps,
-  children: React.ReactNode
+  children: React.ReactNode,
 ) {
   return (
     <FormGroup
-      data-testid={"wrapper-field"}
+      data-testid={'wrapper-field'}
       fieldId={id}
       label={label}
       isRequired={required}
