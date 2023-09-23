@@ -25,6 +25,8 @@ import { SimpleSchema2Bridge } from "uniforms-bridge-simple-schema-2";
 const randomId = randomIds();
 
 export function createSimpleSchema(schema = {}) {
+  SimpleSchema.extendOptions(["uniforms"]);
+
   return new SimpleSchema2Bridge(new SimpleSchema(schema));
 }
 
