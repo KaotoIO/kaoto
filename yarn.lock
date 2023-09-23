@@ -3018,8 +3018,8 @@ __metadata:
     ts-jest: ^29.1.1
     ts-node: ^10.9.1
     typescript: ^5.0.2
-    uniforms: 3.10.2
-    uniforms-bridge-simple-schema-2: 3.10.2
+    uniforms: 4.0.0-alpha.0
+    uniforms-bridge-simple-schema-2: 4.0.0-alpha.0
     webpack: ^5.88.2
     webpack-cli: ^4.10.0
     webpack-dev-server: ^4.15.1
@@ -17934,29 +17934,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms-bridge-simple-schema-2@npm:3.10.2":
-  version: 3.10.2
-  resolution: "uniforms-bridge-simple-schema-2@npm:3.10.2"
+"uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.0":
+  version: 4.0.0-alpha.0
+  resolution: "uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.0"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     simpl-schema: ^1.0.0 || ^0.0.4
     tslib: ^2.2.0
-    uniforms: ^3.10.2
-  checksum: 09586bdb75eb9e9b354023e1f58d6e843ceefa695d8949a7e979ab1c2b50982ff4c656e1a5be3f82a81131f329bffdb17f9574c992ec909c59513358bfee7979
-  languageName: node
-  linkType: hard
-
-"uniforms@npm:3.10.2, uniforms@npm:^3.10.2":
-  version: 3.10.2
-  resolution: "uniforms@npm:3.10.2"
-  dependencies:
-    invariant: ^2.0.0
-    lodash: ^4.0.0
-    tslib: ^2.2.0
-  peerDependencies:
-    react: ^18.0.0 || ^17.0.0 || ^16.8.0
-  checksum: 6a9284b8a6eab09074a3a64d60ea3b9f7c5112f26d45f986aa73c299d1583c7d866d609c318063a21ce8389ae31ad8d935a0454e26e76f14bf73604197104fd0
+    uniforms: ^4.0.0-alpha.0
+  checksum: 0cf539dfaf28f65e0598bb963461f82ef87990bb96f1c4610a03d20e7d97f1bbfe38d998bfe808deb5702c0243f5f68fba8d1d5e90b44981b42d2f1f0ef164e6
   languageName: node
   linkType: hard
 
@@ -17970,19 +17957,6 @@ __metadata:
   peerDependencies:
     react: ^18.0.0 || ^17.0.0 || ^16.8.0
   checksum: d10e27403e12a2a262af2af3f4277e7eb2ca0ee4787f6cf32b1797f99389d0587c8b087b96366e65583a82f578a6a72084173235a5c4b17b58c9809c9f48ce05
-  languageName: node
-  linkType: hard
-
-"uniforms@npm:^4.0.0-alpha.0":
-  version: 4.0.0-alpha.5
-  resolution: "uniforms@npm:4.0.0-alpha.5"
-  dependencies:
-    invariant: ^2.0.0
-    lodash: ^4.0.0
-    tslib: ^2.2.0
-  peerDependencies:
-    react: ^18.0.0 || ^17.0.0 || ^16.8.0
-  checksum: ce76babac327849077976bd5d7dfc75959fbf97e7e3f4c76bda7a75a3bd5360a3c6e8f341134d510325a66a6d978e3a634336a96cf03f94f9605dae0e9b6d889
   languageName: node
   linkType: hard
 

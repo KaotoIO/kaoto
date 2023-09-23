@@ -17,80 +17,96 @@
  * under the License.
  */
 
-import * as React from "react";
-import { ListField } from "../";
-import { render, screen } from "@testing-library/react";
-import { usingUniformsContext } from "./test-utils";
+import * as React from 'react';
+import { ListField } from '../';
+import { render, screen } from '@testing-library/react';
+import { usingUniformsContext } from './test-utils';
 
-test("<ListField> - works", () => {
-  render(usingUniformsContext(<ListField name="x" />, { x: { type: Array }, "x.$": { type: String } }));
+test('<ListField> - works', () => {
+  render(usingUniformsContext(<ListField name="x" />, { x: { type: Array }, 'x.$': { type: String } }));
 
-  expect(screen.getByTestId("list-field")).toBeInTheDocument();
+  expect(screen.getByTestId('list-field')).toBeInTheDocument();
 });
 
-test("<ListField> - renders ListAddField", () => {
+test('<ListField> - renders ListAddField', () => {
   render(
-    usingUniformsContext(<ListField name="x" label="ListFieldLabel" />, { x: { type: Array }, "x.$": { type: String } })
+    usingUniformsContext(<ListField name="x" label="ListFieldLabel" />, {
+      x: { type: Array },
+      'x.$': { type: String },
+    }),
   );
 
-  expect(screen.getByTestId("list-add-field")).toBeInTheDocument();
-  expect(screen.getByText("ListFieldLabel")).toBeInTheDocument();
+  expect(screen.getByTestId('list-add-field')).toBeInTheDocument();
+  expect(screen.getByText('ListFieldLabel')).toBeInTheDocument();
 });
 
-test("<ListField> - renders correct label (specified)", () => {
+test('<ListField> - renders correct label (specified)', () => {
   render(
-    usingUniformsContext(<ListField name="x" label="ListFieldLabel" />, { x: { type: Array }, "x.$": { type: String } })
+    usingUniformsContext(<ListField name="x" label="ListFieldLabel" />, {
+      x: { type: Array },
+      'x.$': { type: String },
+    }),
   );
 
-  expect(screen.getByText("ListFieldLabel")).toBeInTheDocument();
+  expect(screen.getByText('ListFieldLabel')).toBeInTheDocument();
 });
 
-test("<ListField> - renders correct numer of items with initialCount (specified)", () => {
+test('<ListField> - renders correct numer of items with initialCount (specified)', () => {
   render(
-    usingUniformsContext(<ListField name="x" initialCount={3} />, { x: { type: Array }, "x.$": { type: String } })
+    usingUniformsContext(
+      <ListField name="x" />,
+      { x: { type: Array }, 'x.$': { type: String } },
+      { model: { x: ['string1', 'string2', 'string3'] } },
+    ),
   );
 
-  expect(screen.getAllByTestId("text-field")).toHaveLength(3);
+  expect(screen.getAllByTestId('text-field')).toHaveLength(3);
 });
 
-test("<ListField> - renders children (specified)", () => {
+test('<ListField> - renders children (specified)', () => {
   const Child: () => null = jest.fn(() => null);
 
   render(
     usingUniformsContext(
-      <ListField name="x" initialCount={2}>
+      <ListField name="x">
         <Child />
       </ListField>,
-      { x: { type: Array }, "x.$": { type: String } }
-    )
+      { x: { type: Array }, 'x.$': { type: String } },
+      { model: { x: ['string1', 'string2'] } },
+    ),
   );
 
   expect(Child).toHaveBeenCalledTimes(2);
 });
 
-test("<ListField> - renders children with correct name (children)", () => {
-  const Child: any = jest.fn((props: any) => <div {...props} data-testid={"child-div"} />);
+test('<ListField> - renders children with correct name (children)', () => {
+  const Child: any = jest.fn((props: any) => <div {...props} data-testid={'child-div'} />);
 
   render(
     usingUniformsContext(
-      <ListField name="x" initialCount={2}>
+      <ListField name="x">
         <Child name="$" />
       </ListField>,
-      { x: { type: Array }, "x.$": { type: String } }
-    )
+      { x: { type: Array }, 'x.$': { type: String } },
+      { model: { x: ['string1', 'string2'] } },
+    ),
   );
 
-  const childDivs = screen.getAllByTestId("child-div");
-  expect(childDivs[0].getAttribute("name")).toBe("0");
-  expect(childDivs[1].getAttribute("name")).toBe("1");
+  const childDivs = screen.getAllByTestId('child-div');
+  expect(childDivs[0].getAttribute('name')).toBe('0');
+  expect(childDivs[1].getAttribute('name')).toBe('1');
 });
 
-test("<ListField> - renders children with correct name (value)", () => {
+test('<ListField> - renders children with correct name (value)', () => {
   render(
-    usingUniformsContext(<ListField name="x" initialCount={2} />, { x: { type: Array }, "x.$": { type: String } })
+    usingUniformsContext(
+      <ListField name="x" />,
+      { x: { type: Array }, 'x.$': { type: String } },
+      { model: { x: ['string1', 'string2'] } },
+    ),
   );
 
-  const textFields = screen.getAllByTestId("text-field");
-  expect(textFields[0].getAttribute("name")).toBe("x.0");
-  expect(textFields[1].getAttribute("name")).toBe("x.1");
+  const textFields = screen.getAllByTestId('text-field');
+  expect(textFields[0].getAttribute('name')).toBe('x.0');
+  expect(textFields[1].getAttribute('name')).toBe('x.1');
 });

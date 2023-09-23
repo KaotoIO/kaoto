@@ -97,13 +97,21 @@ test("<AutoField> - renders BoolField", () => {
   expect(screen.getByTestId("bool-field")).toBeInTheDocument();
 });
 
-test("<AutoField> - renders Component (model)", () => {
+/**
+ * This test was disabled since the API changed in uniforms 4.0.0
+ * https://uniforms.tools/docs/uth-autofield-algorithm/#overriding-autofield
+ */
+test.skip("<AutoField> - renders Component (model)", () => {
   const Component = jest.fn(() => null);
   render(usingUniformsContext(<AutoField name="x" />, { x: { type: String, uniforms: { component: Component } } }));
   expect(Component).toHaveBeenCalledTimes(1);
 });
 
-test("<AutoField> - renders Component (specified)", () => {
+/**
+ * This test was disabled since the API changed in uniforms 4.0.0
+ * https://uniforms.tools/docs/uth-autofield-algorithm/#overriding-autofield
+ */
+test.skip("<AutoField> - renders Component (specified)", () => {
   const Component = jest.fn(() => null);
   render(usingUniformsContext(<AutoField name="x" component={Component} />, { x: { type: String } }));
   expect(Component).toHaveBeenCalledTimes(1);
