@@ -6,6 +6,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
     "removeComments": true,

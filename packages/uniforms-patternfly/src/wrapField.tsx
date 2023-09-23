@@ -62,10 +62,7 @@ export default function wrapField(
       fieldId={id}
       label={label}
       isRequired={required}
-      validated={error ? "error" : "default"}
       type={type}
-      helperText={help}
-      helperTextInvalid={errorMessage}
       {...filterDOMProps(props)}
     >
       {children}

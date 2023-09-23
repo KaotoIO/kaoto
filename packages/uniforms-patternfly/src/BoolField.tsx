@@ -17,15 +17,17 @@
  * under the License.
  */
 
-import * as React from "react";
-import { Checkbox, CheckboxProps } from "@patternfly/react-core/dist/js/components/Checkbox";
-import { Switch, SwitchProps } from "@patternfly/react-core/dist/js/components/Switch";
-import { connectField, FieldProps } from "uniforms";
-import wrapField from "./wrapField";
+import * as React from 'react';
+import { Checkbox, CheckboxProps } from '@patternfly/react-core/dist/js/components/Checkbox';
+import { Switch, SwitchProps } from '@patternfly/react-core/dist/js/components/Switch';
+import { connectField, FieldProps } from 'uniforms';
+import wrapField from './wrapField';
+import { FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core/dist/js';
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 
 enum ComponentType {
-  checkbox = "checkbox",
-  switch = "switch",
+  checkbox = 'checkbox',
+  switch = 'switch',
 }
 
 export type BoolFieldProps = FieldProps<
@@ -41,16 +43,26 @@ function BoolField({ appearance, disabled, id, inputRef, label, name, onChange, 
   const Component = appearance === ComponentType.switch ? Switch : Checkbox;
   return wrapField(
     { id, ...props },
-    <Component
-      data-testid={"bool-field"}
-      isChecked={value ?? false}
-      isDisabled={disabled}
-      id={id}
-      name={name}
-      onChange={() => disabled || onChange(!value)}
-      ref={inputRef}
-      label={label}
-    />
+    <>
+      {' '}
+      <Component
+        data-testid={'bool-field'}
+        isChecked={value ?? false}
+        isDisabled={disabled}
+        id={id}
+        name={name}
+        onChange={() => disabled || onChange(!value)}
+        ref={inputRef}
+        label={label}
+      />
+      <FormHelperText>
+        <HelperText>
+          <HelperTextItem icon={<ExclamationCircleIcon />} variant={props.error ? 'error' : 'default'}>
+            {!props.error ? '' : props.errorMessage}
+          </HelperTextItem>
+        </HelperText>
+      </FormHelperText>
+    </>,
   );
 }
 
