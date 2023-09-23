@@ -1,5 +1,5 @@
 {
-  "name": "@kie-tools/uniforms-patternfly",
+  "name": "@kaoto-next/uniforms-patternfly",
   "version": "0.0.0",
   "description": "Patternfly forms for uniforms",
   "license": "Apache-2.0",
@@ -8,13 +8,13 @@
     "email": "gzuccare@redhat.com"
   },
   "keywords": [],
-  "homepage": "https://github.com/kiegroup/kie-tools",
+  "homepage": "https://github.com/KaotoIO/kaoto-next/tree/main/packages/uniforms-patternfly",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kiegroup/kie-tools.git"
+    "url": "https://github.com/KaotoIO/kaoto-next.git"
   },
   "bugs": {
-    "url": "https://github.com/kiegroup/kie-tools/issues"
+    "url": "https://github.com/KaotoIO/kaoto-next/issues"
   },
   "types": "./dist/esm/index.d.ts",
   "main": "dist/esm/index.js",
@@ -23,7 +23,8 @@
   ],
   "scripts": {
     "build:dev": "rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
-    "build:prod": "rim  raf dist && pnpm lint && pnpm test && rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
+    "build:prod": "rimraf dist && yarn test && yarn build:dev",
+    "build:prod:deactivated": "rimraf dist && pnpm lint && pnpm test && rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
     "lint": "run-script-if --bool \"$(build-env linters.run)\" --then \"kie-tools--eslint ./src\"",
     "test": "jest"
   },

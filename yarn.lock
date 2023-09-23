@@ -2968,23 +2968,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kie-tools/uniforms-patternfly@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@kie-tools/uniforms-patternfly@npm:0.31.0"
-  dependencies:
-    "@types/invariant": ^2.2.35
-    invariant: ^2.2.4
-    lodash: ^4.17.21
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    uniforms: ^3.10.2
-  checksum: 153f578014ef6d126079a5701de7ad8f73aa1c04e807e4adead8a7f552f33a140b047a7016a8ffddb1be57ff1131a67fb907a83784ce1bd792aca5deaf711a4e
-  languageName: node
-  linkType: hard
-
-"@kie-tools/uniforms-patternfly@workspace:packages/uniforms-patternfly":
+"@kaoto-next/uniforms-patternfly@workspace:packages/uniforms-patternfly":
   version: 0.0.0-use.local
-  resolution: "@kie-tools/uniforms-patternfly@workspace:packages/uniforms-patternfly"
+  resolution: "@kaoto-next/uniforms-patternfly@workspace:packages/uniforms-patternfly"
   dependencies:
     "@babel/core": ^7.21.8
     "@babel/preset-env": ^7.21.5
@@ -3026,6 +3012,20 @@ __metadata:
     webpack-merge: ^5.9.0
   languageName: unknown
   linkType: soft
+
+"@kie-tools/uniforms-patternfly@npm:^0.31.0":
+  version: 0.31.0
+  resolution: "@kie-tools/uniforms-patternfly@npm:0.31.0"
+  dependencies:
+    "@types/invariant": ^2.2.35
+    invariant: ^2.2.4
+    lodash: ^4.17.21
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    uniforms: ^3.10.2
+  checksum: 153f578014ef6d126079a5701de7ad8f73aa1c04e807e4adead8a7f552f33a140b047a7016a8ffddb1be57ff1131a67fb907a83784ce1bd792aca5deaf711a4e
+  languageName: node
+  linkType: hard
 
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
