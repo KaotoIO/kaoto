@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@kaoto-next/camel-catalog": "workspace:*",
-    "@kie-tools/uniforms-patternfly": "^0.31.0",
+    "@kaoto-next/uniforms-patternfly": "workspace:*",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-code-editor": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
