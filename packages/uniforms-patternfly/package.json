@@ -22,10 +22,7 @@
     "dist"
   ],
   "scripts": {
-    "build:dev": "rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
-    "build:prod": "rimraf dist && yarn test && yarn build:dev",
-    "build:prod:deactivated": "rimraf dist && pnpm lint && pnpm test && rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
-    "lint": "run-script-if --bool \"$(build-env linters.run)\" --then \"kie-tools--eslint ./src\"",
+    "build": "rimraf dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json",
     "test": "jest"
   },
   "dependencies": {
