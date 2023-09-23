@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { AutoField } from "..";
+import AutoField from "../AutoField";
 import { usingUniformsContext } from "./test-utils";
 import { render, screen } from "@testing-library/react";
 

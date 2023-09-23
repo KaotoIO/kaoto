@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { LongTextField } from "../";
+import LongTextField from "../LongTextField";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { usingUniformsContext } from "./test-utils";
 

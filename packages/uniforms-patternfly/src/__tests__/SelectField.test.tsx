@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { SelectField } from "..";
+import SelectField from "../SelectField";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { usingUniformsContext } from "./test-utils";
 

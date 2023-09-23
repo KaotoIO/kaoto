@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { AutoForm } from "../";
+import AutoForm from "../AutoForm";
 import { createSimpleSchema, usingUniformsContext } from "./test-utils";
 import { render, screen } from "@testing-library/react";
 

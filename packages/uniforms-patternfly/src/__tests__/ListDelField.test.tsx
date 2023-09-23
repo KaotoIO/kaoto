@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import * as React from "react";
-import { ListDelField } from "../";
+import ListDelField from "../ListDelField";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { usingUniformsContext } from "./test-utils";
 
