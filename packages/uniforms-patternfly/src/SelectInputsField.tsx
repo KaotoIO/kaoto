@@ -20,11 +20,11 @@
 import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
 import {
-  Select,
-  SelectOption,
-  SelectOptionObject,
-  SelectVariant,
-} from "@patternfly/react-core/dist/js/components/Select";
+	Select,
+	SelectOption,
+	SelectOptionObject,
+	SelectVariant
+} from '@patternfly/react-core/deprecated';
 import wrapField from "./wrapField";
 import { SelectInputProps } from "./SelectField";
 
@@ -121,7 +121,7 @@ function SelectInputsField(props: SelectInputProps) {
         placeholderText={props.placeholder}
         isOpen={expanded}
         selections={selected}
-        onToggle={(isExpanded) => setExpanded(isExpanded)}
+        onToggle={(_event, isExpanded) => setExpanded(isExpanded)}
         onSelect={handleSelect}
         value={props.value || (props.fieldType === Array ? [] : undefined)}
         menuAppendTo={props.menuAppendTo}
