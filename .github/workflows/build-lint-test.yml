@@ -33,7 +33,7 @@ jobs:
 
       # Run tests
       - name: 🧪 Run tests
-        run: yarn workspaces foreach --verbose run test
+        run: yarn workspaces foreach --verbose --topological-dev run test
 
       # Build packages
       - name: Build packages

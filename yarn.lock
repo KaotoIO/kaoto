@@ -3000,12 +3000,12 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
     rimraf: ^3.0.2
-    simpl-schema: ^1.12.0
+    simpl-schema: ^3.4.1
     ts-jest: ^29.1.1
     ts-node: ^10.9.1
     typescript: ^5.0.2
     uniforms: 4.0.0-alpha.0
-    uniforms-bridge-simple-schema-2: 4.0.0-alpha.0
+    uniforms-bridge-simple-schema-2: 4.0.0-alpha.1
     webpack: ^5.88.2
     webpack-cli: ^4.10.0
     webpack-dev-server: ^4.15.1
@@ -13595,13 +13595,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash._reinterpolate@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "lodash._reinterpolate@npm:3.0.0"
-  checksum: 06d2d5f33169604fa5e9f27b6067ed9fb85d51a84202a656901e5ffb63b426781a601508466f039c720af111b0c685d12f1a5c14ff8df5d5f27e491e562784b2
-  languageName: node
-  linkType: hard
-
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -13641,25 +13634,6 @@ __metadata:
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
   checksum: d768fa9f9b4e1dc6453be99b753906f58990e0c45e7b2ca5a3b40a33111e5d17f6edf2f768786e2716af90a8e78f8f91431ab8435f761fef00f9b0c256f6d245
-  languageName: node
-  linkType: hard
-
-"lodash.template@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.template@npm:4.5.0"
-  dependencies:
-    lodash._reinterpolate: ^3.0.0
-    lodash.templatesettings: ^4.0.0
-  checksum: ca64e5f07b6646c9d3dbc0fe3aaa995cb227c4918abd1cef7a9024cd9c924f2fa389a0ec4296aa6634667e029bc81d4bbdb8efbfde11df76d66085e6c529b450
-  languageName: node
-  linkType: hard
-
-"lodash.templatesettings@npm:^4.0.0":
-  version: 4.2.0
-  resolution: "lodash.templatesettings@npm:4.2.0"
-  dependencies:
-    lodash._reinterpolate: ^3.0.0
-  checksum: 863e025478b092997e11a04e9d9e735875eeff1ffcd6c61742aa8272e3c2cddc89ce795eb9726c4e74cef5991f722897ff37df7738a125895f23fc7d12a7bb59
   languageName: node
   linkType: hard
 
@@ -13956,15 +13930,6 @@ __metadata:
   version: 1.4.1
   resolution: "merge2@npm:1.4.1"
   checksum: 7268db63ed5169466540b6fb947aec313200bcf6d40c5ab722c22e242f651994619bcd85601602972d3c85bd2cc45a358a4c61937e9f11a061919a1da569b0c2
-  languageName: node
-  linkType: hard
-
-"message-box@npm:^0.2.7":
-  version: 0.2.7
-  resolution: "message-box@npm:0.2.7"
-  dependencies:
-    lodash.template: ^4.5.0
-  checksum: 97a6dd422959232d7ae3411b084b426a51dfb52e52729929b84665fc8c2274b484dd971a9b629aae11ada8bb3822be41913130c18d58309cc962855de0113e32
   languageName: node
   linkType: hard
 
@@ -14285,10 +14250,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongo-object@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "mongo-object@npm:0.1.4"
-  checksum: 7d5c9634325be1d05cbf57e21b89962e3aa633724359c1e43ef8aa821e514290bb412fabc383e6f4c63bfde6d5e4860215bfe2f87e971bd8ddd7476f439e32de
+"mongo-object@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "mongo-object@npm:3.0.1"
+  checksum: f42045ad941537dbde27b1ed31b9f6c639ed5017c049d7707b9f860bfa15fb4c428f3c408a2784269390a5e8e7d72148ba3d0143906c0faf68eeb13c9dad3521
   languageName: node
   linkType: hard
 
@@ -16461,14 +16426,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simpl-schema@npm:^1.0.0 || ^0.0.4, simpl-schema@npm:^1.12.0":
-  version: 1.13.1
-  resolution: "simpl-schema@npm:1.13.1"
+"simpl-schema@npm:3.4.1":
+  version: 3.4.1
+  resolution: "simpl-schema@npm:3.4.1"
   dependencies:
     clone: ^2.1.2
-    message-box: ^0.2.7
-    mongo-object: ^0.1.4
-  checksum: 7f25b2233a3b84ee616e097ae70beb76c8e3bbfef9b80803ec0f39206e0dbb356b6a36ce8a160d5830d6378e80a8f4998b51d1a0126df9e69c699bcbc3a5ed48
+    mongo-object: ^3.0.1
+  checksum: 877f29104474624336983b6e423cb2f207cd3490919c7656e90cf5806e3bebbf87dbf190f6dc77827ae03efaf4d8651fa7498061c2e6c84de6b15e709b88706f
   languageName: node
   linkType: hard
 
@@ -17790,28 +17754,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms-bridge-json-schema@npm:4.0.0-alpha.0":
-  version: 4.0.0-alpha.0
-  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.0"
+"uniforms-bridge-json-schema@npm:4.0.0-alpha.1":
+  version: 4.0.0-alpha.1
+  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.1"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     tslib: ^2.2.0
-    uniforms: ^4.0.0-alpha.0
-  checksum: 8ce0dbc34e1aba32f6242c649b9a693f60d56aef129237b2a766aef2fb0c3c20ee7c236e748e391a829dacfe5c045e44e5d1f568b7dff4a00b3da0d0b6c238bf
+    uniforms: ^4.0.0-alpha.1
+  checksum: 0b63340dc75a8edf63baa1c868423105e8673554e294c4439317abb523a1a7862fd6834179c8ad623cb9b05292df22b09b661b5dcfeccab75400a0de932490a8
   languageName: node
   linkType: hard
 
-"uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.0":
-  version: 4.0.0-alpha.0
-  resolution: "uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.0"
+"uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.1":
+  version: 4.0.0-alpha.1
+  resolution: "uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.1"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     simpl-schema: ^1.0.0 || ^0.0.4
     tslib: ^2.2.0
-    uniforms: ^4.0.0-alpha.0
-  checksum: 0cf539dfaf28f65e0598bb963461f82ef87990bb96f1c4610a03d20e7d97f1bbfe38d998bfe808deb5702c0243f5f68fba8d1d5e90b44981b42d2f1f0ef164e6
+    uniforms: ^4.0.0-alpha.1
+  checksum: ef0be3ce0529415afe189b426550ce778f0e4d46f64d26bb5f195789cdd3dca20b4529732567acbc32d4298efd92344581bcc614f8dcd73ba011bf7461ef7677
   languageName: node
   linkType: hard
 
