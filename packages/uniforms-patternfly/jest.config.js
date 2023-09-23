@@ -16,20 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+/** @type {import('jest').Config} */
 module.exports = {
-  globals: {
-    "ts-jest": {
-      tsconfig: "<rootDir>/tsconfig.esm.json",
-    },
-  },
+  testEnvironment: "jsdom",
   reporters: ["default"],
   setupFilesAfterEnv: ["./src/__tests__/jest.setup.ts"],
   moduleDirectories: ["node_modules"],
   testRegex: "src/__tests__/.*\\.test\\.(jsx?|tsx?)$",
   transform: {
     "^.+\\.jsx?$": ["babel-jest", { presets: [["@babel/env", { targets: { node: "current" } }], "@babel/react"] }],
-    "^.+\\.tsx?$": "ts-jest",
+    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.esm.json" }],
   },
   moduleNameMapper: {
     "\\.(css|less|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
