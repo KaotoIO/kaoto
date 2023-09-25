@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CustomNestField should render 1`] = `
+<div>
+  <form
+    class="pf-v5-c-form"
+    data-testid="base-form"
+    novalidate=""
+  >
+    <div
+      class="pf-v5-c-card"
+      data-ouia-component-id="OUIA-Generated-Card-1"
+      data-ouia-component-type="PF5/Card"
+      data-ouia-safe="true"
+      id="uniforms-0000-0000"
+    >
+      <div
+        class="pf-v5-c-card__body pf-c-form"
+      >
+        <label>
+          <b>
+            Custom nest field label
+          </b>
+        </label>
+      </div>
+    </div>
+  </form>
+</div>
+`;
