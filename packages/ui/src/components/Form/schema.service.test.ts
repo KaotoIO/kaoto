@@ -18,4 +18,10 @@ describe('SchemaService', () => {
 
     expect(schemaBridge?.schema).toEqual(schema);
   });
+
+  it('should return undefined if no schema is provided', () => {
+    const schemaBridge = schemaService.getSchemaBridge();
+
+    expect(schemaBridge).toBeUndefined();
+  });
 });

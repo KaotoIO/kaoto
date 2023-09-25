@@ -128,7 +128,6 @@ export class CamelComponentSchemaService {
   ): JSONSchemaType<unknown> {
     const required: string[] = [];
     const schema = {
-      $schema: 'https://json-schema.org/draft-04/schema#',
       type: 'object',
       properties: {},
       required,
@@ -136,8 +135,9 @@ export class CamelComponentSchemaService {
 
     Object.keys(properties).forEach((propertyName) => {
       const property = properties[propertyName];
+      const propertyType = this.getJSONType(property);
       const propertySchema = {
-        type: property.type,
+        type: propertyType,
         title: property.displayName,
         description: property.description,
         deprecated: property.deprecated,
@@ -155,5 +155,21 @@ export class CamelComponentSchemaService {
     });
 
     return schema;
+  }
+
+  /**
+   * Transform Camel property types into JSON Schema types
+   *
+   * This is needed because the Camel Catalog is using different types than JSON Schema
+   * For instance, the Camel Catalog is using `duration` instead of `number`
+   */
+  static getJSONType(property: ICamelProcessorProperty | ICamelComponentProperty) {
+    switch (property.type) {
+      case 'duration':
+        return 'string';
+
+      default:
+        return property.type;
+    }
   }
 }

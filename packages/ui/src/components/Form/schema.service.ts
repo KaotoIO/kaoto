@@ -16,18 +16,14 @@ export class SchemaService {
   }
 
   getSchemaBridge(schema?: Record<string, unknown>): JSONSchemaBridge | undefined {
-    // const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
-    const noopValidator = () => null;
+    if (!schema) return undefined;
 
-    if (!schema) {
-      return undefined;
-    }
+    const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
-    return new JSONSchemaBridge(schema, noopValidator);
+    return new JSONSchemaBridge(schema, schemaValidator);
   }
 
-  /** TODO: Set this property as private */
-  createValidator<T>(schema: JSONSchemaType<T>) {
+  private createValidator<T>(schema: JSONSchemaType<T>) {
     const validator = this.ajv.compile(schema);
 
     return (model: Record<string, unknown>) => {
