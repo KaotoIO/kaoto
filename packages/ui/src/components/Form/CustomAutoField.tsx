@@ -11,6 +11,10 @@ import { createAutoField } from 'uniforms';
 import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
 
+/**
+ * Custom AutoField that supports all the fields from Uniforms PatternFly
+ * In case a field is not supported, it will render a DisabledField
+ */
 export const CustomAutoField = createAutoField((props) => {
   if (props.allowedValues) {
     return props.checkboxes && props.fieldType !== Array ? RadioField : SelectField;

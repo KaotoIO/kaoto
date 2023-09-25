@@ -1,6 +1,6 @@
 import { AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { Title } from '@patternfly/react-core';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoField } from '../../Form/CustomAutoField';
@@ -28,11 +28,15 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     setComponentName(visualComponentSchema?.title);
   }, [props.selectedNode.data?.vizNode]);
 
+  const handleOnChange = useCallback((newModel: Record<string, unknown>) => {
+    setModel(newModel);
+  }, []);
+
   return schema?.schema === undefined ? null : (
     <ErrorBoundary fallback={<p>This node cannot be configured yet</p>}>
       <Title headingLevel="h1">{componentName}</Title>
 
-      <AutoForm ref={formRef} schema={schema} model={model}>
+      <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
         <AutoFields autoField={CustomAutoField} />
         <ErrorsField />
       </AutoForm>
