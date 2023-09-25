@@ -9,7 +9,7 @@ import {
 } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { CustomNestField } from './CustomNestField';
-import { DisabledField } from './DisabledStep';
+import { DisabledField } from './DisabledField';
 
 export const CustomAutoField = createAutoField((props) => {
   if (props.allowedValues) {
