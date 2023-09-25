@@ -1,4 +1,4 @@
-name: Build and Deploy to GH pages
+name: 🚀 Build and Deploy to GH pages
 on:
   push:
     branches:
