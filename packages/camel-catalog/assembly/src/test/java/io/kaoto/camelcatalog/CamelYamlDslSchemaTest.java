@@ -9,7 +9,7 @@ public class CamelYamlDslSchemaTest extends CamelCatalogTestSupport {
 
     @Test
     public void testRootSchema() throws Exception {
-        var rootSchema = getSchema("");
+        var rootSchema = getSchema("camelYamlDsl");
         assertEquals(rootSchema.get("type").asText(), "array");
         var definitions = rootSchema.withObject("/items").withObject("/definitions");
         assertTrue(definitions.has("org.apache.camel.model.ProcessorDefinition"));

@@ -14,8 +14,7 @@ interface SourceCodeProps {
 
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
-  const schemas = useSchemasStore((state) => state.schemas);
-  const camelYamlDslSchema = schemas.find(s => s.name === 'camelYamlDsl');
+  const camelYamlDslSchema = useSchemasStore((state) => state.schemas.camelYamlDsl);
 
   useEffect(() => {
     setDiagnosticsOptions({

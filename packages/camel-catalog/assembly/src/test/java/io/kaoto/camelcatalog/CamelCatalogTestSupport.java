@@ -24,16 +24,8 @@ public class CamelCatalogTestSupport {
     }
 
     protected ObjectNode getSchema(String name) throws Exception {
-        var index = getIndex();
-        for (JsonNode schema : index.withArray("schemas")) {
-            var fileName = schema.get("file").asText();
-            var tokens = fileName.split("-");
-            if ("camelYamlDsl".equals(tokens[0]) && name.isEmpty() && tokens[1].matches("\\d+.*")) {
-                return (ObjectNode) jsonMapper.readTree(Paths.get("..").resolve("dist").resolve(fileName).toFile());
-            } else if ("camelYamlDsl".equals(tokens[0]) && tokens[1].equals(name)) {
-                return (ObjectNode) jsonMapper.readTree(Paths.get("..").resolve("dist").resolve(fileName).toFile());
-            }
-        }
-        return null;
+        var schema = getIndex().withObject("/schemas").withObject("/" + name);
+        return (ObjectNode) jsonMapper.readTree(
+                Paths.get("..").resolve("dist").resolve(schema.get("file").asText()).toFile());
     }
 }

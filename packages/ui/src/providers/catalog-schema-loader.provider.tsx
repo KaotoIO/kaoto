@@ -24,13 +24,14 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
 
         const schemaFiles = getSchemasFiles(catalogIndex.schemas);
 
-        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles, Promise.all(schemaFiles)]).then(
+        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles, schemaFiles]).then(
           ([camelComponents, camelProcessors, kamelets, schemas]) => {
             setCatalog(CatalogKind.Component, camelComponents.body);
             setCatalog(CatalogKind.Processor, camelProcessors.body);
             setCatalog(CatalogKind.Kamelet, kamelets.body);
 
-            CamelSchemasProcessor.getSchemas(schemas).forEach(setSchema);
+            Object.entries(CamelSchemasProcessor.getSchemas(schemas))
+              .forEach(([key, schema]) => setSchema(key, schema));
 
             setIsLoading(false);
           },
@@ -53,16 +54,18 @@ async function fetchFile(file: string) {
   return { body, uri: response.url };
 }
 
-function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<Schema>[] {
-  return schemaFiles.map(async (schemaDef) => {
+function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<{[key: string]: Schema}> {
+  const answer: any = {};
+  Object.entries(schemaFiles).forEach(async ([schemaName, schemaDef]) => {
     const fetchedSchema = await fetchFile(schemaDef.file);
-
-    return {
-      name: schemaDef.name,
-      tags: [],
-      version: schemaDef.version,
-      uri: fetchedSchema.uri,
-      schema: fetchedSchema.body,
-    };
+    answer[schemaName] =
+      {
+        name: schemaDef.name,
+        tags: [],
+        version: schemaDef.version,
+        uri: fetchedSchema.uri,
+        schema: fetchedSchema.body,
+      };
   });
+  return Promise.resolve(answer);
 }
