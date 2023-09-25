@@ -30,12 +30,12 @@ public class Index {
 
     private Map<String, Entry> catalogs = new HashMap<>();
 
-    private List<Entry> schemas = new ArrayList<>();
+    private Map<String, Entry> schemas = new HashMap<>();
 
     public Map<String, Entry> getCatalogs() {
         return catalogs;
     }
-    public List<Entry> getSchemas() {
+    public Map<String, Entry> getSchemas() {
         return schemas;
     }
 }

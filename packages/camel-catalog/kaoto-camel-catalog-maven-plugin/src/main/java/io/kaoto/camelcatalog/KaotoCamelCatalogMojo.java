@@ -134,7 +134,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                 "Camel YAML DSL JSON schema",
                 camelVersion,
                 outputFileName);
-        index.getSchemas().add(indexEntry);
+        index.getSchemas().put("camelYamlDsl", indexEntry);
 
         try {
             var rootSchema = (ObjectNode) jsonMapper.readTree(schema.toFile());
@@ -186,7 +186,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                     "Camel YAML DSL JSON schema: " + propName,
                     camelVersion,
                     outputFileName);
-            index.getSchemas().add(indexEntry);
+            index.getSchemas().put(propName, indexEntry);
         } catch (Exception e) {
             getLog().error(e);
         }
@@ -326,7 +326,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                     description,
                     camelKCRDVersion,
                     outputFileName);
-            index.getSchemas().add(indexEntry);
+            index.getSchemas().put(name, indexEntry);
         } catch (Exception e) {
             getLog().error(e);
         }

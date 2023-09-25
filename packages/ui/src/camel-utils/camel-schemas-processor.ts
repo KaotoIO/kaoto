@@ -5,22 +5,22 @@ export const DEFAULT_CATALOG_PATH = '/camel-catalog';
 export class CamelSchemasProcessor {
   static readonly VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
 
-  static getSchemas(schemas: Schema[]): Schema[] {
-    return schemas.reduce((acc, schema) => {
+  static getSchemas(schemaMap: {[key: string]: Schema}): {[key: string]: Schema} {
+    return Object.entries(schemaMap).reduce((acc, [key, schema]) => {
       /** Standard JSON Schemas (Kamelets, KameletBindings & Pipes) */
       const tags = [];
       if (this.VISUAL_FLOWS.includes(schema.name)) {
         tags.push('visualization');
       }
 
-      acc.push({
+      acc[key] = {
         ...schema,
         name: schema.name,
         tags,
-      });
+      };
 
       return acc;
-    }, [] as Schema[]);
+    }, {} as {[key: string]: Schema});
   }
 
 }

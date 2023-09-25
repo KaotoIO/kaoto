@@ -134,6 +134,8 @@ dist
 **/cypress/videos/*
 
 .vscode/*
+.idea/*
+**/*.iml
 
 # storybook
 storybook-static

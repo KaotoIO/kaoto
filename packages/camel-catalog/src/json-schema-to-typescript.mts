@@ -53,7 +53,12 @@ async function main() {
   const exportedFiles: string[] = [];
 
   console.log('---');
-  const schemaPromises = index.schemas.map(async (schema) => {
+  const targetSchemaNames = ['camelYamlDsl', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
+  const schemaPromises = Object.entries(index.schemas).map(async ([name, schema]) => {
+    if (!targetSchemaNames.includes(name)) {
+      return;
+    }
+
     const schemaFile = resolve(`./dist/${schema.file}`);
 
     /**
@@ -64,33 +69,23 @@ async function main() {
      */
     const schemaFileUri = pathToFileURL(`./dist/${schema.file}`).toString();
 
-    const schemaContent = (await import(schemaFileUri, { assert: { type: 'json' } })).default;
+    const schemaContent = (await import(schemaFileUri, {assert: {type: 'json'}})).default;
 
-    let filename = schema.name;
-
-    if (schema.file.includes('camelYamlDsl')) {
-      if (schema.file.match(/camelYamlDsl-\d+.*\.json/)) {
-        addTitleToDefinitions(schemaContent);
-        filename = 'camelYamlDsl';
-      } else {
-        return;
-      }
-    }
+    addTitleToDefinitions(schemaContent);
 
     /** Remove the -4.0.0.json section of the filename */
-    const outputFile = resolve(`./dist/types/${filename}.d.ts`);
+    const outputFile = resolve(`./dist/types/${name}.d.ts`);
 
     /** Add the file to the exported files */
-    exportedFiles.push(filename);
+    exportedFiles.push(name);
 
     console.log(`Input: '${schemaFile}'`);
     console.log(`Output: ${outputFile}`);
     console.log('---');
 
-    return compileSchema(schemaContent, filename, outputFile);
+    return compileSchema(schemaContent, name, outputFile);
   });
-
-  await Promise.all(schemaPromises);
+  await Promise.all(schemaPromises)
 
   /** Generate the index file */
   const indexFile = resolve(`./dist/types/index.ts`);
