@@ -3007,7 +3007,7 @@ __metadata:
     ts-node: ^10.9.1
     typescript: ^5.0.2
     uniforms: 4.0.0-alpha.0
-    uniforms-bridge-simple-schema-2: 4.0.0-alpha.1
+    uniforms-bridge-simple-schema-2: 4.0.0-alpha.5
     webpack: ^5.88.2
     webpack-cli: ^4.10.0
     webpack-dev-server: ^4.15.1
@@ -17777,16 +17777,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.1":
-  version: 4.0.0-alpha.1
-  resolution: "uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.1"
+"uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.5":
+  version: 4.0.0-alpha.5
+  resolution: "uniforms-bridge-simple-schema-2@npm:4.0.0-alpha.5"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     simpl-schema: ^1.0.0 || ^0.0.4
     tslib: ^2.2.0
-    uniforms: ^4.0.0-alpha.1
-  checksum: ef0be3ce0529415afe189b426550ce778f0e4d46f64d26bb5f195789cdd3dca20b4529732567acbc32d4298efd92344581bcc614f8dcd73ba011bf7461ef7677
+    uniforms: ^4.0.0-alpha.5
+  checksum: fd2c60997cb4b2478d7992d03fa0494dbfdba0924790ec4d83eeb8fc9e188092f663f6636f4757db15b7c1e40589b39d1651e9472f9611688e43c1fd88badeee
   languageName: node
   linkType: hard
 
