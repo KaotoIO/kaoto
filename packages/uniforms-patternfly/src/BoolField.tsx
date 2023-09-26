@@ -57,7 +57,7 @@ function BoolField({ appearance, disabled, id, inputRef, label, name, onChange, 
       />
       <FormHelperText>
         <HelperText>
-          <HelperTextItem icon={<ExclamationCircleIcon />} variant={props.error ? 'error' : 'default'}>
+          <HelperTextItem icon={props.error === false && <ExclamationCircleIcon />} variant={props.error ? 'error' : 'default'}>
             {!props.error ? '' : props.errorMessage}
           </HelperTextItem>
         </HelperText>

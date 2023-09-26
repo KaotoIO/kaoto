@@ -163,8 +163,14 @@ export class CamelComponentSchemaService {
    * This is needed because the Camel Catalog is using different types than JSON Schema
    * For instance, the Camel Catalog is using `duration` instead of `number`
    */
-  static getJSONType(property: ICamelProcessorProperty | ICamelComponentProperty) {
+  static getJSONType(property: ICamelProcessorProperty | ICamelComponentProperty): string | undefined {
+    /** Camel defines enum as a type, whereas it should be string and let uniforms handle the right field */
+    if (Array.isArray(property.enum)) {
+      return undefined;
+    }
+
     switch (property.type) {
+      /** Camel defines duration as string since it supports placeholders */
       case 'duration':
         return 'string';
 

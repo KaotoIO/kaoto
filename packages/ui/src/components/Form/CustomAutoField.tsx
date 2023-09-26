@@ -16,7 +16,7 @@ import { DisabledField } from './DisabledField';
  * In case a field is not supported, it will render a DisabledField
  */
 export const CustomAutoField = createAutoField((props) => {
-  if (props.allowedValues) {
+  if (props.options) {
     return props.checkboxes && props.fieldType !== Array ? RadioField : SelectField;
   }
 

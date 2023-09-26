@@ -22,6 +22,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     formRef.current?.reset();
 
     const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
+    console.log('visualComponentSchema', visualComponentSchema);
 
     setSchema(schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema));
     setModel(visualComponentSchema?.definition ?? {});

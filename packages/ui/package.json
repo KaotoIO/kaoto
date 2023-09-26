@@ -53,8 +53,8 @@
     "react-monaco-editor": "^0.51.0",
     "react-router-dom": "^6.14.1",
     "simple-zustand-devtools": "^1.1.0",
-    "uniforms": "4.0.0-alpha.0",
-    "uniforms-bridge-json-schema": "4.0.0-alpha.0",
+    "uniforms": "4.0.0-alpha.5",
+    "uniforms-bridge-json-schema": "4.0.0-alpha.5",
     "uuid": "^9.0.0",
     "yaml": "^2.3.2",
     "zustand": "^4.3.9"

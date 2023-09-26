@@ -188,7 +188,7 @@ function TextField({ onChange, ...props }: TextFieldProps) {
       )}
       <FormHelperText>
         <HelperText>
-          <HelperTextItem icon={<ExclamationCircleIcon />} variant={props.error ? 'error' : 'default'}>
+          <HelperTextItem icon={props.error && <ExclamationCircleIcon />} variant={props.error ? 'error' : 'default'}>
             {!props.error ? props.helperText : props.errorMessage}
           </HelperTextItem>
         </HelperText>

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ExpandableSection } from '@patternfly/react-core';
 import { Component, ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
@@ -7,19 +8,29 @@ interface ErrorBoundaryProps {
   children: ReactNode;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, { hasError: boolean }> {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  isExpanded: boolean;
+  error?: any;
+}
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, isExpanded: false, error: undefined };
+    this.onToggle = this.onToggle.bind(this);
   }
 
   static getDerivedStateFromError(error: any) {
     // Update state so the next render will show the fallback UI.
-    console.error(error);
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
-  componentDidCatch(_error: any, _info: any) {
+  onToggle(_event: unknown, _isExpanded: boolean): void {
+    this.setState({ isExpanded: !this.state.isExpanded });
+  }
+
+  componentDidCatch(_error: any, _info: any): void {
     // Example "componentStack":
     //   in ComponentThatThrows (created by App)
     //   in ErrorBoundary (created by App)
@@ -31,7 +42,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, { hasError: boo
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return this.props.fallback;
+      return (
+        <>
+          {this.props.fallback}
+          <ExpandableSection
+            toggleText={this.state.isExpanded ? 'Show less' : 'Show more'}
+            onToggle={this.onToggle}
+            isExpanded={this.state.isExpanded}
+          >
+            {this.state.error?.message}
+          </ExpandableSection>
+        </>
+      );
     }
 
     return this.props.children;

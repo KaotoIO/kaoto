@@ -1,6 +1,6 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
-import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import { JSONSchemaBridge } from './JSONSchemaBridge';
 
 export class SchemaService {
   private readonly ajv: Ajv;
@@ -20,7 +20,7 @@ export class SchemaService {
 
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
-    return new JSONSchemaBridge(schema, schemaValidator);
+    return new JSONSchemaBridge({schema, validator: schemaValidator});
   }
 
   private createValidator<T>(schema: JSONSchemaType<T>) {
