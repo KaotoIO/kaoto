@@ -2992,7 +2992,7 @@ __metadata:
     "@types/react-dom": ^17.0.5
     "@types/simpl-schema": ^1.12.0
     "@types/testing-library__jest-dom": ^5.9.1
-    "@types/testing-library__react": ^9.1.2
+    "@types/testing-library__react": ^10.0.0
     babel-jest: ^29.4.2
     copy-webpack-plugin: ^11.0.0
     invariant: ^2.2.4
@@ -6584,14 +6584,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/testing-library__react@npm:^9.1.2":
-  version: 9.1.3
-  resolution: "@types/testing-library__react@npm:9.1.3"
+"@types/testing-library__react@npm:^10.0.0":
+  version: 10.0.1
+  resolution: "@types/testing-library__react@npm:10.0.1"
   dependencies:
     "@types/react-dom": "*"
     "@types/testing-library__dom": "*"
     pretty-format: ^25.1.0
-  checksum: 2fc33f97d17fea35f1215cd1cd5899cbec4be897f2e21b13bf32cbac4234c88ca685517bdd142c1cebc8ee1ff74fa5ce5aff770f907f3bc116dc578e85972685
+  checksum: 7cca1a4042ff9dacca65fca2405da67cb0014136b022f0485228ab2a4d3eb222e18da3d01400f088701111aa4bac3cc0bba4307aae8623a2a9878c55c35e8049
   languageName: node
   linkType: hard
 
