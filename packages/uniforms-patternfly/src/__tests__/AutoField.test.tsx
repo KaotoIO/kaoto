@@ -31,7 +31,7 @@ test("<AutoField> - renders RadioField", () => {
     usingUniformsContext(<AutoField name="x" />, {
       x: {
         type: String,
-        allowedValues: ["x", "y"],
+        options: ["x", "y"],
         uniforms: { checkboxes: true },
       },
     })
@@ -43,7 +43,7 @@ test("<AutoField> - renders RadioField", () => {
 test("<AutoField> - renders SelectField - input", () => {
   render(
     usingUniformsContext(<AutoField name="x" />, {
-      x: { type: Array, allowedValues: ["x", "y"] },
+      x: { type: Array, options: ["x", "y"] },
       "x.$": { type: String },
     })
   );
@@ -55,9 +55,8 @@ test("<AutoField> - renders SelectField - checkbox", () => {
   render(
     usingUniformsContext(
       <AutoField name="x" checkboxes={true} />,
-
       {
-        x: { type: Array, allowedValues: ["x", "y"] },
+        x: { type: Array, options: ["x", "y"] },
         "x.$": { type: String },
       }
     )

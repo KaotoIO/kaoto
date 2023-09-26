@@ -17,9 +17,9 @@
  * under the License.
  */
 
-import * as React from 'react';
 import { FormGroup, FormGroupProps } from '@patternfly/react-core/dist/js/components/Form';
-import { FilterDOMProps, filterDOMProps } from 'uniforms';
+import * as React from 'react';
+import { FilterDOMPropsKeys, filterDOMProps } from 'uniforms';
 
 declare module 'uniforms' {
   interface FilterDOMProps {
@@ -43,14 +43,16 @@ filterDOMProps.register(
   'exclusiveMinimum',
   'menuAppendTo',
   'checkboxes',
-  'helperText' as keyof FilterDOMProps,
-  'initialCount' as keyof FilterDOMProps,
-  'deprecated' as keyof FilterDOMProps,
+  'helperText' as FilterDOMPropsKeys,
+  'initialCount' as FilterDOMPropsKeys,
+  'deprecated' as FilterDOMPropsKeys,
+  'transform' as FilterDOMPropsKeys,
+  'placeholder' as FilterDOMPropsKeys,
 );
 
 type WrapperProps = {
   id: string;
-  error?: boolean;
+  error?: any;
   errorMessage?: string;
   help?: string;
   showInlineError?: boolean;

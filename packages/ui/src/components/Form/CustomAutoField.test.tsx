@@ -23,9 +23,9 @@ import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
 
 describe('CustomAutoField', () => {
-  it('should return `RadioField` if `props.allowedValues` & `props.checkboxes` are defined and `props.fieldType` is not `Array`', () => {
+  it('should return `RadioField` if `props.options` & `props.checkboxes` are defined and `props.fieldType` is not `Array`', () => {
     const props: AutoFieldProps = {
-      allowedValues: [],
+      options: [],
       name: 'test',
       checkboxes: true,
       fieldType: 'string',
@@ -36,9 +36,9 @@ describe('CustomAutoField', () => {
     expect(result).toBe(RadioField);
   });
 
-  it('should return `SelectField` if `props.allowedValues` & `props.checkboxes` are defined and `props.fieldType` is `Array`', () => {
+  it('should return `SelectField` if `props.options` & `props.checkboxes` are defined and `props.fieldType` is `Array`', () => {
     const props: AutoFieldProps = {
-      allowedValues: [],
+      options: [],
       name: 'test',
       checkboxes: true,
       fieldType: Array,

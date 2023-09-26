@@ -17,31 +17,18 @@
  * under the License.
  */
 
-import * as React from "react";
-import { useCallback, useMemo, useState } from "react";
-import {
-	Select,
-	SelectOption,
-	SelectOptionObject,
-	SelectVariant
-} from '@patternfly/react-core/deprecated';
-import wrapField from "./wrapField";
-import { SelectInputProps } from "./SelectField";
+import { FormSelect, FormSelectOption } from '@patternfly/react-core';
+import { useCallback, useMemo, useState } from 'react';
+import { SelectInputProps, isSelectOptionObject } from './SelectField.types';
+import wrapField from './wrapField';
 
 type SelectFieldValue = string | string[] | number | number[];
 
-function isSelectOptionObject(
-  toBeDetermined: string | number | SelectOptionObject
-): toBeDetermined is SelectOptionObject {
-  return typeof toBeDetermined === "object" && !Array.isArray(toBeDetermined) && toBeDetermined !== null;
-}
-
 function isSelectOptionString(toBeDetermined: string[] | number[]): toBeDetermined is string[] {
-  return (toBeDetermined.length > 0 && typeof toBeDetermined[0] === "string") || toBeDetermined.length === 0;
+  return (toBeDetermined.length > 0 && typeof toBeDetermined[0] === 'string') || toBeDetermined.length === 0;
 }
 
 function SelectInputsField(props: SelectInputProps) {
-  const [expanded, setExpanded] = useState<boolean>(false);
   const [selected, setSelected] = useState<SelectFieldValue | undefined>(() => {
     if (!props.value) {
       return [];
@@ -53,20 +40,20 @@ function SelectInputsField(props: SelectInputProps) {
   });
 
   const parseInput = useCallback(
-    (selection: string | number | SelectOptionObject, fieldType: typeof Array): SelectFieldValue => {
+    (selection: string | number, fieldType?: typeof Array): SelectFieldValue => {
       const parsedSelection = isSelectOptionObject(selection) ? selection.toString() : selection;
 
       if (fieldType !== Array) {
-        return parsedSelection !== "" ? parsedSelection : "";
+        return parsedSelection !== '' ? parsedSelection : '';
       }
 
       if (Array.isArray(selected)) {
-        if (isSelectOptionString(selected) && typeof parsedSelection === "string") {
+        if (isSelectOptionString(selected) && typeof parsedSelection === 'string') {
           if (selected.includes(parsedSelection)) {
             return selected.filter((s) => s !== parsedSelection);
           }
           return [parsedSelection, ...selected];
-        } else if (!isSelectOptionString(selected) && typeof parsedSelection === "number") {
+        } else if (!isSelectOptionString(selected) && typeof parsedSelection === 'number') {
           if (selected.includes(parsedSelection)) {
             return selected.filter((s) => s !== parsedSelection);
           }
@@ -75,11 +62,11 @@ function SelectInputsField(props: SelectInputProps) {
       }
       return [];
     },
-    [selected]
+    [selected],
   );
 
   const handleSelect = useCallback(
-    (event: React.MouseEvent | React.ChangeEvent, selection: string | SelectOptionObject) => {
+    (_event: unknown, selection: string) => {
       if (selection === props.placeholder) {
         props.onChange(undefined);
         setSelected([]);
@@ -88,48 +75,54 @@ function SelectInputsField(props: SelectInputProps) {
         props.onChange(items);
         setSelected(items);
       }
-      setExpanded(false);
     },
-    [parseInput, props]
+    [parseInput, props],
   );
 
   const selectOptions = useMemo(() => {
     const options: JSX.Element[] = [];
     if (props.placeholder) {
       options.push(
-        <SelectOption key={`placeholder ${props.allowedValues!.length}`} isPlaceholder value={props.placeholder} />
+        <FormSelectOption
+          isPlaceholder
+          key={`placeholder ${props.options!.length}`}
+          value={props.placeholder}
+          label={props.placeholder}
+        >
+          {props.placeholder}
+        </FormSelectOption>,
       );
     }
-    props.allowedValues?.forEach((value) =>
+
+    props.options?.forEach((option) => {
+      const value = isSelectOptionObject(option) ? option.value : option;
+      const label = props.transform?.(value).label ?? value;
+
       options.push(
-        <SelectOption key={value} value={value}>
-          {props.transform ? props.transform(value) : value}
-        </SelectOption>
-      )
-    );
+        <FormSelectOption key={value} value={value} label={label.toString()}>
+          {label}
+        </FormSelectOption>,
+      );
+    });
+
     return options;
   }, [props]);
 
   return wrapField(
     props as any,
-    <div data-testid={"select-inputs-field"} id={props.id}>
-      <Select
-        isDisabled={props.disabled}
-        id={props.id}
-        variant={props.fieldType === Array ? SelectVariant.typeaheadMulti : SelectVariant.single}
-        name={props.name}
-        placeholderText={props.placeholder}
-        isOpen={expanded}
-        selections={selected}
-        onToggle={(_event, isExpanded) => setExpanded(isExpanded)}
-        onSelect={handleSelect}
+    <div data-testid={'select-inputs-field'} id={props.id}>
+      <FormSelect
+        role="listbox"
+        placeholder={props.placeholder}
         value={props.value || (props.fieldType === Array ? [] : undefined)}
-        menuAppendTo={props.menuAppendTo}
-        direction={props.direction}
+        id={props.id}
+        isDisabled={props.disabled}
+        name={props.name}
+        onChange={handleSelect}
       >
         {selectOptions}
-      </Select>
-    </div>
+      </FormSelect>
+    </div>,
   );
 }
 
