@@ -13,7 +13,7 @@
     "@types/react": "18.2.22",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "uniforms": "4.0.0-alpha.0",
+    "uniforms": "4.0.0-alpha.5",
     "uniforms-bridge-json-schema": "4.0.0-alpha.1",
     "uniforms-bridge-simple-schema-2": "4.0.0-alpha.1",
     "simpl-schema": "3.4.1"
