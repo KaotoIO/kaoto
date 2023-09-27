@@ -13,7 +13,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
 
   /** Load the source code from localStorage */
-  const [localSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, camelRouteYaml);
+  const [localSourceCode, setLocalSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, camelRouteYaml);
 
   const navToggle = useCallback(() => {
     setIsNavOpen(!isNavOpen);
@@ -25,6 +25,12 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
       entitiesContext?.setCode(localSourceCode);
     }
   }, []);
+
+  useEffect(() => {
+    return entitiesContext?.eventNotifier.subscribe('code:update', (code) => {
+      setLocalSourceCode(code);
+    });
+  }, [entitiesContext?.eventNotifier, setLocalSourceCode]);
 
   return (
     <Page header={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>

@@ -60,9 +60,13 @@ export const useEntities = (): EntitiesContextResult => {
 
   /** Updates the Source Code whenever the entities are updated */
   const updateCodeFromEntities = useCallback(() => {
-    const visualEntitiesCode = stringify(visualEntities, null, { indent: 2 });
-    const entitiesCode = stringify(entities, null, { indent: 2 });
-    const code = visualEntitiesCode + '\n' + entitiesCode;
+    let code = '';
+    if (visualEntities.length > 0) {
+      code += stringify(visualEntities, null, { indent: 2 }) + '\n';
+    }
+    if (entities.length > 0) {
+      code += stringify(entities, null, { indent: 2 }) + '\n';
+    }
 
     /** Set the Source Code directly, without using `setCode` as updating the entities is already done */
     setSourceCode(code);
