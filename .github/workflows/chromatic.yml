@@ -5,6 +5,11 @@ name: 📖 Storybook (via Chromatic)
 
 # Event for the workflow
 on:
+  # 👇 Triggers the workflow on push events to the main branch
+  push:
+    branches:
+      - main
+  # 👇 Triggers the workflow on pull request events to the main branch
   pull_request:
     branches:
       - main
@@ -34,15 +39,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # 👇 Install dependencies with the same package manager used in the project (replace it as needed), e.g. yarn, npm, pnpm
       - name: Install dependencies
-        # 👇 Install dependencies with the same package manager used in the project (replace it as needed), e.g. yarn, npm, pnpm
         run: yarn
-        # 👇 Adds Chromatic as a step in the workflow
 
+      # 👇 Builds the kaoto-next/uniforms-patternfly
+      - name: Build @kaoto-next/uniforms-patternfly library
+        run: yarn workspace @kaoto-next/uniforms-patternfly run build
+
+      # 👇 Builds the kaoto-next/ui in library mode
       - name: Build ui library
-        run: yarn workspace @kaoto-next/ui build:lib
-        # 👇 Builds the kaoto-next ui library located in dist/lib
+        run: yarn workspace @kaoto-next/ui run build:lib
 
+      # 👇 Adds Chromatic as a step in the workflow
       - name: Publish to Chromatic
         uses: chromaui/action@v1
         # Chromatic GitHub Action options
