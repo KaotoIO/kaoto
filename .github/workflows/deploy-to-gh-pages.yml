@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
+          scope: '@kaoto-next'
           cache: 'yarn'
 
       - uses: actions/setup-java@v3
@@ -42,7 +42,7 @@ jobs:
         run:  yarn
 
       - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev run build
+        run: yarn workspaces foreach --verbose --recursive --topological-dev run build
 
       - name: 📤 Upload artifact @kaoto-next/ui web application
         uses: actions/upload-pages-artifact@v2
