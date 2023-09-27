@@ -2927,6 +2927,7 @@ __metadata:
     "@testing-library/user-event": ^14.4.3
     "@types/jest": ^29.4.0
     "@types/lodash.get": ^4.4.2
+    "@types/lodash.set": ^4.3.7
     "@types/node": ^18.0.0
     "@types/react": ^18.2.15
     "@types/react-dom": ^18.2.7
@@ -2947,6 +2948,7 @@ __metadata:
     jest: ^29.4.2
     jest-environment-jsdom: ^29.4.2
     lodash.get: ^4.4.2
+    lodash.set: ^4.3.2
     monaco-editor: ^0.34.1
     monaco-yaml: ^4.0.0
     prettier: ^3.0.0
@@ -6290,6 +6292,15 @@ __metadata:
   dependencies:
     "@types/lodash": "*"
   checksum: 0dbf1960606e4707c34e8ffbe97ffaad0e47fc5df7a6e24ea6e4fe5838d2468aa13360f38815c77b06e3c9932631ae15662b4139036a69ee16aeb54827a21405
+  languageName: node
+  linkType: hard
+
+"@types/lodash.set@npm:^4.3.7":
+  version: 4.3.7
+  resolution: "@types/lodash.set@npm:4.3.7"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 18bedc56ff2ed38b4efbeefef3b5bc0edfa24c821e5242d2c6180875cf890f4b98b325179ce71dd2e412e719d5a497857a9a494ce1be3245a69a97f2e17a624b
   languageName: node
   linkType: hard
 
@@ -13671,6 +13682,13 @@ __metadata:
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
   checksum: d768fa9f9b4e1dc6453be99b753906f58990e0c45e7b2ca5a3b40a33111e5d17f6edf2f768786e2716af90a8e78f8f91431ab8435f761fef00f9b0c256f6d245
+  languageName: node
+  linkType: hard
+
+"lodash.set@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "lodash.set@npm:4.3.2"
+  checksum: a9122f49eef9f2d0fc9061a33d87f8e5b8c6b23d46e8b9e9ce1529d3588d79741bd1145a3abdfa3b13082703e65af27ff18d8a07bfc22b9be32f3fc36f763f70
   languageName: node
   linkType: hard
 
