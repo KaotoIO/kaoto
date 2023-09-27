@@ -25,8 +25,6 @@ export default {
     'src/**/*.{ts,tsx}',
     // Ignore all test files
     '!src/**/*.test.{ts,tsx}',
-    // Ignore all index files
-    '!src/**/index.{ts,tsx}',
     // Ignore all declaration files
     '!src/**/*.d.ts',
     // Ignore public-api
@@ -41,7 +39,7 @@ export default {
   coverageDirectory: 'coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['\\\\node_modules\\\\', '<rootDir>/src/models', 'index.ts'],
+  coveragePathIgnorePatterns: ['\\\\node_modules\\\\', 'index.ts', 'router-exports.tsx'],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'babel',
