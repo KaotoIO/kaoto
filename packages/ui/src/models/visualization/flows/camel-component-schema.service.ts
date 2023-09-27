@@ -108,10 +108,10 @@ export class CamelComponentSchemaService {
 
       if (componentDefinition !== undefined) {
         const componentSchema = this.getSchemaFromCamelCommonProperties(componentDefinition.properties);
-        schema.properties.properties = {
+        schema.properties.parameters = {
           type: 'object',
-          title: 'Component Properties',
-          description: 'Component Properties Description',
+          title: 'Component Parameters',
+          description: 'Component parameters description',
           properties: componentSchema.properties,
         };
       }
