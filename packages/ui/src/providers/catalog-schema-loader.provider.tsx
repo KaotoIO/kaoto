@@ -1,4 +1,3 @@
-import catalogIndex from '@kaoto-next/camel-catalog/index.json?url';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
@@ -15,7 +14,7 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(catalogIndex)
+    fetch(`.${DEFAULT_CATALOG_PATH}/index.json`)
       .then((response) => response.json())
       .then((catalogIndex: CamelCatalogIndex) => {
         const camelComponentsFiles = fetchFile(catalogIndex.catalogs.components.file);
