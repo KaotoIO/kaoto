@@ -2988,8 +2988,8 @@ __metadata:
     "@types/jest": ^29.4.0
     "@types/lodash": ^4.14.168
     "@types/node": ^18.0.0
-    "@types/react": ^17.0.6
-    "@types/react-dom": ^17.0.5
+    "@types/react": ^18.0.0
+    "@types/react-dom": ^18.0.0
     "@types/simpl-schema": ^1.12.0
     "@types/testing-library__jest-dom": ^5.9.1
     "@types/testing-library__react": ^10.0.0
@@ -6444,15 +6444,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: e02ea908289a7ad26053308248d2b87f6aeafd73d0e2de2a3d435947bcea0422599016ffd1c3e38ff36c42f5e1c87c7417f05b0a157e48649e4a02f21727d54f
-  languageName: node
-  linkType: hard
-
-"@types/react-dom@npm:^17.0.5":
-  version: 17.0.20
-  resolution: "@types/react-dom@npm:17.0.20"
-  dependencies:
-    "@types/react": ^17
-  checksum: 525439fb14a033fc5dbe74711ecc50ec82273a528df9656594066a6219401e975101dafffd15d9a1a57a9442d52ea0c92eaacae09554dde27cd792e773f67467
   languageName: node
   linkType: hard
 
