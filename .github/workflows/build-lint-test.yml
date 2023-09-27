@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
+          scope: '@kaoto-next'
           cache: 'yarn'
 
       - uses: actions/setup-java@v3
@@ -33,11 +33,11 @@ jobs:
 
       # Run tests
       - name: 🧪 Run tests
-        run: yarn workspaces foreach --verbose --topological-dev run test
+        run: yarn workspaces foreach --verbose --recursive --topological-dev run test
 
       # Build packages
       - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev run build
+        run: yarn workspaces foreach --verbose --recursive --topological-dev run build
 
       # Build lib
       - name: Build @kaoto-next/ui package in lib mode

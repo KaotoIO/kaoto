@@ -1,0 +1,54 @@
+name: 📦 Version and publish npm Package
+# Event for the workflow
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "publish"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Checkout all branches and tags
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@kaoto-next'
+          cache: 'yarn'
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🔧 Install dependencies
+        run:  yarn
+
+      - name: 🧪 Run tests
+        run: yarn workspaces foreach --verbose --recursive --topological-dev run test
+
+      # Build lib
+      - name: Build @kaoto-next/ui package in lib mode
+        run: yarn workspace @kaoto-next/ui run build:lib
+
+      # Version and publish
+      - name: "Version and publish"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.KAOTO_NEXT_NPM_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          yarn publish
