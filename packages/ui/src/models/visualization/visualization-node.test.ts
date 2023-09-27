@@ -19,6 +19,70 @@ describe('VisualizationNode', () => {
     expect(node.getBaseEntity()).toEqual(visualEntity);
   });
 
+  it('should return the component schema from the underlying BaseVsualCamelEntity', () => {
+    const getComponentSchemaSpy = jest.fn();
+    const visualEntity = {
+      getComponentSchema: getComponentSchemaSpy,
+    } as unknown as BaseVisualCamelEntity;
+
+    node = new VisualizationNode('test', visualEntity);
+    node.path = 'test-path';
+    node.getComponentSchema();
+
+    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.path);
+  });
+
+  it('should return the component schema from the root node', () => {
+    /** Arrange */
+    const getComponentSchemaSpy = jest.fn();
+    const visualEntity = {
+      getComponentSchema: getComponentSchemaSpy,
+    } as unknown as BaseVisualCamelEntity;
+
+    const rootNode = new VisualizationNode('test', visualEntity);
+    rootNode.path = 'test-path';
+    node.setParentNode(rootNode);
+
+    /** Act */
+    node.getComponentSchema();
+
+    /** Assert */
+    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.path);
+  });
+
+  describe('updateModel', () => {
+    it('should update the model on the underlying BaseVisualCamelEntity', () => {
+      const updateModelSpy = jest.fn();
+      const visualEntity = {
+        updateModel: updateModelSpy,
+      } as unknown as BaseVisualCamelEntity;
+
+      node = new VisualizationNode('test', visualEntity);
+      node.path = 'test-path';
+      node.updateModel('test-value');
+
+      expect(updateModelSpy).toHaveBeenCalledWith(node.path, 'test-value');
+    });
+
+    it('should update the model on the root node', () => {
+      /** Arrange */
+      const updateModelSpy = jest.fn();
+      const visualEntity = {
+        updateModel: updateModelSpy,
+      } as unknown as BaseVisualCamelEntity;
+
+      const rootNode = new VisualizationNode('test', visualEntity);
+      rootNode.path = 'test-path';
+      node.setParentNode(rootNode);
+
+      /** Act */
+      node.updateModel('test-value');
+
+      /** Assert */
+      expect(updateModelSpy).toHaveBeenCalledWith(node.path, 'test-value');
+    });
+  });
+
   it('should set the parent node', () => {
     const parentNode = new VisualizationNode('parent');
     node.setParentNode(parentNode);

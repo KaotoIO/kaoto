@@ -25,6 +25,14 @@ export class KameletBinding implements BaseVisualCamelEntity {
     return undefined;
   }
 
+  toJSON() {
+    return { route: this.route };
+  }
+
+  updateModel(): void {
+    return;
+  }
+
   getSteps() {
     const steps: KameletBindingSteps = this.route.spec?.steps;
     const sink: KameletBindingStep = this.route.spec?.sink;

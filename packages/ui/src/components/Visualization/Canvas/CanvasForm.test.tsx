@@ -1,9 +1,10 @@
 import { render } from '@testing-library/react';
+import { JSONSchemaType } from 'ajv';
 import { VisualizationNode } from '../../../models/visualization';
 import { VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
+import { EntitiesContext } from '../../../providers/entities.provider';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
-import { JSONSchemaType } from 'ajv';
 
 describe('CanvasForm', () => {
   it('should render', () => {
@@ -32,7 +33,11 @@ describe('CanvasForm', () => {
       },
     };
 
-    const { container } = render(<CanvasForm selectedNode={selectedNode} />);
+    const { container } = render(
+      <EntitiesContext.Provider value={undefined}>
+        <CanvasForm selectedNode={selectedNode} />
+      </EntitiesContext.Provider>,
+    );
 
     expect(container).toMatchSnapshot();
   });
@@ -48,7 +53,11 @@ describe('CanvasForm', () => {
       },
     };
 
-    const { container } = render(<CanvasForm selectedNode={selectedNode} />);
+    const { container } = render(
+      <EntitiesContext.Provider value={undefined}>
+        <CanvasForm selectedNode={selectedNode} />
+      </EntitiesContext.Provider>,
+    );
 
     expect(container).toMatchSnapshot();
   });
@@ -70,7 +79,11 @@ describe('CanvasForm', () => {
       },
     };
 
-    const { container } = render(<CanvasForm selectedNode={selectedNode} />);
+    const { container } = render(
+      <EntitiesContext.Provider value={undefined}>
+        <CanvasForm selectedNode={selectedNode} />
+      </EntitiesContext.Provider>,
+    );
 
     expect(container).toMatchSnapshot();
   });

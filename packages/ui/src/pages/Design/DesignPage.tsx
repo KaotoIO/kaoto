@@ -1,7 +1,7 @@
 import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { Visualization } from '../../components/Visualization';
-import { EntitiesContext } from '../../providers';
+import { EntitiesContext } from '../../providers/entities.provider';
 import './DesignPage.scss';
 
 export const DesignPage: FunctionComponent = () => {
