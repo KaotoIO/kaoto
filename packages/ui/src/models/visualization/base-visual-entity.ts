@@ -17,6 +17,12 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 
+  /** Retrieve the model from the underlying Camel entity */
+  toJSON: () => unknown;
+
+  /** Given a path, update the model */
+  updateModel(path: string | undefined, value: unknown): void;
+
   /** Retrieve the steps from the underlying Camel entity */
   getSteps: () => unknown[];
 
@@ -41,6 +47,8 @@ export interface IVisualizationNode {
   getBaseEntity(): BaseVisualCamelEntity | undefined;
 
   getComponentSchema(): VisualComponentSchema | undefined;
+
+  updateModel(value: unknown): void;
 
   getRootNode(): IVisualizationNode;
 

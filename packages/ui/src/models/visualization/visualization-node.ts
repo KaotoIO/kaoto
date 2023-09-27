@@ -24,6 +24,10 @@ export class VisualizationNode implements IVisualizationNode {
     return this.getRootNode().getBaseEntity()?.getComponentSchema(this.path);
   }
 
+  updateModel(value: unknown): void {
+    this.getRootNode().getBaseEntity()?.updateModel(this.path, value);
+  }
+
   getRootNode(): IVisualizationNode {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let rootNode: IVisualizationNode | undefined = this;

@@ -1,8 +1,8 @@
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect } from 'react';
 import { SourceCode } from '../../components/SourceCode';
 import { useLocalStorage } from '../../hooks';
 import { LocalStorageKeys } from '../../models';
-import { EntitiesContext } from '../../providers';
+import { EntitiesContext } from '../../providers/entities.provider';
 
 export const SourceCodePage: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
@@ -18,6 +18,12 @@ export const SourceCodePage: FunctionComponent = () => {
     },
     [entitiesContext],
   );
+
+  useEffect(() => {
+    return entitiesContext?.eventNotifier.subscribe('code:update', (code) => {
+      setLocalSourceCode(code);
+    });
+  }, [entitiesContext?.eventNotifier, setLocalSourceCode]);
 
   return <SourceCode code={entitiesContext?.code ?? ''} onCodeChange={handleCodeChange} />;
 };

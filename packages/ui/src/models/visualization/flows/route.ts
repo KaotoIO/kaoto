@@ -1,6 +1,7 @@
 /* eslint-disable no-case-declarations */
 import { Choice, ProcessorDefinition, RouteDefinition, To } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
+import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { EntityType } from '../../camel-entities/base-entity';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
@@ -28,6 +29,16 @@ export class CamelRoute implements BaseVisualCamelEntity {
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
+  }
+
+  toJSON() {
+    return { route: this.route };
+  }
+
+  updateModel(path: string | undefined, value: unknown): void {
+    if (!path) return;
+
+    set(this.route, path, value);
   }
 
   getSteps(): ProcessorDefinition[] {

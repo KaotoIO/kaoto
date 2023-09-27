@@ -2,7 +2,7 @@ import { Page, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from '../hooks';
 import { LocalStorageKeys } from '../models';
-import { EntitiesContext } from '../providers';
+import { EntitiesContext } from '../providers/entities.provider';
 import { camelRouteYaml } from '../stubs/camel-route';
 import { Navigation } from './Navigation';
 import './Shell.scss';
