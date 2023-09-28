@@ -2,6 +2,7 @@ import {
   BreadthFirstLayout,
   ColaGroupsLayout,
   ColaLayout,
+  ComponentFactory,
   ConcentricLayout,
   DagreLayout,
   DefaultEdge,
@@ -51,7 +52,7 @@ export class CanvasService {
     return newController;
   }
 
-  static baselineComponentFactory(kind: ModelKind, type: string) {
+  static baselineComponentFactory(kind: ModelKind, type: string): ReturnType<ComponentFactory> {
     switch (type) {
       case 'group':
         return DefaultGroup;
