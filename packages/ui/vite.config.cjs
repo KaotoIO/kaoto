@@ -9,7 +9,7 @@ import fs from 'node:fs';
 export default defineConfig({
   plugins: [react(), copyKaotoCamelCatalog()],
   build: {
-    outDir: './dist/webapp',
+    outDir: './dist',
     sourcemap: true,
     emptyOutDir: true,
   },

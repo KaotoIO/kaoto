@@ -42,12 +42,12 @@ jobs:
         run:  yarn
 
       - name: Build packages
-        run: yarn workspaces foreach --verbose --recursive --topological-dev run build
+        run: yarn workspaces foreach --verbose --topological-dev run build
 
       - name: 📤 Upload artifact @kaoto-next/ui web application
         uses: actions/upload-pages-artifact@v2
         with:
-          path: 'packages/ui/dist/webapp'
+          path: 'packages/ui/dist'
 
       - name: 🚀 Deploy to GitHub Pages
         id: deployment

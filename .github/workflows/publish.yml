@@ -36,7 +36,7 @@ jobs:
         run:  yarn
 
       - name: 🧪 Run tests
-        run: yarn workspaces foreach --verbose --recursive --topological-dev run test
+        run: yarn workspaces foreach --verbose --topological-dev run test
 
       # Build lib
       - name: Build @kaoto-next/ui package in lib mode
