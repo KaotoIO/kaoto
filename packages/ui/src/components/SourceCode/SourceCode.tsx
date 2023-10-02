@@ -2,10 +2,11 @@ import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-ed
 import { setDiagnosticsOptions } from 'monaco-yaml';
 import { FunctionComponent, Ref, useCallback, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
-import { useSchemasStore } from '../../store';
 import './SourceCode.scss';
 import { SyncButton } from './SyncButton';
 import './workers/enable-workers';
+import { useEntities } from '../../hooks';
+import { entitySchemaConfig } from '../../models/camel-entities/EntitySchemaConfig.ts';
 
 interface SourceCodeProps {
   code: string;
@@ -14,25 +15,31 @@ interface SourceCodeProps {
 
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
-  const camelYamlDslSchema = useSchemasStore((state) => state.schemas.camelYamlDsl);
+  //const schemas = useSchemasStore((state) => state.schemas);
+  const { currentEntity } = useEntities();
 
   useEffect(() => {
-    setDiagnosticsOptions({
-      enableSchemaRequest: true,
-      hover: true,
-      completion: true,
-      validate: true,
-      format: true,
-      schemas: [
-        {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          schema: camelYamlDslSchema!.schema as any,
-          uri: camelYamlDslSchema!.uri,
-          fileMatch: ['*'],
-        },
-      ],
-    });
-  }, []);
+    console.log('current entity is ', currentEntity);
+    const currentSchema = entitySchemaConfig.config[currentEntity].schema;
+    console.log('current schema', currentEntity, currentSchema);
+    if (currentSchema) {
+      setDiagnosticsOptions({
+        enableSchemaRequest: true,
+        hover: true,
+        completion: true,
+        validate: true,
+        format: true,
+        schemas: [
+          {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            schema: currentSchema.schema as any,
+            uri: currentSchema.uri,
+            fileMatch: ['*'],
+          },
+        ],
+      });
+    }
+  }, [currentEntity]);
 
   const handleEditorDidMount: EditorDidMount = useCallback((editor) => {
     editorRef.current = editor;
