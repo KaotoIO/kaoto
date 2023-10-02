@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { parse, stringify } from 'yaml';
 import { isCamelRoute, isKameletBinding, isPipe, isBeans } from '../camel-utils';
-import { BaseCamelEntity } from '../models/camel-entities';
+import { BaseCamelEntity, EntityType } from '../models/camel-entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { CamelRoute, KameletBinding, Pipe } from '../models/visualization/flows';
 import { Beans } from '../models/visualization/metadata';
@@ -11,6 +11,8 @@ export interface EntitiesContextResult {
   code: string;
   setCode: (code: string) => void;
   entities: BaseCamelEntity[];
+  currentEntity: EntityType;
+  setCurrentEntity: (entity: EntityType) => void;
   visualEntities: BaseVisualCamelEntity[];
   updateCodeFromEntities: () => void;
   eventNotifier: EventNotifier;
@@ -23,6 +25,7 @@ export const useEntities = (): EntitiesContextResult => {
   const eventNotifier = useMemo(() => new EventNotifier(), []);
 
   /** Set the Source Code and updates the Entities */
+  const [currentEntity, setCurrentEntity] = useState<EntityType>(EntityType.Route);
   const setCode = useCallback((code: string) => {
     try {
       setSourceCode(code);
@@ -32,6 +35,7 @@ export const useEntities = (): EntitiesContextResult => {
       const entitiesHolder = rawEntities.reduce(
         (acc, rawEntity) => {
           const entity = getEntity(rawEntity);
+          setCurrentEntity(getEntityType(rawEntity));
 
           if (entity instanceof CamelRoute || entity instanceof KameletBinding || entity instanceof Pipe) {
             acc.visualEntities.push(entity);
@@ -81,11 +85,22 @@ export const useEntities = (): EntitiesContextResult => {
       code: sourceCode,
       setCode,
       entities,
+      currentEntity,
+      setCurrentEntity,
       visualEntities,
       updateCodeFromEntities,
       eventNotifier,
     }),
-    [sourceCode, setCode, entities, visualEntities, updateCodeFromEntities, eventNotifier],
+    [
+      sourceCode,
+      setCode,
+      currentEntity,
+      setCurrentEntity,
+      entities,
+      visualEntities,
+      updateCodeFromEntities,
+      eventNotifier,
+    ],
   );
 
   return value;
@@ -107,4 +122,16 @@ function getEntity(rawEntity: unknown): BaseCamelEntity | BaseVisualCamelEntity 
   }
 
   return rawEntity as BaseCamelEntity;
+}
+
+function getEntityType(entity: unknown): EntityType {
+  if (isKameletBinding(entity)) {
+    return EntityType.KameletBinding;
+  }
+
+  if (isCamelRoute(entity)) {
+    return EntityType.Route;
+  }
+  if (isPipe(entity)) return EntityType.Pipe;
+  return EntityType.Pipe;
 }

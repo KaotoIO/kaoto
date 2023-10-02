@@ -2,6 +2,7 @@ import { FunctionComponent, PropsWithChildren, createContext, useEffect, useStat
 import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
 import { useCatalogStore, useSchemasStore } from '../store';
+import { entitySchemaConfig } from '../models/camel-entities/EntitySchemaConfig.ts';
 
 const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
 
@@ -29,8 +30,10 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
             setCatalog(CatalogKind.Processor, camelProcessors.body);
             setCatalog(CatalogKind.Kamelet, kamelets.body);
 
-            Object.entries(CamelSchemasProcessor.getSchemas(schemas))
-              .forEach(([key, schema]) => setSchema(key, schema));
+            Object.entries(CamelSchemasProcessor.getSchemas(schemas)).forEach(([key, schema]) => {
+              setSchema(key, schema);
+              entitySchemaConfig.setSchema(schema);
+            });
 
             setIsLoading(false);
           },
@@ -53,18 +56,17 @@ async function fetchFile(file: string) {
   return { body, uri: response.url };
 }
 
-function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<{[key: string]: Schema}> {
+function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<{ [key: string]: Schema }> {
   const answer: any = {};
   Object.entries(schemaFiles).forEach(async ([schemaName, schemaDef]) => {
     const fetchedSchema = await fetchFile(schemaDef.file);
-    answer[schemaName] =
-      {
-        name: schemaDef.name,
-        tags: [],
-        version: schemaDef.version,
-        uri: fetchedSchema.uri,
-        schema: fetchedSchema.body,
-      };
+    answer[schemaName] = {
+      name: schemaDef.name,
+      tags: [],
+      version: schemaDef.version,
+      uri: fetchedSchema.uri,
+      schema: fetchedSchema.body,
+    };
   });
   return Promise.resolve(answer);
 }
