@@ -5,7 +5,6 @@ import '@patternfly/patternfly/utilities/Display/display.css';
 import '@patternfly/patternfly/utilities/Flex/flex.css';
 import '@patternfly/patternfly/utilities/Sizing/sizing.css';
 import '@patternfly/patternfly/utilities/Spacing/spacing.css';
-import '@kaoto-next/ui/testing-style.css';
 
 import type { Preview } from '@storybook/react';
 

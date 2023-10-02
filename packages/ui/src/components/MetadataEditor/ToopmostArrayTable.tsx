@@ -1,4 +1,4 @@
-import './MetadataEditor.css';
+import './MetadataEditor.scss';
 import { Button, EmptyState, EmptyStateBody, Tooltip, Truncate } from '@patternfly/react-core';
 import { PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import {
