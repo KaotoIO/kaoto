@@ -17,8 +17,7 @@
       "pushArgs": [
         "--follow-tags"
       ],
-      "yes": true,
-      "registry": "http://localhost:4873"
+      "yes": true
     }
   },
   "useWorkspaces": true
