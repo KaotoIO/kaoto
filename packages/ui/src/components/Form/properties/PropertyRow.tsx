@@ -1,17 +1,9 @@
-import { AddPropertyButtons } from './AddPropertyButtons.tsx';
-import '../../MetadataEditor/MetadataEditor.css';
-import {
-  Button,
-  HelperText,
-  HelperTextItem,
-  Split,
-  SplitItem,
-  TextInput,
-  Tooltip,
-} from '@patternfly/react-core';
+import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput, Tooltip } from '@patternfly/react-core';
 import { CheckIcon, PencilAltIcon, TimesIcon, TrashIcon } from '@patternfly/react-icons';
 import { Td, TdProps, TreeRowWrapper } from '@patternfly/react-table';
 import { FormEvent, useState } from 'react';
+import '../../MetadataEditor/MetadataEditor.css';
+import { AddPropertyButtons } from './AddPropertyButtons';
 
 type PropertyRowProps = {
   propertyName: string;
@@ -75,8 +67,7 @@ export function PropertyRow({
   }
 
   function commitUserInput() {
-    const value =
-      userInputValue != null && userInputValue !== nodeValue ? userInputValue : nodeValue;
+    const value = userInputValue != null && userInputValue !== nodeValue ? userInputValue : nodeValue;
     if (!isUserInputInvalid() && userInputName !== nodeName) {
       delete parentModel[nodeName];
       parentModel[userInputName] = value;
@@ -119,9 +110,7 @@ export function PropertyRow({
             />
             {isUserInputNameDuplicate && (
               <HelperText>
-                <HelperTextItem variant="error">
-                  Please specify a unique property name
-                </HelperTextItem>
+                <HelperTextItem variant="error">Please specify a unique property name</HelperTextItem>
               </HelperText>
             )}
           </>

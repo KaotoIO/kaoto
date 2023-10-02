@@ -1,24 +1,10 @@
-import {AddPropertyButtons} from './AddPropertyButtons.tsx';
-import {PropertyRow} from './PropertyRow.tsx';
-import {wrapField} from '@kaoto-next/uniforms-patternfly';
-import {
-  EmptyState,
-  EmptyStateBody, ExpandableSection,
-  Stack,
-  StackItem
-} from '@patternfly/react-core';
-import {
-  Table,
-  TableVariant,
-  Tbody,
-  Td,
-  TdProps,
-  Th,
-  Thead,
-  Tr,
-} from '@patternfly/react-table';
-import {ReactNode, useState} from 'react';
-import {HTMLFieldProps, connectField} from 'uniforms';
+import { wrapField } from '@kaoto-next/uniforms-patternfly';
+import { EmptyState, EmptyStateBody, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
+import { Table, TableVariant, Tbody, Td, TdProps, Th, Thead, Tr } from '@patternfly/react-table';
+import { ReactNode, useState } from 'react';
+import { HTMLFieldProps, connectField } from 'uniforms';
+import { AddPropertyButtons } from './AddPropertyButtons';
+import { PropertyRow } from './PropertyRow';
 
 export type PropertiesFieldProps = HTMLFieldProps<any, HTMLDivElement>;
 
@@ -32,7 +18,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
   const [isFieldExpanded, setFieldExpanded] = useState<boolean>(false);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [placeholderState, setPlaceholderState] = useState<PlaceholderState | null>(null);
-  const propertiesModel = props.value ? {...props.value} : {};
+  const propertiesModel = props.value ? { ...props.value } : {};
 
   type PlaceholderState = {
     isObject: boolean;
@@ -49,10 +35,9 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
   }
 
   function handleCreatePlaceHolder(state: PlaceholderState) {
-    setPlaceholderState({...state});
+    setPlaceholderState({ ...state });
     if (state.parentNodeId && state.parentNodeId.length > 0) {
-      expandedNodes.includes(state.parentNodeId) ||
-      setExpandedNodes([...expandedNodes, state.parentNodeId]);
+      expandedNodes.includes(state.parentNodeId) || setExpandedNodes([...expandedNodes, state.parentNodeId]);
     }
   }
 
@@ -69,8 +54,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
       // placeholder is rendered as a last sibling
       const placeholderTreeRow: TdProps['treeRow'] = {
         rowIndex,
-        onCollapse: () => {
-        },
+        onCollapse: () => {},
         props: {
           isRowSelected: true,
           isExpanded: false,
@@ -83,21 +67,20 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
 
       return placeholderState && placeholderState.parentNodeId === getNodeId(parentPath)
         ? [
-          <PropertyRow
-            isPlaceholder={true}
-            key="placeholder"
-            propertyName={props.name}
-            nodeName=""
-            nodeValue={placeholderState.isObject ? {} : ''}
-            path={parentPath}
-            parentModel={parentModel}
-            treeRow={placeholderTreeRow}
-            isObject={placeholderState.isObject}
-            onChangeModel={handleModelChange}
-            createPlaceholder={() => {
-            }}
-          />,
-        ]
+            <PropertyRow
+              isPlaceholder={true}
+              key="placeholder"
+              propertyName={props.name}
+              nodeName=""
+              nodeValue={placeholderState.isObject ? {} : ''}
+              path={parentPath}
+              parentModel={parentModel}
+              treeRow={placeholderTreeRow}
+              isObject={placeholderState.isObject}
+              onChangeModel={handleModelChange}
+              createPlaceholder={() => {}}
+            />,
+          ]
         : [];
     }
 
@@ -110,15 +93,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
 
     const childRows =
       typeof nodeValue === 'object'
-        ? renderRows(
-          Object.entries(nodeValue),
-          nodeValue,
-          path,
-          level + 1,
-          1,
-          rowIndex + 1,
-          !isExpanded || isHidden,
-        )
+        ? renderRows(Object.entries(nodeValue), nodeValue, path, level + 1, 1, rowIndex + 1, !isExpanded || isHidden)
         : [];
 
     const siblingRows = renderRows(
@@ -208,25 +183,25 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
               {Object.keys(propertiesModel).length > 0 || placeholderState
                 ? renderRows(Object.entries(propertiesModel), propertiesModel)
                 : !props.disabled && (
-                <Tr key={`${props.name}-empty`}>
-                  <Td colSpan={3}>
-                    <EmptyState>
-                      <EmptyStateBody>No {props.name}</EmptyStateBody>
-                      <AddPropertyButtons
-                        showLabel={true}
-                        path={[]}
-                        disabled={props.disabled}
-                        createPlaceholder={(isObject) =>
-                          handleCreatePlaceHolder({
-                            isObject: isObject,
-                            parentNodeId: '',
-                          })
-                        }
-                      />
-                    </EmptyState>
-                  </Td>
-                </Tr>
-              )}
+                    <Tr key={`${props.name}-empty`}>
+                      <Td colSpan={3}>
+                        <EmptyState>
+                          <EmptyStateBody>No {props.name}</EmptyStateBody>
+                          <AddPropertyButtons
+                            showLabel={true}
+                            path={[]}
+                            disabled={props.disabled}
+                            createPlaceholder={(isObject) =>
+                              handleCreatePlaceHolder({
+                                isObject: isObject,
+                                parentNodeId: '',
+                              })
+                            }
+                          />
+                        </EmptyState>
+                      </Td>
+                    </Tr>
+                  )}
             </Tbody>
           </Table>
         </StackItem>
