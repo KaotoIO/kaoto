@@ -2,7 +2,7 @@ import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput, Toolti
 import { CheckIcon, PencilAltIcon, TimesIcon, TrashIcon } from '@patternfly/react-icons';
 import { Td, TdProps, TreeRowWrapper } from '@patternfly/react-table';
 import { FormEvent, useState } from 'react';
-import '../../MetadataEditor/MetadataEditor.css';
+import '../../MetadataEditor/MetadataEditor.scss';
 import { AddPropertyButtons } from './AddPropertyButtons';
 
 type PropertyRowProps = {
