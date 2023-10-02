@@ -32,8 +32,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "yarn eslint",
-    "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix",
-    "publish": "lerna publish"
+    "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
     "@kaoto-next/uniforms-patternfly": "^0.4.0",

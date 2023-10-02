@@ -18,7 +18,8 @@
     "simpl-schema": "3.4.1"
   },
   "scripts": {
-    "postinstall": "yarn workspace @kaoto-next/camel-catalog run build"
+    "postinstall": "yarn workspace @kaoto-next/camel-catalog run build",
+    "publish": "lerna publish"
   },
   "engines": {
     "node": "18.x"
