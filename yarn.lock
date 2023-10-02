@@ -2459,7 +2459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lerna-lite/cli@npm:2.5.1":
+"@lerna-lite/cli@npm:2.5.1, @lerna-lite/cli@npm:^2.5.0":
   version: 2.5.1
   resolution: "@lerna-lite/cli@npm:2.5.1"
   dependencies:
@@ -13012,6 +13012,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "kaoto-next@workspace:."
   dependencies:
+    "@lerna-lite/cli": ^2.5.0
     "@lerna-lite/publish": ^2.5.0
     "@lerna-lite/version": ^2.5.0
     husky: ^8.0.3
