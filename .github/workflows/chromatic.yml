@@ -43,10 +43,6 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      # 👇 Builds the kaoto-next/uniforms-patternfly
-      - name: Build @kaoto-next/uniforms-patternfly library
-        run: yarn workspace @kaoto-next/uniforms-patternfly run build
-
       # 👇 Builds the kaoto-next/ui in library mode
       - name: Build ui library
         run: yarn workspace @kaoto-next/ui run build:lib

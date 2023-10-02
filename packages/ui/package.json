@@ -34,7 +34,7 @@
     "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
-    "@kaoto-next/uniforms-patternfly": "workspace:*",
+    "@kaoto-next/uniforms-patternfly": "^0.4.0",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-code-editor": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
