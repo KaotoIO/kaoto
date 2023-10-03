@@ -1,5 +1,5 @@
 import { integrationJson } from '../stubs/integration';
-import { isIntegration } from './is-integration.ts';
+import { isIntegration } from './is-integration';
 
 describe('isIntegration', () => {
   it.each([

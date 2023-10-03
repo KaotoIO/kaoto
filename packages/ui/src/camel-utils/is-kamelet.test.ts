@@ -1,6 +1,6 @@
 import { isKamelet } from './is-kamelet';
 import { kameletJson } from '../stubs/kamelet';
-import { kameletBindingJson } from '../stubs/kamelet-route.ts';
+import { kameletBindingJson } from '../stubs/kamelet-route';
 
 describe('isKamelet', () => {
   it.each([

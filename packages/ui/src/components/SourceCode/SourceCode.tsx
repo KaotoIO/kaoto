@@ -1,12 +1,13 @@
 import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
 import { setDiagnosticsOptions } from 'monaco-yaml';
-import { FunctionComponent, Ref, useCallback, useEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, Ref, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
 import './SourceCode.scss';
 import { SyncButton } from './SyncButton';
 import './workers/enable-workers';
-import { useEntities } from '../../hooks';
-import { entitySchemaConfig } from '../../models/camel-entities/EntitySchemaConfig.ts';
+import { sourceSchemaConfig } from '../../models/camel-entities/SourceSchemaConfig';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { SourceSchemaType } from '../../models/camel-entities/SourceSchemaType';
 
 interface SourceCodeProps {
   code: string;
@@ -15,13 +16,11 @@ interface SourceCodeProps {
 
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
-  //const schemas = useSchemasStore((state) => state.schemas);
-  const { currentEntity } = useEntities();
+  const entityContext = useContext(EntitiesContext);
 
   useEffect(() => {
-    console.log('current entity is ', currentEntity);
-    const currentSchema = entitySchemaConfig.config[currentEntity].schema;
-    console.log('current schema', currentEntity, currentSchema);
+    const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
+    const currentSchema = sourceSchemaConfig.config[schemaType].schema;
     if (currentSchema) {
       setDiagnosticsOptions({
         enableSchemaRequest: true,
@@ -39,7 +38,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
         ],
       });
     }
-  }, [currentEntity]);
+  }, [entityContext?.currentSchemaType]);
 
   const handleEditorDidMount: EditorDidMount = useCallback((editor) => {
     editorRef.current = editor;
