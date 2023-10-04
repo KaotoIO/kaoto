@@ -1,9 +1,7 @@
-name: 📦 Version and publish npm Package
+name: 🏷️ Trigger Version and publish npm Package
 # Event for the workflow
 on:
   workflow_dispatch:
-permissions:
-  contents: write
 
 # Allow one concurrent deployment
 concurrency:
@@ -11,7 +9,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  trigger-version-and-publish:
+    if: github.repository == 'KaotoIO/kaoto-next' && github.actor != 'renovate[bot]'
+
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout source code'
@@ -42,13 +45,14 @@ jobs:
       - name: Build @kaoto-next/ui package in lib mode
         run: yarn workspace @kaoto-next/ui run build:lib
 
+      - name: Git user config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       # Version and publish
       - name: "Version and publish"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.KAOTO_NEXT_NPM_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          yarn publish
+        run: yarn publish
