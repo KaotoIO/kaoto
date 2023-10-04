@@ -1,2 +1,2 @@
 export * from './base-entity';
-export * from './SourceSchemaType';
+export * from './source-schema-type';

@@ -2,7 +2,7 @@ import { FunctionComponent, PropsWithChildren, createContext, useEffect, useStat
 import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
 import { useCatalogStore, useSchemasStore } from '../store';
-import { sourceSchemaConfig } from '../models/camel-entities/SourceSchemaConfig';
+import { sourceSchemaConfig } from '../models/camel-entities/source-schema-config';
 
 const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
 

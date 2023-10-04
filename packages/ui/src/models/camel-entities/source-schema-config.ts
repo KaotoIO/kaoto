@@ -1,5 +1,5 @@
 import { Schema } from '../schema';
-import { SourceSchemaType } from './SourceSchemaType';
+import { SourceSchemaType } from './source-schema-type';
 import { isEnumType } from '../../utils';
 
 interface ISourceSchema {
