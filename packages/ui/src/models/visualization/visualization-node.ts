@@ -8,6 +8,7 @@ export class VisualizationNode implements IVisualizationNode {
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
   path: string | undefined;
+  iconData: string | undefined;
 
   constructor(
     public label: string,

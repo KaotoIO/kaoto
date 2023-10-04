@@ -1,14 +1,12 @@
+import get from 'lodash.get';
+import set from 'lodash.set';
 import { KameletBinding as KameletBindingModel } from '@kaoto-next/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
-import { EntityType } from '../../camel-entities/base-entity';
-import {
-  KameletBindingSink,
-  KameletBindingSource,
-  KameletBindingStep,
-  KameletBindingSteps,
-} from '../../camel-entities/kamelet-binding-overrides';
+import { EntityType } from '../../camel-entities';
+import { KameletBindingStep, KameletBindingSteps } from '../../camel-entities/kamelet-binding-overrides';
 import { BaseVisualCamelEntity, VisualComponentSchema } from '../base-visual-entity';
 import { VisualizationNode } from '../visualization-node';
+import { KameletSchemaService } from './kamelet-schema.service';
 
 export class KameletBinding implements BaseVisualCamelEntity {
   readonly id = uuidv4();
@@ -21,16 +19,21 @@ export class KameletBinding implements BaseVisualCamelEntity {
     return '';
   }
 
-  getComponentSchema(): VisualComponentSchema | undefined {
-    return undefined;
+  getComponentSchema(path?: string): VisualComponentSchema | undefined {
+    if (!path) return undefined;
+    const stepModel = get(this.route.spec, path) as KameletBindingStep;
+    return KameletSchemaService.getVisualComponentSchema(stepModel);
   }
 
   toJSON() {
-    return { route: this.route };
+    return this.route;
   }
 
-  updateModel(): void {
-    return;
+  updateModel(path: string | undefined, value: unknown): void {
+    if (!path) return;
+
+    const stepModel = get(this.route.spec, path) as KameletBindingStep;
+    if (stepModel) set(stepModel, 'ref.properties', value);
   }
 
   getSteps() {
@@ -46,24 +49,39 @@ export class KameletBinding implements BaseVisualCamelEntity {
   }
 
   toVizNode(): VisualizationNode {
-    const source: KameletBindingSource = this.route.spec?.source;
-    const rootNode = new VisualizationNode(source?.ref?.name ?? '');
-    const vizNodes = this.getVizNodesFromSteps(this.getSteps());
+    const rootNode = this.getVizNodeFromStep(this.route.spec?.source, 'source');
+    const stepNodes = this.route.spec?.steps && this.getVizNodesFromSteps(this.route.spec?.steps);
+    const sinkNode = this.getVizNodeFromStep(this.route.spec?.sink, 'sink');
 
-    if (vizNodes !== undefined) {
-      const firstVizNode = vizNodes[0];
-      if (firstVizNode !== undefined) {
-        rootNode.setNextNode(firstVizNode);
-        firstVizNode.setPreviousNode(rootNode);
+    if (stepNodes !== undefined) {
+      const firstStepNode = stepNodes[0];
+      if (firstStepNode !== undefined) {
+        rootNode.setNextNode(firstStepNode);
+        firstStepNode.setPreviousNode(rootNode);
+      }
+    }
+    if (sinkNode !== undefined) {
+      if (stepNodes !== undefined) {
+        const lastStepNode = stepNodes[stepNodes.length - 1];
+        if (lastStepNode !== undefined) {
+          lastStepNode.setNextNode(sinkNode);
+          sinkNode.setPreviousNode(lastStepNode);
+        }
+      } else {
+        rootNode.setNextNode(sinkNode);
+        sinkNode.setPreviousNode(rootNode);
       }
     }
     return rootNode;
   }
 
   private getVizNodesFromSteps(steps: Array<KameletBindingStep>): VisualizationNode[] {
+    if (!Array.isArray(steps)) {
+      return [] as VisualizationNode[];
+    }
     return steps?.reduce((acc, camelRouteStep) => {
       const previousVizNode = acc[acc.length - 1];
-      const vizNode = this.getVizNodeFromStep(camelRouteStep);
+      const vizNode = this.getVizNodeFromStep(camelRouteStep, 'steps.' + acc.length);
 
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
@@ -74,9 +92,12 @@ export class KameletBinding implements BaseVisualCamelEntity {
     }, [] as VisualizationNode[]);
   }
 
-  private getVizNodeFromStep(step: KameletBindingSink): VisualizationNode {
+  private getVizNodeFromStep(step: KameletBindingStep, path: string): VisualizationNode {
     const stepName = step?.ref?.name;
-    const parentStep = new VisualizationNode(stepName!);
-    return parentStep;
+    const answer = new VisualizationNode(stepName!, this);
+    answer.path = path;
+    const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
+    answer.iconData = kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'];
+    return answer;
   }
 }
