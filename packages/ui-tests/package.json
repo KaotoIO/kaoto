@@ -4,10 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "description": "Kaoto UI tests and storybook",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/KaotoIO/kaoto-next.git"
-  },
+  "repository": "https://github.com/KaotoIO/kaoto-next",
+  "repositoryDirectory": "packages/ui-tests",
   "author": {
     "name": "The Kaoto Team"
   },

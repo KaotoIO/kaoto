@@ -2,7 +2,7 @@
   "name": "kaoto-next",
   "version": "0.0.0",
   "description": "Next version of the UI of the Kaoto project",
-  "repository": "git@github.com:KaotoIO/kaoto-next.git",
+  "repository": "https://github.com/KaotoIO/kaoto-next",
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
   "workspaces": [
