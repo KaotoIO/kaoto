@@ -2,33 +2,20 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType } from '../../camel/entities';
-import { PipeSink, PipeSource, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
+import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './kamelet-schema.service';
 
-type PipeFlow = {
-  source: PipeSource;
-  steps: PipeSteps;
-  sink: PipeSink;
-};
-
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
   type = EntityType.Pipe;
-  flow: PipeFlow;
 
-  constructor(
-    public source: PipeSource,
-    public steps: PipeSteps,
-    public sink: PipeSink,
-  ) {
-    this.flow = { source, steps, sink };
-  }
+  constructor(private flow: PipeSpec) {}
 
   /** Internal API methods */
   getId(): string {
-    return '';
+    return this.id;
   }
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {

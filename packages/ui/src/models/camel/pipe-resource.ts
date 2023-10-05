@@ -3,9 +3,14 @@ import { BaseCamelEntity } from './entities';
 import { PipeVisualEntity } from '../visualization/flows';
 import { Pipe as PipeType } from '@kaoto-next/camel-catalog/types';
 import { SourceSchemaType } from './source-schema-type';
+import { MetadataEntity } from '../visualization/metadata';
+import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
 
 export class PipeResource implements CamelResource {
   protected pipe: PipeType;
+  private flow?: PipeVisualEntity;
+  private metadata?: MetadataEntity;
+  private errorHandler?: PipeErrorHandlerEntity;
 
   constructor(json: unknown) {
     if (!json) {
@@ -16,10 +21,20 @@ export class PipeResource implements CamelResource {
       return;
     }
     this.pipe = json as PipeType;
+    this.flow = new PipeVisualEntity(this.pipe.spec);
+    this.metadata = new MetadataEntity(this.pipe.metadata);
+    this.errorHandler = new PipeErrorHandlerEntity(this.pipe.spec?.errorHandler);
   }
 
   getEntities(): BaseCamelEntity[] {
-    return []; // TODO [new MetadataEntity(this.pipe.metadata), new ErrorHandlerEntity(this.pipe.spec?.errorHandler)];
+    const answer = [];
+    if (this.metadata?.metadata) {
+      answer.push(this.metadata);
+    }
+    if (this.errorHandler?.errorHandler) {
+      answer.push(this.errorHandler);
+    }
+    return answer;
   }
 
   getType(): SourceSchemaType {
@@ -27,7 +42,7 @@ export class PipeResource implements CamelResource {
   }
 
   getVisualEntities(): PipeVisualEntity[] {
-    return [new PipeVisualEntity(this.pipe.spec?.source, this.pipe.spec?.steps, this.pipe.spec?.sink)];
+    return this.flow ? [this.flow] : [];
   }
 
   supportsMultipleVisualEntities(): boolean {

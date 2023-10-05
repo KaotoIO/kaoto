@@ -3,6 +3,8 @@ export const enum Links {
   SourceCode = '/code', // Flows source code
   Beans = '/beans',
   Rest = '/rest',
+  Metadata = '/metadata',
+  PipeErrorHandler = '/pipe-error-handler',
   Catalog = '/catalog',
 }
 

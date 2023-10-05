@@ -9,6 +9,7 @@ export const enum EntityType {
   RestConfiguration = 'restConfiguration',
   Beans = 'beans',
   Metadata = 'metadata',
+  ErrorHandler = 'errorHandler',
 }
 
 export interface BaseCamelEntity {
