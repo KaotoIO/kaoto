@@ -1,10 +1,11 @@
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { CamelSchemasProcessor, DEFAULT_CATALOG_PATH } from '../camel-utils';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
-import { useCatalogStore, useSchemasStore } from '../store';
 import { sourceSchemaConfig } from '../models/camel-entities/source-schema-config';
+import { useCatalogStore, useSchemasStore } from '../store';
 
 const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});
+const DEFAULT_CATALOG_PATH = '/camel-catalog';
+const VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
 
 /**
  * Loader for the components catalog and schemas.
@@ -22,22 +23,29 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
         const camelProcessorsFiles = fetchFile(catalogIndex.catalogs.models.file);
         const kameletsFiles = fetchFile(catalogIndex.catalogs.kamelets.file);
 
-        const schemaFiles = getSchemasFiles(catalogIndex.schemas);
-
-        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles, schemaFiles]).then(
-          ([camelComponents, camelProcessors, kamelets, schemas]) => {
+        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles]).then(
+          ([camelComponents, camelProcessors, kamelets]) => {
             setCatalog(CatalogKind.Component, camelComponents.body);
             setCatalog(CatalogKind.Processor, camelProcessors.body);
             setCatalog(CatalogKind.Kamelet, kamelets.body);
-
-            Object.entries(CamelSchemasProcessor.getSchemas(schemas)).forEach(([key, schema]) => {
-              setSchema(key, schema);
-              sourceSchemaConfig.setSchema(key, schema);
-            });
-            setIsLoading(false);
           },
         );
+
+        return catalogIndex;
+      })
+      .then(async (catalogIndex) => {
+        const schemaFilesPromise = getSchemasFiles(catalogIndex.schemas);
+
+        const schemas = await Promise.all(schemaFilesPromise);
+        schemas.forEach((schema) => {
+          setSchema(schema.name, schema);
+          sourceSchemaConfig.setSchema(schema.name, schema);
+        });
+      })
+      .then(() => {
+        setIsLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -55,17 +63,21 @@ async function fetchFile(file: string) {
   return { body, uri: response.url };
 }
 
-function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<{ [key: string]: Schema }> {
-  const answer: any = {};
-  Object.entries(schemaFiles).forEach(async ([schemaName, schemaDef]) => {
+function getSchemasFiles(schemaFiles: CatalogEntry[]): Promise<Schema>[] {
+  return Object.entries(schemaFiles).map(async ([name, schemaDef]) => {
     const fetchedSchema = await fetchFile(schemaDef.file);
-    answer[schemaName] = {
-      name: schemaDef.name,
-      tags: [],
+    const tags = [];
+
+    if (VISUAL_FLOWS.includes(name)) {
+      tags.push('visualization');
+    }
+
+    return {
+      name,
+      tags,
       version: schemaDef.version,
       uri: fetchedSchema.uri,
       schema: fetchedSchema.body,
     };
   });
-  return Promise.resolve(answer);
 }
