@@ -18,7 +18,8 @@
   },
   "scripts": {
     "postinstall": "yarn workspace @kaoto-next/camel-catalog run build",
-    "publish": "lerna publish"
+    "version": "lerna version",
+    "publish": "lerna publish from-package"
   },
   "engines": {
     "node": "18.x"
