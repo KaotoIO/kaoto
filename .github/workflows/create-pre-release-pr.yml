@@ -1,4 +1,4 @@
-name: 🏷️ Trigger Version and publish npm Package
+name: ↗️ Create a Pull request for a new release
 # Event for the workflow
 on:
   workflow_dispatch:
@@ -8,12 +8,12 @@ concurrency:
   group: "publish"
   cancel-in-progress: true
 
-jobs:
-  trigger-version-and-publish:
-    if: github.repository == 'KaotoIO/kaoto-next' && github.actor != 'renovate[bot]'
 
+jobs:
+  create-pre-release-pr:
     permissions:
       contents: write
+      pull-requests: write
 
     runs-on: ubuntu-latest
     steps:
@@ -50,9 +50,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Version and publish
-      - name: "Version and publish"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.KAOTO_NEXT_NPM_TOKEN }}
-        run: yarn publish
+      - name: Version
+        run: yarn version
+
+      - name: Get version
+        id: get_version
+        run: |
+          echo "TITLE=$(git --no-pager log --format=%s -n 1)" >> $GITHUB_OUTPUT
+        # echo "BODY='$(git --no-pager log --format=%B -n 1)'" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: release"
+          title: ${{ steps.get_version.outputs.TITLE }}
+          body: ${{ steps.get_version.outputs.BODY }}
+          branch: chore/pre-release
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-branch: true
+          labels: release

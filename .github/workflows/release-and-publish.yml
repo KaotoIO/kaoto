@@ -1,0 +1,55 @@
+name: 🏷️ Release and publish a new version of the package
+on:
+  # Run on pull request merged from a `pre-release` branch into the `main` branch\
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+    paths:
+      - 'packages/**/CHANGELOG.md'
+
+jobs:
+  release-and-publish:
+    permissions:
+      contents: write
+
+    if: github.event.pull_request.merged == true
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@kaoto-next'
+          cache: 'yarn'
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🔧 Install dependencies
+        run: yarn
+
+      # Build lib
+      - name: Build @kaoto-next/ui package in lib mode
+        run: yarn workspace @kaoto-next/ui run build:lib
+
+      # Version and publish
+      - name: 'Version and publish'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.KAOTO_NEXT_NPM_TOKEN }}
+        run: yarn publish
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.13.0
+        with:
+          draft: true
+          commit: ${{ github.event.pull_request.head.sha }}
+          tag: ${{ github.event.pull_request.head.ref }}

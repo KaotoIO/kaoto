@@ -9,14 +9,16 @@
   "conventionalCommits": true,
   "changelog": true,
   "message": "chore(release): publish",
-  "createRelease": "github",
+  "loglevel": "debug",
   "command": {
+    "version": {
+      "tag": false,
+      "push": false,
+      "yes": true
+    },
     "publish": {
-      "tag": true,
-      "push": true,
-      "pushArgs": [
-        "--follow-tags"
-      ],
+      "tag": false,
+      "push": false,
       "yes": true
     }
   }
