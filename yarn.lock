@@ -2399,8 +2399,8 @@ __metadata:
     "@types/lodash.get": ^4.4.2
     "@types/lodash.set": ^4.3.7
     "@types/node": ^18.0.0
-    "@types/react": ^18.2.15
-    "@types/react-dom": ^18.2.7
+    "@types/react": ^18.2.25
+    "@types/react-dom": ^18.2.10
     "@types/uuid": ^9.0.2
     "@typescript-eslint/eslint-plugin": ^6.0.0
     "@typescript-eslint/parser": ^6.0.0
@@ -5897,12 +5897,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.7":
+"@types/react-dom@npm:^18.0.0":
   version: 18.2.7
   resolution: "@types/react-dom@npm:18.2.7"
   dependencies:
     "@types/react": "*"
   checksum: e02ea908289a7ad26053308248d2b87f6aeafd73d0e2de2a3d435947bcea0422599016ffd1c3e38ff36c42f5e1c87c7417f05b0a157e48649e4a02f21727d54f
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:^18.2.10":
+  version: 18.2.10
+  resolution: "@types/react-dom@npm:18.2.10"
+  dependencies:
+    "@types/react": "*"
+  checksum: ced70643d82dd9d165cd6d1a98ec7556daf77d8fdec1ed19badb744a2a2370a84cc109248667536d7f850409e85432c300ec9f8c87d46e066ad295ddf9b6ab03
   languageName: node
   linkType: hard
 
@@ -5915,14 +5924,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:18.2.23":
-  version: 18.2.23
-  resolution: "@types/react@npm:18.2.23"
+"@types/react@npm:*, @types/react@npm:>=16, @types/react@npm:^18.2.25":
+  version: 18.2.25
+  resolution: "@types/react@npm:18.2.25"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: efb9d1ed1940c0e7ba08a21ffba5e266d8dbbb8fe618cfb97bc902dfc96385fdd8189e3f7f64b4aa13134f8e61947d60560deb23be151253c3a97b0d070897ca
+  checksum: 177515cd44135d56191ec6c5c10edd490c96c175d37624d9c37bc2007c3abcf6cc2d2137d2a073d692cdc5129d5d5785bd60a6ddd315f695da5d8b989fa2afc5
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^16.14.34":
+  version: 16.14.48
+  resolution: "@types/react@npm:16.14.48"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 4c621e72c3c70f233e68c27b6ea3478ae22633d2b833ead2fc55e3c72e843e19154d75bb7832532231ccf01f7bedff62889f3571b702a375d52a418782a78fdb
   languageName: node
   linkType: hard
 
