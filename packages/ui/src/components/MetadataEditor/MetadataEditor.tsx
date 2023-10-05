@@ -63,11 +63,12 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   }
 
   function getFormModel() {
-    const targetModel = preparedModel != null ? preparedModel : props.metadata?.slice();
     if (isTopmostArray()) {
+      const targetModel = preparedModel != null ? preparedModel : props.metadata?.slice();
       return targetModel && selected !== -1 ? targetModel[selected] : undefined;
+    } else {
+      return preparedModel != null ? preparedModel : { ...props.metadata };
     }
-    return targetModel;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

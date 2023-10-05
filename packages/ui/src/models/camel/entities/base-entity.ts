@@ -9,6 +9,7 @@ export const enum EntityType {
   RestConfiguration = 'restConfiguration',
   Beans = 'beans',
   Metadata = 'metadata',
+  ErrorHandler = 'errorHandler',
 }
 
 export interface BaseCamelEntity {
@@ -17,5 +18,5 @@ export interface BaseCamelEntity {
   readonly type: EntityType;
 
   /** Retrieve the model from the underlying Camel entity */
-  toJSON: () => unknown;
+  toJSON(): unknown;
 }

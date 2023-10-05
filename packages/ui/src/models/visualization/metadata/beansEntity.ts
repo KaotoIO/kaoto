@@ -1,4 +1,4 @@
-import { BeansDeserializer, BeansDeserializer as BeansModel } from '@kaoto-next/camel-catalog/types';
+import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType, BaseCamelEntity } from '../../camel/entities';
 import { isDefined } from '../../../utils';
@@ -13,14 +13,18 @@ export const isBeans = (rawEntity: unknown): rawEntity is { beans: BeansDeserial
   return 'beans' in rawEntity! && Array.isArray((rawEntity! as any).beans);
 };
 
+export type BeansParentType = {
+  beans: BeansDeserializer;
+};
+
 export class BeansEntity implements BaseCamelEntity {
   readonly id = uuidv4();
   type = EntityType.Beans;
 
-  constructor(public beans: Partial<BeansModel> = []) {}
+  constructor(public parent: BeansParentType) {}
 
   toJSON() {
-    return { beans: this.beans };
+    return { beans: this.parent.beans };
   }
 
   updateModel(): void {

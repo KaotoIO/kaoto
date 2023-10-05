@@ -25,6 +25,14 @@ export const router = createHashRouter([
         path: Links.Beans,
         lazy: async () => import('./pages/Beans'),
       },
+      {
+        path: Links.Metadata,
+        lazy: async () => import('./pages/Metadata'),
+      },
+      {
+        path: Links.PipeErrorHandler,
+        lazy: async () => import('./pages/PipeErrorHandler'),
+      },
     ],
   },
 ]);

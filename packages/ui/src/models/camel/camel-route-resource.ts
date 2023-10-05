@@ -1,11 +1,11 @@
-import { CamelResource } from './camel-resource';
+import { BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
 import { BeansEntity, isBeans } from '../visualization/metadata';
 import { SourceSchemaType } from './source-schema-type';
 import { isDefined } from '../../utils';
 
-export class CamelRouteResource implements CamelResource {
+export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private entities: BaseCamelEntity[] = [];
 
   constructor(json?: unknown) {
@@ -27,7 +27,7 @@ export class CamelRouteResource implements CamelResource {
     if (isCamelRoute(rawItem)) {
       return new CamelRouteVisualEntity(rawItem.route);
     } else if (isBeans(rawItem)) {
-      return new BeansEntity(rawItem.beans);
+      return new BeansEntity(rawItem);
     }
     return rawItem as BaseCamelEntity;
   }
@@ -48,11 +48,21 @@ export class CamelRouteResource implements CamelResource {
     return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity)) as BaseCamelEntity[];
   }
 
-  addEntity(entity: BaseCamelEntity): void {
-    this.entities.push(entity);
-  }
-
   toJSON(): unknown {
     return this.entities.map((entity) => entity.toJSON());
+  }
+
+  createBeansEntity(): BeansEntity {
+    const newBeans = { beans: [] };
+    const beansEntity = new BeansEntity(newBeans);
+    this.entities.push(beansEntity);
+    return beansEntity;
+  }
+
+  deleteBeansEntity(entity: BeansEntity): void {
+    const index = this.entities.findIndex((e) => e === entity);
+    if (index !== -1) {
+      this.entities.splice(index, 1);
+    }
   }
 }
