@@ -1,11 +1,10 @@
-describe('Catalog', () => {
+describe('Catalog related tests', () => {
   beforeEach(() => {
-    const url: string | null = Cypress.config().baseUrl;
-    cy.visit(url!);
+    cy.openHomePage();
   });
 
   it('Catalog search', () => {
-    cy.get('[data-testid="Catalog"]').click();
+    cy.openCatalog();
     cy.get('[data-testid="Component-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('timer');
@@ -20,5 +19,34 @@ describe('Catalog', () => {
     cy.get('[data-testid="Kamelet-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('google');
     cy.get('div[id="google-storage-source"]').should('be.visible');
+  });
+
+  it('Catalog filtering usign tags', () => {
+    cy.openCatalog();
+    cy.get('[data-testid="Component-catalog-tab"]').click();
+    cy.get('[data-testid="tag-cloud"]').first().click();
+    cy.get('[data-testid="tag-database"]').first().click();
+    cy.get('[data-testid="tag-serverless"]').first().click();
+
+    cy.get('[data-testid="tile-aws2-redshift-data"]').should('be.visible');
+
+    cy.get('button[aria-label="Close cloud"]').click();
+    cy.get('button[aria-label="Close database"]').click();
+    cy.get('button[aria-label="Close serverless"]').click();
+    cy.contains('h2', 'Showing 1 elements').should('not.exist');
+  });
+
+  it('Catalog list view switch check', () => {
+    cy.openCatalog();
+    cy.get('#toggle-layout-button-List').click();
+    cy.get('[data-testid="Kamelet-catalog-tab"]').click();
+    cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
+    // This does not work ATM - relates to https://github.com/KaotoIO/kaoto-next/issues/184
+    // cy.openSourceCode();
+    // cy.openCatalog();
+    // cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
+    cy.get('#toggle-layout-button-Gallery').click();
+    cy.get('[data-testid="Component-catalog-tab"]').click();
+    cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'true');
   });
 });
