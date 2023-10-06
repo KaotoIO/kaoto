@@ -1,4 +1,4 @@
-export interface ITile<T = unknown> {
+export interface ITile {
   type: string;
   name: string;
   title: string;
@@ -6,7 +6,8 @@ export interface ITile<T = unknown> {
   headerTags?: string[];
   tags: string[];
   version?: string;
-  rawObject: T;
+  /** @deprecated Please relay on name property instead */
+  rawObject?: unknown;
 }
 
 export const enum CatalogLayout {
