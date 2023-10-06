@@ -42,6 +42,7 @@ export interface IVisualizationNode {
   id: string;
   path: string | undefined;
   label: string;
+  iconData: string | undefined;
 
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;

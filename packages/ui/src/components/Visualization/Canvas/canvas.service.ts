@@ -7,7 +7,6 @@ import {
   DagreLayout,
   DefaultEdge,
   DefaultGroup,
-  DefaultNode,
   EdgeAnimationSpeed,
   EdgeStyle,
   ForceLayout,
@@ -19,9 +18,9 @@ import {
   ModelKind,
   NodeShape,
   Visualization,
-  withSelection,
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import { CustomNodeWithSelection } from '../Custom/CustomNode';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
 export class CanvasService {
@@ -61,7 +60,7 @@ export class CanvasService {
           case ModelKind.graph:
             return GraphComponent;
           case ModelKind.node:
-            return withSelection()(DefaultNode);
+            return CustomNodeWithSelection;
           case ModelKind.edge:
             return DefaultEdge;
           default:
