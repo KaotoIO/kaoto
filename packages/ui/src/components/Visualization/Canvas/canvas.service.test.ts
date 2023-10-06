@@ -13,7 +13,7 @@ import {
   ModelKind,
   Visualization,
 } from '@patternfly/react-topology';
-import { VisualizationNode } from '../../../models/visualization';
+import { createVisualizationNode } from '../../../models/visualization';
 import { LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
 
@@ -114,7 +114,7 @@ describe('CanvasService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = new VisualizationNode('node');
+      const vizNode = createVisualizationNode('node');
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
@@ -131,8 +131,8 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
-      const vizNode = new VisualizationNode('node');
-      const childNode = new VisualizationNode('child');
+      const vizNode = createVisualizationNode('node');
+      const childNode = createVisualizationNode('child');
       vizNode.addChild(childNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
@@ -164,32 +164,32 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
-      const vizNode = new VisualizationNode('node');
+      const vizNode = createVisualizationNode('node');
 
-      const setHeaderNode = new VisualizationNode('set-header');
+      const setHeaderNode = createVisualizationNode('set-header');
       vizNode.setNextNode(setHeaderNode);
       setHeaderNode.setPreviousNode(vizNode);
 
-      const choiceNode = new VisualizationNode('choice');
+      const choiceNode = createVisualizationNode('choice');
       setHeaderNode.setNextNode(choiceNode);
       choiceNode.setPreviousNode(setHeaderNode);
 
-      const directNode = new VisualizationNode('direct');
+      const directNode = createVisualizationNode('direct');
       choiceNode.setNextNode(directNode);
       directNode.setPreviousNode(choiceNode);
 
-      const whenNode = new VisualizationNode('when');
+      const whenNode = createVisualizationNode('when');
       choiceNode.addChild(whenNode);
 
-      const otherwiseNode = new VisualizationNode('otherwise');
+      const otherwiseNode = createVisualizationNode('otherwise');
       choiceNode.addChild(otherwiseNode);
 
-      const whenLeafNode = new VisualizationNode('when-leaf');
+      const whenLeafNode = createVisualizationNode('when-leaf');
       whenNode.addChild(whenLeafNode);
 
-      const processNode = new VisualizationNode('process');
+      const processNode = createVisualizationNode('process');
       otherwiseNode.addChild(processNode);
-      const logNode = new VisualizationNode('log');
+      const logNode = createVisualizationNode('log');
       processNode.addChild(logNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
@@ -207,7 +207,7 @@ describe('CanvasService', () => {
           id: 'set-header-1234',
           label: 'set-header',
           parentNode: undefined,
-          data: { vizNode: setHeaderNode }
+          data: { vizNode: setHeaderNode },
         },
         {
           ...DEFAULT_NODE_PROPS,

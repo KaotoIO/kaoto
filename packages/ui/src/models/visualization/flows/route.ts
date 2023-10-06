@@ -5,7 +5,7 @@ import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { EntityType } from '../../camel-entities/base-entity';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
-import { VisualizationNode } from '../visualization-node';
+import { createVisualizationNode } from '../visualization-node';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 
 export class CamelRoute implements BaseVisualCamelEntity {
@@ -46,7 +46,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
   }
 
   toVizNode(): IVisualizationNode {
-    const rootNode = new VisualizationNode((this.route.from?.uri as string) ?? '', this);
+    const rootNode = createVisualizationNode((this.route.from?.uri as string) ?? '', this);
     rootNode.path = 'from';
     const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
 
@@ -76,7 +76,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
 
   private getVizNodeFromStep(processor: ProcessorDefinition, path: string): IVisualizationNode {
     const processorName = Object.keys(processor)[0];
-    const parentStep = new VisualizationNode(processorName);
+    const parentStep = createVisualizationNode(processorName);
     parentStep.path = `${path}.${processorName}`;
 
     switch (processorName) {
@@ -113,7 +113,7 @@ export class CamelRoute implements BaseVisualCamelEntity {
   }
 
   private getChildren(label: string, steps: ProcessorDefinition[], path: string): IVisualizationNode {
-    const node = new VisualizationNode(label);
+    const node = createVisualizationNode(label);
     node.path = path;
     const children = this.getVizNodesFromSteps(steps, path);
     node.setChildren(children);
