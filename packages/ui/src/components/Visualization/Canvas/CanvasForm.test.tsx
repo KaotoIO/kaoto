@@ -1,7 +1,6 @@
 import { render } from '@testing-library/react';
 import { JSONSchemaType } from 'ajv';
-import { VisualizationNode } from '../../../models/visualization';
-import { VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
+import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
@@ -29,7 +28,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-        } as VisualizationNode,
+        } as IVisualizationNode,
       },
     };
 
@@ -49,7 +48,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => undefined,
-        } as VisualizationNode,
+        } as IVisualizationNode,
       },
     };
 
@@ -75,7 +74,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-        } as VisualizationNode,
+        } as IVisualizationNode,
       },
     };
 

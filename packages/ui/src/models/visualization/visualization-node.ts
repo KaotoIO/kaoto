@@ -1,7 +1,16 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from './base-visual-entity';
 
-export class VisualizationNode implements IVisualizationNode {
+export const createVisualizationNode: (
+  ...args: ConstructorParameters<typeof VisualizationNode>
+) => IVisualizationNode = (...args): IVisualizationNode => new VisualizationNode(...args);
+
+/**
+ * VisualizationNode
+ * This class is used to represent a node in the visualization tree.
+ * It shouldn't be used directly, but rather through the IVisualizationNode interface.
+ */
+class VisualizationNode implements IVisualizationNode {
   readonly id: string;
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
