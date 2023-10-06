@@ -1,0 +1,10 @@
+- route:
+    id: camel route 1
+    from:
+      uri: timer:test
+      steps:
+      - set-header:
+          constant: test
+          name: test
+      - to:
+          uri: log:test

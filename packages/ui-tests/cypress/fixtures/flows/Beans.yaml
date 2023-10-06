@@ -1,0 +1,16 @@
+- route:
+    id: route-6523
+    from:
+      uri: null
+      steps: []
+- beans:
+  - name: test
+    type: org.acme
+    properties:
+      property: value
+  - name: test2
+    type: org.acme
+    properties:
+      test: test
+      test2:
+        test3: test3

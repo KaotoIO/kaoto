@@ -35,6 +35,7 @@
     "@storybook/theming": "^7.4.0",
     "chromatic": "^7.0.0",
     "cypress": "^13.0.0",
+    "cypress-file-upload": "^5.0.8",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.26.0",

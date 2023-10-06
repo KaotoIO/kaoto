@@ -151,6 +151,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
       toggleText={''}
       onToggle={(_event, isExpanded) => setFieldExpanded(isExpanded)}
       isExpanded={isFieldExpanded}
+      data-testid={'expandable-section-' + props.name}
     >
       <Stack hasGutter>
         <StackItem isFilled>
