@@ -26,6 +26,7 @@ import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
+import { EntitiesContext } from '../../../providers/entities.provider';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -41,6 +42,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const catalogModalContext = useContext(CatalogModalContext);
 
   const controller = useMemo(() => CanvasService.createController(), []);
+  const { visibleFlows } = useContext(EntitiesContext)!;
   const controlButtons = useMemo(() => {
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
@@ -102,9 +104,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     const edges: CanvasEdge[] = [];
 
     props.entities.forEach((entity) => {
-      const { nodes: childNodes, edges: childEdges } = CanvasService.getFlowDiagram(entity.toVizNode());
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
+      if (visibleFlows[entity.id]) {
+        const { nodes: childNodes, edges: childEdges } = CanvasService.getFlowDiagram(entity.toVizNode());
+        nodes.push(...childNodes);
+        edges.push(...childEdges);
+      }
     });
 
     const model: Model = {
