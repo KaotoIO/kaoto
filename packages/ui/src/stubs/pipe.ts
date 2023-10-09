@@ -1,6 +1,6 @@
-export const kameletBindingYaml = `
+export const pipeYaml = `
 - apiVersion: camel.apache.org/v1
-  kind: KameletBinding
+  kind: Pipe
   metadata:
     name: redhat-test
   spec:
@@ -32,9 +32,9 @@ export const kameletBindingYaml = `
 
 `;
 
-export const kameletBindingJson = {
+export const pipeJson = {
   apiVersion: 'camel.apache.org/v1',
-  kind: 'KameletBinding',
+  kind: 'Pipe',
   metadata: {
     name: 'redhat-test',
   },

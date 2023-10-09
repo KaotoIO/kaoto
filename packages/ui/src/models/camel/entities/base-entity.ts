@@ -7,11 +7,15 @@ export const enum EntityType {
   Pipe = 'pipe',
   Rest = 'rest',
   RestConfiguration = 'restConfiguration',
-  Beans = "beans",
+  Beans = 'beans',
+  Metadata = 'metadata',
 }
 
 export interface BaseCamelEntity {
   /** Internal API fields */
   readonly id: string;
   readonly type: EntityType;
+
+  /** Retrieve the model from the underlying Camel entity */
+  toJSON: () => unknown;
 }

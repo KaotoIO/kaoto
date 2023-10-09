@@ -1,1 +1,1 @@
-export * from './beans';
+export * from './beansEntity';

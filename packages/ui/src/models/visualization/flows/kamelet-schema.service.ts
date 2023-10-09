@@ -1,12 +1,13 @@
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { VisualComponentSchema } from '../base-visual-entity';
-import { KameletBindingStep } from '../../camel-entities/kamelet-binding-overrides';
+import { KameletBindingStep } from '../../camel/entities';
 import { useCatalogStore } from '../../../store';
 import { CatalogKind } from '../../catalog-kind';
 import { JSONSchemaType } from 'ajv';
+import { PipeStep } from '../../camel/entities';
 
 export class KameletSchemaService {
-  static getVisualComponentSchema(stepModel: KameletBindingStep): VisualComponentSchema | undefined {
+  static getVisualComponentSchema(stepModel: PipeStep): VisualComponentSchema | undefined {
     if (stepModel === undefined) {
       return undefined;
     }

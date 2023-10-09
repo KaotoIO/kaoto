@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
-import { EntityType } from '../../camel-entities';
+import { EntityType } from '../../camel/entities';
 import { createVisualizationNode } from '../visualization-node';
 
 export class KameletVisualEntity implements BaseVisualCamelEntity {

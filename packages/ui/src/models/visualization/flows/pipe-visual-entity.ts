@@ -1,18 +1,30 @@
-import { KameletBinding as KameletBindingModel } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
-import { EntityType } from '../../camel-entities';
-import { KameletBindingStep, KameletBindingSteps } from '../../camel-entities/kamelet-binding-overrides';
+import { EntityType } from '../../camel/entities';
+import { PipeSink, PipeSource, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './kamelet-schema.service';
 
-export class KameletBinding implements BaseVisualCamelEntity {
-  readonly id = uuidv4();
-  type = EntityType.KameletBinding;
+type PipeFlow = {
+  source: PipeSource;
+  steps: PipeSteps;
+  sink: PipeSink;
+};
 
-  constructor(public route: Partial<KameletBindingModel> = {}) {}
+export class PipeVisualEntity implements BaseVisualCamelEntity {
+  readonly id = uuidv4();
+  type = EntityType.Pipe;
+  flow: PipeFlow;
+
+  constructor(
+    public source: PipeSource,
+    public steps: PipeSteps,
+    public sink: PipeSink,
+  ) {
+    this.flow = { source, steps, sink };
+  }
 
   /** Internal API methods */
   getId(): string {
@@ -21,37 +33,37 @@ export class KameletBinding implements BaseVisualCamelEntity {
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
-    const stepModel = get(this.route.spec, path) as KameletBindingStep;
+    const stepModel = get(this.flow, path) as PipeStep;
     return KameletSchemaService.getVisualComponentSchema(stepModel);
   }
 
   toJSON() {
-    return this.route;
+    return this.flow;
   }
 
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
 
-    const stepModel = get(this.route.spec, path) as KameletBindingStep;
+    const stepModel = get(this.flow, path) as PipeStep;
     if (stepModel) set(stepModel, 'ref.properties', value);
   }
 
   getSteps() {
-    const steps: KameletBindingSteps = this.route.spec?.steps;
-    const sink: KameletBindingStep = this.route.spec?.sink;
-    let allSteps: Array<KameletBindingStep> = [];
+    const steps: PipeSteps = this.flow?.steps;
+    const sink: PipeStep = this.flow?.sink;
+    let allSteps: Array<PipeStep> = [];
     if (steps !== undefined) {
       allSteps = allSteps.concat(steps);
     }
-    !sink || allSteps.push(sink);
+    !sink || Object.keys(sink).length === 0 || allSteps.push(sink);
 
     return allSteps;
   }
 
   toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromStep(this.route.spec?.source, 'source');
-    const stepNodes = this.route.spec?.steps && this.getVizNodesFromSteps(this.route.spec?.steps);
-    const sinkNode = this.getVizNodeFromStep(this.route.spec?.sink, 'sink');
+    const rootNode = this.getVizNodeFromStep(this.flow?.source, 'source');
+    const stepNodes = this.flow?.steps && this.getVizNodesFromSteps(this.flow?.steps);
+    const sinkNode = this.getVizNodeFromStep(this.flow?.sink, 'sink');
 
     if (stepNodes !== undefined) {
       const firstStepNode = stepNodes[0];
@@ -75,7 +87,7 @@ export class KameletBinding implements BaseVisualCamelEntity {
     return rootNode;
   }
 
-  private getVizNodesFromSteps(steps: Array<KameletBindingStep>): IVisualizationNode[] {
+  private getVizNodesFromSteps(steps: Array<PipeStep>): IVisualizationNode[] {
     if (!Array.isArray(steps)) {
       return [] as IVisualizationNode[];
     }
@@ -92,7 +104,7 @@ export class KameletBinding implements BaseVisualCamelEntity {
     }, [] as IVisualizationNode[]);
   }
 
-  private getVizNodeFromStep(step: KameletBindingStep, path: string): IVisualizationNode {
+  private getVizNodeFromStep(step: PipeStep, path: string): IVisualizationNode {
     const stepName = step?.ref?.name;
     const answer = createVisualizationNode(stepName!, this);
     answer.path = path;

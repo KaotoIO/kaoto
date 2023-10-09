@@ -4,8 +4,8 @@ import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
-import { EntityType } from '../../models/camel-entities';
-import { Beans } from '../../models/visualization/metadata';
+import { EntityType } from '../../models/camel/entities';
+import { BeansEntity } from '../../models/visualization/metadata';
 
 export const BeansPage: FunctionComponent = () => {
   const schemaMap = useSchemasStore((state) => state.schemas);
@@ -26,12 +26,12 @@ export const BeansPage: FunctionComponent = () => {
     if (model?.length > 0) {
       if (!beansData) {
         beansData = { beans: [...model] };
-        metadata.push(new Beans(beansData.beans));
+        metadata.push(new BeansEntity(beansData.beans));
       } else {
         beansData.beans = [...model];
       }
     } else if (beansData) {
-      const index = metadata.indexOf(beansData as Beans);
+      const index = metadata.indexOf(beansData as BeansEntity);
       metadata.splice(index, 1);
     }
     entitiesContext?.updateCodeFromEntities();

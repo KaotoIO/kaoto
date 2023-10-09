@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from 'ajv';
-import { BaseCamelEntity, EntityType } from '../camel-entities/base-entity';
+import { BaseCamelEntity, EntityType } from '../camel/entities';
 
 /**
  * BaseVisualCamelEntity
@@ -16,9 +16,6 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
 
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
-
-  /** Retrieve the model from the underlying Camel entity */
-  toJSON: () => unknown;
 
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
