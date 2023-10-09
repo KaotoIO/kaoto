@@ -1,4 +1,4 @@
-import { CamelRoute } from '../models/visualization/flows';
+import { CamelRouteVisualEntity } from '../models/visualization/flows';
 
 /**
  * This is a stub Camel Route in YAML format.
@@ -101,4 +101,4 @@ export const camelRouteJson = {
   },
 };
 
-export const camelRoute = new CamelRoute(camelRouteJson.route);
+export const camelRoute = new CamelRouteVisualEntity(camelRouteJson.route);

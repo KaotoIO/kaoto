@@ -1,12 +1,12 @@
-import { Pipe } from '../models/visualization/flows';
+import { KameletBindingVisualEntity } from '../models/visualization/flows';
 
 /**
- * This is a stub Pipe in YAML format.
+ * This is a stub KameletBinding in YAML format.
  * It is used to test the Canvas component.
  */
-export const pipeYaml = `
+export const kameletBindingYaml = `
 apiVersion: camel.apache.org/v1
-kind: Pipe
+kind: KameletBinding
 metadata:
   name: webhook-binding
 spec:
@@ -27,12 +27,12 @@ spec:
       name: log-sink`;
 
 /**
- * This is a stub Pipe in JSON format.
+ * This is a stub KameletBinding in JSON format.
  * It is used to test the Canvas component.
  */
-export const pipeJson = {
+export const kameletBindingJson = {
   apiVersion: 'camel.apache.org/v1',
-  kind: 'Pipe',
+  kind: 'KameletBinding',
   metadata: {
     name: 'webhook-binding',
   },
@@ -63,4 +63,8 @@ export const pipeJson = {
   },
 };
 
-export const pipe = new Pipe(pipeJson);
+export const kameletBinding = new KameletBindingVisualEntity(
+  kameletBindingJson.spec.source,
+  kameletBindingJson.spec.steps,
+  kameletBindingJson.spec.sink,
+);

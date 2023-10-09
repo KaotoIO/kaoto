@@ -5,9 +5,8 @@ import { EditorDidMount } from 'react-monaco-editor';
 import './SourceCode.scss';
 import { SyncButton } from './SyncButton';
 import './workers/enable-workers';
-import { sourceSchemaConfig } from '../../models/camel-entities/source-schema-config';
+import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { SourceSchemaType } from '../../models/camel-entities';
 
 interface SourceCodeProps {
   code: string;

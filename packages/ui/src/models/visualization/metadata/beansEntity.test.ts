@@ -1,5 +1,5 @@
-import { isBeans } from './is-beans';
-import { beansJson } from '../stubs/beans';
+import { isBeans } from './beansEntity';
+import { beansJson } from '../../../stubs/beans';
 
 describe('isBeans', () => {
   it.each([

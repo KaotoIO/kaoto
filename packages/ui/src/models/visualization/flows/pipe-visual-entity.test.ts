@@ -1,39 +1,39 @@
-import { KameletBinding as KameletBindingModel } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
-import { kameletBindingJson } from '../../../stubs/kamelet-binding';
-import { EntityType } from '../../camel-entities';
-import { KameletBinding } from './kamelet-binding';
+import { pipeJson } from '../../../stubs/pipe';
+import { EntityType } from '../../camel/entities';
+import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './kamelet-schema.service';
 
-describe('Kamelet Binding', () => {
-  let kameletBinding: KameletBinding;
+describe('Pipe', () => {
+  let pipe: PipeVisualEntity;
 
   beforeEach(() => {
-    kameletBinding = new KameletBinding(JSON.parse(JSON.stringify(kameletBindingJson)));
+    const pipeCR = JSON.parse(JSON.stringify(pipeJson));
+    pipe = new PipeVisualEntity(pipeCR.spec.source, pipeCR.spec.steps, pipeCR.spec.sink);
   });
 
   describe('id', () => {
     it('should have an uuid', () => {
-      expect(kameletBinding.id).toBeDefined();
-      expect(typeof kameletBinding.id).toBe('string');
+      expect(pipe.id).toBeDefined();
+      expect(typeof pipe.id).toBe('string');
     });
 
     it('should have a type', () => {
-      expect(kameletBinding.type).toEqual(EntityType.KameletBinding);
+      expect(pipe.type).toEqual(EntityType.Pipe);
     });
 
     it('should return the id', () => {
-      expect(kameletBinding.getId()).toEqual(expect.any(String));
+      expect(pipe.getId()).toEqual(expect.any(String));
     });
   });
 
   describe('getComponentSchema', () => {
     it('should return undefined if no path is provided', () => {
-      expect(kameletBinding.getComponentSchema()).toBeUndefined();
+      expect(pipe.getComponentSchema()).toBeUndefined();
     });
 
     it('should return undefined if no component model is found', () => {
-      const result = kameletBinding.getComponentSchema('test');
+      const result = pipe.getComponentSchema('test');
 
       expect(result).toBeUndefined();
     });
@@ -46,48 +46,46 @@ describe('Kamelet Binding', () => {
         definition: {},
       });
 
-      kameletBinding.getComponentSchema('source');
+      pipe.getComponentSchema('source');
       expect(spy).toBeCalledTimes(1);
     });
   });
 
   it('should return the json', () => {
-    expect(kameletBinding.toJSON()).toEqual(kameletBindingJson);
+    expect(pipe.toJSON()).toEqual({
+      source: pipeJson.spec.source,
+      steps: pipeJson.spec.steps,
+      sink: pipeJson.spec.sink,
+    });
   });
 
   describe('updateModel', () => {
     it('should not update the model if no path is provided', () => {
-      const originalObject = JSON.parse(JSON.stringify(kameletBindingJson));
+      const originalObject = JSON.parse(JSON.stringify(pipeJson));
 
-      kameletBinding.updateModel(undefined, undefined);
+      pipe.updateModel(undefined, undefined);
 
-      expect(originalObject).toEqual(kameletBindingJson);
+      expect(originalObject).toEqual(pipeJson);
     });
 
     it('should update the model', () => {
       const name = 'timer-source';
 
-      kameletBinding.updateModel('source.ref.name', name);
+      pipe.updateModel('source.ref.name', name);
 
-      expect(kameletBinding.route.spec?.source?.ref?.name).toEqual(name);
+      expect(pipe.source?.ref?.name).toEqual(name);
     });
   });
 
   describe('getSteps', () => {
-    it('should return an empty array if there is no route', () => {
-      const route = new KameletBinding();
-
-      expect(route.getSteps()).toEqual([]);
-    });
-
     it('should return an empty array if there is no steps', () => {
-      const route = new KameletBinding({ spec: {} } as KameletBindingModel);
+      const route = new PipeVisualEntity({}, [], {});
 
       expect(route.getSteps()).toEqual([]);
     });
 
     it('should return the steps', () => {
-      expect(kameletBinding.getSteps()).toEqual([
+      expect(pipe.getSteps()).toEqual([
         {
           ref: {
             apiVersion: 'camel.apache.org/v1',
@@ -117,27 +115,27 @@ describe('Kamelet Binding', () => {
 
   describe('toVizNode', () => {
     it('should return the viz node and set the initial path to `source`', () => {
-      const vizNode = kameletBinding.toVizNode();
+      const vizNode = pipe.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.path).toEqual('source');
     });
 
     it('should use the uri as the node label', () => {
-      const vizNode = kameletBinding.toVizNode();
+      const vizNode = pipe.toVizNode();
 
       expect(vizNode.label).toEqual('timer-source');
     });
 
     it('should set an empty label if the uri is not available', () => {
-      kameletBinding = new KameletBinding({ spec: {} } as KameletBindingModel);
-      const vizNode = kameletBinding.toVizNode();
+      pipe = new PipeVisualEntity({}, [], {});
+      const vizNode = pipe.toVizNode();
 
       expect(vizNode.label).toBeUndefined();
     });
 
     it('should populate the viz node chain with the steps', () => {
-      const vizNode = kameletBinding.toVizNode();
+      const vizNode = pipe.toVizNode();
 
       expect(vizNode.path).toEqual('source');
       expect(vizNode.label).toEqual('timer-source');

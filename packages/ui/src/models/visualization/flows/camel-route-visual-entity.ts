@@ -3,12 +3,29 @@ import { Choice, ProcessorDefinition, RouteDefinition, To } from '@kaoto-next/ca
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { EntityType } from '../../camel-entities/base-entity';
+import { EntityType } from '../../camel/entities';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
+import { isDefined } from '../../../utils';
 
-export class CamelRoute implements BaseVisualCamelEntity {
+/** Very basic check to determine whether this object is a Camel Route */
+export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDefinition } => {
+  if (!isDefined(rawEntity) || Array.isArray(rawEntity) || typeof rawEntity !== 'object') {
+    return false;
+  }
+
+  const objectKeys = Object.keys(rawEntity!);
+
+  return (
+    objectKeys.length === 1 &&
+    'route' in rawEntity! &&
+    typeof rawEntity.route === 'object' &&
+    'from' in rawEntity.route!
+  );
+};
+
+export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
   readonly id: string;
   readonly type = EntityType.Route;
 

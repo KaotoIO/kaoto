@@ -1,6 +1,6 @@
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { CamelCatalogIndex, CatalogEntry, CatalogKind, ComponentsCatalog, Schema } from '../models';
-import { sourceSchemaConfig } from '../models/camel-entities/source-schema-config';
+import { sourceSchemaConfig } from '../models/camel';
 import { useCatalogStore, useSchemasStore } from '../store';
 
 const CatalogSchemaLoaderContext = createContext<ComponentsCatalog>({});

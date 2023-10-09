@@ -1,15 +1,28 @@
 import { JSONSchemaType } from 'ajv';
 import { camelRouteJson } from '../../../stubs/camel-route';
-import { EntityType } from '../../camel-entities/base-entity';
+import { EntityType } from '../../camel/entities/base-entity';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
-import { CamelRoute } from './route';
+import { CamelRouteVisualEntity, isCamelRoute } from './camel-route-visual-entity';
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 
 describe('Camel Route', () => {
-  let camelEntity: CamelRoute;
+  let camelEntity: CamelRouteVisualEntity;
 
   beforeEach(() => {
-    camelEntity = new CamelRoute(JSON.parse(JSON.stringify(camelRouteJson.route)));
+    camelEntity = new CamelRouteVisualEntity(JSON.parse(JSON.stringify(camelRouteJson.route)));
+  });
+
+  describe('isCamelRoute', () => {
+    it.each([
+      [{ route: { from: 'direct:foo' } }, true],
+      [camelRouteJson, true],
+      [undefined, false],
+      [null, false],
+      [true, false],
+      [false, false],
+    ])('should mark %s as isCamelRoute: %s', (route, result) => {
+      expect(isCamelRoute(route)).toEqual(result);
+    });
   });
 
   describe('id', () => {
@@ -19,7 +32,7 @@ describe('Camel Route', () => {
     });
 
     it('should use a default camel random id if the route id is not provided', () => {
-      const route = new CamelRoute();
+      const route = new CamelRouteVisualEntity();
 
       /** This is being mocked at the window.crypto.get */
       expect(route.id).toEqual('route-1234');
@@ -89,13 +102,13 @@ describe('Camel Route', () => {
 
   describe('getSteps', () => {
     it('should return an empty array if there is no route', () => {
-      const route = new CamelRoute();
+      const route = new CamelRouteVisualEntity();
 
       expect(route.getSteps()).toEqual([]);
     });
 
     it('should return an empty array if there is no steps', () => {
-      const route = new CamelRoute({ from: {} } as RouteDefinition);
+      const route = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
 
       expect(route.getSteps()).toEqual([]);
     });
@@ -172,7 +185,7 @@ describe('Camel Route', () => {
     });
 
     it('should set an empty label if the uri is not available', () => {
-      camelEntity = new CamelRoute({ from: {} } as RouteDefinition);
+      camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
       const vizNode = camelEntity.toVizNode();
 
       expect(vizNode.label).toEqual('');
