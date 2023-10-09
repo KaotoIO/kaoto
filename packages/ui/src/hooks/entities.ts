@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useReducer, useState } from 'react';
 import { parse, stringify } from 'yaml';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
 import { CamelResource, createCamelResource, SourceSchemaType } from '../models/camel';
+import { IVisibleFlows, VisibleFlowsReducer, VisualFlowsApi } from '../models/visualization/flows/flows-visibility';
 
 export interface EntitiesContextResult {
   code: string;
@@ -12,6 +13,8 @@ export interface EntitiesContextResult {
   currentSchemaType: SourceSchemaType;
   setCurrentSchemaType: (entity: SourceSchemaType) => void;
   visualEntities: BaseVisualCamelEntity[];
+  visibleFlows: IVisibleFlows;
+  visualFlowsApi: VisualFlowsApi;
   updateCodeFromEntities: () => void;
   eventNotifier: EventNotifier;
 }
@@ -20,6 +23,8 @@ export const useEntities = (): EntitiesContextResult => {
   const [sourceCode, setSourceCode] = useState<string>('');
   const eventNotifier = useMemo(() => new EventNotifier(), []);
   const [camelResource, setCamelResource] = useState<CamelResource>(createCamelResource());
+  const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, {});
+  const visualFlowsApi = new VisualFlowsApi(dispatch);
 
   /** Set the Source Code and updates the Entities */
   const setCode = useCallback((code: string) => {
@@ -28,7 +33,8 @@ export const useEntities = (): EntitiesContextResult => {
       const result = parse(code);
       const camelResource = createCamelResource(result);
       setCamelResource(camelResource);
-
+      const flows = camelResource.getVisualEntities().map((e) => e.id);
+      visualFlowsApi.setVisibleFlows(flows);
       /** Notify subscribers that a `entities:update` happened */
       eventNotifier.next('entities:update', undefined);
     } catch (e) {
@@ -61,9 +67,11 @@ export const useEntities = (): EntitiesContextResult => {
       currentSchemaType: camelResource?.getType(),
       setCurrentSchemaType: setCurrentSchemaType(),
       visualEntities: camelResource.getVisualEntities(),
+      visibleFlows,
+      visualFlowsApi,
       updateCodeFromEntities,
       eventNotifier,
     }),
-    [sourceCode, setCode, setCurrentSchemaType, camelResource, updateCodeFromEntities, eventNotifier],
+    [sourceCode, setCode, setCurrentSchemaType, camelResource, visibleFlows, updateCodeFromEntities, eventNotifier],
   );
 };

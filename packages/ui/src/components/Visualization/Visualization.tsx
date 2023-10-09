@@ -4,6 +4,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
 import { CanvasFallback } from './CanvasFallback';
 import './Visualization.scss';
+import { ContextToolbar } from './ContextToolbar/ContextToolbar';
 
 interface CanvasProps {
   className?: string;
@@ -14,7 +15,7 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
   return (
     <div className={`canvas-surface ${props.className ?? ''}`}>
       <ErrorBoundary fallback={<CanvasFallback />}>
-        <Canvas entities={props.entities} />
+        <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
       </ErrorBoundary>
     </div>
   );
