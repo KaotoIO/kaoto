@@ -1,3 +1,3 @@
-import { BeansPage } from './BeansPage.tsx';
+import { BeansPage } from './BeansPage';
 
 export const element = <BeansPage />;

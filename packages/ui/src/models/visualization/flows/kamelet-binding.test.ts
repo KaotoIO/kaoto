@@ -1,9 +1,9 @@
 import { KameletBinding as KameletBindingModel } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
 import { kameletBindingJson } from '../../../stubs/kamelet-binding';
-import { EntityType } from '../../camel-entities/base-entity';
+import { EntityType } from '../../camel-entities';
 import { KameletBinding } from './kamelet-binding';
-import { KameletSchemaService } from './kamelet-schema.service.ts';
+import { KameletSchemaService } from './kamelet-schema.service';
 
 describe('Kamelet Binding', () => {
   let kameletBinding: KameletBinding;

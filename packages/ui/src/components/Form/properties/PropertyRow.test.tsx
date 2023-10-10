@@ -1,4 +1,4 @@
-import { PropertyRow } from './PropertyRow.tsx';
+import { PropertyRow } from './PropertyRow';
 import { TdProps } from '@patternfly/react-table';
 import { fireEvent, render, screen } from '@testing-library/react';
 
@@ -6,7 +6,7 @@ describe('PropertyRow.tsx', () => {
   test('render string property change name and value', () => {
     const model: any = { foo: 'bar' };
     let onChangeModel = 0;
-    let onCreatePlaceholder: boolean[] = [];
+    const onCreatePlaceholder: boolean[] = [];
     const treeRow: TdProps['treeRow'] = {
       rowIndex: 0,
       onCollapse: () => {},
@@ -44,9 +44,7 @@ describe('PropertyRow.tsx', () => {
     const nameInput = screen.getByTestId('beans-one-two-name-input');
     expect(nameInput).toHaveValue('foo');
     fireEvent.input(nameInput, { target: { value: 'fooModified' } });
-    const propertyEditConfirmBtn = screen.getByTestId(
-      'beans-one-two-property-edit-confirm-foo-btn',
-    );
+    const propertyEditConfirmBtn = screen.getByTestId('beans-one-two-property-edit-confirm-foo-btn');
     fireEvent.click(propertyEditConfirmBtn);
     expect(model.fooModified).toBe('barModified');
     expect(onChangeModel).toBe(1);
@@ -55,7 +53,7 @@ describe('PropertyRow.tsx', () => {
   test('render string property delete', () => {
     const model: any = { foo: 'bar' };
     let onChangeModel = 0;
-    let onCreatePlaceholder: boolean[] = [];
+    const onCreatePlaceholder: boolean[] = [];
     const treeRow: TdProps['treeRow'] = {
       rowIndex: 0,
       onCollapse: () => {},
@@ -94,7 +92,7 @@ describe('PropertyRow.tsx', () => {
   test('render object property', () => {
     const model: any = { foo: {} };
     let onChangeModel = 0;
-    let onCreatePlaceholder: boolean[] = [];
+    const onCreatePlaceholder: boolean[] = [];
     const treeRow: TdProps['treeRow'] = {
       rowIndex: 0,
       onCollapse: () => {},

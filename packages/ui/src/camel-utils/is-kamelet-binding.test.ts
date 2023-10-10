@@ -1,5 +1,5 @@
 import { isKameletBinding } from './is-kamelet-binding';
-import { kameletBindingJson } from '../stubs/kamelet-route';
+import { kameletBindingJson } from '../stubs/kamelet-binding';
 
 describe('isKameBinding', () => {
   it.each([

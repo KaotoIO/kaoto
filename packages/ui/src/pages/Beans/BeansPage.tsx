@@ -1,11 +1,11 @@
 import { Title } from '@patternfly/react-core';
-import {FunctionComponent, useContext} from 'react';
-import {MetadataEditor} from "../../components/MetadataEditor";
+import { FunctionComponent, useContext } from 'react';
+import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
 import { EntitiesContext } from '../../providers/entities.provider';
-import {BeansDeserializer} from "@kaoto-next/camel-catalog/types";
-import {EntityType} from "../../models/camel-entities";
-import {Beans} from "../../models/visualization/metadata";
+import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
+import { EntityType } from '../../models/camel-entities';
+import { Beans } from '../../models/visualization/metadata';
 
 export const BeansPage: FunctionComponent = () => {
   const schemaMap = useSchemasStore((state) => state.schemas);
@@ -13,7 +13,7 @@ export const BeansPage: FunctionComponent = () => {
   const metadata = entitiesContext?.entities ?? [];
 
   function findBeansData() {
-    return metadata.find(item => item.type === EntityType.Beans) as {beans: BeansDeserializer} | undefined
+    return metadata.find((item) => item.type === EntityType.Beans) as { beans: BeansDeserializer } | undefined;
   }
 
   function getBeansData() {
@@ -22,10 +22,10 @@ export const BeansPage: FunctionComponent = () => {
   }
 
   function onChangeModel(model: BeansDeserializer) {
-    let beansData  = findBeansData();
+    let beansData = findBeansData();
     if (model?.length > 0) {
       if (!beansData) {
-        beansData = {beans: [...model]}
+        beansData = { beans: [...model] };
         metadata.push(new Beans(beansData.beans));
       } else {
         beansData.beans = [...model];
