@@ -1,12 +1,12 @@
-import {createElement, FunctionComponent, PropsWithChildren, useEffect, useRef, useState} from 'react';
-import {Split, SplitItem, Stack, StackItem, Title} from "@patternfly/react-core";
-import {TopmostArrayTable} from "./ToopmostArrayTable.tsx";
-import {ErrorsField} from "@kaoto-next/uniforms-patternfly";
-import {AutoForm} from "uniforms";
-import {CustomAutoField} from "../Form/CustomAutoField.tsx";
-import {SchemaService} from "../Form";
-import {JSONSchemaBridge} from "uniforms-bridge-json-schema";
-import cloneDeep from "lodash/cloneDeep";
+import { createElement, FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { TopmostArrayTable } from './ToopmostArrayTable';
+import { ErrorsField } from '@kaoto-next/uniforms-patternfly';
+import { AutoForm } from 'uniforms';
+import { CustomAutoField } from '../Form/CustomAutoField';
+import { SchemaService } from '../Form';
+import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import cloneDeep from 'lodash/cloneDeep';
 
 interface MetadataEditorProps {
   name: string;
@@ -17,8 +17,9 @@ interface MetadataEditorProps {
 
 export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorProps>> = (props) => {
   const schemaServiceRef = useRef(new SchemaService());
-  const [schemaBridge, setSchemaBridge] =
-    useState<JSONSchemaBridge | undefined>(schemaServiceRef.current.getSchemaBridge(getFormSchema()));
+  const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
+    schemaServiceRef.current.getSchemaBridge(getFormSchema()),
+  );
   const firstInputRef = useRef<HTMLInputElement>();
   const [selected, setSelected] = useState(-1);
   const [preparedModel, setPreparedModel] = useState<any>(null);
@@ -47,7 +48,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
     if (isTopmostArray()) {
       let itemSchema = cloneDeep(props.schema.items);
       if (itemSchema.$ref) {
-        itemSchema =cloneDeep(props.schema.definitions[itemSchema.$ref.replace('#/definitions/', '')]);
+        itemSchema = cloneDeep(props.schema.definitions[itemSchema.$ref.replace('#/definitions/', '')]);
       }
       itemSchema.title = props.schema.title;
       itemSchema.description = props.schema.description;
@@ -90,73 +91,72 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
 
   function renderTopmostArrayView() {
     return (
-        <Split hasGutter>
-          <SplitItem className="metadataEditorModalListView">
-            <TopmostArrayTable
-                model={preparedModel != null ? preparedModel : props.metadata}
-                itemSchema={getFormSchema()}
-                name={props.name}
-                selected={selected}
-                onSelected={handleSetSelected}
-                onChangeModel={onChangeArrayModel}
-            />
-          </SplitItem>
+      <Split hasGutter>
+        <SplitItem className="metadataEditorModalListView">
+          <TopmostArrayTable
+            model={preparedModel != null ? preparedModel : props.metadata}
+            itemSchema={getFormSchema()}
+            name={props.name}
+            selected={selected}
+            onSelected={handleSetSelected}
+            onChangeModel={onChangeArrayModel}
+          />
+        </SplitItem>
 
-          <SplitItem className="metadataEditorModalDetailsView">
-            <Stack hasGutter>
-              <StackItem>
-                <Title headingLevel="h2">Details</Title>
-              </StackItem>
-              <StackItem isFilled>{renderDetailsForm()}</StackItem>
-            </Stack>
-          </SplitItem>
-        </Split>
+        <SplitItem className="metadataEditorModalDetailsView">
+          <Stack hasGutter>
+            <StackItem>
+              <Title headingLevel="h2">Details</Title>
+            </StackItem>
+            <StackItem isFilled>{renderDetailsForm()}</StackItem>
+          </Stack>
+        </SplitItem>
+      </Split>
     );
   }
 
   function renderAutoFields(props: any = {}) {
     return createElement(
-        'div',
-        props,
-        schemaBridge!.getSubfields()
-          .sort((a, b) => {
-            const propsA = schemaBridge!.getProps(a);
-            const propsB = schemaBridge!.getProps(b);
-            if (propsA.required) {
-              return propsB.required ? 0 : -1;
-            }
-            return propsB.required ? 1 : 0;
-          })
-          .map((field, index) => {
-            const props: any = { key: field, name: field };
-            if (index === 0) {
-              props.inputRef = firstInputRef;
-            }
-            return createElement(CustomAutoField, props);
-          })
+      'div',
+      props,
+      schemaBridge!
+        .getSubfields()
+        .sort((a, b) => {
+          const propsA = schemaBridge!.getProps(a);
+          const propsB = schemaBridge!.getProps(b);
+          if (propsA.required) {
+            return propsB.required ? 0 : -1;
+          }
+          return propsB.required ? 1 : 0;
+        })
+        .map((field, index) => {
+          const props: any = { key: field, name: field };
+          if (index === 0) {
+            props.inputRef = firstInputRef;
+          }
+          return createElement(CustomAutoField, props);
+        }),
     );
   }
 
   function renderDetailsForm() {
-    return schemaBridge && (
+    return (
+      schemaBridge && (
         <AutoForm
-            schema={schemaBridge}
-            model={getFormModel()}
-            onChangeModel={onChangeFormModel}
-            data-testid={'metadata-editor-form-' + props.name}
-            placeholder={true}
-            disabled={isFormDisabled()}
+          schema={schemaBridge}
+          model={getFormModel()}
+          onChangeModel={onChangeFormModel}
+          data-testid={'metadata-editor-form-' + props.name}
+          placeholder={true}
+          disabled={isFormDisabled()}
         >
           {renderAutoFields()}
           <ErrorsField />
           <br />
         </AutoForm>
+      )
     );
   }
 
-  return schemaBridge && (
-      <>
-          {isTopmostArray() ? renderTopmostArrayView() : renderDetailsForm()}
-      </>
-  );
+  return schemaBridge && <>{isTopmostArray() ? renderTopmostArrayView() : renderDetailsForm()}</>;
 };
