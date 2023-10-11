@@ -6,6 +6,7 @@ import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entit
 import { CamelRoute, KameletBinding, Pipe } from '../models/visualization/flows';
 import { Beans } from '../models/visualization/metadata';
 import { EventNotifier, isDefined } from '../utils';
+import { VisualFlowsReducer } from './visual-flows';
 
 export interface EntitiesContextResult {
   code: string;
@@ -84,6 +85,11 @@ export const useEntities = (): EntitiesContextResult => {
     /** Notify subscribers that a `code:update` happened */
     eventNotifier.next('code:update', code);
   }, [entities, eventNotifier, visualEntities]);
+
+  /** VisibleFlows related objects */
+  const [visibleFlows, dispatch] = useReducer(VisualFlowsReducer, {});
+  const visualFlowsApi = useMemo(() => new visualFlowsApi(dispatch), [dispatch]);
+  const visibleFlowsPublic = useMemo(() => getVisibleFlowsInformation(visibleFlows), [visibleFlows]);
 
   const value = useMemo(
     () => ({
