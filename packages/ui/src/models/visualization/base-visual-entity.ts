@@ -6,7 +6,7 @@ import { BaseCamelEntity, EntityType } from '../camel/entities';
  *
  * This interface is used to represent a visual Camel entity.
  * f.i. Camel Route, Kamelet, KameletBinding, etc.
- * All dedicated Camel code would implemented using this interface.
+ * All dedicated Camel code should be implemented using this interface.
  */
 export interface BaseVisualCamelEntity extends BaseCamelEntity {
   id: string;
@@ -42,7 +42,6 @@ export interface IVisualizationNode {
   id: string;
   path: string | undefined;
   label: string;
-  iconData: string | undefined;
 
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
@@ -74,6 +73,10 @@ export interface IVisualizationNode {
   removeChild(child: IVisualizationNode): void;
 
   populateLeafNodesIds(ids: string[]): void;
+
+  setIconData(iconData: string | undefined): void;
+
+  getIconData(): string | undefined;
 }
 
 /**

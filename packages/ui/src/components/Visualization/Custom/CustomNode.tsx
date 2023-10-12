@@ -11,7 +11,6 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useCallback, useContext } from 'react';
-import defaultCamelIcon from '../../../assets/camel-logo.svg';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { CanvasNode } from '../Canvas/canvas.models';
 import { CanvasService } from '../Canvas/canvas.service';
@@ -23,7 +22,7 @@ interface CustomNodeProps extends WithSelectionProps {
 
 const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) => {
   const data = element.getData()?.vizNode;
-  const icon = data?.iconData ?? defaultCamelIcon;
+  const icon = data?.getIconData();
 
   return (
     <DefaultNode element={element} showStatusDecorator {...rest}>

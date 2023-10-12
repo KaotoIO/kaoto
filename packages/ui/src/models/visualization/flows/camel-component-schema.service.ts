@@ -4,6 +4,7 @@ import { ICamelProcessorProperty } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { ICamelComponentProperty } from '../../camel-components-catalog';
+import { isDefined } from '../../../utils';
 
 interface ICamelElementLookupResult {
   processorName: string;
@@ -21,7 +22,7 @@ export class CamelComponentSchemaService {
     };
   }
 
-  private static getCamelComponentLookup(path: string, definition: any): ICamelElementLookupResult {
+  static getCamelComponentLookup(path: string, definition: any): ICamelElementLookupResult {
     const splitPath = path.split('.');
     const lastPathSegment = splitPath[splitPath.length - 1];
     const pathAsIndex = Number.parseInt(lastPathSegment, 10);
@@ -88,7 +89,10 @@ export class CamelComponentSchemaService {
    * An URI is composed by a component name and query parameters, separated by a colon
    * For instance: `timer:tick?period=1000`
    */
-  private static getComponentNameFromUri(uri: string): string {
+  private static getComponentNameFromUri(uri: string): string | undefined {
+    if (!uri) {
+      return undefined;
+    }
     const uriParts = uri.split(':');
 
     return uriParts[0];
@@ -118,6 +122,23 @@ export class CamelComponentSchemaService {
     }
 
     return schema;
+  }
+
+  static getIconName(camelElementLookup: ICamelElementLookupResult): string | undefined {
+    if (
+      isDefined(camelElementLookup.componentName) &&
+      isDefined(useCatalogStore.getState().catalogs[CatalogKind.Component]?.[camelElementLookup.componentName])
+    ) {
+      return camelElementLookup.componentName;
+    }
+    if (
+      isDefined(camelElementLookup.processorName) &&
+      !isDefined(camelElementLookup.componentName) &&
+      isDefined(useCatalogStore.getState().catalogs[CatalogKind.Processor]?.[camelElementLookup.processorName])
+    ) {
+      return camelElementLookup.processorName;
+    }
+    return '';
   }
 
   /**

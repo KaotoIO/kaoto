@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="135.70801mm"
+   height="174.76601mm"
+   viewBox="0 0 135.70801 174.76601"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="bitmap.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   sodipodi:docname="svg_2.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.638672"
+     inkscape:cx="176.0572"
+     inkscape:cy="255.69486"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-28.618387,14.834599)">
+    <g
+       class="layer"
+       id="g79"
+       transform="matrix(0.26458333,0,0,0.26458333,49.728699,8.3096165)">
+      <title
+         id="title75">Layer 1</title>
+      <g
+         class="layer"
+         id="svg_2"
+         transform="translate(-24.500628,-23.97814)">
+        <path
+           d="M 202.02,0 C 122.2,0 70.5,32.7 29.91,91.03 c -7.36,10.58 -5.09,25.08 5.18,32.87 l 43.14,32.71 c 10.37,7.86 25.13,6.03 33.25,-4.15 25.05,-31.38 43.63,-49.45 82.76,-49.45 30.76,0 68.82,19.8 68.82,49.63 0,22.56 -18.62,34.14 -49,51.17 -35.42,19.86 -82.3,44.57 -82.3,106.4 V 320 c 0,13.25 10.75,24 24,24 h 72.48 c 13.25,0 24,-10.75 24,-24 v -5.77 C 252.24,271.37 377.5,269.58 377.5,153.6 377.5,66.26 286.9,0 202.02,0 Z M 192,373.46 c -38.2,0 -69.27,31.07 -69.27,69.27 0,38.2 31.07,69.27 69.27,69.27 38.2,0 69.27,-31.07 69.27,-69.27 0,-38.2 -31.07,-69.27 -69.27,-69.27 z"
+           id="svg_1" />
+      </g>
+    </g>
+  </g>
+</svg>
