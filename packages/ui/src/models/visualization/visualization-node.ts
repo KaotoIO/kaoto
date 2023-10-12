@@ -16,8 +16,8 @@ class VisualizationNode implements IVisualizationNode {
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
+  private iconData: string | undefined;
   path: string | undefined;
-  iconData: string | undefined;
 
   constructor(
     public label: string,
@@ -107,5 +107,13 @@ class VisualizationNode implements IVisualizationNode {
 
     /** If this node has children, populate the leaf nodes ids of each child */
     this.children?.forEach((child) => child.populateLeafNodesIds(ids));
+  }
+
+  setIconData(iconData: string | undefined) {
+    this.iconData = iconData;
+  }
+
+  getIconData(): string | undefined {
+    return this.iconData;
   }
 }

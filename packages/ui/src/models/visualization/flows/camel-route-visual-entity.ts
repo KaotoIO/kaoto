@@ -3,11 +3,12 @@ import { Choice, ProcessorDefinition, RouteDefinition, To } from '@kaoto-next/ca
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { isDefined } from '../../../utils';
+import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
-import { isDefined } from '../../../utils';
 
 /** Very basic check to determine whether this object is a Camel Route */
 export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDefinition } => {
@@ -46,6 +47,15 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
+  }
+
+  getIconName(path: string | undefined): string | undefined {
+    if (!path) return undefined;
+    const componentModel = get(this.route, path);
+    const iconName = CamelComponentSchemaService.getIconName(
+      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
+    );
+    return iconName;
   }
 
   toJSON() {
@@ -124,6 +134,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const rootNode = createVisualizationNode((this.route.from?.uri as string) ?? '', this);
     rootNode.path = 'from';
     const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
+    rootNode.setIconData(NodeIconResolver.getIcon(this.getIconName(rootNode.path)));
 
     const firstVizNode = vizNodes[0];
     if (firstVizNode !== undefined) {
@@ -153,6 +164,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const processorName = Object.keys(processor)[0];
     const parentStep = createVisualizationNode(processorName);
     parentStep.path = `${path}.${processorName}`;
+    parentStep.setIconData(NodeIconResolver.getIcon(this.getIconName(parentStep.path)));
 
     switch (processorName) {
       case 'choice':
@@ -164,6 +176,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
             `${path}.choice.when.${index}.steps`,
           );
           whenNode.path = `${path}.choice.when.${index}`;
+          whenNode.setIconData(NodeIconResolver.getIcon(this.getIconName(whenNode.path)));
           parentStep.addChild(whenNode);
         });
 
@@ -174,13 +187,14 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
           `${path}.choice.otherwise.steps`,
         );
         otherwiseNode.path = `${path}.choice.otherwise`;
+        otherwiseNode.setIconData(NodeIconResolver.getIcon(this.getIconName(otherwiseNode.path)));
         parentStep.addChild(otherwiseNode);
-
         break;
 
       case 'to':
         parentStep.label =
           typeof processor.to === 'string' ? processor.to : (processor.to as Exclude<To, string>).uri ?? 'To';
+        parentStep.setIconData(NodeIconResolver.getIcon(this.getIconName(`${path}.to`)));
         break;
     }
 

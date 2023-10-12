@@ -6,6 +6,7 @@ import { PipeSink, PipeSource, PipeStep, PipeSteps } from '../../camel/entities/
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './kamelet-schema.service';
+import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 
 type PipeFlow = {
   source: PipeSource;
@@ -137,7 +138,9 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const answer = createVisualizationNode(stepName!, this);
     answer.path = path;
     const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
-    answer.iconData = kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'];
+    answer.setIconData(
+      kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon(),
+    );
     return answer;
   }
 }

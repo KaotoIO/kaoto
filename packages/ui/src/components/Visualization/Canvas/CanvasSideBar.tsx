@@ -1,10 +1,11 @@
-import { Button, Card, CardBody, CardTitle } from '@patternfly/react-core';
+import { Button, Card, CardBody, Grid, CardTitle, GridItem, CardHeader } from '@patternfly/react-core';
 import { TopologySideBar } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
 import { TimesIcon } from '@patternfly/react-icons';
 import { ErrorBoundary } from '../../ErrorBoundary';
+import './CanvasSideBar.scss';
 
 interface CanvasSideBarProps {
   selectedNode: CanvasNode | undefined;
@@ -19,17 +20,23 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
      */
     <TopologySideBar show={props.selectedNode !== undefined}>
       <Card>
-        <CardTitle>
-          {props.selectedNode?.label}{' '}
-          <Button
-            variant="plain"
-            icon={<TimesIcon />}
-            onClick={() => {
-              props.onClose();
-            }}
-          />
-        </CardTitle>
-
+        <CardHeader>
+          <Grid hasGutter>
+            <GridItem span={2}>
+              <img
+                className={'sidebar-icon-' + props.selectedNode?.label}
+                src={props.selectedNode?.data?.vizNode?.getIconData()}
+                alt="icon"
+              />
+            </GridItem>
+            <GridItem span={9}>
+              <CardTitle>{props.selectedNode?.label}</CardTitle>
+            </GridItem>
+            <GridItem span={1}>
+              <Button variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
+            </GridItem>
+          </Grid>
+        </CardHeader>
         <CardBody>
           {props.selectedNode === undefined ? null : (
             <ErrorBoundary fallback={<p>Something didn't work as expected</p>}>
