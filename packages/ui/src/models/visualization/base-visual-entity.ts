@@ -23,6 +23,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Retrieve the steps from the underlying Camel entity */
   getSteps: () => unknown[];
 
+  /** Remove the step at a given path from the underlying Camel entity */
+  removeStep: (path?: string) => void;
+
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
 }
@@ -82,5 +85,6 @@ export interface IVisualizationNode {
 export interface VisualComponentSchema {
   title: string;
   schema: JSONSchemaType<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: any;
 }

@@ -62,6 +62,64 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     return this.route.from?.steps ?? [];
   }
 
+  removeStep(path?: string): void {
+    if (!path) return;
+    /**
+     * If there's only one path segment, it means the target is the `from` property of the route
+     * therefore we replace it with an empty object
+     */
+    if (path === 'from') {
+      set(this.route, 'from.uri', '');
+      return;
+    }
+
+    const pathArray = path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    /**
+     * If the last segment is a number, it means the target object is a member of an array
+     * therefore we need to look for the array and remove the element at the given index
+     *
+     * f.i. from.steps.1.choice.when.0
+     * last: 0
+     */
+    let array = get(this.route, pathArray.slice(0, -1), []);
+    if (Number.isInteger(Number(last)) && Array.isArray(array)) {
+      array.splice(Number(last), 1);
+
+      return;
+    }
+
+    /**
+     * If the last segment is a word and the penultimate is a number, it means the target is an object
+     * potentially a Processor, that belongs to an array, therefore we remove it entirely
+     *
+     * f.i. from.steps.1.choice
+     * last: choice
+     * penultimate: 1
+     */
+    array = get(this.route, pathArray.slice(0, -2), []);
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate)) && Array.isArray(array)) {
+      array.splice(Number(penultimate), 1);
+
+      return;
+    }
+
+    /**
+     * If both the last and penultimate segment are words, it means the target is a property of an object
+     * therefore we delete it
+     *
+     * f.i. from.steps.1.choice.otherwise
+     * last: otherwise
+     * penultimate: choice
+     */
+    const object = get(this.route, pathArray.slice(0, -1), {});
+    if (!Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate)) && typeof object === 'object') {
+      delete object[last];
+    }
+  }
+
   toVizNode(): IVisualizationNode {
     const rootNode = createVisualizationNode((this.route.from?.uri as string) ?? '', this);
     rootNode.path = 'from';

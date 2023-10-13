@@ -25,6 +25,10 @@ export class KameletVisualEntity implements BaseVisualCamelEntity {
     return []; // TODO
   }
 
+  removeStep(): void {
+    return; // TODO
+  }
+
   toJSON(): unknown {
     return undefined; // TODO
   }

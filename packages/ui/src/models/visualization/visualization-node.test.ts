@@ -1,4 +1,6 @@
+import { camelRouteJson } from '../../stubs/camel-route';
 import { BaseVisualCamelEntity, IVisualizationNode } from './base-visual-entity';
+import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
 
 describe('VisualizationNode', () => {
@@ -127,30 +129,46 @@ describe('VisualizationNode', () => {
     expect(child.getParentNode()).toBeUndefined();
   });
 
-  it('should remove a child', () => {
-    const child = createVisualizationNode('child');
-    node.addChild(child);
-    node.removeChild(child);
+  describe('removeChild', () => {
+    it('should remove a child', () => {
+      const child = createVisualizationNode('child');
+      node.addChild(child);
+      node.removeChild(child);
 
-    expect(node.getChildren()).toEqual([]);
-    expect(child.getParentNode()).toBeUndefined();
-  });
+      expect(node.getChildren()).toEqual([]);
+      expect(child.getParentNode()).toBeUndefined();
+    });
 
-  it('should remove a child from an existing children array', () => {
-    const child = createVisualizationNode('child');
-    node.setChildren([child]);
-    node.removeChild(child);
+    it('should remove a child from an existing children array', () => {
+      const child = createVisualizationNode('child');
+      node.setChildren([child]);
+      node.removeChild(child);
 
-    expect(node.getChildren()).toEqual([]);
-    expect(child.getParentNode()).toBeUndefined();
-  });
+      expect(node.getChildren()).toEqual([]);
+      expect(child.getParentNode()).toBeUndefined();
+    });
 
-  it('should not error when removing a non-existing child', () => {
-    const child = createVisualizationNode('child');
-    node.removeChild(child);
+    it('should not error when removing a non-existing child', () => {
+      const child = createVisualizationNode('child');
+      node.removeChild(child);
 
-    expect(node.getChildren()).toBeUndefined();
-    expect(child.getParentNode()).toBeUndefined();
+      expect(node.getChildren()).toBeUndefined();
+      expect(child.getParentNode()).toBeUndefined();
+    });
+
+    it('should delegate to the BaseVisualCamelEntity to remove the underlying child', () => {
+      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(camelRouteJson.route);
+
+      node = camelRouteVisualEntityStub.toVizNode();
+
+      /** Remove set-header node */
+      node.getNextNode()?.removeChild(node.getNextNode()!);
+
+      /** Refresh the Viz Node */
+      node = camelRouteVisualEntityStub.toVizNode();
+
+      expect(node.getNextNode()?.label).toEqual('choice');
+    });
   });
 
   it('should populate the leaf nodes ids - simple relationship', () => {

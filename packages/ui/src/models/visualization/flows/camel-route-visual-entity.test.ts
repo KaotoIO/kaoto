@@ -1,15 +1,16 @@
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
+import cloneDeep from 'lodash.clonedeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelRouteVisualEntity, isCamelRoute } from './camel-route-visual-entity';
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 
 describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
 
   beforeEach(() => {
-    camelEntity = new CamelRouteVisualEntity(JSON.parse(JSON.stringify(camelRouteJson.route)));
+    camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson.route));
   });
 
   describe('isCamelRoute', () => {
@@ -84,7 +85,7 @@ describe('Camel Route', () => {
 
   describe('updateModel', () => {
     it('should not update the model if no path is provided', () => {
-      const originalObject = JSON.parse(JSON.stringify(camelRouteJson.route));
+      const originalObject = cloneDeep(camelRouteJson.route);
 
       camelEntity.updateModel(undefined, undefined);
 
@@ -167,6 +168,54 @@ describe('Camel Route', () => {
           },
         },
       ]);
+    });
+  });
+
+  describe('removeStep', () => {
+    it('should not remove any step if no path is provided', () => {
+      const originalObject = cloneDeep(camelRouteJson.route);
+
+      camelEntity.removeStep(undefined);
+
+      expect(originalObject).toEqual(camelEntity.route);
+    });
+
+    it('should set the `from.uri` property to an empty string if the path is `from`', () => {
+      camelEntity.removeStep('from');
+
+      expect(camelEntity.route.from?.uri).toEqual('');
+    });
+
+    it('should remove the step if the path is a number', () => {
+      /** Remove `set-header` step */
+      camelEntity.removeStep('from.steps.0');
+
+      expect(camelEntity.route.from?.steps).toHaveLength(2);
+      expect(camelEntity.route.from?.steps[0].choice).toBeDefined();
+    });
+
+    it('should remove the step if the path is a word and the penultimate segment is a number', () => {
+      /** Remove `choice` step */
+      camelEntity.removeStep('from.steps.1.choice');
+
+      expect(camelEntity.route.from?.steps).toHaveLength(2);
+      expect(camelEntity.route.from?.steps[1].to).toBeDefined();
+    });
+
+    it('should remove the step if the path is a word and the penultimate segment is a word', () => {
+      /** Remove `to` step */
+      camelEntity.removeStep('from.steps.1.choice.otherwise');
+
+      expect(camelEntity.route.from?.steps).toHaveLength(3);
+      expect(camelEntity.route.from?.steps[1].choice?.otherwise).toBeUndefined();
+    });
+
+    it('should remove a nested step', () => {
+      /** Remove second `to: amqp` step form the choice.otherwise step */
+      camelEntity.removeStep('from.steps.1.choice.otherwise.steps.1.to');
+
+      expect(camelEntity.route.from?.steps).toHaveLength(3);
+      expect(camelEntity.route.from?.steps[1].choice?.otherwise?.steps).toHaveLength(2);
     });
   });
 
