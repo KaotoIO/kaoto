@@ -89,6 +89,7 @@ class VisualizationNode implements IVisualizationNode {
   }
 
   removeChild(child: IVisualizationNode): void {
+    this.getRootNode().getBaseEntity()?.removeStep(this.path);
     const index = this.children?.findIndex((node) => node.id === child.id);
 
     if (index !== undefined && index > -1) {
@@ -105,8 +106,6 @@ class VisualizationNode implements IVisualizationNode {
     }
 
     /** If this node has children, populate the leaf nodes ids of each child */
-    if (this.children !== undefined) {
-      this.children.forEach((child) => child.populateLeafNodesIds(ids));
-    }
+    this.children?.forEach((child) => child.populateLeafNodesIds(ids));
   }
 }

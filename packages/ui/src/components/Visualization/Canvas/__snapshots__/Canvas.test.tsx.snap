@@ -1,0 +1,481 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Canvas should render correctly 1`] = `
+<div>
+  <div
+    class="pf-v5-l-stack"
+  >
+    <div
+      class="pf-v5-l-stack__item pf-m-fill pf-topology-container pf-topology-container__with-sidebar"
+    >
+      <div
+        class="pf-topology-content"
+      >
+        <div
+          class="pf-topology-visualization-surface"
+          data-test-id="topology"
+        >
+          <svg
+            class="pf-topology-visualization-surface__svg"
+          >
+            <g
+              data-id="g1"
+              data-kind="graph"
+              data-type="graph"
+            >
+              <rect
+                fill-opacity="0"
+                height="0"
+                width="0"
+                x="0"
+                y="0"
+              />
+              <g
+                data-surface="true"
+                transform="translate(0, 0) scale(1)"
+              >
+                <g
+                  data-layer-id="bottom"
+                />
+                <g
+                  data-layer-id="groups"
+                />
+                <g
+                  data-layer-id="default"
+                >
+                  <g
+                    data-id="timer:tutorial-1234-to-set-header-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="set-header-1234-to-choice-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="choice-1234-to-when-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="when-1234-to-log-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="choice-1234-to-otherwise-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="otherwise-1234-to-to-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="timer:tutorial-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="set-header-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="choice-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="when-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="log-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="otherwise-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="to-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                </g>
+                <g
+                  data-layer-id="top"
+                />
+              </g>
+            </g>
+          </svg>
+        </div>
+        <span
+          class="pf-topology-control-bar"
+        >
+          <div
+            class="pf-v5-c-toolbar"
+            data-ouia-component-id="OUIA-Generated-Toolbar-1"
+            data-ouia-component-type="PF5/Toolbar"
+            data-ouia-safe="true"
+            id="pf-topology-control-bar-0"
+            style="background-color: transparent; padding: 0px;"
+          >
+            <div
+              class="pf-v5-c-toolbar__content"
+            >
+              <div
+                class="pf-v5-c-toolbar__content-section"
+              >
+                <div
+                  class="pf-v5-c-toolbar__group pf-m-space-items-none"
+                >
+                  <div
+                    class="pf-v5-c-toolbar__item"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <button
+                        aria-disabled="false"
+                        class="pf-v5-c-button pf-m-tertiary pf-topology-control-bar__button"
+                        data-ouia-component-id="OUIA-Generated-Button-tertiary-1"
+                        data-ouia-component-type="PF5/Button"
+                        data-ouia-safe="true"
+                        id="zoom-in"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v5-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M304 192v32c0 6.6-5.4 12-12 12h-56v56c0 6.6-5.4 12-12 12h-32c-6.6 0-12-5.4-12-12v-56h-56c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h56v-56c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v56h56c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"
+                          />
+                        </svg>
+                        <span
+                          class="pf-v5-u-screen-reader"
+                        >
+                          Zoom In
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="pf-v5-c-toolbar__item"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <button
+                        aria-disabled="false"
+                        class="pf-v5-c-button pf-m-tertiary pf-topology-control-bar__button"
+                        data-ouia-component-id="OUIA-Generated-Button-tertiary-2"
+                        data-ouia-component-type="PF5/Button"
+                        data-ouia-safe="true"
+                        id="zoom-out"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v5-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M304 192v32c0 6.6-5.4 12-12 12H124c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"
+                          />
+                        </svg>
+                        <span
+                          class="pf-v5-u-screen-reader"
+                        >
+                          Zoom Out
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="pf-v5-c-toolbar__item"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <button
+                        aria-disabled="false"
+                        class="pf-v5-c-button pf-m-tertiary pf-topology-control-bar__button"
+                        data-ouia-component-id="OUIA-Generated-Button-tertiary-3"
+                        data-ouia-component-type="PF5/Button"
+                        data-ouia-safe="true"
+                        id="fit-to-screen"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v5-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 448 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M448 344v112a23.94 23.94 0 0 1-24 24H312c-21.39 0-32.09-25.9-17-41l36.2-36.2L224 295.6 116.77 402.9 153 439c15.09 15.1 4.39 41-17 41H24a23.94 23.94 0 0 1-24-24V344c0-21.4 25.89-32.1 41-17l36.19 36.2L184.46 256 77.18 148.7 41 185c-15.1 15.1-41 4.4-41-17V56a23.94 23.94 0 0 1 24-24h112c21.39 0 32.09 25.9 17 41l-36.2 36.2L224 216.4l107.23-107.3L295 73c-15.09-15.1-4.39-41 17-41h112a23.94 23.94 0 0 1 24 24v112c0 21.4-25.89 32.1-41 17l-36.19-36.2L263.54 256l107.28 107.3L407 327.1c15.1-15.2 41-4.5 41 16.9z"
+                          />
+                        </svg>
+                        <span
+                          class="pf-v5-u-screen-reader"
+                        >
+                          Fit to Screen
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="pf-v5-c-toolbar__item"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <button
+                        aria-disabled="false"
+                        class="pf-v5-c-button pf-m-tertiary pf-topology-control-bar__button"
+                        data-ouia-component-id="OUIA-Generated-Button-tertiary-4"
+                        data-ouia-component-type="PF5/Button"
+                        data-ouia-safe="true"
+                        id="reset-view"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v5-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 448 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"
+                          />
+                        </svg>
+                        <span
+                          class="pf-v5-u-screen-reader"
+                        >
+                          Reset View
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="pf-v5-c-toolbar__expandable-content"
+                id="pf-topology-control-bar-0-expandable-content-0"
+              >
+                <div
+                  class="pf-v5-c-toolbar__group"
+                />
+              </div>
+            </div>
+            <div
+              class="pf-v5-c-toolbar__content pf-m-hidden"
+              hidden=""
+            >
+              <div
+                class="pf-v5-c-toolbar__group"
+              />
+            </div>
+          </div>
+        </span>
+      </div>
+      <div
+        class="pf-topology-side-bar fade"
+        role="dialog"
+      />
+    </div>
+  </div>
+</div>
+`;

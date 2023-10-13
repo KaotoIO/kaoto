@@ -32,6 +32,11 @@ describe('CanvasService', () => {
     animationSpeed: EdgeAnimationSpeed.medium,
   };
 
+  beforeEach(() => {
+    CanvasService.nodes = [];
+    CanvasService.edges = [];
+  });
+
   it('should start with an empty nodes array', () => {
     expect(CanvasService.nodes).toEqual([]);
   });
