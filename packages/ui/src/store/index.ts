@@ -6,7 +6,7 @@ let isDevMode = true;
 try {
   isDevMode = NODE_ENV === 'development';
 } catch (error) {
-  console.info('NODE_ENV is not defined');
+  console.warn('NODE_ENV is not defined');
 }
 
 if (isDevMode) {

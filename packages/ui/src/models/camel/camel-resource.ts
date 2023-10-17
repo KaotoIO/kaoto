@@ -28,7 +28,7 @@ export interface CamelResource {
  */
 export function createCamelResource(json?: unknown, type?: SourceSchemaType): CamelResource {
   const jsonRecord = json as Record<string, unknown>;
-  if (json && 'kind' in jsonRecord) {
+  if (json && typeof json === 'object' && 'kind' in jsonRecord) {
     return doCreateCamelResource(json, jsonRecord['kind'] as SourceSchemaType);
   } else {
     return doCreateCamelResource(json, type || SourceSchemaType.Route);
