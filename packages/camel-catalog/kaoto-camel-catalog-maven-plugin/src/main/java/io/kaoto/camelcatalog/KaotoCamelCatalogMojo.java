@@ -19,10 +19,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -62,13 +65,15 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
 
     private static final String SCHEMA = "schema";
     private static final String CAMEL_YAML_DSL = "camelYamlDsl";
+    private static final String K8S_V1_OPENAPI = "kubernetes-api-v1-openapi";
     private static final String CAMEL_CATALOG_AGGREGATE = "camel-catalog-aggregate";
     private static final String CRDS = "crds";
     private static final String CRD_SCHEMA = "crd-schema";
     private static final String KAMELETS = "kamelets";
     private static final String KAMELETS_AGGREGATE = "kamelets-aggregate";
 
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
+    private static final ObjectMapper jsonMapper = new ObjectMapper()
+            .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private static final JsonFactory jsonFactory = new JsonFactory();
 
@@ -90,6 +95,12 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     @Parameter(required = true)
     private String kameletsVersion;
 
+    @Parameter
+    private List<String> kubernetesDefinitions;
+
+    @Parameter
+    private List<String> additionalSchemas;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!inputDirectory.exists()) {
             getLog().error(new IllegalArgumentException(String.format(
@@ -99,10 +110,12 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         outputDirectory.mkdirs();
         var path = inputDirectory.toPath();
         var index = new Index();
-        processSchema(path, index);
+        processCamelSchema(path, index);
+        processK8sSchema(path, index);
         processCatalog(path, index);
         processCRDs(path, index);
         processKamelets(path, index);
+        processAdditionalSchemas(path, index);
         try {
             var indexFile = outputDirectory.toPath().resolve("index.json").toFile();
             jsonMapper.writerWithDefaultPrettyPrinter().writeValue(indexFile, index);
@@ -111,7 +124,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
     }
 
-    private void processSchema(Path inputDir, Index index) {
+    private void processCamelSchema(Path inputDir, Index index) {
         var schema = inputDir.resolve(SCHEMA).resolve(CAMEL_YAML_DSL + ".json");
         if (!schema.toFile().exists()) {
             getLog().error(new IllegalArgumentException(String.format(
@@ -212,6 +225,97 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                 }
             }
         }
+    }
+
+    private void processK8sSchema(Path inputDir, Index index) {
+        var schema = inputDir.resolve(SCHEMA).resolve(K8S_V1_OPENAPI + ".json");
+        if (!schema.toFile().exists()) {
+            getLog().error(new IllegalArgumentException(String.format(
+                    "Kubernetes OpenAPI JSON Schema file not found: %s",
+                    schema
+            )));
+            return;
+        }
+
+        try {
+            var k8sSchemas = jsonMapper.readTree(schema.toFile()).withObject("/components/schemas");
+            if (kubernetesDefinitions != null) {
+                for (String name : kubernetesDefinitions) {
+                    var definition = jsonMapper.createObjectNode();
+                    definition.put("$schema", "http://json-schema.org/draft-07/schema#");
+                    definition.put("additionalProperties", false);
+                    definition.setAll(k8sSchemas.withObject("/" + name));
+                    populateReferences(definition, k8sSchemas);
+                    definition = removeKubernetesCustomKeywords(definition);
+                    var nameSplit = name.split("\\.");
+                    var displayName = nameSplit[nameSplit.length - 1];
+                    // ATM we use only few of k8s schemas, so use the short name until we see a conflict
+                    var outputFileName = String.format("%s-%s.json", K8S_V1_OPENAPI, displayName);
+                    var output = outputDirectory.toPath().resolve(outputFileName);
+                    var writer = new FileWriter(output.toFile());
+                    JsonGenerator jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
+                    jsonMapper.writeTree(jsonGenerator, definition);
+                    var indexEntry = new Entry(
+                            displayName,
+                            "Kubernetes OpenAPI JSON schema: " + name,
+                            "v1",
+                            outputFileName);
+                    index.getSchemas().put(displayName, indexEntry);
+                };
+            }
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+    }
+
+    private void populateReferences(ObjectNode definition, ObjectNode k8sSchemas) {
+        var added = true;
+        while (added) {
+            added = false;
+            for (JsonNode refParent : definition.findParents("$ref")) {
+                var ref = refParent.get("$ref").asText();
+                if (ref.startsWith("#/components")) {
+                    ((ObjectNode)refParent).put("$ref", ref.replace("#/components/schemas", "#/definitions"));
+                    ref = refParent.get("$ref").asText();
+                }
+                var name = ref.replace("#/definitions/", "");
+                if (!definition.has("definitions") || !definition.withObject("/definitions").has(name)) {
+                    var additionalDefinitions = definition.withObject("/definitions");
+                    additionalDefinitions.set(name, k8sSchemas.withObject("/" + name));
+                    added = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    private ObjectNode removeKubernetesCustomKeywords(ObjectNode definition) {
+        var modified = jsonMapper.createObjectNode();
+        definition.fields().forEachRemaining(node -> {
+            if (!node.getKey().startsWith("x-kubernetes")) {
+                var value = node.getValue();
+                if (value.isObject()) {
+                    value = removeKubernetesCustomKeywords((ObjectNode)value);
+                } else if (value.isArray()) {
+                    value = removeKubernetesCustomKeywordsFromArrayNode((ArrayNode)value);
+                }
+                modified.set(node.getKey(), value);
+            }
+        });
+        return modified;
+    }
+
+    private ArrayNode removeKubernetesCustomKeywordsFromArrayNode(ArrayNode definition) {
+        var modified = jsonMapper.createArrayNode();
+        definition.forEach(node -> {
+            if (node.isObject()) {
+                node = removeKubernetesCustomKeywords((ObjectNode)node);
+            } else if (node.isArray()) {
+                node = removeKubernetesCustomKeywordsFromArrayNode((ArrayNode)node);
+            }
+            modified.add(node);
+        });
+        return modified;
     }
 
     private void processCatalog(Path inputDir, Index index) {
@@ -375,5 +479,27 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             getLog().error(e);
         }
 
+    }
+
+    private void processAdditionalSchemas(Path inputDir, Index index) {
+        if (additionalSchemas == null) {
+            return;
+        }
+        for (String schema : additionalSchemas) {
+            try {
+                var input = Paths.get(schema);
+                var name = input.getFileName().toString().split("\\.")[0];
+                var output = outputDirectory.toPath().resolve(input.getFileName());
+                Files.copy(input, output, StandardCopyOption.REPLACE_EXISTING);
+                var indexEntry = new Entry(
+                        name,
+                        "Camel K Pipe ErrorHandler JSON schema",
+                        "1",
+                        output.getFileName().toString());
+                index.getSchemas().put(name, indexEntry);
+            } catch (Exception e) {
+                getLog().error(e);
+            }
+        }
     }
 }

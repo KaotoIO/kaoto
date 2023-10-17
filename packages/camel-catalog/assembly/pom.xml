@@ -93,6 +93,27 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Download Kubernetes API OpenAPI v3 Specification</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <get src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/api__v1_openapi.json"
+                     dest="${inputDirectory}/schema/kubernetes-api-v1-openapi.json"
+                     verbose="true"
+                     usetimestamp="true"
+                />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-yaml-dsl-maven-plugin</artifactId>
         <executions>
@@ -107,6 +128,26 @@
               <kebabCase>false</kebabCase>
               <additionalProperties>false</additionalProperties>
               <outputFile>${inputDirectory}/schema/camelYamlDsl.json</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Copy additional schema files</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${inputDirectory}/schema</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources</directory>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>
@@ -133,6 +174,17 @@
               <camelVersion>${version.camel}</camelVersion>
               <camelKCRDVersion>${version.camel-k-crds}</camelKCRDVersion>
               <kameletsVersion>${version.camel-kamelets}</kameletsVersion>
+              <kubernetesDefinitions>
+                <kubernetesDefinition>io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta</kubernetesDefinition>
+                <kubernetesDefinition>io.k8s.api.core.v1.ObjectReference</kubernetesDefinition>
+              </kubernetesDefinitions>
+              <additionalSchemas>
+                <!--
+                     ATM Camel K doesn't provide schema for Pipe ErrorHandler.
+                     so we create a custom one and hold it here for now.
+                -->
+                <additionalSchema>${inputDirectory}/schema/PipeErrorHandler.json</additionalSchema>
+              </additionalSchemas>
             </configuration>
           </execution>
         </executions>

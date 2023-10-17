@@ -53,7 +53,16 @@ async function main() {
   const exportedFiles: string[] = [];
 
   console.log('---');
-  const targetSchemaNames = ['camelYamlDsl', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
+  const targetSchemaNames = [
+    'camelYamlDsl',
+    'Integration',
+    'Kamelet',
+    'KameletBinding',
+    'Pipe',
+    'ObjectMeta',
+    'ObjectReference',
+    'PipeErrorHandler',
+  ];
   const schemaPromises = Object.entries(index.schemas).map(async ([name, schema]) => {
     if (!targetSchemaNames.includes(name)) {
       return;
