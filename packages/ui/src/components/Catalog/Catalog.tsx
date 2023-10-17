@@ -1,4 +1,6 @@
 import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { useLocalStorage } from '../../hooks';
+import { LocalStorageKeys } from '../../models';
 import { BaseCatalog } from './BaseCatalog';
 import { CatalogLayout, ITile } from './Catalog.models';
 import './Catalog.scss';
@@ -15,7 +17,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
   const [searchTerm, setSearchTerm] = useState('');
   const [groups, setGroups] = useState<string[]>([]);
   const [activeGroup, setActiveGroup] = useState<string>(getFirstActiveGroup(props.tiles));
-  const [activeLayout, setActiveLayout] = useState(CatalogLayout.Gallery);
+  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
   const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
   const [filterTags, setFilterTags] = useState<string[]>([]);
 
