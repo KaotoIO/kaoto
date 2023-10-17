@@ -13,6 +13,10 @@ describe('camel-random-id', () => {
   });
 
   it('should return a random number using Date.now() if crypto module is not available', () => {
+    Object.defineProperty(global, 'msCrypto', {
+      value: undefined,
+      writable: true,
+    });
     jest.spyOn(global, 'crypto', 'get').mockImplementationOnce(() => undefined as unknown as Crypto);
     jest.spyOn(global.Date, 'now').mockReturnValueOnce(888);
 
