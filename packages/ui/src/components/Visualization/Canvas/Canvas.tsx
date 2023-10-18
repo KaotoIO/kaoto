@@ -1,3 +1,4 @@
+import { CatalogIcon } from '@patternfly/react-icons';
 import {
   GRAPH_LAYOUT_END_EVENT,
   Model,
@@ -10,8 +11,18 @@ import {
   createTopologyControlButtons,
   defaultControlButtonsOptions,
 } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FunctionComponent,
+  PropsWithChildren,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
@@ -25,7 +36,39 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   /** State for @patternfly/react-topology */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
+
+  /** Context to interact with the Canvas catalog */
+  const catalogModalContext = useContext(CatalogModalContext);
+
   const controller = useMemo(() => CanvasService.createController(), []);
+  const controlButtons = useMemo(() => {
+    return createTopologyControlButtons({
+      ...defaultControlButtonsOptions,
+      zoomInCallback: action(() => {
+        controller.getGraph().scaleBy(4 / 3);
+      }),
+      zoomOutCallback: action(() => {
+        controller.getGraph().scaleBy(3 / 4);
+      }),
+      fitToScreenCallback: action(() => {
+        controller.getGraph().fit(80);
+      }),
+      resetViewCallback: action(() => {
+        controller.getGraph().reset();
+        controller.getGraph().layout();
+      }),
+      legend: false,
+      customButtons: [
+        {
+          id: 'topology-control-bar-catalog-button',
+          icon: <CatalogIcon />,
+          callback: () => {
+            catalogModalContext?.setIsModalOpen(true);
+          },
+        },
+      ],
+    });
+  }, [catalogModalContext, controller]);
 
   const handleSelection = useCallback((selectedIds: string[]) => {
     setSelectedIds(selectedIds);
@@ -86,27 +129,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     <TopologyView
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={props.contextToolbar}
-      controlBar={
-        <TopologyControlBar
-          controlButtons={createTopologyControlButtons({
-            ...defaultControlButtonsOptions,
-            zoomInCallback: action(() => {
-              controller.getGraph().scaleBy(4 / 3);
-            }),
-            zoomOutCallback: action(() => {
-              controller.getGraph().scaleBy(3 / 4);
-            }),
-            fitToScreenCallback: action(() => {
-              controller.getGraph().fit(80);
-            }),
-            resetViewCallback: action(() => {
-              controller.getGraph().reset();
-              controller.getGraph().layout();
-            }),
-            legend: false,
-          })}
-        />
-      }
+      controlBar={<TopologyControlBar controlButtons={controlButtons} />}
     >
       <VisualizationProvider controller={controller}>
         <VisualizationSurface state={{ selectedIds }} />
