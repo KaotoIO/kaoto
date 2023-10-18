@@ -40,7 +40,7 @@ const addTitleToDefinitions = (schema: JSONSchema) => {
     }
 
     const title = key.split('.').slice(-1).join('');
-    console.log(`Adding title to ${key}: ${title}`);
+    console.log(`\tAdding title to ${key}: ${title}`);
 
     value.title = title;
   });
