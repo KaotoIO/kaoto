@@ -12,7 +12,7 @@ interface CanvasProps {
 
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
   return (
-    <div className={`canvasSurface ${props.className ?? ''}`}>
+    <div className={`canvas-surface ${props.className ?? ''}`}>
       <ErrorBoundary fallback={<CanvasFallback />}>
         <Canvas entities={props.entities} />
       </ErrorBoundary>

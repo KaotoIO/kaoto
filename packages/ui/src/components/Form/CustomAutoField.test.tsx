@@ -3,8 +3,8 @@ jest.mock('uniforms', () => {
 
   return {
     ...uniforms,
-    createAutoField: (fn: Function) => fn,
-    connectField: (fn: Function) => fn,
+    createAutoField: (fn: () => void) => fn,
+    connectField: (fn: () => void) => fn,
   };
 });
 

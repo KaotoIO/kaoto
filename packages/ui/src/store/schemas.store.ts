@@ -3,7 +3,7 @@ import { createWithEqualityFn } from 'zustand/traditional';
 import { Schema } from '../models';
 
 interface SchemasState {
-  schemas: {[key: string]: Schema};
+  schemas: { [key: string]: Schema };
   setSchema: (schemaKey: string, schema: Schema) => void;
 }
 
@@ -14,7 +14,7 @@ export const useSchemasStore = createWithEqualityFn<SchemasState>(
       set((state) => ({
         schemas: {
           ...state.schemas,
-          [schemaKey]: schema
+          [schemaKey]: schema,
         },
       }));
     },

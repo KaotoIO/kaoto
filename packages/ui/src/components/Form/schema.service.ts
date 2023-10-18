@@ -20,7 +20,7 @@ export class SchemaService {
 
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
-    return new JSONSchemaBridge({schema, validator: schemaValidator});
+    return new JSONSchemaBridge({ schema, validator: schemaValidator });
   }
 
   private createValidator<T>(schema: JSONSchemaType<T>) {

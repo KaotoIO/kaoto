@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 describe('PropertyRow.tsx', () => {
   test('render string property change name and value', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const model: any = { foo: 'bar' };
     let onChangeModel = 0;
     const onCreatePlaceholder: boolean[] = [];
@@ -51,6 +52,7 @@ describe('PropertyRow.tsx', () => {
   });
 
   test('render string property delete', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const model: any = { foo: 'bar' };
     let onChangeModel = 0;
     const onCreatePlaceholder: boolean[] = [];
@@ -90,6 +92,7 @@ describe('PropertyRow.tsx', () => {
   });
 
   test('render object property', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const model: any = { foo: {} };
     let onChangeModel = 0;
     const onCreatePlaceholder: boolean[] = [];

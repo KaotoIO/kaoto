@@ -10,7 +10,7 @@ import {
 import { createAutoField } from 'uniforms';
 import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
-import { PropertiesField } from "./properties/PropertiesField";
+import { PropertiesField } from './properties/PropertiesField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -25,7 +25,8 @@ export const CustomAutoField = createAutoField((props) => {
     return DisabledField;
   }
 
-  // Assuming generic object field without amy children to use PropertiesField
+  // Assuming generic object field without any children to use PropertiesField
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (props.fieldType === Object && (props.field as any)?.type === 'object' && !(props.field as any)?.properties) {
     return PropertiesField;
   }

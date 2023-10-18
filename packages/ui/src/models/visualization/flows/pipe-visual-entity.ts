@@ -63,7 +63,6 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
   removeStep(): void {
     /** This method needs to be enabled after passing the entire flow to this class*/
-
     // if (!path) return;
     // /**
     //  * If the path is `source` or `sink`, we can remove it directly
@@ -72,10 +71,8 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     //   set(this.flow, path, {});
     //   return;
     // }
-
     // const pathArray = path.split('.');
     // const last = pathArray[pathArray.length - 1];
-
     // /**
     //  * If the last segment is a number, it means the target object is a member of an array
     //  * therefore we need to look for the array and remove the element at the given index

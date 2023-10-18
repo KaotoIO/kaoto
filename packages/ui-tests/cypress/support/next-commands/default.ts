@@ -29,7 +29,7 @@ Cypress.Commands.add('openSourceCode', () => {
 
 Cypress.Commands.add('openBeans', () => {
   cy.get('[data-testid="Beans"]').click();
-  cy.get('.metadataEditorModalDetailsView').should('be.visible');
+  cy.get('.metadata-editor-modal-details-view').should('be.visible');
 });
 
 Cypress.Commands.add('openCatalog', () => {

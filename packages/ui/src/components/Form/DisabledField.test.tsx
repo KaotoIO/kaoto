@@ -3,7 +3,7 @@ jest.mock('uniforms', () => {
 
   return {
     ...uniforms,
-    connectField: (fn: Function) => fn,
+    connectField: (fn: () => void) => fn,
   };
 });
 import { render } from '@testing-library/react';

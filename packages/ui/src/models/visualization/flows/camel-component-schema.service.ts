@@ -12,6 +12,7 @@ interface ICamelElementLookupResult {
 }
 
 export class CamelComponentSchemaService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
     const camelElementLookup = this.getCamelComponentLookup(path, definition);
 
@@ -22,6 +23,7 @@ export class CamelComponentSchemaService {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getCamelComponentLookup(path: string, definition: any): ICamelElementLookupResult {
     const splitPath = path.split('.');
     const lastPathSegment = splitPath[splitPath.length - 1];
@@ -56,6 +58,7 @@ export class CamelComponentSchemaService {
    * If the processor is a `from` or `to` processor, we need to extract the component name from the uri property
    * and return both the processor name and the underlying component name to build the combined schema
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static getCamelElement(processorName: string, definition: any): ICamelElementLookupResult {
     switch (processorName) {
       case 'from':

@@ -22,22 +22,15 @@ function resolveRef(reference: string, schema: UnknownObject) {
 
   const resolvedReference = reference
     .split('/')
-    .filter(part => part && part !== '#')
+    .filter((part) => part && part !== '#')
     .reduce((definition, next) => definition[next] as UnknownObject, schema);
 
-  invariant(
-    resolvedReference,
-    'Reference not found in schema: "%s"',
-    reference,
-  );
+  invariant(resolvedReference, 'Reference not found in schema: "%s"', reference);
 
   return resolvedReference;
 }
 
-function resolveRefIfNeeded(
-  partial: UnknownObject,
-  schema: UnknownObject,
-): UnknownObject {
+function resolveRefIfNeeded(partial: UnknownObject, schema: UnknownObject): UnknownObject {
   if (!('$ref' in partial)) {
     return partial;
   }
@@ -52,14 +45,7 @@ function resolveRefIfNeeded(
 
 const partialNames = ['allOf', 'anyOf', 'oneOf'];
 
-const propsToRemove = [
-  'default',
-  'enum',
-  'format',
-  'isRequired',
-  'title',
-  'uniforms',
-];
+const propsToRemove = ['default', 'enum', 'format', 'isRequired', 'title', 'uniforms'];
 
 const propsToRename: [string, string][] = [
   ['maxItems', 'maxCount'],
@@ -81,11 +67,7 @@ function pathToName(path: string) {
 }
 
 function isValidatorResult(value: unknown): value is ValidatorResult {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    Array.isArray((value as ValidatorResult).details)
-  );
+  return typeof value === 'object' && value !== null && Array.isArray((value as ValidatorResult).details);
 }
 
 /** Option type used in SelectField or RadioField */
@@ -111,10 +93,12 @@ export class JSONSchemaBridge extends Bridge {
   provideDefaultLabelFromFieldName: boolean;
 
   // FIXME: The `schema` should be typed more precisely.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: Record<string, any>;
   validator: (model: UnknownObject) => ValidatorResult | null | undefined;
 
   // FIXME: The `_compiledSchema` should be typed more precisely.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _compiledSchema: Record<string, any>;
 
   constructor({
@@ -123,6 +107,7 @@ export class JSONSchemaBridge extends Bridge {
     validator,
   }: {
     provideDefaultLabelFromFieldName?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     schema: Record<string, any>;
     validator: (model: UnknownObject) => ValidatorResult | null | undefined;
   }) {
@@ -150,15 +135,10 @@ export class JSONSchemaBridge extends Bridge {
     const unescapedName = joinName(nameParts);
     const rootName = joinName(nameParts.slice(0, -1));
     const baseName = nameParts[nameParts.length - 1];
-    const scopedError = details.find(error => {
+    const scopedError = details.find((error) => {
       const rawPath = error.instancePath ?? error.dataPath;
       const path = rawPath ? pathToName(rawPath) : '';
-      return (
-        unescapedName === path ||
-        (rootName === path &&
-          error.params &&
-          baseName === error.params.missingProperty)
-      );
+      return unescapedName === path || (rootName === path && error.params && baseName === error.params.missingProperty);
     });
 
     return scopedError || null;
@@ -176,7 +156,7 @@ export class JSONSchemaBridge extends Bridge {
 
     if (isValidatorResult(error)) {
       const { details } = error;
-      return details.map(error => error.message || '');
+      return details.map((error) => error.message || '');
     }
 
     if (error instanceof Error) {
@@ -196,15 +176,12 @@ export class JSONSchemaBridge extends Bridge {
       const nextName = joinName(prevName, next);
       const definitionCache = (this._compiledSchema[nextName] ??= {});
       definitionCache.isRequired = !!(
-        definition.required?.includes(next) ||
-        this._compiledSchema[prevName].required?.includes(next)
+        definition.required?.includes(next) || this._compiledSchema[prevName].required?.includes(next)
       );
 
       if (next === '$' || next === '' + parseInt(next, 10)) {
         fieldInvariant(name, definition.type === 'array');
-        definition = Array.isArray(definition.items)
-          ? definition.items[parseInt(next, 10)]
-          : definition.items;
+        definition = Array.isArray(definition.items) ? definition.items[parseInt(next, 10)] : definition.items;
         fieldInvariant(name, !!definition);
       } else if (definition.type === 'object') {
         fieldInvariant(name, !!definition.properties);
@@ -212,7 +189,8 @@ export class JSONSchemaBridge extends Bridge {
         fieldInvariant(name, !!definition);
       } else {
         let nextFound = false;
-        partialNames.forEach(partialName => {
+        partialNames.forEach((partialName) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           definition[partialName]?.forEach((partialElement: any) => {
             if (!nextFound) {
               partialElement = resolveRefIfNeeded(partialElement, this.schema);
@@ -231,11 +209,10 @@ export class JSONSchemaBridge extends Bridge {
 
       // Naive computation of combined type, properties and required.
       const required = definition.required ? definition.required.slice() : [];
-      const properties = definition.properties
-        ? Object.assign({}, definition.properties)
-        : {};
+      const properties = definition.properties ? Object.assign({}, definition.properties) : {};
 
-      partialNames.forEach(partialName => {
+      partialNames.forEach((partialName) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         definition[partialName]?.forEach((partial: any) => {
           partial = resolveRefIfNeeded(partial, this.schema);
 
@@ -263,12 +240,11 @@ export class JSONSchemaBridge extends Bridge {
     }, this.schema);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getInitialValue(name: string): any {
     const field = this.getField(name);
-    const {
-      default: defaultValue = field.default ?? get(this.schema.default, name),
-      type = field.type,
-    } = this._compiledSchema[name];
+    const { default: defaultValue = field.default ?? get(this.schema.default, name), type = field.type } =
+      this._compiledSchema[name];
 
     if (defaultValue !== undefined) {
       return cloneDeep(defaultValue);
@@ -286,7 +262,7 @@ export class JSONSchemaBridge extends Bridge {
 
     if (type === 'object') {
       const value: UnknownObject = {};
-      this.getSubfields(name).forEach(key => {
+      this.getSubfields(name).forEach((key) => {
         const initialValue = this.getInitialValue(joinName(name, key));
         if (initialValue !== undefined) {
           value[key] = initialValue;
@@ -300,12 +276,7 @@ export class JSONSchemaBridge extends Bridge {
 
   getProps(name: string) {
     const field = this.getField(name);
-    const props = Object.assign(
-      {},
-      field,
-      field.uniforms,
-      this._compiledSchema[name],
-    );
+    const props = Object.assign({}, field, field.uniforms, this._compiledSchema[name]);
     props.label ??= props.title;
     if (this.provideDefaultLabelFromFieldName && props.label === undefined) {
       props.label = upperFirst(lowerCase(joinName(null, name).slice(-1)[0]));
@@ -341,7 +312,7 @@ export class JSONSchemaBridge extends Bridge {
         }));
       }
     } else if (props.enum) {
-      options = Object.values(props.enum).map(value => ({ value }));
+      options = Object.values(props.enum).map((value) => ({ value }));
     }
 
     propsToRename.forEach(([key, newKey]) => {
@@ -351,7 +322,7 @@ export class JSONSchemaBridge extends Bridge {
       }
     });
 
-    propsToRemove.forEach(key => {
+    propsToRemove.forEach((key) => {
       if (key in props) {
         delete props[key];
       }
@@ -362,8 +333,7 @@ export class JSONSchemaBridge extends Bridge {
 
   getSubfields(name = '') {
     const field = this.getField(name);
-    const { properties = field.properties, type = field.type } =
-      this._compiledSchema[name];
+    const { properties = field.properties, type = field.type } = this._compiledSchema[name];
 
     if (type === 'object' && properties) {
       return Object.keys(properties).map(joinName.escape);
@@ -398,11 +368,7 @@ export class JSONSchemaBridge extends Bridge {
       return Boolean;
     }
 
-    invariant(
-      fieldType !== 'null',
-      'Field "%s" can not be represented as a type null',
-      name,
-    );
+    invariant(fieldType !== 'null', 'Field "%s" can not be represented as a type null', name);
 
     return fieldType;
   }

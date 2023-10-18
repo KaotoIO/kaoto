@@ -1,6 +1,6 @@
 import { createElement, FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
-import { TopmostArrayTable } from './ToopmostArrayTable';
+import { TopmostArrayTable } from './TopmostArrayTable';
 import { ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { AutoForm } from 'uniforms';
 import { CustomAutoField } from '../Form/CustomAutoField';
@@ -10,8 +10,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 interface MetadataEditorProps {
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeModel: (model: any) => void;
 }
 
@@ -22,6 +25,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   );
   const firstInputRef = useRef<HTMLInputElement>();
   const [selected, setSelected] = useState(-1);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
 
   useEffect(() => {
@@ -66,6 +70,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
     return targetModel;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onChangeFormModel(model: any) {
     if (isTopmostArray()) {
       const newMetadata = props.metadata ? props.metadata.slice() : [];
@@ -80,6 +85,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onChangeArrayModel(model: any[]) {
     setPreparedModel(model);
     props.onChangeModel(model);
@@ -92,7 +98,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   function renderTopmostArrayView() {
     return (
       <Split hasGutter>
-        <SplitItem className="metadataEditorModalListView">
+        <SplitItem className="metadata-editor-modal-list-view">
           <TopmostArrayTable
             model={preparedModel != null ? preparedModel : props.metadata}
             itemSchema={getFormSchema()}
@@ -103,7 +109,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
           />
         </SplitItem>
 
-        <SplitItem className="metadataEditorModalDetailsView">
+        <SplitItem className="metadata-editor-modal-details-view">
           <Stack hasGutter>
             <StackItem>
               <Title headingLevel="h2">Details</Title>
@@ -115,6 +121,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function renderAutoFields(props: any = {}) {
     return createElement(
       'div',
@@ -130,6 +137,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
           return propsB.required ? 1 : 0;
         })
         .map((field, index) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const props: any = { key: field, name: field };
           if (index === 0) {
             props.inputRef = firstInputRef;

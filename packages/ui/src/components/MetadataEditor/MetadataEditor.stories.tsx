@@ -4,7 +4,7 @@ import { useArgs } from '@storybook/client-api';
 import { StoryFn, Meta } from '@storybook/react';
 
 export default {
-  title: 'Metadata/MetadataEditorModal',
+  title: 'Metadata/metadata-editor-modal',
   component: MetadataEditor,
   excludeStories: ['schemaMock'],
   decorators: [
@@ -21,9 +21,7 @@ const Template: StoryFn<typeof MetadataEditor> = (args) => {
   const [{ isModalOpen }, updateArgs] = useArgs();
   return (
     <>
-      <button onClick={() => updateArgs({ isModalOpen: !isModalOpen })}>
-        Open Metadata Editor Modal
-      </button>
+      <button onClick={() => updateArgs({ isModalOpen: !isModalOpen })}>Open Metadata Editor Modal</button>
       <MetadataEditor {...args} />
     </>
   );
