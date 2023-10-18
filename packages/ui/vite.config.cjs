@@ -50,12 +50,20 @@ function copyKaotoCamelCatalog() {
     throw new Error(message.join('\n\n'));
   }
 
+  /** List all the JSON files in the Camel Catalog folder */
+  const jsonFiles = fs
+    .readdirSync(camelCatalogPath)
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => path.join(camelCatalogPath, file));
+
   return viteStaticCopy({
     targets: [
       {
-        src: camelCatalogPath,
-        dest: '.',
-        rename: 'camel-catalog',
+        src: jsonFiles,
+        dest: 'camel-catalog',
+        transform: (content, filename) => {
+          return JSON.stringify(JSON.parse(content));
+        },
       },
     ],
   });
