@@ -9,6 +9,7 @@ export const isBeans = (rawEntity: unknown): rawEntity is { beans: BeansDeserial
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return 'beans' in rawEntity! && Array.isArray((rawEntity! as any).beans);
 };
 

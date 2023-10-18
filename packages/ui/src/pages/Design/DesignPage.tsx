@@ -10,11 +10,11 @@ export const DesignPage: FunctionComponent = () => {
   const visualEntities = entitiesContext?.visualEntities ?? [];
 
   return (
-    <div className="canvasPage">
+    <div className="canvas-page">
       <Title headingLevel="h1">Visualization</Title>
 
       <CatalogModalProvider>
-        <Visualization className="canvasPage__canvas" entities={visualEntities} />
+        <Visualization className="canvas-page__canvas" entities={visualEntities} />
       </CatalogModalProvider>
     </div>
   );

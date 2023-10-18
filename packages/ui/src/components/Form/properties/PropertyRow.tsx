@@ -8,8 +8,10 @@ import { AddPropertyButtons } from './AddPropertyButtons';
 type PropertyRowProps = {
   propertyName: string;
   nodeName: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   nodeValue: any;
   path: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parentModel: any;
   treeRow: TdProps['treeRow'];
   isObject: boolean;
@@ -42,6 +44,7 @@ export function PropertyRow({
   createPlaceholder,
   isPlaceholder = false,
 }: PropertyRowProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleTrashClick(parentModel: any, nodeName: string) {
     delete parentModel[nodeName];
     onChangeModel();

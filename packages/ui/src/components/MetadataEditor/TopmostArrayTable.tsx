@@ -14,11 +14,14 @@ import {
 } from '@patternfly/react-table';
 
 type TopmostArrayTableProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   model: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   itemSchema: any;
   name: string;
   selected: number;
   onSelected: (index: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeModel: (model: any[]) => void;
 };
 
@@ -45,12 +48,7 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
   return (
     <OuterScrollContainer>
       <InnerScrollContainer>
-        <Table
-          aria-label={props.name}
-          variant={TableVariant.compact}
-          borders={true}
-          isStickyHeader
-        >
+        <Table aria-label={props.name} variant={TableVariant.compact} borders={true} isStickyHeader>
           <Thead>
             <Tr>
               {props.itemSchema.required &&

@@ -1,11 +1,13 @@
 import { mockModel, mockSchema } from './TestUtil';
-import { TopmostArrayTable } from './ToopmostArrayTable';
+import { TopmostArrayTable } from './TopmostArrayTable';
 import { screen } from '@testing-library/dom';
 import { fireEvent, render } from '@testing-library/react';
 
 describe('TopmostArrayTable.tsx', () => {
   test('render empty state', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const model: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changedModel: any;
     let selected: number = -1;
     render(
@@ -28,6 +30,7 @@ describe('TopmostArrayTable.tsx', () => {
   });
 
   test('render beans', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changedModel: any;
     let selected: number = -1;
     render(

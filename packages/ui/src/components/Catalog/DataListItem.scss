@@ -1,36 +1,34 @@
 .catalog-data-list-item {
-
-    &__title-div-left {
-        &__title {
-            font-family: var(--pf-v5-global--FontFamily--heading);
-            margin-right: 5px;
-            margin-left: 5px;
-        }
-
-        &__icon {
-            width: 25px;
-            height: 25px;
-            vertical-align: middle;
-        }
+  &__title-div-left {
+    &__title {
+      font-family: var(--pf-v5-global--FontFamily--heading);
+      margin-right: 5px;
+      margin-left: 5px;
     }
 
+    &__icon {
+      width: 25px;
+      height: 25px;
+      vertical-align: middle;
+    }
+  }
+
+  &__title-div-right {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: left;
+  }
+
+  @media (width >= 768px) {
     &__title-div-right {
-        display: flex;
-        flex-direction: row;
-        justify-content: left;
-        flex-flow: wrap;
+      justify-content: right;
     }
+  }
 
-    @media (min-width: 768px) {
-        &__title-div-right {
-            justify-content: right;
-        }
-    }
-
-    &__description {
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-    }
+  &__description {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 }

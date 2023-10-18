@@ -5,30 +5,14 @@ import cloneDeep from 'lodash/cloneDeep';
 
 describe('MetadataEditor.tsx', () => {
   test('component renders', () => {
-    render(
-      <MetadataEditor
-        name="beans"
-        schema={mockSchema.beans}
-        metadata={[]}
-        onChangeModel={() => {}}
-      />,
-    );
+    render(<MetadataEditor name="beans" schema={mockSchema.beans} metadata={[]} onChangeModel={() => {}} />);
     const element = screen.queryByTestId('metadata-editor-form-beans');
     expect(element).toBeInTheDocument();
   });
 
   test('Details disabled if empty', async () => {
-    render(
-      <MetadataEditor
-        name="beans"
-        schema={mockSchema.beans}
-        metadata={[]}
-        onChangeModel={() => {}}
-      />,
-    );
-    const inputs = screen
-      .getAllByTestId('text-field')
-      .filter((input) => input.getAttribute('name') === 'name');
+    render(<MetadataEditor name="beans" schema={mockSchema.beans} metadata={[]} onChangeModel={() => {}} />);
+    const inputs = screen.getAllByTestId('text-field').filter((input) => input.getAttribute('name') === 'name');
     expect(inputs.length).toBe(1);
     expect(inputs[0]).toBeDisabled();
     const addStringPropBtn = screen.getByTestId('properties-add-string-property--btn');
@@ -48,9 +32,7 @@ describe('MetadataEditor.tsx', () => {
     );
     const row = screen.getByTestId('metadata-row-0');
     fireEvent.click(row);
-    const inputs = screen
-      .getAllByTestId('text-field')
-      .filter((input) => input.getAttribute('name') === 'name');
+    const inputs = screen.getAllByTestId('text-field').filter((input) => input.getAttribute('name') === 'name');
     expect(inputs.length).toBe(1);
     expect(inputs[0]).toBeEnabled();
     const addStringPropBtn = screen.getByTestId('properties-add-string-property--btn');
@@ -78,14 +60,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('Add a bean and save', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metadata: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={metadata}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const addBeanBtn = screen.getAllByTestId('metadata-add-beans-btn')[0];
@@ -105,13 +91,16 @@ describe('MetadataEditor.tsx', () => {
 
   test('change bean name and save', async () => {
     const metadata = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={metadata}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -125,13 +114,16 @@ describe('MetadataEditor.tsx', () => {
 
   test('delete a bean and save', async () => {
     const metadata = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={metadata}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const deleteBtn = screen.getByTestId('metadata-delete-0-btn');
@@ -145,14 +137,18 @@ describe('MetadataEditor.tsx', () => {
    */
 
   test('add string property and confirm', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beansNoProp);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -171,14 +167,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('add object property and confirm', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beansNoProp);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -195,14 +195,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('add string property and cancel', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beansNoProp);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -221,14 +225,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('add object property and cancel', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beansNoProp);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -245,14 +253,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('change string property and confirm', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -271,14 +283,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('change object property and confirm', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -288,23 +304,25 @@ describe('MetadataEditor.tsx', () => {
     fireEvent.click(objEditBtn);
     const objPropNameInput = screen.getByTestId('properties-propObj1-name-input');
     fireEvent.input(objPropNameInput, { target: { value: 'propObj1Modified' } });
-    const objConfirmBtn = screen.getByTestId(
-      'properties-propObj1-property-edit-confirm-propObj1-btn',
-    );
+    const objConfirmBtn = screen.getByTestId('properties-propObj1-property-edit-confirm-propObj1-btn');
     fireEvent.click(objConfirmBtn);
 
     expect(changed[0].properties.propObj1Modified.propObj1Sub).toBe('valueObj1');
   });
 
   test('change string property and cancel', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -323,14 +341,18 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('change object property and cancel', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');
@@ -340,23 +362,25 @@ describe('MetadataEditor.tsx', () => {
     fireEvent.click(objEditBtn);
     const objPropNameInput = screen.getByTestId('properties-propObj1-name-input');
     fireEvent.input(objPropNameInput, { target: { value: 'propObj1Modified' } });
-    const objCancelBtn = screen.getByTestId(
-      'properties-propObj1-property-edit-cancel-propObj1-btn',
-    );
+    const objCancelBtn = screen.getByTestId('properties-propObj1-property-edit-cancel-propObj1-btn');
     fireEvent.click(objCancelBtn);
 
     expect(changed).toBeFalsy();
   });
 
   test('delete property and save', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const beans: any[] = cloneDeep(mockModel.beans);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let changed: any;
     render(
       <MetadataEditor
         name="beans"
         schema={mockSchema.beans}
         metadata={beans}
-        onChangeModel={(model) => {changed = model}}
+        onChangeModel={(model) => {
+          changed = model;
+        }}
       />,
     );
     const row = screen.getByTestId('metadata-row-0');

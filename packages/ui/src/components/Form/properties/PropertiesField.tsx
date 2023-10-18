@@ -6,6 +6,7 @@ import { HTMLFieldProps, connectField } from 'uniforms';
 import { AddPropertyButtons } from './AddPropertyButtons';
 import { PropertyRow } from './PropertyRow';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PropertiesFieldProps = HTMLFieldProps<any, HTMLDivElement>;
 
 /**
@@ -42,7 +43,9 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
   }
 
   function renderRows(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [node, ...remainingNodes]: [string, any][],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parentModel: any,
     parentPath: string[] = [],
     level = 1,

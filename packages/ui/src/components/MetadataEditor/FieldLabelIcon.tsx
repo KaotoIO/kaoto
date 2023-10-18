@@ -2,6 +2,7 @@ import { Button, Popover, Text, TextVariants } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons';
 
 type FieldLabelIconProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   description?: string;
   disabled: boolean;
@@ -13,17 +14,11 @@ type FieldLabelIconProps = {
  * @param props
  */
 export const FieldLabelIcon = (props: FieldLabelIconProps) => {
-  const headerContent = props.disabled
-    ? 'Please use the source code editor to configure this property.'
-    : '';
+  const headerContent = props.disabled ? 'Please use the source code editor to configure this property.' : '';
   const bodyContent = props.description ? props.description : '';
 
   const footerContent = () => {
-    return (
-      <Text component={TextVariants.small}>
-        Default: {props.defaultValue ?? <i>No default value</i>}
-      </Text>
-    );
+    return <Text component={TextVariants.small}>Default: {props.defaultValue ?? <i>No default value</i>}</Text>;
   };
 
   return (
