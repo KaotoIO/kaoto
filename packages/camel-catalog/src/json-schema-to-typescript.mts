@@ -78,7 +78,7 @@ async function main() {
      */
     const schemaFileUri = pathToFileURL(`./dist/${schema.file}`).toString();
 
-    const schemaContent = (await import(schemaFileUri, {assert: {type: 'json'}})).default;
+    const schemaContent = (await import(schemaFileUri, { assert: { type: 'json' } })).default;
 
     addTitleToDefinitions(schemaContent);
 
@@ -94,7 +94,7 @@ async function main() {
 
     return compileSchema(schemaContent, name, outputFile);
   });
-  await Promise.all(schemaPromises)
+  await Promise.all(schemaPromises);
 
   /** Generate the index file */
   const indexFile = resolve(`./dist/types/index.ts`);

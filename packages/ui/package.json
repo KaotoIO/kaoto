@@ -35,8 +35,12 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "yarn eslint",
-    "lint:fix": "yarn eslint \"src/**/*.{ts,tsx}\" --fix"
+    "lint": "yarn lint:code; yarn lint:style",
+    "lint:fix": "yarn lint:code:fix; yarn lint:style:fix",
+    "lint:code": "yarn eslint \"src/**/*.{ts,tsx}\"",
+    "lint:code:fix": "yarn lint:code --fix",
+    "lint:style": "yarn stylelint \"src/**/*.{css,scss}\"",
+    "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
     "@kaoto-next/uniforms-patternfly": "^0.4.0",
@@ -101,6 +105,9 @@
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.5",
     "sass": "^1.63.6",
+    "stylelint": "^15.11.0",
+    "stylelint-config-standard-scss": "^11.0.0",
+    "stylelint-prettier": "^4.0.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",

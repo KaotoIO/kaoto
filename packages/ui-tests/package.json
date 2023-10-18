@@ -13,6 +13,8 @@
   "scripts": {
     "e2e": "cypress open --config-file=cypress.config.ts",
     "e2e:headless": "cypress run",
+    "lint": "yarn eslint \"cypress/**/*.{ts,tsx}\" \"stories/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
     "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=chpt_7a4940aa65b14ab"

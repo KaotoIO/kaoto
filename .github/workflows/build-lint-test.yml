@@ -29,7 +29,7 @@ jobs:
 
       # Lint files
       - name: 💅 Run eslint
-        run: yarn lint-staged
+        run: yarn workspaces foreach --verbose --topological-dev run lint
 
       # Run tests
       - name: 🧪 Run tests
