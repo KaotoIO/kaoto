@@ -1,29 +1,17 @@
 import { Title } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../../camel-utils';
+import { FunctionComponent, useCallback, useContext, useState } from 'react';
 import { Catalog, ITile } from '../../components/Catalog';
 import { PropertiesModal } from '../../components/PropertiesModal';
-import { CatalogKind } from '../../models';
-import { useCatalogStore } from '../../store';
+import { CatalogTilesContext } from '../../providers/catalog-tiles.provider';
 
 export const CatalogPage: FunctionComponent = () => {
-  /** TODO: Extract this logic into a separate provider */
-  const { catalogs } = useCatalogStore((state) => state);
-  const [tiles, setTiles] = useState<Record<string, ITile[]>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTile, setModalTile] = useState<ITile>();
-
-  useEffect(() => {
-    setTiles({
-      Component: Object.values(catalogs[CatalogKind.Component] ?? {}).map(camelComponentToTile),
-      Processor: Object.values(catalogs[CatalogKind.Processor] ?? {}).map(camelProcessorToTile),
-      Kamelet: Object.values(catalogs[CatalogKind.Kamelet] ?? {}).map(kameletToTile),
-    });
-  }, [catalogs]);
+  const tiles = useContext(CatalogTilesContext);
 
   const onTileClick = useCallback((tile: ITile) => {
-    setIsModalOpen(!isModalOpen);
     setModalTile(tile);
+    setIsModalOpen(true);
   }, []);
 
   return (
