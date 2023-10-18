@@ -18,12 +18,12 @@ export const CatalogSchemaLoaderProvider: FunctionComponent<PropsWithChildren> =
   useEffect(() => {
     fetch(`.${DEFAULT_CATALOG_PATH}/index.json`)
       .then((response) => response.json())
-      .then((catalogIndex: CamelCatalogIndex) => {
+      .then(async (catalogIndex: CamelCatalogIndex) => {
         const camelComponentsFiles = fetchFile(catalogIndex.catalogs.components.file);
         const camelProcessorsFiles = fetchFile(catalogIndex.catalogs.models.file);
         const kameletsFiles = fetchFile(catalogIndex.catalogs.kamelets.file);
 
-        Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles]).then(
+        await Promise.all([camelComponentsFiles, camelProcessorsFiles, kameletsFiles]).then(
           ([camelComponents, camelProcessors, kamelets]) => {
             setCatalog(CatalogKind.Component, camelComponents.body);
             setCatalog(CatalogKind.Processor, camelProcessors.body);
