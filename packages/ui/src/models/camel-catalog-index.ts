@@ -5,7 +5,7 @@ import { IKameletDefinition } from './kamelets-catalog';
 
 export interface CamelCatalogIndex {
   catalogs: Catalogs;
-  schemas: CatalogEntry[];
+  schemas: Record<string, SchemaEntry>;
 }
 
 export interface Catalogs {
@@ -22,26 +22,14 @@ export interface CatalogEntry {
   file: string;
 }
 
+export interface SchemaEntry extends CatalogEntry {
+  description: string;
+}
+
 export type CatalogTypes = Record<string, ICamelComponentDefinition | ICamelProcessorDefinition | IKameletDefinition>;
 
 export interface ComponentsCatalog {
   [CatalogKind.Component]?: Record<string, ICamelComponentDefinition>;
   [CatalogKind.Processor]?: Record<string, ICamelProcessorDefinition>;
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;
-  [key: string]: unknown;
-}
-
-export interface CatalogCamelComponent {
-  type: CatalogKind.Component;
-  definition: ICamelComponentDefinition;
-}
-
-export interface CatalogCamelProcessor {
-  type: CatalogKind.Processor;
-  definition: ICamelProcessorDefinition;
-}
-
-export interface CatalogKamelet {
-  type: CatalogKind.Kamelet;
-  definition: IKameletDefinition;
 }
