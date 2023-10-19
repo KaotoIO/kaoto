@@ -55,28 +55,28 @@ export function VisibleFlowsReducer(
   state: IVisibleFlows,
   action: ToggleFlowVisible | ShowAllFlows | HideAllFlows | SetVisibleFlows,
 ) {
+  let visibleFlows;
   switch (action.type) {
     case 'toggleFlowVisible':
-      const isFlowVisible = state[action.flowId];
       return {
         ...state,
-        [action.flowId]: action.isVisible !== undefined ? action.isVisible : !isFlowVisible,
+        [action.flowId]: action.isVisible !== undefined ? action.isVisible : !state[action.flowId],
       };
 
     case 'showAllFlows':
-      return Object.keys(state).reduce((acc: any, flowId: string) => {
+      return Object.keys(state).reduce((acc: IVisibleFlows, flowId: string) => {
         acc[flowId] = true;
         return acc;
       }, {});
 
     case 'hideAllFlows':
-      return Object.keys(state).reduce((acc: any, flowId: string) => {
+      return Object.keys(state).reduce((acc: IVisibleFlows, flowId: string) => {
         acc[flowId] = false;
         return acc;
       }, {});
 
     case 'setVisibleFlows':
-      const visibleFlows = action.flows.reduce(
+      visibleFlows = action.flows.reduce(
         (acc, flow, index) => ({
           ...acc,
           /**

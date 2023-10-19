@@ -1,22 +1,21 @@
-import './FlowsList.css';
-
 import { Button, Icon } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
-
-import { FunctionComponent, useCallback, useContext, useRef } from 'react';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { FlowsListEmptyState } from './FlowsListEmptyState';
-import { InlineEdit } from '../../../InlineEdit';
-
+import { FunctionComponent, useCallback, useContext, useRef } from 'react';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { InlineEdit } from '../../../InlineEdit';
+import './FlowsList.scss';
+import { FlowsListEmptyState } from './FlowsListEmptyState';
 
 interface IFlowsList {
   onClose?: () => void;
 }
 
 export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
-  const { visualEntities, visibleFlows, visualFlowsApi } = useContext(EntitiesContext)!;
+  const { visualEntities } = useContext(EntitiesContext)!;
+  const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
 
   const { isListEmpty, flows, setFlowName, deleteFlow } = {
     isListEmpty: visualEntities.length === 0,
@@ -41,13 +40,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       visualFlowsApi.toggleFlowVisible(flowId);
       props.onClose?.();
     },
-    [visualFlowsApi],
+    [props, visualFlowsApi],
   );
 
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
-    <Table className="FlowsListTable" variant="compact" data-testid="flows-list-table">
+    <Table className="flows-list-table" variant="compact" data-testid="flows-list-table">
       <Thead>
         <Tr>
           <Th>{columnNames.current.id}</Th>
@@ -70,8 +69,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                   setFlowName(flow.id, name);
                 }}
               />
-              //TODO add description
-              <p>{''}</p>
+              {/*TODO add description*/}
             </Td>
 
             <Td dataLabel={columnNames.current.isVisible}>

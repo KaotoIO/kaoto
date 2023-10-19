@@ -4,39 +4,55 @@ import { SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { EntitiesContextResult } from '../../../../hooks';
-import { VisualFlowsApi } from '../../../../models/visualization/flows/flows-visibility';
+import { IVisibleFlows, VisualFlowsApi } from '../../../../models/visualization/flows/flows-visibility';
+import { VisibleFlowsContext, VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
 
-//jest.mock(visibleFlov)
 const getContextValue = () => {
   return {
     currentSchemaType: SourceSchemaType.Integration,
     visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
-    visibleFlows: { ['entity1']: true, ['entity2']: false },
   } as unknown as EntitiesContextResult;
 };
-describe('FlowsList.tsx', () => {
-  // @ts-ignore
-  let contextValue = getContextValue();
-  //});
-
-  const renderWithContext = () => {
-    return render(
-      <EntitiesContext.Provider value={contextValue}>
-        <FlowsList />
-      </EntitiesContext.Provider>,
-    );
+const getVisibleFlowsContextValue = () => {
+  return {
+    visibleFlows: { ['entity1']: true, ['entity2']: false } as IVisibleFlows,
+    visualFlowsApi: new VisualFlowsApi(jest.fn),
   };
+};
+let contextValue: EntitiesContextResult;
+let visibleFlowsValue: VisibleFLowsContextResult;
+
+const FlowsListWithContexts: React.FunctionComponent<{
+  contextValue: EntitiesContextResult;
+  visibleFlowsValue: VisibleFLowsContextResult;
+  onClose?: () => void;
+}> = ({ contextValue, visibleFlowsValue, onClose }) => {
+  return (
+    <EntitiesContext.Provider value={contextValue}>
+      <VisibleFlowsContext.Provider value={visibleFlowsValue}>
+        <FlowsList onClose={onClose ?? jest.fn} />
+      </VisibleFlowsContext.Provider>
+    </EntitiesContext.Provider>
+  );
+};
+
+describe('FlowsList.tsx', () => {
+  beforeEach(() => {
+    contextValue = getContextValue();
+    visibleFlowsValue = getVisibleFlowsContextValue();
+  });
+
   test('should render the existing flows', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const flows = await wrapper.findAllByTestId(/flows-list-row-*/);
 
     expect(flows).toHaveLength(2);
   });
 
   test('should display an empty state when there is no routes available', async () => {
-    //useFlowsStore.getState().deleteAllFlows();
-    contextValue = { ...contextValue, visualEntities: [], visibleFlows: {} };
-    const wrapper = renderWithContext();
+    contextValue = { ...contextValue, visualEntities: [] };
+    visibleFlowsValue = { ...visibleFlowsValue, visibleFlows: {} };
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
 
     const emptyState = await wrapper.findByTestId('empty-state');
 
@@ -44,9 +60,7 @@ describe('FlowsList.tsx', () => {
   });
 
   test('should render the flows ids', async () => {
-    const cont = getContextValue();
-    contextValue = cont;
-    const wrapper = await renderWithContext();
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const flow1 = await wrapper.findByText('entity1');
     const flow2 = await wrapper.findByText('entity2');
 
@@ -60,10 +74,8 @@ describe('FlowsList.tsx', () => {
     jest.spyOn(visFlowApi, 'toggleFlowVisible').mockImplementation((id: string) => {
       resId = id;
     });
-
-    contextValue = { ...contextValue, visualFlowsApi: visFlowApi };
-
-    const wrapper = renderWithContext();
+    visibleFlowsValue = { ...visibleFlowsValue, visualFlowsApi: visFlowApi };
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const flowId = await wrapper.findByTestId('goto-btn-entity1');
 
     act(() => {
@@ -75,11 +87,11 @@ describe('FlowsList.tsx', () => {
 
   test('should call onClose when clicking on a flow ID', async () => {
     const onCloseSpy = jest.fn();
+
     const wrapper = render(
-      <EntitiesContext.Provider value={contextValue}>
-        <FlowsList onClose={onCloseSpy} />
-      </EntitiesContext.Provider>,
+      <FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} onClose={onCloseSpy} />,
     );
+
     const flowId = await wrapper.findByTestId('goto-btn-entity1');
 
     act(() => {
@@ -96,8 +108,8 @@ describe('FlowsList.tsx', () => {
       resId = id;
     });
 
-    contextValue = { ...contextValue, visualFlowsApi: visFlowApi };
-    const wrapper = renderWithContext();
+    visibleFlowsValue = { ...getVisibleFlowsContextValue(), visualFlowsApi: visFlowApi };
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const toggleFlowId = await wrapper.findByTestId('toggle-btn-entity1');
 
     act(() => {
@@ -108,7 +120,7 @@ describe('FlowsList.tsx', () => {
   });
 
   test('should render the appropiate Eye icon', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const flow1 = await wrapper.findByTestId('toggle-btn-entity1-visible');
     expect(flow1).toBeInTheDocument();
 

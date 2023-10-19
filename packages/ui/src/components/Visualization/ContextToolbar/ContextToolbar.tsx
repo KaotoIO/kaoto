@@ -1,6 +1,5 @@
 import { FunctionComponent, useContext } from 'react';
 import { Chip, ToolbarItem } from '@patternfly/react-core';
-
 import { sourceSchemaConfig } from '../../../models/camel';
 import { FlowsMenu } from './Flows/FlowsMenu';
 import { EntitiesContext } from '../../../providers/entities.provider';

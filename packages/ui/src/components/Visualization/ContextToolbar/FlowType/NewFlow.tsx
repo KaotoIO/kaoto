@@ -20,7 +20,6 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          * we don't need to do anything special, just add a new flow if
          * supported
          */
-        //setSettings({ dsl, namespace });
         console.log('Add new flow');
       } else {
         /**
@@ -32,9 +31,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         setIsConfirmationModalOpen(true);
       }
     },
-    [],
-    // [addNewFlow]
-    // },[]
+    [currentSchemaType],
   );
 
   return (

@@ -29,6 +29,7 @@ const renderWithContext = () => {
     </EntitiesContext.Provider>,
   );
 };
+
 describe('FlowTypeSelector.tsx', () => {
   test('component renders', () => {
     const wrapper = renderWithContext();

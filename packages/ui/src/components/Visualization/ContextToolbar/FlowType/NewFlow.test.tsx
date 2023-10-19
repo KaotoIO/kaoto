@@ -45,7 +45,7 @@ describe('NewFlow.tsx', () => {
       fireEvent.click(trigger);
     });
 
-    for (const s of sourceSchemaConfig.getAsList()) {
+    for (const s of Object.values(sourceSchemaConfig.config)) {
       const element = await wrapper.findByText(s.name);
       expect(element).toBeInTheDocument();
     }

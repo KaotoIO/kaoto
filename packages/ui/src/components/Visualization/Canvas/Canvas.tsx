@@ -23,10 +23,10 @@ import {
 } from 'react';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
+import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
-import { EntitiesContext } from '../../../providers/entities.provider';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -42,7 +42,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const catalogModalContext = useContext(CatalogModalContext);
 
   const controller = useMemo(() => CanvasService.createController(), []);
-  const { visibleFlows } = useContext(EntitiesContext)!;
+  const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const controlButtons = useMemo(() => {
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
@@ -122,7 +122,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     };
 
     controller.fromModel(model, false);
-  }, [controller, props.entities]);
+  }, [controller, props.entities, visibleFlows]);
 
   const handleCloseSideBar = useCallback(() => {
     setSelectedIds([]);

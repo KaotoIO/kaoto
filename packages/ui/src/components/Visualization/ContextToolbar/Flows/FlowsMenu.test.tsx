@@ -4,26 +4,33 @@ import { SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContextResult } from '../../../../hooks';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { VisibleFlowsContext, VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
+import { IVisibleFlows } from '../../../../models/visualization/flows/flows-visibility';
 
-const getContextValue = () => {
-  return {
+const FlowsMenuWithContext: React.FunctionComponent<{
+  visibleFlows?: IVisibleFlows;
+}> = ({ visibleFlows }) => {
+  const visFlows = { ['entity1']: true, ['entity2']: false };
+
+  const entContextValue = {
     currentSchemaType: SourceSchemaType.Integration,
     visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
-    visibleFlows: { ['entity1']: true, ['entity2']: false },
-  };
-};
-let contextValue = getContextValue();
-const renderWithContext = () => {
-  return render(
-    <EntitiesContext.Provider value={contextValue as unknown as EntitiesContextResult}>
-      <FlowsMenu />
-    </EntitiesContext.Provider>,
+  } as unknown as EntitiesContextResult;
+
+  return (
+    <EntitiesContext.Provider value={entContextValue as unknown as EntitiesContextResult}>
+      <VisibleFlowsContext.Provider
+        value={{ visibleFlows: visibleFlows ?? visFlows } as unknown as VisibleFLowsContextResult}
+      >
+        <FlowsMenu />
+      </VisibleFlowsContext.Provider>
+    </EntitiesContext.Provider>
   );
 };
 
 describe('FlowsMenu.tsx', () => {
   test('should open the flows list when clicking the dropdown', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
@@ -37,9 +44,9 @@ describe('FlowsMenu.tsx', () => {
       expect(flowsList).toBeInTheDocument();
     });
   });
-  //
+
   test('should open the flows list when clicking the action button', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-btn');
 
     /** Open List */
@@ -55,7 +62,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   test('should close the flows list when pressing ESC', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-btn');
 
     /** Open List */
@@ -77,30 +84,28 @@ describe('FlowsMenu.tsx', () => {
   });
 
   test('should render the route id when a single route is visible', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('entity1');
   });
 
   test('should NOT render the route id but "Routes" when there is no flow visible', async () => {
-    contextValue = { ...contextValue, visibleFlows: { ['entity1']: false, ['entity2']: false } };
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: false, ['entity2']: false }} />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('Routes');
   });
 
   test('should NOT render the route id but "Routes" when there is more than 1 flow visible', async () => {
-    contextValue = { ...contextValue, visibleFlows: { ['entity1']: true, ['entity2']: true } };
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: true, ['entity2']: true }} />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('Routes');
   });
 
   test('should render the visible routes count', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: true, ['entity2']: true }} />);
     const routeCount = await wrapper.findByTestId('flows-list-route-count');
     expect(routeCount).toHaveTextContent('2/2');
   });
