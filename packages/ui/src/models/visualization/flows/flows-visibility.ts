@@ -40,7 +40,6 @@ type ToggleFlowVisible = {
 };
 type ShowAllFlows = {
   type: 'showAllFlows';
-  // flowId: string;
 };
 
 type HideAllFlows = {

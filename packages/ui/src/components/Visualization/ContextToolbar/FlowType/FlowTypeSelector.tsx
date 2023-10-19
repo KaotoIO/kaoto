@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, Ref, useCallback, useContext, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, Ref, MouseEvent, useCallback, useContext, useState } from 'react';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import {
   MenuToggle,
@@ -101,14 +101,14 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       toggle={toggle}
     >
       <SelectList>
-        {Object.entries(sourceSchemaConfig.config).map((obj) => {
+        {Object.entries(sourceSchemaConfig.config).map((obj, index) => {
           const sourceType = obj[0] as SourceSchemaType;
           const sourceSchema = obj[1] as ISourceSchema;
           const isOptionDisabled =
             sourceSchema.name === currentDsl.name && !sourceSchema.multipleRoute && totalFlowsCount > 0;
           return (
             <SelectOption
-              key={`dsl-${sourceSchema.schema?.name}`}
+              key={`dsl-${sourceSchema.schema?.name ?? index}`}
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
