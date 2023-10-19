@@ -1,10 +1,10 @@
 import type { JSONSchemaType } from 'ajv';
-import { useCatalogStore } from '../../../store';
+import { isDefined } from '../../../utils';
+import { ICamelComponentProperty } from '../../camel-components-catalog';
 import { ICamelProcessorProperty } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { VisualComponentSchema } from '../base-visual-entity';
-import { ICamelComponentProperty } from '../../camel-components-catalog';
-import { isDefined } from '../../../utils';
+import { CamelCatalogService } from './camel-catalog.service';
 
 interface ICamelElementLookupResult {
   processorName: string;
@@ -102,16 +102,20 @@ export class CamelComponentSchemaService {
   }
 
   private static getSchema(camelElementLookup: ICamelElementLookupResult): JSONSchemaType<unknown> {
-    const processorDefinition =
-      useCatalogStore.getState().catalogs[CatalogKind.Processor]?.[camelElementLookup.processorName];
+    const processorDefinition = CamelCatalogService.getComponent(
+      CatalogKind.Processor,
+      camelElementLookup.processorName,
+    );
 
     if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;
 
     const schema = this.getSchemaFromCamelCommonProperties(processorDefinition.properties);
 
     if (camelElementLookup.componentName !== undefined) {
-      const componentDefinition =
-        useCatalogStore.getState().catalogs[CatalogKind.Component]?.[camelElementLookup.componentName];
+      const componentDefinition = CamelCatalogService.getComponent(
+        CatalogKind.Component,
+        camelElementLookup.componentName,
+      );
 
       if (componentDefinition !== undefined) {
         const componentSchema = this.getSchemaFromCamelCommonProperties(componentDefinition.properties);
@@ -130,14 +134,14 @@ export class CamelComponentSchemaService {
   static getIconName(camelElementLookup: ICamelElementLookupResult): string | undefined {
     if (
       isDefined(camelElementLookup.componentName) &&
-      isDefined(useCatalogStore.getState().catalogs[CatalogKind.Component]?.[camelElementLookup.componentName])
+      isDefined(CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName))
     ) {
       return camelElementLookup.componentName;
     }
     if (
       isDefined(camelElementLookup.processorName) &&
       !isDefined(camelElementLookup.componentName) &&
-      isDefined(useCatalogStore.getState().catalogs[CatalogKind.Processor]?.[camelElementLookup.processorName])
+      isDefined(CamelCatalogService.getComponent(CatalogKind.Processor, camelElementLookup.processorName))
     ) {
       return camelElementLookup.processorName;
     }

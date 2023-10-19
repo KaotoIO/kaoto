@@ -1,5 +1,4 @@
 import { mountStoreDevtool } from 'simple-zustand-devtools';
-import { useCatalogStore } from './catalog.store';
 import { useSchemasStore } from './schemas.store';
 
 let isDevMode = true;
@@ -10,9 +9,7 @@ try {
 }
 
 if (isDevMode) {
-  mountStoreDevtool('Catalog Store', useCatalogStore);
   mountStoreDevtool('Schemas Store', useSchemasStore);
 }
 
-export * from './catalog.store';
 export * from './schemas.store';

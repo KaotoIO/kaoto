@@ -1,10 +1,9 @@
+import { JSONSchemaType } from 'ajv';
+import { KameletBindingStep, PipeStep } from '../../camel/entities';
+import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { VisualComponentSchema } from '../base-visual-entity';
-import { KameletBindingStep } from '../../camel/entities';
-import { useCatalogStore } from '../../../store';
-import { CatalogKind } from '../../catalog-kind';
-import { JSONSchemaType } from 'ajv';
-import { PipeStep } from '../../camel/entities';
+import { CamelCatalogService } from './camel-catalog.service';
 
 export class KameletSchemaService {
   static getVisualComponentSchema(stepModel: PipeStep): VisualComponentSchema | undefined {
@@ -49,12 +48,9 @@ export class KameletSchemaService {
     return schema;
   }
 
-  static getKameletDefinition(step: KameletBindingStep): IKameletDefinition | undefined {
-    if (step?.ref?.kind === 'Kamelet') {
-      const stepName = step?.ref?.name;
-      const kameletCatalog = useCatalogStore.getState().catalogs[CatalogKind.Kamelet];
-      return kameletCatalog && kameletCatalog[stepName!];
-    }
-    return undefined;
+  static getKameletDefinition(step?: KameletBindingStep): IKameletDefinition | undefined {
+    const stepName = step?.ref?.name;
+
+    return CamelCatalogService.getComponent(CatalogKind.Kamelet, stepName);
   }
 }

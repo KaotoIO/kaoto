@@ -1,5 +1,5 @@
 import { kameletBindingJson } from '../../../stubs/kamelet-binding-route';
-import { KameletBindingVisualEntity } from '.';
+import { KameletBindingVisualEntity } from './kamelet-binding-visual-entity';
 
 describe('KameletBinding', () => {
   let kameletBinding: KameletBindingVisualEntity;
