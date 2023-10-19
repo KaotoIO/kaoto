@@ -1,13 +1,12 @@
-import { FlowsList } from './FlowsList';
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
-
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/flows-visibility';
+import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { FlowsList } from './FlowsList';
 
 export const FlowsMenu: FunctionComponent = () => {
-  const { visibleFlows } = useContext(EntitiesContext)!;
+  const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const [isOpen, setIsOpen] = useState(false);
   const visibleFlowsInformation = useCallback(() => {
     return getVisibleFlowsInformation(visibleFlows);
@@ -57,7 +56,6 @@ export const FlowsMenu: FunctionComponent = () => {
         setIsOpen(isOpen);
       }}
       toggle={toggle}
-      // minWidth="400px"
     >
       <FlowsList
         onClose={() => {

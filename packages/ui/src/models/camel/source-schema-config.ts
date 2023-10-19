@@ -54,10 +54,6 @@ class SourceSchemaConfig {
       this.config[type].schema = schema;
     }
   }
-
-  getAsList(): ISourceSchema[] {
-    return Object.entries(sourceSchemaConfig.config).map((obj) => obj[1] as ISourceSchema);
-  }
 }
 
 export const sourceSchemaConfig = new SourceSchemaConfig();

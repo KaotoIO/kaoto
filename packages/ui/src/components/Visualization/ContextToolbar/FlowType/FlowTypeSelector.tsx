@@ -19,7 +19,7 @@ interface ISourceTypeSelector extends PropsWithChildren {
 export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) => {
   const { currentSchemaType, visualEntities } = useContext(EntitiesContext)!;
   const totalFlowsCount = visualEntities.length;
-  const currentDsl: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<SourceSchemaType | undefined>(currentSchemaType);
 
@@ -30,17 +30,17 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
 
   /** Selecting a DSL checking the the existing flows */
   const onSelect = useCallback(
-    (_event: MouseEvent | undefined, selectedDslName: SourceSchemaType) => {
+    (_event: MouseEvent | undefined, selectedDslName: string | number | undefined) => {
       if (selectedDslName) {
-        const dsl = sourceSchemaConfig.config[selectedDslName];
+        const dsl = sourceSchemaConfig.config[selectedDslName as SourceSchemaType];
 
         if (!props.isStatic) {
-          setSelected(selectedDslName);
+          setSelected(selectedDslName as SourceSchemaType);
         }
 
         setIsOpen(false);
         if (typeof props.onSelect === 'function' && dsl !== undefined) {
-          props.onSelect(selectedDslName);
+          props.onSelect(selectedDslName as SourceSchemaType);
         }
       }
     },
@@ -50,7 +50,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
   /** Selecting the same DSL directly*/
   const onNewSameTypeRoute = useCallback(() => {
     onSelect(undefined, currentSchemaType);
-  }, [currentDsl.name, onSelect]);
+  }, [onSelect, currentSchemaType]);
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -66,10 +66,10 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
             key="dsl-list-tooltip"
             position="bottom"
             content={
-              currentDsl.multipleRoute ? (
-                <p>Add a new {currentDsl.name} route</p>
+              currentFlowType.multipleRoute ? (
+                <p>Add a new {currentFlowType.name} route</p>
               ) : (
-                <p>The {currentDsl.name} type doesn't support multiple routes</p>
+                <p>The {currentFlowType.name} type doesn't support multiple routes</p>
               )
             }
           >
@@ -105,7 +105,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
           const sourceType = obj[0] as SourceSchemaType;
           const sourceSchema = obj[1] as ISourceSchema;
           const isOptionDisabled =
-            sourceSchema.name === currentDsl.name && !sourceSchema.multipleRoute && totalFlowsCount > 0;
+            sourceSchema.name === currentFlowType.name && !sourceSchema.multipleRoute && totalFlowsCount > 0;
           return (
             <SelectOption
               key={`dsl-${sourceSchema.schema?.name ?? index}`}
