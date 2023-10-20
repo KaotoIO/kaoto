@@ -1,7 +1,7 @@
-import { Button, Modal } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useContext, useMemo, useState } from 'react';
-import { CatalogTilesContext } from './catalog-tiles.provider';
 import { Catalog, ITile } from '../components/Catalog';
+import { CatalogTilesContext } from './catalog-tiles.provider';
 
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;
@@ -48,20 +48,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren<CatalogMo
       {props.children}
 
       {isModalOpen && (
-        <Modal
-          title="Catalog"
-          isOpen={isModalOpen}
-          onClose={handleModalToggle}
-          actions={[
-            <Button key="confirm" variant="primary" onClick={handleModalToggle}>
-              Confirm
-            </Button>,
-            <Button key="cancel" variant="link" onClick={handleModalToggle}>
-              Cancel
-            </Button>,
-          ]}
-          ouiaId="BasicModal"
-        >
+        <Modal title="Catalog" isOpen={isModalOpen} onClose={handleModalToggle} ouiaId="Catalog">
           <Catalog tiles={tiles} onTileClick={props.onTileClick} />
         </Modal>
       )}

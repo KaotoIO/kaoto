@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { useLocalStorage } from '../../hooks';
 import { LocalStorageKeys } from '../../models';
 import { BaseCatalog } from './BaseCatalog';
@@ -7,33 +7,40 @@ import './Catalog.scss';
 import { CatalogFilter } from './CatalogFilter';
 
 interface CatalogProps {
-  tiles: Record<string, ITile[]>;
+  /** Tiles list */
+  tiles: ITile[];
+
+  /** Callback being called when a Tile is clicked */
   onTileClick?: (tile: ITile) => void;
 }
 
 const checkThatArrayContainsAllTags = (arr: string[], tags: string[]) => tags.every((v) => arr.includes(v));
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [groups, setGroups] = useState<string[]>([]);
-  const [activeGroup, setActiveGroup] = useState<string>(getFirstActiveGroup(props.tiles));
-  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
-  const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
-  const [filterTags, setFilterTags] = useState<string[]>([]);
-
-  useEffect(() => {
-    setGroups(Object.keys(props.tiles));
-    setActiveGroup(getFirstActiveGroup(props.tiles));
+  /** Set the tiles groups */
+  const tilesGroups = useMemo(() => {
+    return Array.from(new Set(props.tiles.map((tile) => tile.type)));
   }, [props.tiles]);
 
-  useEffect(() => {
+  /** Selected Group */
+  const [activeGroup, setActiveGroup] = useState<string>(tilesGroups[0]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+  const [filterTags, setFilterTags] = useState<string[]>([]);
+
+  /** Filter by selected group */
+  const tilesFromGroup = useMemo(() => {
+    return !activeGroup ? props.tiles : props.tiles.filter((tile) => activeGroup === tile.type);
+  }, [activeGroup, props.tiles]);
+
+  const filteredTiles = useMemo(() => {
     let toBeFiltered: ITile[] = [];
     // filter by selected tags
     toBeFiltered = filterTags
-      ? props.tiles[activeGroup]?.filter((tile) => {
+      ? tilesFromGroup.filter((tile) => {
           return checkThatArrayContainsAllTags(tile.tags, filterTags);
         })
-      : props.tiles[activeGroup];
+      : tilesFromGroup;
     // filter by search term ( name, description, tag )
     toBeFiltered = searchTerm
       ? toBeFiltered?.filter((tile) => {
@@ -45,8 +52,9 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
           );
         })
       : toBeFiltered;
-    setFilteredTiles(toBeFiltered);
-  }, [searchTerm, activeGroup, props.tiles, filterTags]);
+
+    return toBeFiltered;
+  }, [filterTags, searchTerm, tilesFromGroup]);
 
   const onFilterChange = useCallback((_event: unknown, value = '') => {
     setSearchTerm(value);
@@ -70,7 +78,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
       <CatalogFilter
         className="catalog__filter"
         searchTerm={searchTerm}
-        groups={groups}
+        groups={tilesGroups}
         layouts={[CatalogLayout.Gallery, CatalogLayout.List]}
         activeGroup={activeGroup}
         activeLayout={activeLayout}
@@ -90,7 +98,3 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     </>
   );
 };
-
-function getFirstActiveGroup(tiles: CatalogProps['tiles']): string {
-  return Object.keys(tiles)[0];
-}

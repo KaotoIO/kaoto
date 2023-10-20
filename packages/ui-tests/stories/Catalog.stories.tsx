@@ -14,6 +14,6 @@ const Template: StoryFn<typeof Catalog> = (args) => {
 
 export const CatalogWithSearch = Template.bind({});
 CatalogWithSearch.args = {
-  tiles: catalog as Record<string, ITile[]>,
+  tiles: catalog as ITile[],
   onTileClick: () => null,
 };

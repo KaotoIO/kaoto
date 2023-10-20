@@ -25,7 +25,7 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
       const tile = props.tiles.find((tile) => tile.name === id);
       onTileClick(tile!);
     },
-    [props],
+    [onTileClick, props.tiles],
   );
 
   return (
@@ -36,14 +36,14 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
       {props.catalogLayout == CatalogLayout.List && (
         <DataList aria-label="Catalog list" onSelectDataListItem={onSelectDataListItem} isCompact>
           {props.tiles?.map((tile) => (
-            <CatalogDataListItem key={tile.name} tile={tile} onTagClick={props.onTagClick} />
+            <CatalogDataListItem key={`${tile.name}-${tile.type}`} tile={tile} onTagClick={props.onTagClick} />
           ))}
         </DataList>
       )}
       {props.catalogLayout == CatalogLayout.Gallery && (
         <Gallery hasGutter>
           {props.tiles?.map((tile) => (
-            <Tile key={tile.name} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
+            <Tile key={`${tile.name}-${tile.type}`} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
           ))}
         </Gallery>
       )}

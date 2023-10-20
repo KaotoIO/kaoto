@@ -44,6 +44,18 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const controller = useMemo(() => CanvasService.createController(), []);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const controlButtons = useMemo(() => {
+    const customButtons = catalogModalContext
+      ? [
+          {
+            id: 'topology-control-bar-catalog-button',
+            icon: <CatalogIcon />,
+            callback: () => {
+              catalogModalContext.setIsModalOpen(true);
+            },
+          },
+        ]
+      : [];
+
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
       zoomInCallback: action(() => {
@@ -60,15 +72,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
         controller.getGraph().layout();
       }),
       legend: false,
-      customButtons: [
-        {
-          id: 'topology-control-bar-catalog-button',
-          icon: <CatalogIcon />,
-          callback: () => {
-            catalogModalContext?.setIsModalOpen(true);
-          },
-        },
-      ],
+      customButtons,
     });
   }, [catalogModalContext, controller]);
 
@@ -86,8 +90,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     const graphLayoutEndFn = () => {
       localController.getGraph().fit(80);
     };
+
     localController.addEventListener(SELECTION_EVENT, handleSelection);
     localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
+
     return () => {
       localController.removeEventListener(SELECTION_EVENT, handleSelection);
       localController.removeEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
