@@ -46,7 +46,9 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
     <SchemasContext.Provider value={schemas}>
       {isLoading ? (
         <Loading>
-          <Text component={TextVariants.h3}>Loading Schemas...</Text>
+          <Text data-testid="loading-schemas" component={TextVariants.h3}>
+            Loading Schemas...
+          </Text>
         </Loading>
       ) : (
         props.children

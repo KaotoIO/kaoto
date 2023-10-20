@@ -1,9 +1,9 @@
 - route:
-    id: camel route 1
+    id: Camel Route
     from:
       uri: timer:test
       steps:
-      - set-header:
+      - setHeader:
           constant: test
           name: test
       - to:

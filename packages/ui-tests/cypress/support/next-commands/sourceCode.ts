@@ -43,3 +43,7 @@ Cypress.Commands.add('checkCodeSpanLine', (spanText, linesCount) => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);
   });
 });
+
+Cypress.Commands.add('editorScrollToTop', () => {
+  cy.get('.pf-v5-c-code-editor').click().type('{ctrl}{home}', { release: false });
+});

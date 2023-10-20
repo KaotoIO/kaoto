@@ -33,7 +33,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
               <CardTitle>{props.selectedNode?.label}</CardTitle>
             </GridItem>
             <GridItem span={1}>
-              <Button variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
+              <Button data-testid="close-side-bar" variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
             </GridItem>
           </Grid>
         </CardHeader>
