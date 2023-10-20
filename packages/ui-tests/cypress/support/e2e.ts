@@ -17,6 +17,7 @@
 import './next-commands/default';
 import './next-commands/sourceCode';
 import './next-commands/design';
+import './next-commands/metadata';
 
 Cypress.on('uncaught:exception', (_err, _runnable) => {
   // returning false here prevents Cypress from

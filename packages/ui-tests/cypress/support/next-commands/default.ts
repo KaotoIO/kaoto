@@ -1,6 +1,13 @@
 Cypress.Commands.add('openHomePage', () => {
   const url = Cypress.config().baseUrl;
   cy.visit(url!);
+  // Wait for the loading schemas to disappear
+  cy.get('[data-testid="loading-schemas"]').should('be.visible');
+  cy.get('[data-testid="loading-schemas"]').should('not.exist');
+  // Wait for the loading connectors to disappear
+  cy.get('[data-testid="loading-catalogs"]').should('be.visible');
+  cy.get('[data-testid="loading-catalogs"]').should('not.exist');
+
   cy.get('[data-kind="graph"]').should('exist');
   // Wait for the element to become visible
   cy.get('[data-kind="graph"]').should('be.visible');
@@ -32,7 +39,17 @@ Cypress.Commands.add('openBeans', () => {
   cy.get('.metadata-editor-modal-details-view').should('be.visible');
 });
 
+Cypress.Commands.add('openMetadata', () => {
+  cy.get('[data-testid="Metadata"]').click();
+  cy.get('[data-testid="metadata-editor-form-Metadata"]').should('be.visible');
+});
+
+Cypress.Commands.add('openPipeErrorHandler', () => {
+  cy.get('[data-testid="Pipe ErrorHandler"]').click();
+  cy.get('[data-testid="metadata-editor-form-ErrorHandler"]').should('be.visible');
+});
+
 Cypress.Commands.add('openCatalog', () => {
   cy.get('[data-testid="Catalog"]').click();
-  cy.get('[data-testid="Component-catalog-tab"]').should('be.visible');
+  cy.get('[data-testid="component-catalog-tab"]').should('be.visible');
 });

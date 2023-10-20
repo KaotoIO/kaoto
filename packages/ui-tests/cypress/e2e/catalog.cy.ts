@@ -5,25 +5,25 @@ describe('Catalog related tests', () => {
 
   it('Catalog search', () => {
     cy.openCatalog();
-    cy.get('[data-testid="Component-catalog-tab"]').click();
+    cy.get('[data-testid="component-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('timer');
     cy.get('div[id="timer"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
 
-    cy.get('[data-testid="Processor-catalog-tab"]').click();
+    cy.get('[data-testid="model-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('choice');
     cy.get('div[id="choice"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
 
-    cy.get('[data-testid="Kamelet-catalog-tab"]').click();
+    cy.get('[data-testid="kamelet-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('google');
     cy.get('div[id="google-storage-source"]').should('be.visible');
   });
 
   it('Catalog filtering usign tags', () => {
     cy.openCatalog();
-    cy.get('[data-testid="Component-catalog-tab"]').click();
+    cy.get('[data-testid="component-catalog-tab"]').click();
     cy.get('[data-testid="tag-cloud"]').first().click();
     cy.get('[data-testid="tag-database"]').first().click();
     cy.get('[data-testid="tag-serverless"]').first().click();
@@ -39,14 +39,13 @@ describe('Catalog related tests', () => {
   it('Catalog list view switch check', () => {
     cy.openCatalog();
     cy.get('#toggle-layout-button-List').click();
-    cy.get('[data-testid="Kamelet-catalog-tab"]').click();
+    cy.get('[data-testid="kamelet-catalog-tab"]').click();
     cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
-    // This does not work ATM - relates to https://github.com/KaotoIO/kaoto-next/issues/184
-    // cy.openSourceCode();
-    // cy.openCatalog();
-    // cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
+    cy.openSourceCode();
+    cy.openCatalog();
+    cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
     cy.get('#toggle-layout-button-Gallery').click();
-    cy.get('[data-testid="Component-catalog-tab"]').click();
+    cy.get('[data-testid="component-catalog-tab"]').click();
     cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'true');
   });
 });

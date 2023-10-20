@@ -3,24 +3,31 @@ describe('Test for Bean support', () => {
     cy.openHomePage();
   });
 
-  it('Beans - create a new bean using the bean editor', () => {
+  it('Beans - create a new bean using bean editor', () => {
     cy.uploadFixture('flows/CamelRoute.yaml');
     cy.openBeans();
     cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
-    cy.get(`input[name="name"]`).type('test');
-    cy.get(`input[name="type"]`).type('org.acme');
+    cy.get(`input[name="name"]`).clear().type('test');
+    cy.get(`input[name="type"]`).clear().type('org.acme');
 
-    cy.get('[data-testid="expandable-section-properties"]').within(() => {
-      cy.get('.pf-v5-c-expandable-section__toggle').click();
-    });
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('- beans:');
+    cy.checkCodeSpanLine('- name: test');
+    cy.checkCodeSpanLine('type: org.acme');
+
+    cy.openBeans();
+    cy.forceSelectMetadataRow(0);
+    cy.expandWrappedSection('properties');
     cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="properties--placeholder-name-input"]').click();
+    cy.get('[data-testid="properties--placeholder-name-input"]').should('not.be.disabled');
+    cy.get('[data-testid="properties--placeholder-name-input"]').click({ force: true });
     cy.get('[data-testid="properties--placeholder-name-input"]').clear().type('test');
 
-    cy.get('[data-testid="properties--placeholder-value-input"]').click();
+    cy.get('[data-testid="properties--placeholder-value-input"]').should('not.be.disabled');
+    cy.get('[data-testid="properties--placeholder-value-input"]').click({ force: true });
     cy.get('[data-testid="properties--placeholder-value-input"]').clear().type('value');
 
-    cy.get('[data-testid="properties--placeholder-property-edit-confirm--btn"]').click();
+    cy.get('[data-testid="properties--placeholder-property-edit-confirm--btn"]').click({ force: true });
     cy.openSourceCode();
 
     // CHECK the bean was created in the code editor
@@ -42,10 +49,7 @@ describe('Test for Bean support', () => {
     cy.get('@row').find('td').eq(1).should('contain', 'org.acme');
     cy.get('@row').click();
 
-    cy.get('[data-testid="expandable-section-properties"]').within(() => {
-      cy.get('.pf-v5-c-expandable-section__toggle').click();
-    });
-
+    cy.expandWrappedSection('properties');
     cy.get('[data-testid="properties-property-name-label"]').should('exist');
     cy.get('[data-testid="properties-property-value-label"]').should('exist');
 
@@ -73,9 +77,7 @@ describe('Test for Bean support', () => {
     cy.openBeans();
 
     cy.get('[data-testid="metadata-row-0"]').click();
-    cy.get('[data-testid="expandable-section-properties"]').within(() => {
-      cy.get('.pf-v5-c-expandable-section__toggle').click();
-    });
+    cy.expandWrappedSection('properties');
     cy.get('[data-testid="properties-property-name-label"]').should('exist');
     cy.get('[data-testid="properties-property-value-label"]').should('exist');
     cy.get('[data-testid="properties-property-delete-property-btn"]').click();
@@ -93,9 +95,17 @@ describe('Test for Bean support', () => {
     cy.get('[data-testid="metadata-delete-1-btn"]').click();
     cy.get('[data-testid="metadata-row-1"]').should('not.exist');
 
-    // CHECK the bean was deleted in the code editor
+    // CHECK the first bean was deleted in the code editor
     cy.openSourceCode();
     cy.checkCodeSpanLine('- name: test2', 0);
     cy.checkCodeSpanLine('value: value', 0);
+    // blocked ATM by - https://github.com/KaotoIO/kaoto-next/issues/245
+    // cy.openBeans();
+    // cy.get('[data-testid="metadata-delete-0-btn"]').click();
+    // cy.get('[data-testid="metadata-row-0"]').should('not.exist');
+    // // CHECK the second bean was deleted in the code editor
+    // cy.openSourceCode();
+    // cy.checkCodeSpanLine('- name: test', 0);
+    // cy.checkCodeSpanLine('type: org.acme', 0);
   });
 });

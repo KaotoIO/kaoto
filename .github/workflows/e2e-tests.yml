@@ -1,0 +1,236 @@
+name: 🏗️ E2E Tests (Cypress)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    container:
+      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+          
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Install dependencies
+      - run: yarn install --immutable
+
+      # Build packages excluding @kaoto-next/camel-catalog since it was build during installing dependencies
+      - name: Build packages
+        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
+
+      # Build lib
+      - name: Build @kaoto-next/ui package in lib mode
+        run: yarn workspace @kaoto-next/ui run build:lib
+
+      - name: 💾 Save build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: ui-dist
+          if-no-files-found: error
+          path: packages/ui/dist
+
+      - name: 💾 Save catalog build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: catalog-dist
+          if-no-files-found: error
+          path: packages/camel-catalog/dist
+
+  test-on-firefox:
+    needs: install
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🗄️ Download the UI build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: ui-dist
+          path: packages/ui/dist
+
+      - name: 🗄️ Download the catalog build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: catalog-dist
+          path: packages/camel-catalog/dist
+
+      - name: 🔨 Cypress run
+        uses: cypress-io/github-action@v6.5.0
+        with:
+          browser: firefox
+          # we have already installed all dependencies above
+          # install: false
+          start: yarn workspace @kaoto-next/ui run start
+          working-directory: packages/ui-tests
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💾 Save videos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: videos-firefox
+          path: packages/ui-tests/cypress/videos
+
+      - name: 💾 Save screenshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots-firefox
+          path: packages/ui-tests/cypress/screenshots
+
+  test-on-chrome:
+    needs: install
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🗄️ Download the UI build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: ui-dist
+          path: packages/ui/dist
+
+      - name: 🗄️ Download the catalog build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: catalog-dist
+          path: packages/camel-catalog/dist
+
+      - name: 🔨 Cypress run
+        uses: cypress-io/github-action@v6.5.0
+        with:
+          browser: chrome
+          # we have already installed all dependencies above
+          # install: false
+          start: yarn workspace @kaoto-next/ui run start
+          working-directory: packages/ui-tests
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💾 Save videos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: videos-chrome
+          path: packages/ui-tests/cypress/videos
+
+      - name: 💾 Save screenshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots-chrome
+          path: packages/ui-tests/cypress/screenshots
+
+  test-on-edge:
+    needs: install
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🗄️ Download the UI build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: ui-dist
+          path: packages/ui/dist
+
+      - name: 🗄️ Download the catalog build folder
+        uses: actions/download-artifact@v3
+        with:
+          name: catalog-dist
+          path: packages/camel-catalog/dist
+
+      - name: 🔨 Cypress run
+        uses: cypress-io/github-action@v6.5.0
+        with:
+          browser: edge
+          # we have already installed all dependencies above
+          # install: false
+          start: yarn workspace @kaoto-next/ui run start
+          working-directory: packages/ui-tests
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💾 Save videos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: videos-edge
+          path: packages/ui-tests/cypress/videos
+
+      - name: 💾 Save screenshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots-edge
+          path: packages/ui-tests/cypress/screenshots
