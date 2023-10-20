@@ -16,7 +16,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   }, [schemaMap]);
 
   const isSupported = useMemo(() => {
-    return pipeResource && pipeResource.getType() in [SourceSchemaType.Pipe, SourceSchemaType.KameletBinding];
+    return pipeResource && [SourceSchemaType.Pipe, SourceSchemaType.KameletBinding].includes(pipeResource.getType());
   }, [pipeResource]);
 
   const getErrorHandlerModel = useCallback(() => {

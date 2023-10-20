@@ -6,25 +6,28 @@ import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandl
 import { CamelKResource } from './camel-k-resource';
 
 export class PipeResource extends CamelKResource {
+  protected pipe: PipeType;
   private flow?: PipeVisualEntity;
   private errorHandler?: PipeErrorHandlerEntity;
 
-  constructor(protected pipe?: PipeType) {
+  constructor(pipe?: PipeType) {
     super(pipe);
-    if (!pipe) {
+    if (pipe) {
+      this.pipe = pipe;
+    } else {
       this.pipe = this.resource as PipeType;
       this.pipe.kind = SourceSchemaType.Pipe;
     }
-    if (!this.pipe!.spec) {
-      this.pipe!.spec = {};
+    if (!this.pipe.spec) {
+      this.pipe.spec = {};
     }
-    this.flow = new PipeVisualEntity(this.pipe!.spec);
-    this.errorHandler = this.pipe!.spec!.errorHandler && new PipeErrorHandlerEntity(this.pipe!.spec!);
+    this.flow = new PipeVisualEntity(this.pipe.spec);
+    this.errorHandler = this.pipe.spec!.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec!);
   }
 
   getEntities(): BaseCamelEntity[] {
     const answer = super.getEntities();
-    if (this.pipe!.spec!.errorHandler && this.errorHandler) {
+    if (this.pipe.spec!.errorHandler && this.errorHandler) {
       answer.push(this.errorHandler);
     }
     return answer;
@@ -43,12 +46,12 @@ export class PipeResource extends CamelKResource {
   }
 
   toJSON(): PipeType {
-    return this.pipe!;
+    return this.pipe;
   }
 
   createErrorHandlerEntity() {
-    this.pipe!.spec!.errorHandler = {};
-    this.errorHandler = new PipeErrorHandlerEntity(this.pipe!.spec!);
+    this.pipe.spec!.errorHandler = {};
+    this.errorHandler = new PipeErrorHandlerEntity(this.pipe.spec!);
     return this.errorHandler;
   }
 
@@ -57,7 +60,7 @@ export class PipeResource extends CamelKResource {
   }
 
   deleteErrorHandlerEntity() {
-    this.pipe!.spec!.errorHandler = undefined;
+    this.pipe.spec!.errorHandler = undefined;
     this.errorHandler = undefined;
   }
 }

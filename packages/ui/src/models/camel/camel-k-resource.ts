@@ -22,20 +22,23 @@ export enum CamelKResourceKinds {
 export const CAMEL_K_K8S_API_VERSION_V1 = 'camel.apache.org/v1';
 
 export abstract class CamelKResource implements CamelResource {
+  protected resource: CamelKType;
   private metadata?: MetadataEntity;
-  constructor(protected resource?: CamelKType) {
-    if (!resource) {
+
+  constructor(resource?: CamelKType) {
+    if (resource) {
+      this.resource = resource;
+    } else {
       this.resource = {
         apiVersion: CAMEL_K_K8S_API_VERSION_V1,
         spec: {},
       };
-      return;
     }
-    this.metadata = this.resource!.metadata && new MetadataEntity(this.resource!);
+    this.metadata = this.resource.metadata && new MetadataEntity(this.resource!);
   }
 
   createMetadataEntity() {
-    this.resource!.metadata = {};
+    this.resource.metadata = {};
     this.metadata = new MetadataEntity(this.resource!);
     return this.metadata;
   }
@@ -45,13 +48,13 @@ export abstract class CamelKResource implements CamelResource {
   }
 
   deleteMetadataEntity() {
-    this.resource!.metadata = undefined;
+    this.resource.metadata = undefined;
     this.metadata = undefined;
   }
 
   getEntities(): BaseCamelEntity[] {
     const answer = [];
-    if (this.resource!.metadata && this.metadata) {
+    if (this.resource.metadata && this.metadata) {
       answer.push(this.metadata);
     }
     return answer;

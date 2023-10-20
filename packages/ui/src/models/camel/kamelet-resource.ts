@@ -5,9 +5,13 @@ import { SourceSchemaType } from './source-schema-type';
 import { CamelKResource } from './camel-k-resource';
 
 export class KameletResource extends CamelKResource {
-  constructor(private kamelet?: KameletType) {
+  private kamelet;
+
+  constructor(kamelet?: KameletType) {
     super(kamelet);
-    if (!kamelet) {
+    if (kamelet) {
+      this.kamelet = kamelet;
+    } else {
       this.kamelet = this.resource as KameletType;
       this.kamelet.kind = SourceSchemaType.Kamelet;
       return;
@@ -31,6 +35,6 @@ export class KameletResource extends CamelKResource {
   }
 
   toJSON(): KameletType {
-    return this.kamelet!;
+    return this.kamelet;
   }
 }

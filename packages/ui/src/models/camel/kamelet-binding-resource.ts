@@ -11,7 +11,7 @@ export class KameletBindingResource extends PipeResource {
   constructor(json?: KameletBindingType) {
     super(json);
     if (!json) {
-      this.pipe!.kind = SourceSchemaType.KameletBinding;
+      this.pipe.kind = SourceSchemaType.KameletBinding;
     }
   }
 

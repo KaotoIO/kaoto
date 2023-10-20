@@ -5,9 +5,13 @@ import { SourceSchemaType } from './source-schema-type';
 import { CamelKResource } from './camel-k-resource';
 
 export class IntegrationResource extends CamelKResource {
-  constructor(private integration?: IntegrationType) {
+  private integration;
+
+  constructor(integration?: IntegrationType) {
     super(integration);
-    if (!integration) {
+    if (integration) {
+      this.integration = integration;
+    } else {
       this.integration = this.resource as IntegrationType;
       this.integration.kind = SourceSchemaType.Integration;
       return;
@@ -31,6 +35,6 @@ export class IntegrationResource extends CamelKResource {
   }
 
   toJSON(): IntegrationType {
-    return this.integration!;
+    return this.integration;
   }
 }
