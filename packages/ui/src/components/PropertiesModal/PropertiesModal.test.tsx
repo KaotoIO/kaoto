@@ -3,10 +3,11 @@ import { render } from '@testing-library/react';
 
 import { ITile } from '../Catalog';
 import { PropertiesModal } from './PropertiesModal';
+import { CatalogKind } from '../../models';
 
 describe('Component tile', () => {
   const tile: ITile = {
-    type: 'component',
+    type: CatalogKind.Component,
     name: 'atom',
     title: 'Atom',
     description: 'Poll Atom RSS feeds.',
@@ -14,7 +15,7 @@ describe('Component tile', () => {
     tags: ['document', '4.0.0'],
     rawObject: {
       component: {
-        kind: 'component',
+        kind: CatalogKind.Component,
         name: 'atom',
         title: 'Atom',
         description: 'Poll Atom RSS feeds.',
@@ -252,7 +253,7 @@ describe('Component tile', () => {
 
 describe('Component tile with empty properties and no headers/apis', () => {
   const tile: ITile = {
-    type: 'component',
+    type: CatalogKind.Component,
     name: 'atom',
     title: 'Atom',
     description: 'Poll Atom RSS feeds.',
@@ -260,7 +261,7 @@ describe('Component tile with empty properties and no headers/apis', () => {
     tags: ['document', '4.0.0'],
     rawObject: {
       component: {
-        kind: 'component',
+        kind: CatalogKind.Component,
         name: 'atom',
         title: 'Atom',
         description: 'Poll Atom RSS feeds.',
@@ -282,7 +283,7 @@ describe('Component tile with empty properties and no headers/apis', () => {
 
 describe('Processor tile', () => {
   const tile: ITile = {
-    type: 'model',
+    type: CatalogKind.Processor,
     name: 'apiKey',
     title: 'Api Key',
     description: 'Rest security basic auth definition',
@@ -337,7 +338,7 @@ describe('Processor tile', () => {
 
 describe('Processor tile with empty properties', () => {
   const tile: ITile = {
-    type: 'model',
+    type: CatalogKind.Processor,
     name: 'apiKey',
     title: 'Api Key',
     description: 'Rest security basic auth definition',
@@ -366,7 +367,7 @@ describe('Processor tile with empty properties', () => {
 
 describe('Kamelet tile', () => {
   const tile: ITile = {
-    type: 'kamelet',
+    type: CatalogKind.Kamelet,
     name: 'aws-ddb-streams-source',
     title: 'AWS DynamoDB Streams Source',
     description: 'Receive events from Amazon DynamoDB Streams.',
@@ -440,7 +441,7 @@ describe('Kamelet tile', () => {
 
 describe('Kamelet tile with no properties', () => {
   const tile: ITile = {
-    type: 'kamelet',
+    type: CatalogKind.Kamelet,
     name: 'aws-ddb-streams-source',
     title: 'AWS DynamoDB Streams Source',
     description: 'Receive events from Amazon DynamoDB Streams.',

@@ -1,10 +1,10 @@
-import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models';
 import { CatalogContext } from './catalog.provider';
 
-export const CatalogTilesContext = createContext<Record<string, ITile[]>>({});
+export const CatalogTilesContext = createContext<ITile[]>([]);
 
 /**
  * The goal for this provider is to receive the Tiles in a single place once, and then supply them to the Catalog instances,
@@ -12,14 +12,21 @@ export const CatalogTilesContext = createContext<Record<string, ITile[]>>({});
  */
 export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const catalogService = useContext(CatalogContext);
-  const [tiles, setTiles] = useState<Record<string, ITile[]>>({});
 
-  useEffect(() => {
-    setTiles({
-      Component: Object.values(catalogService.getCatalogByKey(CatalogKind.Component) ?? {}).map(camelComponentToTile),
-      Processor: Object.values(catalogService.getCatalogByKey(CatalogKind.Processor) ?? {}).map(camelProcessorToTile),
-      Kamelet: Object.values(catalogService.getCatalogByKey(CatalogKind.Kamelet) ?? {}).map(kameletToTile),
+  const tiles = useMemo(() => {
+    const combinedTiles: ITile[] = [];
+
+    Object.values(catalogService.getCatalogByKey(CatalogKind.Component) ?? {}).forEach((component) => {
+      combinedTiles.push(camelComponentToTile(component));
     });
+    Object.values(catalogService.getCatalogByKey(CatalogKind.Processor) ?? {}).forEach((processor) => {
+      combinedTiles.push(camelProcessorToTile(processor));
+    });
+    Object.values(catalogService.getCatalogByKey(CatalogKind.Kamelet) ?? {}).forEach((kamelet) => {
+      combinedTiles.push(kameletToTile(kamelet));
+    });
+
+    return combinedTiles;
   }, [catalogService]);
 
   return <CatalogTilesContext.Provider value={tiles}>{props.children}</CatalogTilesContext.Provider>;
