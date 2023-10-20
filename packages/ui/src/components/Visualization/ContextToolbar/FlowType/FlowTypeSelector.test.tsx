@@ -16,29 +16,33 @@ config.config[SourceSchemaType.KameletBinding].schema = {
 } as Schema;
 config.config[SourceSchemaType.Route].schema = { schema: { name: 'route', description: 'desc' } } as Schema;
 
-let contextValue = {
-  currentSchemaType: SourceSchemaType.Integration,
-  visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
-};
-
 const onSelect = jest.fn();
-const renderWithContext = () => {
-  return render(
-    <EntitiesContext.Provider value={contextValue as unknown as EntitiesContextResult}>
+const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?: SourceSchemaType }> = ({
+  currentSchemaType,
+}) => {
+  return (
+    <EntitiesContext.Provider
+      value={
+        {
+          currentSchemaType: currentSchemaType ?? SourceSchemaType.Integration,
+          visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
+        } as unknown as EntitiesContextResult
+      }
+    >
       <FlowTypeSelector onSelect={onSelect} />
-    </EntitiesContext.Provider>,
+    </EntitiesContext.Provider>
   );
 };
 
 describe('FlowTypeSelector.tsx', () => {
   test('component renders', () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = wrapper.queryByTestId('dsl-list-dropdown');
     expect(toggle).toBeInTheDocument();
   });
 
   test('should call onSelect when clicking on the MenuToggleAction', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-btn');
 
     /** Click on button */
@@ -52,8 +56,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should disable the MenuToggleAction if the current DSL does not support multiple flows and there is an existing flow', async () => {
-    contextValue = { ...contextValue, currentSchemaType: SourceSchemaType.KameletBinding };
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.KameletBinding} />);
     const toggle = await wrapper.findByTestId('dsl-list-btn');
 
     waitFor(() => {
@@ -62,7 +65,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should toggle list of DSLs', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -82,7 +85,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should show list of DSLs', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -95,8 +98,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should disable a SelectOption if is already selected and does not support multiple flows', async () => {
-    contextValue = { ...contextValue, currentSchemaType: SourceSchemaType.KameletBinding };
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.KameletBinding} />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -112,7 +114,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should show selected value', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -137,7 +139,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should not have anything selected if "isStatic=true"', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -163,7 +165,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should have selected DSL if provided', async () => {
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -179,8 +181,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should close Select when pressing ESC', async () => {
-    contextValue = { ...contextValue, currentSchemaType: SourceSchemaType.Integration };
-    const wrapper = renderWithContext();
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -208,8 +209,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   test('should render children components', async () => {
-    const wrapper = renderWithContext();
-
+    const wrapper = render(<FlowTypeSelectorWithContext />);
     waitFor(() => {
       const child = wrapper.getByText('This is a child component');
       expect(child).toBeInTheDocument();
