@@ -49,9 +49,9 @@ describe('createCamelResource', () => {
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
-    expect(vis.source).toBeUndefined();
-    expect(vis.steps).toBeUndefined();
-    expect(vis.sink).toBeUndefined();
+    expect(vis.spec?.source).toBeUndefined();
+    expect(vis.spec?.steps).toBeUndefined();
+    expect(vis.spec?.sink).toBeUndefined();
   });
 
   it('should create a camel route', () => {
@@ -81,7 +81,7 @@ describe('createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
-    expect(vis.source?.ref?.name).toEqual('webhook-source');
+    expect(vis.spec?.source?.ref?.name).toEqual('webhook-source');
   });
 
   it('should create a Pipe', () => {
@@ -89,6 +89,6 @@ describe('createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
-    expect(vis.source?.ref?.name).toEqual('timer-source');
+    expect(vis.spec?.source?.ref?.name).toEqual('webhook-source');
   });
 });

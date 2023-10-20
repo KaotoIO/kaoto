@@ -6,11 +6,7 @@ describe('KameletBinding', () => {
 
   beforeEach(() => {
     const kameletBindingCR = JSON.parse(JSON.stringify(kameletBindingJson));
-    kameletBinding = new KameletBindingVisualEntity(
-      kameletBindingCR.spec.source,
-      kameletBindingCR.spec.steps,
-      kameletBindingCR.spec.sink,
-    );
+    kameletBinding = new KameletBindingVisualEntity(kameletBindingCR.spec);
   });
 
   it('should return the steps', () => {
@@ -24,7 +20,7 @@ describe('KameletBinding', () => {
       },
       {
         ref: {
-          apiVersion: 'camel.apache.org/v1alpha1',
+          apiVersion: 'camel.apache.org/v1',
           kind: 'Kamelet',
           name: 'log-sink',
         },

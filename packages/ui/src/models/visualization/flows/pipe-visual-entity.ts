@@ -2,56 +2,43 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType } from '../../camel/entities';
-import { PipeSink, PipeSource, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
+import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './kamelet-schema.service';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 
-type PipeFlow = {
-  source: PipeSource;
-  steps: PipeSteps;
-  sink: PipeSink;
-};
-
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
   type = EntityType.Pipe;
-  flow: PipeFlow;
 
-  constructor(
-    public source: PipeSource,
-    public steps: PipeSteps,
-    public sink: PipeSink,
-  ) {
-    this.flow = { source, steps, sink };
-  }
+  constructor(public spec?: PipeSpec) {}
 
   /** Internal API methods */
   getId(): string {
-    return '';
+    return this.id;
   }
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
-    const stepModel = get(this.flow, path) as PipeStep;
+    const stepModel = get(this.spec, path) as PipeStep;
     return KameletSchemaService.getVisualComponentSchema(stepModel);
   }
 
   toJSON() {
-    return this.flow;
+    return this.spec;
   }
 
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
 
-    const stepModel = get(this.flow, path) as PipeStep;
+    const stepModel = get(this.spec, path) as PipeStep;
     if (stepModel) set(stepModel, 'ref.properties', value);
   }
 
   getSteps() {
-    const steps: PipeSteps = this.flow?.steps;
-    const sink: PipeStep = this.flow?.sink;
+    const steps: PipeSteps = this.spec?.steps;
+    const sink: PipeStep = this.spec?.sink;
     let allSteps: Array<PipeStep> = [];
     if (steps !== undefined) {
       allSteps = allSteps.concat(steps);
@@ -62,13 +49,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   removeStep(): void {
-    /** This method needs to be enabled after passing the entire flow to this class*/
+    /** This method needs to be enabled after passing the entire parent to this class*/
     // if (!path) return;
     // /**
     //  * If the path is `source` or `sink`, we can remove it directly
     //  */
     // if (path === 'source' || path === 'sink') {
-    //   set(this.flow, path, {});
+    //   set(this.parent, path, {});
     //   return;
     // }
     // const pathArray = path.split('.');
@@ -80,16 +67,16 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     //  * f.i. from.steps.1.choice.when.0
     //  * last: 0
     //  */
-    // const array = get(this.flow, pathArray.slice(0, -1), []);
+    // const array = get(this.parent, pathArray.slice(0, -1), []);
     // if (Number.isInteger(Number(last)) && Array.isArray(array)) {
     //   array.splice(Number(last), 1);
     // }
   }
 
   toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromStep(this.flow?.source, 'source');
-    const stepNodes = this.flow?.steps && this.getVizNodesFromSteps(this.flow?.steps);
-    const sinkNode = this.getVizNodeFromStep(this.flow?.sink, 'sink');
+    const rootNode = this.getVizNodeFromStep(this.spec?.source, 'source');
+    const stepNodes = this.spec?.steps && this.getVizNodesFromSteps(this.spec?.steps);
+    const sinkNode = this.getVizNodeFromStep(this.spec?.sink, 'sink');
 
     if (stepNodes !== undefined) {
       const firstStepNode = stepNodes[0];

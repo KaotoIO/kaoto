@@ -12,6 +12,7 @@ export interface EntitiesContextResult {
   currentSchemaType: SourceSchemaType;
   setCurrentSchemaType: (entity: SourceSchemaType) => void;
   visualEntities: BaseVisualCamelEntity[];
+  camelResource: CamelResource;
   updateCodeFromEntities: () => void;
   eventNotifier: EventNotifier;
 }
@@ -64,6 +65,7 @@ export const useEntities = (): EntitiesContextResult => {
       currentSchemaType: camelResource?.getType(),
       setCurrentSchemaType: setCurrentSchemaType(),
       visualEntities: camelResource.getVisualEntities(),
+      camelResource,
       updateCodeFromEntities,
       eventNotifier,
     }),

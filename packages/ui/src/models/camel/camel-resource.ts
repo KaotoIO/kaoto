@@ -6,8 +6,13 @@ import { KameletResource } from './kamelet-resource';
 import { KameletBindingResource } from './kamelet-binding-resource';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
-
-export const CAMEL_K_K8S_API_VERSION_V1 = 'camel.apache.org/v1';
+import { BeansEntity } from '../visualization/metadata';
+import {
+  Integration as IntegrationType,
+  Kamelet as KameletType,
+  KameletBinding as KameletBindingType,
+  Pipe as PipeType,
+} from '@kaoto-next/camel-catalog/types';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
@@ -15,7 +20,11 @@ export interface CamelResource {
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
   getType(): SourceSchemaType;
-  addEntity(entity: BaseCamelEntity): void;
+}
+
+export interface BeansAwareResource {
+  createBeansEntity(): BeansEntity;
+  deleteBeansEntity(entity: BeansEntity): void;
 }
 
 /**
@@ -38,13 +47,13 @@ export function createCamelResource(json?: unknown, type?: SourceSchemaType): Ca
 function doCreateCamelResource(json?: unknown, type?: SourceSchemaType): CamelResource {
   switch (type) {
     case SourceSchemaType.Integration:
-      return new IntegrationResource(json);
+      return new IntegrationResource(json as IntegrationType);
     case SourceSchemaType.Kamelet:
-      return new KameletResource(json);
+      return new KameletResource(json as KameletType);
     case SourceSchemaType.KameletBinding:
-      return new KameletBindingResource(json);
+      return new KameletBindingResource(json as KameletBindingType);
     case SourceSchemaType.Pipe:
-      return new PipeResource(json);
+      return new PipeResource(json as PipeType);
     default:
       return new CamelRouteResource(json);
   }

@@ -68,5 +68,7 @@ const navElements: NavElements = [
   },
   { title: 'Beans', to: Links.Beans },
   { title: 'Rest', to: Links.Rest },
+  { title: 'Metadata', to: Links.Metadata },
+  { title: 'Pipe ErrorHandler', to: Links.PipeErrorHandler },
   { title: 'Catalog', to: Links.Catalog },
 ];

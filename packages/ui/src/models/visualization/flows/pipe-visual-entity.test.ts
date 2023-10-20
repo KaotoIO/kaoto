@@ -9,7 +9,7 @@ describe('Pipe', () => {
 
   beforeEach(() => {
     const pipeCR = JSON.parse(JSON.stringify(pipeJson));
-    pipe = new PipeVisualEntity(pipeCR.spec.source, pipeCR.spec.steps, pipeCR.spec.sink);
+    pipe = new PipeVisualEntity(pipeCR.spec);
   });
 
   describe('id', () => {
@@ -52,11 +52,7 @@ describe('Pipe', () => {
   });
 
   it('should return the json', () => {
-    expect(pipe.toJSON()).toEqual({
-      source: pipeJson.spec.source,
-      steps: pipeJson.spec.steps,
-      sink: pipeJson.spec.sink,
-    });
+    expect(pipe.toJSON()).toEqual(pipeJson.spec);
   });
 
   describe('updateModel', () => {
@@ -69,17 +65,17 @@ describe('Pipe', () => {
     });
 
     it('should update the model', () => {
-      const name = 'timer-source';
+      const name = 'webhook-source';
 
       pipe.updateModel('source.ref.name', name);
 
-      expect(pipe.source?.ref?.name).toEqual(name);
+      expect(pipe.spec?.source?.ref?.name).toEqual(name);
     });
   });
 
   describe('getSteps', () => {
     it('should return an empty array if there is no steps', () => {
-      const route = new PipeVisualEntity({}, [], {});
+      const route = new PipeVisualEntity({});
 
       expect(route.getSteps()).toEqual([]);
     });
@@ -90,23 +86,14 @@ describe('Pipe', () => {
           ref: {
             apiVersion: 'camel.apache.org/v1',
             kind: 'Kamelet',
-            name: 'log-sink',
-            properties: {
-              showHeaders: 'true',
-            },
+            name: 'delay-action',
           },
         },
         {
           ref: {
             apiVersion: 'camel.apache.org/v1',
             kind: 'Kamelet',
-            name: 'kafka-sink',
-            properties: {
-              bootstrapServers: '192.168.0.1',
-              password: 'test',
-              topic: 'myTopic',
-              user: 'test2',
-            },
+            name: 'log-sink',
           },
         },
       ]);
@@ -124,11 +111,11 @@ describe('Pipe', () => {
     it('should use the uri as the node label', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.label).toEqual('timer-source');
+      expect(vizNode.label).toEqual('webhook-source');
     });
 
     it('should set an empty label if the uri is not available', () => {
-      pipe = new PipeVisualEntity({}, [], {});
+      pipe = new PipeVisualEntity({});
       const vizNode = pipe.toVizNode();
 
       expect(vizNode.label).toBeUndefined();
@@ -138,19 +125,19 @@ describe('Pipe', () => {
       const vizNode = pipe.toVizNode();
 
       expect(vizNode.path).toEqual('source');
-      expect(vizNode.label).toEqual('timer-source');
+      expect(vizNode.label).toEqual('webhook-source');
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeDefined();
 
       const steps0 = vizNode.getNextNode()!;
       expect(steps0.path).toEqual('steps.0');
-      expect(steps0.label).toEqual('log-sink');
+      expect(steps0.label).toEqual('delay-action');
       expect(steps0.getPreviousNode()).toBe(vizNode);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
       expect(sink.path).toEqual('sink');
-      expect(sink.label).toEqual('kafka-sink');
+      expect(sink.label).toEqual('log-sink');
       expect(sink.getPreviousNode()).toBe(steps0);
       expect(sink.getNextNode()).toBeUndefined();
     });
