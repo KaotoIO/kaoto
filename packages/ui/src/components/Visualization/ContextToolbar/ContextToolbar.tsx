@@ -13,7 +13,7 @@ export const ContextToolbar: FunctionComponent = () => {
         {sourceSchemaConfig.config[currentSchemaType].name || 'None'}
       </Chip>
     </ToolbarItem>,
-    <ToolbarItem key={'toolbar-new-route'}>
+    <ToolbarItem style={{ display: 'none' }} key={'toolbar-new-route'}>
       <NewFlow />
     </ToolbarItem>,
     <ToolbarItem key={'toolbar-flows-list'}>
