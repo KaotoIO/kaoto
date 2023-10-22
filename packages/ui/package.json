@@ -43,7 +43,7 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
-    "@kaoto-next/uniforms-patternfly": "^0.4.0",
+    "@kaoto-next/uniforms-patternfly": "^0.5.0",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-code-editor": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
