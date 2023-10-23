@@ -18,6 +18,7 @@ exports[`CanvasForm should render 1`] = `
     <div>
       <div
         class="pf-v5-c-form__group"
+        data-fieldname="name"
         data-testid="wrapper-field"
       >
         <div
