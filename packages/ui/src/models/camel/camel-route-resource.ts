@@ -1,11 +1,14 @@
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { isDefined } from '../../utils';
+import { CatalogFilter } from '../catalog-kind';
+import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
+import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { CamelComponentSchemaService } from '../visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
+import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
-import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
-import { BeansEntity, isBeans } from '../visualization/metadata';
 import { SourceSchemaType } from './source-schema-type';
-import { isDefined } from '../../utils';
-import { flowTemplateService } from '../visualization/flows/flow-templates-service';
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private entities: BaseCamelEntity[] = [];
@@ -87,5 +90,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     if (this.entities.length === 0) {
       this.addNewEntity();
     }
+  }
+
+  /** Components Catalog related methods */
+  getCompatibleComponents(visualEntityData: CamelRouteVisualEntityData): CatalogFilter {
+    return CamelComponentSchemaService.getCompatibleComponents(visualEntityData.processorName);
   }
 }

@@ -1,0 +1,93 @@
+import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { parse } from 'yaml';
+import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
+import { DefinedComponent } from '../../../camel-catalog-index';
+import { CatalogKind } from '../../../catalog-kind';
+
+/**
+ * CamelComponentDefaultService
+ *
+ * This class is meant to provide working default values for Camel components.
+ */
+export class CamelComponentDefaultService {
+  /**
+   * Get the default value for a given component and property
+   */
+  static getDefaultNodeDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
+    switch (definedComponent.type) {
+      case CatalogKind.Component:
+        return this.getDefaultValueFromComponent(definedComponent.name);
+      case CatalogKind.Kamelet:
+        return this.getDefaultValueFromKamelet(definedComponent.name);
+      case CatalogKind.Processor:
+        return this.getDefaultValueFromProcessor(definedComponent.name as keyof ProcessorDefinition);
+      default:
+        return {};
+    }
+  }
+
+  private static getDefaultValueFromComponent(componentName: string): object {
+    switch (componentName) {
+      default:
+        return parse(`
+          to:
+            uri: "${componentName}"
+            id: ${getCamelRandomId('to')}
+        `);
+    }
+  }
+
+  private static getDefaultValueFromKamelet(kameletName: string): object {
+    switch (kameletName) {
+      default:
+        return parse(`
+          to:
+            uri: "kamelet:${kameletName}"
+            id: ${getCamelRandomId('to')}
+        `);
+    }
+  }
+
+  private static getDefaultValueFromProcessor(processorName: keyof ProcessorDefinition): ProcessorDefinition {
+    switch (processorName) {
+      case 'choice':
+        return parse(`
+        choice:
+          when:
+          - id: ${getCamelRandomId('when')}
+            simple: "\${header.foo} == 1"
+            steps:
+            - log:
+                id: ${getCamelRandomId('log')}
+                message: "\${body}"
+          otherwise:
+            id: ${getCamelRandomId('otherwise')}
+            steps:
+            - log:
+                id: ${getCamelRandomId('log')}
+                message: "\${body}"
+        `);
+
+      case 'doTry':
+        return parse(`
+        doTry:
+          id: ${getCamelRandomId('doTry')}
+          doCatch:
+            - id: ${getCamelRandomId('doCatch')}
+              steps: []
+          doFinally:
+            id: ${getCamelRandomId('doFinally')}
+            steps: []
+          steps:
+            - log:
+                id: ${getCamelRandomId('log')}
+                message: "\${body}"
+        `);
+
+      default:
+        return {
+          [processorName]: {},
+        };
+    }
+  }
+}

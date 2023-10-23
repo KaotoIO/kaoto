@@ -39,7 +39,7 @@ describe('Canvas', () => {
 
   it('should render the Catalog button if `CatalogModalContext` is provided', async () => {
     const result = render(
-      <CatalogModalContext.Provider value={{ setIsModalOpen: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn() }}>
         <VisibleFlowsContext.Provider
           value={{ visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult}
         >

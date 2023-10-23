@@ -17,8 +17,7 @@ declare global {
       openPipeErrorHandler(): Chainable<JQuery<Element>>;
       openCatalog(): Chainable<JQuery<Element>>;
       // design
-      openStepConfigurationTab(step: string, stepIndex: number | undefined): Chainable<JQuery<Element>>;
-      openStepConfigurationTab(step: string): Chainable<JQuery<Element>>;
+      openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       interactWithConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
