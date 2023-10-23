@@ -40,7 +40,6 @@ export class KameletResource extends CamelKResource {
 
   addNewEntity(): string {
     //TODO
-    console.log('Replacing Kamelet visual entity');
     return '';
   }
 }

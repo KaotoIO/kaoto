@@ -3,8 +3,9 @@ import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash.clonedeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../camel/entities/base-entity';
-import { CamelComponentSchemaService } from './camel-component-schema.service';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelRouteVisualEntity, isCamelRoute } from './camel-route-visual-entity';
+import { IVisualizationNode } from '../base-visual-entity';
 
 describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
@@ -261,14 +262,14 @@ describe('Camel Route', () => {
       expect(vizNode.data.label).toEqual('timer:tutorial');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
-      expect(vizNode.getNextNode()).toBeDefined();
-      expect(vizNode.getChildren()).toBeUndefined();
+      expect(vizNode.getNextNode()).toBeUndefined();
+      expect(vizNode.getChildren()).toHaveLength(3);
 
       /** setHeader */
-      const setHeaderNode = vizNode.getNextNode()!;
+      const setHeaderNode = vizNode.getChildren()?.[0] as IVisualizationNode;
       expect(setHeaderNode.data.path).toEqual('from.steps.0.set-header');
       expect(setHeaderNode.data.label).toEqual('set-header');
-      expect(setHeaderNode.getPreviousNode()).toBe(vizNode);
+      expect(setHeaderNode.getPreviousNode()).toBeUndefined();
       expect(setHeaderNode.getNextNode()).toBeDefined();
       expect(setHeaderNode.getChildren()).toBeUndefined();
 

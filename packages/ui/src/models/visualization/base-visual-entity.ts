@@ -1,4 +1,5 @@
 import type { JSONSchemaType } from 'ajv';
+import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 
 /**
@@ -23,8 +24,18 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Retrieve the steps from the underlying Camel entity */
   getSteps: () => unknown[];
 
+  /** Add a step to the underlying Camel entity */
+  addStep: (options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }) => void;
+
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
+
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
@@ -44,6 +55,10 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
+
+  addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
+
+  getNodeInteraction(): NodeInteraction;
 
   getComponentSchema(): VisualComponentSchema | undefined;
 
@@ -65,11 +80,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getChildren(): IVisualizationNode[] | undefined;
 
-  setChildren(children?: IVisualizationNode[]): void;
-
   addChild(child: IVisualizationNode): void;
 
-  removeChild(child: IVisualizationNode): void;
+  removeChild(): void;
 
   populateLeafNodesIds(ids: string[]): void;
 
@@ -83,6 +96,7 @@ export interface IVisualizationNodeData {
   icon?: string;
   path?: string;
   entity?: BaseVisualCamelEntity;
+  [key: string]: unknown;
 }
 
 /**
@@ -96,4 +110,18 @@ export interface VisualComponentSchema {
   schema: JSONSchemaType<unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: any;
+}
+
+export const enum AddStepMode {
+  PrependStep = 'prepend-step',
+  AppendStep = 'append-step',
+  InsertChildStep = 'insert-step',
+  InsertSpecialChildStep = 'insert-special-step',
+}
+
+export interface NodeInteraction {
+  canHavePreviousStep: boolean;
+  canHaveNextStep: boolean;
+  canHaveChildren: boolean;
+  canHaveSpecialChildren: boolean;
 }

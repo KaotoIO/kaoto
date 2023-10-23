@@ -1,10 +1,11 @@
-import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
-import { PipeVisualEntity } from '../visualization/flows';
 import { Pipe as PipeType } from '@kaoto-next/camel-catalog/types';
-import { SourceSchemaType } from './source-schema-type';
+import { CatalogFilter, CatalogKind } from '../catalog-kind';
+import { PipeVisualEntity } from '../visualization/flows';
+import { flowTemplateService } from '../visualization/flows/flow-templates-service';
 import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
 import { CamelKResource } from './camel-k-resource';
-import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
+import { SourceSchemaType } from './source-schema-type';
 
 export class PipeResource extends CamelKResource {
   protected pipe: PipeType;
@@ -26,12 +27,14 @@ export class PipeResource extends CamelKResource {
     this.errorHandler =
       this.pipe.spec.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
   }
+
   removeEntity(_id?: string): void {
     super.removeEntity();
     const flowTemplate = flowTemplateService.getFlowTemplate(this.getType())!;
     this.pipe.spec = flowTemplate.spec;
     this.flow = new PipeVisualEntity(flowTemplate.spec);
   }
+
   getEntities(): BaseCamelEntity[] {
     const answer = super.getEntities();
     if (this.pipe.spec!.errorHandler && this.errorHandler) {
@@ -74,5 +77,10 @@ export class PipeResource extends CamelKResource {
   addNewEntity(): string {
     //not supported
     return '';
+  }
+
+  /** Components Catalog related methods */
+  getCompatibleComponents(): CatalogFilter {
+    return { kinds: [CatalogKind.Kamelet] };
   }
 }

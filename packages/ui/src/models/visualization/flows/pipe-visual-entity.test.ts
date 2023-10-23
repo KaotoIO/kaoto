@@ -3,8 +3,8 @@ import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
-import { KameletSchemaService } from './kamelet-schema.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
+import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {
   let pipeCR: Pipe;

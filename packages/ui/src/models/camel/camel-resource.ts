@@ -1,18 +1,19 @@
-import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
-import { BaseCamelEntity } from './entities';
-import { CamelRouteResource } from './camel-route-resource';
-import { IntegrationResource } from './integration-resource';
-import { KameletResource } from './kamelet-resource';
-import { KameletBindingResource } from './kamelet-binding-resource';
-import { PipeResource } from './pipe-resource';
-import { SourceSchemaType } from './source-schema-type';
-import { BeansEntity } from '../visualization/metadata';
 import {
   Integration as IntegrationType,
-  Kamelet as KameletType,
   KameletBinding as KameletBindingType,
+  Kamelet as KameletType,
   Pipe as PipeType,
 } from '@kaoto-next/camel-catalog/types';
+import { CatalogFilter } from '../catalog-kind';
+import { BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
+import { BeansEntity } from '../visualization/metadata';
+import { CamelRouteResource } from './camel-route-resource';
+import { BaseCamelEntity } from './entities';
+import { IntegrationResource } from './integration-resource';
+import { KameletBindingResource } from './kamelet-binding-resource';
+import { KameletResource } from './kamelet-resource';
+import { PipeResource } from './pipe-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
@@ -22,6 +23,9 @@ export interface CamelResource {
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
   getType(): SourceSchemaType;
+
+  /** Components Catalog related methods */
+  getCompatibleComponents(visualEntityData: IVisualizationNodeData): CatalogFilter;
 }
 
 export interface BeansAwareResource {

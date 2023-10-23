@@ -18,9 +18,9 @@ export interface CamelProcessorStepsProperties {
 
   /**
    * Property handling type
-   * processor: the property can have a single processor
-   * list: the property have a list of `processors`, f.i. `steps`
-   * expression-list: the property can have a list of `processors`, usually in the shape of `expression`, f.i. `when` and `doCatch`
+   * single-clause: the property can have a single-clause type of processor, f.i. `otherwise` and `doFinally`
+   * branch: the property have a list of `processors`, f.i. `steps`
+   * clause-list: the property can have a list of clause processors, usually in the shape of `expression`, f.i. `when` and `doCatch`
    */
-  type: 'single-processor' | 'steps-list' | 'expression-list';
+  type: 'single-clause' | 'branch' | 'clause-list';
 }

@@ -1,20 +1,12 @@
-import { MinusIcon } from '@patternfly/react-icons';
-import {
-  ContextMenuItem,
-  DefaultNode,
-  ElementContext,
-  ElementModel,
-  GraphElement,
-  Node,
-  WithSelectionProps,
-  withContextMenu,
-  withSelection,
-} from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useContext } from 'react';
-import { EntitiesContext } from '../../../providers/entities.provider';
+import { DefaultNode, Node, WithSelectionProps, withContextMenu, withSelection } from '@patternfly/react-topology';
+import { FunctionComponent } from 'react';
+import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../Canvas/canvas.models';
 import { CanvasService } from '../Canvas/canvas.service';
 import './CustomNode.scss';
+import { ItemAddNode } from './ItemAddNode';
+import { ItemInsertChildNode } from './ItemInsertChildNode';
+import { ItemRemoveNode } from './ItemRemoveNode';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -46,23 +38,22 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) =>
   );
 };
 
-const RemoveNode: FunctionComponent = () => {
-  const entitiesContext = useContext(EntitiesContext);
-  const element: GraphElement<ElementModel, CanvasNode['data']> = useContext(ElementContext);
-  const vizNode = element.getData()?.vizNode;
-
-  const onRemoveNode = useCallback(() => {
-    vizNode?.removeChild(vizNode);
-    entitiesContext?.updateCodeFromEntities();
-  }, [entitiesContext, vizNode]);
-
-  return (
-    <ContextMenuItem onClick={onRemoveNode}>
-      <MinusIcon /> Remove node
-    </ContextMenuItem>
-  );
-};
-
 export const CustomNodeWithSelection: typeof DefaultNode = withContextMenu(() => [
-  <RemoveNode key="context-menu-item-remove" />,
+  <ItemAddNode
+    key="context-menu-item-prepend"
+    data-testid="context-menu-item-prepend"
+    mode={AddStepMode.PrependStep}
+  />,
+  <ItemAddNode key="context-menu-item-append" data-testid="context-menu-item-append" mode={AddStepMode.AppendStep} />,
+  <ItemInsertChildNode
+    key="context-menu-item-insert"
+    data-testid="context-menu-item-insert"
+    mode={AddStepMode.InsertChildStep}
+  />,
+  <ItemInsertChildNode
+    key="context-menu-item-insert-special"
+    data-testid="context-menu-item-insert-special"
+    mode={AddStepMode.InsertSpecialChildStep}
+  />,
+  <ItemRemoveNode key="context-menu-item-remove" data-testid="context-menu-item-remove" />,
 ])(withSelection()(CustomNode) as typeof DefaultNode) as typeof DefaultNode;

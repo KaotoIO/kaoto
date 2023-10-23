@@ -1,17 +1,18 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
-import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
 import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
-import { KameletSchemaService } from './kamelet-schema.service';
+import { KameletSchemaService } from './support/kamelet-schema.service';
+import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
@@ -53,6 +54,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return allSteps;
   }
 
+  addStep(): void {
+    // TODO
+  }
+
   removeStep(path?: string): void {
     /** This method needs to be enabled after passing the entire parent to this class*/
     if (!path) return;
@@ -76,6 +81,19 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     if (Number.isInteger(Number(last)) && Array.isArray(array)) {
       array.splice(Number(last), 1);
     }
+  }
+
+  canBaseEntityHaveSpecialChildren(): boolean {
+    return false;
+  }
+
+  getNodeInteraction(_data: IVisualizationNodeData): NodeInteraction {
+    return {
+      canHavePreviousStep: false,
+      canHaveNextStep: false,
+      canHaveChildren: false,
+      canHaveSpecialChildren: false,
+    };
   }
 
   toVizNode(): IVisualizationNode {
