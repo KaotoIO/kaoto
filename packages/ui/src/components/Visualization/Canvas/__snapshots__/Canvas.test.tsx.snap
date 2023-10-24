@@ -204,7 +204,39 @@ exports[`Canvas should render correctly 1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-to-1234"
+                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="log-1234-to-direct:my-route-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -272,7 +304,13 @@ exports[`Canvas should render correctly 1`] = `
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="to-1234"
+                    data-id="amqp:queue:-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="direct:my-route-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -684,7 +722,39 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-to-1234"
+                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="log-1234-to-direct:my-route-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -752,7 +822,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="to-1234"
+                    data-id="amqp:queue:-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="direct:my-route-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -1164,7 +1240,39 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-to-1234"
+                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-kind="edge"
+                    data-type="edge"
+                  >
+                    <g
+                      class="pf-topology__edge"
+                      data-test-id="edge-handler"
+                    >
+                      <path
+                        class="pf-topology__edge__background"
+                        d="M37.5 37.5 L0 0"
+                      />
+                      <path
+                        class="pf-topology__edge__link pf-m-dashed"
+                        d="M37.5 37.5 L37.5 37.5"
+                        style="animation-duration: 0.75s;"
+                      />
+                      <g
+                        class="pf-topology-connector-arrow pf-topology__edge"
+                        transform="translate(0, 0) rotate(180)"
+                      >
+                        <polygon
+                          points=" 0,7 0,-7 14,0"
+                        />
+                        <polygon
+                          fill-opacity="0"
+                          stroke-width="0"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                  <g
+                    data-id="log-1234-to-direct:my-route-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -1232,7 +1340,13 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="to-1234"
+                    data-id="amqp:queue:-1234"
+                    data-kind="node"
+                    data-type="node"
+                    transform="translate(0, 0)"
+                  />
+                  <g
+                    data-id="direct:my-route-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"

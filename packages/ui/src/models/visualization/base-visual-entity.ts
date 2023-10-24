@@ -38,10 +38,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
  *
  * This interface shouldn't know anything about the specific BaseVisualCamelEntity.
  */
-export interface IVisualizationNode {
+export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> {
   id: string;
-  path: string | undefined;
-  label: string;
+  data: T;
 
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
@@ -66,7 +65,7 @@ export interface IVisualizationNode {
 
   getChildren(): IVisualizationNode[] | undefined;
 
-  setChildren(children: IVisualizationNode[]): void;
+  setChildren(children?: IVisualizationNode[]): void;
 
   addChild(child: IVisualizationNode): void;
 
@@ -77,6 +76,13 @@ export interface IVisualizationNode {
   setIconData(iconData: string | undefined): void;
 
   getIconData(): string | undefined;
+}
+
+export interface IVisualizationNodeData {
+  label: string;
+  icon?: string;
+  path?: string;
+  entity?: BaseVisualCamelEntity;
 }
 
 /**

@@ -1,14 +1,21 @@
 /* eslint-disable no-case-declarations */
-import { Choice, ProcessorDefinition, RouteDefinition, To } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
-import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
+import {
+  BaseVisualCamelEntity,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  VisualComponentSchema,
+} from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelComponentSchemaService } from './camel-component-schema.service';
+import { CamelComponentSchemaService, ICamelElementLookupResult } from './camel-component-schema.service';
+
+type CamelRouteVisualEntityData = IVisualizationNodeData & ICamelElementLookupResult;
 
 /** Very basic check to determine whether this object is a Camel Route */
 export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDefinition } => {
@@ -47,15 +54,6 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
-  }
-
-  getIconName(path: string | undefined): string | undefined {
-    if (!path) return undefined;
-    const componentModel = get(this.route, path);
-    const iconName = CamelComponentSchemaService.getIconName(
-      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
-    );
-    return iconName;
   }
 
   toJSON() {
@@ -130,84 +128,89 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
-  toVizNode(): IVisualizationNode {
-    const rootNode = createVisualizationNode((this.route.from?.uri as string) ?? '', this);
-    rootNode.path = 'from';
-    const vizNodes = this.getVizNodesFromSteps(this.getSteps(), `${rootNode.path}.steps`);
-    rootNode.setIconData(NodeIconResolver.getIcon(this.getIconName(rootNode.path)));
+  toVizNode(): IVisualizationNode<CamelRouteVisualEntityData> {
+    const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' });
+    rootNode.data.entity = this;
 
-    const firstVizNode = vizNodes[0];
-    if (firstVizNode !== undefined) {
-      rootNode.setNextNode(firstVizNode);
-      firstVizNode.setPreviousNode(rootNode);
-    }
+    rootNode.getChildren()?.forEach((child, index) => {
+      if (index === 0) {
+        rootNode.setNextNode(child);
+        child.setPreviousNode(rootNode);
+      }
+
+      child.setParentNode();
+      rootNode.setChildren();
+    });
 
     return rootNode;
   }
 
-  private getVizNodesFromSteps(camelRouteSteps: ProcessorDefinition[] = [], path: string): IVisualizationNode[] {
-    return camelRouteSteps.reduce((acc, camelRouteStep, index) => {
-      const previousVizNode = acc[acc.length - 1];
-      const vizNode = this.getVizNodeFromStep(camelRouteStep, `${path}.${index}`);
+  private getVizNodeFromProcessor(
+    path: string,
+    componentLookup: ICamelElementLookupResult,
+  ): IVisualizationNode<CamelRouteVisualEntityData> {
+    const data: CamelRouteVisualEntityData = {
+      label: CamelComponentSchemaService.getLabel(componentLookup, get(this.route, path)),
+      path,
+      icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup)),
+      processorName: componentLookup.processorName,
+      componentName: componentLookup.componentName,
+    };
 
-      if (previousVizNode !== undefined) {
-        previousVizNode.setNextNode(vizNode);
-        vizNode.setPreviousNode(previousVizNode);
+    const vizNode = createVisualizationNode(data);
+
+    const childrenVizNodes = this.getVizNodesFromSteps(path, componentLookup);
+    childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+
+    return vizNode;
+  }
+
+  private getVizNodesFromSteps(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode[] {
+    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      componentLookup.processorName,
+    );
+
+    const vizNodes = childrenStepsProperties.reduce((acc, stepsProperty) => {
+      if (stepsProperty.type === 'processor') {
+        const childPath = `${path}.${stepsProperty.name}`;
+        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
+        const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
+
+        acc.push(vizNode);
+      } else if (stepsProperty.type === 'list' || stepsProperty.type === 'expression-list') {
+        const singlePath = `${path}.${stepsProperty.name}`;
+        const steps = get(this.route, singlePath, []) as ProcessorDefinition[];
+
+        const childrenVizNodes = steps.reduce((acc, step, index) => {
+          let childPath: string;
+          let childComponentLookup: ICamelElementLookupResult;
+          if (stepsProperty.type === 'expression-list') {
+            childPath = `${singlePath}.${index}`;
+            childComponentLookup = { processorName: stepsProperty.name };
+          } else {
+            const singlePropertyName = Object.keys(step)[0];
+            childPath = `${singlePath}.${index}.${singlePropertyName}`;
+            childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
+          }
+
+          const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
+
+          const previousVizNode = acc[acc.length - 1];
+          if (previousVizNode !== undefined) {
+            previousVizNode.setNextNode(vizNode);
+            vizNode.setPreviousNode(previousVizNode);
+          }
+
+          acc.push(vizNode);
+          return acc;
+        }, [] as IVisualizationNode[]);
+
+        acc.push(...childrenVizNodes);
       }
 
-      acc.push(vizNode);
       return acc;
     }, [] as IVisualizationNode[]);
-  }
 
-  private getVizNodeFromStep(processor: ProcessorDefinition, path: string): IVisualizationNode {
-    const processorName = Object.keys(processor)[0];
-    const parentStep = createVisualizationNode(processorName);
-    parentStep.path = `${path}.${processorName}`;
-    parentStep.setIconData(NodeIconResolver.getIcon(this.getIconName(parentStep.path)));
-
-    switch (processorName) {
-      case 'choice':
-        /** Bring when nodes */
-        processor.choice?.when?.forEach((when, index) => {
-          const whenNode = this.getChildren(
-            'when',
-            when.steps as ProcessorDefinition[],
-            `${path}.choice.when.${index}.steps`,
-          );
-          whenNode.path = `${path}.choice.when.${index}`;
-          whenNode.setIconData(NodeIconResolver.getIcon(this.getIconName(whenNode.path)));
-          parentStep.addChild(whenNode);
-        });
-
-        /** Bring otherwise nodes */
-        const otherwiseNode = this.getChildren(
-          'otherwise',
-          (processor.choice as Choice).otherwise?.steps as ProcessorDefinition[],
-          `${path}.choice.otherwise.steps`,
-        );
-        otherwiseNode.path = `${path}.choice.otherwise`;
-        otherwiseNode.setIconData(NodeIconResolver.getIcon(this.getIconName(otherwiseNode.path)));
-        parentStep.addChild(otherwiseNode);
-        break;
-
-      case 'to':
-        parentStep.label =
-          typeof processor.to === 'string' ? processor.to : (processor.to as Exclude<To, string>).uri ?? 'To';
-        parentStep.setIconData(NodeIconResolver.getIcon(this.getIconName(`${path}.to`)));
-        break;
-    }
-
-    return parentStep;
-  }
-
-  private getChildren(label: string, steps: ProcessorDefinition[], path: string): IVisualizationNode {
-    const node = createVisualizationNode(label);
-    node.path = path;
-    const children = this.getVizNodesFromSteps(steps, path);
-    node.setChildren(children);
-    children.forEach((child) => child.setParentNode(node));
-
-    return node;
+    return vizNodes;
   }
 }
