@@ -137,7 +137,7 @@ export class CanvasService {
       vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
 
     return this.getNode(vizNodeParam.id, {
-      label: vizNodeParam.label,
+      label: vizNodeParam.data.label,
       parentNode,
       data: { vizNode: vizNodeParam },
     });

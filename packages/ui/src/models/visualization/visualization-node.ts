@@ -1,41 +1,43 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
-import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from './base-visual-entity';
+import {
+  BaseVisualCamelEntity,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  VisualComponentSchema,
+} from './base-visual-entity';
 
-export const createVisualizationNode: (
-  ...args: ConstructorParameters<typeof VisualizationNode>
-) => IVisualizationNode = (...args): IVisualizationNode => new VisualizationNode(...args);
+export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
+  data: T,
+): IVisualizationNode<T> => new VisualizationNode(data);
 
 /**
  * VisualizationNode
  * This class is used to represent a node in the visualization tree.
  * It shouldn't be used directly, but rather through the IVisualizationNode interface.
  */
-class VisualizationNode implements IVisualizationNode {
+class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> implements IVisualizationNode<T> {
   readonly id: string;
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
-  private iconData: string | undefined;
-  path: string | undefined;
+  data: T;
 
-  constructor(
-    public label: string,
-    private entity?: BaseVisualCamelEntity,
-  ) {
-    this.id = getCamelRandomId(label);
+  constructor(data: T) {
+    this.id = getCamelRandomId(data.label);
+    this.data = data;
   }
 
   getBaseEntity(): BaseVisualCamelEntity | undefined {
-    return this.entity;
+    return this.data.entity;
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
-    return this.getRootNode().getBaseEntity()?.getComponentSchema(this.path);
+    return this.getRootNode().getBaseEntity()?.getComponentSchema(this.data.path);
   }
 
   updateModel(value: unknown): void {
-    this.getRootNode().getBaseEntity()?.updateModel(this.path, value);
+    this.getRootNode().getBaseEntity()?.updateModel(this.data.path, value);
   }
 
   getRootNode(): IVisualizationNode {
@@ -77,7 +79,7 @@ class VisualizationNode implements IVisualizationNode {
     return this.children;
   }
 
-  setChildren(children: IVisualizationNode[]): void {
+  setChildren(children?: IVisualizationNode[]): void {
     this.children = children;
   }
 
@@ -89,7 +91,7 @@ class VisualizationNode implements IVisualizationNode {
   }
 
   removeChild(child: IVisualizationNode): void {
-    this.getRootNode().getBaseEntity()?.removeStep(this.path);
+    this.getRootNode().getBaseEntity()?.removeStep(this.data.path);
     const index = this.children?.findIndex((node) => node.id === child.id);
 
     if (index !== undefined && index > -1) {
@@ -110,10 +112,10 @@ class VisualizationNode implements IVisualizationNode {
   }
 
   setIconData(iconData: string | undefined) {
-    this.iconData = iconData;
+    this.data.icon = iconData;
   }
 
   getIconData(): string | undefined {
-    return this.iconData;
+    return this.data.icon;
   }
 }

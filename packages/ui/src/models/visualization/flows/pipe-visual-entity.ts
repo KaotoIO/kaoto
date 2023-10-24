@@ -1,12 +1,17 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
+import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
 import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
-import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
+import {
+  BaseVisualCamelEntity,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  VisualComponentSchema,
+} from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './kamelet-schema.service';
-import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
@@ -118,10 +123,16 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   private getVizNodeFromStep(step: PipeStep, path: string): IVisualizationNode {
-    const stepName = step?.ref?.name;
-    const answer = createVisualizationNode(stepName!, this);
-    answer.path = path;
     const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
+    const data: IVisualizationNodeData = {
+      label: step?.ref?.name ?? 'Unknown',
+      path,
+      entity: this,
+      icon:
+        kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon(),
+    };
+    const answer = createVisualizationNode(data);
+
     answer.setIconData(
       kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon(),
     );

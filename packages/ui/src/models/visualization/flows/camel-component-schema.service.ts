@@ -6,7 +6,7 @@ import { CatalogKind } from '../../catalog-kind';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 
-interface ICamelElementLookupResult {
+export interface ICamelElementLookupResult {
   processorName: string;
   componentName?: string;
 }
@@ -21,6 +21,51 @@ export class CamelComponentSchemaService {
       schema: this.getSchema(camelElementLookup),
       definition,
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getLabel(camelElementLookup: ICamelElementLookupResult, definition: any): string {
+    if (camelElementLookup.componentName !== undefined) {
+      return camelElementLookup.componentName;
+    }
+
+    switch (camelElementLookup.processorName) {
+      case 'from':
+        return definition.uri ?? '';
+
+      case 'to':
+      case 'toD':
+        return typeof definition === 'string' ? definition : definition.uri ?? 'To';
+
+      default:
+        return camelElementLookup.processorName;
+    }
+  }
+
+  static getProcessorStepsProperties(
+    processorName: string,
+  ): { name: string; type: 'processor' | 'list' | 'expression-list' }[] {
+    switch (processorName) {
+      case 'choice':
+        return [
+          { name: 'when', type: 'expression-list' },
+          { name: 'otherwise', type: 'processor' },
+        ];
+
+      case 'aggregate':
+      case 'doTry':
+      case 'doCath':
+      case 'doFinally':
+      case 'onFallback':
+      case 'saga':
+      case 'from':
+      case 'when':
+      case 'otherwise':
+        return [{ name: 'steps', type: 'list' }];
+
+      default:
+        return [];
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,6 +113,7 @@ export class CamelComponentSchemaService {
         };
 
       case 'to':
+      case 'toD':
         /** The To processor is using `to: timer:tick?period=1000` form */
         if (typeof definition === 'string') {
           return {

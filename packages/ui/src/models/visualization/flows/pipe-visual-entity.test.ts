@@ -1,8 +1,8 @@
 import { JSONSchemaType } from 'ajv';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
-import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './kamelet-schema.service';
+import { PipeVisualEntity } from './pipe-visual-entity';
 
 describe('Pipe', () => {
   let pipe: PipeVisualEntity;
@@ -105,39 +105,39 @@ describe('Pipe', () => {
       const vizNode = pipe.toVizNode();
 
       expect(vizNode).toBeDefined();
-      expect(vizNode.path).toEqual('source');
+      expect(vizNode.data.path).toEqual('source');
     });
 
     it('should use the uri as the node label', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.label).toEqual('webhook-source');
+      expect(vizNode.data.label).toEqual('webhook-source');
     });
 
     it('should set an empty label if the uri is not available', () => {
       pipe = new PipeVisualEntity({});
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.label).toBeUndefined();
+      expect(vizNode.data.label).toEqual('Unknown');
     });
 
     it('should populate the viz node chain with the steps', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.path).toEqual('source');
-      expect(vizNode.label).toEqual('webhook-source');
+      expect(vizNode.data.path).toEqual('source');
+      expect(vizNode.data.label).toEqual('webhook-source');
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeDefined();
 
       const steps0 = vizNode.getNextNode()!;
-      expect(steps0.path).toEqual('steps.0');
-      expect(steps0.label).toEqual('delay-action');
+      expect(steps0.data.path).toEqual('steps.0');
+      expect(steps0.data.label).toEqual('delay-action');
       expect(steps0.getPreviousNode()).toBe(vizNode);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
-      expect(sink.path).toEqual('sink');
-      expect(sink.label).toEqual('log-sink');
+      expect(sink.data.path).toEqual('sink');
+      expect(sink.data.label).toEqual('log-sink');
       expect(sink.getPreviousNode()).toBe(steps0);
       expect(sink.getNextNode()).toBeUndefined();
     });

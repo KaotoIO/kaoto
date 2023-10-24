@@ -7,7 +7,7 @@ describe('VisualizationNode', () => {
   let node: IVisualizationNode;
 
   beforeEach(() => {
-    node = createVisualizationNode('test');
+    node = createVisualizationNode({ label: 'test' });
   });
 
   it('should create a node with a random id', () => {
@@ -16,7 +16,7 @@ describe('VisualizationNode', () => {
 
   it('should return the base visual entity', () => {
     const visualEntity = {} as BaseVisualCamelEntity;
-    node = createVisualizationNode('test', visualEntity);
+    node = createVisualizationNode({ label: 'test', entity: visualEntity });
 
     expect(node.getBaseEntity()).toEqual(visualEntity);
   });
@@ -27,11 +27,10 @@ describe('VisualizationNode', () => {
       getComponentSchema: getComponentSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
-    node = createVisualizationNode('test', visualEntity);
-    node.path = 'test-path';
+    node = createVisualizationNode({ label: 'test', path: 'test-path', entity: visualEntity });
     node.getComponentSchema();
 
-    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.path);
+    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.data.path);
   });
 
   it('should return the component schema from the root node', () => {
@@ -41,15 +40,14 @@ describe('VisualizationNode', () => {
       getComponentSchema: getComponentSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
-    const rootNode = createVisualizationNode('test', visualEntity);
-    rootNode.path = 'test-path';
+    const rootNode = createVisualizationNode({ label: 'test', path: 'test-path', entity: visualEntity });
     node.setParentNode(rootNode);
 
     /** Act */
     node.getComponentSchema();
 
     /** Assert */
-    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.path);
+    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.data.path);
   });
 
   describe('updateModel', () => {
@@ -59,11 +57,10 @@ describe('VisualizationNode', () => {
         updateModel: updateModelSpy,
       } as unknown as BaseVisualCamelEntity;
 
-      node = createVisualizationNode('test', visualEntity);
-      node.path = 'test-path';
+      node = createVisualizationNode({ label: 'test', path: 'test-path', entity: visualEntity });
       node.updateModel('test-value');
 
-      expect(updateModelSpy).toHaveBeenCalledWith(node.path, 'test-value');
+      expect(updateModelSpy).toHaveBeenCalledWith(node.data.path, 'test-value');
     });
 
     it('should update the model on the root node', () => {
@@ -73,48 +70,47 @@ describe('VisualizationNode', () => {
         updateModel: updateModelSpy,
       } as unknown as BaseVisualCamelEntity;
 
-      const rootNode = createVisualizationNode('test', visualEntity);
-      rootNode.path = 'test-path';
+      const rootNode = createVisualizationNode({ label: 'test', entity: visualEntity });
       node.setParentNode(rootNode);
 
       /** Act */
       node.updateModel('test-value');
 
       /** Assert */
-      expect(updateModelSpy).toHaveBeenCalledWith(node.path, 'test-value');
+      expect(updateModelSpy).toHaveBeenCalledWith(node.data.path, 'test-value');
     });
   });
 
   it('should set the parent node', () => {
-    const parentNode = createVisualizationNode('parent');
+    const parentNode = createVisualizationNode({ label: 'parent' });
     node.setParentNode(parentNode);
 
     expect(node.getParentNode()).toEqual(parentNode);
   });
 
   it('should set the previous node', () => {
-    const previousNode = createVisualizationNode('previous');
+    const previousNode = createVisualizationNode({ label: 'previous' });
     node.setPreviousNode(previousNode);
 
     expect(node.getPreviousNode()).toEqual(previousNode);
   });
 
   it('should set the next node', () => {
-    const nextNode = createVisualizationNode('next');
+    const nextNode = createVisualizationNode({ label: 'next' });
     node.setNextNode(nextNode);
 
     expect(node.getNextNode()).toEqual(nextNode);
   });
 
   it('should set the children', () => {
-    const children = [createVisualizationNode('child')];
+    const children = [createVisualizationNode({ label: 'child' })];
     node.setChildren(children);
 
     expect(node.getChildren()).toEqual(children);
   });
 
   it('should add a child', () => {
-    const child = createVisualizationNode('child');
+    const child = createVisualizationNode({ label: 'child' });
     node.addChild(child);
 
     expect(node.getChildren()).toEqual([child]);
@@ -122,7 +118,7 @@ describe('VisualizationNode', () => {
   });
 
   it('should add a child to an existing children array', () => {
-    const child = createVisualizationNode('child');
+    const child = createVisualizationNode({ label: 'child' });
     node.setChildren([child]);
 
     expect(node.getChildren()).toEqual([child]);
@@ -131,7 +127,7 @@ describe('VisualizationNode', () => {
 
   describe('removeChild', () => {
     it('should remove a child', () => {
-      const child = createVisualizationNode('child');
+      const child = createVisualizationNode({ label: 'child' });
       node.addChild(child);
       node.removeChild(child);
 
@@ -140,7 +136,7 @@ describe('VisualizationNode', () => {
     });
 
     it('should remove a child from an existing children array', () => {
-      const child = createVisualizationNode('child');
+      const child = createVisualizationNode({ label: 'child' });
       node.setChildren([child]);
       node.removeChild(child);
 
@@ -149,7 +145,7 @@ describe('VisualizationNode', () => {
     });
 
     it('should not error when removing a non-existing child', () => {
-      const child = createVisualizationNode('child');
+      const child = createVisualizationNode({ label: 'child' });
       node.removeChild(child);
 
       expect(node.getChildren()).toBeUndefined();
@@ -167,15 +163,15 @@ describe('VisualizationNode', () => {
       /** Refresh the Viz Node */
       node = camelRouteVisualEntityStub.toVizNode();
 
-      expect(node.getNextNode()?.label).toEqual('choice');
+      expect(node.getNextNode()?.data.label).toEqual('choice');
     });
   });
 
   it('should populate the leaf nodes ids - simple relationship', () => {
-    const child = createVisualizationNode('child');
+    const child = createVisualizationNode({ label: 'child' });
     node.addChild(child);
 
-    const leafNode = createVisualizationNode('leaf');
+    const leafNode = createVisualizationNode({ label: 'leaf' });
     child.addChild(leafNode);
 
     const ids: string[] = [];
@@ -185,21 +181,21 @@ describe('VisualizationNode', () => {
   });
 
   it('should populate the leaf nodes ids - complex relationship', () => {
-    const choiceNode = createVisualizationNode('choice');
+    const choiceNode = createVisualizationNode({ label: 'choice' });
     node.addChild(choiceNode);
 
-    const whenNode = createVisualizationNode('when');
+    const whenNode = createVisualizationNode({ label: 'when' });
     choiceNode.addChild(whenNode);
 
-    const otherwiseNode = createVisualizationNode('otherwise');
+    const otherwiseNode = createVisualizationNode({ label: 'otherwise' });
     choiceNode.addChild(otherwiseNode);
 
-    const whenLeafNode = createVisualizationNode('when-leaf');
+    const whenLeafNode = createVisualizationNode({ label: 'when-leaf' });
     whenNode.addChild(whenLeafNode);
 
-    const processNode = createVisualizationNode('process');
+    const processNode = createVisualizationNode({ label: 'process' });
     otherwiseNode.addChild(processNode);
-    const logNode = createVisualizationNode('log');
+    const logNode = createVisualizationNode({ label: 'log' });
     processNode.addChild(logNode);
 
     const ids: string[] = [];

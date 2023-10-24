@@ -119,7 +119,7 @@ describe('CanvasService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node');
+      const vizNode = createVisualizationNode({ label: 'node' });
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
@@ -136,8 +136,8 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node');
-      const childNode = createVisualizationNode('child');
+      const vizNode = createVisualizationNode({ label: 'node' });
+      const childNode = createVisualizationNode({ label: 'child' });
       vizNode.addChild(childNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
@@ -169,32 +169,32 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node');
+      const vizNode = createVisualizationNode({ label: 'node' });
 
-      const setHeaderNode = createVisualizationNode('set-header');
+      const setHeaderNode = createVisualizationNode({ label: 'set-header' });
       vizNode.setNextNode(setHeaderNode);
       setHeaderNode.setPreviousNode(vizNode);
 
-      const choiceNode = createVisualizationNode('choice');
+      const choiceNode = createVisualizationNode({ label: 'choice' });
       setHeaderNode.setNextNode(choiceNode);
       choiceNode.setPreviousNode(setHeaderNode);
 
-      const directNode = createVisualizationNode('direct');
+      const directNode = createVisualizationNode({ label: 'direct' });
       choiceNode.setNextNode(directNode);
       directNode.setPreviousNode(choiceNode);
 
-      const whenNode = createVisualizationNode('when');
+      const whenNode = createVisualizationNode({ label: 'when' });
       choiceNode.addChild(whenNode);
 
-      const otherwiseNode = createVisualizationNode('otherwise');
+      const otherwiseNode = createVisualizationNode({ label: 'otherwise' });
       choiceNode.addChild(otherwiseNode);
 
-      const whenLeafNode = createVisualizationNode('when-leaf');
+      const whenLeafNode = createVisualizationNode({ label: 'when-leaf' });
       whenNode.addChild(whenLeafNode);
 
-      const processNode = createVisualizationNode('process');
+      const processNode = createVisualizationNode({ label: 'process' });
       otherwiseNode.addChild(processNode);
-      const logNode = createVisualizationNode('log');
+      const logNode = createVisualizationNode({ label: 'log' });
       processNode.addChild(logNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
