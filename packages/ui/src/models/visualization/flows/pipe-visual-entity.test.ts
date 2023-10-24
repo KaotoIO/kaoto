@@ -1,15 +1,18 @@
+import { Pipe } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
+import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
 import { KameletSchemaService } from './kamelet-schema.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
 
 describe('Pipe', () => {
+  let pipeCR: Pipe;
   let pipe: PipeVisualEntity;
 
   beforeEach(() => {
-    const pipeCR = JSON.parse(JSON.stringify(pipeJson));
-    pipe = new PipeVisualEntity(pipeCR.spec);
+    pipeCR = cloneDeep(pipeJson);
+    pipe = new PipeVisualEntity(pipeCR.spec!);
   });
 
   describe('id', () => {
@@ -100,6 +103,35 @@ describe('Pipe', () => {
     });
   });
 
+  describe('removeStep', () => {
+    it('should not remove the step if no path is provided', () => {
+      pipe.removeStep();
+
+      expect(pipe.toJSON()).toEqual(pipeJson.spec);
+    });
+
+    it('should remove the `source` step', () => {
+      pipe.removeStep('source');
+
+      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipe.spec?.source).toEqual({});
+    });
+
+    it('should remove the `sink` step', () => {
+      pipe.removeStep('sink');
+
+      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipe.spec?.sink).toEqual({});
+    });
+
+    it('should remove the `steps.0` step', () => {
+      pipe.removeStep('steps.0');
+
+      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipe.spec.steps).toEqual([]);
+    });
+  });
+
   describe('toVizNode', () => {
     it('should return the viz node and set the initial path to `source`', () => {
       const vizNode = pipe.toVizNode();
@@ -114,7 +146,7 @@ describe('Pipe', () => {
       expect(vizNode.data.label).toEqual('webhook-source');
     });
 
-    it('should set an empty label if the uri is not available', () => {
+    it('should set the label as `Unknown` if the uri is not available', () => {
       pipe = new PipeVisualEntity({});
       const vizNode = pipe.toVizNode();
 

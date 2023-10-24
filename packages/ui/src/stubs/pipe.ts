@@ -1,3 +1,5 @@
+import { Pipe } from '@kaoto-next/camel-catalog/types';
+
 export const pipeYaml = `
 apiVersion: camel.apache.org/v1
 kind: Pipe
@@ -38,7 +40,7 @@ spec:
       name: log-sink
 `;
 
-export const pipeJson = {
+export const pipeJson: Pipe = {
   apiVersion: 'camel.apache.org/v1',
   kind: 'Pipe',
   metadata: {
