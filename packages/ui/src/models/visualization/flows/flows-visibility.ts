@@ -33,28 +33,19 @@ export function getVisibleFlowsInformation(visibleFlows: IVisibleFlows): IVisibl
   };
 }
 
-type ToggleFlowVisible = {
-  type: 'toggleFlowVisible';
-  flowId: string;
-  isVisible?: boolean;
-};
-type ShowAllFlows = {
-  type: 'showAllFlows';
-};
+type VisibleFlowAction =
+  | {
+      type: 'toggleFlowVisible';
+      flowId: string;
+      isVisible?: boolean;
+    }
+  | { type: 'showAllFlows' }
+  | { type: 'hideAllFlows' }
+  | { type: 'clearFlows' }
+  | { type: 'setVisibleFlows'; flows: string[] }
+  | { type: 'initVisibleFlows'; visibleFlows: IVisibleFlows };
 
-type HideAllFlows = {
-  type: 'hideAllFlows';
-};
-
-type SetVisibleFlows = {
-  type: 'setVisibleFlows';
-  flows: string[];
-};
-
-export function VisibleFlowsReducer(
-  state: IVisibleFlows,
-  action: ToggleFlowVisible | ShowAllFlows | HideAllFlows | SetVisibleFlows,
-) {
+export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
   let visibleFlows;
   switch (action.type) {
     case 'toggleFlowVisible':
@@ -84,24 +75,27 @@ export function VisibleFlowsReducer(
            * otherwise, we set the first flow to visible
            * and the rest to invisible
            */
-          [flow]: state[flow] ?? index === 0,
+          [flow]: acc[flow] ?? index === 0,
         }),
         {} as IVisibleFlows,
       );
       return { ...state, ...visibleFlows };
+    case 'clearFlows':
+      return {};
+    case 'initVisibleFlows':
+      return { ...action.visibleFlows };
   }
 }
 
 export class VisualFlowsApi {
-  private dispatch: React.Dispatch<ToggleFlowVisible | ShowAllFlows | HideAllFlows | SetVisibleFlows>;
+  private dispatch: React.Dispatch<VisibleFlowAction>;
 
-  constructor(dispatch: React.Dispatch<ToggleFlowVisible | ShowAllFlows | HideAllFlows | SetVisibleFlows>) {
+  constructor(dispatch: React.Dispatch<VisibleFlowAction>) {
     this.dispatch = dispatch;
   }
 
   toggleFlowVisible(flowId: string, isVisible?: boolean) {
-    const t: ToggleFlowVisible = { type: 'toggleFlowVisible', flowId: flowId, isVisible: isVisible };
-    this.dispatch(t);
+    this.dispatch({ type: 'toggleFlowVisible', flowId: flowId, isVisible: isVisible });
   }
 
   showAllFlows() {
@@ -109,10 +103,17 @@ export class VisualFlowsApi {
   }
 
   hideAllFlows() {
-    this.dispatch({ type: 'hideAllFlows' } as HideAllFlows);
+    this.dispatch({ type: 'hideAllFlows' });
   }
 
   setVisibleFlows(flows: string[]) {
     this.dispatch({ type: 'setVisibleFlows', flows: flows });
+  }
+  clearFlows() {
+    this.dispatch({ type: 'clearFlows' });
+  }
+
+  initVisibleFlows(visibleFlows: IVisibleFlows) {
+    this.dispatch({ type: 'initVisibleFlows', visibleFlows: visibleFlows });
   }
 }

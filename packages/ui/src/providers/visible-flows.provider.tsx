@@ -17,8 +17,15 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   }, [dispatch]);
 
   useEffect(() => {
-    const flows = entitiesContext?.visualEntities.map((visualEntity) => visualEntity.id) ?? [];
-    visualFlowsApi.setVisibleFlows(flows);
+    const flows: IVisibleFlows = {};
+
+    entitiesContext?.visualEntities.forEach((visualEntity) => (flows[visualEntity.id] = visibleFlows[visualEntity.id]));
+    const hiddenAll = Object.values(flows).reduce((acc, current) => acc && !current, true);
+    if (hiddenAll) {
+      flows[entitiesContext!.visualEntities[0].id] = true;
+    }
+
+    visualFlowsApi.initVisibleFlows(flows);
   }, [entitiesContext, visualFlowsApi]);
 
   const value = useMemo(() => {
