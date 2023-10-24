@@ -17,7 +17,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
   type = EntityType.Pipe;
 
-  constructor(public spec?: PipeSpec) {}
+  constructor(public spec: PipeSpec) {}
 
   /** Internal API methods */
   getId(): string {
@@ -53,29 +53,29 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return allSteps;
   }
 
-  removeStep(): void {
+  removeStep(path?: string): void {
     /** This method needs to be enabled after passing the entire parent to this class*/
-    // if (!path) return;
-    // /**
-    //  * If the path is `source` or `sink`, we can remove it directly
-    //  */
-    // if (path === 'source' || path === 'sink') {
-    //   set(this.parent, path, {});
-    //   return;
-    // }
-    // const pathArray = path.split('.');
-    // const last = pathArray[pathArray.length - 1];
-    // /**
-    //  * If the last segment is a number, it means the target object is a member of an array
-    //  * therefore we need to look for the array and remove the element at the given index
-    //  *
-    //  * f.i. from.steps.1.choice.when.0
-    //  * last: 0
-    //  */
-    // const array = get(this.parent, pathArray.slice(0, -1), []);
-    // if (Number.isInteger(Number(last)) && Array.isArray(array)) {
-    //   array.splice(Number(last), 1);
-    // }
+    if (!path) return;
+    /**
+     * If the path is `source` or `sink`, we can remove it directly
+     */
+    if (path === 'source' || path === 'sink') {
+      set(this.spec, path, {});
+      return;
+    }
+    const pathArray = path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    /**
+     * If the last segment is a number, it means the target object is a member of an array
+     * therefore we need to look for the array and remove the element at the given index
+     *
+     * f.i. from.steps.1.choice.when.0
+     * last: 0
+     */
+    const array = get(this.spec, pathArray.slice(0, -1), []);
+    if (Number.isInteger(Number(last)) && Array.isArray(array)) {
+      array.splice(Number(last), 1);
+    }
   }
 
   toVizNode(): IVisualizationNode {
