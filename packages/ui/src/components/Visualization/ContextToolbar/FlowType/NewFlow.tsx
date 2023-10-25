@@ -14,7 +14,6 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
 
   const checkBeforeAddNewFlow = useCallback(
     (flowType: SourceSchemaType) => {
-      //  console.log('selected new flow', flowType);
       const isSameSourceType = entitiesContext.currentSchemaType === flowType;
 
       if (isSameSourceType) {

@@ -20,7 +20,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
     const flows: IVisibleFlows = {};
 
     entitiesContext?.visualEntities.forEach((visualEntity) => (flows[visualEntity.id] = visibleFlows[visualEntity.id]));
-    const hiddenAll = Object.values(flows).reduce((acc, current) => acc && !current, true);
+    const hiddenAll = Object.values(flows).every((visible) => !visible);
     if (hiddenAll) {
       flows[entitiesContext!.visualEntities[0].id] = true;
     }
