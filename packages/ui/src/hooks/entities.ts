@@ -4,6 +4,7 @@ import { CamelResource, SourceSchemaType, createCamelResource } from '../models/
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
+import { FlowTemplateService, flowTemplateService } from '../models/visualization/flows/flow-templates-service';
 
 export interface EntitiesContextResult {
   code: string;
@@ -12,6 +13,7 @@ export interface EntitiesContextResult {
   currentSchemaType: SourceSchemaType;
   setCurrentSchemaType: (entity: SourceSchemaType) => void;
   visualEntities: BaseVisualCamelEntity[];
+  flowTemplateService: FlowTemplateService;
   camelResource: CamelResource;
   updateCodeFromEntities: () => void;
   eventNotifier: EventNotifier;
@@ -65,10 +67,19 @@ export const useEntities = (): EntitiesContextResult => {
       currentSchemaType: camelResource?.getType(),
       setCurrentSchemaType: setCurrentSchemaType(),
       visualEntities: camelResource.getVisualEntities(),
+      flowTemplateService: flowTemplateService,
       camelResource,
       updateCodeFromEntities,
       eventNotifier,
     }),
-    [sourceCode, setCode, setCurrentSchemaType, camelResource, updateCodeFromEntities, eventNotifier],
+    [
+      sourceCode,
+      setCode,
+      setCurrentSchemaType,
+      camelResource,
+      updateCodeFromEntities,
+      eventNotifier,
+      flowTemplateService,
+    ],
   );
 };
