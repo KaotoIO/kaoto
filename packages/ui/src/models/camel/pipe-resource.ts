@@ -1,4 +1,4 @@
-import { BaseCamelEntity } from './entities';
+import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
 import { PipeVisualEntity } from '../visualization/flows';
 import { Pipe as PipeType } from '@kaoto-next/camel-catalog/types';
 import { SourceSchemaType } from './source-schema-type';
@@ -22,7 +22,8 @@ export class PipeResource extends CamelKResource {
       this.pipe.spec = {};
     }
     this.flow = new PipeVisualEntity(this.pipe.spec);
-    this.errorHandler = this.pipe.spec!.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec!);
+    this.errorHandler =
+      this.pipe.spec.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
   }
 
   getEntities(): BaseCamelEntity[] {
@@ -51,7 +52,7 @@ export class PipeResource extends CamelKResource {
 
   createErrorHandlerEntity() {
     this.pipe.spec!.errorHandler = {};
-    this.errorHandler = new PipeErrorHandlerEntity(this.pipe.spec!);
+    this.errorHandler = new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
     return this.errorHandler;
   }
 

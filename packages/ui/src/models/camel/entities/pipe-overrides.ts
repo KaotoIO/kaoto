@@ -8,4 +8,6 @@ export type PipeSteps = NonNullable<Pipe['spec']>['steps'];
 // represents single step - the step definition for source, sink and step is equivalent
 export type PipeStep = NonNullable<Pipe['spec']>['source'];
 
-export type PipeErrorHandler = NonNullable<Pipe['spec']>['errorHandler'];
+export interface PipeSpecErrorHandler extends PipeSpec {
+  errorHandler: Required<PipeSpec['errorHandler']>;
+}

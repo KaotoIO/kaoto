@@ -34,7 +34,7 @@ export class KameletVisualEntity implements BaseVisualCamelEntity {
   }
 
   toVizNode(): IVisualizationNode {
-    return createVisualizationNode(''); // TODO
+    return createVisualizationNode({ label: '' }); // TODO
   }
 
   updateModel(path: string | undefined, value: unknown): void {
