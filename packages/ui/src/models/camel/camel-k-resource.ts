@@ -37,6 +37,7 @@ export abstract class CamelKResource implements CamelResource {
     this.metadata = this.resource.metadata && new MetadataEntity(this.resource!);
   }
 
+  removeEntity(_id?: string) {}
   createMetadataEntity() {
     this.resource.metadata = {};
     this.metadata = new MetadataEntity(this.resource!);
@@ -67,4 +68,8 @@ export abstract class CamelKResource implements CamelResource {
   abstract supportsMultipleVisualEntities(): boolean;
 
   abstract toJSON(): unknown;
+
+  addNewEntity(): string {
+    return '';
+  }
 }

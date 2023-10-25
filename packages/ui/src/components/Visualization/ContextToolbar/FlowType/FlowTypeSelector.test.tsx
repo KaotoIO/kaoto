@@ -7,14 +7,11 @@ import { Schema } from '../../../../models';
 import { EntitiesContextResult } from '../../../../hooks';
 
 const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Integration].schema = { schema: { name: 'Integration', description: 'desc' } } as Schema;
-config.config[SourceSchemaType.Pipe].schema = { schema: { name: 'Pipe', description: 'desc' } } as Schema;
-config.config[SourceSchemaType.Kamelet].schema = { schema: { name: 'Kamelet', description: 'desc' } } as Schema;
-config.config[SourceSchemaType.KameletBinding].schema = {
-  name: 'kameletBinding',
-  schema: { description: 'desc' },
+config.config[SourceSchemaType.Pipe].schema = { name: 'Pipe', schema: { name: 'Pipe', description: 'desc' } } as Schema;
+config.config[SourceSchemaType.Route].schema = {
+  name: 'route',
+  schema: { name: 'route', description: 'desc' },
 } as Schema;
-config.config[SourceSchemaType.Route].schema = { schema: { name: 'route', description: 'desc' } } as Schema;
 
 const onSelect = jest.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?: SourceSchemaType }> = ({
@@ -24,7 +21,7 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?:
     <EntitiesContext.Provider
       value={
         {
-          currentSchemaType: currentSchemaType ?? SourceSchemaType.Integration,
+          currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
           visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
         } as unknown as EntitiesContextResult
       }
@@ -73,7 +70,7 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.click(toggle);
     });
 
-    const element = wrapper.getByText('Integration');
+    const element = wrapper.getByText('Camel Route');
     expect(element).toBeInTheDocument();
 
     /** Close Select */
@@ -93,12 +90,12 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.click(toggle);
     });
 
-    const element = await wrapper.findByText('Integration');
+    const element = await wrapper.findByText('Camel Route');
     expect(element).toBeInTheDocument();
   });
 
   test('should disable a SelectOption if is already selected and does not support multiple flows', async () => {
-    const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.KameletBinding} />);
+    const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.Pipe} />);
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -106,10 +103,10 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.click(toggle);
     });
 
-    const element = await wrapper.findByText('Kamelet Binding (single route only)');
+    const element = await wrapper.findByText('Pipe (single route only)');
     expect(element).toBeInTheDocument();
 
-    const option = await wrapper.findByTestId('dsl-kameletBinding');
+    const option = await wrapper.findByTestId('dsl-Pipe');
     expect(option).toHaveClass('pf-m-disabled');
   });
 
@@ -124,7 +121,7 @@ describe('FlowTypeSelector.tsx', () => {
 
     /** Click on first element */
     act(() => {
-      const element = wrapper.getByText('Integration');
+      const element = wrapper.getByText('Camel Route');
       fireEvent.click(element);
     });
 
@@ -135,7 +132,7 @@ describe('FlowTypeSelector.tsx', () => {
 
     const element = await wrapper.findByRole('option', { selected: true });
     expect(element).toBeInTheDocument();
-    expect(element).toHaveTextContent('Integration');
+    expect(element).toHaveTextContent('Camel Route');
   });
 
   test('should not have anything selected if "isStatic=true"', async () => {
@@ -149,7 +146,7 @@ describe('FlowTypeSelector.tsx', () => {
 
     /** Click on first element */
     act(() => {
-      const element = wrapper.getByText('Integration');
+      const element = wrapper.getByText('Camel Route');
       fireEvent.click(element);
     });
 
@@ -176,7 +173,7 @@ describe('FlowTypeSelector.tsx', () => {
     waitFor(() => {
       const element = wrapper.queryByRole('option', { selected: true });
       expect(element).toBeInTheDocument();
-      expect(element).toHaveTextContent('Kamelet');
+      expect(element).toHaveTextContent('Pipe');
     });
   });
 
@@ -204,7 +201,7 @@ describe('FlowTypeSelector.tsx', () => {
     waitFor(() => {
       const element = wrapper.queryByRole('option', { selected: true });
       expect(element).toBeInTheDocument();
-      expect(element).toHaveTextContent('Integration');
+      expect(element).toHaveTextContent('Camel Route');
     });
   });
 

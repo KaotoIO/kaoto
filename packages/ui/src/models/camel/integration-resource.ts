@@ -37,4 +37,9 @@ export class IntegrationResource extends CamelKResource {
   toJSON(): IntegrationType {
     return this.integration;
   }
+
+  addNewEntity(): string {
+    //TODO
+    return '';
+  }
 }

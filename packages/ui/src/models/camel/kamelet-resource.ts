@@ -37,4 +37,10 @@ export class KameletResource extends CamelKResource {
   toJSON(): KameletType {
     return this.kamelet;
   }
+
+  addNewEntity(): string {
+    //TODO
+    console.log('Replacing Kamelet visual entity');
+    return '';
+  }
 }

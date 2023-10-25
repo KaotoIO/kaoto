@@ -45,8 +45,8 @@ describe('NewFlow.tsx', () => {
       fireEvent.click(trigger);
     });
 
-    for (const s of Object.values(sourceSchemaConfig.config)) {
-      const element = await wrapper.findByText(s.name);
+    for (const name of ['Pipe', 'Camel Route']) {
+      const element = await wrapper.findByText(name);
       expect(element).toBeInTheDocument();
     }
   });
@@ -62,7 +62,7 @@ describe('NewFlow.tsx', () => {
 
     /** Select an option */
     act(() => {
-      const element = wrapper.getByText('Kamelet');
+      const element = wrapper.getByText('Pipe');
       fireEvent.click(element);
     });
 
