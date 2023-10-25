@@ -3,16 +3,19 @@ import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { Button, Modal } from '@patternfly/react-core';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { SourceSchemaType } from '../../../../models/camel';
+import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const { currentSchemaType } = useContext(EntitiesContext)!;
+  const entitiesContext = useContext(EntitiesContext)!;
+  const visibleFlowsContext = useContext(VisibleFlowsContext)!;
+  const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
 
   const checkBeforeAddNewFlow = useCallback(
-    (dsl: SourceSchemaType) => {
-      console.log('selected new flow', dsl);
-      const isSameSourceType = currentSchemaType === dsl;
+    (flowType: SourceSchemaType) => {
+      //  console.log('selected new flow', flowType);
+      const isSameSourceType = entitiesContext.currentSchemaType === flowType;
 
       if (isSameSourceType) {
         /**
@@ -20,18 +23,20 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          * we don't need to do anything special, just add a new flow if
          * supported
          */
-        console.log('Add new flow');
+        const newId = entitiesContext.camelResource.addNewEntity();
+        visibleFlowsContext.visualFlowsApi.hideAllFlows();
+        visibleFlowsContext.visualFlowsApi.setVisibleFlows([newId]);
+        entitiesContext.updateCodeFromEntities();
       } else {
         /**
          * If it is not the same DSL, this operation might result in
          * removing the existing flows, so then we warn the user first
          */
-        //setProposedNewDsl(dsl);
-        console.log('Creating new', sourceSchemaConfig.config[dsl].name);
+        setProposedFlowType(flowType);
         setIsConfirmationModalOpen(true);
       }
     },
-    [currentSchemaType],
+    [entitiesContext.currentSchemaType],
   );
 
   return (
@@ -51,12 +56,11 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             variant="primary"
             data-testid="confirmation-modal-confirm"
             onClick={() => {
-              // deleteAllFlows();
-              //
-              // setSettings({ dsl: proposedDsl, namespace });
-              //
-              // addNewFlow(proposedDsl!.name);
-              setIsConfirmationModalOpen(false);
+              if (proposedFlowType) {
+                entitiesContext.setCurrentSchemaType(proposedFlowType);
+                entitiesContext.setCode(entitiesContext.flowTemplateService.getFlowYamlTemplate(proposedFlowType));
+                setIsConfirmationModalOpen(false);
+              }
             }}
           >
             Confirm

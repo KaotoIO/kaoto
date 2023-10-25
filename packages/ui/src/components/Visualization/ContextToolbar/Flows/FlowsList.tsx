@@ -14,19 +14,10 @@ interface IFlowsList {
 }
 
 export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
-  const { visualEntities } = useContext(EntitiesContext)!;
+  const { visualEntities, camelResource, updateCodeFromEntities } = useContext(EntitiesContext)!;
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
 
-  const { isListEmpty, flows, setFlowName, deleteFlow } = {
-    isListEmpty: visualEntities.length === 0,
-    flows: visualEntities,
-    setFlowName: (id: string, name: string) => {
-      console.log('setting the name ', id, name);
-    },
-    deleteFlow: (id: string) => {
-      console.log('delete flow ', id);
-    },
-  };
+  const isListEmpty = visualEntities.length === 0;
 
   const columnNames = useRef({
     id: 'Route Id',
@@ -55,7 +46,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
         </Tr>
       </Thead>
       <Tbody>
-        {flows.map((flow: BaseVisualCamelEntity) => (
+        {visualEntities.map((flow: BaseVisualCamelEntity) => (
           <Tr key={flow.id} data-testid={`flows-list-row-${flow.id}`}>
             <Td dataLabel={columnNames.current.id}>
               <InlineEdit
@@ -65,9 +56,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 onClick={() => {
                   onSelectFlow(flow.id);
                 }}
-                onChange={(name) => {
-                  setFlowName(flow.id, name);
-                }}
+                onChange={(_name) => {}}
               />
               {/*TODO add description*/}
             </Td>
@@ -101,7 +90,8 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 icon={<TrashIcon />}
                 variant="plain"
                 onClick={(event) => {
-                  deleteFlow(flow.id);
+                  camelResource.removeEntity(flow.id);
+                  updateCodeFromEntities();
                   /** Required to avoid closing the Dropdown after clicking in the icon */
                   event.stopPropagation();
                 }}

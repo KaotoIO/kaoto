@@ -17,6 +17,8 @@ import {
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
   getEntities(): BaseCamelEntity[];
+  addNewEntity(entity?: unknown): string;
+  removeEntity(id?: string): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
   getType(): SourceSchemaType;

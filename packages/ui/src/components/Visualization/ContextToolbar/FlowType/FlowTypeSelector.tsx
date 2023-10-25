@@ -21,7 +21,6 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
   const totalFlowsCount = visualEntities.length;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<SourceSchemaType | undefined>(currentSchemaType);
 
   /** Toggle the DSL dropdown */
   const onToggleClick = () => {
@@ -30,17 +29,13 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
 
   /** Selecting a DSL checking the the existing flows */
   const onSelect = useCallback(
-    (_event: MouseEvent | undefined, selectedDslName: string | number | undefined) => {
-      if (selectedDslName) {
-        const dsl = sourceSchemaConfig.config[selectedDslName as SourceSchemaType];
-
-        if (!props.isStatic) {
-          setSelected(selectedDslName as SourceSchemaType);
-        }
+    (_event: MouseEvent | undefined, flowType: string | number | undefined) => {
+      if (flowType) {
+        const dsl = sourceSchemaConfig.config[flowType as SourceSchemaType];
 
         setIsOpen(false);
         if (typeof props.onSelect === 'function' && dsl !== undefined) {
-          props.onSelect(selectedDslName as SourceSchemaType);
+          props.onSelect(flowType as SourceSchemaType);
         }
       }
     },
@@ -93,7 +88,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
     <Select
       id="dsl-list-select"
       isOpen={isOpen}
-      selected={selected}
+      selected={currentSchemaType}
       onSelect={onSelect}
       onOpenChange={(isOpen) => {
         setIsOpen(isOpen);
@@ -101,7 +96,10 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       toggle={toggle}
     >
       <SelectList>
-        {Object.entries(sourceSchemaConfig.config).map((obj, index) => {
+        {Object.entries({
+          [SourceSchemaType.Route]: sourceSchemaConfig.config[SourceSchemaType.Route],
+          [SourceSchemaType.Pipe]: sourceSchemaConfig.config[SourceSchemaType.Pipe],
+        }).map((obj, index) => {
           const sourceType = obj[0] as SourceSchemaType;
           const sourceSchema = obj[1] as ISourceSchema;
           const isOptionDisabled =

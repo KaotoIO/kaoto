@@ -4,6 +4,8 @@ import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
 import { BeansEntity, isBeans } from '../visualization/metadata';
 import { SourceSchemaType } from './source-schema-type';
 import { isDefined } from '../../utils';
+import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private entities: BaseCamelEntity[] = [];
@@ -18,6 +20,15 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       }
       return acc;
     }, [] as BaseCamelEntity[]);
+  }
+
+  addNewEntity(_entity?: unknown): string {
+    const template = flowTemplateService.getFlowTemplate(this.getType());
+    const route = template[0].route as Partial<RouteDefinition>;
+    const visualEntity = new CamelRouteVisualEntity(route);
+    this.entities.push(visualEntity);
+
+    return visualEntity.id;
   }
 
   getEntity(rawItem: unknown): BaseCamelEntity | undefined {
@@ -63,6 +74,18 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     const index = this.entities.findIndex((e) => e === entity);
     if (index !== -1) {
       this.entities.splice(index, 1);
+    }
+  }
+
+  removeEntity(id?: string): void {
+    const index: number = this.entities.findIndex((e) => e.id === id);
+
+    if (index !== -1) {
+      this.entities.splice(index, 1);
+    }
+    // we don't want to end up with clean entities, so we're adding default one if the list if empty
+    if (this.entities.length === 0) {
+      this.addNewEntity();
     }
   }
 }
