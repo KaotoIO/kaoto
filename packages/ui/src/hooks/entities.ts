@@ -67,7 +67,7 @@ export const useEntities = (): EntitiesContextResult => {
       currentSchemaType: camelResource?.getType(),
       setCurrentSchemaType: setCurrentSchemaType(),
       visualEntities: camelResource.getVisualEntities(),
-      flowTemplateService: flowTemplateService,
+      flowTemplateService,
       camelResource,
       updateCodeFromEntities,
       eventNotifier,

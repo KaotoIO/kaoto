@@ -95,7 +95,7 @@ export class VisualFlowsApi {
   }
 
   toggleFlowVisible(flowId: string, isVisible?: boolean) {
-    this.dispatch({ type: 'toggleFlowVisible', flowId: flowId, isVisible: isVisible });
+    this.dispatch({ type: 'toggleFlowVisible', flowId, isVisible });
   }
 
   showAllFlows() {
@@ -109,6 +109,7 @@ export class VisualFlowsApi {
   setVisibleFlows(flows: string[]) {
     this.dispatch({ type: 'setVisibleFlows', flows: flows });
   }
+
   clearFlows() {
     this.dispatch({ type: 'clearFlows' });
   }

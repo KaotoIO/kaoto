@@ -12,13 +12,15 @@ export class FlowTemplateService {
         return `apiVersion: camel.apache.org/v1
 kind: Pipe
 metadata:
-  name: webhook-binding
+  name: new-pipe-template
 spec:
   source:
     ref:
       kind: Kamelet
       apiVersion: camel.apache.org/v1
       name: timer-source
+      properties:
+        message: hello
   sink:
     ref:
       kind: Kamelet
@@ -29,9 +31,11 @@ spec:
         return `- route:
     from:
       uri: timer:template
+      parameters:
+        period: "1000"
       steps:
-        - to:
-            uri: log:template`;
+        - log:
+            message: template message`;
       default:
         return '';
     }
