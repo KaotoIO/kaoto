@@ -37,6 +37,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   /** State for @patternfly/react-topology */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
+  const [nodes, setNodes] = useState<CanvasNode[]>([]);
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
@@ -76,13 +77,16 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     });
   }, [catalogModalContext, controller]);
 
-  const handleSelection = useCallback((selectedIds: string[]) => {
-    setSelectedIds(selectedIds);
+  const handleSelection = useCallback(
+    (selectedIds: string[]) => {
+      setSelectedIds(selectedIds);
 
-    /** Current support for single selection at the moment */
-    const selectedId = selectedIds[0];
-    setSelectedNode(CanvasService.nodes.find((node) => node.id === selectedId));
-  }, []);
+      /** Current support for single selection at the moment */
+      const selectedId = selectedIds[0];
+      setSelectedNode(nodes.find((node) => node.id === selectedId));
+    },
+    [nodes],
+  );
 
   /** Set up the controller one time */
   useEffect(() => {
@@ -100,7 +104,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleSelection]);
 
   /** Draw graph */
   useEffect(() => {
@@ -117,6 +121,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       }
     });
 
+    setNodes([...nodes]);
     const model: Model = {
       nodes,
       edges,

@@ -491,7 +491,7 @@ exports[`Canvas should render correctly 1`] = `
               </div>
               <div
                 class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-0-expandable-content-0"
+                id="pf-topology-control-bar-0-expandable-content-1"
               >
                 <div
                   class="pf-v5-c-toolbar__group"
@@ -1009,7 +1009,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
               </div>
               <div
                 class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-1-expandable-content-1"
+                id="pf-topology-control-bar-1-expandable-content-3"
               >
                 <div
                   class="pf-v5-c-toolbar__group"
@@ -1554,7 +1554,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
               </div>
               <div
                 class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-2-expandable-content-2"
+                id="pf-topology-control-bar-2-expandable-content-5"
               >
                 <div
                   class="pf-v5-c-toolbar__group"
