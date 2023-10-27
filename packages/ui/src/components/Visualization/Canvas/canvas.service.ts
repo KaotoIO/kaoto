@@ -18,6 +18,7 @@ import {
   ModelKind,
   NodeShape,
   Visualization,
+  withPanZoom,
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CustomNodeWithSelection } from '../Custom/CustomNode';
@@ -58,7 +59,7 @@ export class CanvasService {
       default:
         switch (kind) {
           case ModelKind.graph:
-            return GraphComponent;
+            return withPanZoom()(GraphComponent);
           case ModelKind.node:
             return CustomNodeWithSelection;
           case ModelKind.edge:
