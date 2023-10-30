@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { DoCatch, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -14,6 +14,7 @@ import {
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelComponentSchemaService, ICamelElementLookupResult } from './camel-component-schema.service';
+import { CamelProcessorStepsProperties } from './support/camel-component-types';
 
 type CamelRouteVisualEntityData = IVisualizationNodeData & ICamelElementLookupResult;
 
@@ -128,7 +129,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
-  toVizNode(): IVisualizationNode<CamelRouteVisualEntityData> {
+  toVizNode(): IVisualizationNode {
     const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' });
     rootNode.data.entity = this;
 
@@ -145,10 +146,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     return rootNode;
   }
 
-  private getVizNodeFromProcessor(
-    path: string,
-    componentLookup: ICamelElementLookupResult,
-  ): IVisualizationNode<CamelRouteVisualEntityData> {
+  private getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
     const data: CamelRouteVisualEntityData = {
       label: CamelComponentSchemaService.getLabel(componentLookup, get(this.route, path)),
       path,
@@ -159,58 +157,61 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
 
     const vizNode = createVisualizationNode(data);
 
-    const childrenVizNodes = this.getVizNodesFromSteps(path, componentLookup);
-    childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      componentLookup.processorName as keyof ProcessorDefinition,
+    );
+
+    childrenStepsProperties.forEach((stepsProperty) => {
+      const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty);
+      childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+    });
 
     return vizNode;
   }
 
-  private getVizNodesFromSteps(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode[] {
-    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      componentLookup.processorName,
-    );
+  private getVizNodesFromChildren(path: string, stepsProperty: CamelProcessorStepsProperties): IVisualizationNode[] {
+    let singlePath: string;
 
-    const vizNodes = childrenStepsProperties.reduce((acc, stepsProperty) => {
-      if (stepsProperty.type === 'processor') {
-        const childPath = `${path}.${stepsProperty.name}`;
-        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
-        const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
+    switch (stepsProperty.type) {
+      case 'steps-list':
+        singlePath = `${path}.${stepsProperty.name}`;
+        const stepsList = get(this.route, singlePath, []) as ProcessorDefinition[];
 
-        acc.push(vizNode);
-      } else if (stepsProperty.type === 'list' || stepsProperty.type === 'expression-list') {
-        const singlePath = `${path}.${stepsProperty.name}`;
-        const steps = get(this.route, singlePath, []) as ProcessorDefinition[];
-
-        const childrenVizNodes = steps.reduce((acc, step, index) => {
-          let childPath: string;
-          let childComponentLookup: ICamelElementLookupResult;
-          if (stepsProperty.type === 'expression-list') {
-            childPath = `${singlePath}.${index}`;
-            childComponentLookup = { processorName: stepsProperty.name };
-          } else {
-            const singlePropertyName = Object.keys(step)[0];
-            childPath = `${singlePath}.${index}.${singlePropertyName}`;
-            childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
-          }
+        return stepsList.reduce((accStepsNodes, step, index) => {
+          const singlePropertyName = Object.keys(step)[0];
+          const childPath = `${singlePath}.${index}.${singlePropertyName}`;
+          const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
 
           const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
 
-          const previousVizNode = acc[acc.length - 1];
+          const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
           if (previousVizNode !== undefined) {
             previousVizNode.setNextNode(vizNode);
             vizNode.setPreviousNode(previousVizNode);
           }
 
-          acc.push(vizNode);
-          return acc;
+          accStepsNodes.push(vizNode);
+          return accStepsNodes;
         }, [] as IVisualizationNode[]);
 
-        acc.push(...childrenVizNodes);
-      }
+      case 'single-processor':
+        const childPath = `${path}.${stepsProperty.name}`;
+        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
+        return [this.getVizNodeFromProcessor(childPath, childComponentLookup)];
 
-      return acc;
-    }, [] as IVisualizationNode[]);
+      case 'expression-list':
+        singlePath = `${path}.${stepsProperty.name}`;
+        const expressionList = get(this.route, singlePath, []) as When1[] | DoCatch[];
 
-    return vizNodes;
+        return expressionList.map((_step, index) => {
+          const childPath = `${singlePath}.${index}`;
+          const childComponentLookup = { processorName: stepsProperty.name as keyof ProcessorDefinition }; // when, doCatch
+
+          return this.getVizNodeFromProcessor(childPath, childComponentLookup);
+        });
+
+      default:
+        return [];
+    }
   }
 }
