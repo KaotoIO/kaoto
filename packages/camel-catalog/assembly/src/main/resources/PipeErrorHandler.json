@@ -4,13 +4,17 @@
   "additionalProperties" : false,
   "description": "Camel K Pipe ErrorHandler. See https://camel.apache.org/camel-k/latest/pipe-step.html#_error_handler for more details.",
   "oneOf" : [ {
+    "title": "No Pipe ErrorHandler",
+    "type": "object",
     "properties" : {
       "none" : {
-        "type" : "null"
+        "type" : "object"
       }
     },
     "required" : [ "none" ]
   }, {
+    "title": "Log Pipe ErrorHandler",
+    "type": "object",
     "properties" : {
       "log": {
         "type": "object",
@@ -35,6 +39,8 @@
     },
     "required" : [ "log" ]
   }, {
+    "title": "Sink Pipe ErrorHandler",
+    "type": "object",
     "properties" : {
       "sink": {
         "type": "object",
