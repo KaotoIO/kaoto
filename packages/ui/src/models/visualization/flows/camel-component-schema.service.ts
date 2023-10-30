@@ -44,12 +44,12 @@ export class CamelComponentSchemaService {
 
   static getProcessorStepsProperties(
     processorName: string,
-  ): { name: string; type: 'processor' | 'list' | 'expression-list' }[] {
+  ): { name: string; type: 'single-processor' | 'steps-list' | 'expression-list' }[] {
     switch (processorName) {
       case 'choice':
         return [
           { name: 'when', type: 'expression-list' },
-          { name: 'otherwise', type: 'processor' },
+          { name: 'otherwise', type: 'single-processor' },
         ];
 
       case 'aggregate':
@@ -61,7 +61,7 @@ export class CamelComponentSchemaService {
       case 'from':
       case 'when':
       case 'otherwise':
-        return [{ name: 'steps', type: 'list' }];
+        return [{ name: 'steps', type: 'steps-list' }];
 
       default:
         return [];
