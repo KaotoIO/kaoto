@@ -28,8 +28,11 @@ export const ItemAddNode: FunctionComponent<ItemAddNodeProps> = (props) => {
   const onAddNode = useCallback(async () => {
     if (!vizNode || !entitiesContext) return;
 
+    /** Get compatible nodes and the location where can be introduced */
+    const compatibleNodes = entitiesContext.camelResource.getCompatibleComponents(props.mode, vizNode.data);
+
     /** Open Catalog modal, filtering the compatible nodes */
-    const definedComponent = await catalogModalContext?.getNewComponent({});
+    const definedComponent = await catalogModalContext?.getNewComponent(compatibleNodes);
     if (!definedComponent) return;
 
     /** Add new node to the entities */

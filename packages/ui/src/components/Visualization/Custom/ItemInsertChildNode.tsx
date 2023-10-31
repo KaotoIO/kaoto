@@ -28,10 +28,7 @@ export const ItemInsertChildNode: FunctionComponent<ItemInsertChildNodeProps> = 
     if (!vizNode || !entitiesContext) return;
 
     /** Get compatible nodes and the location where can be introduced */
-    const compatibleNodes =
-      props.mode === AddStepMode.InsertSpecialChildStep
-        ? entitiesContext.camelResource.getCompatibleComponents(vizNode.data)
-        : {};
+    const compatibleNodes = entitiesContext.camelResource.getCompatibleComponents(props.mode, vizNode.data);
 
     /** Open Catalog modal, filtering the compatible nodes */
     const definedComponent = await catalogModalContext?.getNewComponent(compatibleNodes);

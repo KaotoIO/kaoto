@@ -3,7 +3,7 @@ import { DoCatch, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-nex
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { isDefined } from '../../../utils';
+import { getArrayProperty, isDefined } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -115,7 +115,7 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
      * property to place the new node in, therefore we add the new one at the beginning of the array
      */
     if (stepsProperties.length === 1 && stepsProperties[0].type === 'branch') {
-      const stepsArray = this.getArrayProperty(`${options.data.path}.${stepsProperties[0].name}`);
+      const stepsArray = getArrayProperty(this.route, `${options.data.path}.${stepsProperties[0].name}`);
       stepsArray.unshift(defaultValue);
 
       return;
@@ -311,19 +311,8 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     if (property.type === 'single-clause') {
       set(this.route, `${options.data.path}.${property.name}`, defaultValue);
     } else {
-      const arrayPath = this.getArrayProperty(`${options.data.path}.${property.name}`);
+      const arrayPath = getArrayProperty(this.route, `${options.data.path}.${property.name}`);
       arrayPath.unshift(defaultValue);
     }
-  }
-
-  private getArrayProperty(path: string): unknown[] {
-    let stepsArray: ProcessorDefinition[] | undefined = get(this.route, path);
-
-    if (!Array.isArray(stepsArray)) {
-      set(this.route, path, []);
-      stepsArray = get(this.route, path) as ProcessorDefinition[];
-    }
-
-    return stepsArray;
   }
 }

@@ -125,12 +125,4 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     /** If this node has children, populate the leaf nodes ids of each child */
     this.children?.forEach((child) => child.populateLeafNodesIds(ids));
   }
-
-  setIconData(iconData: string | undefined) {
-    this.data.icon = iconData;
-  }
-
-  getIconData(): string | undefined {
-    return this.data.icon;
-  }
 }

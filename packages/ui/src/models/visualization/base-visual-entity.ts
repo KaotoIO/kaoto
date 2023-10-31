@@ -85,10 +85,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   removeChild(): void;
 
   populateLeafNodesIds(ids: string[]): void;
-
-  setIconData(iconData: string | undefined): void;
-
-  getIconData(): string | undefined;
 }
 
 export interface IVisualizationNodeData {
@@ -96,6 +92,7 @@ export interface IVisualizationNodeData {
   icon?: string;
   path?: string;
   entity?: BaseVisualCamelEntity;
+  isPlaceholder?: boolean;
   [key: string]: unknown;
 }
 
@@ -113,9 +110,22 @@ export interface VisualComponentSchema {
 }
 
 export const enum AddStepMode {
+  /** Used to append a new step before an existing step */
   PrependStep = 'prepend-step',
+  /** Used to append a new step after an existing step */
   AppendStep = 'append-step',
+  /** Used to replace an existing step */
+  ReplaceStep = 'replace-step',
+  /**
+   * Used to insert a new step in the step property.
+   * for instance, for adding steps to the `from` or `doTry` processor
+   */
   InsertChildStep = 'insert-step',
+  /**
+   * Used to insert a new special step in a special step property.
+   * for instance, for adding `when` clauses to the `choice.when` property,
+   * or to add `doCatch` clauses to the `doTry.doCath` property
+   */
   InsertSpecialChildStep = 'insert-special-step',
 }
 

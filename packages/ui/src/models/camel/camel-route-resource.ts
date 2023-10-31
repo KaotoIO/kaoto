@@ -1,6 +1,7 @@
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { isDefined } from '../../utils';
-import { CatalogFilter } from '../catalog-kind';
+import { CatalogFilter } from '../catalog-filter';
+import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
 import { flowTemplateService } from '../visualization/flows/flow-templates-service';
 import { CamelComponentSchemaService } from '../visualization/flows/support/camel-component-schema.service';
@@ -93,7 +94,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   /** Components Catalog related methods */
-  getCompatibleComponents(visualEntityData: CamelRouteVisualEntityData): CatalogFilter {
-    return CamelComponentSchemaService.getCompatibleComponents(visualEntityData.processorName);
+  getCompatibleComponents(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): CatalogFilter {
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      return CamelComponentSchemaService.getCompatibleComponents(visualEntityData.processorName);
+    }
+
+    return {};
   }
 }
