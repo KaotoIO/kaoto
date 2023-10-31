@@ -1,6 +1,7 @@
 //POC - extend to include icons for all the EIP's
 import defaultCamelIcon from '../assets/camel-logo.svg';
 import questionIcon from '../assets/question-mark.svg';
+import expandIcon from '../assets/expand.svg';
 
 export class NodeIconResolver {
   static getIcon = (iconName: string | undefined): string => {
@@ -19,6 +20,11 @@ export class NodeIconResolver {
   static getUnknownIcon = (): string => {
     return questionIcon;
   };
+
+  static getPlaceholderIcon = (): string => {
+    return expandIcon;
+  };
+
   static getDefaultCamelIcon = (): string => {
     return defaultCamelIcon;
   };

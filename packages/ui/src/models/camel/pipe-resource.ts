@@ -1,5 +1,8 @@
 import { Pipe as PipeType } from '@kaoto-next/camel-catalog/types';
-import { CatalogFilter, CatalogKind } from '../catalog-kind';
+import { ITile } from '../../components/Catalog/Catalog.models';
+import { CatalogFilter } from '../catalog-filter';
+import { CatalogKind } from '../catalog-kind';
+import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
 import { flowTemplateService } from '../visualization/flows/flow-templates-service';
 import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
@@ -80,7 +83,21 @@ export class PipeResource extends CamelKResource {
   }
 
   /** Components Catalog related methods */
-  getCompatibleComponents(): CatalogFilter {
-    return { kinds: [CatalogKind.Kamelet] };
+  getCompatibleComponents(mode: AddStepMode, visualEntityData: IVisualizationNodeData): CatalogFilter {
+    return {
+      filterFunction: this.getFilterFunction(mode, visualEntityData),
+    };
+  }
+
+  private getFilterFunction(mode: AddStepMode, visualEntityData: IVisualizationNodeData): (item: ITile) => boolean {
+    let kameletType: string = 'action';
+
+    if (mode === AddStepMode.ReplaceStep && (visualEntityData.path === 'source' || visualEntityData.path === 'sink')) {
+      kameletType = visualEntityData.path;
+    }
+
+    return (item: ITile) => {
+      return item.type === CatalogKind.Kamelet && item.tags.includes(kameletType);
+    };
   }
 }

@@ -25,7 +25,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
             <GridItem span={2}>
               <img
                 className={'sidebar-icon-' + props.selectedNode?.label}
-                src={props.selectedNode?.data?.vizNode?.getIconData()}
+                src={props.selectedNode?.data?.vizNode?.data.icon}
                 alt="icon"
               />
             </GridItem>

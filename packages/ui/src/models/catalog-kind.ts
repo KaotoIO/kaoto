@@ -3,8 +3,3 @@ export const enum CatalogKind {
   Processor = 'model',
   Kamelet = 'kamelet',
 }
-
-export interface CatalogFilter {
-  kinds?: CatalogKind[];
-  names?: string[];
-}

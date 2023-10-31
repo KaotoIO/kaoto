@@ -4,8 +4,8 @@ import {
   Kamelet as KameletType,
   Pipe as PipeType,
 } from '@kaoto-next/camel-catalog/types';
-import { CatalogFilter } from '../catalog-kind';
-import { BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
+import { CatalogFilter } from '../catalog-filter';
+import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { BeansEntity } from '../visualization/metadata';
 import { CamelRouteResource } from './camel-route-resource';
 import { BaseCamelEntity } from './entities';
@@ -25,7 +25,7 @@ export interface CamelResource {
   getType(): SourceSchemaType;
 
   /** Components Catalog related methods */
-  getCompatibleComponents(visualEntityData: IVisualizationNodeData): CatalogFilter;
+  getCompatibleComponents(mode: AddStepMode, visualEntityData: IVisualizationNodeData): CatalogFilter;
 }
 
 export interface BeansAwareResource {

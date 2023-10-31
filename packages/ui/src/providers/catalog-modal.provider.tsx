@@ -69,8 +69,12 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
   const getNewComponent = useCallback(
     (catalogFilter: CatalogFilter) => {
-      if (isDefined(catalogFilter.kinds) || isDefined(catalogFilter.names)) {
+      if (isDefined(catalogFilter.filterFunction) || isDefined(catalogFilter.kinds) || isDefined(catalogFilter.names)) {
         const localFilteredTiles = tiles.filter((tile) => {
+          if (isDefined(catalogFilter.filterFunction)) {
+            return catalogFilter.filterFunction(tile);
+          }
+
           if (isDefined(catalogFilter.kinds) && !catalogFilter.kinds.includes(tile.type as CatalogKind)) {
             return false;
           }
