@@ -5,7 +5,7 @@
     "description": "Send messages to (or consume from) Apache ActiveMQ. This component extends the Camel JMS component.",
     "headerTags": ["Stable"],
     "tags": ["messaging"],
-    "version": ["4.0.0"],
+    "version": "4.0.0",
     "rawObject": {
       "component": {
         "kind": "component",
