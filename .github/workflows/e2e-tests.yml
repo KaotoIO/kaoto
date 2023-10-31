@@ -98,9 +98,10 @@ jobs:
           browser: firefox
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run start
+          start: yarn workspace @kaoto-next/ui run preview
+          config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:5173'
+          wait-on: 'http://localhost:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -155,9 +156,10 @@ jobs:
           browser: chrome
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run start
+          start: yarn workspace @kaoto-next/ui run preview
+          config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:5173'
+          wait-on: 'http://localhost:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -212,9 +214,10 @@ jobs:
           browser: edge
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run start
+          start: yarn workspace @kaoto-next/ui run preview
+          config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:5173'
+          wait-on: 'http://localhost:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
