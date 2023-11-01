@@ -41,7 +41,7 @@ export const BeansPage: FunctionComponent = () => {
         entity.parent.beans = model;
       } else {
         const entity = findBeansEntity();
-        entity?.parent.beans.length === 0 && beansAwareResource.deleteBeansEntity(entity);
+        entity && beansAwareResource.deleteBeansEntity(entity);
       }
       entitiesContext?.updateCodeFromEntities();
     },
