@@ -12,8 +12,8 @@ interface PipeErrorHandlerEditorProps {
 export const PipeErrorHandlerEditor: FunctionComponent<PropsWithChildren<PipeErrorHandlerEditorProps>> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorHandlerType, setErrorHandlerType] = useState<string>('none');
-  const schema = useMemo(() => props.schema as Record<string, unknown>, [props.schema]);
-  const schemaOneOf = useMemo(() => schema.oneOf as Record<string, unknown>[], [schema]);
+  const schema = props.schema as Record<string, unknown>;
+  const schemaOneOf = schema.oneOf as Record<string, unknown>[];
 
   useEffect(() => {
     const modelRecord = props.model as Record<string, unknown>;
@@ -58,16 +58,19 @@ export const PipeErrorHandlerEditor: FunctionComponent<PropsWithChildren<PipeErr
     <>
       <Select
         id={'pipe-error-handler-select'}
+        data-testid={'pipe-error-handler-select'}
         isOpen={isOpen}
         selected={errorHandlerType}
         onSelect={onSelect}
         toggle={toggle}
       >
-        <SelectList>
+        <SelectList data-testid={'pipe-error-handler-select-list'}>
           {schemaOneOf.map((entry) => {
+            const key = (entry.required as string[])[0];
+            const title = entry.title as string;
             return (
-              <SelectOption key={entry.title as string} value={(entry.required as string[])[0]}>
-                {entry.title as string}
+              <SelectOption data-testid={'pipe-error-handler-select-option-' + key} key={title} value={key}>
+                {title}
               </SelectOption>
             );
           })}
