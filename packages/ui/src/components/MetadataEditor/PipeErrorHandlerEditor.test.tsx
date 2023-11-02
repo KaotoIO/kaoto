@@ -1,4 +1,5 @@
 import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
+import { within } from '@testing-library/dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { pipeErrorHandlerJson } from '../../stubs/PipeErrorHandler';
 
@@ -29,7 +30,7 @@ describe('PipeErrorHandlerEditor', () => {
 
   it('should render a form if sink ErrorHandler is selected', () => {
     let model: Record<string, unknown> = {};
-    const { container } = render(
+    render(
       <PipeErrorHandlerEditor
         model={{}}
         onChangeModel={(m) => {
@@ -38,11 +39,12 @@ describe('PipeErrorHandlerEditor', () => {
         schema={pipeErrorHandlerJson}
       />,
     );
-    const button = container.querySelector('button');
+    const button = screen.getByRole('button');
     fireEvent(button!, new MouseEvent('click', { bubbles: true }));
-    const buttons = container.querySelectorAll('button');
-    buttons.forEach((button) => {
-      if (button.querySelector('span')?.querySelector('span')?.innerHTML === 'Log ErrorHandler') {
+    const options = screen.getAllByTestId(/pipe-error-handler-select-option.*/);
+    options.forEach((option) => {
+      if (option.innerHTML.includes('Log ErrorHandler')) {
+        const button = within(option).getByRole('option');
         fireEvent(button, new MouseEvent('click', { bubbles: true }));
       }
     });
