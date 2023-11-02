@@ -23,18 +23,28 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         const camelProcessorsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
           catalogIndex.catalogs.models.file,
         );
+        const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
+          catalogIndex.catalogs.languages.file,
+        );
+        const camelDataformatsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Dataformat]>(
+          catalogIndex.catalogs.dataformats.file,
+        );
         const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           catalogIndex.catalogs.kamelets.file,
         );
 
-        const [camelComponents, camelProcessors, kamelets] = await Promise.all([
+        const [camelComponents, camelProcessors, camelLanguages, camelDataformats, kamelets] = await Promise.all([
           camelComponentsFiles,
           camelProcessorsFiles,
+          camelLanguagesFiles,
+          camelDataformatsFiles,
           kameletsFiles,
         ]);
 
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelProcessors.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kamelets.body);
       })
       .then(() => {

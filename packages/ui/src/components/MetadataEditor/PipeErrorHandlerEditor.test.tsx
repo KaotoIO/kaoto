@@ -1,7 +1,7 @@
 import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
 import { within } from '@testing-library/dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { pipeErrorHandlerJson } from '../../stubs/PipeErrorHandler';
+import * as pipeErrorHandlerSchema from '@kaoto-next/camel-catalog/PipeErrorHandler.json';
 
 describe('PipeErrorHandlerEditor', () => {
   it('should render', () => {
@@ -13,8 +13,8 @@ describe('PipeErrorHandlerEditor', () => {
         },
       },
     };
-    render(<PipeErrorHandlerEditor model={model} onChangeModel={() => {}} schema={pipeErrorHandlerJson} />);
-    const element = screen.getByTestId('metadata-editor-form-Log ErrorHandler');
+    render(<PipeErrorHandlerEditor model={model} onChangeModel={() => {}} schema={pipeErrorHandlerSchema} />);
+    const element = screen.getByTestId('metadata-editor-form-Log Pipe ErrorHandler');
     expect(element).toBeTruthy();
     const inputs = screen.getAllByTestId('num-field');
     expect(inputs.length).toBe(2);
@@ -23,8 +23,8 @@ describe('PipeErrorHandlerEditor', () => {
   });
 
   it('should not render a form if model is empty', () => {
-    render(<PipeErrorHandlerEditor model={{}} onChangeModel={() => {}} schema={pipeErrorHandlerJson} />);
-    const element = screen.queryByTestId('metadata-editor-form-Log ErrorHandler');
+    render(<PipeErrorHandlerEditor model={{}} onChangeModel={() => {}} schema={pipeErrorHandlerSchema} />);
+    const element = screen.queryByTestId('metadata-editor-form-Log Pipe ErrorHandler');
     expect(element).toBeFalsy();
   });
 
@@ -36,19 +36,19 @@ describe('PipeErrorHandlerEditor', () => {
         onChangeModel={(m) => {
           model = m;
         }}
-        schema={pipeErrorHandlerJson}
+        schema={pipeErrorHandlerSchema}
       />,
     );
     const button = screen.getByRole('button');
     fireEvent(button!, new MouseEvent('click', { bubbles: true }));
     const options = screen.getAllByTestId(/pipe-error-handler-select-option.*/);
     options.forEach((option) => {
-      if (option.innerHTML.includes('Log ErrorHandler')) {
+      if (option.innerHTML.includes('Log Pipe ErrorHandler')) {
         const button = within(option).getByRole('option');
         fireEvent(button, new MouseEvent('click', { bubbles: true }));
       }
     });
-    const element = screen.getByTestId('metadata-editor-form-Log ErrorHandler');
+    const element = screen.getByTestId('metadata-editor-form-Log Pipe ErrorHandler');
     expect(element).toBeTruthy();
     expect(model.log).toBeTruthy();
   });
