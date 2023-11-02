@@ -13,6 +13,8 @@
   "scripts": {
     "e2e": "cypress open --config-file=cypress.config.ts",
     "e2e:headless": "cypress run",
+    "e2e-preview": "cypress open --config-file=cypress.config.ts --config baseUrl=http://localhost:4173/",
+    "e2e-preview:headless": "cypress run --config baseUrl=http://localhost:4173/",
     "lint": "yarn eslint \"cypress/**/*.{ts,tsx}\" \"stories/**/*.{ts,tsx}\"",
     "lint:fix": "yarn lint --fix",
     "storybook": "storybook dev -p 6006",

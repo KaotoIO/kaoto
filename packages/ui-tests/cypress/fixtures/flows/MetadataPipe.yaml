@@ -1,0 +1,56 @@
+apiVersion: camel.apache.org/v1
+kind: Pipe
+metadata:
+  name: webhook-binding
+  annotations:
+    annotation-name: annotation-value
+  labels:
+    label-name: label-value
+  namespace: testNamespace
+  resourceVersion: 1.0.0-SNAPSHOT
+  selfLink: testLink
+  uid: testUid
+  finalizers:
+    - finalizers-testFinalizer
+  managedFields:
+    - apiVersion: managedFields-apiVersion
+      fieldsType: managedFields-fieldsType
+      manager: managedFields-manager
+      operation: managedFields-operation
+      subresource: managedFields-subresource
+      time: managedFields-time
+  ownerReferences:
+    - apiVersion: ownerReferences-apiVersion
+      kind: ownerReferences-kind
+      name: ownerReferences-name
+      uid: ownerReferences-uid
+      blockOwnerDeletion: true
+      controller: true
+  plural: kameletbindings
+  scope: Namespaced
+  served: true
+  singular: kameletbinding
+  creationTimestamp: testCreationTimestamp
+  deletionGracePeriodSeconds: 1000
+  deletionTimestamp: testDeletionTimestamp
+  generateName: testGenerateName
+  generation: 10
+spec:
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1
+      name: webhook-source
+  steps:
+    - ref:
+        kind: Kamelet
+        apiVersion: camel.apache.org/v1
+        name: delay-action
+  sink:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1
+      name: log-sink
+
+
+

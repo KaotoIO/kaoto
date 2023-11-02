@@ -1,21 +1,28 @@
 /* eslint-disable no-case-declarations */
-import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { DoCatch, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { isDefined } from '../../../utils';
+import { getArrayProperty, isDefined } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelComponentSchemaService, ICamelElementLookupResult } from './camel-component-schema.service';
-
-type CamelRouteVisualEntityData = IVisualizationNodeData & ICamelElementLookupResult;
+import { CamelComponentDefaultService } from './support/camel-component-default.service';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+import {
+  CamelProcessorStepsProperties,
+  CamelRouteVisualEntityData,
+  ICamelElementLookupResult,
+} from './support/camel-component-types';
 
 /** Very basic check to determine whether this object is a Camel Route */
 export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDefinition } => {
@@ -68,6 +75,72 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
 
   getSteps(): ProcessorDefinition[] {
     return this.route.from?.steps ?? [];
+  }
+
+  /**
+   * Add a step to the route
+   *
+   * path examples:
+   *      from
+   *      from.steps.0.setHeader
+   *      from.steps.1.choice.when.0
+   *      from.steps.1.choice.when.0.steps.0.setHeader
+   *      from.steps.1.choice.otherwise
+   *      from.steps.1.choice.otherwise.steps.0.setHeader
+   *      from.steps.2.doTry.doCatch.0
+   *      from.steps.2.doTry.doCatch.0.steps.0.setHeader
+   */
+  addStep(options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }) {
+    if (options.data.path === undefined) return;
+    console.log(options);
+
+    const defaultValue = CamelComponentDefaultService.getDefaultNodeDefinitionValue(options.definedComponent);
+    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      (options.data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
+    );
+
+    if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
+      this.insertChildStep(options, stepsProperties, defaultValue);
+
+      return;
+    }
+
+    /**
+     * If the current node contains a single property of type list, it means the target has a single
+     * property to place the new node in, therefore we add the new one at the beginning of the array
+     */
+    if (stepsProperties.length === 1 && stepsProperties[0].type === 'branch') {
+      const stepsArray = getArrayProperty(this.route, `${options.data.path}.${stepsProperties[0].name}`);
+      stepsArray.unshift(defaultValue);
+
+      return;
+    }
+
+    const pathArray = options.data.path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    /**
+     * If the last segment is a string and the penultimate is a number, it means the target is member of an array
+     * therefore we need to look for the array and insert the element at the given index + 1
+     *
+     * f.i. from.steps.0.setHeader
+     * penultimate: 0
+     * last: setHeader
+     */
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      const desiredIndex = options.mode === AddStepMode.PrependStep ? Number(penultimate) : Number(penultimate) + 1;
+
+      const stepsArray: ProcessorDefinition[] = get(this.route, pathArray.slice(0, -2), []);
+      stepsArray.splice(desiredIndex, 0, defaultValue);
+
+      return;
+    }
   }
 
   removeStep(path?: string): void {
@@ -128,27 +201,35 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
-  toVizNode(): IVisualizationNode<CamelRouteVisualEntityData> {
-    const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' });
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
+    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
+    );
+    const catalogFilter = CamelComponentSchemaService.getCompatibleComponents(
+      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
+    );
+    const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
+      (data as CamelRouteVisualEntityData).processorName,
+    );
+    const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
+    const canHaveSpecialChildren = Object.keys(catalogFilter).length > 0;
+
+    return {
+      canHavePreviousStep,
+      canHaveNextStep: canHavePreviousStep,
+      canHaveChildren,
+      canHaveSpecialChildren,
+    };
+  }
+
+  toVizNode(): IVisualizationNode {
+    const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' as keyof ProcessorDefinition });
     rootNode.data.entity = this;
-
-    rootNode.getChildren()?.forEach((child, index) => {
-      if (index === 0) {
-        rootNode.setNextNode(child);
-        child.setPreviousNode(rootNode);
-      }
-
-      child.setParentNode();
-      rootNode.setChildren();
-    });
 
     return rootNode;
   }
 
-  private getVizNodeFromProcessor(
-    path: string,
-    componentLookup: ICamelElementLookupResult,
-  ): IVisualizationNode<CamelRouteVisualEntityData> {
+  private getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
     const data: CamelRouteVisualEntityData = {
       label: CamelComponentSchemaService.getLabel(componentLookup, get(this.route, path)),
       path,
@@ -159,58 +240,79 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
 
     const vizNode = createVisualizationNode(data);
 
-    const childrenVizNodes = this.getVizNodesFromSteps(path, componentLookup);
-    childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      componentLookup.processorName as keyof ProcessorDefinition,
+    );
+
+    childrenStepsProperties.forEach((stepsProperty) => {
+      const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty);
+      childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+    });
 
     return vizNode;
   }
 
-  private getVizNodesFromSteps(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode[] {
-    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      componentLookup.processorName,
-    );
+  private getVizNodesFromChildren(path: string, stepsProperty: CamelProcessorStepsProperties): IVisualizationNode[] {
+    let singlePath: string;
 
-    const vizNodes = childrenStepsProperties.reduce((acc, stepsProperty) => {
-      if (stepsProperty.type === 'processor') {
-        const childPath = `${path}.${stepsProperty.name}`;
-        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
-        const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
+    switch (stepsProperty.type) {
+      case 'branch':
+        singlePath = `${path}.${stepsProperty.name}`;
+        const stepsList = get(this.route, singlePath, []) as ProcessorDefinition[];
 
-        acc.push(vizNode);
-      } else if (stepsProperty.type === 'list' || stepsProperty.type === 'expression-list') {
-        const singlePath = `${path}.${stepsProperty.name}`;
-        const steps = get(this.route, singlePath, []) as ProcessorDefinition[];
-
-        const childrenVizNodes = steps.reduce((acc, step, index) => {
-          let childPath: string;
-          let childComponentLookup: ICamelElementLookupResult;
-          if (stepsProperty.type === 'expression-list') {
-            childPath = `${singlePath}.${index}`;
-            childComponentLookup = { processorName: stepsProperty.name };
-          } else {
-            const singlePropertyName = Object.keys(step)[0];
-            childPath = `${singlePath}.${index}.${singlePropertyName}`;
-            childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
-          }
+        return stepsList.reduce((accStepsNodes, step, index) => {
+          const singlePropertyName = Object.keys(step)[0];
+          const childPath = `${singlePath}.${index}.${singlePropertyName}`;
+          const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
 
           const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
 
-          const previousVizNode = acc[acc.length - 1];
+          const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
           if (previousVizNode !== undefined) {
             previousVizNode.setNextNode(vizNode);
             vizNode.setPreviousNode(previousVizNode);
           }
 
-          acc.push(vizNode);
-          return acc;
+          accStepsNodes.push(vizNode);
+          return accStepsNodes;
         }, [] as IVisualizationNode[]);
 
-        acc.push(...childrenVizNodes);
-      }
+      case 'single-clause':
+        const childPath = `${path}.${stepsProperty.name}`;
+        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
+        return [this.getVizNodeFromProcessor(childPath, childComponentLookup)];
 
-      return acc;
-    }, [] as IVisualizationNode[]);
+      case 'clause-list':
+        singlePath = `${path}.${stepsProperty.name}`;
+        const expressionList = get(this.route, singlePath, []) as When1[] | DoCatch[];
 
-    return vizNodes;
+        return expressionList.map((_step, index) => {
+          const childPath = `${singlePath}.${index}`;
+          const childComponentLookup = { processorName: stepsProperty.name as keyof ProcessorDefinition }; // when, doCatch
+
+          return this.getVizNodeFromProcessor(childPath, childComponentLookup);
+        });
+
+      default:
+        return [];
+    }
+  }
+
+  private insertChildStep(
+    options: Parameters<CamelRouteVisualEntity['addStep']>[0],
+    stepsProperties: CamelProcessorStepsProperties[],
+    defaultValue: ProcessorDefinition = {},
+  ) {
+    const property = stepsProperties.find((property) =>
+      options.mode === AddStepMode.InsertChildStep ? 'steps' : options.definedComponent.name === property.name,
+    );
+    if (property === undefined) return;
+
+    if (property.type === 'single-clause') {
+      set(this.route, `${options.data.path}.${property.name}`, defaultValue);
+    } else {
+      const arrayPath = getArrayProperty(this.route, `${options.data.path}.${property.name}`);
+      arrayPath.unshift(defaultValue);
+    }
   }
 }

@@ -47,7 +47,9 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
     <CatalogContext.Provider value={CamelCatalogService}>
       {isLoading ? (
         <Loading>
-          <Text component={TextVariants.h3}>Loading Catalogs...</Text>
+          <Text data-testid="loading-catalogs" component={TextVariants.h3}>
+            Loading Catalogs...
+          </Text>
         </Loading>
       ) : (
         props.children

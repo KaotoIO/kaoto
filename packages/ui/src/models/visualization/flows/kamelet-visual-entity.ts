@@ -1,6 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { BaseVisualCamelEntity, IVisualizationNode, VisualComponentSchema } from '../base-visual-entity';
 import { EntityType } from '../../camel/entities';
+import {
+  BaseVisualCamelEntity,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  NodeInteraction,
+  VisualComponentSchema,
+} from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 
 export class KameletVisualEntity implements BaseVisualCamelEntity {
@@ -21,8 +27,16 @@ export class KameletVisualEntity implements BaseVisualCamelEntity {
     return ''; // TODO
   }
 
+  getNodeInteraction(_data: IVisualizationNodeData): NodeInteraction {
+    throw new Error('Method not implemented.');
+  }
+
   getSteps(): unknown[] {
     return []; // TODO
+  }
+
+  addStep(): void {
+    return; // TODO
   }
 
   removeStep(): void {

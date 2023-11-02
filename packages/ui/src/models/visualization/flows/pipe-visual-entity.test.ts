@@ -3,8 +3,8 @@ import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
-import { KameletSchemaService } from './kamelet-schema.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
+import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
@@ -146,11 +146,13 @@ describe('Pipe', () => {
       expect(vizNode.data.label).toEqual('webhook-source');
     });
 
-    it('should set the label as `Unknown` if the uri is not available', () => {
+    it('should set the node labels as `Unknown` if the uri is not available', () => {
       pipe = new PipeVisualEntity({});
-      const vizNode = pipe.toVizNode();
+      const sourceNode = pipe.toVizNode();
+      const sinkNode = sourceNode.getNextNode();
 
-      expect(vizNode.data.label).toEqual('Unknown');
+      expect(sourceNode.data.label).toEqual('source: Unknown');
+      expect(sinkNode!.data.label).toEqual('sink: Unknown');
     });
 
     it('should populate the viz node chain with the steps', () => {

@@ -25,7 +25,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
             <GridItem span={2}>
               <img
                 className={'sidebar-icon-' + props.selectedNode?.label}
-                src={props.selectedNode?.data?.vizNode?.getIconData()}
+                src={props.selectedNode?.data?.vizNode?.data.icon}
                 alt="icon"
               />
             </GridItem>
@@ -33,7 +33,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
               <CardTitle>{props.selectedNode?.label}</CardTitle>
             </GridItem>
             <GridItem span={1}>
-              <Button variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
+              <Button data-testid="close-side-bar" variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
             </GridItem>
           </Grid>
         </CardHeader>

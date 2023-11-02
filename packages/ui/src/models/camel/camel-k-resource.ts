@@ -1,14 +1,15 @@
-import { MetadataEntity } from '../visualization/metadata';
 import {
   Integration as IntegrationType,
-  Kamelet as KameletType,
   KameletBinding as KameletBindingType,
+  Kamelet as KameletType,
   Pipe as PipeType,
 } from '@kaoto-next/camel-catalog/types';
+import { CatalogFilter } from '../catalog-filter';
+import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
+import { MetadataEntity } from '../visualization/metadata';
 import { CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
 
 export type CamelKType = IntegrationType | KameletType | KameletBindingType | PipeType;
 
@@ -71,5 +72,10 @@ export abstract class CamelKResource implements CamelResource {
 
   addNewEntity(): string {
     return '';
+  }
+
+  /** Components Catalog related methods */
+  getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): CatalogFilter {
+    return {};
   }
 }

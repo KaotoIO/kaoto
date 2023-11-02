@@ -1,8 +1,11 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import { DefinedComponent } from '../camel-catalog-index';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  NodeInteraction,
   VisualComponentSchema,
 } from './base-visual-entity';
 
@@ -30,6 +33,21 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   getBaseEntity(): BaseVisualCamelEntity | undefined {
     return this.data.entity;
+  }
+
+  addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
+    this.getRootNode().getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
+  }
+
+  getNodeInteraction(): NodeInteraction {
+    return (
+      this.getRootNode().getBaseEntity()?.getNodeInteraction(this.data) ?? {
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: false,
+      }
+    );
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
@@ -79,10 +97,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.children;
   }
 
-  setChildren(children?: IVisualizationNode[]): void {
-    this.children = children;
-  }
-
   addChild(child: IVisualizationNode): void {
     if (!Array.isArray(this.children)) this.children = [];
 
@@ -90,13 +104,14 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     child.setParentNode(this);
   }
 
-  removeChild(child: IVisualizationNode): void {
+  removeChild(): void {
     this.getRootNode().getBaseEntity()?.removeStep(this.data.path);
-    const index = this.children?.findIndex((node) => node.id === child.id);
+    const parentChildren = this.getParentNode()?.getChildren() ?? [];
+    const index = parentChildren.findIndex((node) => node.id === this.id);
 
     if (index !== undefined && index > -1) {
-      this.children?.[index].setParentNode(undefined);
-      this.children?.splice(index, 1);
+      this.setParentNode(undefined);
+      parentChildren.splice(index, 1);
     }
   }
 
@@ -109,13 +124,5 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
     /** If this node has children, populate the leaf nodes ids of each child */
     this.children?.forEach((child) => child.populateLeafNodesIds(ids));
-  }
-
-  setIconData(iconData: string | undefined) {
-    this.data.icon = iconData;
-  }
-
-  getIconData(): string | undefined {
-    return this.data.icon;
   }
 }

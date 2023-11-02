@@ -26,7 +26,13 @@ export interface SchemaEntry extends CatalogEntry {
   description: string;
 }
 
-export type CatalogTypes = Record<string, ICamelComponentDefinition | ICamelProcessorDefinition | IKameletDefinition>;
+export type ComponentsCatalogTypes = ICamelComponentDefinition | ICamelProcessorDefinition | IKameletDefinition;
+export type DefinedComponent = {
+  name: string;
+  type: CatalogKind;
+  definition?: ComponentsCatalogTypes;
+  defaultValue?: object;
+};
 
 export interface ComponentsCatalog {
   [CatalogKind.Component]?: Record<string, ICamelComponentDefinition>;

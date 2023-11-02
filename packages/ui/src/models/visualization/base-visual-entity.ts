@@ -1,4 +1,5 @@
 import type { JSONSchemaType } from 'ajv';
+import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 
 /**
@@ -23,8 +24,18 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Retrieve the steps from the underlying Camel entity */
   getSteps: () => unknown[];
 
+  /** Add a step to the underlying Camel entity */
+  addStep: (options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }) => void;
+
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
+
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
@@ -44,6 +55,10 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
+
+  addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
+
+  getNodeInteraction(): NodeInteraction;
 
   getComponentSchema(): VisualComponentSchema | undefined;
 
@@ -65,17 +80,11 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getChildren(): IVisualizationNode[] | undefined;
 
-  setChildren(children?: IVisualizationNode[]): void;
-
   addChild(child: IVisualizationNode): void;
 
-  removeChild(child: IVisualizationNode): void;
+  removeChild(): void;
 
   populateLeafNodesIds(ids: string[]): void;
-
-  setIconData(iconData: string | undefined): void;
-
-  getIconData(): string | undefined;
 }
 
 export interface IVisualizationNodeData {
@@ -83,6 +92,8 @@ export interface IVisualizationNodeData {
   icon?: string;
   path?: string;
   entity?: BaseVisualCamelEntity;
+  isPlaceholder?: boolean;
+  [key: string]: unknown;
 }
 
 /**
@@ -96,4 +107,31 @@ export interface VisualComponentSchema {
   schema: JSONSchemaType<unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: any;
+}
+
+export const enum AddStepMode {
+  /** Used to append a new step before an existing step */
+  PrependStep = 'prepend-step',
+  /** Used to append a new step after an existing step */
+  AppendStep = 'append-step',
+  /** Used to replace an existing step */
+  ReplaceStep = 'replace-step',
+  /**
+   * Used to insert a new step in the step property.
+   * for instance, for adding steps to the `from` or `doTry` processor
+   */
+  InsertChildStep = 'insert-step',
+  /**
+   * Used to insert a new special step in a special step property.
+   * for instance, for adding `when` clauses to the `choice.when` property,
+   * or to add `doCatch` clauses to the `doTry.doCath` property
+   */
+  InsertSpecialChildStep = 'insert-special-step',
+}
+
+export interface NodeInteraction {
+  canHavePreviousStep: boolean;
+  canHaveNextStep: boolean;
+  canHaveChildren: boolean;
+  canHaveSpecialChildren: boolean;
 }

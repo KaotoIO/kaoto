@@ -8,7 +8,6 @@ export default {
 } as Meta<typeof Catalog>;
 
 const Template: StoryFn<typeof Catalog> = (args) => {
-  console.log(args);
   return <Catalog {...args} />;
 };
 

@@ -8,9 +8,7 @@ Cypress.Commands.add('openStepConfigurationTab', (step, stepIndex) => {
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
-  cy.get('.pf-topology-side-bar').within(() => {
-    cy.get('.pf-v5-c-card__title-text > .pf-v5-c-button').click();
-  });
+  cy.get('[data-testid="close-side-bar"]').click();
   cy.get('.pf-topology-side-bar').should('be.hidden');
 });
 
@@ -20,4 +18,14 @@ Cypress.Commands.add('interactWithConfigInputObject', (inputName, value) => {
   } else {
     cy.get(`input[name="${inputName}"]`).click();
   }
+});
+
+Cypress.Commands.add('removeNodeByName', (inputName: string) => {
+  cy.get('g.pf-topology__node__label')
+    .contains('text', inputName)
+    .parent()
+    .find('g.pf-topology__node__action-icon > rect')
+    .click({ force: true });
+  cy.get('[data-testid="context-menu-item-remove"]').click();
+  cy.contains(inputName).should('not.exist');
 });

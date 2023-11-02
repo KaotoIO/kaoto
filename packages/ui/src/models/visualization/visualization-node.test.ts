@@ -102,13 +102,6 @@ describe('VisualizationNode', () => {
     expect(node.getNextNode()).toEqual(nextNode);
   });
 
-  it('should set the children', () => {
-    const children = [createVisualizationNode({ label: 'child' })];
-    node.setChildren(children);
-
-    expect(node.getChildren()).toEqual(children);
-  });
-
   it('should add a child', () => {
     const child = createVisualizationNode({ label: 'child' });
     node.addChild(child);
@@ -117,28 +110,11 @@ describe('VisualizationNode', () => {
     expect(child.getParentNode()).toEqual(node);
   });
 
-  it('should add a child to an existing children array', () => {
-    const child = createVisualizationNode({ label: 'child' });
-    node.setChildren([child]);
-
-    expect(node.getChildren()).toEqual([child]);
-    expect(child.getParentNode()).toBeUndefined();
-  });
-
   describe('removeChild', () => {
     it('should remove a child', () => {
       const child = createVisualizationNode({ label: 'child' });
       node.addChild(child);
-      node.removeChild(child);
-
-      expect(node.getChildren()).toEqual([]);
-      expect(child.getParentNode()).toBeUndefined();
-    });
-
-    it('should remove a child from an existing children array', () => {
-      const child = createVisualizationNode({ label: 'child' });
-      node.setChildren([child]);
-      node.removeChild(child);
+      child.removeChild();
 
       expect(node.getChildren()).toEqual([]);
       expect(child.getParentNode()).toBeUndefined();
@@ -146,7 +122,7 @@ describe('VisualizationNode', () => {
 
     it('should not error when removing a non-existing child', () => {
       const child = createVisualizationNode({ label: 'child' });
-      node.removeChild(child);
+      child.removeChild();
 
       expect(node.getChildren()).toBeUndefined();
       expect(child.getParentNode()).toBeUndefined();
@@ -157,13 +133,16 @@ describe('VisualizationNode', () => {
 
       node = camelRouteVisualEntityStub.toVizNode();
 
+      /** Get set-header node */
+      const setHeaderNode = node.getChildren()?.[0];
+
       /** Remove set-header node */
-      node.getNextNode()?.removeChild(node.getNextNode()!);
+      setHeaderNode!.removeChild();
 
       /** Refresh the Viz Node */
       node = camelRouteVisualEntityStub.toVizNode();
 
-      expect(node.getNextNode()?.data.label).toEqual('choice');
+      expect(node.getChildren()?.[0].data.label).toEqual('choice');
     });
   });
 

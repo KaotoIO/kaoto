@@ -1,9 +1,9 @@
 import { JSONSchemaType } from 'ajv';
-import { KameletBindingStep, PipeStep } from '../../camel/entities';
-import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition } from '../../kamelets-catalog';
-import { VisualComponentSchema } from '../base-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
+import { KameletBindingStep, PipeStep } from '../../../camel/entities';
+import { CatalogKind } from '../../../catalog-kind';
+import { IKameletDefinition } from '../../../kamelets-catalog';
+import { VisualComponentSchema } from '../../base-visual-entity';
+import { CamelCatalogService } from '../camel-catalog.service';
 
 export class KameletSchemaService {
   static getVisualComponentSchema(stepModel: PipeStep): VisualComponentSchema | undefined {

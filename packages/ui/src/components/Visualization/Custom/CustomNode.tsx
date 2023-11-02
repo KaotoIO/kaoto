@@ -1,32 +1,24 @@
-import { MinusIcon } from '@patternfly/react-icons';
-import {
-  ContextMenuItem,
-  DefaultNode,
-  ElementContext,
-  ElementModel,
-  GraphElement,
-  Node,
-  WithSelectionProps,
-  withContextMenu,
-  withSelection,
-} from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useContext } from 'react';
-import { EntitiesContext } from '../../../providers/entities.provider';
+import { DefaultNode, Node, WithSelectionProps, withContextMenu, withSelection } from '@patternfly/react-topology';
+import { FunctionComponent } from 'react';
+import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../Canvas/canvas.models';
 import { CanvasService } from '../Canvas/canvas.service';
 import './CustomNode.scss';
+import { ItemAddNode } from './ItemAddNode';
+import { ItemInsertChildNode } from './ItemInsertChildNode';
+import { ItemRemoveNode } from './ItemRemoveNode';
+import { ItemReplaceNode } from './ItemReplaceNode';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
 }
 
 const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) => {
-  const data = element.getData()?.vizNode;
-  const icon = data?.getIconData();
+  const vizNode = element.getData()?.vizNode;
 
   return (
     <DefaultNode element={element} showStatusDecorator {...rest}>
-      <g data-testid={`custom-node__${data?.id}`}>
+      <g data-testid={`custom-node__${vizNode?.id}`}>
         <foreignObject
           x="0"
           y="0"
@@ -35,7 +27,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) =>
         >
           <div className="custom-node__image">
             <img
-              src={icon}
+              src={vizNode?.data.icon}
               width={CanvasService.DEFAULT_NODE_DIAMETER * 0.7}
               height={CanvasService.DEFAULT_NODE_DIAMETER * 0.7}
             />
@@ -46,23 +38,23 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) =>
   );
 };
 
-const RemoveNode: FunctionComponent = () => {
-  const entitiesContext = useContext(EntitiesContext);
-  const element: GraphElement<ElementModel, CanvasNode['data']> = useContext(ElementContext);
-  const vizNode = element.getData()?.vizNode;
-
-  const onRemoveNode = useCallback(() => {
-    vizNode?.removeChild(vizNode);
-    entitiesContext?.updateCodeFromEntities();
-  }, [entitiesContext, vizNode]);
-
-  return (
-    <ContextMenuItem onClick={onRemoveNode}>
-      <MinusIcon /> Remove node
-    </ContextMenuItem>
-  );
-};
-
 export const CustomNodeWithSelection: typeof DefaultNode = withContextMenu(() => [
-  <RemoveNode key="context-menu-item-remove" />,
+  <ItemAddNode
+    key="context-menu-item-prepend"
+    data-testid="context-menu-item-prepend"
+    mode={AddStepMode.PrependStep}
+  />,
+  <ItemAddNode key="context-menu-item-append" data-testid="context-menu-item-append" mode={AddStepMode.AppendStep} />,
+  <ItemInsertChildNode
+    key="context-menu-item-insert"
+    data-testid="context-menu-item-insert"
+    mode={AddStepMode.InsertChildStep}
+  />,
+  <ItemInsertChildNode
+    key="context-menu-item-insert-special"
+    data-testid="context-menu-item-insert-special"
+    mode={AddStepMode.InsertSpecialChildStep}
+  />,
+  <ItemReplaceNode key="context-menu-item-replace" data-testid="context-menu-item-replace" />,
+  <ItemRemoveNode key="context-menu-item-remove" data-testid="context-menu-item-remove" />,
 ])(withSelection()(CustomNode) as typeof DefaultNode) as typeof DefaultNode;

@@ -51,6 +51,7 @@ import testMessage from '../assets/eip/test-message.svg';
 import transactionalClient from '../assets/eip/transactional-client.svg';
 import uaranteedDelivery from '../assets/eip/uaranteed-delivery.svg';
 import wireTap from '../assets/eip/wire-tap.svg';
+import expandIcon from '../assets/expand.svg';
 
 export class NodeIconResolver {
   static getIcon = (iconName: string | undefined): string => {
@@ -181,6 +182,11 @@ export class NodeIconResolver {
   static getUnknownIcon = (): string => {
     return questionIcon;
   };
+
+  static getPlaceholderIcon = (): string => {
+    return expandIcon;
+  };
+
   static getDefaultCamelIcon = (): string => {
     return defaultCamelIcon;
   };

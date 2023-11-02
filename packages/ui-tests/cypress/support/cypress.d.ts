@@ -13,14 +13,23 @@ declare global {
       openDesignPage(): Chainable<JQuery<Element>>;
       openSourceCode(): Chainable<JQuery<Element>>;
       openBeans(): Chainable<JQuery<Element>>;
+      openMetadata(): Chainable<JQuery<Element>>;
+      openPipeErrorHandler(): Chainable<JQuery<Element>>;
       openCatalog(): Chainable<JQuery<Element>>;
       // design
-      openStepConfigurationTab(step: string, stepIndex: number | undefined): Chainable<JQuery<Element>>;
-      openStepConfigurationTab(step: string): Chainable<JQuery<Element>>;
+      openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       interactWithConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
+      removeNodeByName(inputName: string): Chainable<JQuery<Element>>;
+      // metadata
+      expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
+      closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
+      switchWrappedSection(sectionName: string, wrapped: boolean): Chainable<JQuery<Element>>;
+      forceSelectMetadataRow(rowIndex: number): Chainable<JQuery<Element>>;
+      addMetadataField(fieldName: string): Chainable<JQuery<Element>>;
       // sourceCode
+      editorScrollToTop(): Chainable<JQuery<Element>>;
       editorAddText(line: number, text: string): Chainable<JQuery<Element>>;
       uploadFixture(fixture: string): Chainable<JQuery<Element>>;
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;

@@ -1,23 +1,35 @@
+import { Pipe } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { v4 as uuidv4 } from 'uuid';
+import { getArrayProperty } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
-import { KameletSchemaService } from './kamelet-schema.service';
+import { KameletSchemaService } from './support/kamelet-schema.service';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
   type = EntityType.Pipe;
+  spec: PipeSpec;
 
-  constructor(public spec: PipeSpec) {}
+  constructor(spec?: PipeSpec) {
+    this.spec = spec ?? {
+      source: {},
+      steps: [],
+      sink: {},
+    };
+  }
 
   /** Internal API methods */
   getId(): string {
@@ -53,6 +65,56 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return allSteps;
   }
 
+  /**
+   * Add a step to the Pipe
+   *
+   * path examples:
+   *      source
+   *      sink
+   *      steps.0
+   *      steps.1
+   */
+  addStep(options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }) {
+    const newKamelet = options.definedComponent.definition as unknown as Pipe;
+    const path = options.data.path;
+    if (!newKamelet || !path) return;
+
+    const step: PipeStep = {
+      ref: {
+        kind: newKamelet.kind,
+        apiVersion: newKamelet.apiVersion,
+        name: options.definedComponent.name,
+      },
+    };
+
+    /** Replace an existing Kamelet */
+    if (options.mode === AddStepMode.ReplaceStep) {
+      if (path === 'source' || path === 'sink') {
+        set(this.spec, path, step);
+      } else {
+        set(this.spec, path, step);
+      }
+
+      return;
+    }
+
+    /** Add a new Kamelet to the Kamelets array */
+    const kameletArray = getArrayProperty(this.spec, 'steps') as PipeStep[];
+    const index = Number(path.split('.').pop());
+    if (options.mode === AddStepMode.AppendStep) {
+      kameletArray.splice(index + 1, 0, step);
+    } else if (options.mode === AddStepMode.PrependStep && options.data.path === 'sink') {
+      kameletArray.push(step);
+    } else if (options.mode === AddStepMode.PrependStep) {
+      kameletArray.splice(index, 0, step);
+    }
+  }
+
   removeStep(path?: string): void {
     /** This method needs to be enabled after passing the entire parent to this class*/
     if (!path) return;
@@ -78,64 +140,80 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     }
   }
 
-  toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromStep(this.spec?.source, 'source');
-    const stepNodes = this.spec?.steps && this.getVizNodesFromSteps(this.spec?.steps);
-    const sinkNode = this.getVizNodeFromStep(this.spec?.sink, 'sink');
-
-    if (stepNodes !== undefined) {
-      const firstStepNode = stepNodes[0];
-      if (firstStepNode !== undefined) {
-        rootNode.setNextNode(firstStepNode);
-        firstStepNode.setPreviousNode(rootNode);
-      }
-    }
-    if (sinkNode !== undefined) {
-      if (stepNodes !== undefined) {
-        const lastStepNode = stepNodes[stepNodes.length - 1];
-        if (lastStepNode !== undefined) {
-          lastStepNode.setNextNode(sinkNode);
-          sinkNode.setPreviousNode(lastStepNode);
-        }
-      } else {
-        rootNode.setNextNode(sinkNode);
-        sinkNode.setPreviousNode(rootNode);
-      }
-    }
-    return rootNode;
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
+    return {
+      /** Pipe cannot have a Kamelet before the source property */
+      canHavePreviousStep: data.path !== 'source',
+      /** Pipe cannot have a Kamelet after the sink property */
+      canHaveNextStep: data.path !== 'sink',
+      canHaveChildren: false,
+      canHaveSpecialChildren: false,
+    };
   }
 
-  private getVizNodesFromSteps(steps: Array<PipeStep>): IVisualizationNode[] {
+  toVizNode(): IVisualizationNode {
+    const sourceNode = this.getVizNodeFromStep(this.spec.source, 'source', true);
+    const stepNodes = this.getVizNodesFromSteps(this.spec.steps);
+    const sinkNode = this.getVizNodeFromStep(this.spec.sink, 'sink');
+    /** If there are no steps, we link the `source` and the `sink` together */
+
+    if (stepNodes.length === 0) {
+      sourceNode.setNextNode(sinkNode);
+      sinkNode.setPreviousNode(sourceNode);
+      return sourceNode;
+    }
+
+    /** Connect the `source` with the first step */
+    const firstStepNode = stepNodes[0];
+    if (firstStepNode !== undefined) {
+      sourceNode.setNextNode(firstStepNode);
+      firstStepNode.setPreviousNode(sourceNode);
+    }
+
+    /** Connect the last step with the `sink` */
+    const lastStepNode = stepNodes[stepNodes.length - 1];
+    if (lastStepNode !== undefined) {
+      lastStepNode.setNextNode(sinkNode);
+      sinkNode.setPreviousNode(lastStepNode);
+    }
+
+    return sourceNode;
+  }
+
+  private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): IVisualizationNode {
+    const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
+    const isPlaceholder = step?.ref?.name === undefined;
+    const icon = isPlaceholder
+      ? NodeIconResolver.getPlaceholderIcon()
+      : kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
+
+    const data: IVisualizationNodeData = {
+      label: step?.ref?.name ?? `${path}: Unknown`,
+      path,
+      entity: isRoot ? this : undefined,
+      isPlaceholder,
+      icon,
+    };
+
+    return createVisualizationNode(data);
+  }
+
+  private getVizNodesFromSteps(steps?: PipeStep[]): IVisualizationNode[] {
     if (!Array.isArray(steps)) {
       return [] as IVisualizationNode[];
     }
-    return steps?.reduce((acc, camelRouteStep) => {
-      const previousVizNode = acc[acc.length - 1];
-      const vizNode = this.getVizNodeFromStep(camelRouteStep, 'steps.' + acc.length);
 
+    return steps?.reduce((acc, kamelet) => {
+      const vizNode = this.getVizNodeFromStep(kamelet, 'steps.' + acc.length);
+
+      const previousVizNode = acc[acc.length - 1];
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
+
       acc.push(vizNode);
       return acc;
     }, [] as IVisualizationNode[]);
-  }
-
-  private getVizNodeFromStep(step: PipeStep, path: string): IVisualizationNode {
-    const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
-    const data: IVisualizationNodeData = {
-      label: step?.ref?.name ?? 'Unknown',
-      path,
-      entity: this,
-      icon:
-        kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon(),
-    };
-    const answer = createVisualizationNode(data);
-
-    answer.setIconData(
-      kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon(),
-    );
-    return answer;
   }
 }
