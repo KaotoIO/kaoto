@@ -7,6 +7,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { ICamelLanguageProperty } from '../../../camel-languages-catalog';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -225,9 +226,10 @@ export class CamelComponentSchemaService {
 
   /**
    * Transform Camel Common properties into a JSON Schema
+   * @TODO Now this is also used by {@link ExpressionService} and will be used for dataformats for next, possibly move it to a common place
    */
-  private static getSchemaFromCamelCommonProperties(
-    properties: Record<string, ICamelProcessorProperty | ICamelComponentProperty>,
+  static getSchemaFromCamelCommonProperties(
+    properties: Record<string, ICamelProcessorProperty | ICamelComponentProperty | ICamelLanguageProperty>,
   ): JSONSchemaType<unknown> {
     const required: string[] = [];
     const schema = {
