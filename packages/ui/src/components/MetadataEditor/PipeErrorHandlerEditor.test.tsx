@@ -43,7 +43,6 @@ describe('PipeErrorHandlerEditor', () => {
     const buttons = container.querySelectorAll('button');
     buttons.forEach((button) => {
       if (button.querySelector('span')?.querySelector('span')?.innerHTML === 'Log ErrorHandler') {
-        console.log('>>>>>');
         fireEvent(button, new MouseEvent('click', { bubbles: true }));
       }
     });
