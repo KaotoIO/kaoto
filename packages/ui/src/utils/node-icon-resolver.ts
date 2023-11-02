@@ -1,6 +1,5 @@
 //POC - extend to include icons for all the EIP's
 import defaultCamelIcon from '../assets/camel-logo.svg';
-import questionIcon from '../assets/question-mark.svg';
 import aggregator from '../assets/eip/aggregator.svg';
 import channelAdapter from '../assets/eip/channel-adapter.svg';
 import channelPurger from '../assets/eip/channel-purger.svg';
@@ -52,6 +51,7 @@ import transactionalClient from '../assets/eip/transactional-client.svg';
 import uaranteedDelivery from '../assets/eip/uaranteed-delivery.svg';
 import wireTap from '../assets/eip/wire-tap.svg';
 import expandIcon from '../assets/expand.svg';
+import questionIcon from '../assets/question-mark.svg';
 
 export class NodeIconResolver {
   static getIcon = (iconName: string | undefined): string => {
