@@ -97,16 +97,18 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     targetProperty?: string;
   }) {
     if (options.data.path === undefined) return;
-    console.log(options);
-
     const defaultValue = CamelComponentDefaultService.getDefaultNodeDefinitionValue(options.definedComponent);
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       (options.data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
     );
 
-    if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
+    /** Replace the root `from` step */
+    if (options.mode === AddStepMode.ReplaceStep && options.data.path === 'from' && isDefined(this.route.from)) {
+      const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
+      Object.assign(this.route.from, fromValue);
+      return;
+    } else if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
       this.insertChildStep(options, stepsProperties, defaultValue);
-
       return;
     }
 
@@ -134,10 +136,14 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
      * last: setHeader
      */
     if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
-      const desiredIndex = options.mode === AddStepMode.PrependStep ? Number(penultimate) : Number(penultimate) + 1;
+      /** If we're in Append mode, we need to insert the step after the selected index hence `Number(penultimate) + 1` */
+      const desiredStartIndex = options.mode === AddStepMode.AppendStep ? Number(penultimate) + 1 : Number(penultimate);
+
+      /** If we're in Replace mode, we need to delete the existing step */
+      const deleteCount = options.mode === AddStepMode.ReplaceStep ? 1 : 0;
 
       const stepsArray: ProcessorDefinition[] = get(this.route, pathArray.slice(0, -2), []);
-      stepsArray.splice(desiredIndex, 0, defaultValue);
+      stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
       return;
     }
