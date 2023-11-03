@@ -24,7 +24,6 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
 
     /** Open Catalog modal, filtering the compatible nodes */
     const definedComponent = await catalogModalContext?.getNewComponent(compatibleNodes);
-    console.log(definedComponent);
     if (!definedComponent) return;
 
     /** Add new node to the entities */

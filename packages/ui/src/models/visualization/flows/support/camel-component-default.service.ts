@@ -11,6 +11,17 @@ import { CatalogKind } from '../../../catalog-kind';
  */
 export class CamelComponentDefaultService {
   /**
+   * Get the default definition for the `from` component
+   */
+  static getDefaultFromDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
+    return parse(`
+      id: ${getCamelRandomId('from')}
+      uri: "${definedComponent.name}"
+      parameters: {}
+    `);
+  }
+
+  /**
    * Get the default value for a given component and property
    */
   static getDefaultNodeDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
@@ -27,14 +38,12 @@ export class CamelComponentDefaultService {
   }
 
   private static getDefaultValueFromComponent(componentName: string): object {
-    switch (componentName) {
-      default:
-        return parse(`
-          to:
-            uri: "${componentName}"
-            id: ${getCamelRandomId('to')}
-        `);
-    }
+    return parse(`
+      to:
+        id: ${getCamelRandomId('to')}
+        uri: "${componentName}"
+        parameters: {}
+    `);
   }
 
   private static getDefaultValueFromKamelet(kameletName: string): object {
