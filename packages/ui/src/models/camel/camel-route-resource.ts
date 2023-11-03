@@ -1,10 +1,11 @@
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { ITile } from '../../components/Catalog';
 import { isDefined } from '../../utils';
 import { CatalogFilter } from '../catalog-filter';
+import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
 import { flowTemplateService } from '../visualization/flows/flow-templates-service';
-import { CamelComponentSchemaService } from '../visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BeansAwareResource, CamelResource } from './camel-resource';
@@ -95,10 +96,50 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
 
   /** Components Catalog related methods */
   getCompatibleComponents(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): CatalogFilter {
-    if (mode === AddStepMode.InsertSpecialChildStep) {
-      return CamelComponentSchemaService.getCompatibleComponents(visualEntityData.processorName);
+    return {
+      filterFunction: this.getFilterFunction(mode, visualEntityData),
+    };
+  }
+
+  private getFilterFunction(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): (item: ITile) => boolean {
+    if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
+      /**
+       * For the `from` step we want to show only components which are not `producerOnly`,
+       * as this mean that they can be used only as a consumer.
+       */
+      return (item: ITile) => {
+        return item.type === CatalogKind.Component && !item.tags.includes('producerOnly');
+      };
     }
 
-    return {};
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      /**
+       * specialChildren is a map of processor names and their special children.
+       */
+      const specialChildren: Record<string, string[]> = {
+        choice: ['when', 'otherwise'],
+        doTry: ['doCatch', 'doFinally'],
+      };
+
+      /**
+       * For special child steps, we need to check which type of processor it is, in order to determine
+       * what kind of components we want to show.
+       */
+      return (item: ITile) => {
+        if (item.type !== CatalogKind.Processor || specialChildren[visualEntityData.processorName] === undefined) {
+          return false;
+        }
+
+        return specialChildren[visualEntityData.processorName].includes(item.name);
+      };
+    }
+
+    /**
+     * For the rest, we want to filter out components that are `consumerOnly`,
+     * as this mean that they can be used only as a consumer.
+     */
+    return (item: ITile) => {
+      return !item.tags.includes('consumerOnly');
+    };
   }
 }

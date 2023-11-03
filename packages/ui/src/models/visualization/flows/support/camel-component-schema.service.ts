@@ -3,7 +3,6 @@ import type { JSONSchemaType } from 'ajv';
 import { isDefined } from '../../../../utils';
 import { ICamelComponentProperty } from '../../../camel-components-catalog';
 import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
-import { CatalogFilter } from '../../../catalog-filter';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
@@ -75,25 +74,6 @@ export class CamelComponentSchemaService {
 
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
-  }
-
-  static getCompatibleComponents(processorName: keyof ProcessorDefinition): CatalogFilter {
-    switch (processorName) {
-      case 'choice':
-        return {
-          kinds: [CatalogKind.Processor],
-          names: ['when', 'otherwise'],
-        };
-
-      case 'doTry':
-        return {
-          kinds: [CatalogKind.Processor],
-          names: ['doCatch', 'doFinally'],
-        };
-
-      default:
-        return {};
-    }
   }
 
   static getProcessorStepsProperties(processorName: keyof ProcessorDefinition): CamelProcessorStepsProperties[] {
