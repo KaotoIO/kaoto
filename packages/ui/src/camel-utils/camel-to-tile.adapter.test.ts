@@ -56,6 +56,19 @@ describe('camelComponentToTile', () => {
 
     expect(tile.tags).toEqual(['consumerOnly', 'producerOnly']);
   });
+
+  it('should replace the supportLevel header tag if the component is deprecated', () => {
+    const componentDef = {
+      component: {
+        supportLevel: 'Stable',
+        deprecated: true,
+      },
+    } as ICamelComponentDefinition;
+
+    const tile = camelComponentToTile(componentDef);
+
+    expect(tile.headerTags).toEqual(['Deprecated']);
+  });
 });
 
 describe('camelProcessorToTile', () => {

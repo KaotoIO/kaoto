@@ -6,6 +6,8 @@ export const getTagColor = (tag: string): COLOR => {
       return 'green';
     case 'preview':
       return 'orange';
+    case 'deprecated':
+      return 'red';
     default:
       return 'grey';
   }

@@ -6,8 +6,10 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
   const headerTags: string[] = [];
   const tags: string[] = [];
 
-  if (supportLevel) {
+  if (supportLevel && !componentDef.component.deprecated) {
     headerTags.push(supportLevel);
+  } else {
+    headerTags.push('Deprecated');
   }
   if (label) {
     tags.push(...label.split(','));
