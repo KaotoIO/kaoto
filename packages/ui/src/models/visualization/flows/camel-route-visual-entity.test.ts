@@ -234,11 +234,11 @@ describe('Camel Route', () => {
       expect(vizNode.data.label).toEqual('timer:tutorial');
     });
 
-    it('should set an empty label if the uri is not available', () => {
+    it('should set a default label if the uri is not available', () => {
       camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.data.label).toEqual('');
+      expect(vizNode.data.label).toEqual('from: Unknown');
     });
 
     it('should populate the viz node chain with the steps', () => {

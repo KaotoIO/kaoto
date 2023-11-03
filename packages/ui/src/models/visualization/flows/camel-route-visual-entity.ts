@@ -232,6 +232,11 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' as keyof ProcessorDefinition });
     rootNode.data.entity = this;
 
+    if (!this.route.from?.uri) {
+      rootNode.data.label = 'from: Unknown';
+      rootNode.data.icon = NodeIconResolver.getPlaceholderIcon();
+    }
+
     return rootNode;
   }
 
