@@ -1,7 +1,6 @@
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
-import { ITile } from '../../components/Catalog';
+import { ITile, TileFilter } from '../../components/Catalog';
 import { isDefined } from '../../utils';
-import { CatalogFilter } from '../catalog-filter';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
@@ -95,13 +94,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   /** Components Catalog related methods */
-  getCompatibleComponents(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): CatalogFilter {
-    return {
-      filterFunction: this.getFilterFunction(mode, visualEntityData),
-    };
-  }
-
-  private getFilterFunction(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): (item: ITile) => boolean {
+  getCompatibleComponents(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): TileFilter {
     if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
       /**
        * For the `from` step we want to show only components which are not `producerOnly`,

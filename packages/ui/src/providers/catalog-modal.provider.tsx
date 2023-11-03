@@ -9,15 +9,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Catalog, ITile } from '../components/Catalog';
-import { CatalogFilter, CatalogKind, DefinedComponent } from '../models';
+import { Catalog, ITile, TileFilter } from '../components/Catalog';
+import { CatalogKind, DefinedComponent } from '../models';
 import { isDefined } from '../utils';
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { CatalogContext } from './catalog.provider';
 
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;
-  getNewComponent: (catalogFilter: CatalogFilter) => Promise<DefinedComponent | undefined>;
+  getNewComponent: (catalogFilter?: TileFilter) => Promise<DefinedComponent | undefined>;
 }
 
 export const CatalogModalContext = createContext<CatalogModalContextValue | undefined>(undefined);
@@ -68,24 +68,9 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   );
 
   const getNewComponent = useCallback(
-    (catalogFilter: CatalogFilter) => {
-      if (isDefined(catalogFilter.filterFunction) || isDefined(catalogFilter.kinds) || isDefined(catalogFilter.names)) {
-        const localFilteredTiles = tiles.filter((tile) => {
-          if (isDefined(catalogFilter.filterFunction)) {
-            return catalogFilter.filterFunction(tile);
-          }
-
-          if (isDefined(catalogFilter.kinds) && !catalogFilter.kinds.includes(tile.type as CatalogKind)) {
-            return false;
-          }
-
-          if (isDefined(catalogFilter.names) && !catalogFilter.names.includes(tile.name)) {
-            return false;
-          }
-
-          return true;
-        });
-
+    (catalogFilter?: TileFilter) => {
+      if (isDefined(catalogFilter)) {
+        const localFilteredTiles = tiles.filter(catalogFilter);
         setFilteredTiles(localFilteredTiles);
       } else {
         setFilteredTiles(tiles);

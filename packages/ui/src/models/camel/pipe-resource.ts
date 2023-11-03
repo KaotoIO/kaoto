@@ -1,6 +1,5 @@
 import { Pipe as PipeType } from '@kaoto-next/camel-catalog/types';
-import { ITile } from '../../components/Catalog/Catalog.models';
-import { CatalogFilter } from '../catalog-filter';
+import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
@@ -83,13 +82,7 @@ export class PipeResource extends CamelKResource {
   }
 
   /** Components Catalog related methods */
-  getCompatibleComponents(mode: AddStepMode, visualEntityData: IVisualizationNodeData): CatalogFilter {
-    return {
-      filterFunction: this.getFilterFunction(mode, visualEntityData),
-    };
-  }
-
-  private getFilterFunction(mode: AddStepMode, visualEntityData: IVisualizationNodeData): (item: ITile) => boolean {
+  getCompatibleComponents(mode: AddStepMode, visualEntityData: IVisualizationNodeData): TileFilter {
     let kameletType: string = 'action';
 
     if (mode === AddStepMode.ReplaceStep && (visualEntityData.path === 'source' || visualEntityData.path === 'sink')) {
