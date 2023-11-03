@@ -12,6 +12,12 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
   if (label) {
     tags.push(...label.split(','));
   }
+  if (componentDef.component.consumerOnly) {
+    tags.push('consumerOnly');
+  }
+  if (componentDef.component.producerOnly) {
+    tags.push('producerOnly');
+  }
 
   return {
     type: CatalogKind.Component,

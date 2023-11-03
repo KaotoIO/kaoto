@@ -211,14 +211,11 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
     );
-    const catalogFilter = CamelComponentSchemaService.getCompatibleComponents(
-      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
-    );
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
       (data as CamelRouteVisualEntityData).processorName,
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
-    const canHaveSpecialChildren = Object.keys(catalogFilter).length > 0;
+    const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
 
     return {
       canHavePreviousStep,

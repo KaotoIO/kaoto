@@ -43,6 +43,19 @@ describe('camelComponentToTile', () => {
     expect(tile.tags).toEqual(['label1', 'label2']);
     expect(tile.version).toEqual('4.0.0');
   });
+
+  it('should populate tags with `consumerOnly` and `producerOnly` when applicable', () => {
+    const componentDef = {
+      component: {
+        consumerOnly: true,
+        producerOnly: true,
+      },
+    } as ICamelComponentDefinition;
+
+    const tile = camelComponentToTile(componentDef);
+
+    expect(tile.tags).toEqual(['consumerOnly', 'producerOnly']);
+  });
 });
 
 describe('camelProcessorToTile', () => {
