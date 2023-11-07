@@ -1,0 +1,36 @@
+{
+  "beans": [
+    {
+      "name": "bean1",
+      "type": "type1",
+      "properties": {
+        "prop1": "value1",
+        "propObj1": {
+          "propObj1Sub": "valueObj1"
+        }
+      }
+    },
+    {
+      "name": "bean2",
+      "type": "type2",
+      "properties": {
+        "prop2": "value2",
+        "propObj2": {
+          "propObj2Sub": "valueObj2"
+        }
+      }
+    }
+  ],
+  "beansNoProp": [
+    {
+      "name": "bean1",
+      "type": "type1",
+      "properties": {}
+    },
+    {
+      "name": "bean2",
+      "type": "type2",
+      "properties": {}
+    }
+  ]
+}
