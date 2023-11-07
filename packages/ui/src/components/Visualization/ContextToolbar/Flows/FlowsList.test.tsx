@@ -119,7 +119,7 @@ describe('FlowsList.tsx', () => {
     expect(resId).toEqual('entity1');
   });
 
-  test('should render the appropiate Eye icon', async () => {
+  test('should render the appropriate Eye icon', async () => {
     const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
     const flow1 = await wrapper.findByTestId('toggle-btn-entity1-visible');
     expect(flow1).toBeInTheDocument();
