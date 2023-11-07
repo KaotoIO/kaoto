@@ -1,0 +1,53 @@
+{
+  "code": "- route:\n    from:\n      uri: timer:template\n      parameters:\n        period: \"1000\"\n      steps:\n        - log:\n            message: template message\n    id: route-9865\n",
+  "entities": [],
+  "currentSchemaType": "Route",
+  "visualEntities": [
+    {
+      "id": "route-9865",
+      "type": "route",
+      "route": {
+        "from": {
+          "uri": "timer:template",
+          "parameters": {
+            "period": "1000"
+          },
+          "steps": [
+            {
+              "log": {
+                "message": "template message"
+              }
+            }
+          ]
+        },
+        "id": "route-9865"
+      }
+    }
+  ],
+  "flowTemplateService": {},
+  "camelResource": {
+    "entities": [
+      {
+        "id": "route-9865",
+        "type": "route",
+        "route": {
+          "from": {
+            "uri": "timer:template",
+            "parameters": {
+              "period": "1000"
+            },
+            "steps": [
+              {
+                "log": {
+                  "message": "template message"
+                }
+              }
+            ]
+          },
+          "id": "route-9865"
+        }
+      }
+    ]
+  },
+  "eventNotifier": {}
+}
