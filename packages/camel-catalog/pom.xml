@@ -52,7 +52,7 @@
     <version.maven-dependency-plugin>3.6.1</version.maven-dependency-plugin>
     <version.maven-plugin-annotations>3.10.1</version.maven-plugin-annotations>
     <version.maven-plugin-api>3.9.5</version.maven-plugin-api>
-    <version.maven-plugin-plugin>3.10.1</version.maven-plugin-plugin>
+    <version.maven-plugin-plugin>3.10.2</version.maven-plugin-plugin>
   </properties>
 
   <modules>
