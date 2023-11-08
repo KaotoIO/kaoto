@@ -2,7 +2,7 @@ import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 import { FlowClipboard } from './FlowClipboard';
 import { EntitiesProvider } from '../../../../providers/entities.provider';
-import useEntityContext from '../../../../hooks/useEntityContext';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { act } from 'react-dom/test-utils';
 
 const wrapper = ({ children }: PropsWithChildren) => <EntitiesProvider>{children}</EntitiesProvider>;
