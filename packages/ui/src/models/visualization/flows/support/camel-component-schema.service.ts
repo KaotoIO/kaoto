@@ -213,8 +213,8 @@ export class CamelComponentSchemaService {
         const componentSchema = this.getSchemaFromCamelCommonProperties(componentDefinition.properties);
         schema.properties.parameters = {
           type: 'object',
-          title: 'Component Parameters',
-          description: 'Component parameters description',
+          title: 'Endpoint Properties',
+          description: 'Endpoint properties description',
           properties: componentSchema.properties,
         };
       }
