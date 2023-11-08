@@ -33,7 +33,7 @@ describe('CanvasForm', () => {
     };
 
     const { container } = render(
-      <EntitiesContext.Provider value={undefined}>
+      <EntitiesContext.Provider value={null}>
         <CanvasForm selectedNode={selectedNode} />
       </EntitiesContext.Provider>,
     );
@@ -53,7 +53,7 @@ describe('CanvasForm', () => {
     };
 
     const { container } = render(
-      <EntitiesContext.Provider value={undefined}>
+      <EntitiesContext.Provider value={null}>
         <CanvasForm selectedNode={selectedNode} />
       </EntitiesContext.Provider>,
     );
@@ -79,7 +79,7 @@ describe('CanvasForm', () => {
     };
 
     const { container } = render(
-      <EntitiesContext.Provider value={undefined}>
+      <EntitiesContext.Provider value={null}>
         <CanvasForm selectedNode={selectedNode} />
       </EntitiesContext.Provider>,
     );
