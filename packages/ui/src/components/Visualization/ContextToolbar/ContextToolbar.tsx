@@ -4,7 +4,7 @@ import { sourceSchemaConfig } from '../../../models/camel';
 import { FlowsMenu } from './Flows/FlowsMenu';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { NewFlow } from './FlowType/NewFlow';
-import FlowClipboard from './FlowClipboard';
+import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 
 export const ContextToolbar: FunctionComponent = () => {
   const { currentSchemaType } = useContext(EntitiesContext)!;
