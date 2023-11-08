@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { CopyIcon } from '@patternfly/react-icons';
 import { Button, Tooltip, TooltipProps } from '@patternfly/react-core';
-import useEntityContext from '../../../../hooks/useEntityContext';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 
 export const successTooltipText = 'Content added to clipboard';
 
 export const defaultTooltipText = 'Copy to clipboard';
 
-export default function FlowClipboard() {
+export function FlowClipboard() {
   const { code } = useEntityContext();
   const [isCopied, setIsCopied] = useState(false);
 

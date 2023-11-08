@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import useEntityContext, { errorMessage } from './useEntityContext';
+import { useEntityContext, errorMessage } from './useEntityContext';
 import { EntitiesProvider } from '../../providers/entities.provider';
 import { PropsWithChildren } from 'react';
 
