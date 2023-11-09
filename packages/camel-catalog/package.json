@@ -13,7 +13,8 @@
     ".": "./dist",
     "./index.json": "./dist/index.json",
     "./types": "./dist/types/index.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.json": "./dist/*.json"
   },
   "scripts": {
     "build": "yarn clean && yarn build:mvn && yarn build:ts",
