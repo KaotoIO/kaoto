@@ -133,7 +133,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             )));
             return;
         }
-        var outputFileName = String.format("%s-%s.json", CAMEL_YAML_DSL, camelVersion);
+        var outputFileName = CAMEL_YAML_DSL + ".json";
         var output = outputDirectory.toPath().resolve(outputFileName);
         try {
             output.getParent().toFile().mkdirs();
@@ -187,7 +187,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
         answer.set("$schema", rootSchema.get("$schema"));
         populateDefinitions(answer, definitions);
-        var outputFileName = String.format("%s-%s-%s.json", CAMEL_YAML_DSL, propName, camelVersion);
+        var outputFileName = String.format("%s-%s.json", CAMEL_YAML_DSL, propName);
         var output = outputDirectory.toPath().resolve(outputFileName);
         try {
             output.getParent().toFile().mkdirs();
@@ -348,7 +348,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                     .forEach(f -> processCatalogFile(f, targetObject));
             var categoryName = category.getFileName().toString();
             var outputFileName = String.format(
-                    "%s-%s-%s.json", CAMEL_CATALOG_AGGREGATE, categoryName, camelVersion);
+                    "%s-%s.json", CAMEL_CATALOG_AGGREGATE, categoryName);
             var output = outputDirectory.toPath().resolve(outputFileName);
             JsonFactory jsonFactory = new JsonFactory();
             var writer = new FileWriter(output.toFile());
@@ -417,7 +417,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             return;
         }
         var outputFileName = String.format(
-                "%s-%s-%s.json", CRD_SCHEMA, underscoreSplitted[1], camelKCRDVersion);
+                "%s-%s.json", CRD_SCHEMA, underscoreSplitted[1]);
         var output = outputDirectory.toPath().resolve(outputFileName);
         try {
             var crd = yamlMapper.readValue(file.toFile(), CustomResourceDefinition.class);
@@ -449,7 +449,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             Files.list(kameletsDir)
                     .sorted()
                     .forEach(f -> processKameletFile(f, root));
-            var outputFileName = String.format("%s-%s.json", KAMELETS_AGGREGATE, kameletsVersion);
+            var outputFileName = KAMELETS_AGGREGATE + ".json";
             var output = outputDirectory.toPath().resolve(outputFileName);
             JsonFactory jsonFactory = new JsonFactory();
             var writer = new FileWriter(output.toFile());
