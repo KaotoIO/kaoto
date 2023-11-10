@@ -24,7 +24,7 @@ describe('FlowClipboard.tsx', () => {
     expect(clipboardButton).toBeInTheDocument();
   });
 
-  it('should be called clioboard api', () => {
+  it('should be called clipboard api', () => {
     const { result } = renderHook(() => useEntityContext(), { wrapper });
 
     const clipboardButton = screen.getByTestId('clipboardButton');

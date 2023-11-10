@@ -2,12 +2,12 @@ import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
 import { isDefined } from '../../../../utils';
 import { ICamelComponentProperty } from '../../../camel-components-catalog';
+import { ICamelLanguageProperty } from '../../../camel-languages-catalog';
 import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
-import { ICamelLanguageProperty } from '../../../camel-languages-catalog';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -108,11 +108,16 @@ export class CamelComponentSchemaService {
   }
 
   static getIconName(camelElementLookup: ICamelElementLookupResult): string | undefined {
-    if (
-      isDefined(camelElementLookup.componentName) &&
-      isDefined(CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName))
-    ) {
-      return camelElementLookup.componentName;
+    if (isDefined(camelElementLookup.componentName)) {
+      let catalogKind: CatalogKind = CatalogKind.Component;
+      let lookupName: string = camelElementLookup.componentName;
+      if (camelElementLookup.componentName.startsWith('kamelet:')) {
+        catalogKind = CatalogKind.Kamelet;
+        lookupName = camelElementLookup.componentName.replace('kamelet:', '');
+      }
+      if (isDefined(CamelCatalogService.getComponent(catalogKind, lookupName))) {
+        return camelElementLookup.componentName;
+      }
     }
     if (
       isDefined(camelElementLookup.processorName) &&
@@ -185,12 +190,14 @@ export class CamelComponentSchemaService {
    * An URI is composed by a component name and query parameters, separated by a colon
    * For instance: `timer:tick?period=1000`
    */
-  private static getComponentNameFromUri(uri: string): string | undefined {
+  static getComponentNameFromUri(uri: string): string | undefined {
     if (!uri) {
       return undefined;
     }
     const uriParts = uri.split(':');
-
+    if (uriParts[0] === 'kamelet') {
+      return uriParts[0] + ':' + uriParts[1];
+    }
     return uriParts[0];
   }
 

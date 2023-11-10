@@ -231,7 +231,7 @@ describe('Camel Route', () => {
     it('should use the uri as the node label', () => {
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.data.label).toEqual('timer:tutorial');
+      expect(vizNode.data.label).toEqual('timer');
     });
 
     it('should set a default label if the uri is not available', () => {
@@ -259,7 +259,7 @@ describe('Camel Route', () => {
 
       /** from */
       expect(vizNode.data.path).toEqual('from');
-      expect(vizNode.data.label).toEqual('timer:tutorial');
+      expect(vizNode.data.label).toEqual('timer');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
@@ -284,7 +284,7 @@ describe('Camel Route', () => {
       /** toDirect */
       const toDirectNode = choiceNode.getNextNode()!;
       expect(toDirectNode.data.path).toEqual('from.steps.2.to');
-      expect(toDirectNode.data.label).toEqual('direct:my-route');
+      expect(toDirectNode.data.label).toEqual('direct');
       expect(toDirectNode.getPreviousNode()).toBe(choiceNode);
       expect(toDirectNode.getNextNode()).toBeUndefined();
 
@@ -323,7 +323,7 @@ describe('Camel Route', () => {
       const firstToOtherwiseNode = otherwiseNode?.getChildren()?.[0];
       expect(firstToOtherwiseNode).toBeDefined();
       expect(firstToOtherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise.steps.0.to');
-      expect(firstToOtherwiseNode!.data.label).toEqual('amqp:queue:');
+      expect(firstToOtherwiseNode!.data.label).toEqual('amqp');
       expect(firstToOtherwiseNode!.getPreviousNode()).toBeUndefined();
       expect(firstToOtherwiseNode!.getNextNode()).toBeDefined();
       expect(firstToOtherwiseNode!.getParentNode()).toBe(otherwiseNode);
@@ -333,7 +333,7 @@ describe('Camel Route', () => {
       const secondToOtherwiseNode = otherwiseNode?.getChildren()?.[1];
       expect(secondToOtherwiseNode).toBeDefined();
       expect(secondToOtherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise.steps.1.to');
-      expect(secondToOtherwiseNode!.data.label).toEqual('amqp:queue:');
+      expect(secondToOtherwiseNode!.data.label).toEqual('amqp');
       expect(secondToOtherwiseNode!.getPreviousNode()).toBe(firstToOtherwiseNode);
       expect(secondToOtherwiseNode!.getNextNode()).toBeDefined();
       expect(secondToOtherwiseNode!.getParentNode()).toBe(otherwiseNode);

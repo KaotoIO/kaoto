@@ -52,9 +52,19 @@ import uaranteedDelivery from '../assets/eip/uaranteed-delivery.svg';
 import wireTap from '../assets/eip/wire-tap.svg';
 import expandIcon from '../assets/expand.svg';
 import questionIcon from '../assets/question-mark.svg';
+import { CatalogKind } from '../models';
+import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 
 export class NodeIconResolver {
   static getIcon = (iconName: string | undefined): string => {
+    if (iconName?.startsWith('kamelet:')) {
+      const kameletDefinition = CamelCatalogService.getComponent(CatalogKind.Kamelet, iconName.replace('kamelet:', ''));
+      const icon =
+        kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
+
+      return icon;
+    }
+
     switch (iconName) {
       case 'choice':
         return contentBasedRouter;
