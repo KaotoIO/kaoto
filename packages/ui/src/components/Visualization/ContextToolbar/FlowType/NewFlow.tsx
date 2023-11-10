@@ -1,15 +1,17 @@
-import { FlowTypeSelector } from './FlowTypeSelector';
+import { Button, Modal } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
-import { Button, Modal } from '@patternfly/react-core';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
+import { useSourceCodeContext } from '../../../../hooks/useSourceCodeContext/useSourceCodeContext';
 import { SourceSchemaType } from '../../../../models/camel';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const entitiesContext = useContext(EntitiesContext)!;
+  const sourceCodeContext = useSourceCodeContext();
+  const entitiesContext = useEntityContext();
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
 
   const checkBeforeAddNewFlow = useCallback(
@@ -25,7 +27,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         const newId = entitiesContext.camelResource.addNewEntity();
         visibleFlowsContext.visualFlowsApi.hideAllFlows();
         visibleFlowsContext.visualFlowsApi.setVisibleFlows([newId]);
-        entitiesContext.updateCodeFromEntities();
+        entitiesContext.updateEntitiesFromCamelResource();
       } else {
         /**
          * If it is not the same DSL, this operation might result in
@@ -35,7 +37,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         setIsConfirmationModalOpen(true);
       }
     },
-    [entitiesContext.currentSchemaType],
+    [entitiesContext, visibleFlowsContext.visualFlowsApi],
   );
 
   return (
@@ -57,7 +59,9 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             onClick={() => {
               if (proposedFlowType) {
                 entitiesContext.setCurrentSchemaType(proposedFlowType);
-                entitiesContext.setCode(entitiesContext.flowTemplateService.getFlowYamlTemplate(proposedFlowType));
+                sourceCodeContext.setCodeAndNotify(
+                  entitiesContext.flowTemplateService.getFlowYamlTemplate(proposedFlowType),
+                );
                 setIsConfirmationModalOpen(false);
               }
             }}

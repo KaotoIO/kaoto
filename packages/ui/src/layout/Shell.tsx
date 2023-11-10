@@ -2,7 +2,7 @@ import { Page, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from '../hooks';
 import { LocalStorageKeys } from '../models';
-import { EntitiesContext } from '../providers/entities.provider';
+import { SourceCodeContext } from '../providers/source-code.provider';
 import { camelRouteYaml } from '../stubs/camel-route';
 import { Navigation } from './Navigation';
 import './Shell.scss';
@@ -10,10 +10,10 @@ import { TopBar } from './TopBar';
 
 export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   const [isNavOpen, setIsNavOpen] = useState(true);
-  const entitiesContext = useContext(EntitiesContext);
+  const sourceCodeContext = useContext(SourceCodeContext)!;
 
   /** Load the source code from localStorage */
-  const [localSourceCode, setLocalSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, camelRouteYaml);
+  const [localSourceCode, setLocalStorageSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, camelRouteYaml);
 
   const navToggle = useCallback(() => {
     setIsNavOpen(!isNavOpen);
@@ -22,15 +22,14 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   useEffect(() => {
     /** Set the source code, entities, and visual entities from localStorage if available */
     if (localSourceCode) {
-      entitiesContext?.setCode(localSourceCode);
+      sourceCodeContext.setCodeAndNotify(localSourceCode);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    return entitiesContext?.eventNotifier.subscribe('code:update', (code) => {
-      setLocalSourceCode(code);
-    });
-  }, [entitiesContext?.eventNotifier, setLocalSourceCode]);
+    setLocalStorageSourceCode(sourceCodeContext.sourceCode);
+  }, [setLocalStorageSourceCode, sourceCodeContext.sourceCode]);
 
   return (
     <Page header={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>

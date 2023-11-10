@@ -1,85 +1,106 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { parse, stringify } from 'yaml';
 import { CamelResource, SourceSchemaType, createCamelResource } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
-import { EventNotifier } from '../utils';
 import { FlowTemplateService, flowTemplateService } from '../models/visualization/flows/flow-templates-service';
+import { EventNotifier } from '../utils';
 
 export interface EntitiesContextResult {
-  code: string;
-  setCode: (code: string) => void;
   entities: BaseCamelEntity[];
   currentSchemaType: SourceSchemaType;
-  setCurrentSchemaType: (entity: SourceSchemaType) => void;
   visualEntities: BaseVisualCamelEntity[];
   flowTemplateService: FlowTemplateService;
   camelResource: CamelResource;
-  updateCodeFromEntities: () => void;
-  eventNotifier: EventNotifier;
+
+  /**
+   * Notify that a property in an entity has changed, hence the source
+   * code needs to be updated
+   *
+   * NOTE: This process shouldn't recreate the CamelResource neither
+   * the entities, just the source code
+   */
+  updateSourceCodeFromEntities: () => void;
+
+  /**
+   * Refresh the entities from the Camel Resource, and
+   * notify subscribers that a `entities:updated` happened
+   *
+   * NOTE: This process shouldn't recreate the CamelResource,
+   * just the entities
+   */
+  updateEntitiesFromCamelResource: () => void;
+
+  /**
+   * Sets the current schema type and recreates the CamelResource
+   */
+  setCurrentSchemaType: (entity: SourceSchemaType) => void;
 }
 
 export const useEntities = (): EntitiesContextResult => {
-  const [sourceCode, setSourceCode] = useState<string>('');
-  const eventNotifier = useMemo(() => new EventNotifier(), []);
+  const eventNotifier = EventNotifier.getInstance();
   const [camelResource, setCamelResource] = useState<CamelResource>(createCamelResource());
+  const [entities, setEntities] = useState<BaseCamelEntity[]>([]);
+  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>([]);
 
-  /** Set the Source Code and updates the Entities */
-  const setCode = useCallback(
-    (code: string) => {
-      try {
-        setSourceCode(code);
-        const result = parse(code);
-        const camelResource = createCamelResource(result);
-        setCamelResource(camelResource);
+  /**
+   * Subscribe to the `code:updated` event to recreate the CamelResource
+   */
+  useLayoutEffect(() => {
+    return eventNotifier.subscribe('code:updated', (code) => {
+      const rawEntities = parse(code);
+      const camelResource = createCamelResource(rawEntities);
+      const entities = camelResource.getEntities();
+      const visualEntities = camelResource.getVisualEntities();
+      setCamelResource(camelResource);
+      setEntities(entities);
+      setVisualEntities(visualEntities);
+    });
+  }, [eventNotifier]);
 
-        /** Notify subscribers that a `entities:update` happened */
-        eventNotifier.next('entities:update', undefined);
-      } catch (e) {
-        setCamelResource(createCamelResource());
-        console.error(e);
-      }
-    },
-    [eventNotifier],
-  );
-
-  /** Updates the Source Code whenever the entities are updated */
-  const updateCodeFromEntities = useCallback(() => {
+  const updateSourceCodeFromEntities = useCallback(() => {
     const code = stringify(camelResource) || '';
-    setSourceCode(code);
-
-    /** Notify subscribers that a `code:update` happened */
-    eventNotifier.next('code:update', code);
+    eventNotifier.next('entities:updated', code);
   }, [camelResource, eventNotifier]);
 
-  const setCurrentSchemaType = useCallback(() => {
-    return (type: SourceSchemaType) => {
+  const updateEntitiesFromCamelResource = useCallback(() => {
+    const entities = camelResource.getEntities();
+    const visualEntities = camelResource.getVisualEntities();
+    setEntities(entities);
+    setVisualEntities(visualEntities);
+
+    /**
+     * Notify consumers that entities has been refreshed, hence the code needs to be updated
+     */
+    updateSourceCodeFromEntities();
+  }, [camelResource, updateSourceCodeFromEntities]);
+
+  const setCurrentSchemaType = useCallback(
+    (type: SourceSchemaType) => {
       setCamelResource(createCamelResource(type));
-      updateCodeFromEntities();
-    };
-  }, [updateCodeFromEntities]);
+      updateEntitiesFromCamelResource();
+    },
+    [updateEntitiesFromCamelResource],
+  );
 
   return useMemo(
     () => ({
-      code: sourceCode,
-      setCode,
-      entities: camelResource.getEntities(),
+      entities,
+      visualEntities,
       currentSchemaType: camelResource?.getType(),
-      setCurrentSchemaType: setCurrentSchemaType(),
-      visualEntities: camelResource.getVisualEntities(),
       flowTemplateService,
       camelResource,
-      updateCodeFromEntities,
-      eventNotifier,
+      setCurrentSchemaType,
+      updateEntitiesFromCamelResource,
+      updateSourceCodeFromEntities,
     }),
     [
-      sourceCode,
-      setCode,
-      setCurrentSchemaType,
+      entities,
+      visualEntities,
       camelResource,
-      updateCodeFromEntities,
-      eventNotifier,
-      flowTemplateService,
+      setCurrentSchemaType,
+      updateEntitiesFromCamelResource,
+      updateSourceCodeFromEntities,
     ],
   );
 };

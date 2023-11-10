@@ -39,7 +39,7 @@ export const ItemInsertChildNode: FunctionComponent<ItemInsertChildNodeProps> = 
     vizNode.addBaseEntityStep(definedComponent, props.mode, targetProperty);
 
     /** Update entity */
-    entitiesContext.updateCodeFromEntities();
+    entitiesContext.updateEntitiesFromCamelResource();
   }, [catalogModalContext, entitiesContext, props.mode, vizNode]);
 
   return shouldRender ? (

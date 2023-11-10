@@ -36,7 +36,7 @@ export const MetadataPage: FunctionComponent = () => {
       } else {
         camelkResource.deleteMetadataEntity();
       }
-      entitiesContext?.updateCodeFromEntities();
+      entitiesContext?.updateSourceCodeFromEntities();
     },
     [camelkResource, entitiesContext],
   );

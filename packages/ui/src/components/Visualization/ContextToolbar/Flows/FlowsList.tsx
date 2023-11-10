@@ -14,7 +14,7 @@ interface IFlowsList {
 }
 
 export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
-  const { visualEntities, camelResource, updateCodeFromEntities } = useContext(EntitiesContext)!;
+  const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
 
   const isListEmpty = visualEntities.length === 0;
@@ -91,7 +91,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 variant="plain"
                 onClick={(event) => {
                   camelResource.removeEntity(flow.id);
-                  updateCodeFromEntities();
+                  updateEntitiesFromCamelResource();
                   /** Required to avoid closing the Dropdown after clicking in the icon */
                   event.stopPropagation();
                 }}

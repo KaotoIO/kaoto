@@ -4,6 +4,7 @@ import {
   ContextToolbar,
   EntitiesContext,
   SchemasLoaderProvider,
+  SourceCodeContext,
   VisibleFlowsProvider,
 } from '@kaoto-next/ui/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
@@ -11,17 +12,19 @@ import { Meta, StoryFn } from '@storybook/react';
 import camelRouteMock from '../cypress/fixtures/camelRouteMock.json';
 
 const EntitiesContextDecorator = (Story: StoryFn) => (
-  <EntitiesContext.Provider value={camelRouteMock}>
-    <SchemasLoaderProvider>
-      <CatalogLoaderProvider>
-        <CatalogTilesProvider>
-          <VisibleFlowsProvider>
-            <Story />
-          </VisibleFlowsProvider>
-        </CatalogTilesProvider>
-      </CatalogLoaderProvider>
-    </SchemasLoaderProvider>
-  </EntitiesContext.Provider>
+  <SourceCodeContext.Provider value={{ sourceCode: '', setCodeAndNotify: () => {} }}>
+    <EntitiesContext.Provider value={camelRouteMock}>
+      <SchemasLoaderProvider>
+        <CatalogLoaderProvider>
+          <CatalogTilesProvider>
+            <VisibleFlowsProvider>
+              <Story />
+            </VisibleFlowsProvider>
+          </CatalogTilesProvider>
+        </CatalogLoaderProvider>
+      </SchemasLoaderProvider>
+    </EntitiesContext.Provider>
+  </SourceCodeContext.Provider>
 );
 
 export default {

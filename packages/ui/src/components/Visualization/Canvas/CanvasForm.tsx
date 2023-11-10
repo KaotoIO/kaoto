@@ -33,7 +33,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
       props.selectedNode.data?.vizNode?.updateModel(newModel);
-      entitiesContext?.updateCodeFromEntities();
+      entitiesContext?.updateSourceCodeFromEntities();
       setModel(newModel);
     },
     [entitiesContext, props.selectedNode.data?.vizNode],

@@ -43,7 +43,7 @@ export const BeansPage: FunctionComponent = () => {
         const entity = findBeansEntity();
         entity && beansAwareResource.deleteBeansEntity(entity);
       }
-      entitiesContext?.updateCodeFromEntities();
+      entitiesContext?.updateSourceCodeFromEntities();
     },
     [camelResource, entitiesContext, findBeansEntity],
   );
