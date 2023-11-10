@@ -6,7 +6,7 @@ export class ExpressionService {
   /**
    * Get the language catalog map from the Camel catalog. Since "language" language is not in the languages Camel
    *  catalog, it is extracted from the YAML DSL schema.
-   * @param yamlDslSchema
+   * @param yamlDslSchema The whole YAML DSL schema. This is used to create the "language" custom language.
    */
   static getLanguageMap(yamlDslSchema: Record<string, unknown>): Record<string, ICamelLanguageDefinition> {
     const catalog = { ...CamelCatalogService.getLanguageMap() };
@@ -56,7 +56,7 @@ export class ExpressionService {
   /**
    * Get the language schema from the language catalog. ATM it delegates to {@link CamelComponentSchemaService.getSchemaFromCamelCommonProperties}.
    * @TODO The language `xtokenize` has `namespace` property with the type `array`, which causes an error in uniforms. Fix the schema here, or in {@link CamelComponentSchemaService.getSchemaFromCamelCommonProperties} if it could be common.
-   * @param languageCatalog
+   * @param languageCatalog The {@link ICamelLanguageDefinition} object represents the language to get the schema.
    */
   static getLanguageSchema(languageCatalog: ICamelLanguageDefinition) {
     return CamelComponentSchemaService.getSchemaFromCamelCommonProperties(languageCatalog.properties);
@@ -64,10 +64,43 @@ export class ExpressionService {
 
   /**
    * Parse the expression model from the parent step model object. Since expression has several dialects,
-   * this method tries to read all possibility and merge into a single representation.
-   * @param languageCatalogMap
-   * @param parentModel
-   */
+   * this method tries to read all possibility and merge into a single representation. Camel expression has
+   * following 4 dialects, where the 2nd and 4th doesn't allow to configure additional properties:
+   * <ul>
+   *   <li>---
+   * ```yaml
+   * - setBody:
+   *     expression:
+   *       simple:
+   *         expression: ${body}
+   *         trim: true
+   * ```
+   * </li>
+   * <li>---
+   * ```yaml
+   * - setBody:
+   *     expression:
+   *       simple: ${body}
+   * ```
+   * </li>
+   * <li>---
+   * ```yaml
+   * - setBody:
+   *     simple:
+   *       expression: ${body}
+   *       trim: true
+   * ```
+   * </li>
+   * <li>---
+   * ```yaml
+   * - setBody:
+   *     simple: ${body}
+   * ```
+   * </li>
+   * </ul>
+   * @param languageCatalogMap The language catalog map to use as a dictionary.
+   * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
+   * */
   static parseExpressionModel(
     languageCatalogMap: Record<string, ICamelLanguageDefinition>,
     parentModel: Record<string, unknown>,
@@ -126,10 +159,10 @@ export class ExpressionService {
    *         expression: ${body}
    *         trim: true
    * ```
-   * @param languageCatalogMap
-   * @param parentModel
-   * @param languageModelName
-   * @param newExpressionModel
+   * @param languageCatalogMap The language catalog map to use as a dictionary.
+   * @param parentModel The parent step model object which has expression as its parameter. e.g. `setBody` contents.
+   * @param languageModelName The language model name string to set. e.g. `simple`.
+   * @param newExpressionModel The new expression model to set, e.g. `/setBody/expression/simple` contents.
    */
   static setExpressionModel(
     languageCatalogMap: Record<string, ICamelLanguageDefinition>,
