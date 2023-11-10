@@ -12,7 +12,7 @@ export const ItemRemoveNode: FunctionComponent<IDataTestID> = (props) => {
 
   const onRemoveNode = useCallback(() => {
     vizNode?.removeChild();
-    entitiesContext?.updateCodeFromEntities();
+    entitiesContext?.updateEntitiesFromCamelResource();
   }, [entitiesContext, vizNode]);
 
   return (

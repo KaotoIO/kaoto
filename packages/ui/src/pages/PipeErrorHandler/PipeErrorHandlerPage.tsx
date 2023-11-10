@@ -35,7 +35,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
       } else {
         pipeResource!.deleteErrorHandlerEntity();
       }
-      entitiesContext!.updateCodeFromEntities();
+      entitiesContext!.updateSourceCodeFromEntities();
     },
     [entitiesContext, pipeResource],
   );

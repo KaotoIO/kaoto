@@ -1,10 +1,12 @@
-import { NewFlow } from './NewFlow';
 import { act, fireEvent, render } from '@testing-library/react';
-import { sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { Schema } from '../../../../models';
 import { EntitiesContextResult } from '../../../../hooks';
+import { Schema } from '../../../../models';
+import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
+import { VisibleFlowsProvider } from '../../../../providers';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { SourceCodeContext } from '../../../../providers/source-code.provider';
+import { NewFlow } from './NewFlow';
 
 describe('NewFlow.tsx', () => {
   const config = sourceSchemaConfig;
@@ -21,16 +23,25 @@ describe('NewFlow.tsx', () => {
 
   const renderWithContext = () => {
     return render(
-      <EntitiesContext.Provider
-        value={
-          {
-            currentSchemaType: SourceSchemaType.Integration,
-            visualEntities: visualEntities,
-          } as unknown as EntitiesContextResult
-        }
+      <SourceCodeContext.Provider
+        value={{
+          sourceCode: '',
+          setCodeAndNotify: jest.fn(),
+        }}
       >
-        <NewFlow />
-      </EntitiesContext.Provider>,
+        <EntitiesContext.Provider
+          value={
+            {
+              currentSchemaType: SourceSchemaType.Integration,
+              visualEntities: visualEntities,
+            } as unknown as EntitiesContextResult
+          }
+        >
+          <VisibleFlowsProvider>
+            <NewFlow />
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>
+      </SourceCodeContext.Provider>,
     );
   };
 

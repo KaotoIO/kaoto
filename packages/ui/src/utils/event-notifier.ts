@@ -1,11 +1,21 @@
 interface Events {
-  'code:update': string;
-  'entities:update': undefined;
+  'code:updated': string;
+  'entities:updated': string;
 }
 
 export class EventNotifier extends EventTarget {
+  private static instance: EventNotifier | undefined;
+
   constructor() {
     super();
+  }
+
+  static getInstance(): EventNotifier {
+    if (!this.instance) {
+      this.instance = new EventNotifier();
+    }
+
+    return this.instance;
   }
 
   next<EventName extends keyof Events>(event: EventName, payload: Events[EventName]): void {

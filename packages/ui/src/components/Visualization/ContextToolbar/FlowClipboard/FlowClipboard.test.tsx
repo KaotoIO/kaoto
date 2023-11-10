@@ -1,11 +1,11 @@
 import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
-import { FlowClipboard } from './FlowClipboard';
-import { EntitiesProvider } from '../../../../providers/entities.provider';
-import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { act } from 'react-dom/test-utils';
+import { useSourceCodeContext } from '../../../../hooks/useSourceCodeContext/useSourceCodeContext';
+import { SourceCodeProvider } from '../../../../providers/source-code.provider';
+import { FlowClipboard } from './FlowClipboard';
 
-const wrapper = ({ children }: PropsWithChildren) => <EntitiesProvider>{children}</EntitiesProvider>;
+const wrapper = ({ children }: PropsWithChildren) => <SourceCodeProvider>{children}</SourceCodeProvider>;
 
 Object.defineProperty(navigator, 'clipboard', {
   value: {
@@ -25,13 +25,13 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should be called clipboard api', () => {
-    const { result } = renderHook(() => useEntityContext(), { wrapper });
+    const { result } = renderHook(() => useSourceCodeContext(), { wrapper });
 
     const clipboardButton = screen.getByTestId('clipboardButton');
 
     act(() => fireEvent.click(clipboardButton));
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(result.current.code);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(result.current.sourceCode);
   });
 });

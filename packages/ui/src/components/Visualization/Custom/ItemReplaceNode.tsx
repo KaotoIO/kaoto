@@ -30,7 +30,7 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
     vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
 
     /** Update entity */
-    entitiesContext.updateCodeFromEntities();
+    entitiesContext.updateEntitiesFromCamelResource();
   }, [catalogModalContext, entitiesContext, vizNode]);
 
   return (

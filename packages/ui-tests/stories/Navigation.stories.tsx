@@ -1,4 +1,4 @@
-import { Navigation, Shell } from '@kaoto-next/ui/testing';
+import { Navigation, Shell, SourceCodeProvider } from '@kaoto-next/ui/testing';
 import { StoryFn } from '@storybook/react';
 import { withRouter, reactRouterOutlet, reactRouterParameters } from 'storybook-addon-react-router-v6';
 
@@ -20,7 +20,11 @@ const NavigationTemplate: StoryFn<typeof Navigation> = () => {
 };
 
 const ShellTemplate: StoryFn<typeof Shell> = () => {
-  return <Shell />;
+  return (
+    <SourceCodeProvider>
+      <Shell />
+    </SourceCodeProvider>
+  );
 };
 
 export const NavigationOpen = NavigationTemplate.bind({});

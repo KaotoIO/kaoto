@@ -1,0 +1,65 @@
+import { render } from '@testing-library/react';
+import { PropsWithChildren, useContext, useEffect } from 'react';
+import { act } from 'react-dom/test-utils';
+import { camelRouteYaml } from '../stubs/camel-route';
+import { SourceCodeContext, SourceCodeProvider } from './source-code.provider';
+import { EventNotifier } from '../utils';
+
+describe('SourceCodeProvider', () => {
+  it('should start with an empty source code', () => {
+    const wrapper = render(
+      <SourceCodeProvider>
+        <TestProvider />
+      </SourceCodeProvider>,
+    );
+
+    act(() => {
+      const elem = wrapper.getByTestId('source-code');
+      expect(elem.textContent).toEqual('');
+    });
+  });
+
+  it('should set the source code', () => {
+    const wrapper = render(
+      <SourceCodeProvider>
+        <TestProvider initialSourceCode={camelRouteYaml} />
+      </SourceCodeProvider>,
+    );
+
+    act(() => {
+      const elem = wrapper.getByTestId('source-code');
+      expect(elem.textContent).toEqual(camelRouteYaml);
+    });
+  });
+
+  it('should notify subscribers when the source code is updated', () => {
+    const wrapper = render(
+      <SourceCodeProvider>
+        <TestProvider />
+      </SourceCodeProvider>,
+    );
+
+    const eventNotifier = EventNotifier.getInstance();
+    const notifierSpy = jest.spyOn(eventNotifier, 'next');
+
+    act(() => {
+      wrapper.rerender(
+        <SourceCodeProvider>
+          <TestProvider initialSourceCode={camelRouteYaml} />
+        </SourceCodeProvider>,
+      );
+    });
+
+    expect(notifierSpy).toHaveBeenCalledWith('code:updated', camelRouteYaml);
+  });
+});
+
+function TestProvider(props: PropsWithChildren<{ initialSourceCode?: string }>) {
+  const sourceCodeContext = useContext(SourceCodeContext);
+
+  useEffect(() => {
+    sourceCodeContext!.setCodeAndNotify(props.initialSourceCode ?? sourceCodeContext!.sourceCode);
+  }, [props.initialSourceCode, sourceCodeContext]);
+
+  return <span data-testid="source-code">{sourceCodeContext?.sourceCode}</span>;
+}

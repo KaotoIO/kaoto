@@ -54,7 +54,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
       if (!model) return;
       ExpressionService.setExpressionModel(languageCatalogMap, model, selectedLanguage, newExpressionModel);
       props.selectedNode.data?.vizNode?.updateModel(model);
-      entitiesContext?.updateCodeFromEntities();
+      entitiesContext?.updateSourceCodeFromEntities();
     },
     [entitiesContext, languageCatalogMap, model, props.selectedNode.data?.vizNode],
   );

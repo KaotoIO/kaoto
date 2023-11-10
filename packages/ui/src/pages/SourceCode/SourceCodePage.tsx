@@ -1,23 +1,17 @@
 import { FunctionComponent, useCallback, useContext } from 'react';
 import { SourceCode } from '../../components/SourceCode';
-import { useLocalStorage } from '../../hooks';
-import { LocalStorageKeys } from '../../models';
-import { EntitiesContext } from '../../providers/entities.provider';
+import { SourceCodeContext } from '../../providers/source-code.provider';
 
 export const SourceCodePage: FunctionComponent = () => {
-  const entitiesContext = useContext(EntitiesContext);
-  const [, setLocalSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, '');
+  const sourceCodeContext = useContext(SourceCodeContext);
 
   const handleCodeChange = useCallback(
     (code: string) => {
       /** Update Entities and Visual Entities */
-      entitiesContext?.setCode(code);
-
-      /** Auto save code */
-      setLocalSourceCode(code);
+      sourceCodeContext?.setCodeAndNotify(code);
     },
-    [entitiesContext],
+    [sourceCodeContext],
   );
 
-  return <SourceCode code={entitiesContext?.code ?? ''} onCodeChange={handleCodeChange} />;
+  return <SourceCode code={sourceCodeContext?.sourceCode ?? ''} onCodeChange={handleCodeChange} />;
 };

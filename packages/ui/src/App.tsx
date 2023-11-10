@@ -4,20 +4,23 @@ import { CatalogTilesProvider } from './providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from './providers/catalog.provider';
 import { EntitiesProvider } from './providers/entities.provider';
 import { SchemasLoaderProvider } from './providers/schemas.provider';
+import { SourceCodeProvider } from './providers/source-code.provider';
 
 function App() {
   return (
-    <EntitiesProvider>
-      <Shell>
-        <SchemasLoaderProvider>
-          <CatalogLoaderProvider>
-            <CatalogTilesProvider>
-              <Outlet />
-            </CatalogTilesProvider>
-          </CatalogLoaderProvider>
-        </SchemasLoaderProvider>
-      </Shell>
-    </EntitiesProvider>
+    <SourceCodeProvider>
+      <EntitiesProvider>
+        <Shell>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <CatalogTilesProvider>
+                <Outlet />
+              </CatalogTilesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </Shell>
+      </EntitiesProvider>
+    </SourceCodeProvider>
   );
 }
 
