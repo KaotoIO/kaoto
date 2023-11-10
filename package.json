@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "@babel/traverse": "7.23.2",
+    "@babel/traverse": "7.23.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "uniforms": "4.0.0-alpha.5",
