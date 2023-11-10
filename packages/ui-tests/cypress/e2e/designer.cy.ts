@@ -35,8 +35,8 @@ describe('Tests for Design page', () => {
     cy.uploadFixture('flows/CamelRoute.yaml');
     cy.openDesignPage();
     cy.removeNodeByName('setHeader');
-    cy.removeNodeByName('log:test');
-    cy.removeNodeByName('timer:test');
+    cy.removeNodeByName('log');
+    cy.removeNodeByName('timer');
     cy.openSourceCode();
     cy.checkCodeSpanLine('uri: timer:test', 0);
     cy.checkCodeSpanLine('setHeader', 0);

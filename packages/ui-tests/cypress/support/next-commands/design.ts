@@ -27,5 +27,5 @@ Cypress.Commands.add('removeNodeByName', (inputName: string) => {
     .find('g.pf-topology__node__action-icon > rect')
     .click({ force: true });
   cy.get('[data-testid="context-menu-item-remove"]').click();
-  cy.contains(inputName).should('not.exist');
+  cy.get(inputName).should('not.exist');
 });

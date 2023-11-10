@@ -226,7 +226,10 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
   }
 
   toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromProcessor('from', { processorName: 'from' as keyof ProcessorDefinition });
+    const rootNode = this.getVizNodeFromProcessor('from', {
+      processorName: 'from' as keyof ProcessorDefinition,
+      componentName: CamelComponentSchemaService.getComponentNameFromUri(this.route.from!.uri),
+    });
     rootNode.data.entity = this;
 
     if (!this.route.from?.uri) {
@@ -271,7 +274,10 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
         return stepsList.reduce((accStepsNodes, step, index) => {
           const singlePropertyName = Object.keys(step)[0];
           const childPath = `${singlePath}.${index}.${singlePropertyName}`;
-          const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, step);
+          const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
+            childPath,
+            get(step, singlePropertyName),
+          );
 
           const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
 

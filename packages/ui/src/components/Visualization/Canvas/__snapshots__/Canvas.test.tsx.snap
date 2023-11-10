@@ -44,7 +44,7 @@ exports[`Canvas should render correctly 1`] = `
                   data-layer-id="default"
                 >
                   <g
-                    data-id="timer:tutorial-1234-to-set-header-1234"
+                    data-id="timer-1234-to-set-header-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -204,7 +204,7 @@ exports[`Canvas should render correctly 1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-id="otherwise-1234-to-amqp-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -236,7 +236,7 @@ exports[`Canvas should render correctly 1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="log-1234-to-direct:my-route-1234"
+                    data-id="log-1234-to-direct-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -268,7 +268,7 @@ exports[`Canvas should render correctly 1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="timer:tutorial-1234"
+                    data-id="timer-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -304,13 +304,13 @@ exports[`Canvas should render correctly 1`] = `
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="amqp:queue:-1234"
+                    data-id="amqp-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="direct:my-route-1234"
+                    data-id="direct-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -562,7 +562,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                   data-layer-id="default"
                 >
                   <g
-                    data-id="timer:tutorial-1234-to-set-header-1234"
+                    data-id="timer-1234-to-set-header-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -722,7 +722,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-id="otherwise-1234-to-amqp-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -754,7 +754,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="log-1234-to-direct:my-route-1234"
+                    data-id="log-1234-to-direct-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -786,7 +786,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="timer:tutorial-1234"
+                    data-id="timer-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -822,13 +822,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="amqp:queue:-1234"
+                    data-id="amqp-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="direct:my-route-1234"
+                    data-id="direct-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -1080,7 +1080,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                   data-layer-id="default"
                 >
                   <g
-                    data-id="timer:tutorial-1234-to-set-header-1234"
+                    data-id="timer-1234-to-set-header-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -1240,7 +1240,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </g>
                   </g>
                   <g
-                    data-id="otherwise-1234-to-amqp:queue:-1234"
+                    data-id="otherwise-1234-to-amqp-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -1272,7 +1272,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </g>
                   </g>
                   <g
-                    data-id="log-1234-to-direct:my-route-1234"
+                    data-id="log-1234-to-direct-1234"
                     data-kind="edge"
                     data-type="edge"
                   >
@@ -1304,7 +1304,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </g>
                   </g>
                   <g
-                    data-id="timer:tutorial-1234"
+                    data-id="timer-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
@@ -1340,13 +1340,13 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="amqp:queue:-1234"
+                    data-id="amqp-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"
                   />
                   <g
-                    data-id="direct:my-route-1234"
+                    data-id="direct-1234"
                     data-kind="node"
                     data-type="node"
                     transform="translate(0, 0)"

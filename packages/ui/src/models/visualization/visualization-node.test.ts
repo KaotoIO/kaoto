@@ -21,7 +21,7 @@ describe('VisualizationNode', () => {
     expect(node.getBaseEntity()).toEqual(visualEntity);
   });
 
-  it('should return the component schema from the underlying BaseVsualCamelEntity', () => {
+  it('should return the component schema from the underlying BaseVisualCamelEntity', () => {
     const getComponentSchemaSpy = jest.fn();
     const visualEntity = {
       getComponentSchema: getComponentSchemaSpy,
