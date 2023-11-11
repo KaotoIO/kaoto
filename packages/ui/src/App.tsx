@@ -7,8 +7,8 @@ import { SchemasLoaderProvider } from './providers/schemas.provider';
 
 function App() {
   return (
-    <EntitiesProvider>
-      <Shell>
+    <Shell>
+      <EntitiesProvider>
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <CatalogTilesProvider>
@@ -16,8 +16,8 @@ function App() {
             </CatalogTilesProvider>
           </CatalogLoaderProvider>
         </SchemasLoaderProvider>
-      </Shell>
-    </EntitiesProvider>
+      </EntitiesProvider>
+    </Shell>
   );
 }
 

@@ -3,8 +3,10 @@ import { parse, stringify } from 'yaml';
 import { CamelResource, SourceSchemaType, createCamelResource } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
-import { EventNotifier } from '../utils';
 import { FlowTemplateService, flowTemplateService } from '../models/visualization/flows/flow-templates-service';
+import { camelRouteYaml } from '../stubs/camel-route';
+import { LocalStorageKeys } from '../models';
+import { useLocalStorage } from '.';
 
 export interface EntitiesContextResult {
   code: string;
@@ -16,13 +18,11 @@ export interface EntitiesContextResult {
   flowTemplateService: FlowTemplateService;
   camelResource: CamelResource;
   updateCodeFromEntities: () => void;
-  eventNotifier: EventNotifier;
 }
 
 export const useEntities = (): EntitiesContextResult => {
-  const [sourceCode, setSourceCode] = useState<string>('');
-  const eventNotifier = useMemo(() => new EventNotifier(), []);
-  const [camelResource, setCamelResource] = useState<CamelResource>(createCamelResource());
+  const [sourceCode, setSourceCode] = useLocalStorage(LocalStorageKeys.SourceCode, camelRouteYaml);
+  const [camelResource, setCamelResource] = useState<CamelResource>(createCamelResource(parse(sourceCode)));
 
   /** Set the Source Code and updates the Entities */
   const setCode = useCallback(
@@ -32,32 +32,27 @@ export const useEntities = (): EntitiesContextResult => {
         const result = parse(code);
         const camelResource = createCamelResource(result);
         setCamelResource(camelResource);
-
-        /** Notify subscribers that a `entities:update` happened */
-        eventNotifier.next('entities:update', undefined);
       } catch (e) {
         setCamelResource(createCamelResource());
         console.error(e);
       }
     },
-    [eventNotifier],
+    [setSourceCode],
   );
 
   /** Updates the Source Code whenever the entities are updated */
   const updateCodeFromEntities = useCallback(() => {
     const code = stringify(camelResource) || '';
     setSourceCode(code);
+  }, [camelResource, setSourceCode]);
 
-    /** Notify subscribers that a `code:update` happened */
-    eventNotifier.next('code:update', code);
-  }, [camelResource, eventNotifier]);
-
-  const setCurrentSchemaType = useCallback(() => {
-    return (type: SourceSchemaType) => {
+  const setCurrentSchemaType = useCallback(
+    (type: SourceSchemaType) => {
       setCamelResource(createCamelResource(type));
       updateCodeFromEntities();
-    };
-  }, [updateCodeFromEntities]);
+    },
+    [updateCodeFromEntities],
+  );
 
   return useMemo(
     () => ({
@@ -65,21 +60,12 @@ export const useEntities = (): EntitiesContextResult => {
       setCode,
       entities: camelResource.getEntities(),
       currentSchemaType: camelResource?.getType(),
-      setCurrentSchemaType: setCurrentSchemaType(),
+      setCurrentSchemaType,
       visualEntities: camelResource.getVisualEntities(),
       flowTemplateService,
       camelResource,
       updateCodeFromEntities,
-      eventNotifier,
     }),
-    [
-      sourceCode,
-      setCode,
-      setCurrentSchemaType,
-      camelResource,
-      updateCodeFromEntities,
-      eventNotifier,
-      flowTemplateService,
-    ],
+    [sourceCode, setCode, setCurrentSchemaType, camelResource, updateCodeFromEntities],
   );
 };
