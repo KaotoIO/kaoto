@@ -7,6 +7,7 @@ import { CustomAutoField } from '../../Form/CustomAutoField';
 import { CanvasNode } from './canvas.models';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ExpressionEditor } from './ExpressionEditor';
+import { DataFormatEditor } from './DataFormatEditor';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -43,12 +44,17 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     return schema?.schema?.properties?.expression !== undefined;
   }, [schema]);
 
+  const isDataFormatAwareStep = useMemo(() => {
+    return schema?.schema?.properties?.dataFormatType !== undefined;
+  }, [schema]);
+
   return schema?.schema === undefined ? null : (
     <ErrorBoundary fallback={<p>This node cannot be configured yet</p>}>
       <Title headingLevel="h1">{componentName}</Title>
       {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
+      {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
       <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
-        <AutoFields autoField={CustomAutoField} omitFields={['expression']} />
+        <AutoFields autoField={CustomAutoField} omitFields={['expression', 'dataFormatType']} />
         <ErrorsField />
       </AutoForm>
     </ErrorBoundary>

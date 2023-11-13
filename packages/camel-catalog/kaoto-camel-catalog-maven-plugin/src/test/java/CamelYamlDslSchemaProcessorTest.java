@@ -19,8 +19,7 @@ import io.kaoto.camelcatalog.CamelYamlDslSchemaProcessor;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CamelYamlDslSchemaProcessorTest {
     private final ObjectMapper jsonMapper;
@@ -61,6 +60,17 @@ public class CamelYamlDslSchemaProcessorTest {
         assertEquals("JSon", jsonDataFormat.get("title").asText());
         var libraryEnum = jsonDataFormat.withObject("/properties").withObject("/library").withArray("enum");
         assertTrue(libraryEnum.size() > 4);
+    }
+
+    @Test
+    public void testGetDataFormatYaml() throws Exception {
+        var dataFormatMap = processor.getDataFormats();
+        var yamlDataFormat = dataFormatMap.get("yaml");
+        var typeFilterDefinition = yamlDataFormat.withObject("/definitions").withObject("org.apache.camel.model.dataformat.YAMLTypeFilterDefinition");
+        assertEquals("object", typeFilterDefinition.get("type").asText());
+        var propType = typeFilterDefinition.withObject("/properties").withObject("/type");
+        assertEquals("string", propType.get("type").asText());
+        assertEquals("Type", propType.get("title").asText());
     }
 
     @Test

@@ -33,7 +33,8 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   }, [props.schema]);
 
   useEffect(() => {
-    firstInputRef.current?.focus();
+    // The input like checkbox doesn't have focus() method
+    firstInputRef.current?.focus && firstInputRef.current?.focus();
   }, [selected]);
 
   function isTopmostArray() {
