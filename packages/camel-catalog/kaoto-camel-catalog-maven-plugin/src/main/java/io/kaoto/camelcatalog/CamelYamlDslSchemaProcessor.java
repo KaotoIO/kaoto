@@ -151,6 +151,7 @@ public class CamelYamlDslSchemaProcessor {
             var entryDefinitionName = getNameFromRef(property);
             var dataformat = relocatedDefinitions.withObject("/" + entryDefinitionName);
             if (!dataformat.has("oneOf")) {
+                populateDefinitions(dataformat, relocatedDefinitions);
                 answer.put(entryName, dataformat);
                 continue;
             }
@@ -167,7 +168,7 @@ public class CamelYamlDslSchemaProcessor {
                     var objectDef = (ObjectNode) def;
                     objectDef.set("title", dataformat.get("title"));
                     objectDef.set("description", dataformat.get("description"));
-                    populateDefinitions(objectDef, definitions);
+                    populateDefinitions(objectDef, relocatedDefinitions);
                     answer.put(entryName, objectDef);
                     break;
                 }
@@ -198,6 +199,7 @@ public class CamelYamlDslSchemaProcessor {
             var entryDefinitionName = getNameFromRef(property);
             var language = relocatedDefinitions.withObject("/" + entryDefinitionName);
             if (!language.has("oneOf")) {
+                populateDefinitions(language, relocatedDefinitions);
                 answer.put(entryName, language);
                 continue;
             }
@@ -214,7 +216,7 @@ public class CamelYamlDslSchemaProcessor {
                     var objectDef = (ObjectNode) def;
                     objectDef.set("title", language.get("title"));
                     objectDef.set("description", language.get("description"));
-                    populateDefinitions(objectDef, definitions);
+                    populateDefinitions(objectDef, relocatedDefinitions);
                     answer.put(entryName, (ObjectNode) def);
                     break;
                 }

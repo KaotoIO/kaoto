@@ -39,6 +39,10 @@ export class CamelCatalogService {
     return this.catalogs[CatalogKind.Language] || {};
   }
 
+  static getDataFormatMap(): Record<string, ICamelDataformatDefinition> {
+    return this.catalogs[CatalogKind.Dataformat] || {};
+  }
+
   /**
    * Public only as a convenience method for test
    * not meant to be used in production code
