@@ -1,25 +1,12 @@
-import { CamelPropertyCommon } from './camel-properties-common';
-import { CatalogKind } from './catalog-kind';
+import { JSONSchemaType } from 'ajv';
+import { ICamelProcessorModel, ICamelProcessorProperty } from './camel-processors-catalog';
 
 export interface ICamelDataformatDefinition {
   model: ICamelDataformatModel;
   properties: Record<string, ICamelDataformatProperty>;
+  propertiesSchema: JSONSchemaType<unknown>;
 }
 
-export interface ICamelDataformatModel {
-  kind: CatalogKind.Dataformat;
-  name: string;
-  title: string;
-  description?: string;
-  deprecated: boolean;
-  label: string;
-  javaType?: string;
-  abstract?: boolean;
-  input?: boolean;
-  output?: boolean;
-}
+export interface ICamelDataformatModel extends ICamelProcessorModel {}
 
-export interface ICamelDataformatProperty extends CamelPropertyCommon {
-  oneOf?: string[];
-  type: string;
-}
+export interface ICamelDataformatProperty extends ICamelProcessorProperty {}

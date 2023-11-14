@@ -15,7 +15,6 @@ import { MetadataEditor } from '../../MetadataEditor';
 import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from './canvas.models';
 import { ExpressionService } from './expression.service';
-import { useSchemasStore } from '../../../store';
 
 interface ExpressionEditorProps {
   selectedNode: CanvasNode;
@@ -25,13 +24,9 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
   const entitiesContext = useContext(EntitiesContext);
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const camelYamlDslSchema = useSchemasStore((state) => state.schemas['camelYamlDsl'].schema) as Record<
-    string,
-    unknown
-  >;
   const languageCatalogMap = useMemo(() => {
-    return ExpressionService.getLanguageMap(camelYamlDslSchema);
-  }, [camelYamlDslSchema]);
+    return ExpressionService.getLanguageMap();
+  }, []);
 
   const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
   if (visualComponentSchema) {
@@ -62,7 +57,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
       setIsOpen(false);
-      if (value === language!.language.modelName) return;
+      if (value === language!.model.name) return;
       handleOnChange(value as string, {});
     },
     [handleOnChange, language],
@@ -71,7 +66,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
   const toggle = useCallback(
     (toggleRef: Ref<MenuToggleElement>) => (
       <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-        {language!.language.title}
+        {language!.model.title}
       </MenuToggle>
     ),
     [language, isOpen, onToggleClick],
@@ -91,7 +86,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
               id="expression-select"
               data-testid="expression-dropdown"
               isOpen={isOpen}
-              selected={language.language.modelName}
+              selected={language.model.name}
               onSelect={onSelect}
               toggle={toggle}
               isScrollable={true}
@@ -100,12 +95,12 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
                 {Object.values(languageCatalogMap).map((language) => {
                   return (
                     <DropdownItem
-                      data-testid={`expression-dropdownitem-${language.language.modelName}`}
-                      key={language.language.title}
-                      value={language.language.modelName}
-                      description={language.language.description}
+                      data-testid={`expression-dropdownitem-${language.model.name}`}
+                      key={language.model.title}
+                      value={language.model.name}
+                      description={language.model.description}
                     >
-                      {language.language.title}
+                      {language.model.title}
                     </DropdownItem>
                   );
                 })}
@@ -116,7 +111,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
               name={'expression'}
               schema={languageSchema}
               metadata={expressionModel}
-              onChangeModel={(model) => handleOnChange(language.language.modelName, model)}
+              onChangeModel={(model) => handleOnChange(language.model.name, model)}
             />
           </CardBody>
         </CardExpandableContent>

@@ -11,7 +11,7 @@
   <packaging>pom</packaging>
   <name>kaoto-camel-catalog</name>
   <description>
-    The Apache Camel catalog and YAML DSL schema collection to be used in Kaoto.
+    The Kaoto catalog collection generated from the Apache Camel catalog and YAML DSL schema.
   </description>
   <url>https://kaoto.io</url>
 
@@ -63,13 +63,6 @@
         </executions>
         <configuration>
           <artifactItems>
-            <artifactItem>
-              <groupId>org.apache.camel</groupId>
-              <artifactId>camel-catalog</artifactId>
-              <includes>org/apache/camel/catalog/**</includes>
-              <outputDirectory>${inputDirectory}/catalog</outputDirectory>
-              <excludes>**/*.class</excludes>
-            </artifactItem>
             <artifactItem>
               <groupId>org.apache.camel.kamelets</groupId>
               <artifactId>camel-kamelets</artifactId>
@@ -165,12 +158,6 @@
             <configuration>
               <inputDirectory>${inputDirectory}</inputDirectory>
               <outputDirectory>${outputDirectory}</outputDirectory>
-              <catalogCategoryExclusions>
-                <catalogCategoryExclusion>main</catalogCategoryExclusion>
-                <catalogCategoryExclusion>others</catalogCategoryExclusion>
-                <catalogCategoryExclusion>releases</catalogCategoryExclusion>
-                <catalogCategoryExclusion>schemas</catalogCategoryExclusion>
-              </catalogCategoryExclusions>
               <camelVersion>${version.camel}</camelVersion>
               <camelKCRDVersion>${version.camel-k-crds}</camelKCRDVersion>
               <kameletsVersion>${version.camel-kamelets}</kameletsVersion>

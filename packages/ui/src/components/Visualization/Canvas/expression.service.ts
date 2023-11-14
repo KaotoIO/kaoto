@@ -1,65 +1,22 @@
 import { CamelCatalogService } from '../../../models/visualization/flows';
-import { CatalogKind, ICamelLanguageDefinition, ICamelLanguageModel, ICamelLanguageProperty } from '../../../models';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
+import { ICamelLanguageDefinition } from '../../../models';
 
 export class ExpressionService {
   /**
    * Get the language catalog map from the Camel catalog. Since "language" language is not in the languages Camel
    *  catalog, it is extracted from the YAML DSL schema.
-   * @param yamlDslSchema The whole YAML DSL schema. This is used to create the "language" custom language.
    */
-  static getLanguageMap(yamlDslSchema: Record<string, unknown>): Record<string, ICamelLanguageDefinition> {
-    const catalog = { ...CamelCatalogService.getLanguageMap() };
-
-    // "language" for custom language is not in the Camel catalog. Create from YAML DSL schema and Add here.
-    const customDefinition = ExpressionService.createCustomLanguageDefinition(yamlDslSchema);
-    if (customDefinition) {
-      catalog['language'] = customDefinition;
-    }
-
-    // "file" language is merged with "simple" language and it doesn't exist in YAML DSL schema. Remove it here.
-    delete catalog['file'];
-
-    return catalog;
-  }
-
-  private static createCustomLanguageDefinition(yamlDslSchema: Record<string, unknown>) {
-    const definitions = (yamlDslSchema.items as Record<string, unknown>)?.definitions as Record<string, unknown>;
-    const customLanguageSchema =
-      definitions && (definitions['org.apache.camel.model.language.LanguageExpression'] as Record<string, unknown>);
-    if (!customLanguageSchema) return;
-
-    const properties = Object.entries(customLanguageSchema.properties as Record<string, unknown>).reduce(
-      (acc, [key, value]) => {
-        acc[key] = {
-          index: Object.keys(acc).length,
-          required: (customLanguageSchema.required as string[]).includes(key),
-          ...(value as Record<string, unknown>),
-        } as ICamelLanguageProperty;
-        return acc;
-      },
-      {} as Record<string, ICamelLanguageProperty>,
-    );
-    return {
-      language: {
-        kind: CatalogKind.Language,
-        name: 'language',
-        title: customLanguageSchema.title,
-        description: customLanguageSchema.description,
-        deprecated: false,
-        modelName: 'language',
-      } as ICamelLanguageModel,
-      properties: properties,
-    } as ICamelLanguageDefinition;
+  static getLanguageMap(): Record<string, ICamelLanguageDefinition> {
+    return CamelCatalogService.getLanguageMap();
   }
 
   /**
-   * Get the language schema from the language catalog. ATM it delegates to {@link CamelComponentSchemaService.getSchemaFromCamelCommonProperties}.
-   * @TODO The language `xtokenize` has `namespace` property with the type `array`, which causes an error in uniforms. Fix the schema here, or in {@link CamelComponentSchemaService.getSchemaFromCamelCommonProperties} if it could be common.
+   * Get the language schema from the language catalog. Language catalog has its properties schema in itself,
+   * which is combined in @kaoto-next/camel-catalog.
    * @param languageCatalog The {@link ICamelLanguageDefinition} object represents the language to get the schema.
    */
   static getLanguageSchema(languageCatalog: ICamelLanguageDefinition) {
-    return CamelComponentSchemaService.getSchemaFromCamelCommonProperties(languageCatalog.properties);
+    return languageCatalog.propertiesSchema;
   }
 
   /**
@@ -118,9 +75,9 @@ export class ExpressionService {
       );
     } else {
       for (const language of Object.values(languageCatalogMap)) {
-        if (parentModel[language.language.modelName]) {
-          languageModelName = language.language.modelName;
-          model = ExpressionService.parseLanguageModel(parentModel, language.language.modelName);
+        if (parentModel[language.model.name]) {
+          languageModelName = language.model.name;
+          model = ExpressionService.parseLanguageModel(parentModel, language.model.name);
           break;
         }
       }
@@ -147,7 +104,7 @@ export class ExpressionService {
     languageCatalogMap: Record<string, ICamelLanguageDefinition>,
     modelName: string,
   ): ICamelLanguageDefinition | undefined {
-    return Object.values(languageCatalogMap).find((model) => model.language.modelName === modelName);
+    return Object.values(languageCatalogMap).find((model) => model.model.name === modelName);
   }
 
   /**
@@ -171,7 +128,7 @@ export class ExpressionService {
     newExpressionModel: Record<string, unknown>,
   ): void {
     Object.values(languageCatalogMap).forEach((language) => {
-      delete parentModel[language.language.modelName];
+      delete parentModel[language.model.name];
     });
     parentModel.expression = {};
     (parentModel.expression as Record<string, unknown>)[languageModelName] = newExpressionModel;

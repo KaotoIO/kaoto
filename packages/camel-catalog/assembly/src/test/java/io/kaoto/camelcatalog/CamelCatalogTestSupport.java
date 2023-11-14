@@ -8,7 +8,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.nio.file.Paths;
 
-public class CamelCatalogTestSupport {
+public abstract class CamelCatalogTestSupport {
     protected static final ObjectMapper jsonMapper = new ObjectMapper();
     protected static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     protected static final JsonFactory jsonFactory = new JsonFactory();
