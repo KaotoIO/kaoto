@@ -15,7 +15,6 @@ import { MetadataEditor } from '../../MetadataEditor';
 import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from './canvas.models';
 import { ExpressionService } from './expression.service';
-import { useSchemasStore } from '../../../store';
 
 interface ExpressionEditorProps {
   selectedNode: CanvasNode;
@@ -25,13 +24,9 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
   const entitiesContext = useContext(EntitiesContext);
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const camelYamlDslSchema = useSchemasStore((state) => state.schemas['camelYamlDsl'].schema) as Record<
-    string,
-    unknown
-  >;
   const languageCatalogMap = useMemo(() => {
-    return ExpressionService.getLanguageMap(camelYamlDslSchema);
-  }, [camelYamlDslSchema]);
+    return ExpressionService.getLanguageMap();
+  }, []);
 
   const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
   if (visualComponentSchema) {

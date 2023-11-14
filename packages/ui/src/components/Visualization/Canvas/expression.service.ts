@@ -1,56 +1,14 @@
 import { CamelCatalogService } from '../../../models/visualization/flows';
-import { CatalogKind, ICamelLanguageDefinition, ICamelLanguageModel, ICamelLanguageProperty } from '../../../models';
+import { ICamelLanguageDefinition } from '../../../models';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 
 export class ExpressionService {
   /**
    * Get the language catalog map from the Camel catalog. Since "language" language is not in the languages Camel
    *  catalog, it is extracted from the YAML DSL schema.
-   * @param yamlDslSchema The whole YAML DSL schema. This is used to create the "language" custom language.
    */
-  static getLanguageMap(yamlDslSchema: Record<string, unknown>): Record<string, ICamelLanguageDefinition> {
-    const catalog = { ...CamelCatalogService.getLanguageMap() };
-
-    // "language" for custom language is not in the Camel catalog. Create from YAML DSL schema and Add here.
-    const customDefinition = ExpressionService.createCustomLanguageDefinition(yamlDslSchema);
-    if (customDefinition) {
-      catalog['language'] = customDefinition;
-    }
-
-    // "file" language is merged with "simple" language and it doesn't exist in YAML DSL schema. Remove it here.
-    delete catalog['file'];
-
-    return catalog;
-  }
-
-  private static createCustomLanguageDefinition(yamlDslSchema: Record<string, unknown>) {
-    const definitions = (yamlDslSchema.items as Record<string, unknown>)?.definitions as Record<string, unknown>;
-    const customLanguageSchema =
-      definitions && (definitions['org.apache.camel.model.language.LanguageExpression'] as Record<string, unknown>);
-    if (!customLanguageSchema) return;
-
-    const properties = Object.entries(customLanguageSchema.properties as Record<string, unknown>).reduce(
-      (acc, [key, value]) => {
-        acc[key] = {
-          index: Object.keys(acc).length,
-          required: (customLanguageSchema.required as string[]).includes(key),
-          ...(value as Record<string, unknown>),
-        } as ICamelLanguageProperty;
-        return acc;
-      },
-      {} as Record<string, ICamelLanguageProperty>,
-    );
-    return {
-      language: {
-        kind: CatalogKind.Language,
-        name: 'language',
-        title: customLanguageSchema.title,
-        description: customLanguageSchema.description,
-        deprecated: false,
-        modelName: 'language',
-      } as ICamelLanguageModel,
-      properties: properties,
-    } as ICamelLanguageDefinition;
+  static getLanguageMap(): Record<string, ICamelLanguageDefinition> {
+    return CamelCatalogService.getLanguageMap();
   }
 
   /**

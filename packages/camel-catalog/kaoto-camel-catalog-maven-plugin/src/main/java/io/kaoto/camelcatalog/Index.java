@@ -15,9 +15,7 @@
  */
 package io.kaoto.camelcatalog;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 record Entry(String name, String description, String version, String file) {}

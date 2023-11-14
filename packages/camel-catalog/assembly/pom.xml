@@ -165,12 +165,6 @@
             <configuration>
               <inputDirectory>${inputDirectory}</inputDirectory>
               <outputDirectory>${outputDirectory}</outputDirectory>
-              <catalogCategoryExclusions>
-                <catalogCategoryExclusion>main</catalogCategoryExclusion>
-                <catalogCategoryExclusion>others</catalogCategoryExclusion>
-                <catalogCategoryExclusion>releases</catalogCategoryExclusion>
-                <catalogCategoryExclusion>schemas</catalogCategoryExclusion>
-              </catalogCategoryExclusions>
               <camelVersion>${version.camel}</camelVersion>
               <camelKCRDVersion>${version.camel-k-crds}</camelKCRDVersion>
               <kameletsVersion>${version.camel-kamelets}</kameletsVersion>

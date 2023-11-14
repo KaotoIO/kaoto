@@ -17,25 +17,18 @@ describe('ExpressionService', () => {
 
   describe('getLanguageMap', () => {
     it('should return language map', () => {
-      const languageMap = ExpressionService.getLanguageMap(yamlDslSchema);
+      const languageMap = ExpressionService.getLanguageMap();
       expect(languageMap.simple.language.title).toEqual('Simple');
       expect(languageMap.jq.language.name).toEqual('jq');
       expect(languageMap.file).toBeUndefined();
       expect(languageMap.language.language.description).toContain('custom');
-      expect(languageMap.language.properties.language.title).toEqual('Language');
-    });
-
-    it('should return language map without custom if schema is empty', () => {
-      const languageMap = ExpressionService.getLanguageMap({});
-      expect(languageMap.simple.language.title).toEqual('Simple');
-      expect(languageMap.jq.language.name).toEqual('jq');
-      expect(languageMap.language).toBeUndefined();
+      expect(languageMap.language.properties.language.displayName).toEqual('Language');
     });
   });
 
   describe('getLanguageSchema', () => {
     it('should return language schema', () => {
-      const languageMap = ExpressionService.getLanguageMap(yamlDslSchema);
+      const languageMap = ExpressionService.getLanguageMap();
       const jsonpathSchema = ExpressionService.getLanguageSchema(languageMap.jsonpath);
       expect(jsonpathSchema.properties.suppressExceptions.type).toBe('boolean');
       const customSchema = ExpressionService.getLanguageSchema(languageMap.language);
@@ -46,7 +39,7 @@ describe('ExpressionService', () => {
   describe('parseExpressionModel', () => {
     let languageMap: Record<string, ICamelLanguageDefinition>;
     beforeAll(() => {
-      languageMap = ExpressionService.getLanguageMap(yamlDslSchema);
+      languageMap = ExpressionService.getLanguageMap();
     });
 
     it('should parse #1', () => {
@@ -99,7 +92,7 @@ describe('ExpressionService', () => {
   describe('setExpressionModel', () => {
     let languageMap: Record<string, ICamelLanguageDefinition>;
     beforeAll(() => {
-      languageMap = ExpressionService.getLanguageMap(yamlDslSchema);
+      languageMap = ExpressionService.getLanguageMap();
     });
 
     it('should write expression', () => {
