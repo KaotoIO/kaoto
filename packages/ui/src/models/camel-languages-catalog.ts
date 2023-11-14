@@ -1,29 +1,12 @@
-import { CamelPropertyCommon } from './camel-properties-common';
-import { CatalogKind } from './catalog-kind';
+import { JSONSchemaType } from 'ajv';
+import { ICamelProcessorModel, ICamelProcessorProperty } from './camel-processors-catalog';
 
 export interface ICamelLanguageDefinition {
-  language: ICamelLanguageModel;
+  model: ICamelLanguageModel;
   properties: Record<string, ICamelLanguageProperty>;
+  propertiesSchema: JSONSchemaType<unknown>;
 }
 
-export interface ICamelLanguageModel {
-  kind: CatalogKind.Language;
-  name: string;
-  title: string;
-  description?: string;
-  deprecated: boolean;
-  firstVersion: string;
-  label: string;
-  javaType?: string;
-  supportLelvel: string;
-  groupId: string;
-  artifactId: string;
-  version: string;
-  modelName: string;
-  modelJavaType: string;
-}
+export interface ICamelLanguageModel extends ICamelProcessorModel {}
 
-export interface ICamelLanguageProperty extends CamelPropertyCommon {
-  type: string;
-  title: string;
-}
+export interface ICamelLanguageProperty extends ICamelProcessorProperty {}
