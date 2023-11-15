@@ -26,7 +26,7 @@ exports[`DataListItem renders correctly 1`] = `
               class="catalog-data-list-item__title-div-left"
             >
               <img
-                alt="Camel icon"
+                alt="camel icon"
                 class="catalog-data-list-item__title-div-left__icon"
                 src=""
               />

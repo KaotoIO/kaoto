@@ -16,7 +16,7 @@ describe('IconResolver', () => {
   it('should render default icon', () => {
     const { container } = render(<IconResolver tile={mockTile} />);
 
-    expect(container.querySelector('img')).toHaveAttribute('alt', 'Camel icon');
+    expect(container.querySelector('img')).toHaveAttribute('alt', 'component icon');
   });
 
   it('should render icon from Kamelet', () => {
@@ -34,7 +34,7 @@ describe('IconResolver', () => {
 
     const { container } = render(<IconResolver tile={kameletTile} />);
 
-    expect(container.querySelector('img')).toHaveAttribute('alt', 'Kamelet icon');
+    expect(container.querySelector('img')).toHaveAttribute('alt', 'kamelet icon');
     expect(container.querySelector('img')).toHaveAttribute('src', 'kamelet-icon.svg');
   });
 });
