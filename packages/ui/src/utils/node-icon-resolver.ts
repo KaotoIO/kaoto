@@ -1,192 +1,120 @@
-//POC - extend to include icons for all the EIP's
-import defaultCamelIcon from '../assets/camel-logo.svg';
-import aggregator from '../assets/eip/aggregator.svg';
-import channelAdapter from '../assets/eip/channel-adapter.svg';
-import channelPurger from '../assets/eip/channel-purger.svg';
-import channel from '../assets/eip/channel.svg';
-import claimCheck from '../assets/eip/claim-check.svg';
-import commandMessage from '../assets/eip/command-message.svg';
-import competingConsumers from '../assets/eip/competing-consumers.svg';
-import composedMessage from '../assets/eip/composed-message.svg';
-import contentBasedRouter from '../assets/eip/content-based-router.svg';
-import contentEnricher from '../assets/eip/content-enricher.svg';
-import contentFilter from '../assets/eip/content-filter.svg';
-import controlBus from '../assets/eip/control-bus.svg';
-import corelationId from '../assets/eip/corelation-id.svg';
-import datatypeChannel from '../assets/eip/datatype-channel.svg';
-import deadLetterHannel from '../assets/eip/dead-letter-hannel.svg';
-import detour from '../assets/eip/detour.svg';
-import documentMessage from '../assets/eip/document-message.svg';
-import durableSubscriber from '../assets/eip/durable-subscriber.svg';
-import envelopeWrapper from '../assets/eip/envelope-wrapper.svg';
-import eventDrivenConsumer from '../assets/eip/event-driven-consumer.svg';
-import eventMessage from '../assets/eip/event-message.svg';
-import invalidMessage from '../assets/eip/invalid-message.svg';
-import messageBranch from '../assets/eip/message-branch.svg';
-import messageBridge from '../assets/eip/message-bridge.svg';
-import messageBus from '../assets/eip/message-bus.svg';
-import messageDispatcher from '../assets/eip/message-dispatcher.svg';
-import messageEndpoint from '../assets/eip/message-endpoint.svg';
-import messageFilter from '../assets/eip/message-filter.svg';
-import messageRouter from '../assets/eip/message-router.svg';
-import messageSequence from '../assets/eip/message-sequence.svg';
-import messageStore from '../assets/eip/message-store.svg';
-import messageTranslator from '../assets/eip/message-translator.svg';
-import message from '../assets/eip/message.svg';
-import messagingGateway from '../assets/eip/messaging-gateway.svg';
-import normalizer from '../assets/eip/normalizer.svg';
-import polingConsumer from '../assets/eip/poling-consumer.svg';
-import processManager from '../assets/eip/process-manager.svg';
-import publishSubscribeChannel from '../assets/eip/publish-subscribe-channel.svg';
-import recipientList from '../assets/eip/recipient-list.svg';
-import requestReply from '../assets/eip/request-reply.svg';
-import resequencer from '../assets/eip/resequencer.svg';
-import returnAddress from '../assets/eip/return-address.svg';
-import routingSlip from '../assets/eip/routing-slip.svg';
-import selectiveConsumer from '../assets/eip/selective-consumer.svg';
-import serviceArchivator from '../assets/eip/service-archivator.svg';
-import splitter from '../assets/eip/splitter.svg';
-import testMessage from '../assets/eip/test-message.svg';
-import transactionalClient from '../assets/eip/transactional-client.svg';
-import uaranteedDelivery from '../assets/eip/uaranteed-delivery.svg';
-import wireTap from '../assets/eip/wire-tap.svg';
+// generic icons
 import expandIcon from '../assets/expand.svg';
 import questionIcon from '../assets/question-mark.svg';
+
+//EIP icons
+import aggregate from '../assets/eip/aggregate.png';
+import bean from '../assets/eip/bean.png';
+import choice from '../assets/eip/choice.png';
+import delay from '../assets/eip/delay.png';
+import dynamic_router from '../assets/eip/dynamic-router.png';
+import enrich from '../assets/eip/enrich.png';
+import filter from '../assets/eip/filter.png';
+import generic_eip from '../assets/eip/generic.png';
+import load_balance from '../assets/eip/load-balance.png';
+import log from '../assets/eip/log.png';
+import loop from '../assets/eip/loop.png';
+import multicast from '../assets/eip/multicast.png';
+import pipeline from '../assets/eip/pipeline.png';
+import poll_enrich from '../assets/eip/poll-enrich.png';
+import process from '../assets/eip/process.png';
+import recipient_list from '../assets/eip/recipient-list.png';
+import resequence from '../assets/eip/resequence.png';
+import rollback from '../assets/eip/rollback.png';
+import sample from '../assets/eip/sample.png';
+import script from '../assets/eip/script.png';
+import sort from '../assets/eip/sort.png';
+import split from '../assets/eip/split.png';
+import stop from '../assets/eip/stop.png';
+import threads from '../assets/eip/threads.png';
+import throttle from '../assets/eip/throttle.png';
+import transform from '../assets/eip/transform.png';
+import validate from '../assets/eip/validate.png';
+import wiretap from '../assets/eip/wiretap.png';
+
+// component icons
+import activemq from '../assets/components/amq.svg';
+import amqp from '../assets/components/amqp.svg';
+import aws2_ddb from '../assets/components/aws-ddb.svg';
+import aws2_s3 from '../assets/components/aws-s3.svg';
+import cxf from '../assets/components/cxf.png';
+import debezium from '../assets/components/debezium.png';
+import dropbox from '../assets/components/dropbox.svg';
+import facebook from '../assets/components/facebook.svg';
+import fhir from '../assets/components/fhir.svg';
+import file from '../assets/components/file.png';
+import ftp from '../assets/components/ftp.png';
+import generic_component from '../assets/components/generic-component.png';
+import github from '../assets/components/github.svg';
+import google_mail from '../assets/components/gmail.svg';
+import google_calendar from '../assets/components/googlecalendar.svg';
+import google_drive from '../assets/components/googledrive.svg';
+import google_sheets from '../assets/components/googlesheets.svg';
+import graphql from '../assets/components/graphql.png';
+import http from '../assets/components/http.svg';
+import https from '../assets/components/https.svg';
+import irc from '../assets/components/irc.svg';
+import jdbc from '../assets/components/jdbc.png';
+import jira from '../assets/components/jira.svg';
+import jms from '../assets/components/jms.png';
+import kafka from '../assets/components/kafka.svg';
+import log2 from '../assets/components/log.png';
+import mail from '../assets/components/mail.png';
+import mongodb from '../assets/components/mongodb.png';
+import mqtt from '../assets/components/mqtt3.png';
+import netty from '../assets/components/netty.png';
+import policy from '../assets/components/policy.png';
+import quartz from '../assets/components/quartz.png';
+import rss from '../assets/components/rss.png';
+import salesforce from '../assets/components/salesforce.svg';
+import sap_netweaver from '../assets/components/sap-netweaver.png';
+import servicenow from '../assets/components/servicenow.svg';
+import servlet from '../assets/components/servlet.png';
+import sftp from '../assets/components/sftp.svg';
+import slack from '../assets/components/slack.svg';
+import snmp from '../assets/components/snmp.png';
+import aws2_sns from '../assets/components/sns.svg';
+import splunk from '../assets/components/splunk.png';
+import sql from '../assets/components/sql.svg';
+import sql_stored from '../assets/components/sql_db.png';
+import aws2_sqs from '../assets/components/sqs.svg';
+import telegram from '../assets/components/telegram.svg';
+import timer from '../assets/components/timer.svg';
+import twitter from '../assets/components/twitter.svg';
+import velocity from '../assets/components/velocity.png';
+import webhook from '../assets/components/webhooks.svg';
+import whatsapp from '../assets/components/whatsapp.png';
+import workday from '../assets/components/workday.svg';
+import xslt from '../assets/components/xslt2.png';
+
 import { CatalogKind } from '../models';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 
 export class NodeIconResolver {
-  static getIcon = (iconName: string | undefined): string => {
-    if (iconName?.startsWith('kamelet:')) {
-      const kameletDefinition = CamelCatalogService.getComponent(CatalogKind.Kamelet, iconName.replace('kamelet:', ''));
-      const icon =
-        kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
+  static getIcon = (elementName: string | undefined): string => {
+    if (elementName?.startsWith('kamelet:')) {
+      const kameletDefinition = CamelCatalogService.getComponent(
+        CatalogKind.Kamelet,
+        elementName.replace('kamelet:', ''),
+      );
 
+      return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? this.getUnknownIcon();
+    }
+
+    let icon = getComponentIcon(elementName);
+    if (icon !== undefined) {
       return icon;
     }
 
-    switch (iconName) {
-      case 'choice':
-        return contentBasedRouter;
-      case 'log':
-        return 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPHBhdGggZD0iTTQ0OCwwSDY0QzQ2LjMyOCwwLDMyLDE0LjMxMywzMiwzMnY0NDhjMCwxNy42ODgsMTQuMzI4LDMyLDMyLDMyaDM4NGMxNy42ODgsMCwzMi0xNC4zMTIsMzItMzJWMzINCgkJQzQ4MCwxNC4zMTMsNDY1LjY4OCwwLDQ0OCwweiBNNjQsNDgwVjEyOGg4MHY2NEg5NnYxNmg0OHY0OEg5NnYxNmg0OHY0OEg5NnYxNmg0OHY0OEg5NnYxNmg0OHY4MEg2NHogTTQ0OCw0ODBIMTYwdi04MGgyNTZ2LTE2DQoJCUgxNjB2LTQ4aDI1NnYtMTZIMTYwdi00OGgyNTZ2LTE2SDE2MHYtNDhoMjU2di0xNkgxNjB2LTY0aDI4OFY0ODB6Ii8+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8L3N2Zz4NCg==';
-      case 'claimCheck':
-        return claimCheck;
-      case 'aggregate':
-        return aggregator;
-      case 'enrich':
-        return contentEnricher;
-      case 'filter':
-        return contentFilter;
-      case 'split':
-        return splitter;
-      case 'wireTap':
-        return wireTap;
-      case 'marshal':
-      case 'unmarshal':
-        return messageTranslator;
-      case 'recipientList':
-        return recipientList;
-      case 'resequence':
-      case 'sort':
-        return resequencer;
-      case 'throttle':
-      case 'threads':
-        return eventDrivenConsumer;
-      case 'loadBalance':
-      case 'cicuitBreaker':
-        return messageDispatcher;
-      case 'serviceCall':
-      case 'script':
-        return messagingGateway;
-      case 'saga':
-      case 'transacted':
-        return transactionalClient;
-      case 'multicast':
-        return messageDispatcher;
-      case 'loop':
-        return polingConsumer;
-      case 'normalize':
-        return normalizer;
-      case 'validate':
-      case 'selectiveConsumer':
-        return selectiveConsumer;
-      case 'idempotentConsumer':
-      case 'resumableConsumer':
-        return messageFilter;
-      //---------
-
-      case 'channel-purger':
-        return channelPurger;
-      case 'channel':
-        return channel;
-      case 'command-message':
-        return commandMessage;
-      case 'competing-consumers':
-        return competingConsumers;
-      case 'composed-message':
-        return composedMessage;
-      case 'control-bus':
-        return controlBus;
-      case 'datatype-channel':
-        return datatypeChannel;
-      case 'dead-letter-hannel':
-        return deadLetterHannel;
-      case 'detour':
-        return detour;
-      case 'document-message':
-        return documentMessage;
-      case 'durable-subscriber':
-        return durableSubscriber;
-      case 'envelope-wrapper':
-        return envelopeWrapper;
-      case 'event-driven-consumer':
-        return eventDrivenConsumer;
-      case 'event-message':
-        return eventMessage;
-      case 'invalid-message':
-        return invalidMessage;
-      case 'message-branch':
-        return messageBranch;
-      case 'message-bridge':
-        return messageBridge;
-      case 'message-bus':
-        return messageBus;
-      case 'message-endpoint':
-        return messageEndpoint;
-      case 'message-router':
-        return messageRouter;
-      case 'correlationId':
-        return corelationId;
-      case 'message-sequence':
-        return messageSequence;
-      case 'message-store':
-        return messageStore;
-      case 'message':
-        return message;
-      case 'process-manager':
-        return processManager;
-      case 'publish-subscribe-channel':
-        return publishSubscribeChannel;
-      case 'request-reply':
-        return requestReply;
-      case 'return-address':
-        return returnAddress;
-      case 'routing-slip':
-        return routingSlip;
-      case 'service-archivator':
-        return serviceArchivator;
-      case 'test-message':
-        return testMessage;
-      case 'guaranteed-delivery':
-        return uaranteedDelivery;
-      case 'channel-adapter':
-        return channelAdapter;
-      case '':
-        return this.getUnknownIcon();
-      default:
-        return this.getDefaultCamelIcon();
+    icon = getEIPIcon(elementName);
+    if (icon !== undefined) {
+      return icon;
     }
+
+    if (elementName === '') {
+      return this.getUnknownIcon();
+    }
+    return this.getDefaultCamelIcon();
   };
 
   static getUnknownIcon = (): string => {
@@ -198,6 +126,565 @@ export class NodeIconResolver {
   };
 
   static getDefaultCamelIcon = (): string => {
-    return defaultCamelIcon;
+    return generic_component;
   };
+}
+
+function getComponentIcon(elementName?: string): string | undefined {
+  switch (elementName) {
+    case 'activemq':
+      return activemq;
+    case 'amqp':
+      return amqp;
+    case 'arangodb':
+    case 'as2':
+    case 'asterisk':
+    case 'atmosphere-websocket':
+    case 'atom':
+    case 'avro':
+    case 'aws-cloudtrail':
+    case 'aws-secrets-manager':
+    case 'aws2-athena':
+    case 'aws2-cw':
+      return generic_component;
+    case 'aws2-ddb':
+    case 'aws2-ddbstream':
+      return aws2_ddb;
+    case 'aws2-ec2':
+    case 'aws2-ecs':
+    case 'aws2-eks':
+    case 'aws2-eventbridge':
+    case 'aws2-iam':
+    case 'aws2-kinesis':
+    case 'aws2-kinesis-firehose':
+    case 'aws2-kms':
+    case 'aws2-lambda':
+    case 'aws2-mq':
+    case 'aws2-msk':
+    case 'aws2-redshift-data':
+      return generic_component;
+    case 'aws2-s3':
+      return aws2_s3;
+    case 'aws2-ses':
+      return generic_component;
+    case 'aws2-sns':
+      return aws2_sns;
+    case 'aws2-sqs':
+      return aws2_sqs;
+    case 'aws2-step-functions':
+    case 'aws2-sts':
+    case 'aws2-timestream':
+    case 'aws2-translate':
+    case 'azure-cosmosdb':
+    case 'azure-eventhubs':
+    case 'azure-files':
+    case 'azure-key-vault':
+    case 'azure-servicebus':
+    case 'azure-storage-blob':
+    case 'azure-storage-datalake':
+    case 'azure-storage-queue':
+      return generic_component;
+    case 'bean':
+      return bean;
+    case 'bean-validator':
+    case 'bonita':
+    case 'box':
+    case 'braintree':
+    case 'browse':
+    case 'caffeine-cache':
+    case 'caffeine-loadcache':
+    case 'chatscript':
+    case 'chunk':
+    case 'class':
+    case 'cm-sms':
+    case 'coap':
+    case 'coap+tcp':
+    case 'coaps':
+    case 'coaps+tcp':
+    case 'cometd':
+    case 'cometds':
+    case 'consul':
+    case 'controlbus':
+    case 'couchbase':
+    case 'couchdb':
+    case 'cql':
+    case 'cron':
+    case 'crypto':
+      return generic_component;
+    case 'cxf':
+    case 'cxfrs':
+      return cxf;
+    case 'dataformat':
+    case 'dataset':
+    case 'dataset-test':
+      return generic_component;
+    case 'debezium-db2':
+    case 'debezium-mongodb':
+    case 'debezium-mysql':
+    case 'debezium-oracle':
+    case 'debezium-postgres':
+    case 'debezium-sqlserver':
+      return debezium;
+    case 'dhis2':
+    case 'digitalocean':
+    case 'direct':
+    case 'disruptor':
+    case 'disruptor-vm':
+    case 'djl':
+    case 'dns':
+    case 'docker':
+    case 'drill':
+      return generic_component;
+    case 'dropbox':
+      return dropbox;
+    case 'dynamic-router':
+    case 'ehcache':
+    case 'elasticsearch':
+    case 'etcd3':
+    case 'exec':
+      return generic_component;
+    case 'facebook':
+      return facebook;
+    case 'fhir':
+      return fhir;
+    case 'file':
+    case 'file-watch':
+      return file;
+    case 'flatpack':
+    case 'flink':
+    case 'fop':
+    case 'freemarker':
+      return generic_component;
+    case 'ftp':
+    case 'ftps':
+      return ftp;
+    case 'geocoder':
+      return generic_component;
+    case 'git':
+    case 'github':
+      return github;
+    case 'google-bigquery':
+    case 'google-bigquery-sql':
+      return generic_component;
+    case 'google-calendar':
+    case 'google-calendar-stream':
+      return google_calendar;
+    case 'google-drive':
+      return google_drive;
+    case 'google-functions':
+      return generic_component;
+    case 'google-mail':
+    case 'google-mail-stream':
+      return google_mail;
+    case 'google-pubsub':
+    case 'google-secret-manager':
+      return generic_component;
+    case 'google-sheets':
+    case 'google-sheets-stream':
+      return google_sheets;
+    case 'google-storage':
+    case 'grape':
+      return generic_component;
+    case 'graphql':
+      return graphql;
+    case 'grpc':
+    case 'guava-eventbus':
+    case 'hashicorp-vault':
+    case 'hazelcast-atomicvalue':
+    case 'hazelcast-instance':
+    case 'hazelcast-list':
+    case 'hazelcast-map':
+    case 'hazelcast-multimap':
+    case 'hazelcast-queue':
+    case 'hazelcast-replicatedmap':
+    case 'hazelcast-ringbuffer':
+    case 'hazelcast-seda':
+    case 'hazelcast-set':
+    case 'hazelcast-topic':
+    case 'hdfs':
+      return generic_component;
+    case 'http':
+      return http;
+    case 'https':
+      return https;
+    case 'hwcloud-dms':
+    case 'hwcloud-frs':
+    case 'hwcloud-functiongraph':
+    case 'hwcloud-iam':
+    case 'hwcloud-imagerecognition':
+    case 'hwcloud-obs':
+    case 'hwcloud-smn':
+    case 'iec60870-client':
+    case 'iec60870-server':
+    case 'ignite-cache':
+    case 'ignite-compute':
+    case 'ignite-events':
+    case 'ignite-idgen':
+    case 'ignite-messaging':
+    case 'ignite-queue':
+    case 'ignite-set':
+      return generic_component;
+    case 'imap':
+    case 'imaps':
+      return mail;
+    case 'infinispan':
+    case 'infinispan-embedded':
+    case 'influxdb':
+    case 'influxdb2':
+      return generic_component;
+    case 'irc':
+      return irc;
+    case 'ironmq':
+    case 'jcache':
+    case 'jcr':
+      return generic_component;
+    case 'jdbc':
+      return jdbc;
+    case 'jetty':
+    case 'jgroups':
+    case 'jgroups-raft':
+      return generic_component;
+    case 'jira':
+      return jira;
+    case 'jms':
+      return jms;
+    case 'jmx':
+    case 'jolt':
+    case 'jooq':
+    case 'jpa':
+    case 'jslt':
+    case 'json-patch':
+    case 'json-validator':
+    case 'jsonata':
+    case 'jt400':
+      return generic_component;
+    case 'kafka':
+      return kafka;
+    //case 'kamelet': handled elsewhere
+    case 'knative':
+    case 'kubernetes-config-maps':
+    case 'kubernetes-custom-resources':
+    case 'kubernetes-deployments':
+    case 'kubernetes-events':
+    case 'kubernetes-hpa':
+    case 'kubernetes-job':
+    case 'kubernetes-namespaces':
+    case 'kubernetes-nodes':
+    case 'kubernetes-persistent-volumes':
+    case 'kubernetes-persistent-volumes-claims':
+    case 'kubernetes-pods':
+    case 'kubernetes-replication-controllers':
+    case 'kubernetes-resources-quota':
+    case 'kubernetes-secrets':
+    case 'kubernetes-service-accounts':
+    case 'kubernetes-services':
+    case 'kudu':
+    case 'language':
+      return generic_component;
+    case 'ldap':
+      return policy;
+    case 'ldif':
+      return generic_component;
+    case 'log':
+      return log2;
+    case 'lpr':
+    case 'lucene':
+    case 'lumberjack':
+    case 'mapstruct':
+      return generic_component;
+    case 'marshal':
+    case 'unmarshal':
+      return transform;
+    case 'master':
+    case 'metrics':
+    case 'micrometer':
+    case 'mina':
+    case 'minio':
+    case 'mllp':
+    case 'mock':
+      return generic_component;
+    case 'mongodb':
+    case 'mongodb-gridfs':
+      return mongodb;
+    case 'mustache':
+    case 'mvel':
+    case 'mybatis':
+    case 'mybatis-bean':
+    case 'nats':
+      return generic_component;
+    case 'netty':
+    case 'netty-http':
+      return netty;
+    case 'nitrite':
+    case 'oaipmh':
+    case 'olingo2':
+    case 'olingo4':
+    case 'opensearch':
+    case 'openshift-build-configs':
+    case 'openshift-builds':
+    case 'openshift-deploymentconfigs':
+    case 'openstack-cinder':
+    case 'openstack-glance':
+    case 'openstack-keystone':
+    case 'openstack-neutron':
+    case 'openstack-nova':
+    case 'openstack-swift':
+    case 'optaplanner':
+      return generic_component;
+    case 'paho':
+    case 'paho-mqtt5':
+      return mqtt;
+    case 'pdf':
+    case 'pg-replication-slot':
+    case 'pgevent':
+    case 'platform-http':
+    case 'plc4x':
+      return generic_component;
+    case 'pop3':
+    case 'pop3s':
+      return mail;
+    case 'pubnub':
+    case 'pulsar':
+      return generic_component;
+    case 'quartz':
+      return quartz;
+    case 'quickfix':
+    case 'reactive-streams':
+    case 'ref':
+    case 'rest':
+    case 'rest-api':
+    case 'rest-openapi':
+    case 'robotframework':
+    case 'rocketmq':
+      return generic_component;
+    case 'rss':
+      return rss;
+    case 'saga':
+      return generic_component;
+    case 'salesforce':
+      return salesforce;
+    case 'sap-netweaver':
+      return sap_netweaver;
+    case 'scheduler':
+    case 'schematron':
+    case 'scp':
+    case 'seda':
+    case 'service':
+      return generic_component;
+    case 'servicenow':
+      return servicenow;
+    case 'servlet':
+      return servlet;
+    case 'sftp':
+      return sftp;
+    case 'sjms':
+    case 'sjms2':
+      return generic_component;
+    case 'slack':
+      return slack;
+    case 'smpp':
+    case 'smpps':
+      return generic_component;
+    case 'smtp':
+    case 'smtps':
+      return mail;
+    case 'snmp':
+      return snmp;
+    case 'splunk':
+    case 'splunk-hec':
+      return splunk;
+    case 'spring-batch':
+    case 'spring-event':
+    case 'spring-jdbc':
+    case 'spring-ldap':
+    case 'spring-rabbitmq':
+    case 'spring-redis':
+    case 'spring-ws':
+      return generic_component;
+    case 'sql':
+      return sql;
+    case 'sql-stored':
+      return sql_stored;
+    case 'ssh':
+    case 'stax':
+    case 'stitch':
+    case 'stomp':
+    case 'stream':
+    case 'string-template':
+    case 'stub':
+      return generic_component;
+    case 'telegram':
+      return telegram;
+    case 'thrift':
+    case 'thymeleaf':
+    case 'tika':
+      return generic_component;
+    case 'timer':
+      return timer;
+    case 'twilio':
+      return generic_component;
+    case 'twitter-directmessage':
+    case 'twitter-search':
+    case 'twitter-timeline':
+      return twitter;
+    case 'undertow':
+      return generic_component;
+    case 'validator':
+      return validate;
+    case 'velocity':
+      return velocity;
+    case 'vertx':
+    case 'vertx-http':
+    case 'vertx-websocket':
+    case 'weather':
+    case 'web3j':
+      return generic_component;
+    case 'webhook':
+      return webhook;
+    case 'whatsapp':
+      return whatsapp;
+    case 'wordpress':
+      return generic_component;
+    case 'workday':
+      return workday;
+    case 'xchange':
+    case 'xj':
+    case 'xmlsecurity-sign':
+    case 'xmlsecurity-verify':
+    case 'xmpp':
+    case 'xquery':
+      return generic_component;
+    case 'xslt':
+    case 'xslt-saxon':
+      return xslt;
+    case 'zeebe':
+    case 'zendesk':
+    case 'zookeeper':
+    case 'zookeeper-master':
+      return generic_component;
+    default:
+      return undefined;
+  }
+}
+
+function getEIPIcon(elementName?: string): string | undefined {
+  switch (elementName) {
+    case 'aggregate':
+      return aggregate;
+    case 'bean':
+      return bean;
+    case 'choice':
+      return choice;
+    case 'circuitBreaker':
+      return generic_eip;
+    case 'claimCheck':
+      return generic_eip;
+    case 'convertBodyTo':
+      return generic_eip;
+    case 'customLoadBalancer':
+      return load_balance;
+    case 'delay':
+      return delay;
+    case 'dynamicRouter':
+      return dynamic_router;
+    case 'enrich':
+      return enrich;
+    case 'failover':
+      return generic_eip;
+    case 'filter':
+      return filter;
+    case 'from':
+      return generic_eip;
+    case 'idempotentConsumer':
+      return generic_eip;
+    // case 'kamelet': handled on top
+    case 'loadBalance':
+      return load_balance;
+    case 'log':
+      return log;
+    case 'loop':
+      return loop;
+    case 'multicast':
+      return multicast;
+    case 'onFallback':
+      return generic_eip;
+    case 'otherwise':
+      return generic_eip;
+    case 'pausable':
+      return generic_eip;
+    case 'pipeline':
+      return pipeline;
+    case 'pollEnrich':
+      return poll_enrich;
+    case 'process':
+      return process;
+    case 'random':
+      return generic_eip;
+    case 'recipientList':
+      return recipient_list;
+    case 'removeHeader':
+      return generic_eip;
+    case 'removeHeaders':
+      return generic_eip;
+    case 'removeProperties':
+      return generic_eip;
+    case 'removeProperty':
+      return generic_eip;
+    case 'resequence':
+      return resequence;
+    case 'resumable':
+      return generic_eip;
+    case 'rollback':
+      return rollback;
+    case 'roundRobin':
+      return load_balance;
+    case 'routingSlip':
+      return generic_eip;
+    case 'saga':
+      return generic_eip;
+    case 'sample':
+      return sample;
+    case 'script':
+      return script;
+    case 'serviceCall':
+      return generic_eip;
+    case 'setBody':
+      return generic_eip;
+    case 'setHeader':
+      return generic_eip;
+    case 'setProperty':
+      return generic_eip;
+    case 'sort':
+      return sort;
+    case 'split':
+      return split;
+    case 'step':
+      return generic_eip;
+    case 'sticky':
+      return generic_eip;
+    case 'stop':
+      return stop;
+    case 'threads':
+      return threads;
+    case 'throttle':
+      return throttle;
+    case 'to':
+      return generic_eip;
+    case 'toD':
+      return generic_eip;
+    case 'topic':
+      return generic_eip;
+    case 'transform':
+      return transform;
+    case 'validate':
+      return validate;
+    case 'weighted':
+      return generic_eip;
+    case 'when':
+      return generic_eip;
+    case 'wireTap':
+      return wiretap;
+    default:
+      return undefined;
+  }
 }
