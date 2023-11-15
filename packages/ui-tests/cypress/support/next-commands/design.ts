@@ -20,12 +20,34 @@ Cypress.Commands.add('interactWithConfigInputObject', (inputName, value) => {
   }
 });
 
-Cypress.Commands.add('removeNodeByName', (inputName: string) => {
+Cypress.Commands.add('removeNodeByName', (nodeName: string) => {
+  cy.performNodeAction(nodeName, 'remove');
+  cy.get(nodeName).should('not.exist');
+});
+
+Cypress.Commands.add('selectReplaceNode', (nodeName: string) => {
+  cy.performNodeAction(nodeName, 'replace');
+});
+
+Cypress.Commands.add('selectAppendNode', (nodeName: string) => {
+  cy.performNodeAction(nodeName, 'append');
+});
+
+Cypress.Commands.add('selectPrependNode', (nodeName: string) => {
+  cy.performNodeAction(nodeName, 'prepend');
+});
+
+// allowed actions - append, prepend, replace, remove
+Cypress.Commands.add('performNodeAction', (nodeName: string, action: string) => {
   cy.get('g.pf-topology__node__label')
-    .contains('text', inputName)
+    .contains('text', nodeName)
     .parent()
     .find('g.pf-topology__node__action-icon > rect')
     .click({ force: true });
-  cy.get('[data-testid="context-menu-item-remove"]').click();
-  cy.get(inputName).should('not.exist');
+  cy.get(`[data-testid="context-menu-item-${action}"]`).click();
+});
+
+Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
+  nodesCount = nodesCount ?? 1;
+  cy.get('g.pf-topology__node__label').contains('text', inputName).should('have.length', nodesCount);
 });
