@@ -26,7 +26,7 @@ import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canva
 
 export class CanvasService {
   static readonly DEFAULT_LAYOUT = LayoutType.Dagre;
-  static readonly DEFAULT_NODE_SHAPE = NodeShape.ellipse;
+  static readonly DEFAULT_NODE_SHAPE = NodeShape.rect;
   static readonly DEFAULT_NODE_DIAMETER = 75;
   static readonly DEFAULT_GROUP_PADDING = 50;
 
