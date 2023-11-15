@@ -1,7 +1,7 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
-import defaultCamelIcon from '../../assets/camel-logo.svg';
 import { CatalogKind, IKameletDefinition } from '../../models';
 import { ITile } from '../Catalog/Catalog.models';
+import { NodeIconResolver } from '../../utils/node-icon-resolver';
 
 interface IconResolverProps {
   className?: string;
@@ -15,10 +15,18 @@ export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps
         <img
           className={props.className}
           src={(props.tile.rawObject as IKameletDefinition).metadata.annotations['camel.apache.org/kamelet.icon']}
-          alt="Kamelet icon"
+          alt="kamelet icon"
+        />
+      );
+    case CatalogKind.Processor:
+    case CatalogKind.Component:
+      return (
+        <img
+          className={props.className}
+          src={NodeIconResolver.getIcon(props.tile.name)}
+          alt={`${props.tile.type} icon`}
         />
       );
   }
-
-  return <img className={props.className} src={defaultCamelIcon} alt="Camel icon" />;
+  return <img className={props.className} src={NodeIconResolver.getDefaultCamelIcon()} alt="camel icon" />;
 };

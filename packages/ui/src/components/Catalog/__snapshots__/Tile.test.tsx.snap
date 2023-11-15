@@ -47,7 +47,7 @@ exports[`Tile renders correctly 1`] = `
         class="tile__header"
       >
         <img
-          alt="Camel icon"
+          alt="camel icon"
           class="tile__icon"
           src=""
         />
