@@ -6,6 +6,7 @@ import questionIcon from '../assets/question-mark.svg';
 import aggregate from '../assets/eip/aggregate.png';
 import bean from '../assets/eip/bean.png';
 import choice from '../assets/eip/choice.png';
+import convert_body from '../assets/eip/convertBody.png';
 import delay from '../assets/eip/delay.png';
 import dynamic_router from '../assets/eip/dynamic-router.png';
 import enrich from '../assets/eip/enrich.png';
@@ -15,14 +16,22 @@ import load_balance from '../assets/eip/load-balance.png';
 import log from '../assets/eip/log.png';
 import loop from '../assets/eip/loop.png';
 import multicast from '../assets/eip/multicast.png';
+import otherwise from '../assets/eip/otherwise.png';
 import pipeline from '../assets/eip/pipeline.png';
 import poll_enrich from '../assets/eip/poll-enrich.png';
 import process from '../assets/eip/process.png';
 import recipient_list from '../assets/eip/recipient-list.png';
+import remove_header from '../assets/eip/removeheader.png';
+import remove_headers from '../assets/eip/removeheaders.png';
+import remove_property from '../assets/eip/removeproperty.png';
+import remove_properties from '../assets/eip/removeproperties.png';
 import resequence from '../assets/eip/resequence.png';
 import rollback from '../assets/eip/rollback.png';
 import sample from '../assets/eip/sample.png';
 import script from '../assets/eip/script.png';
+import set_body from '../assets/eip/setbody.png';
+import set_header from '../assets/eip/setheader.png';
+import set_property from '../assets/eip/setproperty.png';
 import sort from '../assets/eip/sort.png';
 import split from '../assets/eip/split.png';
 import stop from '../assets/eip/stop.png';
@@ -30,6 +39,7 @@ import threads from '../assets/eip/threads.png';
 import throttle from '../assets/eip/throttle.png';
 import transform from '../assets/eip/transform.png';
 import validate from '../assets/eip/validate.png';
+import when from '../assets/eip/when.png';
 import wiretap from '../assets/eip/wiretap.png';
 
 // component icons
@@ -580,7 +590,7 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'claimCheck':
       return generic_eip;
     case 'convertBodyTo':
-      return generic_eip;
+      return convert_body;
     case 'customLoadBalancer':
       return load_balance;
     case 'delay':
@@ -594,7 +604,7 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'filter':
       return filter;
     case 'from':
-      return generic_eip;
+      return expandIcon;
     case 'idempotentConsumer':
       return generic_eip;
     // case 'kamelet': handled on top
@@ -604,12 +614,14 @@ function getEIPIcon(elementName?: string): string | undefined {
       return log;
     case 'loop':
       return loop;
+    case 'marshal':
+      return transform;
     case 'multicast':
       return multicast;
     case 'onFallback':
       return generic_eip;
     case 'otherwise':
-      return generic_eip;
+      return otherwise;
     case 'pausable':
       return generic_eip;
     case 'pipeline':
@@ -623,13 +635,13 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'recipientList':
       return recipient_list;
     case 'removeHeader':
-      return generic_eip;
+      return remove_header;
     case 'removeHeaders':
-      return generic_eip;
+      return remove_headers;
     case 'removeProperties':
-      return generic_eip;
+      return remove_properties;
     case 'removeProperty':
-      return generic_eip;
+      return remove_property;
     case 'resequence':
       return resequence;
     case 'resumable':
@@ -649,11 +661,11 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'serviceCall':
       return generic_eip;
     case 'setBody':
-      return generic_eip;
+      return set_body;
     case 'setHeader':
-      return generic_eip;
+      return set_header;
     case 'setProperty':
-      return generic_eip;
+      return set_property;
     case 'sort':
       return sort;
     case 'split':
@@ -676,15 +688,17 @@ function getEIPIcon(elementName?: string): string | undefined {
       return generic_eip;
     case 'transform':
       return transform;
+    case 'unmarshal':
+        return transform;
     case 'validate':
       return validate;
     case 'weighted':
       return generic_eip;
     case 'when':
-      return generic_eip;
+      return when;
     case 'wireTap':
       return wiretap;
-    default:
+    default: 
       return undefined;
   }
 }
