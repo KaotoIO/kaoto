@@ -5,3 +5,4 @@ export * from './components/Visualization';
 export * from './components/Visualization/Canvas';
 export * from './components/Visualization/ContextToolbar';
 export * from './components/MetadataEditor';
+export * from './multiplying-architecture';
