@@ -22,6 +22,11 @@ declare global {
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string): Chainable<JQuery<Element>>;
+      selectReplaceNode(inputName: string): Chainable<JQuery<Element>>;
+      selectAppendNode(inputName: string): Chainable<JQuery<Element>>;
+      selectPrependNode(inputName: string): Chainable<JQuery<Element>>;
+      performNodeAction(nodeName: string, action: string): Chainable<JQuery<Element>>;
+      checkNodeExist(inputName: string, nodesCount: number): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

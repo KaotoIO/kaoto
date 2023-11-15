@@ -30,23 +30,4 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('user: user');
     cy.checkCodeSpanLine('password: password');
   });
-
-  it('Design - remove steps from CamelRoute', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
-    cy.openDesignPage();
-    cy.removeNodeByName('setHeader');
-    cy.removeNodeByName('log');
-    cy.removeNodeByName('timer');
-    cy.openSourceCode();
-    cy.checkCodeSpanLine('uri: timer:test', 0);
-    cy.checkCodeSpanLine('setHeader', 0);
-    cy.checkCodeSpanLine('constant: test', 0);
-    cy.checkCodeSpanLine('name: test', 0);
-    cy.checkCodeSpanLine('uri: log:test', 0);
-  });
-
-  //   Blocked by - https://github.com/KaotoIO/kaoto-next/issues/253
-  // it('Design - remove steps from Pipe/KB', () => {
-  //   cy.uploadFixture('flows/TimerKafkaKB.yaml');
-  // });
 });
