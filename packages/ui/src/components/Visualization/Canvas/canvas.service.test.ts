@@ -13,6 +13,7 @@ import {
   Visualization,
 } from '@patternfly/react-topology';
 import { createVisualizationNode } from '../../../models/visualization';
+import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
 
@@ -20,9 +21,9 @@ describe('CanvasService', () => {
   const DEFAULT_NODE_PROPS = {
     type: 'node',
     data: undefined,
-    shape: CanvasService.DEFAULT_NODE_SHAPE,
-    width: CanvasService.DEFAULT_NODE_DIAMETER,
-    height: CanvasService.DEFAULT_NODE_DIAMETER,
+    shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
+    width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
+    height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
   };
 
   const DEFAULT_EDGE_PROPS = {
@@ -106,7 +107,7 @@ describe('CanvasService', () => {
         graph: {
           id: 'g1',
           type: 'graph',
-          layout: CanvasService.DEFAULT_LAYOUT,
+          layout: CanvasDefaults.DEFAULT_LAYOUT,
         },
       },
       false,

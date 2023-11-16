@@ -4,7 +4,7 @@ import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
   transformKameletComponentIntoTab,
-} from '../../camel-utils';
+} from '../../camel-utils/camel-to-tabs.adapter';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
 import { ITile } from '../Catalog';
 import './PropertiesModal.scss';

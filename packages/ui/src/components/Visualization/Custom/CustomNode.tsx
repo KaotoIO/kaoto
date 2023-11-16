@@ -1,8 +1,8 @@
 import { DefaultNode, Node, WithSelectionProps, withContextMenu, withSelection } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { AddStepMode } from '../../../models/visualization/base-visual-entity';
+import { CanvasDefaults } from '../Canvas/canvas.defaults';
 import { CanvasNode } from '../Canvas/canvas.models';
-import { CanvasService } from '../Canvas/canvas.service';
 import './CustomNode.scss';
 import { ItemAddNode } from './ItemAddNode';
 import { ItemInsertChildNode } from './ItemInsertChildNode';
@@ -22,14 +22,14 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) =>
         <foreignObject
           x="0"
           y="0"
-          width={CanvasService.DEFAULT_NODE_DIAMETER}
-          height={CanvasService.DEFAULT_NODE_DIAMETER}
+          width={CanvasDefaults.DEFAULT_NODE_DIAMETER}
+          height={CanvasDefaults.DEFAULT_NODE_DIAMETER}
         >
           <div className="custom-node__image">
             <img
               src={vizNode?.data.icon}
-              width={CanvasService.DEFAULT_NODE_DIAMETER * 0.7}
-              height={CanvasService.DEFAULT_NODE_DIAMETER * 0.7}
+              width={CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.7}
+              height={CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.7}
             />
           </div>
         </foreignObject>

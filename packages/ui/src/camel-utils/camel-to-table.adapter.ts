@@ -3,7 +3,7 @@ import {
   IPropertiesTable,
   PropertiesHeaders,
   PropertiesTableType,
-} from '../components/PropertiesModal';
+} from '../components/PropertiesModal/PropertiesModal.models';
 import {
   ICamelComponentApi,
   ICamelComponentApiKind,
