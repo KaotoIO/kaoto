@@ -16,20 +16,15 @@ import {
   Layout,
   Model,
   ModelKind,
-  NodeShape,
   Visualization,
   withPanZoom,
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CustomNodeWithSelection } from '../Custom/CustomNode';
+import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
 export class CanvasService {
-  static readonly DEFAULT_LAYOUT = LayoutType.Dagre;
-  static readonly DEFAULT_NODE_SHAPE = NodeShape.rect;
-  static readonly DEFAULT_NODE_DIAMETER = 75;
-  static readonly DEFAULT_GROUP_PADDING = 50;
-
   static nodes: CanvasNode[] = [];
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
@@ -180,9 +175,9 @@ export class CanvasService {
       label: options.label ?? id,
       parentNode: options.parentNode,
       data: options.data,
-      width: this.DEFAULT_NODE_DIAMETER,
-      height: this.DEFAULT_NODE_DIAMETER,
-      shape: this.DEFAULT_NODE_SHAPE,
+      width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
+      height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
+      shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
     };
   }
 

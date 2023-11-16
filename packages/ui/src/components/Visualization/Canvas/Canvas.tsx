@@ -25,6 +25,7 @@ import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { CanvasSideBar } from './CanvasSideBar';
+import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
 
@@ -128,7 +129,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       graph: {
         id: 'g1',
         type: 'graph',
-        layout: CanvasService.DEFAULT_LAYOUT,
+        layout: CanvasDefaults.DEFAULT_LAYOUT,
       },
     };
 
