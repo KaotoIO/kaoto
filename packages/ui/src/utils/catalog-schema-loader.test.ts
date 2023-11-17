@@ -19,10 +19,10 @@ describe('CatalogSchemaLoader', () => {
   });
 
   describe('fetchFile', () => {
-    it('should use the file and the DEFAULT_CATALOG_PATH in the path', async () => {
+    it('should fetch the file', async () => {
       await CatalogSchemaLoader.fetchFile('file.json');
 
-      expect(fetchMock).toHaveBeenCalledWith('./camel-catalog/file.json');
+      expect(fetchMock).toHaveBeenCalledWith('file.json');
     });
 
     it('should return the body and the uri', async () => {
@@ -32,7 +32,7 @@ describe('CatalogSchemaLoader', () => {
         body: {
           content: 'file-content',
         },
-        uri: 'http://localhost/./camel-catalog/file.json',
+        uri: 'http://localhost/file.json',
       });
     });
   });
@@ -69,7 +69,7 @@ describe('CatalogSchemaLoader', () => {
     });
 
     it('should return the schemas files', async () => {
-      const schemaPromises = CatalogSchemaLoader.getSchemasFiles(schemasEntries);
+      const schemaPromises = CatalogSchemaLoader.getSchemasFiles('http://localhost', schemasEntries);
 
       const result = await Promise.all(schemaPromises);
 
