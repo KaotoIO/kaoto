@@ -101,7 +101,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
        * as this mean that they can be used only as a consumer.
        */
       return (item: ITile) => {
-        return item.type === CatalogKind.Component && !item.tags.includes('producerOnly');
+        return (item.type === CatalogKind.Component && !item.tags.includes('producerOnly')) || (item.type === CatalogKind.Kamelet && item.tags.includes('source'));
       };
     }
 
