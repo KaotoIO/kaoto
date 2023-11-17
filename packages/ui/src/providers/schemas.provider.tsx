@@ -11,16 +11,16 @@ export const SchemasContext = createContext<Record<string, Schema>>({});
 /**
  * Loader for the components schemas.
  */
-export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
+export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
   const setSchema = useSchemasStore((state) => state.setSchema);
   const [isLoading, setIsLoading] = useState(true);
   const [schemas, setSchemas] = useState<Record<string, Schema>>({});
 
   useEffect(() => {
-    fetch(`.${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/index.json`)
+    fetch(`${props.catalogUrl}/index.json`)
       .then((response) => response.json())
       .then(async (catalogIndex: CamelCatalogIndex) => {
-        const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(catalogIndex.schemas);
+        const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(props.catalogUrl, catalogIndex.schemas);
 
         const loadedSchemas = await Promise.all(schemaFilesPromise);
         const combinedSchemas = loadedSchemas.reduce(

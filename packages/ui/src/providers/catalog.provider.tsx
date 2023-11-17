@@ -10,27 +10,27 @@ export const CatalogContext = createContext<typeof CamelCatalogService>(CamelCat
 /**
  * Loader for the components catalog.
  */
-export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
+export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`.${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/index.json`)
+    fetch(`${props.catalogUrl}/index.json`)
       .then((response) => response.json())
       .then(async (catalogIndex: CamelCatalogIndex) => {
         const camelComponentsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Component]>(
-          catalogIndex.catalogs.components.file,
+          `${props.catalogUrl}/${catalogIndex.catalogs.components.file}`,
         );
         const camelProcessorsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
-          catalogIndex.catalogs.models.file,
+          `${props.catalogUrl}/${catalogIndex.catalogs.models.file}`,
         );
         const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
-          catalogIndex.catalogs.languages.file,
+          `${props.catalogUrl}/${catalogIndex.catalogs.languages.file}`,
         );
         const camelDataformatsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Dataformat]>(
-          catalogIndex.catalogs.dataformats.file,
+          `${props.catalogUrl}/${catalogIndex.catalogs.dataformats.file}`,
         );
         const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
-          catalogIndex.catalogs.kamelets.file,
+          `${props.catalogUrl}/${catalogIndex.catalogs.kamelets.file}`,
         );
 
         const [camelComponents, camelProcessors, camelLanguages, camelDataformats, kamelets] = await Promise.all([

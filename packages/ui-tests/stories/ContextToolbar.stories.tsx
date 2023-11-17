@@ -1,5 +1,6 @@
 import {
   CatalogLoaderProvider,
+  CatalogSchemaLoader,
   CatalogTilesProvider,
   ContextToolbar,
   EntitiesContext,
@@ -14,8 +15,8 @@ import camelRouteMock from '../cypress/fixtures/camelRouteMock.json';
 const EntitiesContextDecorator = (Story: StoryFn) => (
   <SourceCodeContext.Provider value={{ sourceCode: '', setCodeAndNotify: () => {} }}>
     <EntitiesContext.Provider value={camelRouteMock}>
-      <SchemasLoaderProvider>
-        <CatalogLoaderProvider>
+      <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
           <CatalogTilesProvider>
             <VisibleFlowsProvider>
               <Story />
