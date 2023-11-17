@@ -23,8 +23,8 @@ import process from '../assets/eip/process.png';
 import recipient_list from '../assets/eip/recipient-list.png';
 import remove_header from '../assets/eip/removeheader.png';
 import remove_headers from '../assets/eip/removeheaders.png';
-import remove_property from '../assets/eip/removeproperty.png';
 import remove_properties from '../assets/eip/removeproperties.png';
+import remove_property from '../assets/eip/removeproperty.png';
 import resequence from '../assets/eip/resequence.png';
 import rollback from '../assets/eip/rollback.png';
 import sample from '../assets/eip/sample.png';
@@ -689,7 +689,7 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'transform':
       return transform;
     case 'unmarshal':
-        return transform;
+      return transform;
     case 'validate':
       return validate;
     case 'weighted':
@@ -698,7 +698,7 @@ function getEIPIcon(elementName?: string): string | undefined {
       return when;
     case 'wireTap':
       return wiretap;
-    default: 
+    default:
       return undefined;
   }
 }
