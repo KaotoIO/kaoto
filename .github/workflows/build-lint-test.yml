@@ -31,6 +31,10 @@ jobs:
       - name: 💅 Run eslint
         run: yarn workspaces foreach --verbose --topological-dev run lint
 
+      # Lint style files
+      - name: 💅 Run stylelint
+        run: yarn workspace @kaoto-next/ui run lint:style
+
       # Run tests
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
