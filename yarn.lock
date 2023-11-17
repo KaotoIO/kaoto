@@ -3309,7 +3309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/patternfly@npm:5.0.2, @patternfly/patternfly@npm:^5.0.0":
+"@patternfly/patternfly@npm:^5.0.0":
   version: 5.0.2
   resolution: "@patternfly/patternfly@npm:5.0.2"
   checksum: 5b386efb172b553cf90622c613170c63ead66d388c4cb62bdf264ee9ba7f03df2fcaab497fd2d1390482e7e93dca36eab428a370e21578205a30b857c100bc10
@@ -3333,7 +3333,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-core@npm:^5.0.0, @patternfly/react-core@npm:^5.1.0":
+"@patternfly/react-core@npm:^5.0.0":
   version: 5.1.0
   resolution: "@patternfly/react-core@npm:5.1.0"
   dependencies:
@@ -3351,7 +3351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-icons@npm:^5.0.0, @patternfly/react-icons@npm:^5.1.0":
+"@patternfly/react-icons@npm:^5.0.0":
   version: 5.1.0
   resolution: "@patternfly/react-icons@npm:5.1.0"
   dependencies:
