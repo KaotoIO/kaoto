@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CanvasFallback renders correctly 1`] = `
+exports[`ReturnToSourceCodeFallback renders correctly 1`] = `
 <DocumentFragment>
   <div
     class="pf-v5-l-bullseye"
@@ -51,6 +51,41 @@ exports[`CanvasFallback renders correctly 1`] = `
           <p>
             Try to go back to the source code and check if the source code is valid.
           </p>
+        </div>
+        <div
+          class="pf-v5-c-empty-state__footer"
+        >
+          <div
+            class="pf-v5-c-empty-state__actions"
+          >
+            <a
+              aria-disabled="false"
+              class="pf-v5-c-button pf-m-primary"
+              data-ouia-component-id="OUIA-Generated-Button-primary-1"
+              data-ouia-component-type="PF5/Button"
+              data-ouia-safe="true"
+              href="/code"
+            >
+              <span
+                class="pf-v5-c-button__icon pf-m-start"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v5-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 448 512"
+                  width="1em"
+                >
+                  <path
+                    d="M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z"
+                  />
+                </svg>
+              </span>
+              Go to the source code
+            </a>
+          </div>
         </div>
       </div>
     </div>

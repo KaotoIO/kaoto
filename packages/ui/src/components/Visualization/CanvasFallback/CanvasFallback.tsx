@@ -1,20 +1,7 @@
-import {
-  Bullseye,
-  Button,
-  EmptyState,
-  EmptyStateActions,
-  EmptyStateBody,
-  EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
-} from '@patternfly/react-core';
-import { ArrowLeftIcon, EyeSlashIcon } from '@patternfly/react-icons';
-import { Links } from '../../../router/links.models';
-import { useComponentLink } from '../../../hooks/ComponentLink';
+import { Bullseye, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import { EyeSlashIcon } from '@patternfly/react-icons';
 
 export const CanvasFallback = () => {
-  const backLink = useComponentLink(Links.SourceCode);
-
   return (
     <Bullseye>
       <EmptyState>
@@ -28,13 +15,6 @@ export const CanvasFallback = () => {
           <br />
           <p>Try to go back to the source code and check if the source code is valid.</p>
         </EmptyStateBody>
-        <EmptyStateFooter>
-          <EmptyStateActions>
-            <Button variant="primary" component={backLink} icon={<ArrowLeftIcon />}>
-              Go to the source code
-            </Button>
-          </EmptyStateActions>
-        </EmptyStateFooter>
       </EmptyState>
     </Bullseye>
   );

@@ -3,6 +3,7 @@ import { FunctionComponent, useContext } from 'react';
 import { Visualization } from '../../components/Visualization';
 import { CatalogModalProvider } from '../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../providers/entities.provider';
+import { ReturnToSourceCodeFallback } from './ReturnToSourceCodeFallback';
 import './DesignPage.scss';
 
 export const DesignPage: FunctionComponent = () => {
@@ -14,7 +15,11 @@ export const DesignPage: FunctionComponent = () => {
       <Title headingLevel="h1">Visualization</Title>
 
       <CatalogModalProvider>
-        <Visualization className="canvas-page__canvas" entities={visualEntities} />
+        <Visualization
+          className="canvas-page__canvas"
+          entities={visualEntities}
+          fallback={<ReturnToSourceCodeFallback />}
+        />
       </CatalogModalProvider>
     </div>
   );
