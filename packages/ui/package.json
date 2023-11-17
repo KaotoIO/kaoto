@@ -35,10 +35,8 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "yarn lint:code; yarn lint:style",
-    "lint:fix": "yarn lint:code:fix; yarn lint:style:fix",
-    "lint:code": "yarn eslint \"src/**/*.{ts,tsx}\"",
-    "lint:code:fix": "yarn lint:code --fix",
+    "lint": "yarn eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint:code --fix",
     "lint:style": "yarn stylelint \"src/**/*.{css,scss}\"",
     "lint:style:fix": "yarn lint:style --fix"
   },
