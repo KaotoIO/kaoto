@@ -6,17 +6,21 @@ import questionIcon from '../assets/question-mark.svg';
 import aggregate from '../assets/eip/aggregate.png';
 import bean from '../assets/eip/bean.png';
 import choice from '../assets/eip/choice.png';
+import circuit_breaker from '../assets/eip/circuitBreaker.png';
+import claim_check from '../assets/eip/claimCheck.png';
 import convert_body from '../assets/eip/convertBody.png';
 import delay from '../assets/eip/delay.png';
 import dynamic_router from '../assets/eip/dynamic-router.png';
 import enrich from '../assets/eip/enrich.png';
 import filter from '../assets/eip/filter.png';
 import generic_eip from '../assets/eip/generic.png';
+import idempotent_consumer from '../assets/eip/idempotentConsumer.png';
 import load_balance from '../assets/eip/load-balance.png';
 import log from '../assets/eip/log.png';
 import loop from '../assets/eip/loop.png';
 import multicast from '../assets/eip/multicast.png';
 import otherwise from '../assets/eip/otherwise.png';
+import pausable from '../assets/eip/pausable.png';
 import pipeline from '../assets/eip/pipeline.png';
 import poll_enrich from '../assets/eip/poll-enrich.png';
 import process from '../assets/eip/process.png';
@@ -26,6 +30,7 @@ import remove_headers from '../assets/eip/removeheaders.png';
 import remove_properties from '../assets/eip/removeproperties.png';
 import remove_property from '../assets/eip/removeproperty.png';
 import resequence from '../assets/eip/resequence.png';
+import resumable from '../assets/eip/resumable.png';
 import rollback from '../assets/eip/rollback.png';
 import sample from '../assets/eip/sample.png';
 import script from '../assets/eip/script.png';
@@ -34,9 +39,12 @@ import set_header from '../assets/eip/setheader.png';
 import set_property from '../assets/eip/setproperty.png';
 import sort from '../assets/eip/sort.png';
 import split from '../assets/eip/split.png';
+import step from '../assets/eip/step.png';
 import stop from '../assets/eip/stop.png';
 import threads from '../assets/eip/threads.png';
 import throttle from '../assets/eip/throttle.png';
+import to from '../assets/eip/to.png';
+import to_d from '../assets/eip/toD.png';
 import transform from '../assets/eip/transform.png';
 import validate from '../assets/eip/validate.png';
 import when from '../assets/eip/when.png';
@@ -586,9 +594,9 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'choice':
       return choice;
     case 'circuitBreaker':
-      return generic_eip;
+      return circuit_breaker;
     case 'claimCheck':
-      return generic_eip;
+      return claim_check;
     case 'convertBodyTo':
       return convert_body;
     case 'customLoadBalancer':
@@ -599,14 +607,14 @@ function getEIPIcon(elementName?: string): string | undefined {
       return dynamic_router;
     case 'enrich':
       return enrich;
-    case 'failover':
+    case 'failover': // is that used?
       return generic_eip;
     case 'filter':
       return filter;
     case 'from':
       return expandIcon;
     case 'idempotentConsumer':
-      return generic_eip;
+      return idempotent_consumer;
     // case 'kamelet': handled on top
     case 'loadBalance':
       return load_balance;
@@ -618,19 +626,19 @@ function getEIPIcon(elementName?: string): string | undefined {
       return transform;
     case 'multicast':
       return multicast;
-    case 'onFallback':
+    case 'onFallback': // used?
       return generic_eip;
     case 'otherwise':
       return otherwise;
     case 'pausable':
-      return generic_eip;
+      return pausable;
     case 'pipeline':
       return pipeline;
     case 'pollEnrich':
       return poll_enrich;
     case 'process':
       return process;
-    case 'random':
+    case 'random': // used?
       return generic_eip;
     case 'recipientList':
       return recipient_list;
@@ -645,7 +653,7 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'resequence':
       return resequence;
     case 'resumable':
-      return generic_eip;
+      return resumable;
     case 'rollback':
       return rollback;
     case 'roundRobin':
@@ -653,12 +661,12 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'routingSlip':
       return generic_eip;
     case 'saga':
-      return generic_eip;
+      return generic_eip; // todo saga
     case 'sample':
       return sample;
     case 'script':
       return script;
-    case 'serviceCall':
+    case 'serviceCall': // used?
       return generic_eip;
     case 'setBody':
       return set_body;
@@ -671,8 +679,8 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'split':
       return split;
     case 'step':
-      return generic_eip;
-    case 'sticky':
+      return step;
+    case 'sticky': // used?
       return generic_eip;
     case 'stop':
       return stop;
@@ -681,10 +689,10 @@ function getEIPIcon(elementName?: string): string | undefined {
     case 'throttle':
       return throttle;
     case 'to':
-      return generic_eip;
+      return to;
     case 'toD':
-      return generic_eip;
-    case 'topic':
+      return to_d;
+    case 'topic': // used?
       return generic_eip;
     case 'transform':
       return transform;
@@ -692,7 +700,7 @@ function getEIPIcon(elementName?: string): string | undefined {
       return transform;
     case 'validate':
       return validate;
-    case 'weighted':
+    case 'weighted': // used?
       return generic_eip;
     case 'when':
       return when;
