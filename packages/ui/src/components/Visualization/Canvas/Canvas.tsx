@@ -1,4 +1,5 @@
-import { AngleDownIcon, AngleRightIcon, CatalogIcon } from '@patternfly/react-icons';
+import { Icon } from '@patternfly/react-core';
+import { CatalogIcon } from '@patternfly/react-icons';
 import {
   GRAPH_LAYOUT_END_EVENT,
   Model,
@@ -21,6 +22,8 @@ import {
   useMemo,
   useState,
 } from 'react';
+import layoutHorizontalIcon from '../../../assets/layout-horizontal.png';
+import layoutVerticalIcon from '../../../assets/layout-vertical.png';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
@@ -49,16 +52,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     const customButtons = catalogModalContext
       ? [
           {
-            id: 'topology-control-bar-catalog-button',
-            icon: <CatalogIcon />,
-            tooltip: 'Open Catalog',
-            callback: () => {
-              catalogModalContext.setIsModalOpen(true);
-            },
-          },
-          {
             id: 'topology-control-bar-h_layout-button',
-            icon: <AngleRightIcon />,
+            icon: (
+              <Icon>
+                <img src={layoutHorizontalIcon} />
+              </Icon>
+            ),
             tooltip: 'Horizontal Layout',
             callback: () => {
               // switch to layout with rankDir LR
@@ -69,13 +68,25 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
           },
           {
             id: 'topology-control-bar-v_layout-button',
-            icon: <AngleDownIcon />,
+            icon: (
+              <Icon>
+                <img src={layoutVerticalIcon} />
+              </Icon>
+            ),
             tooltip: 'Vertical Layout',
             callback: () => {
               // switch to layout with rankDir TB
               controller.fireEvent('direction', 'TB');
               // refresh canvas
               controller.getGraph().layout();
+            },
+          },
+          {
+            id: 'topology-control-bar-catalog-button',
+            icon: <CatalogIcon />,
+            tooltip: 'Open Catalog',
+            callback: () => {
+              catalogModalContext.setIsModalOpen(true);
             },
           },
         ]
