@@ -29,7 +29,7 @@ import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
-import { CanvasEdge, CanvasNode } from './canvas.models';
+import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
 
 interface CanvasProps {
@@ -59,12 +59,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
               </Icon>
             ),
             tooltip: 'Horizontal Layout',
-            callback: () => {
-              // switch to layout with rankDir LR
-              controller.fireEvent('direction', 'LR');
-              // refresh canvas
+            callback: action(() => {
+              controller.getGraph().setLayout(LayoutType.DagreHorizontal);
+              controller.getGraph().reset();
               controller.getGraph().layout();
-            },
+            }),
           },
           {
             id: 'topology-control-bar-v_layout-button',
@@ -74,12 +73,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
               </Icon>
             ),
             tooltip: 'Vertical Layout',
-            callback: () => {
-              // switch to layout with rankDir TB
-              controller.fireEvent('direction', 'TB');
-              // refresh canvas
+            callback: action(() => {
+              controller.getGraph().setLayout(LayoutType.DagreVertical);
+              controller.getGraph().reset();
               controller.getGraph().layout();
-            },
+            }),
           },
           {
             id: 'topology-control-bar-catalog-button',

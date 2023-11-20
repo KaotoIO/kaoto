@@ -94,7 +94,7 @@ describe('CanvasService', () => {
     [LayoutType.ColaNoForce, ColaLayout],
     [LayoutType.ColaGroups, ColaLayout],
     [LayoutType.Concentric, ConcentricLayout],
-    [LayoutType.Dagre, DagreLayout],
+    [LayoutType.DagreVertical, DagreLayout],
     [LayoutType.Force, ForceLayout],
     [LayoutType.Grid, GridLayout],
     ['unknown' as LayoutType, ColaLayout],
