@@ -75,8 +75,10 @@ export class CanvasService {
         return new ColaLayout(graph, { layoutOnDrag: false });
       case LayoutType.Concentric:
         return new ConcentricLayout(graph);
-      case LayoutType.Dagre:
+      case LayoutType.DagreVertical:
         return new DagreLayout(graph, { rankdir: 'TB', nodesep: 20, ranksep: 0 });
+      case LayoutType.DagreHorizontal:
+        return new DagreLayout(graph, { rankdir: 'LR', nodesep: 20, ranksep: 0 });
       case LayoutType.Force:
         return new ForceLayout(graph);
       case LayoutType.Grid:
