@@ -224,6 +224,7 @@ export class CamelComponentSchemaService {
           title: 'Endpoint Properties',
           description: 'Endpoint properties description',
           properties: componentSchema.properties,
+          required: componentSchema.required
         };
       }
     }
