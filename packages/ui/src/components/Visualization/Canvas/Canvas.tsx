@@ -1,4 +1,4 @@
-import { CatalogIcon } from '@patternfly/react-icons';
+import { AngleDownIcon, AngleRightIcon, CatalogIcon } from '@patternfly/react-icons';
 import {
   GRAPH_LAYOUT_END_EVENT,
   Model,
@@ -51,8 +51,31 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
           {
             id: 'topology-control-bar-catalog-button',
             icon: <CatalogIcon />,
+            tooltip: 'Open Catalog',
             callback: () => {
               catalogModalContext.setIsModalOpen(true);
+            },
+          },
+          {
+            id: 'topology-control-bar-h_layout-button',
+            icon: <AngleRightIcon />,
+            tooltip: 'Horizontal Layout',
+            callback: () => {
+              // switch to layout with rankDir LR
+              controller.fireEvent('direction', 'LR');
+              // refresh canvas
+              controller.getGraph().layout();
+            },
+          },
+          {
+            id: 'topology-control-bar-v_layout-button',
+            icon: <AngleDownIcon />,
+            tooltip: 'Vertical Layout',
+            callback: () => {
+              // switch to layout with rankDir TB
+              controller.fireEvent('direction', 'TB');
+              // refresh canvas
+              controller.getGraph().layout();
             },
           },
         ]
