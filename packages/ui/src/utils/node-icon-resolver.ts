@@ -36,6 +36,7 @@ import sample from '../assets/eip/sample.png';
 import script from '../assets/eip/script.png';
 import set_body from '../assets/eip/setbody.png';
 import set_header from '../assets/eip/setheader.png';
+import set_headers from '../assets/eip/setheaders.png';
 import set_property from '../assets/eip/setproperty.png';
 import sort from '../assets/eip/sort.png';
 import split from '../assets/eip/split.png';
@@ -672,6 +673,8 @@ function getEIPIcon(elementName?: string): string | undefined {
       return set_body;
     case 'setHeader':
       return set_header;
+    case 'setHeaders':
+      return set_headers;
     case 'setProperty':
       return set_property;
     case 'sort':
