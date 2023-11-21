@@ -8,8 +8,9 @@ export interface CamelPropertyCommon {
   javaType: string;
   enum?: string[];
   autowired: boolean;
-  defaultValue?: string;
+  defaultValue?: string | boolean | number;
   deprecated: boolean;
+  deprecationNote?: string;
   secret: boolean;
   description: string;
 }
