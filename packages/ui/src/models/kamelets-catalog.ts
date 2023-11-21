@@ -50,6 +50,6 @@ export interface IKameletSpecProperty {
   title: string;
   description: string;
   type: string;
-  default?: string;
+  default?: string | boolean | number;
   example?: string;
 }
