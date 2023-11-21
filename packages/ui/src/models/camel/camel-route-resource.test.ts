@@ -1,7 +1,7 @@
 import { SourceSchemaType } from './source-schema-type';
 import { CamelRouteResource } from './camel-route-resource';
+import { camelRouteJson } from '../../stubs/camel-route';
 import { createCamelResource } from './camel-resource';
-import { camelRouteJson, camelRoute } from '../../stubs/camel-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 
 describe('CamelRouteResource', () => {
