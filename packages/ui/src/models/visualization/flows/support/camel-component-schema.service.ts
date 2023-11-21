@@ -31,7 +31,7 @@ export class CamelComponentSchemaService {
 
     /**
      * If the last path segment is NaN, it means this is a Camel Processor
-     * for instance, `from`, `when`, `otherwise` or `to` properties in a Route
+     * for instance, `from`, `otherwise` or `to` properties in a Route
      * and we can just return the path as the name of the component
      */
     if (Number.isNaN(pathAsIndex)) {
@@ -44,14 +44,7 @@ export class CamelComponentSchemaService {
      * for instance, a `when` property in a `Choice` processor
      */
     const previousPathSegment = splitPath[splitPath.length - 2];
-    if (typeof previousPathSegment === 'string') {
-      return this.getCamelElement(previousPathSegment as keyof ProcessorDefinition, definition);
-    }
-
-    /**
-     * If we reach this point, it means we couldn't determine the name of the component
-     */
-    return { processorName: '' as keyof ProcessorDefinition };
+    return this.getCamelElement(previousPathSegment as keyof ProcessorDefinition, definition);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +59,7 @@ export class CamelComponentSchemaService {
 
       case 'to':
       case 'toD':
-        return typeof definition === 'string' ? definition : definition.uri ?? 'To';
+        return typeof definition === 'string' ? definition : definition.uri ?? camelElementLookup.processorName;
 
       default:
         return camelElementLookup.processorName;
@@ -119,6 +112,7 @@ export class CamelComponentSchemaService {
         return camelElementLookup.componentName;
       }
     }
+
     if (
       isDefined(camelElementLookup.processorName) &&
       !isDefined(camelElementLookup.componentName) &&
@@ -126,6 +120,7 @@ export class CamelComponentSchemaService {
     ) {
       return camelElementLookup.processorName;
     }
+
     return '';
   }
 

@@ -32,7 +32,7 @@ export interface IPropertiesRow {
   property?: string;
   name: string;
   description: string;
-  default?: string;
+  default?: string | boolean | number;
   type: string;
   example?: string;
   rowAdditionalInfo: IPropertiesRowAdditionalInfo;
