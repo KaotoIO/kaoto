@@ -1,11 +1,12 @@
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash.clonedeep';
+import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../camel/entities/base-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelRouteVisualEntity, isCamelRoute } from './camel-route-visual-entity';
 import { IVisualizationNode } from '../base-visual-entity';
+import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
@@ -17,13 +18,33 @@ describe('Camel Route', () => {
   describe('isCamelRoute', () => {
     it.each([
       [{ route: { from: 'direct:foo' } }, true],
+      [{ from: 'direct:foo' }, false],
+      [{ from: { uri: 'direct:foo', steps: [] } }, false],
       [camelRouteJson, true],
+      [camelFromJson, false],
       [undefined, false],
       [null, false],
       [true, false],
       [false, false],
     ])('should mark %s as isCamelRoute: %s', (route, result) => {
       expect(isCamelRoute(route)).toEqual(result);
+    });
+  });
+
+  describe('isCamelFrom', () => {
+    it.each([
+      [{ route: { from: 'direct:foo' } }, false],
+      [{ from: 'direct:foo' }, false],
+      [{ from: { uri: 'direct:foo' } }, false],
+      [{ from: { uri: 'direct:foo', steps: [] } }, true],
+      [camelRouteJson, false],
+      [camelFromJson, true],
+      [undefined, false],
+      [null, false],
+      [true, false],
+      [false, false],
+    ])('should mark %s as isCamelFrom: %s', (route, result) => {
+      expect(isCamelFrom(route)).toEqual(result);
     });
   });
 
@@ -34,7 +55,7 @@ describe('Camel Route', () => {
     });
 
     it('should use a default camel random id if the route id is not provided', () => {
-      const route = new CamelRouteVisualEntity();
+      const route = new CamelRouteVisualEntity({ from: { uri: 'direct:foo', steps: [] } });
 
       /** This is being mocked at the window.crypto.get */
       expect(route.id).toEqual('route-1234');
@@ -104,7 +125,7 @@ describe('Camel Route', () => {
 
   describe('getSteps', () => {
     it('should return an empty array if there is no route', () => {
-      const route = new CamelRouteVisualEntity();
+      const route = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
 
       expect(route.getSteps()).toEqual([]);
     });

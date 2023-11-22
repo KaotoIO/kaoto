@@ -3,7 +3,7 @@ import { ITile, TileFilter } from '../../components/Catalog';
 import { isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
-import { CamelRouteVisualEntity, isCamelRoute } from '../visualization/flows';
+import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
 import { flowTemplateService } from '../visualization/flows/flow-templates-service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { BeansEntity, isBeans } from '../visualization/metadata';
@@ -26,25 +26,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     }, [] as BaseCamelEntity[]);
   }
 
-  addNewEntity(_entity?: unknown): string {
+  addNewEntity(): string {
     const template = flowTemplateService.getFlowTemplate(this.getType());
-    const route = template[0].route as Partial<RouteDefinition>;
+    const route = template[0].route as RouteDefinition;
     const visualEntity = new CamelRouteVisualEntity(route);
     this.entities.push(visualEntity);
 
     return visualEntity.id;
-  }
-
-  getEntity(rawItem: unknown): BaseCamelEntity | undefined {
-    if (!isDefined(rawItem) || Array.isArray(rawItem)) {
-      return undefined;
-    }
-    if (isCamelRoute(rawItem)) {
-      return new CamelRouteVisualEntity(rawItem.route);
-    } else if (isBeans(rawItem)) {
-      return new BeansEntity(rawItem);
-    }
-    return rawItem as BaseCamelEntity;
   }
 
   getType(): SourceSchemaType {
@@ -82,6 +70,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   removeEntity(id?: string): void {
+    if (!isDefined(id)) return;
     const index: number = this.entities.findIndex((e) => e.id === id);
 
     if (index !== -1) {
@@ -140,5 +129,20 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
         (item.type === CatalogKind.Kamelet && !item.tags.includes('source'))
       );
     };
+  }
+
+  private getEntity(rawItem: unknown): BaseCamelEntity | undefined {
+    if (!isDefined(rawItem) || Array.isArray(rawItem)) {
+      return undefined;
+    }
+
+    if (isCamelRoute(rawItem)) {
+      return new CamelRouteVisualEntity(rawItem.route);
+    } else if (isCamelFrom(rawItem)) {
+      return new CamelRouteVisualEntity({ from: rawItem.from });
+    } else if (isBeans(rawItem)) {
+      return new BeansEntity(rawItem);
+    }
+    return rawItem as BaseCamelEntity;
   }
 }

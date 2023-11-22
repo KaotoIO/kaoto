@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { DoCatch, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-next/camel-catalog/types';
+import { DoCatch, FromDefinition, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -40,11 +40,25 @@ export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDef
   );
 };
 
+/** Very basic check to determine whether this object is a Camel From */
+export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefinition } => {
+  if (!isDefined(rawEntity) || Array.isArray(rawEntity) || typeof rawEntity !== 'object') {
+    return false;
+  }
+
+  const objectKeys = Object.keys(rawEntity!);
+  const isFromHolder = objectKeys.length === 1 && objectKeys[0] === 'from';
+  const isValidUriField = typeof (rawEntity as { from: FromDefinition })?.from?.uri === 'string';
+  const isValidStepsArray = Array.isArray((rawEntity as { from: FromDefinition })?.from?.steps);
+
+  return isFromHolder && isValidUriField && isValidStepsArray;
+};
+
 export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
   readonly id: string;
   readonly type = EntityType.Route;
 
-  constructor(public route: Partial<RouteDefinition> = {}) {
+  constructor(public route: RouteDefinition) {
     this.id = route.id ?? getCamelRandomId('route');
     this.route.id = this.id;
   }

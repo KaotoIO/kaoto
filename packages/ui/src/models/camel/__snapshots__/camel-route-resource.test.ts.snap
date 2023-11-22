@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CamelRouteResource toJSON should return JSON 1`] = `
+[
+  {
+    "route": {
+      "from": {
+        "steps": [
+          {
+            "set-header": {
+              "name": "myChoice",
+              "simple": "\${random(2)}",
+            },
+          },
+          {
+            "choice": {
+              "otherwise": {
+                "steps": [
+                  {
+                    "to": {
+                      "uri": "amqp:queue:",
+                    },
+                  },
+                  {
+                    "to": {
+                      "uri": "amqp:queue:",
+                    },
+                  },
+                  {
+                    "log": {
+                      "id": "log-2",
+                      "message": "We got a \${body}",
+                    },
+                  },
+                ],
+              },
+              "when": [
+                {
+                  "simple": "\${header.myChoice} == 1",
+                  "steps": [
+                    {
+                      "log": {
+                        "id": "log-1",
+                        "message": "We got a one.",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            "to": {
+              "parameters": {
+                "bridgeErrorHandler": true,
+              },
+              "uri": "direct:my-route",
+            },
+          },
+        ],
+        "uri": "timer:tutorial",
+      },
+      "id": "route-8888",
+    },
+  },
+]
+`;
