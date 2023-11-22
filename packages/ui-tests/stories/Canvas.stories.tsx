@@ -1,15 +1,16 @@
 import {
-  Canvas,
   CamelRouteVisualEntity,
-  VisibleFlowsContext,
-  VisibleFLowsContextResult,
-  pipeJson,
-  CatalogTilesProvider,
+  Canvas,
   CatalogLoaderProvider,
-  PipeVisualEntity,
+  CatalogSchemaLoader,
+  CatalogTilesProvider,
   EntitiesProvider,
+  PipeVisualEntity,
   SchemasLoaderProvider,
   SourceCodeProvider,
+  VisibleFLowsContextResult,
+  VisibleFlowsContext,
+  pipeJson,
 } from '@kaoto-next/ui/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import complexRouteMock from '../cypress/fixtures/complexRouteMock.json';
@@ -44,8 +45,8 @@ const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson.spec!);
 const ContextDecorator = (Story: StoryFn) => (
   <SourceCodeProvider>
     <EntitiesProvider>
-      <SchemasLoaderProvider>
-        <CatalogLoaderProvider>
+      <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
           <CatalogTilesProvider>
             <Story />
           </CatalogTilesProvider>
