@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.3.0 (2023-11-22)
+
+### Bug Fixes
+
+* **deps:** update dependency io.fabric8:kubernetes-model to v6.9.0 ([1923d4d](https://github.com/KaotoIO/kaoto-next/commit/1923d4d09a1d4122eb0455f937221205a27b4cd1))
+* **deps:** update dependency io.fabric8:kubernetes-model to v6.9.1 ([f812b71](https://github.com/KaotoIO/kaoto-next/commit/f812b7180688769308c7551085fccc714f1034ac))
+* **deps:** update dependency io.fabric8:kubernetes-model to v6.9.2 ([419c60f](https://github.com/KaotoIO/kaoto-next/commit/419c60fffa034a0eae01624d1e891ea525224407))
+* **deps:** update dependency org.apache.maven.plugin-tools:maven-plugin-annotations to v3.10.1 ([4157faa](https://github.com/KaotoIO/kaoto-next/commit/4157faa8426cdf7a6346cc9558f3674a73b0836e))
+* **deps:** update dependency org.apache.maven.plugin-tools:maven-plugin-annotations to v3.10.2 ([df62ce2](https://github.com/KaotoIO/kaoto-next/commit/df62ce2848e6beeafc5254f4e2acfc89ae65bf8c))
+* **deps:** update version.jackson to v2.15.3 ([c56e2a6](https://github.com/KaotoIO/kaoto-next/commit/c56e2a66db78c026d7707eded2e0c3d4439837a3))
+* **deps:** update version.jackson to v2.16.0 ([6f1910b](https://github.com/KaotoIO/kaoto-next/commit/6f1910ba6cc241d0fa932c1a3b1119ec80cb2b49))
+* Refactor @kaoto-next/camel-catalog ([e4796d2](https://github.com/KaotoIO/kaoto-next/commit/e4796d270a61d41615d7cdf5ea7dc2f396f6640a)), closes [#311](https://github.com/KaotoIO/kaoto-next/issues/311) [#316](https://github.com/KaotoIO/kaoto-next/issues/316) [#335](https://github.com/KaotoIO/kaoto-next/issues/335) [#311](https://github.com/KaotoIO/kaoto-next/issues/311)
+* Support using camel catalog and schema in Jest tests ([365f7a0](https://github.com/KaotoIO/kaoto-next/commit/365f7a0172f3cbfeb9ea2f5c6b7c4074003bf75c)), closes [#310](https://github.com/KaotoIO/kaoto-next/issues/310)
+
+### Features
+
+* **catalog:** Minify Camel Catalog ([5c17105](https://github.com/KaotoIO/kaoto-next/commit/5c1710544af50f4f040ef7dcf94d69f801af2170))
+* Support configuring /PipeSpec/ErrorHandler ([1cd996f](https://github.com/KaotoIO/kaoto-next/commit/1cd996fb53a89ef41b23ba4b84c7b2e27095516f)), closes [#188](https://github.com/KaotoIO/kaoto-next/issues/188)
+* Support configuring Camel K CR metadata ([#181](https://github.com/KaotoIO/kaoto-next/issues/181)) ([#226](https://github.com/KaotoIO/kaoto-next/issues/226)) ([31aba1a](https://github.com/KaotoIO/kaoto-next/commit/31aba1a9d2395665d2735f2f3740d300f638e98f))
+* Support configuring dataformat in Canvas form ([2a62d04](https://github.com/KaotoIO/kaoto-next/commit/2a62d04d070826f18bb7c5a01a3fd9ab2dd83534)), closes [#273](https://github.com/KaotoIO/kaoto-next/issues/273)
+
 # 0.2.0 (2023-10-05)
 
 ### Bug Fixes
