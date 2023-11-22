@@ -26,6 +26,7 @@ import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.util.json.JsonObject;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,11 +37,14 @@ public class CamelCatalogProcessor {
     private final ObjectMapper jsonMapper;
     private final DefaultCamelCatalog api;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
+    private final ArrayList<String> patternBlocklist;
 
     public CamelCatalogProcessor(ObjectMapper jsonMapper, CamelYamlDslSchemaProcessor schemaProcessor) {
         this.jsonMapper = jsonMapper;
         this.api = new DefaultCamelCatalog();
         this.schemaProcessor = schemaProcessor;
+        patternBlocklist = new ArrayList<>();
+        populatePatterBlocklist();
     }
 
     /**
@@ -155,7 +159,7 @@ public class CamelCatalogProcessor {
         var processors = schemaProcessor.getProcessors();
         api.findModelNames().stream().sorted().forEach((name) -> {
             var model = (EipModel) api.model(Kind.eip, name);
-            if (!processors.has(name)) {
+            if (!processors.has(name) || patternBlocklist.contains(name)) {
                 return;
             }
             var javaType = schemaProcessor.getProcessorDefinitionFQCN(name);
@@ -164,5 +168,22 @@ public class CamelCatalogProcessor {
             }
         });
         return JsonMapper.serialize(answer);
+    }
+
+    private void populatePatterBlocklist() {
+        this.patternBlocklist.add("doCatch");
+        this.patternBlocklist.add("doFinally");
+        this.patternBlocklist.add("kamelet");
+        this.patternBlocklist.add("loadBalance");
+        this.patternBlocklist.add("onFallback");
+        this.patternBlocklist.add("pipeline");
+        this.patternBlocklist.add("policy");
+        this.patternBlocklist.add("rollback");
+        this.patternBlocklist.add("serviceCall");
+        this.patternBlocklist.add("setExchangePattern");
+        this.patternBlocklist.add("whenSkipSendToEndpoint");
+        // reactivate entries once we have a better handling of how to add WHEN and OTHERWISE without Catalog
+        //this.patternBlocklist.add("Otherwise");
+        //this.patternBlocklist.add("when");
     }
 }

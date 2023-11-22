@@ -16,6 +16,7 @@ export interface Catalogs {
   languages: CatalogEntry;
   dataformats: CatalogEntry;
   kamelets: CatalogEntry;
+  patterns: CatalogEntry;
 }
 
 export interface CatalogEntry {

@@ -21,7 +21,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           `${props.catalogUrl}/${catalogIndex.catalogs.components.file}`,
         );
         const camelProcessorsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
-          `${props.catalogUrl}/${catalogIndex.catalogs.models.file}`,
+          `${props.catalogUrl}/${catalogIndex.catalogs.patterns.file}`,
         );
         const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.languages.file}`,
