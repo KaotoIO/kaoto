@@ -113,7 +113,7 @@ public class CamelCatalogProcessorTest {
     @Test
     public void testGetPatternCatalog() throws Exception {
         var processorCatalog = jsonMapper.readTree(processor.getPatternCatalog());
-        assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 65);
+        assertTrue(processorCatalog.size() > 45 && processorCatalog.size() < 55);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
     }
