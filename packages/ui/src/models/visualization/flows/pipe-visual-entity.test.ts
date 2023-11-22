@@ -3,7 +3,7 @@ import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
-import { PipeVisualEntity } from './pipe-visual-entity';
+import { PipeVisualEntity } from './';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {

@@ -10,3 +10,4 @@ export * from './local-storage-keys';
 export * from './react-component';
 export * from './schema';
 export * from './validation';
+export * from './visualization';
