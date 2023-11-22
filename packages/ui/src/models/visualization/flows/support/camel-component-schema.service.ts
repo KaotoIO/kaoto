@@ -15,11 +15,12 @@ export class CamelComponentSchemaService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
     const camelElementLookup = this.getCamelComponentLookup(path, definition);
+    const updatedDefinition = this.getUpdatedDefinition(camelElementLookup, definition);
 
     return {
       title: camelElementLookup.processorName,
       schema: this.getSchema(camelElementLookup),
-      definition,
+      definition: updatedDefinition,
     };
   }
 
@@ -273,5 +274,24 @@ export class CamelComponentSchemaService {
     });
 
     return schema;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
+    switch (camelElementLookup.processorName) {
+      case 'to':
+      case 'toD':
+        if (typeof definition === 'string') {
+          return { uri: definition };
+        }
+        break;
+
+      case 'log':
+        if (typeof definition === 'string') {
+          return { message: definition };
+        }
+        break;
+    }
+    return definition;
   }
 }
