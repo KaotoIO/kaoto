@@ -13,6 +13,8 @@ interface CanvasFormProps {
   selectedNode: CanvasNode;
 }
 
+const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
+
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const formRef = useRef<typeof AutoForm>();
@@ -54,7 +56,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
       {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
       <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
-        <AutoFields autoField={CustomAutoField} omitFields={['expression', 'dataFormatType']} />
+        <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
         <ErrorsField />
       </AutoForm>
     </ErrorBoundary>
