@@ -77,8 +77,18 @@ export class CamelComponentSchemaService {
       /** doTry */ case 'doCatch':
       /** doTry */ case 'doFinally':
       case 'aggregate':
+      case 'circuitBreaker':
+      case 'filter':
+      case 'loadBalance':
+      case 'loop':
+      case 'multicast':
       case 'onFallback':
+      case 'pipeline':
+      case 'resequence':
       case 'saga':
+      case 'split':
+      case 'step':
+      case 'whenSkipSendToEndpoint':
       case 'from' as keyof ProcessorDefinition:
         return [{ name: 'steps', type: 'branch' }];
 
