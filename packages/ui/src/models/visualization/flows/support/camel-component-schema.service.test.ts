@@ -82,6 +82,33 @@ describe('CamelComponentSchemaService', () => {
       expect(result).toMatchSnapshot();
     });
 
+    it('should transform a string-based `To` processor', () => {
+      const toBeanPath = 'from.steps.0.to';
+      const toBeanDefinition = 'bean:myBean?method=hello';
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toBeanPath, toBeanDefinition);
+
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should transform a string-based `ToD` processor', () => {
+      const toDBeanPath = 'from.steps.0.toD';
+      const toDBeanDefinition = 'bean:myBean?method=hello';
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toDBeanPath, toDBeanDefinition);
+
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should transform a string-based `Log` processor', () => {
+      const logPath = 'from.steps.0.log';
+      const logDefinition = '${body}';
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(logPath, logDefinition);
+
+      expect(result).toMatchSnapshot();
+    });
+
     it('should not build a schema for an unknown component', () => {
       const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
       const toNonExistingPath = 'from.steps.0.to';

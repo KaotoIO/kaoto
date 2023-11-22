@@ -460,3 +460,137 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
   "title": "to",
 }
 `;
+
+exports[`CamelComponentSchemaService getVisualComponentSchema should transform a string-based \`Log\` processor 1`] = `
+{
+  "definition": {
+    "message": "\${body}",
+  },
+  "schema": {
+    "properties": {
+      "description": {
+        "deprecated": false,
+        "description": "Sets the description of this node",
+        "title": "Description",
+        "type": "string",
+      },
+      "disabled": {
+        "deprecated": false,
+        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "title": "Disabled",
+        "type": "boolean",
+      },
+      "id": {
+        "deprecated": false,
+        "description": "Sets the id of this node",
+        "title": "Id",
+        "type": "string",
+      },
+      "logName": {
+        "deprecated": false,
+        "description": "Sets the name of the logger",
+        "title": "Log Name",
+        "type": "string",
+      },
+      "logger": {
+        "deprecated": false,
+        "description": "To refer to a custom logger instance to lookup from the registry.",
+        "title": "Logger",
+        "type": "object",
+      },
+      "loggingLevel": {
+        "deprecated": false,
+        "description": "Sets the logging level. The default value is INFO",
+        "enum": [
+          "TRACE",
+          "DEBUG",
+          "INFO",
+          "WARN",
+          "ERROR",
+          "OFF",
+        ],
+        "title": "Logging Level",
+        "type": undefined,
+      },
+      "marker": {
+        "deprecated": false,
+        "description": "To use slf4j marker",
+        "title": "Marker",
+        "type": "string",
+      },
+      "message": {
+        "deprecated": false,
+        "description": "Sets the log message (uses simple language)",
+        "title": "Message",
+        "type": "string",
+      },
+    },
+    "required": [
+      "message",
+    ],
+    "type": "object",
+  },
+  "title": "log",
+}
+`;
+
+exports[`CamelComponentSchemaService getVisualComponentSchema should transform a string-based \`To\` processor 1`] = `
+{
+  "definition": {
+    "uri": "bean:myBean?method=hello",
+  },
+  "schema": {
+    "properties": {
+      "description": {
+        "deprecated": false,
+        "description": "Sets the description of this node",
+        "title": "Description",
+        "type": "string",
+      },
+      "disabled": {
+        "deprecated": false,
+        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "title": "Disabled",
+        "type": "boolean",
+      },
+      "id": {
+        "deprecated": false,
+        "description": "Sets the id of this node",
+        "title": "Id",
+        "type": "string",
+      },
+      "pattern": {
+        "deprecated": false,
+        "description": "Sets the optional ExchangePattern used to invoke this endpoint",
+        "enum": [
+          "InOnly",
+          "InOut",
+        ],
+        "title": "Pattern",
+        "type": undefined,
+      },
+      "uri": {
+        "deprecated": false,
+        "description": "Sets the uri of the endpoint to send to.",
+        "title": "Uri",
+        "type": "string",
+      },
+    },
+    "required": [
+      "uri",
+    ],
+    "type": "object",
+  },
+  "title": "to",
+}
+`;
+
+exports[`CamelComponentSchemaService getVisualComponentSchema should transform a string-based \`ToD\` processor 1`] = `
+{
+  "definition": {
+    "uri": "bean:myBean?method=hello",
+  },
+  "schema": {},
+  "title": "toD",
+}
+`;
