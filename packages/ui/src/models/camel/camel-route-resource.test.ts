@@ -21,12 +21,12 @@ describe('CamelRouteResource', () => {
 });
 
 describe('getCompatibleComponents', () => {
-  it('should not provide isProducerOnly components', () => {
+  it('should not provide ProducerOnly components', () => {
     const resource = createCamelResource(camelRouteJson);
-    expect(resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' })).toBeDefined;
+    expect(resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' })).toBeDefined();
   });
 
-  it('should  provide consumerOnly components', () => {
+  it('should not provide consumerOnly components', () => {
     const resource = new CamelRouteResource(camelRouteJson);
     expect(
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
@@ -34,13 +34,14 @@ describe('getCompatibleComponents', () => {
         processorName: 'to',
         label: 'timer',
       }),
-    ).toBeDefined;
+    ).toBeDefined();
   });
 
   it('scenario for InsertSpecialChild', () => {
     const resource = createCamelResource(camelRouteJson);
-    expect(resource.getCompatibleComponents(AddStepMode.InsertSpecialChildStep, { path: 'from', label: 'timer' }))
-      .toBeDefined;
+    expect(
+      resource.getCompatibleComponents(AddStepMode.InsertSpecialChildStep, { path: 'from', label: 'timer' }),
+    ).toBeDefined();
   });
 
   it('scenario for a new step before an existing step', () => {
@@ -51,7 +52,7 @@ describe('getCompatibleComponents', () => {
         processorName: 'to',
         label: 'timer',
       }),
-    ).toBeDefined;
+    ).toBeDefined();
   });
 
   it('scenario for a new step after an existing step', () => {
@@ -62,6 +63,6 @@ describe('getCompatibleComponents', () => {
         processorName: 'to',
         label: 'timer',
       }),
-    ).toBeDefined;
+    ).toBeDefined();
   });
 });
