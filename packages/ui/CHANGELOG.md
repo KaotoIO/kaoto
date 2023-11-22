@@ -3,6 +3,58 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.3.0 (2023-11-22)
+
+### Bug Fixes
+
+* Can't delete all beans using the bean editor ([dc2a2e1](https://github.com/KaotoIO/kaoto-next/commit/dc2a2e1c3607ce473aa96c7bdcf6c92cba632cad)), closes [#245](https://github.com/KaotoIO/kaoto-next/issues/245)
+* **canvas:** Avoid rerendering the canvas component ([9b4c29c](https://github.com/KaotoIO/kaoto-next/commit/9b4c29cca3458e492960184d6be8f67a30254108))
+* **catalog:** Wait until the catalog is downloaded ([dc31fba](https://github.com/KaotoIO/kaoto-next/commit/dc31fba14db0d67a4fc1f8d41597443b1f61d8a4))
+* change title ([13f8f9a](https://github.com/KaotoIO/kaoto-next/commit/13f8f9a71e7ee0105a79c79e339d6bda5274842f))
+* delete default import ([a217ce4](https://github.com/KaotoIO/kaoto-next/commit/a217ce43c6d6ce126c29de06ef34ae9968ade986))
+* **deps:** update dependency @kaoto-next/uniforms-patternfly to ^0.5.0 ([c5a23aa](https://github.com/KaotoIO/kaoto-next/commit/c5a23aacc34cb98897e4af670709b79e80a082af))
+* **icons:** use same icons from the canvas in Catalog ([c114539](https://github.com/KaotoIO/kaoto-next/commit/c1145392eacd132b149a10b3f1a4b19ca897a381))
+* Refactor @kaoto-next/camel-catalog ([e4796d2](https://github.com/KaotoIO/kaoto-next/commit/e4796d270a61d41615d7cdf5ea7dc2f396f6640a)), closes [#311](https://github.com/KaotoIO/kaoto-next/issues/311) [#316](https://github.com/KaotoIO/kaoto-next/issues/316) [#335](https://github.com/KaotoIO/kaoto-next/issues/335) [#311](https://github.com/KaotoIO/kaoto-next/issues/311)
+* Refactor to encapsulate Camel resources ([4c1ec2e](https://github.com/KaotoIO/kaoto-next/commit/4c1ec2e6b42efce1b35a7a14eb0c615079fc3fc6)), closes [#201](https://github.com/KaotoIO/kaoto-next/issues/201)
+* **security:** Update @babel/traverse ([ba645b7](https://github.com/KaotoIO/kaoto-next/commit/ba645b72d426373eca5f51f1fcdb809f3ba17f07))
+* update test ([b4162de](https://github.com/KaotoIO/kaoto-next/commit/b4162dee5562c4b6555cc84ec6d640bd11f38f00))
+* **vite:** Update CJS to ESM for Vite ([aa2e83d](https://github.com/KaotoIO/kaoto-next/commit/aa2e83d4099bdf725a6de4c5c930d0e854ef9283))
+* **viz:** Fix broken Camel Route representation ([27cb9b8](https://github.com/KaotoIO/kaoto-next/commit/27cb9b82450ca452945e68d8afde6aa2a96c7afd))
+* **viz:** fixes [#255](https://github.com/KaotoIO/kaoto-next/issues/255), fix opening properties for all nodes ([c9b3255](https://github.com/KaotoIO/kaoto-next/commit/c9b3255ef267f9f22a5cf8ab857df7eb14e1ea5e))
+* **viz:** proper counter on visible routes, ([0f3673a](https://github.com/KaotoIO/kaoto-next/commit/0f3673aa2da8e3d9d97b7bf872a75c10983d45b2))
+
+### Features
+
+* add clipboard button ([06239ab](https://github.com/KaotoIO/kaoto-next/commit/06239abac8cc120909875044030c7e21cf3ff6e4))
+* **canvas:** Split Canvas fallback component ([e84b0ff](https://github.com/KaotoIO/kaoto-next/commit/e84b0ff606895130453b5efee63ddc9f3e8d4e54))
+* **canvas:** Wire up layout direction switch ([0fa91c4](https://github.com/KaotoIO/kaoto-next/commit/0fa91c43660b16cd28a5dcd96e34187735d9efc8))
+* **catalog:** Introduce Camel Catalog Service ([a6714ea](https://github.com/KaotoIO/kaoto-next/commit/a6714eaab0ef68e95a92104259363ce4e9abb8f4))
+* **catalog:** Minify Camel Catalog ([5c17105](https://github.com/KaotoIO/kaoto-next/commit/5c1710544af50f4f040ef7dcf94d69f801af2170))
+* **catalog:** Update Catalog API to support ITile[] ([738638b](https://github.com/KaotoIO/kaoto-next/commit/738638b5081e154c533b74888333e1b5ecd66792))
+* **icons:** Add syndesis icons in squared nodes ([6d8e084](https://github.com/KaotoIO/kaoto-next/commit/6d8e0849a37e5b5674b299e62bc9e9137baaeb21))
+* Improve component's icon visualization ([b3d905f](https://github.com/KaotoIO/kaoto-next/commit/b3d905fe91246de7983ff0a47ace272779040103))
+* **multiplying-architecture:** Provide an editor using the Multiplying architecture ([9ba3953](https://github.com/KaotoIO/kaoto-next/commit/9ba39536c52fc8c876f1b22d6ecf3fd321749745))
+* persist catalog layout globally ([279bcc8](https://github.com/KaotoIO/kaoto-next/commit/279bcc8a2dbf65e515504c5ef9d869508eb712e9))
+* **pipe:** Enable remove steps for Pipes ([1478dae](https://github.com/KaotoIO/kaoto-next/commit/1478dae62688011d8bf86615e1ba6cd0f620c575))
+* sidebar icon handling and EIP POC ([97e7f4b](https://github.com/KaotoIO/kaoto-next/commit/97e7f4bc04fecd405808a222fde02664a884b374))
+* Support configuring /PipeSpec/ErrorHandler ([1cd996f](https://github.com/KaotoIO/kaoto-next/commit/1cd996fb53a89ef41b23ba4b84c7b2e27095516f)), closes [#188](https://github.com/KaotoIO/kaoto-next/issues/188)
+* Support configuring Camel K CR metadata and Pipe errorHandler ([#233](https://github.com/KaotoIO/kaoto-next/issues/233)) ([e7ccfd7](https://github.com/KaotoIO/kaoto-next/commit/e7ccfd7d9bb2b8d42cc8cd7a28cdbfcd8ee2aaeb)), closes [#181](https://github.com/KaotoIO/kaoto-next/issues/181) [#188](https://github.com/KaotoIO/kaoto-next/issues/188)
+* Support configuring dataformat in Canvas form ([2a62d04](https://github.com/KaotoIO/kaoto-next/commit/2a62d04d070826f18bb7c5a01a3fd9ab2dd83534)), closes [#273](https://github.com/KaotoIO/kaoto-next/issues/273)
+* Support configuring expression in Canvas form ([0711250](https://github.com/KaotoIO/kaoto-next/commit/0711250c1389fed20041ff09ca27f72392e4d090)), closes [#270](https://github.com/KaotoIO/kaoto-next/issues/270)
+* **tiles:** Mark tiles as deprecated ([363f837](https://github.com/KaotoIO/kaoto-next/commit/363f83785f3e72aaedfa842800e9980845f2abe3))
+* **viz:** Add Catalog provider ([fd1217e](https://github.com/KaotoIO/kaoto-next/commit/fd1217ef85a25af6bf2042d5760049512c88946d))
+* **viz:** Add Data property to IViznode ([dfe9884](https://github.com/KaotoIO/kaoto-next/commit/dfe9884efa7a5ec7ccf4611194673ff80c4857c6))
+* **viz:** Add Loading component ([ea0cd76](https://github.com/KaotoIO/kaoto-next/commit/ea0cd76c620d31a4d88b043ef46af258a2a8ae7b))
+* **viz:** Add new nodes ([b923880](https://github.com/KaotoIO/kaoto-next/commit/b9238805c424a9ef96f607b14b244867da36ffb8))
+* **viz:** Add new nodes for CamelK Pipes ([23bdf5b](https://github.com/KaotoIO/kaoto-next/commit/23bdf5bf82a143e9d7c9600734ca4b92f2ddaded))
+* **viz:** Create FlowTemplateService to provide default flows when creating/adding new flows ([d386662](https://github.com/KaotoIO/kaoto-next/commit/d38666216d31a4f0b02462568dcfef954be9227e))
+* **viz:** Enable zoom and scroll for the canvas ([c7350a8](https://github.com/KaotoIO/kaoto-next/commit/c7350a8280baa94db1595e8cfdbbb26c8ce7f411))
+* **viz:** Filter appropriate components for Camel Route nodes ([bd38797](https://github.com/KaotoIO/kaoto-next/commit/bd38797e64403feb2ac0005c9997a5fdad3eede6))
+* **viz:** Improve remove from node from Camel Route ([7297957](https://github.com/KaotoIO/kaoto-next/commit/7297957c7ee6420ea637fbda08dc425924fa1fb6))
+* **viz:** Make New Route and delete functional ([32d40c3](https://github.com/KaotoIO/kaoto-next/commit/32d40c3ef1aea552fecee34a96bd696632372776))
+* **viz:** Remove nodes from the canvas ([ee63d54](https://github.com/KaotoIO/kaoto-next/commit/ee63d54a1bcd67a2855c74e672f5ac00354465fc))
+* **viz:** Replace Camel Route nodes ([bdc3563](https://github.com/KaotoIO/kaoto-next/commit/bdc3563e88a9bce63f6c402d4313d38793286110))
+
 # 0.2.0 (2023-10-05)
 
 ### Bug Fixes

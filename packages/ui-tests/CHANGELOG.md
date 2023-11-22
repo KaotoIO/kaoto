@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.3.0 (2023-11-22)
+
+### Bug Fixes
+
+* **canvas:** Avoid rerendering the canvas component ([9b4c29c](https://github.com/KaotoIO/kaoto-next/commit/9b4c29cca3458e492960184d6be8f67a30254108))
+
+### Features
+
+* **catalog:** Update Catalog API to support ITile[] ([738638b](https://github.com/KaotoIO/kaoto-next/commit/738638b5081e154c533b74888333e1b5ecd66792))
+* **viz:** Add new nodes ([b923880](https://github.com/KaotoIO/kaoto-next/commit/b9238805c424a9ef96f607b14b244867da36ffb8))
+
 # 0.2.0 (2023-10-05)
 
 ### Bug Fixes
