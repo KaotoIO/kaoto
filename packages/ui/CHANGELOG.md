@@ -3,12 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# 0.3.0 (2023-11-22)
+# 0.4.0 (2023-11-22)
 
 ### Bug Fixes
 
 * Can't delete all beans using the bean editor ([dc2a2e1](https://github.com/KaotoIO/kaoto-next/commit/dc2a2e1c3607ce473aa96c7bdcf6c92cba632cad)), closes [#245](https://github.com/KaotoIO/kaoto-next/issues/245)
 * **canvas:** Avoid rerendering the canvas component ([9b4c29c](https://github.com/KaotoIO/kaoto-next/commit/9b4c29cca3458e492960184d6be8f67a30254108))
+* **catalog:** Avoid adding a doFinally when already exists ([fb31357](https://github.com/KaotoIO/kaoto-next/commit/fb313570d10f07ea3f6ca08164b122647c010fc0)), closes [/github.com/KaotoIO/kaoto-next/pull/398#discussion_r1402249390](https://github.com//github.com/KaotoIO/kaoto-next/pull/398/issues/discussion_r1402249390)
+* **catalog:** Avoid offering already existing single properties. ([732220d](https://github.com/KaotoIO/kaoto-next/commit/732220d1d95fc2493cfbd2389f618df56c4493e1))
 * **catalog:** Wait until the catalog is downloaded ([dc31fba](https://github.com/KaotoIO/kaoto-next/commit/dc31fba14db0d67a4fc1f8d41597443b1f61d8a4))
 * change title ([13f8f9a](https://github.com/KaotoIO/kaoto-next/commit/13f8f9a71e7ee0105a79c79e339d6bda5274842f))
 * delete default import ([a217ce4](https://github.com/KaotoIO/kaoto-next/commit/a217ce43c6d6ce126c29de06ef34ae9968ade986))
@@ -19,6 +21,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **security:** Update @babel/traverse ([ba645b7](https://github.com/KaotoIO/kaoto-next/commit/ba645b72d426373eca5f51f1fcdb809f3ba17f07))
 * update test ([b4162de](https://github.com/KaotoIO/kaoto-next/commit/b4162dee5562c4b6555cc84ec6d640bd11f38f00))
 * **vite:** Update CJS to ESM for Vite ([aa2e83d](https://github.com/KaotoIO/kaoto-next/commit/aa2e83d4099bdf725a6de4c5c930d0e854ef9283))
+* **viz:** Add support for processor's string definition ([68c5528](https://github.com/KaotoIO/kaoto-next/commit/68c552842b74eec35826eaba63629846062917dc))
+* **viz:** Configure nodes that could contain children ([e444e67](https://github.com/KaotoIO/kaoto-next/commit/e444e6773cd825592c77ca07a9d019d97442bd99))
 * **viz:** Fix broken Camel Route representation ([27cb9b8](https://github.com/KaotoIO/kaoto-next/commit/27cb9b82450ca452945e68d8afde6aa2a96c7afd))
 * **viz:** fixes [#255](https://github.com/KaotoIO/kaoto-next/issues/255), fix opening properties for all nodes ([c9b3255](https://github.com/KaotoIO/kaoto-next/commit/c9b3255ef267f9f22a5cf8ab857df7eb14e1ea5e))
 * **viz:** proper counter on visible routes, ([0f3673a](https://github.com/KaotoIO/kaoto-next/commit/0f3673aa2da8e3d9d97b7bf872a75c10983d45b2))
@@ -47,6 +51,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **viz:** Add Loading component ([ea0cd76](https://github.com/KaotoIO/kaoto-next/commit/ea0cd76c620d31a4d88b043ef46af258a2a8ae7b))
 * **viz:** Add new nodes ([b923880](https://github.com/KaotoIO/kaoto-next/commit/b9238805c424a9ef96f607b14b244867da36ffb8))
 * **viz:** Add new nodes for CamelK Pipes ([23bdf5b](https://github.com/KaotoIO/kaoto-next/commit/23bdf5bf82a143e9d7c9600734ca4b92f2ddaded))
+* **viz:** Add Support for 'from' construct ([04c43df](https://github.com/KaotoIO/kaoto-next/commit/04c43df9d4990997e65e065b67b8f786f2ff8af6))
 * **viz:** Create FlowTemplateService to provide default flows when creating/adding new flows ([d386662](https://github.com/KaotoIO/kaoto-next/commit/d38666216d31a4f0b02462568dcfef954be9227e))
 * **viz:** Enable zoom and scroll for the canvas ([c7350a8](https://github.com/KaotoIO/kaoto-next/commit/c7350a8280baa94db1595e8cfdbbb26c8ce7f411))
 * **viz:** Filter appropriate components for Camel Route nodes ([bd38797](https://github.com/KaotoIO/kaoto-next/commit/bd38797e64403feb2ac0005c9997a5fdad3eede6))
