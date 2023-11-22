@@ -116,8 +116,8 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       if (!definitionKeys.includes('otherwise')) {
         specialChildren.choice.push('otherwise');
       }
-      if (!definitionKeys.includes('doTry')) {
-        specialChildren.doTry.push('doTry');
+      if (!definitionKeys.includes('doFinally')) {
+        specialChildren.doTry.push('doFinally');
       }
 
       /**
