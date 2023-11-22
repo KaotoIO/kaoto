@@ -1,11 +1,10 @@
-name: Move assigned issues into In Progress
-
+name: Move assigned card
 on:
   issues:
-    types: [assigned]
-
+    types:
+      - assigned
 jobs:
-  automate-project-columns:
+  move-assigned-card:
     runs-on: ubuntu-latest
     steps:
       - uses: alex-page/github-project-automation-plus@v0.8.3
