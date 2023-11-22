@@ -25,7 +25,12 @@ export interface CamelResource {
   getType(): SourceSchemaType;
 
   /** Components Catalog related methods */
-  getCompatibleComponents(mode: AddStepMode, visualEntityData: IVisualizationNodeData): TileFilter | undefined;
+  getCompatibleComponents(
+    mode: AddStepMode,
+    visualEntityData: IVisualizationNodeData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+  ): TileFilter | undefined;
 }
 
 export interface BeansAwareResource {
