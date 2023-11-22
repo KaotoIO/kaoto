@@ -83,7 +83,12 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   /** Components Catalog related methods */
-  getCompatibleComponents(mode: AddStepMode, visualEntityData: CamelRouteVisualEntityData): TileFilter {
+  getCompatibleComponents(
+    mode: AddStepMode,
+    visualEntityData: CamelRouteVisualEntityData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+  ): TileFilter {
     if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
       /**
        * For the `from` step we want to show only components which are not `producerOnly`,
@@ -102,9 +107,18 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
        * specialChildren is a map of processor names and their special children.
        */
       const specialChildren: Record<string, string[]> = {
-        choice: ['when', 'otherwise'],
-        doTry: ['doCatch', 'doFinally'],
+        choice: ['when'],
+        doTry: ['doCatch'],
       };
+
+      /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */
+      const definitionKeys = Object.keys(definition ?? {});
+      if (!definitionKeys.includes('otherwise')) {
+        specialChildren.choice.push('otherwise');
+      }
+      if (!definitionKeys.includes('doTry')) {
+        specialChildren.doTry.push('doTry');
+      }
 
       /**
        * For special child steps, we need to check which type of processor it is, in order to determine

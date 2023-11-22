@@ -308,6 +308,10 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
       case 'single-clause':
         const childPath = `${path}.${stepsProperty.name}`;
         const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
+
+        /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
+        if (get(this.route, childPath) === undefined) return [];
+
         return [this.getVizNodeFromProcessor(childPath, childComponentLookup)];
 
       case 'clause-list':

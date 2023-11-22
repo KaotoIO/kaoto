@@ -262,6 +262,41 @@ describe('Camel Route', () => {
       expect(vizNode.data.label).toEqual('from: Unknown');
     });
 
+    it('should not create a viz node if a single-clause property is not defined', () => {
+      const vizNode = new CamelRouteVisualEntity({
+        from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
+      } as unknown as RouteDefinition).toVizNode();
+
+      /** Given a structure of
+       * from
+       *  - choice
+       *    - when
+       *      - log
+       */
+
+      /** from */
+      expect(vizNode.data.path).toEqual('from');
+      expect(vizNode.data.label).toEqual('timer');
+      /** Since this is the root node, there's no previous step */
+      expect(vizNode.getPreviousNode()).toBeUndefined();
+      expect(vizNode.getNextNode()).toBeUndefined();
+      expect(vizNode.getChildren()).toHaveLength(1);
+
+      /** choice */
+      const choiceNode = vizNode.getChildren()?.[0] as IVisualizationNode;
+      expect(choiceNode.data.path).toEqual('from.steps.0.choice');
+      expect(choiceNode.data.label).toEqual('choice');
+      expect(choiceNode.getPreviousNode()).toBeUndefined();
+      expect(choiceNode.getNextNode()).toBeUndefined();
+      expect(choiceNode.getChildren()).toHaveLength(1);
+
+      /** choice.when */
+      const whenNode = choiceNode.getChildren()?.[0];
+      expect(whenNode).toBeDefined();
+      expect(whenNode!.data.path).toEqual('from.steps.0.choice.when.0');
+      expect(whenNode!.data.label).toEqual('when');
+    });
+
     it('should populate the viz node chain with the steps', () => {
       const vizNode = camelEntity.toVizNode();
 
