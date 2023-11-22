@@ -1,0 +1,100 @@
+{
+  "route": {
+    "from": {
+      "uri": "webhook",
+      "parameters": {},
+      "steps": [
+        {
+          "to": {
+            "id": "to-2015",
+            "uri": "log",
+            "parameters": {}
+          }
+        },
+        {
+          "choice": {
+            "when": [
+              {
+                "when": {},
+                "steps": [
+                  {
+                    "to": {
+                      "id": "to-1528",
+                      "uri": "log",
+                      "parameters": {}
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "when-1938",
+                "simple": "${header.foo} == 1",
+                "steps": [
+                  {
+                    "log": {
+                      "id": "log-2139",
+                      "message": "${body}"
+                    }
+                  }
+                ]
+              }
+            ],
+            "otherwise": {
+              "id": "otherwise-3846",
+              "steps": [
+                {
+                  "log": {
+                    "id": "log-1723",
+                    "message": "${body}"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "to": {
+            "id": "to-2118",
+            "uri": "aws2-s3",
+            "parameters": {}
+          }
+        },
+        {
+          "doTry": {
+            "id": "doTry-1388",
+            "doCatch": [
+              {
+                "doCatch": {}
+              },
+              {
+                "id": "doCatch-2642",
+                "steps": []
+              }
+            ],
+            "doFinally": {
+              "id": "doFinally-6670",
+              "steps": []
+            },
+            "steps": []
+          }
+        },
+        {
+          "to": {
+            "id": "to-2744",
+            "uri": "log",
+            "parameters": {}
+          }
+        },
+        {
+          "to": {
+            "id": "to-2300",
+            "uri": "kafka",
+            "parameters": {}
+          }
+        }
+      ],
+      "id": "from-5869"
+    },
+    "id": "route-8888"
+  }
+}
