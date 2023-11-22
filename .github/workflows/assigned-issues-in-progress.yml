@@ -11,4 +11,4 @@ jobs:
         with:
           project: kaoto-next
           column: In Progress
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.GHPROJECT_TOKEN }}
