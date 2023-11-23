@@ -17,13 +17,10 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
     if (!vizNode || !entitiesContext) return;
 
     /** Find compatible components */
-    const compatibleNodes = entitiesContext.camelResource.getCompatibleComponents(
-      AddStepMode.ReplaceStep,
-      vizNode.data,
-    );
+    const catalogFilter = entitiesContext.camelResource.getCompatibleComponents(AddStepMode.ReplaceStep, vizNode.data);
 
     /** Open Catalog modal, filtering the compatible nodes */
-    const definedComponent = await catalogModalContext?.getNewComponent(compatibleNodes);
+    const definedComponent = await catalogModalContext?.getNewComponent(catalogFilter);
     if (!definedComponent) return;
 
     /** Add new node to the entities */
