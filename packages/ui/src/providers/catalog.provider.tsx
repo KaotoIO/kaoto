@@ -17,32 +17,44 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
     fetch(`${props.catalogUrl}/index.json`)
       .then((response) => response.json())
       .then(async (catalogIndex: CamelCatalogIndex) => {
+        /** Camel Component list */
         const camelComponentsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Component]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.components.file}`,
         );
-        const camelProcessorsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
+        /** Full list of Camel Models, used as lookup for processors definitions definitions */
+        const camelModelsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
+          `${props.catalogUrl}/${catalogIndex.catalogs.models.file}`,
+        );
+        /** Short list of patterns (EIPs) to fill the Catalog, as opposed of the CatalogKind.Processor which have all definitions */
+        const camelPatternsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Pattern]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.patterns.file}`,
         );
+        /** Camel Languages list */
         const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.languages.file}`,
         );
+        /** Camel Dataformats list */
         const camelDataformatsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Dataformat]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.dataformats.file}`,
         );
+        /** Camel Kamelets definitions list (CRDs) */
         const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.kamelets.file}`,
         );
 
-        const [camelComponents, camelProcessors, camelLanguages, camelDataformats, kamelets] = await Promise.all([
-          camelComponentsFiles,
-          camelProcessorsFiles,
-          camelLanguagesFiles,
-          camelDataformatsFiles,
-          kameletsFiles,
-        ]);
+        const [camelComponents, camelModels, camelPatterns, camelLanguages, camelDataformats, kamelets] =
+          await Promise.all([
+            camelComponentsFiles,
+            camelModelsFiles,
+            camelPatternsFiles,
+            camelLanguagesFiles,
+            camelDataformatsFiles,
+            kameletsFiles,
+          ]);
 
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
-        CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelProcessors.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kamelets.body);
