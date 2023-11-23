@@ -14,9 +14,14 @@ export class CamelComponentDefaultService {
    * Get the default definition for the `from` component
    */
   static getDefaultFromDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
+    let uri = definedComponent.name;
+    if (definedComponent.type === CatalogKind.Kamelet) {
+      uri = this.getPrefixedKameletName(definedComponent.name);
+    }
+
     return parse(`
       id: ${getCamelRandomId('from')}
-      uri: "${definedComponent.name}"
+      uri: "${uri}"
       parameters: {}
     `);
   }
@@ -51,7 +56,7 @@ export class CamelComponentDefaultService {
       default:
         return parse(`
           to:
-            uri: "kamelet:${kameletName}"
+            uri: "${this.getPrefixedKameletName(kameletName)}"
             id: ${getCamelRandomId('to')}
         `);
     }
@@ -98,5 +103,9 @@ export class CamelComponentDefaultService {
           [processorName]: {},
         };
     }
+  }
+
+  private static getPrefixedKameletName(kameletName: string): string {
+    return `kamelet:${kameletName}`;
   }
 }
