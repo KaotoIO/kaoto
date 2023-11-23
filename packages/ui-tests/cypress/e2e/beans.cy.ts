@@ -99,13 +99,13 @@ describe('Test for Bean support', () => {
     cy.openSourceCode();
     cy.checkCodeSpanLine('- name: test2', 0);
     cy.checkCodeSpanLine('value: value', 0);
-    // blocked ATM by - https://github.com/KaotoIO/kaoto-next/issues/245
-    // cy.openBeans();
-    // cy.get('[data-testid="metadata-delete-0-btn"]').click();
-    // cy.get('[data-testid="metadata-row-0"]').should('not.exist');
-    // // CHECK the second bean was deleted in the code editor
-    // cy.openSourceCode();
-    // cy.checkCodeSpanLine('- name: test', 0);
-    // cy.checkCodeSpanLine('type: org.acme', 0);
+
+    cy.openBeans();
+    cy.get('[data-testid="metadata-delete-0-btn"]').click();
+    cy.get('[data-testid="metadata-row-0"]').should('not.exist');
+    // CHECK the second bean was deleted in the code editor
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('- name: test', 0);
+    cy.checkCodeSpanLine('type: org.acme', 0);
   });
 });

@@ -46,7 +46,7 @@ Cypress.Commands.add('openMetadata', () => {
 
 Cypress.Commands.add('openPipeErrorHandler', () => {
   cy.get('[data-testid="Pipe ErrorHandler"]').click();
-  cy.get('[data-testid="metadata-editor-form-ErrorHandler"]').should('be.visible');
+  cy.get('h1.pf-v5-c-title').should('contain.text', 'Pipe ErrorHandler Configuration');
 });
 
 Cypress.Commands.add('openCatalog', () => {
