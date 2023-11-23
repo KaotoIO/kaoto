@@ -1,13 +1,13 @@
-import { CatalogKind } from './catalog-kind';
+import { FromDefinition, Kamelet, ObjectMeta } from '@kaoto-next/camel-catalog/types';
+import { SourceSchemaType } from './camel/source-schema-type';
 
-export interface IKameletDefinition {
-  apiVersion: string;
-  kind: CatalogKind.Kamelet;
+export interface IKameletDefinition extends Omit<Kamelet, 'kind' | 'metadata' | 'spec'> {
+  kind: SourceSchemaType.Kamelet;
   metadata: IKameletMetadata;
   spec: IKameletSpec;
 }
 
-export interface IKameletMetadata {
+export interface IKameletMetadata extends ObjectMeta {
   name: string;
   annotations: IKameletMetadataAnnotations;
   labels: IKameletMetadataLabels;
@@ -20,10 +20,12 @@ export interface IKameletMetadataAnnotations {
   'camel.apache.org/provider': string;
   'camel.apache.org/kamelet.group': string;
   'camel.apache.org/kamelet.namespace': string;
+  [k: string]: string;
 }
 
 export interface IKameletMetadataLabels {
   'camel.apache.org/kamelet.type': string;
+  [k: string]: string;
 }
 
 export interface IKameletSpec {
@@ -31,7 +33,7 @@ export interface IKameletSpec {
   dependencies: string[];
   template: {
     beans: unknown;
-    from: unknown;
+    from: FromDefinition;
   };
 }
 

@@ -1,10 +1,10 @@
 import {
   Integration as IntegrationType,
   KameletBinding as KameletBindingType,
-  Kamelet as KameletType,
   Pipe as PipeType,
 } from '@kaoto-next/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { BeansEntity } from '../visualization/metadata';
 import { CamelRouteResource } from './camel-route-resource';
@@ -60,7 +60,7 @@ function doCreateCamelResource(json?: unknown, type?: SourceSchemaType): CamelRe
     case SourceSchemaType.Integration:
       return new IntegrationResource(json as IntegrationType);
     case SourceSchemaType.Kamelet:
-      return new KameletResource(json as KameletType);
+      return new KameletResource(json as IKameletDefinition);
     case SourceSchemaType.KameletBinding:
       return new KameletBindingResource(json as KameletBindingType);
     case SourceSchemaType.Pipe:
