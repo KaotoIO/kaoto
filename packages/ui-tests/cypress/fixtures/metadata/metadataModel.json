@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "name": "test-Name",
+    "namespace": "test-Namespace",
+    "generateName": "test-Generate name",
+    "generation": "4",
+    "deletionTimestamp": "test-Deletion timestamp",
+    "deletionGracePeriodSeconds": 1000,
+    "creationTimestamp": "2023-10-12",
+    "resourceVersion": "test-Resource version ",
+    "selfLink": "test-Self link ",
+    "uid": "test-Uid"
+  }
+}

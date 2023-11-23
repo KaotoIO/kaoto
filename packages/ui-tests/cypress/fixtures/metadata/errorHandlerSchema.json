@@ -1,0 +1,89 @@
+{
+  "logErrorHandler": {
+    "title": "Log Pipe ErrorHandler",
+    "type": "object",
+    "properties": {
+      "log": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "maximumRedeliveries": {
+                "type": "number"
+              },
+              "redeliveryDelay": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "required": ["log"]
+  },
+  "sinkErrorHandler": {
+    "title": "Sink Pipe ErrorHandler",
+    "type": "object",
+    "properties": {
+      "sink": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "endpoint": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "apiVersion": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["kind", "apiVersion", "name"]
+              },
+              "properties": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "maximumRedeliveries": {
+                "type": "number"
+              },
+              "redeliveryDelay": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "required": ["sink"]
+  }
+}
