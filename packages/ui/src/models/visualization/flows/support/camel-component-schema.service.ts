@@ -1,13 +1,12 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
 import { isDefined } from '../../../../utils';
-import { ICamelComponentProperty } from '../../../camel-components-catalog';
-import { ICamelLanguageProperty } from '../../../camel-languages-catalog';
-import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
+import { ComponentsCatalogTypes } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { NodeDefinitionService } from './node-definition.service';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -136,28 +135,6 @@ export class CamelComponentSchemaService {
   }
 
   /**
-   * Transform Camel property types into JSON Schema types
-   *
-   * This is needed because the Camel Catalog is using different types than JSON Schema
-   * For instance, the Camel Catalog is using `duration` instead of `number`
-   */
-  static getJSONType(property: ICamelProcessorProperty | ICamelComponentProperty): string | undefined {
-    /** Camel defines enum as a type, whereas it should be string and let uniforms handle the right field */
-    if (Array.isArray(property.enum)) {
-      return undefined;
-    }
-
-    switch (property.type) {
-      /** Camel defines duration as string since it supports placeholders */
-      case 'duration':
-        return 'string';
-
-      default:
-        return property.type;
-    }
-  }
-
-  /**
    * If the processor is a `from` or `to` processor, we need to extract the component name from the uri property
    * and return both the processor name and the underlying component name to build the combined schema
    */
@@ -215,16 +192,24 @@ export class CamelComponentSchemaService {
 
     if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;
 
-    const schema = this.getSchemaFromCamelCommonProperties(processorDefinition.properties);
+    const schema = NodeDefinitionService.getSchemaFromCamelCommonProperties(processorDefinition.properties);
 
     if (camelElementLookup.componentName !== undefined) {
-      const componentDefinition = CamelCatalogService.getComponent(
-        CatalogKind.Component,
-        camelElementLookup.componentName,
-      );
+      let componentDefinition: ComponentsCatalogTypes | undefined;
+      let componentSchema: JSONSchemaType<unknown>;
 
-      if (componentDefinition !== undefined) {
-        const componentSchema = this.getSchemaFromCamelCommonProperties(componentDefinition.properties);
+      if (camelElementLookup.componentName.startsWith('kamelet:')) {
+        componentDefinition = CamelCatalogService.getComponent(
+          CatalogKind.Kamelet,
+          camelElementLookup.componentName.replace('kamelet:', ''),
+        );
+        componentSchema = NodeDefinitionService.getSchemaFromKameletDefinition(componentDefinition);
+      } else {
+        componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName);
+        componentSchema = NodeDefinitionService.getSchemaFromCamelCommonProperties(componentDefinition?.properties);
+      }
+
+      if (componentDefinition !== undefined && componentSchema !== undefined) {
         schema.properties.parameters = {
           type: 'object',
           title: 'Endpoint Properties',
@@ -234,44 +219,6 @@ export class CamelComponentSchemaService {
         };
       }
     }
-
-    return schema;
-  }
-
-  /**
-   * Transform Camel Common properties into a JSON Schema
-   * @TODO Now this is also used by {@link ExpressionService} and will be used for dataformats for next, possibly move it to a common place
-   */
-  static getSchemaFromCamelCommonProperties(
-    properties: Record<string, ICamelProcessorProperty | ICamelComponentProperty | ICamelLanguageProperty>,
-  ): JSONSchemaType<unknown> {
-    const required: string[] = [];
-    const schema = {
-      type: 'object',
-      properties: {},
-      required,
-    } as unknown as JSONSchemaType<unknown>;
-
-    Object.keys(properties).forEach((propertyName) => {
-      const property = properties[propertyName];
-      const propertyType = this.getJSONType(property);
-      const propertySchema = {
-        type: propertyType,
-        title: property.displayName,
-        description: property.description,
-        deprecated: property.deprecated,
-      } as unknown as JSONSchemaType<unknown>;
-
-      if (property.enum !== undefined) {
-        propertySchema.enum = property.enum;
-      }
-
-      if (property.required) {
-        required.push(propertyName);
-      }
-
-      schema.properties[propertyName] = propertySchema;
-    });
 
     return schema;
   }

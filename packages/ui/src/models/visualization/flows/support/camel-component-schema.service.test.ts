@@ -5,7 +5,6 @@ import { logComponent } from '../../../../stubs/log-component';
 import { logModel } from '../../../../stubs/log-model';
 import { timerComponent } from '../../../../stubs/timer-component';
 import { toModel } from '../../../../stubs/to-model';
-import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 
@@ -273,64 +272,6 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
-  describe('getJSONType', () => {
-    it('should return the JSON type for enums', () => {
-      const enumProperty: ICamelProcessorProperty = {
-        index: 1,
-        kind: 'attribute',
-        displayName: 'Library',
-        required: false,
-        type: 'enum',
-        javaType: 'org.apache.camel.model.dataformat.AvroLibrary',
-        enum: ['ApacheAvro', 'Jackson'],
-        deprecated: false,
-        autowired: false,
-        secret: false,
-        defaultValue: 'ApacheAvro',
-        description: 'Which Avro library to use.',
-      };
-
-      const jsonType = CamelComponentSchemaService.getJSONType(enumProperty);
-      expect(jsonType).toEqual(undefined);
-    });
-
-    it('should return the JSON type for a duration field', () => {
-      const durationProperty: ICamelProcessorProperty = {
-        index: 1,
-        kind: 'attribute',
-        displayName: 'Batch Timeout',
-        required: false,
-        type: 'duration',
-        javaType: 'java.lang.String',
-        deprecated: false,
-        autowired: false,
-        secret: false,
-        defaultValue: '1000',
-        description: 'Sets the timeout for collecting elements to be re-ordered. The default timeout is 1000 msec.',
-      };
-      const jsonType = CamelComponentSchemaService.getJSONType(durationProperty);
-      expect(jsonType).toEqual('string');
-    });
-
-    it('should return the JSON type for a duration field', () => {
-      const objectProperty: ICamelProcessorProperty = {
-        index: 0,
-        kind: 'expression',
-        displayName: 'Correlation Expression',
-        required: true,
-        type: 'object',
-        javaType: 'org.apache.camel.model.ExpressionSubElementDefinition',
-        oneOf: ['python', 'xpath'],
-        deprecated: false,
-        autowired: false,
-        secret: false,
-        description: 'The expression used to calculate the correlation key to use for aggregation.',
-      };
-      const jsonType = CamelComponentSchemaService.getJSONType(objectProperty);
-      expect(jsonType).toEqual('object');
-    });
-  });
-
   describe('getComponentNameFromUri', () => {
     it('should return undefined if the uri is empty', () => {
       const componentName = CamelComponentSchemaService.getComponentNameFromUri('');
@@ -347,19 +288,6 @@ describe('CamelComponentSchemaService', () => {
       const uri = 'timer:foo?delay=1000&period=1000';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
       expect(componentName).toEqual('timer');
-    });
-  });
-
-  describe('getSchemaFromCamelCommonProperties', () => {
-    it('should return an empty schema if the properties are empty', () => {
-      const schema = CamelComponentSchemaService.getSchemaFromCamelCommonProperties({});
-      expect(schema).toEqual({ properties: {}, required: [], type: 'object' });
-    });
-
-    it('should return a schema with the properties', () => {
-      const schema = CamelComponentSchemaService.getSchemaFromCamelCommonProperties(logModel.properties);
-
-      expect(schema).toMatchSnapshot();
     });
   });
 });
