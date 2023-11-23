@@ -13,11 +13,6 @@ Cypress.Commands.add('editorAddText', (line, text) => {
 Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
   cy.get('.pf-v5-c-code-editor__main > input').attachFile(fixture);
-  cy.syncUpCodeChanges();
-});
-
-Cypress.Commands.add('syncUpCodeChanges', () => {
-  cy.get('[data-testid="sourceCode--applyButton"]').click();
 });
 
 Cypress.Commands.add('editorDeleteLine', (line, repeatCount) => {

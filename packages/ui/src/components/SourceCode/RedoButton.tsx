@@ -15,7 +15,7 @@ export const RedoButton: FunctionComponent<IRedoIcon> = (props) => {
       aria-label="Redo change"
       data-testid="sourceCode--redoButton"
       onClick={props.onClick}
-      tooltipProps={{content: 'Redo change', position: 'top'}}
+      tooltipProps={{ content: 'Redo change', position: 'top' }}
       isVisible={true}
     />
   );

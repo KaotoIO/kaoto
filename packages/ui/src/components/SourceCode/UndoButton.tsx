@@ -15,7 +15,7 @@ export const UndoButton: FunctionComponent<IUndoIcon> = (props) => {
       aria-label="Undo change"
       data-testid="sourceCode--undoButton"
       onClick={props.onClick}
-      tooltipProps={{content: 'Undo change', position: 'top'}}
+      tooltipProps={{ content: 'Undo change', position: 'top' }}
       isVisible={true}
     />
   );
