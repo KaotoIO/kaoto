@@ -1,8 +1,9 @@
-import { CatalogKind, IKameletDefinition } from '../models';
+import { IKameletDefinition } from '../models';
+import { SourceSchemaType } from '../models/camel';
 
 export const xjTemplateAction: IKameletDefinition = {
   apiVersion: 'camel.apache.org/v1',
-  kind: CatalogKind.Kamelet,
+  kind: SourceSchemaType.Kamelet,
   metadata: {
     name: 'xj-template-action',
     annotations: {

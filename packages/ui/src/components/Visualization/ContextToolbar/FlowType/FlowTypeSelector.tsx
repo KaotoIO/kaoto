@@ -98,6 +98,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       <SelectList>
         {Object.entries({
           [SourceSchemaType.Route]: sourceSchemaConfig.config[SourceSchemaType.Route],
+          [SourceSchemaType.Kamelet]: sourceSchemaConfig.config[SourceSchemaType.Kamelet],
           [SourceSchemaType.Pipe]: sourceSchemaConfig.config[SourceSchemaType.Pipe],
         }).map((obj, index) => {
           const sourceType = obj[0] as SourceSchemaType;

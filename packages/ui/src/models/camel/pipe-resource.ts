@@ -30,9 +30,9 @@ export class PipeResource extends CamelKResource {
       this.pipe.spec.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
   }
 
-  removeEntity(_id?: string): void {
+  removeEntity(): void {
     super.removeEntity();
-    const flowTemplate = flowTemplateService.getFlowTemplate(this.getType())!;
+    const flowTemplate: PipeType = flowTemplateService.getFlowTemplate(this.getType());
     this.pipe.spec = flowTemplate.spec;
     this.flow = new PipeVisualEntity(flowTemplate.spec);
   }
@@ -53,10 +53,6 @@ export class PipeResource extends CamelKResource {
     return this.flow ? [this.flow] : [];
   }
 
-  supportsMultipleVisualEntities(): boolean {
-    return false;
-  }
-
   toJSON(): PipeType {
     return this.pipe;
   }
@@ -74,11 +70,6 @@ export class PipeResource extends CamelKResource {
   deleteErrorHandlerEntity() {
     this.pipe.spec!.errorHandler = undefined;
     this.errorHandler = undefined;
-  }
-
-  addNewEntity(): string {
-    //not supported
-    return '';
   }
 
   /** Components Catalog related methods */

@@ -3,6 +3,7 @@ import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
+import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
 import { createCamelResource } from './camel-resource';
 import { CamelRouteResource } from './camel-route-resource';
@@ -146,49 +147,13 @@ describe('CamelRouteResource', () => {
   });
 
   describe('getCompatibleComponents', () => {
-    it('should not provide ProducerOnly components', () => {
+    it('should delegate to the CamelComponentFilterService', () => {
+      const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCompatibleComponents');
+
       const resource = createCamelResource(camelRouteJson);
-      expect(resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' })).toBeDefined();
-    });
+      resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
 
-    it('should not provide consumerOnly components', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
-      expect(
-        resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
-          path: 'from.steps.2.to',
-          processorName: 'to',
-          label: 'timer',
-        }),
-      ).toBeDefined();
-    });
-
-    it('scenario for InsertSpecialChild', () => {
-      const resource = createCamelResource(camelRouteJson);
-      expect(
-        resource.getCompatibleComponents(AddStepMode.InsertSpecialChildStep, { path: 'from', label: 'timer' }),
-      ).toBeDefined();
-    });
-
-    it('scenario for a new step before an existing step', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
-      expect(
-        resource.getCompatibleComponents(AddStepMode.PrependStep, {
-          path: 'from.steps.0.to',
-          processorName: 'to',
-          label: 'timer',
-        }),
-      ).toBeDefined();
-    });
-
-    it('scenario for a new step after an existing step', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
-      expect(
-        resource.getCompatibleComponents(AddStepMode.AppendStep, {
-          path: 'from.steps.1.to',
-          processorName: 'to',
-          label: 'timer',
-        }),
-      ).toBeDefined();
+      expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
     });
   });
 });

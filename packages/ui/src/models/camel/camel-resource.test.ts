@@ -29,11 +29,11 @@ describe('createCamelResource', () => {
     expect(resource.getVisualEntities()).toEqual([]);
   });
 
-  it('should create an empty CamelRouteResource if no args is specified', () => {
+  it('should create an empty KameletResource if no args is specified', () => {
     const resource = createCamelResource(undefined, SourceSchemaType.Kamelet);
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities()).toEqual([]);
+    expect(resource.getVisualEntities()).toMatchSnapshot();
   });
 
   it('should create an empty CameletBindingResource if no args is specified', () => {

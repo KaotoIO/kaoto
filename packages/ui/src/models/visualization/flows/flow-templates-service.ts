@@ -1,5 +1,6 @@
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { parse } from 'yaml';
+import { SourceSchemaType } from '../../camel/source-schema-type';
+import { kameletTemplate } from './templates/kamelet';
 
 export class FlowTemplateService {
   getFlowTemplate = (type: SourceSchemaType) => {
@@ -26,7 +27,7 @@ spec:
       kind: Kamelet
       apiVersion: camel.apache.org/v1
       name: log-sink`;
-        break;
+
       case SourceSchemaType.Route:
         return `- route:
     from:
@@ -36,6 +37,10 @@ spec:
       steps:
         - log:
             message: template message`;
+
+      case SourceSchemaType.Kamelet:
+        return kameletTemplate();
+
       default:
         return '';
     }
