@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodeDefinitionService getSchemaFromCamelCommonProperties should return a schema with the properties 1`] = `
+{
+  "properties": {
+    "description": {
+      "deprecated": false,
+      "description": "Sets the description of this node",
+      "title": "Description",
+      "type": "string",
+    },
+    "disabled": {
+      "deprecated": false,
+      "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+      "title": "Disabled",
+      "type": "boolean",
+    },
+    "id": {
+      "deprecated": false,
+      "description": "Sets the id of this node",
+      "title": "Id",
+      "type": "string",
+    },
+    "logName": {
+      "deprecated": false,
+      "description": "Sets the name of the logger",
+      "title": "Log Name",
+      "type": "string",
+    },
+    "logger": {
+      "deprecated": false,
+      "description": "To refer to a custom logger instance to lookup from the registry.",
+      "title": "Logger",
+      "type": "object",
+    },
+    "loggingLevel": {
+      "deprecated": false,
+      "description": "Sets the logging level. The default value is INFO",
+      "enum": [
+        "TRACE",
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "ERROR",
+        "OFF",
+      ],
+      "title": "Logging Level",
+      "type": undefined,
+    },
+    "marker": {
+      "deprecated": false,
+      "description": "To use slf4j marker",
+      "title": "Marker",
+      "type": "string",
+    },
+    "message": {
+      "deprecated": false,
+      "description": "Sets the log message (uses simple language)",
+      "title": "Message",
+      "type": "string",
+    },
+  },
+  "required": [
+    "message",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`NodeDefinitionService getSchemaFromKameletDefinition should mark the required properties in the schema 1`] = `
+{
+  "properties": {
+    "direction": {
+      "description": "The transform direction.",
+      "title": "Direction",
+      "type": "string",
+    },
+    "template": {
+      "description": "The inline template to apply a transformation through template.",
+      "title": "Template",
+      "type": "string",
+    },
+  },
+  "required": [
+    "direction",
+    "template",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`NodeDefinitionService getSchemaFromKameletDefinition should return a schema with the properties 1`] = `
+{
+  "properties": {
+    "period": {
+      "description": "The time interval between two events",
+      "title": "Period",
+      "type": "integer",
+    },
+  },
+  "required": [],
+  "type": "object",
+}
+`;

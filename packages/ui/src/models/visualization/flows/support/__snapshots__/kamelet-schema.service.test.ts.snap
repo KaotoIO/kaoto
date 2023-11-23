@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`KameletSchemaService should build the appropriate schema for kamelets 1`] = `
+{
+  "definition": {},
+  "schema": {
+    "properties": {
+      "period": {
+        "description": "The time interval between two events",
+        "title": "Period",
+        "type": "integer",
+      },
+    },
+    "required": [],
+    "type": "object",
+  },
+  "title": "beer-source",
+}
+`;
+
+exports[`KameletSchemaService should build the appropriate schema for kamelets with required properties 1`] = `
+{
+  "definition": {},
+  "schema": {
+    "properties": {
+      "direction": {
+        "description": "The transform direction.",
+        "title": "Direction",
+        "type": "string",
+      },
+      "template": {
+        "description": "The inline template to apply a transformation through template.",
+        "title": "Template",
+        "type": "string",
+      },
+    },
+    "required": [
+      "direction",
+      "template",
+    ],
+    "type": "object",
+  },
+  "title": "xj-template-action",
+}
+`;
+
+exports[`KameletSchemaService should provide a default empty string if the kamelet name is not found 1`] = `
+{
+  "definition": {},
+  "schema": {
+    "properties": {
+      "period": {
+        "description": "The time interval between two events",
+        "title": "Period",
+        "type": "integer",
+      },
+    },
+    "required": [],
+    "type": "object",
+  },
+  "title": "",
+}
+`;
