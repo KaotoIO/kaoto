@@ -51,6 +51,3 @@ spec:
       kind: Kamelet
       apiVersion: camel.apache.org/v1
       name: log-sink
-
-
-

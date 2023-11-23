@@ -1,0 +1,25 @@
+apiVersion: camel.apache.org/v1
+kind: Pipe
+metadata:
+  name: webhook-binding
+spec:
+  errorHandler:
+    log:
+      parameters:
+        maximumRedeliveries: 3
+        redeliveryDelay: 2000
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1
+      name: webhook-source
+  steps:
+    - ref:
+        kind: Kamelet
+        apiVersion: camel.apache.org/v1
+        name: delay-action
+  sink:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1
+      name: log-sink
