@@ -7,6 +7,8 @@ import { SyncButton } from './SyncButton';
 import './workers/enable-workers';
 import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
+import { UndoButton } from './UndoButton';
+import { RedoButton } from './RedoButton';
 
 interface SourceCodeProps {
   code: string;
@@ -56,8 +58,20 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
     quickSuggestions: { other: true, strings: true, comments: true },
   });
 
+  const undoAction = () => {
+    (editorRef.current?.getModel() as any)?.undo();
+  }
+
+  const redoAction = () => {
+    (editorRef.current?.getModel() as any)?.redo();
+  }
+
   const customControls = useMemo(() => {
-    return [<SyncButton key="sync-button" isDirty={false} isVisible onClick={() => undefined} />];
+    return [
+      <UndoButton key="undo-button" isVisible onClick={() => undoAction} />,
+      <RedoButton key="redo-button" isVisible onClick={() => redoAction} />,
+      <SyncButton key="sync-button" isDirty={false} isVisible onClick={() => undefined} />,
+    ];
   }, []);
 
   return (
