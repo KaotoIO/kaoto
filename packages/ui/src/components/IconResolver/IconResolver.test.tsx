@@ -23,18 +23,11 @@ describe('IconResolver', () => {
     const kameletTile = {
       ...mockTile,
       type: CatalogKind.Kamelet,
-      rawObject: {
-        metadata: {
-          annotations: {
-            'camel.apache.org/kamelet.icon': 'kamelet-icon.svg',
-          },
-        },
-      },
+      rawObject: {},
     };
 
     const { container } = render(<IconResolver tile={kameletTile} />);
 
     expect(container.querySelector('img')).toHaveAttribute('alt', 'kamelet icon');
-    expect(container.querySelector('img')).toHaveAttribute('src', 'kamelet-icon.svg');
   });
 });

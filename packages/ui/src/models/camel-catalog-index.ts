@@ -45,6 +45,7 @@ export type DefinedComponent = {
 export interface ComponentsCatalog {
   [CatalogKind.Component]?: Record<string, ICamelComponentDefinition>;
   [CatalogKind.Processor]?: Record<string, ICamelProcessorDefinition>;
+  [CatalogKind.Pattern]?: Record<string, ICamelProcessorDefinition>;
   [CatalogKind.Language]?: Record<string, ICamelLanguageDefinition>;
   [CatalogKind.Dataformat]?: Record<string, ICamelDataformatDefinition>;
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;

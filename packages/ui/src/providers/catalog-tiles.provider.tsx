@@ -19,7 +19,13 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     Object.values(catalogService.getCatalogByKey(CatalogKind.Component) ?? {}).forEach((component) => {
       combinedTiles.push(camelComponentToTile(component));
     });
-    Object.values(catalogService.getCatalogByKey(CatalogKind.Processor) ?? {}).forEach((processor) => {
+    /**
+     * To build the Patterns catalog, we use the short list, as opposed of the CatalogKind.Processor which have all definitions
+     * This is because the short list contains only the patterns that can be used within an integration.
+     *
+     * The full list of patterns is available in the CatalogKind.Processor catalog and it's being used as lookup for components properties.
+     */
+    Object.values(catalogService.getCatalogByKey(CatalogKind.Pattern) ?? {}).forEach((processor) => {
       combinedTiles.push(camelProcessorToTile(processor));
     });
     Object.values(catalogService.getCatalogByKey(CatalogKind.Kamelet) ?? {}).forEach((kamelet) => {

@@ -44,7 +44,7 @@ public class CamelCatalogProcessor {
         this.api = new DefaultCamelCatalog();
         this.schemaProcessor = schemaProcessor;
         patternBlocklist = new ArrayList<>();
-        populatePatterBlocklist();
+        populatePatternBlocklist();
     }
 
     /**
@@ -170,9 +170,7 @@ public class CamelCatalogProcessor {
         return JsonMapper.serialize(answer);
     }
 
-    private void populatePatterBlocklist() {
-        this.patternBlocklist.add("doCatch");
-        this.patternBlocklist.add("doFinally");
+    private void populatePatternBlocklist() {
         this.patternBlocklist.add("kamelet");
         this.patternBlocklist.add("loadBalance");
         this.patternBlocklist.add("onFallback");
@@ -183,7 +181,9 @@ public class CamelCatalogProcessor {
         this.patternBlocklist.add("setExchangePattern");
         this.patternBlocklist.add("whenSkipSendToEndpoint");
         // reactivate entries once we have a better handling of how to add WHEN and OTHERWISE without Catalog
-        //this.patternBlocklist.add("Otherwise");
-        //this.patternBlocklist.add("when");
+        // this.patternBlocklist.add("Otherwise");
+        // this.patternBlocklist.add("when");
+        // this.patternBlocklist.add("doCatch");
+        // this.patternBlocklist.add("doFinally");
     }
 }
