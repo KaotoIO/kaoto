@@ -126,17 +126,6 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
       return;
     }
 
-    /**
-     * If the current node contains a single property of type list, it means the target has a single
-     * property to place the new node in, therefore we add the new one at the beginning of the array
-     */
-    if (stepsProperties.length === 1 && stepsProperties[0].type === 'branch') {
-      const stepsArray = getArrayProperty(this.route, `${options.data.path}.${stepsProperties[0].name}`);
-      stepsArray.unshift(defaultValue);
-
-      return;
-    }
-
     const pathArray = options.data.path.split('.');
     const last = pathArray[pathArray.length - 1];
     const penultimate = pathArray[pathArray.length - 2];
