@@ -17,7 +17,7 @@
       "yes": true
     },
     "publish": {
-      "tag": false,
+      "tag": true,
       "push": false,
       "yes": true
     }
