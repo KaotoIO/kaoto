@@ -20,8 +20,6 @@ import io.kaoto.camelcatalog.CamelYamlDslSchemaProcessor;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CamelCatalogProcessorTest {

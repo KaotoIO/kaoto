@@ -70,7 +70,6 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     private static final ObjectMapper jsonMapper = new ObjectMapper()
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-    private static final JsonFactory jsonFactory = new JsonFactory();
 
     @Parameter(required = true)
     private File inputDirectory;
