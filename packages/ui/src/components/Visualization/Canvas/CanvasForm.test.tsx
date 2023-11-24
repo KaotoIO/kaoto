@@ -6,17 +6,19 @@ import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
 
 describe('CanvasForm', () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+      },
+    },
+  } as unknown as JSONSchemaType<unknown>;
+
   it('should render', () => {
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',
-      schema: {
-        type: 'object',
-        properties: {
-          name: {
-            type: 'string',
-          },
-        },
-      } as unknown as JSONSchemaType<unknown>,
+      schema,
       definition: {
         name: 'my node',
       },
@@ -85,5 +87,33 @@ describe('CanvasForm', () => {
     );
 
     expect(container).toMatchSnapshot();
+  });
+
+  it('should update the parameters object if null', () => {
+    const visualComponentSchema: VisualComponentSchema = {
+      title: 'My Node',
+      schema: null as unknown as JSONSchemaType<unknown>,
+      definition: {
+        parameters: null,
+      },
+    };
+
+    const selectedNode: CanvasNode = {
+      id: '1',
+      type: 'node',
+      data: {
+        vizNode: {
+          getComponentSchema: () => visualComponentSchema,
+        } as IVisualizationNode,
+      },
+    };
+
+    render(
+      <EntitiesContext.Provider value={null}>
+        <CanvasForm selectedNode={selectedNode} />
+      </EntitiesContext.Provider>,
+    );
+
+    expect(visualComponentSchema.definition.parameters).toEqual({});
   });
 });

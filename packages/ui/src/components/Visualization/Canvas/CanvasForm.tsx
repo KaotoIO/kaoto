@@ -31,7 +31,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     setSchema(schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema));
 
     // Overriding parameters with an empty object When the parameters property is mistakenly set to null
-    if (visualComponentSchema?.definition.parameters === null) {
+    if (visualComponentSchema?.definition?.parameters === null) {
       visualComponentSchema!.definition.parameters = {};
     }
 
