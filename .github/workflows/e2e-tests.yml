@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       # Install dependencies
       - run: yarn install --immutable
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v3
@@ -136,7 +136,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v3
@@ -194,7 +194,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v3
