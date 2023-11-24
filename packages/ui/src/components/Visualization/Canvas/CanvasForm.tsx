@@ -29,6 +29,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
 
     setSchema(schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema));
+
+    // Overriding parameters with an empty object When the parameters property is mistakenly set to null
+    if (visualComponentSchema?.definition?.parameters === null) {
+      visualComponentSchema!.definition.parameters = {};
+    }
+
     setModel(visualComponentSchema?.definition ?? {});
     setComponentName(visualComponentSchema?.title);
   }, [props.selectedNode.data?.vizNode]);
