@@ -1,17 +1,17 @@
 import {
   Integration as IntegrationType,
   KameletBinding as KameletBindingType,
-  Kamelet as KameletType,
   Pipe as PipeType,
 } from '@kaoto-next/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
 import { CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
-export type CamelKType = IntegrationType | KameletType | KameletBindingType | PipeType;
+export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
 
 export enum CamelKResourceKinds {
   Integration = 'Integration',
@@ -35,13 +35,13 @@ export abstract class CamelKResource implements CamelResource {
         spec: {},
       };
     }
-    this.metadata = this.resource.metadata && new MetadataEntity(this.resource!);
+    this.metadata = this.resource.metadata && new MetadataEntity(this.resource);
   }
 
   removeEntity(_id?: string) {}
   createMetadataEntity() {
     this.resource.metadata = {};
-    this.metadata = new MetadataEntity(this.resource!);
+    this.metadata = new MetadataEntity(this.resource);
     return this.metadata;
   }
 
@@ -66,12 +66,16 @@ export abstract class CamelKResource implements CamelResource {
 
   abstract getVisualEntities(): BaseVisualCamelEntity[];
 
-  abstract supportsMultipleVisualEntities(): boolean;
-
   abstract toJSON(): unknown;
 
   addNewEntity(): string {
+    /** Not supported by default */
     return '';
+  }
+
+  supportsMultipleVisualEntities(): boolean {
+    /** Not supported by default */
+    return false;
   }
 
   /** Components Catalog related methods */

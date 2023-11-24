@@ -40,7 +40,6 @@ declare global {
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string, linesCount: number | undefined): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string): Chainable<JQuery<Element>>;
-      syncUpCodeChanges(): Chainable<JQuery<Element>>;
     }
   }
 }

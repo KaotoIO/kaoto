@@ -1,13 +1,17 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { FlowTypeSelector } from './FlowTypeSelector';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
-import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { Schema } from '../../../../models';
 import { EntitiesContextResult } from '../../../../hooks';
+import { Schema } from '../../../../models';
+import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { FlowTypeSelector } from './FlowTypeSelector';
 
 const config = sourceSchemaConfig;
 config.config[SourceSchemaType.Pipe].schema = { name: 'Pipe', schema: { name: 'Pipe', description: 'desc' } } as Schema;
+config.config[SourceSchemaType.Kamelet].schema = {
+  name: 'Kamelet',
+  schema: { name: 'Kamelet', description: 'desc' },
+} as Schema;
 config.config[SourceSchemaType.Route].schema = {
   name: 'route',
   schema: { name: 'route', description: 'desc' },

@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`KameletResource should convert to JSON 1`] = `
+{
+  "apiVersion": "camel.apache.org/v1",
+  "kind": "Kamelet",
+  "spec": {
+    "definition": {
+      "title": "kamelet-1234",
+      "type": "source",
+    },
+    "dependencies": [],
+    "template": {
+      "beans": {},
+      "from": {
+        "id": "from-1234",
+        "steps": [],
+        "uri": "kamelet:source",
+      },
+    },
+  },
+}
+`;
+
+exports[`KameletResource should create a new KameletResource 1`] = `
+{
+  "apiVersion": "camel.apache.org/v1",
+  "kind": "Kamelet",
+  "spec": {
+    "definition": {
+      "title": "kamelet-1234",
+      "type": "source",
+    },
+    "dependencies": [],
+    "template": {
+      "beans": {},
+      "from": {
+        "id": "from-1234",
+        "steps": [],
+        "uri": "kamelet:source",
+      },
+    },
+  },
+}
+`;
+
+exports[`KameletResource should create a new KameletResource with a kamelet 1`] = `
+{
+  "kind": "Kamelet",
+  "metadata": {
+    "annotations": {
+      "camel.apache.org/catalog.version": "",
+      "camel.apache.org/kamelet.group": "",
+      "camel.apache.org/kamelet.icon": "",
+      "camel.apache.org/kamelet.namespace": "",
+      "camel.apache.org/kamelet.support.level": "",
+      "camel.apache.org/provider": "",
+    },
+    "labels": {
+      "camel.apache.org/kamelet.type": "",
+    },
+    "name": "kamelet",
+  },
+  "spec": {
+    "definition": {
+      "title": "kamelet",
+      "type": "source",
+    },
+    "dependencies": [],
+    "template": {
+      "beans": {},
+      "from": {
+        "id": "from",
+        "steps": [],
+        "uri": "kamelet:source",
+      },
+    },
+  },
+}
+`;
+
+exports[`KameletResource should get the visual entities (Camel Route Visual Entity) 1`] = `
+[
+  {
+    "route": {
+      "from": {
+        "id": "from-1234",
+        "steps": [],
+        "uri": "kamelet:source",
+      },
+      "id": "kamelet-1234",
+    },
+  },
+]
+`;
