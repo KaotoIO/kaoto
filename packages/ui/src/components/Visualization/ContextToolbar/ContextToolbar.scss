@@ -1,0 +1,22 @@
+.current-dsl-tag {
+  align-self: center;
+  position: relative;
+  border: 0;
+  border-bottom: 1px solid var(--pf-v5-global--BorderColor--200);
+
+  &::before {
+    border: 1px solid var(--pf-v5-global--BorderColor--300);
+    border-bottom: 0;
+    content: ' ';
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    box-sizing: border-box;
+  }
+
+  & > span {
+    margin: var(--pf-v5-global--spacer--form-element) var(--pf-v5-global--spacer--sm)
+      var(--pf-v5-global--spacer--form-element) var(--pf-v5-global--spacer--sm);
+    line-height: 22px;
+  }
+}
