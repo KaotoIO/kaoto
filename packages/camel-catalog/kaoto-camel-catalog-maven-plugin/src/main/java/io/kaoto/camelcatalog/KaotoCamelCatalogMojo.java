@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -291,9 +292,14 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
         var root = jsonMapper.createObjectNode();
         try {
-            Files.list(kameletsDir)
-                    .sorted()
-                    .forEach(f -> processKameletFile(f, root));
+            Files.list(kameletsDir).sorted().forEach(f -> {
+                        if (f.toFile().isDirectory()) {
+                            processKameletCategory(f, index);
+                        } else {
+                            processKameletFile(f, root);
+                        }
+                    }
+            );
             var outputFileName = KAMELETS_AGGREGATE + ".json";
             var output = outputDirectory.toPath().resolve(outputFileName);
             JsonFactory jsonFactory = new JsonFactory();
@@ -311,6 +317,32 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
     }
 
+    private void processKameletCategory(Path dir, Index index) {
+        var categoryName = dir.getFileName();
+        try {
+            if (Files.list(dir).count() == 0) {
+                return;
+            }
+            var category = jsonMapper.createObjectNode();
+            Files.list(dir).sorted().forEach(f -> processKameletFile(f, category));
+            var outputFileName = String.format("%s-%s.json", KAMELETS, categoryName);
+            var output = outputDirectory.toPath().resolve(outputFileName);
+            JsonFactory jsonFactory = new JsonFactory();
+            var writer = new FileWriter(output.toFile());
+            var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
+            jsonMapper.writeTree(jsonGenerator, category);
+            var indexEntryName = String.format("%s-%s", KAMELETS, categoryName);
+            var indexEntry = new Entry(
+                    indexEntryName,
+                    String.format("Kamelet definitions of category '%s' in JSON", categoryName),
+                    kameletsVersion,
+                    outputFileName);
+            index.getCatalogs().put(indexEntryName, indexEntry);
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+    }
+
     private void processKameletFile(Path kamelet, ObjectNode targetObject) {
         var splitted = kamelet.getFileName().toString().split("\\.");
         if (splitted.length < 2) {
@@ -318,8 +350,17 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             return;
         }
         try {
-            var kameletYaml = yamlMapper.readTree(kamelet.toFile());
-            targetObject.putIfAbsent(splitted[0], kameletYaml);
+            String lowerFileName = kamelet.getFileName().toString().toLowerCase();
+            JsonNode kameletNode;
+            if (lowerFileName.endsWith(".yaml") || lowerFileName.endsWith(".yml")) {
+                kameletNode = yamlMapper.readTree(kamelet.toFile());
+            } else if (lowerFileName.endsWith(".json")) {
+                // Try JSON as a fallback
+                kameletNode = jsonMapper.readTree(kamelet.toFile());
+            } else {
+                return;
+            }
+            targetObject.putIfAbsent(splitted[0], kameletNode);
         } catch (Exception e) {
             getLog().error(e);
         }

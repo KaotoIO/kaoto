@@ -138,7 +138,22 @@
               <outputDirectory>${inputDirectory}/schema</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${basedir}/src/main/resources</directory>
+                  <directory>${basedir}/src/main/resources/schemas</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Copy additional kamelet files</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${inputDirectory}/kamelets</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources/kamelets</directory>
                 </resource>
               </resources>
             </configuration>
