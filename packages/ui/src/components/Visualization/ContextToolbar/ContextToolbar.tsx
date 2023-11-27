@@ -15,11 +15,11 @@ export const ContextToolbar: FunctionComponent = () => {
         {sourceSchemaConfig.config[currentSchemaType].name || 'None'}
       </Chip>
     </ToolbarItem>,
-    <ToolbarItem key={'toolbar-new-route'}>
-      <NewFlow />
-    </ToolbarItem>,
     <ToolbarItem key={'toolbar-flows-list'}>
       <FlowsMenu />
+    </ToolbarItem>,
+    <ToolbarItem key={'toolbar-new-route'}>
+      <NewFlow />
     </ToolbarItem>,
     <ToolbarItem key={'toolbar-clipboard'}>
       <FlowClipboard />
