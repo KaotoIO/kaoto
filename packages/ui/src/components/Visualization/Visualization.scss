@@ -2,3 +2,8 @@
   display: flex;
   flex-flow: column;
 }
+
+// Override for the default patternfly class
+.pf-v5-u-m-sm {
+  margin: var(--pf-v5-global--spacer--sm);
+}

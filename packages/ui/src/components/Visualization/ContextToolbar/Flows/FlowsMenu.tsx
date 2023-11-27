@@ -36,7 +36,7 @@ export const FlowsMenu: FunctionComponent = () => {
             <Icon isInline>
               <ListIcon />
             </Icon>
-            <span data-testid="flows-list-route-id" className="pf-u-m-sm-on-lg">
+            <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm">
               {visibleFlowsInformation().singleFlowId ?? 'Routes'}
             </span>
             <Badge data-testid="flows-list-route-count" isRead>
