@@ -1,11 +1,11 @@
-import { FunctionComponent, useContext } from 'react';
 import { Chip, ToolbarItem } from '@patternfly/react-core';
+import { FunctionComponent, useContext } from 'react';
 import { sourceSchemaConfig } from '../../../models/camel';
-import { FlowsMenu } from './Flows/FlowsMenu';
 import { EntitiesContext } from '../../../providers/entities.provider';
-import { NewFlow } from './FlowType/NewFlow';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';
+import { NewFlow } from './FlowType/NewFlow';
+import { FlowsMenu } from './Flows/FlowsMenu';
 
 export const ContextToolbar: FunctionComponent = () => {
   const { currentSchemaType } = useContext(EntitiesContext)!;

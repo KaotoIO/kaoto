@@ -44,7 +44,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
     <>
       <FlowTypeSelector isStatic onSelect={checkBeforeAddNewFlow}>
         <PlusIcon />
-        <span className="pf-u-m-sm-on-lg">New route</span>
+        <span className="pf-v5-u-m-sm">New route</span>
       </FlowTypeSelector>
       <Modal
         title="Warning"

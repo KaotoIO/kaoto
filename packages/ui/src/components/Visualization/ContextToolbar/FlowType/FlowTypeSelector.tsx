@@ -1,5 +1,3 @@
-import { FunctionComponent, PropsWithChildren, Ref, MouseEvent, useCallback, useContext, useState } from 'react';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import {
   MenuToggle,
   MenuToggleAction,
@@ -9,7 +7,9 @@ import {
   SelectOption,
   Tooltip,
 } from '@patternfly/react-core';
-import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { FunctionComponent, MouseEvent, PropsWithChildren, Ref, useCallback, useContext, useState } from 'react';
+import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 
 interface ISourceTypeSelector extends PropsWithChildren {
   isStatic?: boolean;
@@ -111,7 +111,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
-                <span className="pf-u-text-break-word">
+                <span className="pf-v5-u-text-break-word">
                   {(sourceSchema.schema?.schema as { description: string }).description ?? ''}
                 </span>
               }
