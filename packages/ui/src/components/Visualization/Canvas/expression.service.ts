@@ -93,10 +93,11 @@ export class ExpressionService {
 
   private static parseLanguageModel(model: Record<string, unknown>, langName: string) {
     const lang = model[langName];
-    if (typeof lang === 'string') {
-      return { expression: lang };
-    } else {
+    if (typeof lang === 'object') {
       return lang as Record<string, unknown>;
+    } else {
+      // expression could be even a number
+      return { expression: lang };
     }
   }
 

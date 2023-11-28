@@ -87,6 +87,14 @@ describe('ExpressionService', () => {
       expect(language).toBeUndefined();
       expect(model).toEqual({});
     });
+
+    it('should parse number constant', () => {
+      const { language, model } = ExpressionService.parseExpressionModel(languageMap, {
+        constant: 123,
+      });
+      expect(language).toEqual(languageMap.constant);
+      expect(model).toEqual({ expression: 123 });
+    });
   });
 
   describe('setExpressionModel', () => {
