@@ -2,8 +2,8 @@ import { render } from '@testing-library/react';
 import { PropsWithChildren, useContext, useEffect } from 'react';
 import { act } from 'react-dom/test-utils';
 import { camelRouteYaml } from '../stubs/camel-route';
-import { SourceCodeContext, SourceCodeProvider } from './source-code.provider';
 import { EventNotifier } from '../utils';
+import { SourceCodeApiContext, SourceCodeContext, SourceCodeProvider } from './source-code.provider';
 
 describe('SourceCodeProvider', () => {
   it('should start with an empty source code', () => {
@@ -56,10 +56,11 @@ describe('SourceCodeProvider', () => {
 
 function TestProvider(props: PropsWithChildren<{ initialSourceCode?: string }>) {
   const sourceCodeContext = useContext(SourceCodeContext);
+  const sourceCodeApiContext = useContext(SourceCodeApiContext);
 
   useEffect(() => {
-    sourceCodeContext!.setCodeAndNotify(props.initialSourceCode ?? sourceCodeContext!.sourceCode);
-  }, [props.initialSourceCode, sourceCodeContext]);
+    sourceCodeApiContext.setCodeAndNotify(props.initialSourceCode ?? sourceCodeContext);
+  }, [props.initialSourceCode, sourceCodeApiContext, sourceCodeContext]);
 
-  return <span data-testid="source-code">{sourceCodeContext?.sourceCode}</span>;
+  return <span data-testid="source-code">{sourceCodeContext}</span>;
 }

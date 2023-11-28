@@ -8,7 +8,7 @@ import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesContext } from '../providers/entities.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
-import { SourceCodeContext } from '../providers/source-code.provider';
+import { SourceCodeApiContext, SourceCodeContext } from '../providers/source-code.provider';
 import { EventNotifier } from '../utils';
 import './KaotoEditor.scss';
 
@@ -55,7 +55,8 @@ export const KaotoEditor = forwardRef<EditorApi, Props>((props, forwardedRef) =>
   const eventNotifier = EventNotifier.getInstance();
   const entitiesContext = useContext(EntitiesContext);
   const sourceCodeContext = useContext(SourceCodeContext);
-  const sourceCodeRef = useRef<string>(sourceCodeContext?.sourceCode ?? '');
+  const sourceCodeApiContext = useContext(SourceCodeApiContext);
+  const sourceCodeRef = useRef<string>(sourceCodeContext ?? '');
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
@@ -81,10 +82,10 @@ export const KaotoEditor = forwardRef<EditorApi, Props>((props, forwardedRef) =>
        */
       if (sourceCodeRef.current === content) return;
 
-      sourceCodeContext?.setCodeAndNotify(content);
+      sourceCodeApiContext.setCodeAndNotify(content);
       sourceCodeRef.current = content;
     },
-    [sourceCodeContext],
+    [sourceCodeApiContext],
   );
 
   /**

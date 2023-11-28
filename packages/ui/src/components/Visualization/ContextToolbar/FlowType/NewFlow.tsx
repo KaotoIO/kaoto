@@ -2,13 +2,13 @@ import { Button, Modal } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { useSourceCodeContext } from '../../../../hooks/useSourceCodeContext/useSourceCodeContext';
 import { SourceSchemaType } from '../../../../models/camel';
+import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
-  const sourceCodeContext = useSourceCodeContext();
+  const sourceCodeContextApi = useContext(SourceCodeApiContext);
   const entitiesContext = useEntityContext();
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
@@ -59,7 +59,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             onClick={() => {
               if (proposedFlowType) {
                 entitiesContext.setCurrentSchemaType(proposedFlowType);
-                sourceCodeContext.setCodeAndNotify(
+                sourceCodeContextApi.setCodeAndNotify(
                   entitiesContext.flowTemplateService.getFlowYamlTemplate(proposedFlowType),
                 );
                 setIsConfirmationModalOpen(false);

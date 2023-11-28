@@ -9,12 +9,12 @@ import {
 } from 'react';
 import { EventNotifier } from '../utils';
 
-export const SourceCodeContext = createContext<{
-  sourceCode: string;
+export const SourceCodeContext = createContext<string>('');
 
+export const SourceCodeApiContext = createContext<{
   /** Set the Source Code and notify subscribers */
   setCodeAndNotify: (sourceCode: string) => void;
-} | null>(null);
+}>({ setCodeAndNotify: () => {} });
 
 export const SourceCodeProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const eventNotifier = EventNotifier.getInstance();
@@ -34,13 +34,16 @@ export const SourceCodeProvider: FunctionComponent<PropsWithChildren> = (props) 
     [eventNotifier],
   );
 
-  const value = useMemo(
+  const sourceCodeApi = useMemo(
     () => ({
-      sourceCode,
       setCodeAndNotify,
     }),
-    [setCodeAndNotify, sourceCode],
+    [setCodeAndNotify],
   );
 
-  return <SourceCodeContext.Provider value={value}>{props.children}</SourceCodeContext.Provider>;
+  return (
+    <SourceCodeApiContext.Provider value={sourceCodeApi}>
+      <SourceCodeContext.Provider value={sourceCode}>{props.children}</SourceCodeContext.Provider>
+    </SourceCodeApiContext.Provider>
+  );
 };
