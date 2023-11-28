@@ -19,7 +19,7 @@ https://kaotoio.github.io/kaoto-next/
 ## Requirements
 - NodeJS (v18.x or higher) [+info](https://nodejs.org/en)
 - Yarn (v3.x or higher) [+info](https://yarnpkg.com/getting-started/install)
-- OpenJDK (v17 or higher) [+info](https://developers.redhat.com/products/openjdk/download)
+- OpenJDK (v21 or higher) [+info](https://developers.redhat.com/products/openjdk/download)
 
 _For more information on Vite, check [Vite's documentation](https://vitejs.dev/config/)._
 
