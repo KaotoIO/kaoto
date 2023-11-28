@@ -55,14 +55,16 @@ describe('useEntities', () => {
     expect(notifierSpy).toHaveBeenCalledWith(
       'entities:updated',
       `- route:
+    id: route-1234
     from:
+      id: from-1234
       uri: timer:template
       parameters:
         period: "1000"
       steps:
         - log:
+            id: log-1234
             message: template message
-    id: route-1234
 `,
     );
   });

@@ -3,7 +3,7 @@ import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
-import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
 import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
 import { CamelKResource } from './camel-k-resource';
 import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
@@ -32,7 +32,7 @@ export class PipeResource extends CamelKResource {
 
   removeEntity(): void {
     super.removeEntity();
-    const flowTemplate: PipeType = flowTemplateService.getFlowTemplate(this.getType());
+    const flowTemplate: PipeType = FlowTemplateService.getFlowTemplate(this.getType());
     this.pipe.spec = flowTemplate.spec;
     this.flow = new PipeVisualEntity(flowTemplate.spec);
   }

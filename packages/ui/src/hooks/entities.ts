@@ -3,14 +3,12 @@ import { parse, stringify } from 'yaml';
 import { CamelResource, SourceSchemaType, createCamelResource } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
-import { FlowTemplateService, flowTemplateService } from '../models/visualization/flows/flow-templates-service';
 import { EventNotifier } from '../utils';
 
 export interface EntitiesContextResult {
   entities: BaseCamelEntity[];
   currentSchemaType: SourceSchemaType;
   visualEntities: BaseVisualCamelEntity[];
-  flowTemplateService: FlowTemplateService;
   camelResource: CamelResource;
 
   /**
@@ -88,7 +86,6 @@ export const useEntities = (): EntitiesContextResult => {
       entities,
       visualEntities,
       currentSchemaType: camelResource?.getType(),
-      flowTemplateService,
       camelResource,
       setCurrentSchemaType,
       updateEntitiesFromCamelResource,

@@ -3,7 +3,7 @@ import { TileFilter } from '../../components/Catalog';
 import { isDefined } from '../../utils';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
-import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { BeansEntity, isBeans } from '../visualization/metadata';
@@ -27,7 +27,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   addNewEntity(): string {
-    const template = flowTemplateService.getFlowTemplate(this.getType());
+    const template = FlowTemplateService.getFlowTemplate(this.getType());
     const route = template[0].route as RouteDefinition;
     const visualEntity = new CamelRouteVisualEntity(route);
     this.entities.push(visualEntity);

@@ -36,6 +36,7 @@ spec:
     - "camel:kamelet"
   template:
     from:
+      id: ${getCamelRandomId('from')}
       uri: "timer:user"
       parameters:
         period: "{{period}}"

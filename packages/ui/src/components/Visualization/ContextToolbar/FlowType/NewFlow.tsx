@@ -3,6 +3,7 @@ import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { SourceSchemaType } from '../../../../models/camel';
+import { FlowTemplateService } from '../../../../models/visualization/flows/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { FlowTypeSelector } from './FlowTypeSelector';
@@ -59,9 +60,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             onClick={() => {
               if (proposedFlowType) {
                 entitiesContext.setCurrentSchemaType(proposedFlowType);
-                sourceCodeContextApi.setCodeAndNotify(
-                  entitiesContext.flowTemplateService.getFlowYamlTemplate(proposedFlowType),
-                );
+                sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
                 setIsConfirmationModalOpen(false);
               }
             }}
