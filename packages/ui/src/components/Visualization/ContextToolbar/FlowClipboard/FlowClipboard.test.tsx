@@ -1,8 +1,7 @@
 import { fireEvent, render, renderHook, screen } from '@testing-library/react';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useContext } from 'react';
 import { act } from 'react-dom/test-utils';
-import { useSourceCodeContext } from '../../../../hooks/useSourceCodeContext/useSourceCodeContext';
-import { SourceCodeProvider } from '../../../../providers/source-code.provider';
+import { SourceCodeContext, SourceCodeProvider } from '../../../../providers/source-code.provider';
 import { FlowClipboard } from './FlowClipboard';
 
 const wrapper = ({ children }: PropsWithChildren) => <SourceCodeProvider>{children}</SourceCodeProvider>;
@@ -25,13 +24,13 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should be called clipboard api', () => {
-    const { result } = renderHook(() => useSourceCodeContext(), { wrapper });
+    const { result } = renderHook(() => useContext(SourceCodeContext), { wrapper });
 
     const clipboardButton = screen.getByTestId('clipboardButton');
 
     act(() => fireEvent.click(clipboardButton));
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(result.current.sourceCode);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(result.current);
   });
 });

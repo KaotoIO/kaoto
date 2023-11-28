@@ -5,7 +5,7 @@ import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { SourceCodeContext } from '../../../../providers/source-code.provider';
+import { SourceCodeApiContext } from '../../../../providers/source-code.provider';
 import { NewFlow } from './NewFlow';
 
 describe('NewFlow.tsx', () => {
@@ -23,9 +23,8 @@ describe('NewFlow.tsx', () => {
 
   const renderWithContext = () => {
     return render(
-      <SourceCodeContext.Provider
+      <SourceCodeApiContext.Provider
         value={{
-          sourceCode: '',
           setCodeAndNotify: jest.fn(),
         }}
       >
@@ -41,7 +40,7 @@ describe('NewFlow.tsx', () => {
             <NewFlow />
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>
-      </SourceCodeContext.Provider>,
+      </SourceCodeApiContext.Provider>,
     );
   };
 

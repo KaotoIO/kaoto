@@ -1,14 +1,14 @@
 import { Button, Tooltip, TooltipProps } from '@patternfly/react-core';
 import { CopyIcon } from '@patternfly/react-icons';
-import { useState } from 'react';
-import { useSourceCodeContext } from '../../../../hooks/useSourceCodeContext/useSourceCodeContext';
+import { useContext, useState } from 'react';
+import { SourceCodeContext } from '../../../../providers';
 
 export const successTooltipText = 'Content added to clipboard';
 
 export const defaultTooltipText = 'Copy to clipboard';
 
 export function FlowClipboard() {
-  const { sourceCode } = useSourceCodeContext();
+  const sourceCode = useContext(SourceCodeContext);
   const [isCopied, setIsCopied] = useState(false);
 
   const onClick = () => {
