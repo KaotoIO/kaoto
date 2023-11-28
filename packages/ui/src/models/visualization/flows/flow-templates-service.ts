@@ -1,42 +1,21 @@
 import { parse } from 'yaml';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { kameletTemplate } from './templates/kamelet';
+import { pipeTemplate } from './templates/pipe';
+import { routeTemplate } from './templates/route';
 
 export class FlowTemplateService {
-  getFlowTemplate = (type: SourceSchemaType) => {
+  static getFlowTemplate = (type: SourceSchemaType) => {
     return parse(this.getFlowYamlTemplate(type));
   };
 
-  getFlowYamlTemplate = (type: SourceSchemaType): string => {
+  static getFlowYamlTemplate = (type: SourceSchemaType): string => {
     switch (type) {
       case SourceSchemaType.Pipe:
-        return `apiVersion: camel.apache.org/v1
-kind: Pipe
-metadata:
-  name: new-pipe-template
-spec:
-  source:
-    ref:
-      kind: Kamelet
-      apiVersion: camel.apache.org/v1
-      name: timer-source
-      properties:
-        message: hello
-  sink:
-    ref:
-      kind: Kamelet
-      apiVersion: camel.apache.org/v1
-      name: log-sink`;
+        return pipeTemplate();
 
       case SourceSchemaType.Route:
-        return `- route:
-    from:
-      uri: timer:template
-      parameters:
-        period: "1000"
-      steps:
-        - log:
-            message: template message`;
+        return routeTemplate();
 
       case SourceSchemaType.Kamelet:
         return kameletTemplate();
@@ -46,4 +25,3 @@ spec:
     }
   };
 }
-export const flowTemplateService = new FlowTemplateService();

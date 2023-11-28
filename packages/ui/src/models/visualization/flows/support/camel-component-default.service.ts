@@ -67,6 +67,7 @@ export class CamelComponentDefaultService {
       case 'choice':
         return parse(`
         choice:
+          id: ${getCamelRandomId('choice')}
           when:
           - id: ${getCamelRandomId('when')}
             simple: "\${header.foo} == 1"
@@ -100,7 +101,9 @@ export class CamelComponentDefaultService {
 
       default:
         return {
-          [processorName]: {},
+          [processorName]: {
+            id: getCamelRandomId(processorName),
+          },
         };
     }
   }

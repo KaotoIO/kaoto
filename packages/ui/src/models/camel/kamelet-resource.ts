@@ -3,7 +3,7 @@ import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
-import { flowTemplateService } from '../visualization/flows/flow-templates-service';
+import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { CamelKResource } from './camel-k-resource';
@@ -44,7 +44,7 @@ export class KameletResource extends CamelKResource {
 
   removeEntity(): void {
     super.removeEntity();
-    const flowTemplate: IKameletDefinition = flowTemplateService.getFlowTemplate(this.getType());
+    const flowTemplate: IKameletDefinition = FlowTemplateService.getFlowTemplate(this.getType());
     this.kamelet.spec = flowTemplate.spec;
     this.flow = new CamelRouteVisualEntity({ from: flowTemplate.spec.template.from });
   }
