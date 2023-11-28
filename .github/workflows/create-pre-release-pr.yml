@@ -22,6 +22,7 @@ jobs:
         with:
           fetch-depth: 0 # Checkout all branches and tags
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-tags: true
 
       - uses: actions/setup-node@v4
         with:
