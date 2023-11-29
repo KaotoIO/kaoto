@@ -1,12 +1,11 @@
 import { Pipe } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
-import { v4 as uuidv4 } from 'uuid';
 import { getArrayProperty } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
-import { PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
+import { PipeMetadata, PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -17,13 +16,17 @@ import {
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './support/kamelet-schema.service';
+import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
-  readonly id = uuidv4();
+  id: string;
   type = EntityType.Pipe;
   spec: PipeSpec;
+  metadata: PipeMetadata;
 
-  constructor(spec?: PipeSpec) {
+  constructor(spec?: PipeSpec, metadata?: PipeMetadata) {
+    this.id = (metadata?.name as string) ?? getCamelRandomId('pipe');
+    this.metadata = metadata ?? { name: this.id };
     this.spec = spec ?? {
       source: {},
       steps: [],
@@ -34,6 +37,11 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   /** Internal API methods */
   getId(): string {
     return this.id;
+  }
+
+  setId(routeId: string): void {
+    this.id = routeId;
+    this.metadata.name = this.id;
   }
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {

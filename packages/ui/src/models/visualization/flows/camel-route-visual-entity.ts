@@ -55,15 +55,19 @@ export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefini
 };
 
 export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
-  readonly id: string;
+  id: string;
   readonly type = EntityType.Route;
 
   constructor(public route: RouteDefinition) {
     this.id = route.id ?? getCamelRandomId('route');
     this.route.id = this.id;
   }
-
   /** Internal API methods */
+  setId(routeId: string): void {
+    this.id = routeId;
+    this.route.id = this.id;
+  }
+
   getId(): string {
     return this.id;
   }
