@@ -171,27 +171,6 @@ describe('kameletToTile', () => {
     expect(tile.type).toEqual(CatalogKind.Kamelet);
   });
 
-  it('should use the selected CatalogKind', () => {
-    const kameletDef = {
-      metadata: {
-        labels: {
-          'camel.apache.org/kamelet.type': 'source',
-        },
-        annotations: {},
-      },
-      spec: {
-        definition: {
-          title: 'My Kamelet',
-          description: 'My Kamelet Description',
-        },
-      },
-    } as IKameletDefinition;
-
-    const tile = kameletToTile(kameletDef, CatalogKind.KameletBoundary);
-
-    expect(tile.type).toEqual(CatalogKind.KameletBoundary);
-  });
-
   it('should populate the version for annotations', () => {
     const kameletDef = {
       metadata: {

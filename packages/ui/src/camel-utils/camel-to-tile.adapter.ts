@@ -47,10 +47,7 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
   };
 };
 
-export const kameletToTile = (
-  kameletDef: IKameletDefinition,
-  type: CatalogKind.Kamelet | CatalogKind.KameletBoundary = CatalogKind.Kamelet,
-): ITile => {
+export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
   const headerTags: string[] = [];
   if (kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']) {
     headerTags.push(kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']);
@@ -67,7 +64,7 @@ export const kameletToTile = (
   }
 
   return {
-    type,
+    type: CatalogKind.Kamelet,
     name: kameletDef.metadata.name,
     title: kameletDef.spec.definition.title,
     description: kameletDef.spec.definition.description,

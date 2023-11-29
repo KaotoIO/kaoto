@@ -112,14 +112,10 @@ import { CamelCatalogService } from '../models/visualization/flows/camel-catalog
 export class NodeIconResolver {
   static getIcon(elementName: string | undefined): string {
     if (elementName?.startsWith('kamelet:')) {
-      const catalogKind =
-        elementName === 'kamelet:source' || elementName === 'kamelet:sink'
-          ? CatalogKind.KameletBoundary
-          : CatalogKind.Kamelet;
-
-      const kameletDefinition = CamelCatalogService.getComponent(catalogKind, elementName.replace('kamelet:', '')) as
-        | IKameletDefinition
-        | undefined;
+      const kameletDefinition = CamelCatalogService.getComponent(
+        CatalogKind.Kamelet,
+        elementName.replace('kamelet:', ''),
+      ) as IKameletDefinition | undefined;
 
       return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? this.getUnknownIcon();
     }

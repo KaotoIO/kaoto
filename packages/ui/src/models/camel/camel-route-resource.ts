@@ -89,7 +89,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {
-    return CamelComponentFilterService.getCompatibleComponents(mode, visualEntityData, definition);
+    return CamelComponentFilterService.getCamelCompatibleComponents(mode, visualEntityData, definition);
   }
 
   private getEntity(rawItem: unknown): BaseCamelEntity | undefined {

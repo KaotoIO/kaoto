@@ -77,7 +77,7 @@ describe('KameletResource', () => {
 
   describe('getCompatibleComponents', () => {
     it('should delegate to the CamelComponentFilterService', () => {
-      const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCompatibleComponents');
+      const filterSpy = jest.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
 
       const resource = createCamelResource(kameletJson);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });

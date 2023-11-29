@@ -5,5 +5,4 @@ export const enum CatalogKind {
   Language = 'language',
   Dataformat = 'dataformat',
   Kamelet = 'kamelet',
-  KameletBoundary = 'kamelet-boundary',
 }

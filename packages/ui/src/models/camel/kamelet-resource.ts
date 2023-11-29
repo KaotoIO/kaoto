@@ -78,6 +78,6 @@ export class KameletResource extends CamelKResource {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {
-    return CamelComponentFilterService.getCompatibleComponents(mode, visualEntityData, definition);
+    return CamelComponentFilterService.getKameletCompatibleComponents(mode, visualEntityData, definition);
   }
 }

@@ -1,10 +1,10 @@
 import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel-catalog-index';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
+import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
+import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
-import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
-import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
 
 export class CamelCatalogService {
   private static catalogs: ComponentsCatalog = {};
@@ -28,7 +28,6 @@ export class CamelCatalogService {
     dataformatName?: string,
   ): ICamelDataformatDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Kamelet, componentName?: string): IKameletDefinition | undefined;
-  static getComponent(catalogKey: CatalogKind.KameletBoundary, componentName?: string): IKameletDefinition | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined {
     if (componentName === undefined) return undefined;
