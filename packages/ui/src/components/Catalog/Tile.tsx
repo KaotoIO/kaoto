@@ -46,6 +46,7 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
 
         <CardTitle className="tile__title">
           <span>{props.tile.title}</span>
+          <span className="tile__name">({props.tile.name})</span>
           {props.tile.version && (
             <CatalogTag key={`${props.tile.version}`} tag={props.tile.version} variant="outline" />
           )}
