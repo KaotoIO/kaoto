@@ -1,7 +1,7 @@
 import componentsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 import patternsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
 import kameletsCatalog from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
-import kameletsBoundariesCatalog from '@kaoto-next/camel-catalog/kamelets-boundaries.json';
+import kameletsBoundariesCatalog from '@kaoto-next/camel-catalog/kamelet-boundaries.json';
 import { act, render, screen } from '@testing-library/react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';

@@ -65,6 +65,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     private static final String CAMEL_CATALOG_AGGREGATE = "camel-catalog-aggregate";
     private static final String CRDS = "crds";
     private static final String CRD_SCHEMA = "crd-schema";
+    private static final String KAMELET = "kamelet";
     private static final String KAMELETS = "kamelets";
     private static final String KAMELETS_AGGREGATE = "kamelets-aggregate";
 
@@ -325,13 +326,15 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             }
             var category = jsonMapper.createObjectNode();
             Files.list(dir).sorted().forEach(f -> processKameletFile(f, category));
-            var outputFileName = String.format("%s-%s.json", KAMELETS, categoryName);
+            var outputFileName = String.format("%s-%s.json", KAMELET, categoryName);
             var output = outputDirectory.toPath().resolve(outputFileName);
             JsonFactory jsonFactory = new JsonFactory();
             var writer = new FileWriter(output.toFile());
             var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(jsonGenerator, category);
-            var indexEntryName = String.format("%s-%s", KAMELETS, categoryName);
+            var capitalizedCategoryName = categoryName.toString().substring(0, 1).toUpperCase()
+                    + categoryName.toString().substring(1);
+            var indexEntryName = String.format("%s%s", KAMELET, capitalizedCategoryName);
             var indexEntry = new Entry(
                     indexEntryName,
                     String.format("Kamelet definitions of category '%s' in JSON", categoryName),

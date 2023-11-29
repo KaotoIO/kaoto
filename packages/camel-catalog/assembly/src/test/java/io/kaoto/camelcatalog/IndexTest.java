@@ -33,6 +33,7 @@ public class IndexTest extends CamelCatalogTestSupport {
         assertTrue(catalogs.has("components"));
         assertTrue(catalogs.has("languages"));
         assertTrue(catalogs.has("kamelets"));
+        assertTrue(catalogs.has("kameletBoundaries"));
         assertTrue(catalogs.has("dataformats"));
         assertTrue(index.has("schemas"));
         var schemas = index.withObject("/schemas");
