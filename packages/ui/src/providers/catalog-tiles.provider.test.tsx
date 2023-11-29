@@ -1,7 +1,7 @@
 import componentsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 import patternsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
-import kameletsCatalog from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 import kameletsBoundariesCatalog from '@kaoto-next/camel-catalog/kamelet-boundaries.json';
+import kameletsCatalog from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 import { act, render, screen } from '@testing-library/react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
@@ -32,14 +32,10 @@ describe('CatalogTilesProvider', () => {
       CatalogKind.Pattern,
       patternsCatalog as unknown as Record<string, ICamelProcessorDefinition>,
     );
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Kamelet,
-      kameletsCatalog as unknown as Record<string, IKameletDefinition>,
-    );
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.KameletBoundary,
-      kameletsBoundariesCatalog as unknown as Record<string, IKameletDefinition>,
-    );
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
+      ...(kameletsCatalog as unknown as Record<string, IKameletDefinition>),
+      ...(kameletsBoundariesCatalog as unknown as Record<string, IKameletDefinition>),
+    });
   });
 
   it('should render children', async () => {
@@ -63,11 +59,10 @@ describe('CatalogTilesProvider', () => {
       );
     });
 
-    expect(getCatalogByKeySpy).toHaveBeenCalledTimes(4);
+    expect(getCatalogByKeySpy).toHaveBeenCalledTimes(3);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Component);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Pattern);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Kamelet);
-    expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.KameletBoundary);
   });
 
   it('should build the tiles', async () => {

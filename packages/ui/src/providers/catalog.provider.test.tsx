@@ -30,7 +30,7 @@ describe('CatalogLoaderProvider', () => {
     fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
     fetchFileMock.mockImplementation((uri: string) => {
       return new Promise((resolve) => {
-        resolve({ body: { uri } });
+        resolve({ body: { [uri]: 'dummy-data' } });
       });
     });
     setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
@@ -147,25 +147,23 @@ describe('CatalogLoaderProvider', () => {
     });
 
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Component, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components.json`]: 'dummy-data',
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Processor, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models.json`]: 'dummy-data',
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Pattern, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns.json`]: 'dummy-data',
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Language, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages.json`]: 'dummy-data',
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Dataformat, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats.json`]: 'dummy-data',
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Kamelet, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`,
-    });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.KameletBoundary, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`,
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`]: 'dummy-data',
+      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`]: 'dummy-data',
     });
   });
 });

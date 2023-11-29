@@ -115,13 +115,7 @@ export class CamelComponentSchemaService {
       let catalogKind: CatalogKind = CatalogKind.Component;
       let lookupName: string = camelElementLookup.componentName;
 
-      if (
-        camelElementLookup.componentName === 'kamelet:source' ||
-        camelElementLookup.componentName === 'kamelet:sink'
-      ) {
-        catalogKind = CatalogKind.KameletBoundary;
-        lookupName = camelElementLookup.componentName.replace('kamelet:', '');
-      } else if (camelElementLookup.componentName.startsWith('kamelet:')) {
+      if (camelElementLookup.componentName.startsWith('kamelet:')) {
         catalogKind = CatalogKind.Kamelet;
         lookupName = camelElementLookup.componentName.replace('kamelet:', '');
       }

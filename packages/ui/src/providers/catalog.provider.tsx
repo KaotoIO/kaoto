@@ -42,7 +42,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           `${props.catalogUrl}/${catalogIndex.catalogs.kamelets.file}`,
         );
         /** Camel Kamelets boundaries definitions list (CRDs) */
-        const kameletBoundariesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.KameletBoundary]>(
+        const kameletBoundariesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.kameletBoundaries.file}`,
         );
 
@@ -69,8 +69,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
-        CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kamelets.body);
-        CamelCatalogService.setCatalogKey(CatalogKind.KameletBoundary, kameletBoundaries.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
       })
       .then(() => {
         setIsLoading(false);

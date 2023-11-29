@@ -4,7 +4,9 @@ import { AddStepMode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
-  static getCompatibleComponents(
+  private static SPECIAL_CHILDREN = ['when', 'otherwise', 'doCatch', 'doFinally'];
+
+  static getCamelCompatibleComponents(
     mode: AddStepMode,
     visualEntityData: CamelRouteVisualEntityData,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,12 +15,12 @@ export class CamelComponentFilterService {
     if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
       /**
        * For the `from` step we want to show only components which are not `producerOnly`,
-       * as this mean that they can be used only as a consumer.
+       * as this mean that they can be used only as a producer.
        */
       return (item: ITile) => {
         return (
           (item.type === CatalogKind.Component && !item.tags.includes('producerOnly')) ||
-          (item.type === CatalogKind.Kamelet && item.tags.includes('source'))
+          (item.type === CatalogKind.Kamelet && item.tags.includes('source') && item.name !== 'source')
         );
       };
     }
@@ -60,9 +62,35 @@ export class CamelComponentFilterService {
      */
     return (item: ITile) => {
       return (
-        (item.type !== CatalogKind.Kamelet && !item.tags.includes('consumerOnly')) ||
-        (item.type === CatalogKind.Kamelet && !item.tags.includes('source'))
+        (item.type === CatalogKind.Processor && !this.SPECIAL_CHILDREN.includes(item.name)) ||
+        (item.type === CatalogKind.Component && !item.tags.includes('consumerOnly')) ||
+        (item.type === CatalogKind.Kamelet && !item.tags.includes('source') && item.name !== 'sink')
       );
+    };
+  }
+
+  static getKameletCompatibleComponents(
+    mode: AddStepMode,
+    visualEntityData: CamelRouteVisualEntityData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+  ): TileFilter {
+    const camelComponentFilter = this.getCamelCompatibleComponents(mode, visualEntityData, definition);
+
+    /** For the `from` step we want to add kamelet:source and leverage the existing getCamelCompatibleComponents method */
+    if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
+      return (item: ITile) => {
+        return (item.type === CatalogKind.Kamelet && item.name === 'source') || camelComponentFilter(item);
+      };
+    }
+
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      return camelComponentFilter;
+    }
+
+    /** For the rest, we add kamelet:sink and leverage the existing getCamelCompatibleComponents method */
+    return (item: ITile) => {
+      return (item.type === CatalogKind.Kamelet && item.name === 'sink') || camelComponentFilter(item);
     };
   }
 }

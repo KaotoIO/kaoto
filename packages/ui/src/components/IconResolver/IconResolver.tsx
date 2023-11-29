@@ -11,7 +11,6 @@ interface IconResolverProps {
 export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps>> = (props) => {
   switch (props.tile.type) {
     case CatalogKind.Kamelet:
-    case CatalogKind.KameletBoundary:
       return (
         <img
           className={props.className}
