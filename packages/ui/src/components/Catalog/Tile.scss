@@ -17,6 +17,15 @@
     width: 25px;
   }
 
+  &__name {
+    text-align: center;
+    min-height: 25px;
+    font-size: small;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+  }
+
   &__title {
     text-align: center;
     display: flex;

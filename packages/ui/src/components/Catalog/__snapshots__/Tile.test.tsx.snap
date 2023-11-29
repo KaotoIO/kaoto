@@ -110,6 +110,13 @@ exports[`Tile renders correctly 1`] = `
           <span>
             tile-title
           </span>
+          <span
+            class="tile__name"
+          >
+            (
+            tile-name
+            )
+          </span>
         </div>
       </div>
     </div>
