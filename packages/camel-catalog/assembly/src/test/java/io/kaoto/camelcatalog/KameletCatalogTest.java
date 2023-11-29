@@ -25,15 +25,15 @@ public class KameletCatalogTest extends CamelCatalogTestSupport {
     public void testKameletCatalog() throws Exception {
         var kameletsCatalog = getCatalog("kamelets");
         assertTrue(kameletsCatalog.has("kafka-source"));
-        assertFalse(kameletsCatalog.has("kamelet-source"));
-        assertFalse(kameletsCatalog.has("kamelet-sink"));
+        assertFalse(kameletsCatalog.has("source"));
+        assertFalse(kameletsCatalog.has("sink"));
     }
 
     @Test
     public void testKameletBoundariesCatalog() throws Exception {
-        var kameletsBoundariesCatalog = getCatalog("kamelets-boundaries");
+        var kameletsBoundariesCatalog = getCatalog("kameletBoundaries");
         assertFalse(kameletsBoundariesCatalog.has("kafka-source"));
-        assertTrue(kameletsBoundariesCatalog.has("kamelet-source"));
-        assertTrue(kameletsBoundariesCatalog.has("kamelet-sink"));
+        assertTrue(kameletsBoundariesCatalog.has("source"));
+        assertTrue(kameletsBoundariesCatalog.has("sink"));
     }
 }
