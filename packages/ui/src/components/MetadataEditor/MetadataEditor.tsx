@@ -157,7 +157,6 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
           model={getFormModel()}
           onChangeModel={onChangeFormModel}
           data-testid={'metadata-editor-form-' + props.name}
-          placeholder={true}
           disabled={isFormDisabled()}
         >
           {renderAutoFields()}
