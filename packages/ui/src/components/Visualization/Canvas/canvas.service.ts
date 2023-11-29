@@ -110,7 +110,7 @@ export class CanvasService {
           ranker: 'network-simplex',
           nodesep: 20,
           edgesep: 20,
-          ranksep: 20,
+          ranksep: 0,
         });
       case LayoutType.DagreHorizontal:
         return new DagreLayout(graph, {
