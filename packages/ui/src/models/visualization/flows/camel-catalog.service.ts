@@ -28,6 +28,7 @@ export class CamelCatalogService {
     dataformatName?: string,
   ): ICamelDataformatDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Kamelet, componentName?: string): IKameletDefinition | undefined;
+  static getComponent(catalogKey: CatalogKind.KameletBoundary, componentName?: string): IKameletDefinition | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined {
     if (componentName === undefined) return undefined;

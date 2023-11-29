@@ -10,6 +10,7 @@ import {
   SourceCodeProvider,
   VisibleFLowsContextResult,
   VisibleFlowsContext,
+  kameletJson,
   pipeJson,
 } from '@kaoto-next/ui/testing';
 import { Meta, StoryFn } from '@storybook/react';
@@ -40,6 +41,7 @@ const emptyCamelRouteJson = {
 const camelRouteEntity = new CamelRouteVisualEntity(complexRouteMock.route);
 const emptyCamelRouteEntity = new CamelRouteVisualEntity(emptyCamelRouteJson.route);
 const pipeEntity = new PipeVisualEntity(pipeJson.spec!);
+const kameletEntity = new CamelRouteVisualEntity(kameletJson.spec.template);
 const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson.spec!);
 
 const ContextDecorator = (Story: StoryFn) => (
@@ -83,6 +85,11 @@ CamelRouteVisualization.args = {
 export const PipeVisualization = Template.bind({});
 PipeVisualization.args = {
   entities: [pipeEntity],
+};
+
+export const KameletVisualization = Template.bind({});
+KameletVisualization.args = {
+  entities: [kameletEntity],
 };
 
 export const EmptyPipeVisualization = Template.bind({});
