@@ -1,3 +1,4 @@
+import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import {
   Editor,
   EditorApi,
@@ -12,7 +13,7 @@ import { EntitiesProvider } from '../providers/entities.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
 import { KaotoEditor } from './KaotoEditor';
 
-export class KaotoEditorView implements Editor {
+export class KaotoEditorApp implements Editor {
   private readonly editorRef: RefObject<EditorApi>;
   af_isReact = true;
   af_componentId = 'kaoto-editor';

@@ -1,4 +1,4 @@
-import { KaotoEditorView } from './KaotoEditorApp';
+import { KaotoEditorApp } from './KaotoEditorApp';
 import {
   Editor,
   EditorFactory,
@@ -12,6 +12,6 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KogitoEditorCha
     envelopeContext: KogitoEditorEnvelopeContextType<KogitoEditorChannelApi>,
     initArgs: EditorInitArgs,
   ): Promise<Editor> {
-    return Promise.resolve(new KaotoEditorView(envelopeContext, initArgs));
+    return Promise.resolve(new KaotoEditorApp(envelopeContext, initArgs));
   }
 }
