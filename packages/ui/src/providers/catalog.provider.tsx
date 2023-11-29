@@ -43,7 +43,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         );
         /** Camel Kamelets boundaries definitions list (CRDs) */
         const kameletBoundariesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.KameletBoundary]>(
-          `${props.catalogUrl}/${catalogIndex.catalogs['kamelets-boundaries'].file}`,
+          `${props.catalogUrl}/${catalogIndex.catalogs.kameletBoundaries.file}`,
         );
 
         const [
