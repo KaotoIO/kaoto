@@ -35,7 +35,7 @@ export class DataFormatService {
     for (const dataFormat of Object.values(dataFormatCatalogMap)) {
       if (parentModel[dataFormat.model.name]) {
         dataFormatModelName = dataFormat.model.name;
-        model = DataFormatService.doParseDataFormatModel(parentModel, dataFormat.model.name);
+        model = DataFormatService.doParseDataFormatModel(parentModel, dataFormat);
         break;
       }
     }
@@ -47,12 +47,17 @@ export class DataFormatService {
     return { dataFormat: dataFormat, model };
   }
 
-  private static doParseDataFormatModel(model: Record<string, unknown>, dataFormatName: string) {
-    const dataFormat = model[dataFormatName];
-    if (typeof dataFormat === 'string') {
-      return { dataFormatName: dataFormat };
+  private static doParseDataFormatModel(model: Record<string, unknown>, dataFormat: ICamelDataformatDefinition) {
+    const dataFormatModel = model[dataFormat.model.name];
+    if (typeof dataFormatModel === 'object') {
+      return dataFormatModel as Record<string, unknown>;
     } else {
-      return dataFormat as Record<string, unknown>;
+      const answer = {} as Record<string, unknown>;
+      const firstProperty = Object.entries(dataFormat.properties).find(([_name, prop]) => prop.index === 0);
+      if (firstProperty) {
+        answer[firstProperty[0]] = dataFormatModel;
+      }
+      return answer;
     }
   }
 
