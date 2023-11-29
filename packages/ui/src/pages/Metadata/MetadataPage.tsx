@@ -1,4 +1,4 @@
-import { TextContent, Title } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
@@ -43,7 +43,6 @@ export const MetadataPage: FunctionComponent = () => {
 
   return isSupported ? (
     <>
-      <Title headingLevel="h1">Metadata Configuration</Title>
       <MetadataEditor
         name="Metadata"
         schema={metadataSchema}

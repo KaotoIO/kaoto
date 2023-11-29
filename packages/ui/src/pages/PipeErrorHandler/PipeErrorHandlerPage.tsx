@@ -1,4 +1,4 @@
-import { TextContent, Title } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto-next/camel-catalog/types';
@@ -42,7 +42,6 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
 
   return isSupported ? (
     <>
-      <Title headingLevel="h1">Pipe ErrorHandler Configuration</Title>
       <PipeErrorHandlerEditor
         schema={errorHandlerSchema}
         model={getErrorHandlerModel()}
