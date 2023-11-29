@@ -60,6 +60,14 @@ describe('DataFormatService', () => {
       expect(dataFormat).toBeUndefined();
       expect(model).toEqual({});
     });
+
+    it('should parse short form avro', () => {
+      const { dataFormat, model } = DataFormatService.parseDataFormatModel(dataFormatMap, {
+        avro: 'io.kaoto.avro.SomeClass',
+      });
+      expect(dataFormat).toEqual(dataFormatMap.avro);
+      expect(model).toEqual({ instanceClassName: 'io.kaoto.avro.SomeClass' });
+    });
   });
 
   describe('setDataFormatModel', () => {
