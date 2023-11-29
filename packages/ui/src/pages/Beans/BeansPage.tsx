@@ -1,4 +1,4 @@
-import { TextContent, Title } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
@@ -50,7 +50,6 @@ export const BeansPage: FunctionComponent = () => {
 
   return isSupported ? (
     <>
-      <Title headingLevel="h1">Beans Configuration</Title>
       <MetadataEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={onChangeModel} />
     </>
   ) : (
