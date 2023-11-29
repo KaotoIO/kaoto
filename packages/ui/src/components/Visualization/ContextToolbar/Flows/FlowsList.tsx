@@ -56,7 +56,10 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 onClick={() => {
                   onSelectFlow(flow.id);
                 }}
-                onChange={(_name) => {}}
+                onChange={(name) => {
+                  flow.setId(name);
+                  updateEntitiesFromCamelResource();
+                }}
               />
               {/*TODO add description*/}
             </Td>

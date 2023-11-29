@@ -68,6 +68,11 @@ describe('Camel Route', () => {
     it('should return the id', () => {
       expect(camelEntity.getId()).toEqual(expect.any(String));
     });
+
+    it('should change the id', () => {
+      camelEntity.setId('camelEntity-12345');
+      expect(camelEntity.getId()).toEqual('camelEntity-12345');
+    });
   });
 
   describe('getComponentSchema', () => {

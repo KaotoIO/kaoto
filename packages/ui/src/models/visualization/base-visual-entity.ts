@@ -15,6 +15,8 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
 
   getId: () => string;
 
+  setId: (id: string) => void;
+
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 

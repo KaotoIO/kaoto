@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { EntityType } from '../../camel/entities';
 import {
   BaseVisualCamelEntity,
@@ -8,9 +7,10 @@ import {
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
+import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 
 export class KameletVisualEntity implements BaseVisualCamelEntity {
-  readonly id = uuidv4();
+  id = getCamelRandomId('kamelet');
   type = EntityType.Kamelet;
 
   constructor(json: unknown) {
@@ -25,6 +25,11 @@ export class KameletVisualEntity implements BaseVisualCamelEntity {
 
   getId(): string {
     return ''; // TODO
+  }
+
+  setId(routeId: string): void {
+    this.id = routeId;
+    // TODO
   }
 
   getNodeInteraction(_data: IVisualizationNodeData): NodeInteraction {

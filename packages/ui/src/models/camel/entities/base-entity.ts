@@ -14,7 +14,7 @@ export const enum EntityType {
 
 export interface BaseCamelEntity {
   /** Internal API fields */
-  readonly id: string;
+  id: string;
   readonly type: EntityType;
 
   /** Retrieve the model from the underlying Camel entity */

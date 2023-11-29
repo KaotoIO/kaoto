@@ -28,6 +28,11 @@ describe('Pipe', () => {
     it('should return the id', () => {
       expect(pipe.getId()).toEqual(expect.any(String));
     });
+
+    it('should change the id', () => {
+      pipe.setId('pipe-12345');
+      expect(pipe.getId()).toEqual('pipe-12345');
+    });
   });
 
   describe('getComponentSchema', () => {
