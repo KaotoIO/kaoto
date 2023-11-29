@@ -31,6 +31,9 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     Object.values(catalogService.getCatalogByKey(CatalogKind.Kamelet) ?? {}).forEach((kamelet) => {
       combinedTiles.push(kameletToTile(kamelet));
     });
+    Object.values(catalogService.getCatalogByKey(CatalogKind.KameletBoundary) ?? {}).forEach((kamelet) => {
+      combinedTiles.push(kameletToTile(kamelet, CatalogKind.KameletBoundary));
+    });
 
     return combinedTiles;
   }, [catalogService]);

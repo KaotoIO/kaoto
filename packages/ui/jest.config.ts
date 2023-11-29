@@ -33,6 +33,8 @@ export default {
     '!src/**/*.models.ts',
     // Ignore stub files
     '!src/**/stubs/*.ts',
+    // Ignore icon resolver
+    '!src/**/node-icon-resolver.ts',
   ],
 
   // The directory where Jest should output its coverage files

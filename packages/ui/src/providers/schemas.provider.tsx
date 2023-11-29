@@ -38,6 +38,10 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
       })
       .then(() => {
         setIsLoading(false);
+      })
+      .catch((error) => {
+        /** TODO: Provide a friendly error message */
+        console.error(error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
