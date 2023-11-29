@@ -1,6 +1,6 @@
 import { AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { Title } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoField } from '../../Form/CustomAutoField';
@@ -20,32 +20,30 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const formRef = useRef<typeof AutoForm>();
   const schemaServiceRef = useRef(new SchemaService());
 
-  const [schema, setSchema] = useState<ReturnType<SchemaService['getSchemaBridge']>>();
-  const [model, setModel] = useState<Record<string, unknown>>();
-  const [componentName, setComponentName] = useState<string | undefined>('');
+  const visualComponentSchema = useMemo(() => {
+    const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
+    // Overriding parameters with an empty object When the parameters property is mistakenly set to null
+    if (answer?.definition?.parameters === null) {
+      answer!.definition.parameters = {};
+    }
+    return answer;
+  }, [props.selectedNode.data?.vizNode]);
+  const schema = useMemo(() => {
+    return schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema);
+  }, [visualComponentSchema?.schema]);
+  const model = visualComponentSchema?.definition;
+  const componentName = visualComponentSchema?.title;
 
   useEffect(() => {
     formRef.current?.reset();
-    const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
-
-    setSchema(schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema));
-
-    // Overriding parameters with an empty object When the parameters property is mistakenly set to null
-    if (visualComponentSchema?.definition?.parameters === null) {
-      visualComponentSchema!.definition.parameters = {};
-    }
-
-    setModel(visualComponentSchema?.definition ?? {});
-    setComponentName(visualComponentSchema?.title);
   }, [props.selectedNode.data?.vizNode]);
 
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
       props.selectedNode.data?.vizNode?.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
-      setModel(newModel);
     },
-    [entitiesContext, props.selectedNode.data?.vizNode],
+    [entitiesContext, props.selectedNode.data?.vizNode, props.selectedNode.id],
   );
 
   const isExpressionAwareStep = useMemo(() => {
