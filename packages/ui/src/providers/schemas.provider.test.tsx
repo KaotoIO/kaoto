@@ -78,7 +78,7 @@ describe('SchemasLoaderProvider', () => {
     expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/index.json`);
   });
 
-  it('should fetch the subsequent catalog files', async () => {
+  it('should fetch the subsequent schemas files', async () => {
     await act(async () => {
       render(
         <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>

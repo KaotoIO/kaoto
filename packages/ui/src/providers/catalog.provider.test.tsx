@@ -114,7 +114,7 @@ describe('CatalogLoaderProvider', () => {
       `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats.json`,
     );
     expect(fetchFileMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`);
-    expect(fetchFileMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-boundaries.json`);
+    expect(fetchFileMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -165,7 +165,7 @@ describe('CatalogLoaderProvider', () => {
       uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`,
     });
     expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.KameletBoundary, {
-      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-boundaries.json`,
+      uri: `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`,
     });
   });
 });
