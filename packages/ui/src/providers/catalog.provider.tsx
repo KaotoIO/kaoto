@@ -41,16 +41,28 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.kamelets.file}`,
         );
+        /** Camel Kamelets boundaries definitions list (CRDs) */
+        const kameletBoundariesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.KameletBoundary]>(
+          `${props.catalogUrl}/${catalogIndex.catalogs['kamelets-boundaries'].file}`,
+        );
 
-        const [camelComponents, camelModels, camelPatterns, camelLanguages, camelDataformats, kamelets] =
-          await Promise.all([
-            camelComponentsFiles,
-            camelModelsFiles,
-            camelPatternsFiles,
-            camelLanguagesFiles,
-            camelDataformatsFiles,
-            kameletsFiles,
-          ]);
+        const [
+          camelComponents,
+          camelModels,
+          camelPatterns,
+          camelLanguages,
+          camelDataformats,
+          kamelets,
+          kameletBoundaries,
+        ] = await Promise.all([
+          camelComponentsFiles,
+          camelModelsFiles,
+          camelPatternsFiles,
+          camelLanguagesFiles,
+          camelDataformatsFiles,
+          kameletsFiles,
+          kameletBoundariesFiles,
+        ]);
 
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
@@ -58,9 +70,14 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kamelets.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.KameletBoundary, kameletBoundaries.body);
       })
       .then(() => {
         setIsLoading(false);
+      })
+      .catch((error) => {
+        /** TODO: Provide a friendly error message */
+        console.error(error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

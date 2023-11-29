@@ -16,6 +16,7 @@ export interface Catalogs {
   languages: CatalogEntry;
   dataformats: CatalogEntry;
   kamelets: CatalogEntry;
+  'kamelets-boundaries': CatalogEntry;
   patterns: CatalogEntry;
 }
 
@@ -49,4 +50,5 @@ export interface ComponentsCatalog {
   [CatalogKind.Language]?: Record<string, ICamelLanguageDefinition>;
   [CatalogKind.Dataformat]?: Record<string, ICamelDataformatDefinition>;
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;
+  [CatalogKind.KameletBoundary]?: Record<string, IKameletDefinition>;
 }
