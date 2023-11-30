@@ -8,6 +8,7 @@ import {
   SearchInput,
   ToggleGroup,
   ToggleGroupItem,
+  capitalize,
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { CatalogLayout } from './Catalog.models';
@@ -42,10 +43,10 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
     <Form className={props.className}>
       <Grid hasGutter>
         <GridItem md={5} lg={6}>
-          <FormGroup label="Search term" fieldId="search-term">
+          <FormGroup label="Filter" fieldId="search-term">
             <SearchInput
-              aria-label="Find by name, description or tag"
-              placeholder="Find by name, description or tag"
+              aria-label="Filter by name, description or tag"
+              placeholder="Filter by name, description or tag"
               value={props.searchTerm}
               onChange={props.onChange}
               onClear={props.onChange}
@@ -59,7 +60,7 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
             <ToggleGroup aria-label="Select element type">
               {props.groups.map((key) => (
                 <ToggleGroupItem
-                  text={key}
+                  text={capitalize(key)}
                   key={key}
                   data-testid={`${key}-catalog-tab`}
                   buttonId={`toggle-group-button-${key}`}
