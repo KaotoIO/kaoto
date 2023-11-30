@@ -31,6 +31,8 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
+import { useLocalStorage } from '../../../hooks';
+import { LocalStorageKeys } from '../../../models';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -42,6 +44,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
+  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
@@ -60,6 +63,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
             ),
             tooltip: 'Horizontal Layout',
             callback: action(() => {
+              setActiveLayout(LayoutType.DagreHorizontal);
               controller.getGraph().setLayout(LayoutType.DagreHorizontal);
               controller.getGraph().reset();
               controller.getGraph().layout();
@@ -74,6 +78,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
             ),
             tooltip: 'Vertical Layout',
             callback: action(() => {
+              setActiveLayout(LayoutType.DagreVertical);
               controller.getGraph().setLayout(LayoutType.DagreVertical);
               controller.getGraph().reset();
               controller.getGraph().layout();
@@ -161,7 +166,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       graph: {
         id: 'g1',
         type: 'graph',
-        layout: CanvasDefaults.DEFAULT_LAYOUT,
+        layout: activeLayout,
       },
     };
 
