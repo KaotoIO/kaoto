@@ -1,12 +1,4 @@
-import {
-  BoolField,
-  DateField,
-  ListField,
-  NumField,
-  RadioField,
-  SelectField,
-  TextField,
-} from '@kaoto-next/uniforms-patternfly';
+import { BoolField, DateField, ListField, RadioField, SelectField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
@@ -39,7 +31,7 @@ export const CustomAutoField = createAutoField((props) => {
     case Date:
       return DateField;
     case Number:
-      return NumField;
+      return TextField;
     case Object:
       return CustomNestField;
     case String:

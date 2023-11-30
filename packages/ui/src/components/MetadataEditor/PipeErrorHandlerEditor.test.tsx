@@ -16,7 +16,7 @@ describe('PipeErrorHandlerEditor', () => {
     render(<PipeErrorHandlerEditor model={model} onChangeModel={() => {}} schema={pipeErrorHandlerSchema} />);
     const element = screen.getByTestId('metadata-editor-form-Log Pipe ErrorHandler');
     expect(element).toBeTruthy();
-    const inputs = screen.getAllByTestId('num-field');
+    const inputs = screen.getAllByTestId('text-field');
     expect(inputs.length).toBe(2);
     expect(inputs[0].getAttribute('name')).toBe('log.parameters.maximumRedeliveries');
     expect(inputs[1].getAttribute('name')).toBe('log.parameters.redeliveryDelay');
