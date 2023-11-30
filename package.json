@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "@babel/traverse": "7.23.4",
+    "@babel/traverse": "7.23.5",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/react-code-editor": "^5.0.0",
     "@patternfly/react-core": "^5.0.0",
