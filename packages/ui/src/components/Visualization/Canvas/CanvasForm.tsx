@@ -55,7 +55,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   }, [schema]);
 
   return schema?.schema === undefined ? null : (
-    <ErrorBoundary fallback={<p>This node cannot be configured yet</p>}>
+    <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Title headingLevel="h1">{componentName}</Title>
       {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
       {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
