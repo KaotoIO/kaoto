@@ -1,5 +1,5 @@
 {
-  "type": "model",
+  "type": "processor",
   "name": "aggregate",
   "title": "Aggregate",
   "description": "Aggregates many messages into a single message",
