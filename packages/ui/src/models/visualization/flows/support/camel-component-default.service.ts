@@ -70,7 +70,9 @@ export class CamelComponentDefaultService {
           id: ${getCamelRandomId('choice')}
           when:
           - id: ${getCamelRandomId('when')}
-            simple: "\${header.foo} == 1"
+            expression:
+              simple:
+                expression: "\${header.foo} == 1"
             steps:
             - log:
                 id: ${getCamelRandomId('log')}
@@ -82,6 +84,18 @@ export class CamelComponentDefaultService {
                 id: ${getCamelRandomId('log')}
                 message: "\${body}"
         `);
+
+      case 'when':
+        return parse(`
+        id: ${getCamelRandomId('when')}
+        expression:
+          simple:
+            expression: "\${header.foo} == 1"
+        steps:
+        - log:
+            id: ${getCamelRandomId('log')}
+            message: "\${body}"
+      `);
 
       case 'doTry':
         return parse(`
