@@ -23157,7 +23157,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "aggregate",
       "title": "Aggregate",
       "description": "Aggregates many messages into a single message",
@@ -23754,7 +23754,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "apiKey",
       "title": "Api Key",
       "description": "Rest security basic auth definition",
@@ -23856,7 +23856,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "asn1",
       "title": "ASN.1 File",
       "description": "Encode and decode data structures using Abstract Syntax Notation One (ASN.1).",
@@ -23921,7 +23921,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "avro",
       "title": "Avro",
       "description": "Serialize and deserialize messages using Apache Avro binary data format.",
@@ -24221,7 +24221,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "barcode",
       "title": "Barcode",
       "description": "Transform strings to various 1D/2D barcode bitmap formats and back.",
@@ -24308,7 +24308,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "base64",
       "title": "Base64",
       "description": "Encode and decode data using Base64.",
@@ -24387,7 +24387,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "basicAuth",
       "title": "Basic Auth",
       "description": "Rest security basic auth definition",
@@ -24438,7 +24438,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "batch-config",
       "title": "Batch-config",
       "description": "Configures batch-processing resequence eip.",
@@ -24532,7 +24532,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "bean",
       "title": "Bean",
       "description": "Calls a Java bean",
@@ -24651,7 +24651,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "beans",
       "title": "Beans",
       "description": "A grouping POJO (and related XML root element) that's historically associated with entire application (or its distinguished fragment). This class is not meant to be used with Camel Java DSL, but it's needed to generate XML Schema and MX parser methods.",
@@ -24765,7 +24765,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "bearerToken",
       "title": "Bearer Token",
       "description": "Rest security bearer token authentication definition",
@@ -24828,7 +24828,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "bindy",
       "title": "Bindy",
       "description": "Marshal and unmarshal Java beans from and to flat payloads (such as CSV, delimited, fixed length formats, or FIX messages).",
@@ -24937,7 +24937,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "blacklistServiceFilter",
       "title": "Blacklist Service Filter",
       "tags": [
@@ -24999,7 +24999,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "cachingServiceDiscovery",
       "title": "Caching Service Discovery",
       "tags": [
@@ -25103,7 +25103,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "camel",
       "title": "Camel",
       "description": "If beans reminds Spring application too much, we can use camel.",
@@ -25217,7 +25217,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "cbor",
       "title": "CBOR",
       "description": "Unmarshal a CBOR payload to POJO and back.",
@@ -25385,7 +25385,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "choice",
       "title": "Choice",
       "description": "Route messages based on a series of predicates",
@@ -25494,7 +25494,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "circuitBreaker",
       "title": "Circuit Breaker",
       "description": "Route messages in a fault tolerance way using Circuit Breaker",
@@ -25684,7 +25684,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "claimCheck",
       "title": "Claim Check",
       "description": "The Claim Check EIP allows you to replace message content with a claim check (a unique key), which can be used to retrieve the message content at a later time.",
@@ -25817,7 +25817,7 @@
       }
     },
     {
-      "type": "Model",
+      "type": "Processor",
       "name": "combinedServiceDiscovery",
       "title": "Combined Service Discovery",
       "tags": [
