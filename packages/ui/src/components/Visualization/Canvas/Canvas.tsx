@@ -147,6 +147,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   /** Draw graph */
   useEffect(() => {
     if (!Array.isArray(props.entities)) return;
+    setSelectedNode(undefined);
 
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
@@ -160,6 +161,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     });
 
     setNodes([...nodes]);
+
     const model: Model = {
       nodes,
       edges,
