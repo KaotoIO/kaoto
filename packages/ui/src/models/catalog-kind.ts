@@ -1,6 +1,6 @@
 export const enum CatalogKind {
   Component = 'component',
-  Processor = 'model',
+  Processor = 'processor',
   Pattern = 'pattern',
   Language = 'language',
   Dataformat = 'dataformat',
