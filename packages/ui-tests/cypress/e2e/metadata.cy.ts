@@ -63,8 +63,8 @@ describe('Test for Metadata Editor support', () => {
     cy.checkCodeSpanLine('creationTimestamp: testCreationTimestamp');
     cy.checkCodeSpanLine('deletionTimestamp: testDeletionTimestamp');
     cy.checkCodeSpanLine('generateName: testGenerateName');
-    cy.checkCodeSpanLine('generation: 10');
-    cy.checkCodeSpanLine('deletionGracePeriodSeconds: 1000');
+    cy.checkCodeSpanLine('generation: "10"');
+    cy.checkCodeSpanLine('deletionGracePeriodSeconds: "1000"');
     cy.checkCodeSpanLine('namespace: testNamespace');
     cy.checkCodeSpanLine('resourceVersion: testResourceVersion');
     cy.checkCodeSpanLine('selfLink: testSelfLink');
@@ -111,8 +111,8 @@ describe('Test for Metadata Editor support', () => {
     cy.checkCodeSpanLine('creationTimestamp: updatedCreationTimestamp');
     cy.checkCodeSpanLine('deletionTimestamp: updatedDeletionTimestamp');
     cy.checkCodeSpanLine('generateName: updatedGenerateName');
-    cy.checkCodeSpanLine('generation: 20');
-    cy.checkCodeSpanLine('deletionGracePeriodSeconds: 2000');
+    cy.checkCodeSpanLine('generation: "20"');
+    cy.checkCodeSpanLine('deletionGracePeriodSeconds: "2000"');
     cy.checkCodeSpanLine('namespace: updatedNamespace');
     cy.checkCodeSpanLine('resourceVersion: updatedResourceVersion');
     cy.checkCodeSpanLine('selfLink: updatedSelfLink');
