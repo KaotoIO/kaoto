@@ -11,7 +11,7 @@ describe('Catalog related tests', () => {
     cy.get('div[id="timer"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
 
-    cy.get('[data-testid="model-catalog-tab"]').click();
+    cy.get('[data-testid="processor-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('choice');
     cy.get('div[id="choice"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();

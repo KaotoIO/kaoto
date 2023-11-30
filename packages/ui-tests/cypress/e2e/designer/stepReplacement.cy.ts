@@ -17,7 +17,7 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('timer', 0);
 
     cy.selectReplaceNode('setHeader');
-    cy.get('[data-testid="model-catalog-tab"]').click();
+    cy.get('[data-testid="processor-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('setBody');
     cy.get('#setBody').should('be.visible').click();
