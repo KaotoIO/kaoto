@@ -22,7 +22,7 @@ describe('Tests for Design page', () => {
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('period: 3000');
+    cy.checkCodeSpanLine('period: "3000"');
     cy.checkCodeSpanLine('topic: topicname');
     cy.checkCodeSpanLine('bootstrapServers: bootstrap');
     cy.checkCodeSpanLine('securityProtocol: security');
