@@ -1,5 +1,5 @@
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { EmptyState, EmptyStateBody, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
+import { Badge, EmptyState, EmptyStateBody, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
 import { Table, TableVariant, Tbody, Td, TdProps, Th, Thead, Tr } from '@patternfly/react-table';
 import { ReactNode, useState } from 'react';
 import { HTMLFieldProps, connectField } from 'uniforms';
@@ -15,7 +15,7 @@ export type PropertiesFieldProps = HTMLFieldProps<any, HTMLDivElement>;
  * @param props
  * @constructor
  */
-export const PropertiesField = connectField((props: PropertiesFieldProps) => {
+const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
   const [isFieldExpanded, setFieldExpanded] = useState<boolean>(false);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [placeholderState, setPlaceholderState] = useState<PlaceholderState | null>(null);
@@ -71,7 +71,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
       return placeholderState && placeholderState.parentNodeId === getNodeId(parentPath)
         ? [
             <PropertyRow
-              isPlaceholder={true}
+              isPlaceholder
               key="placeholder"
               propertyName={props.name}
               nodeName=""
@@ -149,33 +149,36 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
   }
 
   return wrapField(
-    props,
+    { ...props, label: '' },
     <ExpandableSection
-      toggleText={''}
+      toggleContent={
+        <>
+          <span>{props.label} </span>
+          <Badge isRead>{Object.keys(propertiesModel).length}</Badge>
+        </>
+      }
       onToggle={(_event, isExpanded) => setFieldExpanded(isExpanded)}
       isExpanded={isFieldExpanded}
       data-testid={'expandable-section-' + props.name}
     >
       <Stack hasGutter>
         <StackItem isFilled>
-          <Table
-            isTreeTable={true}
-            aria-label={props.name}
-            variant={TableVariant.compact}
-            borders={true}
-            isStickyHeader
-          >
+          <Table isTreeTable aria-label={props.name} variant={TableVariant.compact} borders isStickyHeader>
             <Thead>
               <Tr key={`${props.name}-header`}>
-                <Th modifier="nowrap">NAME</Th>
-                <Th modifier="nowrap">VALUE</Th>
+                <Th width={40} modifier="nowrap">
+                  NAME
+                </Th>
+                <Th width={40} modifier="nowrap">
+                  VALUE
+                </Th>
                 <Td modifier="nowrap" isActionCell>
                   <AddPropertyButtons
                     path={[]}
                     disabled={props.disabled}
                     createPlaceholder={(isObject) =>
                       handleCreatePlaceHolder({
-                        isObject: isObject,
+                        isObject,
                         parentNodeId: '',
                       })
                     }
@@ -192,7 +195,7 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
                         <EmptyState>
                           <EmptyStateBody>No {props.name}</EmptyStateBody>
                           <AddPropertyButtons
-                            showLabel={true}
+                            showLabel
                             path={[]}
                             disabled={props.disabled}
                             createPlaceholder={(isObject) =>
@@ -212,4 +215,6 @@ export const PropertiesField = connectField((props: PropertiesFieldProps) => {
       </Stack>
     </ExpandableSection>,
   );
-});
+};
+
+export const PropertiesField = connectField(PropertiesFieldComponent);

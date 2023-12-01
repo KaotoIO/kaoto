@@ -1,12 +1,11 @@
-import { createElement, FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
-import { TopmostArrayTable } from './TopmostArrayTable';
-import { ErrorsField } from '@kaoto-next/uniforms-patternfly';
-import { AutoForm } from 'uniforms';
-import { CustomAutoField } from '../Form/CustomAutoField';
-import { SchemaService } from '../Form';
-import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import cloneDeep from 'lodash/cloneDeep';
+import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import { SchemaService } from '../Form';
+import { CustomAutoForm } from '../Form/CustomAutoForm';
+import { TopmostArrayTable } from './TopmostArrayTable';
+import './MetadataEditor.scss';
 
 interface MetadataEditorProps {
   name: string;
@@ -23,7 +22,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
     schemaServiceRef.current.getSchemaBridge(getFormSchema()),
   );
-  const firstInputRef = useRef<HTMLInputElement>();
+  const fieldsRefs = useRef<{ fields: HTMLElement[] }>(null);
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
@@ -34,11 +33,11 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
 
   useEffect(() => {
     // The input like checkbox doesn't have focus() method
-    firstInputRef.current?.focus && firstInputRef.current?.focus();
+    fieldsRefs.current?.fields[0]?.focus?.();
   }, [selected]);
 
   function isTopmostArray() {
-    return props.schema.type === 'array' && props.schema.items;
+    return props.schema.type === 'array' && props.schema.items !== undefined;
   }
 
   function isFormDisabled() {
@@ -93,79 +92,49 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
     props.onChangeModel(model);
   }
 
-  function handleSetSelected(index: number) {
-    setSelected(index);
-  }
+  return (
+    <>
+      {isTopmostArray() ? (
+        <Split hasGutter>
+          <SplitItem className="metadata-editor-modal-list-view">
+            <TopmostArrayTable
+              model={preparedModel != null ? preparedModel : props.metadata}
+              itemSchema={getFormSchema()}
+              name={props.name}
+              selected={selected}
+              onSelected={setSelected}
+              onChangeModel={onChangeArrayModel}
+            />
+          </SplitItem>
 
-  function renderTopmostArrayView() {
-    return (
-      <Split hasGutter>
-        <SplitItem className="metadata-editor-modal-list-view">
-          <TopmostArrayTable
-            model={preparedModel != null ? preparedModel : props.metadata}
-            itemSchema={getFormSchema()}
-            name={props.name}
-            selected={selected}
-            onSelected={handleSetSelected}
-            onChangeModel={onChangeArrayModel}
-          />
-        </SplitItem>
-
-        <SplitItem className="metadata-editor-modal-details-view">
-          <Stack hasGutter>
-            <StackItem>
-              <Title headingLevel="h2">Details</Title>
-            </StackItem>
-            <StackItem isFilled>{renderDetailsForm()}</StackItem>
-          </Stack>
-        </SplitItem>
-      </Split>
-    );
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function renderAutoFields(props: any = {}) {
-    return createElement(
-      'div',
-      props,
-      schemaBridge!
-        .getSubfields()
-        .sort((a, b) => {
-          const propsA = schemaBridge!.getProps(a);
-          const propsB = schemaBridge!.getProps(b);
-          if (propsA.required) {
-            return propsB.required ? 0 : -1;
-          }
-          return propsB.required ? 1 : 0;
-        })
-        .map((field, index) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const props: any = { key: field, name: field };
-          if (index === 0) {
-            props.inputRef = firstInputRef;
-          }
-          return createElement(CustomAutoField, props);
-        }),
-    );
-  }
-
-  function renderDetailsForm() {
-    return (
-      schemaBridge && (
-        <AutoForm
-          schema={schemaBridge}
+          <SplitItem className="metadata-editor-modal-details-view">
+            <Stack hasGutter>
+              <StackItem>
+                <Title headingLevel="h2">Details</Title>
+              </StackItem>
+              <StackItem isFilled>
+                <CustomAutoForm
+                  schemaBridge={schemaBridge}
+                  model={getFormModel()}
+                  onChangeModel={onChangeFormModel}
+                  data-testid={`metadata-editor-form-${props.name}`}
+                  disabled={isFormDisabled()}
+                  ref={fieldsRefs}
+                />
+              </StackItem>
+            </Stack>
+          </SplitItem>
+        </Split>
+      ) : (
+        <CustomAutoForm
+          schemaBridge={schemaBridge}
           model={getFormModel()}
           onChangeModel={onChangeFormModel}
-          data-testid={'metadata-editor-form-' + props.name}
+          data-testid={`metadata-editor-form-${props.name}`}
           disabled={isFormDisabled()}
-        >
-          {renderAutoFields()}
-          <ErrorsField />
-          <br />
-        </AutoForm>
-      )
-    );
-  }
-
-  return schemaBridge && <>{isTopmostArray() ? renderTopmostArrayView() : renderDetailsForm()}</>;
+          ref={fieldsRefs}
+        />
+      )}
+    </>
+  );
 };
