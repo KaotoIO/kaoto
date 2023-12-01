@@ -4,36 +4,42 @@ exports[`NodeDefinitionService getSchemaFromCamelCommonProperties should return 
 {
   "properties": {
     "description": {
+      "default": undefined,
       "deprecated": false,
       "description": "Sets the description of this node",
       "title": "Description",
       "type": "string",
     },
     "disabled": {
+      "default": false,
       "deprecated": false,
       "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
       "title": "Disabled",
       "type": "boolean",
     },
     "id": {
+      "default": undefined,
       "deprecated": false,
       "description": "Sets the id of this node",
       "title": "Id",
       "type": "string",
     },
     "logName": {
+      "default": undefined,
       "deprecated": false,
       "description": "Sets the name of the logger",
       "title": "Log Name",
       "type": "string",
     },
     "logger": {
+      "default": undefined,
       "deprecated": false,
       "description": "To refer to a custom logger instance to lookup from the registry.",
       "title": "Logger",
       "type": "object",
     },
     "loggingLevel": {
+      "default": "INFO",
       "deprecated": false,
       "description": "Sets the logging level. The default value is INFO",
       "enum": [
@@ -48,12 +54,14 @@ exports[`NodeDefinitionService getSchemaFromCamelCommonProperties should return 
       "type": undefined,
     },
     "marker": {
+      "default": undefined,
       "deprecated": false,
       "description": "To use slf4j marker",
       "title": "Marker",
       "type": "string",
     },
     "message": {
+      "default": undefined,
       "deprecated": false,
       "description": "Sets the log message (uses simple language)",
       "title": "Message",
