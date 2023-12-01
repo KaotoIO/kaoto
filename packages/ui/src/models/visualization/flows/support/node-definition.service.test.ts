@@ -3,6 +3,7 @@ import { logModel } from '../../../../stubs/log-model';
 import { xjTemplateAction } from '../../../../stubs/xj-template-action.kamelet';
 import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
 import { NodeDefinitionService } from './node-definition.service';
+import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 
 describe('NodeDefinitionService', () => {
   describe('getSchemaFromCamelCommonProperties', () => {
@@ -20,6 +21,13 @@ describe('NodeDefinitionService', () => {
       const schema = NodeDefinitionService.getSchemaFromCamelCommonProperties(logModel.properties);
 
       expect(schema).toMatchSnapshot();
+    });
+
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    it('should return a schema for google-drive', () => {
+      const catalog = (componentCatalogMap as any)['google-drive'];
+      const schema = NodeDefinitionService.getSchemaFromCamelCommonProperties(catalog.properties);
+      expect(schema.properties.scopes.items).toBeDefined();
     });
   });
 
