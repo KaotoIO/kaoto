@@ -39,6 +39,15 @@ export class NodeDefinitionService {
         required.push(propertyName);
       }
 
+      if (propertyType === 'array') {
+        const javaType = property.javaType;
+        if (javaType === 'java.util.List<java.lang.String>') {
+          propertySchema.items = {
+            type: 'string',
+          };
+        }
+      }
+
       schema.properties[propertyName] = propertySchema;
     });
 
