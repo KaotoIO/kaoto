@@ -29,6 +29,7 @@ export class NodeDefinitionService {
         title: property.displayName,
         description: property.description,
         deprecated: property.deprecated,
+        default: property.defaultValue,
       } as unknown as JSONSchemaType<unknown>;
 
       if (property.enum !== undefined) {

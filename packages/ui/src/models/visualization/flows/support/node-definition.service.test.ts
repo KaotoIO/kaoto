@@ -70,7 +70,7 @@ describe('NodeDefinitionService', () => {
     expect(jsonType.properties.durationProperty.type).toEqual('string');
   });
 
-  it('should return the JSON type for a duration field', () => {
+  it('should return the JSON type for a object', () => {
     const objectProperty: ICamelProcessorProperty = {
       index: 0,
       kind: 'expression',
@@ -87,6 +87,25 @@ describe('NodeDefinitionService', () => {
 
     const jsonType = NodeDefinitionService.getSchemaFromCamelCommonProperties({ objectProperty });
     expect(jsonType.properties.objectProperty.type).toEqual('object');
+  });
+
+  it('should return the default value for the property', () => {
+    const durationProperty: ICamelProcessorProperty = {
+      index: 1,
+      kind: 'attribute',
+      displayName: 'Batch Timeout',
+      required: false,
+      type: 'duration',
+      javaType: 'java.lang.String',
+      deprecated: false,
+      autowired: false,
+      secret: false,
+      defaultValue: '1000',
+      description: 'Sets the timeout for collecting elements to be re-ordered. The default timeout is 1000 msec.',
+    };
+
+    const jsonType = NodeDefinitionService.getSchemaFromCamelCommonProperties({ durationProperty });
+    expect(jsonType.properties.durationProperty.default).toEqual('1000');
   });
 
   describe('getSchemaFromKameletDefinition', () => {
