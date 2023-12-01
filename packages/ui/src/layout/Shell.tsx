@@ -1,5 +1,6 @@
 import { Page, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect } from 'react';
+import { useLocalStorage } from '../hooks/local-storage.hook';
 import { LocalStorageKeys } from '../models';
 import { SourceCodeApiContext } from '../providers/source-code.provider';
 import { camelRouteYaml } from '../stubs/camel-route';
@@ -10,12 +11,12 @@ import { TopBar } from './TopBar';
 
 export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   const eventNotifier = EventNotifier.getInstance();
-  const [isNavOpen, setIsNavOpen] = useState(true);
+  const [isNavOpen, setIsNavOpen] = useLocalStorage(LocalStorageKeys.NavigationExpanded, true);
   const sourceCodeApiContext = useContext(SourceCodeApiContext)!;
 
   const navToggle = useCallback(() => {
     setIsNavOpen(!isNavOpen);
-  }, [isNavOpen]);
+  }, [isNavOpen, setIsNavOpen]);
 
   /**
    * Set the source code, entities, and visual entities from localStorage if available
