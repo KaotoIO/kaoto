@@ -13,10 +13,6 @@ export const CustomAutoField = createAutoField((props) => {
     return props.checkboxes && props.fieldType !== Array ? RadioField : SelectField;
   }
 
-  if (props.name.endsWith('steps')) {
-    return DisabledField;
-  }
-
   // Assuming generic object field without any children to use PropertiesField
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (props.fieldType === Object && (props.field as any)?.type === 'object' && !(props.field as any)?.properties) {

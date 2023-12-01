@@ -2,7 +2,7 @@ import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput, Toolti
 import { CheckIcon, PencilAltIcon, TimesIcon, TrashIcon } from '@patternfly/react-icons';
 import { Td, TdProps, TreeRowWrapper } from '@patternfly/react-table';
 import { FormEvent, useState } from 'react';
-import '../../MetadataEditor/MetadataEditor.scss';
+import './PropertyRow.scss';
 import { AddPropertyButtons } from './AddPropertyButtons';
 
 type PropertyRowProps = {
@@ -97,11 +97,11 @@ export function PropertyRow({
 
   return (
     <TreeRowWrapper key={getKey()} row={{ props: treeRow!.props }}>
-      <Td dataLabel="NAME" treeRow={treeRow}>
+      <Td className="property-row__value" dataLabel="NAME" treeRow={treeRow}>
         {isEditing ? (
           <>
             <TextInput
-              autoFocus={true}
+              autoFocus
               aria-label={`${getKey()}-name`}
               data-testid={`${getKey()}-name-input`}
               name={`properties-input-${getKey()}-name`}
@@ -121,7 +121,7 @@ export function PropertyRow({
           <div data-testid={`${getKey()}-name-label`}>{nodeName}</div>
         )}
       </Td>
-      <Td dataLabel="VALUE">
+      <Td className="property-row__value" dataLabel="VALUE">
         {(() => {
           if (isObject && !isEditing) {
             return <AddPropertyButtons path={path} createPlaceholder={createPlaceholder} />;
@@ -138,7 +138,7 @@ export function PropertyRow({
               />
             );
           } else if (!isObject && !isEditing) {
-            return <div data-testid={`${getKey()}-value-label`}>{nodeValue}</div>;
+            return <span data-testid={`${getKey()}-value-label`}>{nodeValue}</span>;
           } else {
             return <></>;
           }
