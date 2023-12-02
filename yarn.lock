@@ -2589,7 +2589,7 @@ __metadata:
     "@storybook/react-vite": ^7.2.3
     "@storybook/testing-library": ^0.2.0
     "@storybook/theming": ^7.4.0
-    chromatic: ^9.0.0
+    chromatic: ^10.0.0
     cypress: ^13.0.0
     cypress-file-upload: ^5.0.8
     eslint: ^8.45.0
@@ -8136,14 +8136,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "chromatic@npm:9.0.0"
+"chromatic@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "chromatic@npm:10.0.0"
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 4bc3b361e0761c3b4c4d3e63504fb011b8b752180418959db6be9bdb056aedb8945d7872168442dc5bcd9447e576a354751a82b83455bfd545f275e5e822c8be
+  checksum: c342276bafb6c848468a983323afd414e70f8a58348c760fa9cbb88200e34470c602dbf3f6f8929d83fa8876c58ca3bfd521eb9c63af33ade69f0633f905bb68
   languageName: node
   linkType: hard
 
