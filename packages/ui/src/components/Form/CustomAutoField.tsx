@@ -35,6 +35,13 @@ export const CustomAutoField = createAutoField((props) => {
     case Object:
       return CustomNestField;
     case String:
+      /* TODO Create BeanReferenceField - https://github.com/KaotoIO/kaoto-next/issues/470
+         catalog preprocessor put 'string' as a type and the javaType as a schema $comment
+      const comment = props['$comment'] as string;
+      if (comment?.startsWith('class:')) {
+        return BeanReferenceField;
+      }
+    */
       return TextField;
   }
 

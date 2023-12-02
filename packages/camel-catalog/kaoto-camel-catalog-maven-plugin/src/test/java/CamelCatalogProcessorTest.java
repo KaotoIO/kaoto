@@ -54,6 +54,34 @@ public class CamelCatalogProcessorTest {
                 .withObject("/direct")
                 .withObject("/component");
         assertEquals("Direct", directModel.get("title").asText());
+        var as2Schema = componentCatalog
+                .withObject("/as2")
+                .withObject("/propertiesSchema");
+        var as2srmaProperty = as2Schema.withObject("/properties").withObject("/signedReceiptMicAlgorithms");
+        assertEquals("array", as2srmaProperty.get("type").asText());
+        assertEquals("string", as2srmaProperty.withObject("/items").get("type").asText());
+        var gdSchema = componentCatalog
+                .withObject("/google-drive")
+                .withObject("/propertiesSchema");
+        var gdScopesProperty = gdSchema.withObject("/properties").withObject("/scopes");
+        assertEquals("array", gdScopesProperty.get("type").asText());
+        assertEquals("string", gdScopesProperty.withObject("/items").get("type").asText());
+        var gdSPProperty = gdSchema.withObject("/properties").withObject("/schedulerProperties");
+        assertEquals("object", gdSPProperty.get("type").asText());
+        var sqlSchema = componentCatalog
+                .withObject("/sql")
+                .withObject("/propertiesSchema");
+        var sqlDSProperty = sqlSchema.withObject("/properties").withObject("/dataSource");
+        assertEquals("string", sqlDSProperty.get("type").asText());
+        assertEquals("class:javax.sql.DataSource", sqlDSProperty.get("$comment").asText());
+        var sqlBEHProperty = sqlSchema.withObject("/properties").withObject("/bridgeErrorHandler");
+        assertTrue(sqlBEHProperty.get("default").isBoolean());
+        assertFalse(sqlBEHProperty.get("default").asBoolean());
+        var etcdSchema = componentCatalog
+                .withObject("/etcd3")
+                .withObject("/propertiesSchema");
+        var etcdEProperty = etcdSchema.withObject("/properties").withObject("/endpoints");
+        assertEquals("Etcd3Constants.ETCD_DEFAULT_ENDPOINTS", etcdEProperty.withArray("/default").get(0).asText());
     }
 
     @Test

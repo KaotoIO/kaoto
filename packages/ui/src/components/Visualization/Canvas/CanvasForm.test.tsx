@@ -4,8 +4,15 @@ import { IVisualizationNode, VisualComponentSchema } from '../../../models/visua
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
+import { AutoFields } from '@kaoto-next/uniforms-patternfly';
+import { AutoForm } from 'uniforms';
+import { CustomAutoField } from '../../Form/CustomAutoField';
+import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
+import { SchemaService } from '../../Form';
 
 describe('CanvasForm', () => {
+  const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
+
   const schema = {
     type: 'object',
     properties: {
@@ -115,5 +122,24 @@ describe('CanvasForm', () => {
     );
 
     expect(visualComponentSchema.definition.parameters).toEqual({});
+  });
+
+  it('should render for all component without an error', () => {
+    const schemaService = new SchemaService();
+    Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
+      try {
+        if (name === 'default') return;
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const schema = schemaService.getSchemaBridge((catalog as any).propertiesSchema);
+        render(
+          <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
+            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
+          </AutoForm>,
+        );
+      } catch (e) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
+      }
+    });
   });
 });

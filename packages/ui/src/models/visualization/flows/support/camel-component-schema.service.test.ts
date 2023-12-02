@@ -1,18 +1,19 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { CatalogKind } from '../../..';
 import { beerSourceKamelet } from '../../../../stubs/beer-source-kamelet';
-import { logComponent } from '../../../../stubs/log-component';
 import { logModel } from '../../../../stubs/log-model';
-import { timerComponent } from '../../../../stubs/timer-component';
 import { toModel } from '../../../../stubs/to-model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
+import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 
 describe('CamelComponentSchemaService', () => {
   beforeEach(() => {
     CamelCatalogService.setCatalogKey(CatalogKind.Component, {
-      log: logComponent,
-      timer: timerComponent,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      log: (componentCatalogMap as any)['log'],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      timer: (componentCatalogMap as any)['timer'],
     });
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, {
       log: logModel,
