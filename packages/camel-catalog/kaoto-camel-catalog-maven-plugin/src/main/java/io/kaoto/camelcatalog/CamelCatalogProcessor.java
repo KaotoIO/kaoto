@@ -28,6 +28,7 @@ import org.apache.camel.util.json.JsonObject;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
@@ -72,16 +73,72 @@ public class CamelCatalogProcessor {
      * @throws Exception
      */
     public String getComponentCatalog() throws Exception {
-        var answer = new LinkedHashMap<String, JsonObject>();
+        var answer = jsonMapper.createObjectNode();
         api.findComponentNames().stream().sorted().forEach((name) -> {
             try {
                 var model = (ComponentModel) api.model(Kind.component, name);
-                answer.put(name, JsonMapper.asJsonObject(model));
+                var json = JsonMapper.asJsonObject(model).toJson();
+                var catalogNode = (ObjectNode) jsonMapper.readTree(json);
+                generatePropertiesSchema(catalogNode);
+                answer.set(name, catalogNode);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
-        return JsonMapper.serialize(answer);
+        StringWriter writer = new StringWriter();
+        var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
+        jsonMapper.writeTree(jsonGenerator, answer);
+        return writer.toString();
+    }
+
+    private void generatePropertiesSchema(ObjectNode parent) throws Exception {
+        var answer = parent.withObject("/propertiesSchema");
+        answer.put("$schema", "http://json-schema.org/draft-07/schema#");
+        answer.put("type", "object");
+
+        var properties = parent.withObject("/properties");
+        var answerProperties = answer.withObject("/properties");
+        var required = new LinkedHashSet<String>();
+        for (var propertyEntry : properties.properties()) {
+            var propertyName = propertyEntry.getKey();
+            var property = propertyEntry.getValue();
+            var propertySchema = answerProperties.withObject("/" + propertyName);
+            if (property.has("displayName")) propertySchema.put("title", property.get("displayName").asText());
+            if (property.has("description")) propertySchema.put("description", property.get("description").asText());
+            var propertyType = "string";
+            if (property.has("type")) {
+                propertyType = property.get("type").asText();
+                if ("duration".equals(propertyType)) {
+                    propertyType = "string";
+                    propertySchema.put("$comment", "duration");
+                }
+                propertySchema.put("type", propertyType);
+            }
+            if (property.has("deprecated")) propertySchema.put("deprecated", property.get("deprecated").asBoolean());
+            if (property.has("required") && property.get("required").asBoolean()) {
+                required.add(propertyName);
+            }
+            if (property.has("defaultValue")) {
+                if ("array".equals(propertyType)) {
+                    propertySchema.withArray("/default").add(property.get("defaultValue"));
+                } else {
+                    propertySchema.set("default", property.get("defaultValue"));
+                }
+            }
+
+            if (property.has("enum")) {
+                property.withArray("/enum")
+                        .forEach(e -> propertySchema.withArray("/enum").add(e));
+            } else if ("array".equals(propertyType)) {
+                propertySchema.withObject("/items").put("type", "string");
+            } else if ("object".equals(propertyType) && property.has("javaType") && !property.get("javaType").asText().startsWith("java.util.Map")) {
+                // Put "string" as a type and javaType as a schema $comment to indicate
+                // that the UI should handle this as a bean reference field
+                propertySchema.put("type", "string");
+                propertySchema.put("$comment", "class:" + property.get("javaType").asText());
+            }
+        }
+        required.forEach(req -> answer.withArray("/required").add(req));
     }
 
     /**

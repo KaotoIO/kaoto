@@ -18,6 +18,10 @@ export class SchemaService {
   getSchemaBridge(schema?: Record<string, unknown>): JSONSchemaBridge | undefined {
     if (!schema) return undefined;
 
+    // uniforms passes it down to the React TextInput as an attribute, causes a warning
+    if (schema['$comment']) {
+      delete schema['$comment'];
+    }
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
     return new JSONSchemaBridge({ schema, validator: schemaValidator });

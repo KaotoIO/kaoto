@@ -1,10 +1,12 @@
 import { CamelPropertyCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
+import { JSONSchemaType } from 'ajv';
 
 export interface ICamelComponentDefinition {
   component: ICamelComponent;
   componentProperties: Record<string, ICamelComponentProperty>;
   properties: Record<string, ICamelComponentProperty>;
+  propertiesSchema: JSONSchemaType<unknown>;
   headers?: Record<string, ICamelComponentHeader>;
   apis?: Record<string, ICamelComponentApi>;
   apiProperties?: Record<string, ICamelComponentApiProperty>;

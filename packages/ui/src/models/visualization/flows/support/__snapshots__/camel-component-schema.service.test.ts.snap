@@ -38,11 +38,11 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "description": "Endpoint properties description",
         "properties": {
           "exchangeFormatter": {
-            "default": undefined,
+            "$comment": "class:org.apache.camel.spi.ExchangeFormatter",
             "deprecated": false,
             "description": "To use a custom exchange formatter",
             "title": "Exchange Formatter",
-            "type": "object",
+            "type": "string",
           },
           "groupActiveOnly": {
             "default": "true",
@@ -52,21 +52,18 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "type": "boolean",
           },
           "groupDelay": {
-            "default": undefined,
             "deprecated": false,
             "description": "Set the initial delay for stats (in millis)",
             "title": "Group Delay",
             "type": "integer",
           },
           "groupInterval": {
-            "default": undefined,
             "deprecated": false,
             "description": "If specified will group message stats by this time interval (in millis)",
             "title": "Group Interval",
             "type": "integer",
           },
           "groupSize": {
-            "default": undefined,
             "deprecated": false,
             "description": "An integer that specifies a group size for throughput logging.",
             "title": "Group Size",
@@ -92,24 +89,21 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
               "OFF",
             ],
             "title": "Level",
-            "type": undefined,
+            "type": "string",
           },
           "logMask": {
-            "default": undefined,
             "deprecated": false,
             "description": "If true, mask sensitive information like password or passphrase in the log.",
             "title": "Log Mask",
             "type": "boolean",
           },
           "loggerName": {
-            "default": undefined,
             "deprecated": false,
             "description": "Name of the logging category to use",
             "title": "Logger Name",
             "type": "string",
           },
           "marker": {
-            "default": undefined,
             "deprecated": false,
             "description": "An optional Marker name to use.",
             "title": "Marker",
@@ -265,7 +259,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
               "Fixed",
             ],
             "title": "Style",
-            "type": undefined,
+            "type": "object",
           },
         },
         "required": [
