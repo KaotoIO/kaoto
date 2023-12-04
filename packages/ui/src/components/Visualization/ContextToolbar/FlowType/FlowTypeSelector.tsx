@@ -47,6 +47,23 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
     onSelect(undefined, currentSchemaType);
   }, [onSelect, currentSchemaType]);
 
+  /** Override function to provide more useful help texts than available via schema */
+  const getDescriptionForType = (type: string) => {
+    switch (type) {
+      case SourceSchemaType.Route:
+        return 'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.';
+      case SourceSchemaType.Kamelet:
+        return 'Defines a reusable Camel route as a building block. Kamelets can not be executed on their own, they are used as sources, actions or sinks in Camel Routes or Pipes.';
+      case SourceSchemaType.Pipe:
+      case SourceSchemaType.KameletBinding:
+        return 'Defines a sequence of concatenated Kamelets to form start to finish integration flows. Pipes are a more abstract level of defining integration flows, by chosing and configuring Kamelets.';
+      case SourceSchemaType.Integration:
+        return 'An integration defines a Camel route in a CRD file.';
+      default:
+        return undefined;
+    }
+  };
+
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
       data-testid="dsl-list-dropdown"
@@ -94,6 +111,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
         setIsOpen(isOpen);
       }}
       toggle={toggle}
+      style={{ width: '20rem' }}
     >
       <SelectList>
         {Object.entries({
@@ -111,8 +129,10 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
-                <span className="pf-v5-u-text-break-word">
-                  {(sourceSchema.schema?.schema as { description: string }).description ?? ''}
+                <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+                  {getDescriptionForType(sourceType) !== undefined
+                    ? getDescriptionForType(sourceType)
+                    : (sourceSchema.schema?.schema as { description: string }).description ?? ''}
                 </span>
               }
               isDisabled={isOptionDisabled}

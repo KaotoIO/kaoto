@@ -45,7 +45,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
     <>
       <FlowTypeSelector isStatic onSelect={checkBeforeAddNewFlow}>
         <PlusIcon />
-        <span className="pf-v5-u-m-sm">New route</span>
+        <span className="pf-v5-u-m-sm">New</span>
       </FlowTypeSelector>
       <Modal
         title="Warning"
@@ -81,7 +81,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         isOpen={isConfirmationModalOpen}
       >
         <p>
-          This will remove the existing routes and you will lose your current work. Are you sure you would like to
+          This will remove any existing integration and you will lose your current work. Are you sure you would like to
           proceed?
         </p>
       </Modal>
