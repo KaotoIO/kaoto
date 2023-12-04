@@ -39,7 +39,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
         </CardHeader>
         <CardBody>
           {props.selectedNode === undefined ? null : (
-            <ErrorBoundary fallback={<p>Something didn't work as expected</p>}>
+            <ErrorBoundary key={props.selectedNode.id} fallback={<p>Something didn't work as expected</p>}>
               <CanvasForm selectedNode={props.selectedNode} />
             </ErrorBoundary>
           )}
