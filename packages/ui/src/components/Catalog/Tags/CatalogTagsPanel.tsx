@@ -14,15 +14,19 @@ export const CatalogTagsPanel: FunctionComponent<ICatalogTagsPanelProps> = (prop
         <Label
           isCompact
           key={tag}
-          data-testid={'tag-' + tag}
           color={getTagColor(tag)}
-          onClick={(ev) => {
-            ev.stopPropagation(); // ignore root click, e.g. click on tile
-            props.onTagClick(ev, tag);
-          }}
           render={({ className, content }) => (
             // to force PF to render label as button with animation
-            <a className={className}>{content}</a>
+            <a
+              className={className}
+              data-testid={'tag-' + tag}
+              onClick={(ev) => {
+                ev.stopPropagation(); // ignore root click, e.g. click on tile
+                props.onTagClick(ev, tag);
+              }}
+            >
+              {content}
+            </a>
           )}
         >
           {tag}

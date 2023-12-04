@@ -126,10 +126,10 @@ exports[`DataListItem renders correctly 1`] = `
                     >
                       <span
                         class="pf-v5-c-label pf-m-compact"
-                        data-testid="tag-tag1"
                       >
                         <a
                           class="pf-v5-c-label__content"
+                          data-testid="tag-tag1"
                         >
                           <span
                             class="pf-v5-c-label__text"
@@ -144,10 +144,10 @@ exports[`DataListItem renders correctly 1`] = `
                     >
                       <span
                         class="pf-v5-c-label pf-m-compact"
-                        data-testid="tag-tag2"
                       >
                         <a
                           class="pf-v5-c-label__content"
+                          data-testid="tag-tag2"
                         >
                           <span
                             class="pf-v5-c-label__text"

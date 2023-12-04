@@ -21,7 +21,7 @@ describe('Catalog related tests', () => {
     cy.get('div[id="google-storage-source"]').should('be.visible');
   });
 
-  it('Catalog filtering usign tags', () => {
+  it('Catalog filtering using tags', () => {
     cy.openCatalog();
     cy.get('[data-testid="component-catalog-tab"]').click();
     cy.get('[data-testid="tag-cloud"]').first().click();
