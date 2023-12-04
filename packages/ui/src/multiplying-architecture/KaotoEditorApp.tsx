@@ -1,4 +1,3 @@
-import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import {
   Editor,
   EditorApi,
@@ -8,9 +7,11 @@ import {
   KogitoEditorEnvelopeContextType,
 } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
+import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import { RefObject, createRef } from 'react';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
+import { KaotoBridge } from './KaotoBridge';
 import { KaotoEditor } from './KaotoEditor';
 
 export class KaotoEditorApp implements Editor {
@@ -73,7 +74,7 @@ export class KaotoEditorApp implements Editor {
     return (
       <SourceCodeProvider>
         <EntitiesProvider>
-          <KaotoEditor
+          <KaotoBridge
             ref={this.editorRef}
             channelType={this.initArgs.channel}
             onReady={() => this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send()}
@@ -90,7 +91,9 @@ export class KaotoEditorApp implements Editor {
               this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command)
             }
             catalogUrl={`${this.initArgs.resourcesPathPrefix}/camel-catalog`}
-          />
+          >
+            <KaotoEditor />
+          </KaotoBridge>
         </EntitiesProvider>
       </SourceCodeProvider>
     );
