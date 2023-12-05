@@ -10,6 +10,7 @@ import { CustomAutoField } from '../../Form/CustomAutoField';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 import { SchemaService } from '../../Form';
+import { getNonDefaultProperties } from './CanvasForm';
 
 describe('CanvasForm', () => {
   const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -162,5 +163,53 @@ describe('CanvasForm', () => {
         throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
       }
     });
+  });
+});
+
+describe('CanvasForm getNonDefaultProperties()', () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      parameters: {
+        properties: {
+          events: {
+            type: 'string',
+            default: 'CREATE,MODIFY,DELETE',
+            title: 'Events',
+          },
+          concurrentConsumers: {
+            type: 'integer',
+            default: 1,
+            title: 'Concurrent Consumers',
+          },
+        },
+      },
+    },
+  } as unknown as JSONSchemaType<unknown>;
+
+  const newModel: Record<string, unknown> = {
+    id: 'from-7126',
+    description: 'test',
+    steps: [],
+    uri: 'file-watch',
+    parameters: {
+      events: 'CREATE',
+      concurrentConsumers: '1',
+    },
+  };
+
+  const newModelExpected: Record<string, unknown> = {
+    id: 'from-7126',
+    description: 'test',
+    steps: [],
+    uri: 'file-watch',
+    parameters: {
+      events: 'CREATE',
+    },
+  };
+
+  it('should return only the properties which are different from default', () => {
+    const newModelClean = getNonDefaultProperties(schema?.properties.parameters.properties, newModel);
+    expect(newModelClean).toMatchObject(newModelExpected);
   });
 });

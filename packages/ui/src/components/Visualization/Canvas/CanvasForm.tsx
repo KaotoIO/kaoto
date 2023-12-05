@@ -8,9 +8,23 @@ import { CanvasNode } from './canvas.models';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ExpressionEditor } from './ExpressionEditor';
 import { DataFormatEditor } from './DataFormatEditor';
+import type { JSONSchemaType } from 'ajv';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
+}
+
+export function getNonDefaultProperties(
+  obj1: JSONSchemaType<unknown>,
+  obj2: Record<string, unknown>,
+): Record<string, unknown> {
+  const newModelUpdated = Object.entries(obj2.parameters).reduce((acc, currentValue) => {
+    if (!(obj1[currentValue[0]]['default'] == currentValue[1])) {
+      acc.push(currentValue);
+    }
+    return acc;
+  }, []);
+  return { ...obj2, parameters: Object.fromEntries(newModelUpdated) };
 }
 
 const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -28,6 +42,8 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     }
     return answer;
   }, [props.selectedNode.data?.vizNode]);
+  console.log('schema');
+  console.log(visualComponentSchema?.schema);
   const schema = useMemo(() => {
     return schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema);
   }, [visualComponentSchema?.schema]);
@@ -40,7 +56,14 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
-      props.selectedNode.data?.vizNode?.updateModel(newModel);
+      // newModelClean will contain only those properties that has different value than default.
+      console.log('newModel:');
+      console.log(newModel);
+      const newModelClean = getNonDefaultProperties(
+        props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
+        newModel,
+      );
+      props.selectedNode.data?.vizNode?.updateModel(newModelClean);
       entitiesContext?.updateSourceCodeFromEntities();
     },
     [entitiesContext, props.selectedNode.data?.vizNode, props.selectedNode.id],
