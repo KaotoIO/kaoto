@@ -3,7 +3,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
-import { NodeDefinitionService } from './node-definition.service';
+import { JSONSchemaType } from 'ajv';
 
 export class KameletSchemaService {
   static getVisualComponentSchema(stepModel?: PipeStep): VisualComponentSchema | undefined {
@@ -15,7 +15,7 @@ export class KameletSchemaService {
 
     return {
       title: definition?.metadata.name || '',
-      schema: NodeDefinitionService.getSchemaFromKameletDefinition(definition),
+      schema: definition?.propertiesSchema || ({} as JSONSchemaType<unknown>),
       definition: stepModel?.ref?.properties || {},
     };
   }

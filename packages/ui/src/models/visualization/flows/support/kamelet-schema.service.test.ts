@@ -1,15 +1,16 @@
 import cloneDeep from 'lodash/cloneDeep';
 import { CatalogKind } from '../../..';
-import { beerSourceKamelet } from '../../../../stubs/beer-source-kamelet';
-import { xjTemplateAction } from '../../../../stubs/xj-template-action.kamelet';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { KameletSchemaService } from './kamelet-schema.service';
+import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 
 describe('KameletSchemaService', () => {
   beforeEach(() => {
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
-      'beer-source': beerSourceKamelet,
-      'xj-template-action': xjTemplateAction,
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
+      'beer-source': (kameletCatalogMap as any)['beer-source'],
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
+      'xj-template-action': (kameletCatalogMap as any)['xj-template-action'],
     });
   });
 
@@ -53,7 +54,7 @@ describe('KameletSchemaService', () => {
   });
 
   it('should provide a default empty string if the kamelet name is not found', () => {
-    const namelessKamelet = cloneDeep(beerSourceKamelet);
+    const namelessKamelet = cloneDeep((kameletCatalogMap as any)['beer-source']);
     namelessKamelet.metadata.name = undefined as unknown as string;
     jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(namelessKamelet);
 

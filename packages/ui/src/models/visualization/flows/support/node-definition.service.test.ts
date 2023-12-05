@@ -1,6 +1,4 @@
-import { beerSourceKamelet } from '../../../../stubs/beer-source-kamelet';
 import { logModel } from '../../../../stubs/log-model';
-import { xjTemplateAction } from '../../../../stubs/xj-template-action.kamelet';
 import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
 import { NodeDefinitionService } from './node-definition.service';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
@@ -106,24 +104,5 @@ describe('NodeDefinitionService', () => {
 
     const jsonType = NodeDefinitionService.getSchemaFromCamelCommonProperties({ durationProperty });
     expect(jsonType.properties.durationProperty.default).toEqual('1000');
-  });
-
-  describe('getSchemaFromKameletDefinition', () => {
-    it('should return an empty schema if the definition is undefined', () => {
-      const schema = NodeDefinitionService.getSchemaFromKameletDefinition(undefined);
-      expect(schema).toEqual({ properties: {}, required: [], type: 'object' });
-    });
-
-    it('should return a schema with the properties', () => {
-      const schema = NodeDefinitionService.getSchemaFromKameletDefinition(beerSourceKamelet);
-
-      expect(schema).toMatchSnapshot();
-    });
-
-    it('should mark the required properties in the schema', () => {
-      const schema = NodeDefinitionService.getSchemaFromKameletDefinition(xjTemplateAction);
-
-      expect(schema).toMatchSnapshot();
-    });
   });
 });

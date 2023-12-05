@@ -2,7 +2,6 @@ import { JSONSchemaType } from 'ajv';
 import { ICamelComponentProperty } from '../../../camel-components-catalog';
 import { ICamelLanguageProperty } from '../../../camel-languages-catalog';
 import { ICamelProcessorProperty } from '../../../camel-processors-catalog';
-import { IKameletDefinition } from '../../../kamelets-catalog';
 
 export class NodeDefinitionService {
   /**
@@ -51,39 +50,6 @@ export class NodeDefinitionService {
 
       schema.properties[propertyName] = propertySchema;
     });
-
-    return schema;
-  }
-
-  /**
-   * Transform a Kamelet definition into a JSON Schema
-   */
-  static getSchemaFromKameletDefinition(definition: IKameletDefinition | undefined): JSONSchemaType<unknown> {
-    const required: string[] = [];
-    const schema = {
-      type: 'object',
-      properties: {},
-      required,
-    } as unknown as JSONSchemaType<unknown>;
-    const properties = definition?.spec.definition.properties;
-    if (!properties) {
-      return schema;
-    }
-
-    Object.keys(properties).forEach((propertyName) => {
-      const property = properties[propertyName];
-      const propertySchema = {
-        type: property.type,
-        title: property.title,
-        description: property.description,
-      } as unknown as JSONSchemaType<unknown>;
-
-      schema.properties[propertyName] = propertySchema;
-    });
-
-    if (definition.spec.definition.required) {
-      required.push(...definition.spec.definition.required);
-    }
 
     return schema;
   }
