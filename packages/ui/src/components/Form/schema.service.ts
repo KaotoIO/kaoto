@@ -5,6 +5,7 @@ import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 
 export class SchemaService {
   private readonly ajv: Ajv;
+  private readonly FILTER_DOM_PROPS = ['$comment', 'additionalProperties'];
 
   constructor() {
     this.ajv = new Ajv({
@@ -19,8 +20,8 @@ export class SchemaService {
   getSchemaBridge(schema?: Record<string, unknown>): JSONSchemaBridge | undefined {
     if (!schema) return undefined;
 
-    // uniforms passes it down to the React TextInput as an attribute, causes a warning
-    filterDOMProps.register('$comment' as FilterDOMPropsKeys);
+    // uniforms passes it down to the React elements as an attribute, causes a warning
+    this.FILTER_DOM_PROPS.forEach((prop) => filterDOMProps.register(prop as FilterDOMPropsKeys));
 
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
