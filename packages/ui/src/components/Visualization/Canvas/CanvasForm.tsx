@@ -42,8 +42,6 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     }
     return answer;
   }, [props.selectedNode.data?.vizNode]);
-  console.log('schema');
-  console.log(visualComponentSchema?.schema);
   const schema = useMemo(() => {
     return schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema);
   }, [visualComponentSchema?.schema]);
@@ -57,8 +55,6 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
       // newModelClean will contain only those properties that has different value than default.
-      console.log('newModel:');
-      console.log(newModel);
       const newModelClean = getNonDefaultProperties(
         props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
         newModel,
