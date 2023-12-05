@@ -94,7 +94,7 @@ import slack from '../assets/components/slack.svg';
 import snmp from '../assets/components/snmp.png';
 import aws2_sns from '../assets/components/sns.svg';
 import splunk from '../assets/components/splunk.png';
-import sql from '../assets/components/sql.svg';
+import sql from '../assets/components/sql_db.png';
 import sql_stored from '../assets/components/sql_db.png';
 import aws2_sqs from '../assets/components/sqs.svg';
 import telegram from '../assets/components/telegram.svg';
