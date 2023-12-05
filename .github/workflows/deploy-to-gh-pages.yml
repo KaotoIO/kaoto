@@ -36,7 +36,7 @@ jobs:
           java-version: '21'
 
       - name: 🛰️ Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       - name: 🔧 Install dependencies
         run:  yarn
