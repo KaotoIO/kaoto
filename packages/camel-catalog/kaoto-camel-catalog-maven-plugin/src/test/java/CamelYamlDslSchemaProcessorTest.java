@@ -27,7 +27,7 @@ public class CamelYamlDslSchemaProcessorTest {
     private final CamelYamlDslSchemaProcessor processor;
 
     public CamelYamlDslSchemaProcessorTest() throws Exception {
-         jsonMapper = new ObjectMapper();
+        jsonMapper = new ObjectMapper();
         var is = CamelYamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
         yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
         processor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);

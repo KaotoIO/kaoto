@@ -1,6 +1,7 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { JSONSchemaBridge } from './JSONSchemaBridge';
+import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 
 export class SchemaService {
   private readonly ajv: Ajv;
@@ -19,9 +20,8 @@ export class SchemaService {
     if (!schema) return undefined;
 
     // uniforms passes it down to the React TextInput as an attribute, causes a warning
-    if (schema['$comment']) {
-      delete schema['$comment'];
-    }
+    filterDOMProps.register('$comment' as FilterDOMPropsKeys);
+
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
     return new JSONSchemaBridge({ schema, validator: schemaValidator });

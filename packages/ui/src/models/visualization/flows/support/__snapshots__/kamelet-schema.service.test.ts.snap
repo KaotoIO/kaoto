@@ -4,14 +4,17 @@ exports[`KameletSchemaService should build the appropriate schema for kamelets 1
 {
   "definition": {},
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Produces periodic events about beers!",
     "properties": {
       "period": {
+        "default": 5000,
         "description": "The time interval between two events",
         "title": "Period",
         "type": "integer",
       },
     },
-    "required": [],
+    "title": "Beer Source",
     "type": "object",
   },
   "title": "beer-source",
@@ -22,9 +25,15 @@ exports[`KameletSchemaService should build the appropriate schema for kamelets w
 {
   "definition": {},
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Apply the XJ Template Transformation to transform JSON to XML and XML to JSON. ",
     "properties": {
       "direction": {
         "description": "The transform direction.",
+        "enum": [
+          "XML2JSON",
+          "JSON2XML",
+        ],
         "title": "Direction",
         "type": "string",
       },
@@ -38,6 +47,7 @@ exports[`KameletSchemaService should build the appropriate schema for kamelets w
       "direction",
       "template",
     ],
+    "title": "XJ Template Action",
     "type": "object",
   },
   "title": "xj-template-action",
@@ -48,14 +58,17 @@ exports[`KameletSchemaService should provide a default empty string if the kamel
 {
   "definition": {},
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Produces periodic events about beers!",
     "properties": {
       "period": {
+        "default": 5000,
         "description": "The time interval between two events",
         "title": "Period",
         "type": "integer",
       },
     },
-    "required": [],
+    "title": "Beer Source",
     "type": "object",
   },
   "title": "",
