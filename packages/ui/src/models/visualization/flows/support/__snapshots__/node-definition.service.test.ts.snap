@@ -74,39 +74,3 @@ exports[`NodeDefinitionService getSchemaFromCamelCommonProperties should return 
   "type": "object",
 }
 `;
-
-exports[`NodeDefinitionService getSchemaFromKameletDefinition should mark the required properties in the schema 1`] = `
-{
-  "properties": {
-    "direction": {
-      "description": "The transform direction.",
-      "title": "Direction",
-      "type": "string",
-    },
-    "template": {
-      "description": "The inline template to apply a transformation through template.",
-      "title": "Template",
-      "type": "string",
-    },
-  },
-  "required": [
-    "direction",
-    "template",
-  ],
-  "type": "object",
-}
-`;
-
-exports[`NodeDefinitionService getSchemaFromKameletDefinition should return a schema with the properties 1`] = `
-{
-  "properties": {
-    "period": {
-      "description": "The time interval between two events",
-      "title": "Period",
-      "type": "integer",
-    },
-  },
-  "required": [],
-  "type": "object",
-}
-`;

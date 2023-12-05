@@ -8,10 +8,12 @@ import { AutoFields } from '@kaoto-next/uniforms-patternfly';
 import { AutoForm } from 'uniforms';
 import { CustomAutoField } from '../../Form/CustomAutoField';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
+import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 import { SchemaService } from '../../Form';
 
 describe('CanvasForm', () => {
   const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
+  const schemaService = new SchemaService();
 
   const schema = {
     type: 'object',
@@ -125,7 +127,6 @@ describe('CanvasForm', () => {
   });
 
   it('should render for all component without an error', () => {
-    const schemaService = new SchemaService();
     Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
       try {
         if (name === 'default') return;
@@ -133,6 +134,26 @@ describe('CanvasForm', () => {
         const schema = schemaService.getSchemaBridge((catalog as any).propertiesSchema);
         render(
           <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
+            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
+          </AutoForm>,
+        );
+      } catch (e) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
+      }
+    });
+  });
+
+  it('should render for all kamelets without an error', () => {
+    Object.entries(kameletCatalogMap).forEach(([name, kamelet]) => {
+      try {
+        if (name === 'default') return;
+        expect(kamelet).toBeDefined();
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const schema = (kamelet as any).propertiesSchema;
+        const bridge = schemaService.getSchemaBridge(schema);
+        render(
+          <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
             <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
           </AutoForm>,
         );

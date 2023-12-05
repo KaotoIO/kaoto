@@ -1,11 +1,11 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { CatalogKind } from '../../..';
-import { beerSourceKamelet } from '../../../../stubs/beer-source-kamelet';
 import { logModel } from '../../../../stubs/log-model';
 import { toModel } from '../../../../stubs/to-model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
+import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
 
 describe('CamelComponentSchemaService', () => {
   beforeEach(() => {
@@ -20,7 +20,8 @@ describe('CamelComponentSchemaService', () => {
       to: toModel,
     });
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
-      'beer-source': beerSourceKamelet,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      'beer-source': (kameletCatalogMap as any)['beer-source'],
     });
   });
 

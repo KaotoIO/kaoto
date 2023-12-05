@@ -205,7 +205,7 @@ export class CamelComponentSchemaService {
           CatalogKind.Kamelet,
           camelElementLookup.componentName.replace('kamelet:', ''),
         );
-        componentSchema = NodeDefinitionService.getSchemaFromKameletDefinition(componentDefinition);
+        componentSchema = componentDefinition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
       } else {
         componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName);
         componentSchema = componentDefinition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);

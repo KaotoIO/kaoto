@@ -363,6 +363,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             } else {
                 return;
             }
+            KameletProcessor.process((ObjectNode) kameletNode);
             targetObject.putIfAbsent(splitted[0], kameletNode);
         } catch (Exception e) {
             getLog().error(e);
