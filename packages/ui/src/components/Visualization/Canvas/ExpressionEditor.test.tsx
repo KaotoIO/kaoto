@@ -9,6 +9,7 @@ import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { useSchemasStore } from '../../../store';
 import { act } from 'react-dom/test-utils';
+import { MetadataEditor } from '../../MetadataEditor';
 
 describe('ExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -70,5 +71,28 @@ describe('ExpressionEditor', () => {
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-expression');
     expect(form.innerHTML).toContain('Suppress Exceptions');
+  });
+
+  it('should render for all languages without an error', () => {
+    Object.entries(languageCatalog).forEach(([name, language]) => {
+      try {
+        if (name === 'default') return;
+        expect(language).toBeDefined();
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const schema = (language as any).propertiesSchema;
+        render(
+          <MetadataEditor
+            data-testid="expression-editor"
+            name={'expression'}
+            schema={schema}
+            metadata={{}}
+            onChangeModel={() => {}}
+          />,
+        );
+      } catch (e) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        throw new Error(`Error rendering ${name} language: ${(e as any).message}`);
+      }
+    });
   });
 });

@@ -9,6 +9,7 @@ import { IVisualizationNode, VisualComponentSchema } from '../../../models/visua
 import { useSchemasStore } from '../../../store';
 import { act } from 'react-dom/test-utils';
 import { DataFormatEditor } from './DataFormatEditor';
+import { MetadataEditor } from '../../MetadataEditor';
 
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
@@ -70,5 +71,28 @@ describe('DataFormatEditor', () => {
     fireEvent.click(json.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-dataformat');
     expect(form.innerHTML).toContain('Allow Unmarshall Type');
+  });
+
+  it('should render for all dataformats without an error', () => {
+    Object.entries(dataformatCatalog).forEach(([name, dataformat]) => {
+      try {
+        if (name === 'default') return;
+        expect(dataformat).toBeDefined();
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const schema = (dataformat as any).propertiesSchema;
+        render(
+          <MetadataEditor
+            data-testid="dataformat-editor"
+            name={'dataformat'}
+            schema={schema}
+            metadata={{}}
+            onChangeModel={() => {}}
+          />,
+        );
+      } catch (e) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        throw new Error(`Error rendering ${name} dataformat: ${(e as any).message}`);
+      }
+    });
   });
 });
