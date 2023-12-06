@@ -57,12 +57,16 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
-      // newModelClean will contain only those properties that has different value than default.
-      const newModelClean = getNonDefaultProperties(
-        props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
-        newModel,
-      );
-      props.selectedNode.data?.vizNode?.updateModel(newModelClean);
+      if (newModel.parameters === undefined) {
+        props.selectedNode.data?.vizNode?.updateModel(newModel);
+      } else {
+        // newModelClean will contain only those properties that has different value than default.
+        const newModelClean = getNonDefaultProperties(
+          props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
+          newModel,
+        );
+        props.selectedNode.data?.vizNode?.updateModel(newModelClean);
+      }
       entitiesContext?.updateSourceCodeFromEntities();
     },
     [entitiesContext, props.selectedNode.data?.vizNode, props.selectedNode.id],
