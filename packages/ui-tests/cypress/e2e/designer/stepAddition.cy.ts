@@ -22,7 +22,7 @@ describe('Tests for Design page', () => {
     cy.get('#log').should('be.visible').click();
     // wait for the canvas rerender
     cy.wait(1000);
-    cy.checkNodeExist('log', 1);
+    cy.checkNodeExist('log', 2);
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('uri: as2', 1);

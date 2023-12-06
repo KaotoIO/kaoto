@@ -1,0 +1,43 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  annotations:
+    camel.apache.org/kamelet.icon: whatever
+  labels:
+    camel.apache.org/kamelet.type: action
+  name: eip-action
+spec:
+  definition:
+    title: kamelet-2082
+    description: Produces periodic events about random users!
+    type: object
+    properties:
+      period:
+        title: Period
+        description: The time interval between two events
+        type: integer
+        default: 5000
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+    - camel:timer
+    - camel:http
+    - camel:kamelet
+  template:
+    from:
+      id: from-1870
+      uri: timer:user
+      parameters:
+        period: "{{period}}"
+      steps:
+        - setBody:
+            id: setBody-3387
+            expression:
+              simple: {}
+        - marshal:
+            id: marshal-1414
+            base64: {}
+        - to:
+            uri: kamelet:sink
+            parameters: {}

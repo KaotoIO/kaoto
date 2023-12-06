@@ -52,3 +52,73 @@ Cypress.Commands.add('openCatalog', () => {
   cy.get('[data-testid="Catalog"]').click();
   cy.get('[data-testid="component-catalog-tab"]').should('be.visible');
 });
+
+/**
+ * Select from integration type dropdown
+ * Possible values are - Integration, camelYamlDsl(Camel Route), Kamelet, KameletBinding
+ */
+Cypress.Commands.add('switchIntegrationType', (type: string) => {
+  cy.get('[data-testid="dsl-list-dropdown"]').click({ force: true });
+  cy.get('#dsl-list-select').should('exist').find(`[data-testid="dsl-${type}"]`).should('exist').click();
+  cy.get('[data-testid="confirmation-modal-confirm"]').click({ force: true });
+});
+
+Cypress.Commands.add('addNewRoute', () => {
+  cy.get('[data-testid="dsl-list-btn"]').click();
+});
+
+Cypress.Commands.add('toggleRouteVisibility', (index) => {
+  cy.toggleFlowsList();
+  cy.get('button[data-testid^="toggle-btn-route"]').then((buttons) => {
+    cy.wrap(buttons[index]).click();
+  });
+  cy.closeFlowsListIfVisible();
+});
+
+Cypress.Commands.add('toggleFlowsList', () => {
+  cy.get('[data-testid="flows-list-dropdown"]').click({ force: true });
+});
+
+Cypress.Commands.add('closeFlowsListIfVisible', () => {
+  cy.get('body').then((body) => {
+    if (body.find('[data-testid="flows-list-table"]').length > 0) {
+      cy.get('[data-testid="flows-list-table"]').then(($element) => {
+        if ($element.length > 0) {
+          cy.toggleFlowsList();
+        }
+      });
+    }
+  });
+});
+
+Cypress.Commands.add('allignAllRoutesVisibility', (switchvisibility: string) => {
+  cy.toggleFlowsList();
+  cy.get('[data-testid="flows-list-table"]').then((body) => {
+    if (body.find(`svg[data-testid$="${switchvisibility}"]`).length > 0) {
+      cy.get(`svg[data-testid$="${switchvisibility}"]`).then(($element) => {
+        if ($element.attr('data-testid')?.endsWith(`${switchvisibility}`)) {
+          cy.wrap($element[0]).click();
+          cy.closeFlowsListIfVisible();
+          cy.allignAllRoutesVisibility(switchvisibility);
+        }
+      });
+    }
+  });
+  cy.closeFlowsListIfVisible();
+});
+
+Cypress.Commands.add('hideAllRoutes', () => {
+  cy.allignAllRoutesVisibility('visible');
+});
+
+Cypress.Commands.add('showAllRoutes', () => {
+  cy.allignAllRoutesVisibility('hidden');
+});
+
+Cypress.Commands.add('deleteRoute', (index: number) => {
+  cy.toggleFlowsList();
+  cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
+    cy.wrap(buttons[index]).click();
+  });
+  cy.closeFlowsListIfVisible();
+});
