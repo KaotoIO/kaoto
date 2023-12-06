@@ -182,6 +182,11 @@ describe('CanvasForm getNonDefaultProperties()', () => {
             default: 1,
             title: 'Concurrent Consumers',
           },
+          bridgeErrorHandler: {
+            type: 'boolean',
+            default: false,
+            title: 'Bridge Error Handler',
+          },
         },
       },
     },
@@ -195,6 +200,7 @@ describe('CanvasForm getNonDefaultProperties()', () => {
     parameters: {
       events: 'CREATE',
       concurrentConsumers: '1',
+      bridgeErrorHandler: false,
     },
   };
 
