@@ -10,6 +10,7 @@ export const enum EntityType {
   Beans = 'beans',
   Metadata = 'metadata',
   ErrorHandler = 'errorHandler',
+  NonVizualized = 'nonVisualized',
 }
 
 export interface BaseCamelEntity {
