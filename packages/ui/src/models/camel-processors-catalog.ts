@@ -1,9 +1,11 @@
 import { CamelPropertyCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
+import { JSONSchemaType } from 'ajv';
 
 export interface ICamelProcessorDefinition {
   model: ICamelProcessorModel;
   properties: Record<string, ICamelProcessorProperty>;
+  propertiesSchema?: JSONSchemaType<unknown>;
 }
 
 export interface ICamelProcessorModel {

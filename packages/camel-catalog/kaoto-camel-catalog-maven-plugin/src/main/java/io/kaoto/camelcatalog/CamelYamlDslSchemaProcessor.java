@@ -22,15 +22,46 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Process camelYamlDsl.json file, aka Camel YAML DSL JSON schema.
  */
 public class CamelYamlDslSchemaProcessor {
+    private static final String PROCESSOR_DEFINITION = "org.apache.camel.model.ProcessorDefinition";
+    private static final String LOAD_BALANCE_DEFINITION = "org.apache.camel.model.LoadBalanceDefinition";
+    private static final String EXPRESSION_SUB_ELEMENT_DEFINITION = "org.apache.camel.model.ExpressionSubElementDefinition";
+    private static final String SAGA_DEFINITION = "org.apache.camel.model.SagaDefinition";
+    private static final String PROPERTY_EXPRESSION_DEFINITION = "org.apache.camel.model.PropertyExpressionDefinition";
     private final ObjectMapper jsonMapper;
     private final ObjectNode yamlDslSchema;
+    private final List<String> processorBlocklist = List.of(
+            "org.apache.camel.model.KameletDefinition"
+            // reactivate entries once we have a better handling of how to add WHEN and OTHERWISE without Catalog
+            // "Otherwise",
+            // "when",
+            // "doCatch",
+            // ""doFinally"
+    );
+    /** The processor properties those should be handled separately, i.e. remove from the properties schema,
+     * such as branching node and parameters reflected from the underlying components. */
+    private final Map<String, List<String>> processorPropertyBlockList = Map.of(
+            "org.apache.camel.model.ChoiceDefinition",
+            List.of("when", "otherwise"),
+            "org.apache.camel.model.TryDefinition",
+            List.of("doCatch", "doFinally"),
+            "org.apache.camel.model.ToDefinition",
+            List.of("uri", "parameters"),
+            "org.apache.camel.model.WireTapDefinition",
+            List.of("uri", "parameters")
+    );
+    private final List<String> processorReferenceBlockList = List.of(
+            PROCESSOR_DEFINITION
+    );
 
     public CamelYamlDslSchemaProcessor(ObjectMapper mapper, ObjectNode yamlDslSchema) throws Exception {
         this.jsonMapper = mapper;
@@ -96,6 +127,9 @@ public class CamelYamlDslSchemaProcessor {
             added = false;
             for (JsonNode refParent : schema.findParents("$ref")) {
                 var name = getNameFromRef((ObjectNode) refParent);
+                if (processorReferenceBlockList.contains(name)) {
+                    continue;
+                }
                 if (!schema.has("definitions") || !schema.withObject("/definitions").has(name)) {
                     var schemaDefinitions = schema.withObject("/definitions");
                     schemaDefinitions.set(name, definitions.withObject("/" + name));
@@ -106,19 +140,171 @@ public class CamelYamlDslSchemaProcessor {
         }
     }
 
-    public ObjectNode getProcessors() {
-        return yamlDslSchema
+    /**
+     * Extract the processor definitions from the main Camel YAML DSL JSON schema in the usable
+     * format for uniforms to render the configuration form. It does a couple of things:
+     * <ul>
+     * <li>Remove "oneOf" and "anyOf"</li>
+     * <li>Remove properties those are supposed to be handled separately:
+     * <ul>
+     *     <li>"steps": branching steps</li>
+     *     <li>"parameters": component parameters</li>
+     *     <li>expression languages</li>
+     *     <li>dataformats</li>
+     * </ul></li>
+     * <li>If the processor is expression aware, it puts "expression" as a "$comment" in the schema</li>
+     * <li>If the processor is dataformat aware, it puts "dataformat" as a "$comment" in the schema</li>
+     * <li>If the processor property is expression aware, it puts "expression" as a "$comment" in the property schema</li>
+     * </ul>
+     * @return
+     */
+    public Map<String, ObjectNode> getProcessors() throws Exception {
+        var definitions = yamlDslSchema
                 .withObject("/items")
-                .withObject("/definitions")
-                .withObject("/org.apache.camel.model.ProcessorDefinition")
+                .withObject("/definitions");
+        var relocatedDefinitions = relocateToRootDefinitions(definitions);
+        var processors = relocatedDefinitions
+                .withObject(PROCESSOR_DEFINITION)
                 .withObject("/properties");
+
+        var answer = new LinkedHashMap<String, ObjectNode>();
+        for( var processorEntry : processors) {
+            var processorFQCN = getNameFromRef((ObjectNode)processorEntry);
+            if (processorBlocklist.contains(processorFQCN)) {
+                continue;
+            }
+            var processor = relocatedDefinitions.withObject("/" + processorFQCN);
+            processor = extractFromOneOf(processorFQCN, processor);
+            processor.remove("oneOf");
+            processor = extractFromAnyOfOneOf(processorFQCN, processor);
+            processor.remove("anyOf");
+            var processorProperties = processor.withObject("/properties");
+            Set<String> propToRemove = new HashSet<>();
+            var propertyBlockList = processorPropertyBlockList.get(processorFQCN);
+            for (var propEntry : processorProperties.properties()) {
+                var propName = propEntry.getKey();
+                if (propertyBlockList != null && propertyBlockList.contains(propName)) {
+                    propToRemove.add(propName);
+                    continue;
+                }
+                if (!LOAD_BALANCE_DEFINITION.equals(processorFQCN) && propName.equals("inheritErrorHandler")) {
+                    // workaround for https://issues.apache.org/jira/browse/CAMEL-20188
+                    // TODO remove this once updated to camel 4.3.0
+                    propToRemove.add(propName);
+                    continue;
+                }
+                var property = (ObjectNode) propEntry.getValue();
+                var refParent = property.findParent("$ref");
+                if (refParent != null) {
+                    var ref = getNameFromRef(refParent);
+                    if (processorReferenceBlockList.contains(ref)) {
+                        propToRemove.add(propName);
+                    }
+                    if (EXPRESSION_SUB_ELEMENT_DEFINITION.equals(ref)) {
+                        refParent.remove("$ref");
+                        refParent.put("type", "object");
+                        refParent.put("$comment", "expression");
+                    }
+                    continue;
+                }
+                if (!property.has("type")) {
+                    // inherited properties, such as for expression - supposed to be handled separately
+                    propToRemove.add(propName);
+                }
+            }
+            propToRemove.forEach(processorProperties::remove);
+            populateDefinitions(processor, relocatedDefinitions);
+            sanitizeDefinitions(processorFQCN, processor);
+            answer.put(processorFQCN, processor);
+        }
+        return answer;
     }
 
-    public String getProcessorDefinitionFQCN(String name) {
-        var processorSchema = getProcessors().withObject("/" + name);
-        return getNameFromRef(processorSchema);
+    private ObjectNode extractFromOneOf(String name, ObjectNode definition) throws Exception {
+        if (!definition.has("oneOf")) {
+            return definition;
+        }
+        var oneOf = definition.withArray("/oneOf");
+        if (oneOf.size() != 2) {
+            throw new Exception(String.format(
+                    "Definition '%s' has '%s' entries in oneOf unexpectedly, look it closer",
+                    name,
+                    oneOf.size()));
+        }
+        for (var def : oneOf) {
+            if (def.get("type").asText().equals("object")) {
+                var objectDef = (ObjectNode) def;
+                if (definition.has("title")) objectDef.set("title", definition.get("title"));
+                if (definition.has("description")) objectDef.set("description", definition.get("description"));
+                return objectDef;
+            }
+        }
+        throw new Exception(String.format(
+                "Definition '%s' oneOf doesn't have object entry unexpectedly, look it closer",
+                name));
     }
 
+    private ObjectNode extractFromAnyOfOneOf(String name, ObjectNode definition) throws Exception {
+        if (!definition.has("anyOf")) {
+            return definition;
+        }
+        var anyOfOneOf = definition.withArray("/anyOf").get(0).withArray("/oneOf");
+        for (var def : anyOfOneOf) {
+            if (def.has("$ref") && def.get("$ref").asText().equals("#/definitions/org.apache.camel.model.language.ExpressionDefinition")) {
+                definition.put("$comment", "expression");
+                break;
+            }
+            var refParent = def.findParent("$ref");
+            if (refParent != null && refParent.get("$ref").asText().startsWith("#/definitions/org.apache.camel.model.dataformat")) {
+                definition.put("$comment", "dataformat");
+                break;
+            }
+            if (LOAD_BALANCE_DEFINITION.equals(name)) {
+                definition.put("$comment", "loadbalance");
+                break;
+            }
+        }
+        definition.remove("anyOf");
+        return definition;
+    }
+
+    private void sanitizeDefinitions(String processorFQCN, ObjectNode processor) throws Exception {
+        if (!processor.has("definitions")) {
+            return;
+        }
+        var definitions = processor.withObject("/definitions");
+        var defToRemove = new HashSet<String>();
+        for (var entry : definitions.properties()) {
+            var definitionName = entry.getKey();
+            if (SAGA_DEFINITION.equals(processorFQCN) && definitionName.startsWith("org.apache.camel.language")) {
+                defToRemove.add(definitionName);
+                continue;
+            }
+
+            var definition = (ObjectNode) entry.getValue();
+            definition = extractFromOneOf(definitionName, definition);
+            definition = extractFromAnyOfOneOf(definitionName, definition);
+            var definitionProperties = definition.withObject("/properties");
+            var propToRemove = new HashSet<String>();
+            for (var property : definitionProperties.properties()) {
+                var propName = property.getKey();
+                if (!LOAD_BALANCE_DEFINITION.equals(definitionName) && propName.equals("inheritErrorHandler")) {
+                    // workaround for https://issues.apache.org/jira/browse/CAMEL-20188
+                    // TODO remove this once updated to camel 4.3.0
+                    propToRemove.add(propName);
+                }
+            }
+            propToRemove.forEach(definitionProperties::remove);
+            if (PROPERTY_EXPRESSION_DEFINITION.equals(definitionName)) {
+                var expression = definition.withObject("/properties").withObject("/expression");
+                expression.put("title", "Expression");
+                expression.put("type", "object");
+                expression.put("$comment", "expression");
+            }
+            definitions.set(definitionName, definition);
+        }
+        defToRemove.forEach(definitions::remove);
+    }
     public Map<String, ObjectNode> getDataFormats() throws Exception {
         var definitions = yamlDslSchema
                 .withObject("/items")

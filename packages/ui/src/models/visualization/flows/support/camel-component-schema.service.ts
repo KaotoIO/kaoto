@@ -6,7 +6,6 @@ import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
-import { NodeDefinitionService } from './node-definition.service';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -187,14 +186,14 @@ export class CamelComponentSchemaService {
   }
 
   private static getSchema(camelElementLookup: ICamelElementLookupResult): JSONSchemaType<unknown> {
-    const processorDefinition = CamelCatalogService.getComponent(
-      CatalogKind.Processor,
-      camelElementLookup.processorName,
-    );
+    // 'from' is not a ProcessorDefinition, i.e. causes a type error against keyof ProcessorDefinition
+    const catalogKind =
+      (camelElementLookup.processorName as string) === 'from' ? CatalogKind.Processor : CatalogKind.Pattern;
+    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
 
     if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;
 
-    const schema = NodeDefinitionService.getSchemaFromCamelCommonProperties(processorDefinition.properties);
+    const schema = processorDefinition.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
 
     if (camelElementLookup.componentName !== undefined) {
       let componentDefinition: ComponentsCatalogTypes | undefined;
