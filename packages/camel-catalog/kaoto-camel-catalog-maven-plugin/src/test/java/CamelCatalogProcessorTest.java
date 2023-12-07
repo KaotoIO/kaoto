@@ -20,13 +20,21 @@ import io.kaoto.camelcatalog.CamelYamlDslSchemaProcessor;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CamelCatalogProcessorTest {
+    private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string" );
     private final ObjectMapper jsonMapper;
     private final CamelCatalogProcessor processor;
     private final ObjectNode yamlDslSchema;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
+    private final ObjectNode componentCatalog;
+    private final ObjectNode dataFormatCatalog;
+    private final ObjectNode languageCatalog;
+    private final ObjectNode modelCatalog;
+    private final ObjectNode processorCatalog;
 
     public CamelCatalogProcessorTest() throws Exception {
         this.jsonMapper = new ObjectMapper();
@@ -34,6 +42,11 @@ public class CamelCatalogProcessorTest {
         yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
         schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
         this.processor = new CamelCatalogProcessor(jsonMapper, schemaProcessor);
+        this.componentCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getComponentCatalog());
+        this.dataFormatCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getDataFormatCatalog());
+        this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
+        this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
+        this.processorCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getPatternCatalog());
     }
 
     @Test
@@ -48,7 +61,6 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testGetComponentCatalog() throws Exception {
-        var componentCatalog = jsonMapper.readTree(processor.getComponentCatalog());
         assertTrue(componentCatalog.size() > 300);
         var directModel = componentCatalog
                 .withObject("/direct")
@@ -85,8 +97,22 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
+    public void testComponentEnumParameter() throws Exception {
+        for (var entry : componentCatalog.properties()) {
+            var name = entry.getKey();
+            var component = entry.getValue();
+            for (var prop : component.withObject("/propertiesSchema").withObject("/properties").properties()) {
+                var propName = prop.getKey();
+                var property = prop.getValue();
+                if (property.has("enum")) {
+                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testGetDataFormatCatalog() throws Exception {
-        var dataFormatCatalog = jsonMapper.readTree(processor.getDataFormatCatalog());
         var customModel = dataFormatCatalog
                 .withObject("/custom")
                 .withObject("/model");
@@ -105,8 +131,22 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
+    public void testDataFormatEnumParameter() throws Exception {
+        for (var entry : dataFormatCatalog.properties()) {
+            var name = entry.getKey();
+            var dataFormat = entry.getValue();
+            for (var prop : dataFormat.withObject("/propertiesSchema").withObject("/properties").properties()) {
+                var propName = prop.getKey();
+                var property = prop.getValue();
+                if (property.has("enum")) {
+                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testGetLanguageCatalog() throws Exception {
-        var languageCatalog = jsonMapper.readTree(processor.getLanguageCatalog());
         assertFalse(languageCatalog.has("file"));
         var customModel = languageCatalog
                 .withObject("/language")
@@ -126,8 +166,22 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
+    public void testLanguageEnumParameter() throws Exception {
+        for (var entry : languageCatalog.properties()) {
+            var name = entry.getKey();
+            var language = entry.getValue();
+            for (var prop : language.withObject("/propertiesSchema").withObject("/properties").properties()) {
+                var propName = prop.getKey();
+                var property = prop.getValue();
+                if (property.has("enum")) {
+                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testGetModelCatalog() throws Exception {
-        var modelCatalog = jsonMapper.readTree(processor.getModelCatalog());
         assertTrue(modelCatalog.size() > 200);
         var aggregateModel = modelCatalog
                 .withObject("/aggregate")
@@ -138,7 +192,6 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testGetPatternCatalog() throws Exception {
-        var processorCatalog = jsonMapper.readTree(processor.getPatternCatalog());
         assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 65);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
@@ -152,5 +205,20 @@ public class CamelCatalogProcessorTest {
         assertEquals("string", uri.get("type").asText());
         var parameters = toDSchema.withObject("/properties").withObject("/parameters");
         assertEquals("object", parameters.get("type").asText());
+    }
+
+    @Test
+    public void testPatternEnumParameter() throws Exception {
+        for (var entry : processorCatalog.properties()) {
+            var name = entry.getKey();
+            var pattern = entry.getValue();
+            for (var prop : pattern.withObject("/propertiesSchema").withObject("/properties").properties()) {
+                var propName = prop.getKey();
+                var property = prop.getValue();
+                if (property.has("enum")) {
+                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
+                }
+            }
+        }
     }
 }
