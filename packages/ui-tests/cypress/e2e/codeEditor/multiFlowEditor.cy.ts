@@ -1,0 +1,104 @@
+describe('Test for Multi route actions from the code editor', () => {
+  beforeEach(() => {
+    cy.openHomePage();
+  });
+
+  it('User deletes first route from multi-route using code editor', () => {
+    cy.openSourceCode();
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+    cy.openDesignPage();
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/2');
+
+    cy.openSourceCode();
+    cy.editorDeleteLine(21, 12);
+    cy.openDesignPage();
+
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/1');
+  });
+
+  it('User adds new route to Camel multi-route using code editor', () => {
+    cy.openSourceCode();
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+
+    const stepToInsert = `- route:
+      id: route-new
+      from:
+        uri: null
+        steps: []`;
+
+    cy.editorAddText(23, stepToInsert);
+    cy.openDesignPage();
+
+    // CHECK that the route ID is shown in the
+    cy.get('[data-testid="flows-list-dropdown"]').click();
+    cy.get('[data-testid="flows-list-table"] [data-testid="goto-btn-route-new"]').should('be.visible');
+    cy.get('[data-testid="flows-list-dropdown"]').click();
+    cy.showAllRoutes();
+
+    // CHECK the new empty route was added
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
+    cy.get('g[data-layer-id="default"] text').should('exist').contains('from: Unknown');
+  });
+
+  it('User deletes second route from multi-route using code editor', () => {
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+
+    cy.editorDeleteLine(11, 11);
+    cy.openDesignPage();
+
+    cy.showAllRoutes();
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/1');
+  });
+
+  it('User deletes step from first route using code editor', () => {
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+
+    cy.editorDeleteLine(7, 4);
+    cy.openDesignPage();
+    cy.showAllRoutes();
+    cy.get('[data-id^="log"]').should('have.length', 1);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
+  });
+
+  it('User adds step to the first route using code editor', () => {
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+    const stepToInsert = `        - setHeader:
+            constant: test`;
+    const insertLine = 8;
+    cy.editorAddText(insertLine, stepToInsert);
+    cy.openDesignPage();
+
+    // CHECK the set-header step was added
+    cy.get('[data-type="node"][data-id^="setHeader"]').should('have.length', 1);
+  });
+
+  it('User adds step to the second route using code editor', () => {
+    cy.uploadFixture('flows/MultiflowCR.yaml');
+    const stepToInsert = `        - setBody:
+          constant: test`;
+    const insertLine = 19;
+
+    cy.editorAddText(insertLine, stepToInsert);
+
+    cy.openDesignPage();
+    cy.showAllRoutes();
+    // CHECK the insert-field-action step was added
+    cy.get('[data-type="node"][data-id^="setBody"]').should('have.length', 1);
+  });
+
+  // Blocked ATM by https://github.com/patternfly/patternfly-react/issues/9838
+  //     it('User reverts route deletion using code editor', () => {
+  //       cy.uploadFixture('CamelRouteMultiFlow.yaml');
+  //       cy.editorDeleteLine(8, 12);
+  //
+  //       cy.showAllRoutes();
+  //       cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 1);
+  //       // First click undo button => reverted automatic adjustments
+  //       cy.editorClickUndoXTimes();
+  //       // Second click undo button => changes reverted & alert is displayed
+  //       cy.editorClickUndoXTimes(12);
+  //
+  //       cy.showAllRoutes();
+  //       cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 2);
+  //     });
+});

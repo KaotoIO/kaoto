@@ -16,17 +16,36 @@ declare global {
       openMetadata(): Chainable<JQuery<Element>>;
       openPipeErrorHandler(): Chainable<JQuery<Element>>;
       openCatalog(): Chainable<JQuery<Element>>;
+      addNewRoute(): Chainable<JQuery<Element>>;
+      deleteRoute(index: number): Chainable<JQuery<Element>>;
+      toggleFlowsList(): Chainable<JQuery<Element>>;
+      toggleRouteVisibility(index: number): Chainable<JQuery<Element>>;
+      closeFlowsListIfVisible(): Chainable<JQuery<Element>>;
+      switchIntegrationType(type: string): Chainable<JQuery<Element>>;
+      allignAllRoutesVisibility(switchvisibility: string): Chainable<JQuery<Element>>;
+      hideAllRoutes(): Chainable<JQuery<Element>>;
+      showAllRoutes(): Chainable<JQuery<Element>>;
       // design
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       interactWithConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
+      interactWithConfigInputObject(inputName: string): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string): Chainable<JQuery<Element>>;
+      selectInsertSpecialNode(inputName: string): Chainable<JQuery<Element>>;
       performNodeAction(nodeName: string, action: string): Chainable<JQuery<Element>>;
+      removeNodeByName(inputName: string, nodeIndex: number): Chainable<JQuery<Element>>;
+      selectReplaceNode(inputName: string, nodeIndex: number): Chainable<JQuery<Element>>;
+      selectAppendNode(inputName: string, nodeIndex: number): Chainable<JQuery<Element>>;
+      selectInsertSpecialNode(inputName: string, nodeIndex: number): Chainable<JQuery<Element>>;
+      selectPrependNode(inputName: string, nodeIndex: number): Chainable<JQuery<Element>>;
+      performNodeAction(nodeName: string, action: string, nodeIndex: number): Chainable<JQuery<Element>>;
       checkNodeExist(inputName: string, nodesCount: number): Chainable<JQuery<Element>>;
+      checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
+      deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
@@ -40,6 +59,7 @@ declare global {
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string, linesCount: number | undefined): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string): Chainable<JQuery<Element>>;
+      editorClickUndoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
     }
   }
 }
