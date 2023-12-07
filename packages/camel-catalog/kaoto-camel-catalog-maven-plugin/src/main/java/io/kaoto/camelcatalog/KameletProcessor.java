@@ -1,9 +1,7 @@
 package io.kaoto.camelcatalog;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class KameletProcessor {
