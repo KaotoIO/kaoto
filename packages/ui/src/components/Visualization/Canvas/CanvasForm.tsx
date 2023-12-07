@@ -30,6 +30,30 @@ export function getNonDefaultProperties(
   return { ...obj2, parameters: Object.fromEntries(newModelUpdated) };
 }
 
+export function getNonEmptyProperties(obj: Record<string, unknown>): Record<string, unknown> {
+  const result = Object.entries(obj.parameters as object).reduce(
+    (acc: [string, unknown][], currentValue: [string, unknown]) => {
+      switch (typeof currentValue[1]) {
+        case 'string':
+          if (currentValue[1].trim().length !== 0) {
+            acc.push(currentValue);
+          }
+          break;
+        case 'object':
+          if (Object.keys(currentValue[1] as object).length !== 0) {
+            acc.push(currentValue);
+          }
+          break;
+        default:
+          acc.push(currentValue);
+      }
+      return acc;
+    },
+    [],
+  );
+  return { ...obj, parameters: Object.fromEntries(result) };
+}
+
 const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
@@ -60,11 +84,13 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       if (newModel.parameters === undefined) {
         props.selectedNode.data?.vizNode?.updateModel(newModel);
       } else {
-        // newModelClean will contain only those properties that has different value than default.
-        const newModelClean = getNonDefaultProperties(
+        // newModelNonDefault will contain only those properties that has different value than default.
+        const newModelNonDefault = getNonDefaultProperties(
           props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
           newModel,
         );
+        // newModelClean will contain only non empty propertis that has different value than default.
+        const newModelClean = getNonEmptyProperties(newModelNonDefault);
         props.selectedNode.data?.vizNode?.updateModel(newModelClean);
       }
       entitiesContext?.updateSourceCodeFromEntities();
