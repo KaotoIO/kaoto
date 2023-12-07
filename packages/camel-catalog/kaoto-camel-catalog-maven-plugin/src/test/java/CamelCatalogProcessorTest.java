@@ -139,8 +139,18 @@ public class CamelCatalogProcessorTest {
     @Test
     public void testGetPatternCatalog() throws Exception {
         var processorCatalog = jsonMapper.readTree(processor.getPatternCatalog());
-        assertTrue(processorCatalog.size() > 45 && processorCatalog.size() < 55);
+        assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 65);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
+        var aggregateSchema = processorCatalog.withObject("/aggregate").withObject("/propertiesSchema");
+        var aggregationStrategy = aggregateSchema.withObject("/properties").withObject("/aggregationStrategy");
+        assertEquals("string", aggregationStrategy.get("type").asText());
+        assertEquals("class:org.apache.camel.AggregationStrategy", aggregationStrategy.get("$comment").asText());
+
+        var toDSchema = processorCatalog.withObject("/toD").withObject("/propertiesSchema");
+        var uri = toDSchema.withObject("/properties").withObject("/uri");
+        assertEquals("string", uri.get("type").asText());
+        var parameters = toDSchema.withObject("/properties").withObject("/parameters");
+        assertEquals("object", parameters.get("type").asText());
     }
 }

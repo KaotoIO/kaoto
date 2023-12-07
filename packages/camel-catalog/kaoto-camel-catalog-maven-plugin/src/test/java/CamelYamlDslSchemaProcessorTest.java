@@ -86,4 +86,48 @@ public class CamelYamlDslSchemaProcessorTest {
         var expressionProperty = jqLanguage.withObject("/properties").withObject("/expression");
         assertEquals("Expression", expressionProperty.get("title").asText());
     }
+
+    @Test
+    public void testGetProcessors() throws Exception {
+        var processorMap = processor.getProcessors();
+        assertTrue(processorMap.size() > 50 && processorMap.size() < 100);
+        var aggregate = processorMap.get("org.apache.camel.model.AggregateDefinition");
+        assertFalse(aggregate.withObject("/properties").has("inheritErrorHandler"));
+        assertTrue(aggregate.withObject("/properties").has("completionPredicate"));
+        var completionPredicate = aggregate.withObject("/properties").withObject("/completionPredicate");
+        assertEquals("object", completionPredicate.get("type").asText());
+        assertEquals("expression", completionPredicate.get("$comment").asText());
+
+        var setHeader = processorMap.get("org.apache.camel.model.SetHeaderDefinition");
+        assertFalse(setHeader.withObject("/properties").has("expression"));
+        assertEquals("expression", setHeader.get("$comment").asText());
+        assertFalse(setHeader.has("anyOf"));
+
+        var bean = processorMap.get("org.apache.camel.model.BeanDefinition");
+        assertFalse(bean.has("oneOf"));
+        var beanType = bean.withObject("/properties").withObject("/beanType");
+        assertEquals("string", beanType.get("type").asText());
+
+        var marshal = processorMap.get("org.apache.camel.model.MarshalDefinition");
+        assertFalse(marshal.has("anyOf"));
+        assertEquals("dataformat", marshal.get("$comment").asText());
+
+        var toD = processorMap.get("org.apache.camel.model.ToDynamicDefinition");
+        assertTrue(toD.withObject("/properties").has("uri"));
+        assertTrue(toD.withObject("/properties").has("parameters"));
+
+        var loadBalance = processorMap.get("org.apache.camel.model.LoadBalanceDefinition");
+        assertFalse(loadBalance.has("anyOf"));
+        assertEquals("loadbalance", loadBalance.get("$comment").asText());
+
+        var saga = processorMap.get("org.apache.camel.model.SagaDefinition");
+        var sagaCompensation = saga.withObject("/properties").withObject("/compensation");
+        assertTrue(sagaCompensation.get("$ref").asText().endsWith("SagaActionUriDefinition"));
+        var actionDef = saga.withObject("/definitions").withObject("/org.apache.camel.model.SagaActionUriDefinition");
+        assertFalse(actionDef.has("oneOf"));
+        assertEquals("object", actionDef.withObject("/properties").withObject("/parameters").get("type").asText());
+        var propExpDef = saga.withObject("/definitions").withObject("/org.apache.camel.model.PropertyExpressionDefinition");
+        assertEquals("object", propExpDef.withObject("/properties").withObject("/expression").get("type").asText());
+        assertEquals("expression", propExpDef.withObject("/properties").withObject("/expression").get("$comment").asText());
+    }
 }

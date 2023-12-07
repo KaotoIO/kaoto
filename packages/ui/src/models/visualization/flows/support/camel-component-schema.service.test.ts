@@ -1,11 +1,11 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { CatalogKind } from '../../..';
-import { logModel } from '../../../../stubs/log-model';
-import { toModel } from '../../../../stubs/to-model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
+import * as modelCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-models.json';
 
 describe('CamelComponentSchemaService', () => {
   beforeEach(() => {
@@ -16,8 +16,16 @@ describe('CamelComponentSchemaService', () => {
       timer: (componentCatalogMap as any)['timer'],
     });
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, {
-      log: logModel,
-      to: toModel,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      log: (modelCatalogMap as any)['log'],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      to: (modelCatalogMap as any)['to'],
+    });
+    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      log: (patternCatalogMap as any)['log'],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      to: (patternCatalogMap as any)['to'],
     });
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,7 +67,7 @@ describe('CamelComponentSchemaService', () => {
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(logPath, logDefinition);
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Processor, 'log');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'log');
       expect(result).toMatchSnapshot();
     });
 
@@ -78,7 +86,7 @@ describe('CamelComponentSchemaService', () => {
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Processor, 'to');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'log');
       expect(result).toMatchSnapshot();
     });
@@ -123,7 +131,7 @@ describe('CamelComponentSchemaService', () => {
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(toNonExistingPath, toNonExistingDefinition);
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Processor, 'to');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'non-existing-component');
       expect(result).toMatchSnapshot();
     });

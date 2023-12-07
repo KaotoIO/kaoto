@@ -9,6 +9,7 @@ import { AutoForm } from 'uniforms';
 import { CustomAutoField } from '../../Form/CustomAutoField';
 import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
 import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
 import { SchemaService } from '../../Form';
 import { getNonDefaultProperties, getNonEmptyProperties } from './CanvasForm';
 
@@ -161,6 +162,26 @@ describe('CanvasForm', () => {
       } catch (e) {
         /* eslint-disable  @typescript-eslint/no-explicit-any */
         throw new Error(`Error rendering ${name} component: ${(e as any).message}`);
+      }
+    });
+  });
+
+  it('should render for all patterns without an error', () => {
+    Object.entries(patternCatalogMap).forEach(([name, pattern]) => {
+      try {
+        if (name === 'default') return;
+        expect(pattern).toBeDefined();
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const schema = (pattern as any).propertiesSchema;
+        const bridge = schemaService.getSchemaBridge(schema);
+        render(
+          <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
+            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
+          </AutoForm>,
+        );
+      } catch (e) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        throw new Error(`Error rendering ${name} pattern: ${(e as any).message}`);
       }
     });
   });

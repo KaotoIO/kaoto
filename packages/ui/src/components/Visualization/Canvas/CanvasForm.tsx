@@ -99,11 +99,15 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   );
 
   const isExpressionAwareStep = useMemo(() => {
-    return schema?.schema?.properties?.expression !== undefined;
+    return schema?.schema && schema.schema['$comment']?.includes('expression');
   }, [schema]);
 
   const isDataFormatAwareStep = useMemo(() => {
-    return schema?.schema?.properties?.dataFormatType !== undefined;
+    return schema?.schema && schema.schema['$comment']?.includes('dataformat');
+  }, [schema]);
+
+  const isLoadBalanceAwareStep = useMemo(() => {
+    return schema?.schema && schema.schema['$comment']?.includes('loadbalance');
   }, [schema]);
 
   return schema?.schema === undefined ? null : (
@@ -111,6 +115,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       <Title headingLevel="h1">{componentName}</Title>
       {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
       {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+      {isLoadBalanceAwareStep && <p>Load balance strategy configuration is not yet supported.</p>}
       <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
         <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
         <ErrorsField />
