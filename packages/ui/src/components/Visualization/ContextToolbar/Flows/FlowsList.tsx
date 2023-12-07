@@ -8,6 +8,8 @@ import { VisibleFlowsContext } from '../../../../providers/visible-flows.provide
 import { InlineEdit } from '../../../InlineEdit';
 import './FlowsList.scss';
 import { FlowsListEmptyState } from './FlowsListEmptyState';
+import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
+import { ValidationResult } from '../../../../models';
 
 interface IFlowsList {
   onClose?: () => void;
@@ -34,6 +36,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     [props, visualFlowsApi],
   );
 
+  const routeIdValidator = useCallback(
+    (value: string): ValidationResult => {
+      return RouteIdValidator.validateUniqueName(value, visualEntities);
+    },
+    [visualEntities],
+  );
+
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
@@ -52,7 +61,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
               <InlineEdit
                 data-testid={`goto-btn-${flow.id}`}
                 value={flow.id}
-                //  validator={ValidationService.validateUniqueName}
+                validator={routeIdValidator}
                 onClick={() => {
                   onSelectFlow(flow.id);
                 }}

@@ -3,7 +3,7 @@ describe('Tests for Design page', () => {
     cy.openHomePage();
   });
 
-  it('Design - remove steps from CamelRoute', () => {
+  it('Design - replace steps in CamelRoute', () => {
     cy.uploadFixture('flows/CamelRoute.yaml');
     cy.openDesignPage();
 
@@ -45,7 +45,7 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('uri: dropbox', 1);
   });
 
-  it('Design - remove steps from Pipe/KB', () => {
+  it('Design - replace steps in Pipe/KB', () => {
     cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
     cy.openDesignPage();
 

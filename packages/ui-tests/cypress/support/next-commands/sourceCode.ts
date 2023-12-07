@@ -15,24 +15,25 @@ Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.get('.pf-v5-c-code-editor__main > input').attachFile(fixture);
 });
 
-Cypress.Commands.add('editorDeleteLine', (line, repeatCount) => {
+Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => {
   repeatCount = repeatCount ?? 1;
+  // Open the Go to Line dialog
   cy.get('.pf-v5-c-code-editor')
     .click()
-    .type(
-      '{pageUp}' +
-        '{downArrow}'.repeat(line) +
-        '{home}' +
-        '{shift}' +
-        '{downArrow}'.repeat(repeatCount) +
-        '{backspace}',
-      {
-        delay: 1,
-      },
-    );
+    .type('{ctrl}' + '{g}', { delay: 1 });
+
+  // Type the line number to delete
+  cy.get('input[aria-describedby="quickInput_message"]')
+    .click()
+    .type(`${line + 1}` + '{enter}', { delay: 1 });
+
+  // Delete the line as many times as specified
+  for (let i = 0; i < repeatCount; i++) {
+    cy.focused().type('{ctrl}{shift}{k}', { delay: 1 });
+  }
 });
 
-Cypress.Commands.add('checkCodeSpanLine', (spanText, linesCount) => {
+Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount: number | undefined) => {
   linesCount = linesCount ?? 1;
   cy.get('.pf-v5-c-code-editor').within(() => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);
@@ -41,4 +42,11 @@ Cypress.Commands.add('checkCodeSpanLine', (spanText, linesCount) => {
 
 Cypress.Commands.add('editorScrollToTop', () => {
   cy.get('.pf-v5-c-code-editor').click().type('{ctrl}{home}', { release: false });
+});
+
+Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
+  repeatCount = repeatCount ?? 1;
+  Array.from({ length: repeatCount }).forEach(() => {
+    return cy.get('[data-testid="sourceCode--undoButton"]').click();
+  });
 });
