@@ -67,6 +67,7 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
                   isSelected={props.activeGroup === key}
                   onChange={() => {
                     props.setActiveGroup(key);
+                    inputRef.current?.focus();
                   }}
                 />
               ))}
