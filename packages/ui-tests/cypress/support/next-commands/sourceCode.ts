@@ -33,7 +33,7 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
   }
 });
 
-Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount: number | undefined) => {
+Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number) => {
   linesCount = linesCount ?? 1;
   cy.get('.pf-v5-c-code-editor').within(() => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);

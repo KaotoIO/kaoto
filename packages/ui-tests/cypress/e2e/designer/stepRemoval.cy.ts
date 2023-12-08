@@ -35,4 +35,37 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('source: {}', 1);
     cy.checkCodeSpanLine('sink: {}', 1);
   });
+
+  it('In an integration with at least two steps, user deletes the first step, showing a placeholder step in its place (start-end)', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.openDesignPage();
+
+    cy.removeNodeByName('timer');
+    cy.checkNodeExist('from: Unknown', 1);
+    cy.checkNodeExist('setHeader', 1);
+    cy.checkNodeExist('log', 1);
+
+    // CHECK that the step is deleted
+    cy.get('[data-id^="timer"]').should('not.exist');
+
+    cy.openSourceCode();
+    // CHECK that YAML not contains the 'timer:test'
+    cy.checkCodeSpanLine('timer:test', 0);
+  });
+
+  it('Step detail - User deletes a step, which closes the detail drawer', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.openDesignPage();
+
+    cy.openStepConfigurationTab('log');
+    cy.get('.pf-topology-side-bar').should('be.visible');
+    cy.removeNodeByName('log');
+    cy.get('.pf-topology-side-bar').should('not.be.visible');
+
+    // Blocked by https://github.com/KaotoIO/kaoto-next/issues/527
+    // cy.openStepConfigurationTab('timer');
+    // cy.get('.pf-topology-side-bar').should('be.visible');
+    // cy.removeNodeByName('setHeader');
+    // cy.get('.pf-topology-side-bar').should('be.visible');
+  });
 });

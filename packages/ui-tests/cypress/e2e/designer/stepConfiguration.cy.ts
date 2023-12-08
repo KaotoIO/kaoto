@@ -30,4 +30,101 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('user: user');
     cy.checkCodeSpanLine('password: password');
   });
+
+  it('Design - sidebar extensions configuration', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.openDesignPage();
+    // Configure setHeader expression
+    cy.openStepConfigurationTab('setHeader');
+    cy.selectExpression('Simple');
+    cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
+    cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
+    cy.interactWithExpressinInputObject('resultType', 'java.lang.String');
+
+    // CHECK they are reflected in the code editor
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('expression: "{{header.baz}}"', 1);
+    cy.checkCodeSpanLine('id: simpleExpressionId', 1);
+    cy.checkCodeSpanLine('resultType: java.lang.String', 1);
+  });
+
+  it('Design - sidebar dataformat configuration', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.openDesignPage();
+
+    cy.selectAppendNode('setHeader');
+    cy.get('[data-testid="processor-catalog-tab"]').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').type('marshal');
+    cy.get('#marshal').should('be.visible').click();
+    // wait for the canvas rerender
+    cy.wait(1000);
+
+    // Configure marshal dataformat
+    cy.openStepConfigurationTab('marshal');
+    cy.selectDataformat('Base64');
+    cy.interactWithDataformatInputObject('lineLength', '128');
+    cy.interactWithDataformatInputObject('id', 'simpleDataformatId');
+    cy.interactWithDataformatInputObject('lineSeparator', 'simpleLineSeparator');
+    cy.interactWithDataformatInputObject('urlSafe');
+
+    // CHECK they are reflected in the code editor
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('lineLength: "128"', 1);
+    cy.checkCodeSpanLine('id: simpleDataformatId', 1);
+    cy.checkCodeSpanLine('lineSeparator: simpleLineSeparator', 1);
+    cy.checkCodeSpanLine('urlSafe: true', 1);
+  });
+
+  //reproducer for https://github.com/KaotoIO/kaoto-next/issues/518
+  it('Design - name attribute was sometimes lost after extensions configuration', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.openDesignPage();
+
+    cy.openStepConfigurationTab('setHeader');
+    cy.selectExpression('JQ');
+    cy.interactWithConfigInputObject('expression', '.id');
+    cy.interactWithConfigInputObject('resultType', 'java.lang.String');
+    cy.interactWithConfigInputObject('headerName', 'id');
+    cy.interactWithConfigInputObject('trim');
+
+    cy.selectAppendNode('setHeader');
+    cy.get('[data-testid="processor-catalog-tab"]').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').type('setHeader');
+    cy.get('#setHeader').should('be.visible').click();
+    // wait for the canvas rerender
+    cy.wait(1000);
+
+    cy.checkNodeExist('setHeader', 2);
+
+    cy.openStepConfigurationTab('setHeader', 1);
+    cy.selectExpression('JQ');
+    cy.interactWithConfigInputObject('expression', '.name');
+    cy.interactWithConfigInputObject('resultType', 'java.lang.String');
+    cy.interactWithConfigInputObject('headerName', 'name');
+    cy.interactWithConfigInputObject('trim');
+
+    cy.openStepConfigurationTab('setHeader', 0);
+
+    // Check the configured fields didn't disappear from the first node
+    cy.checkConfigCheckboxObject('trim', true);
+    cy.checkConfigInputObject('headerName', 'id');
+    cy.checkConfigInputObject('resultType', 'java.lang.String');
+    cy.checkConfigInputObject('expression', '.id');
+
+    // Check the configured fields didn't disappear from the second node
+    cy.openStepConfigurationTab('setHeader', 0);
+    cy.checkConfigCheckboxObject('trim', true);
+    cy.checkConfigInputObject('headerName', 'name');
+    cy.checkConfigInputObject('resultType', 'java.lang.String');
+    cy.checkConfigInputObject('expression', '.name');
+
+    // CHECK they are reflected in the code editor
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('expression: .id', 1);
+    cy.checkCodeSpanLine('headerName: id', 1);
+    cy.checkCodeSpanLine('expression: .name', 1);
+    cy.checkCodeSpanLine('headerName: name', 1);
+  });
 });

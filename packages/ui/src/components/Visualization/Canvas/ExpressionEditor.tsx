@@ -83,7 +83,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
           <CardTitle>Expression</CardTitle>
         </CardHeader>
         <CardExpandableContent>
-          <CardBody>
+          <CardBody data-testid={'expression-config-card'}>
             <Dropdown
               id="expression-select"
               data-testid="expression-dropdown"
