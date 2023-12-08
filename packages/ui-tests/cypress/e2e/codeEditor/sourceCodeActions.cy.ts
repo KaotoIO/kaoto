@@ -67,12 +67,7 @@ describe('source code and drag and drop', () => {
   it('User Add a new branch in the YAML', () => {
     cy.uploadFixture('flows/ComplexKamelet.yaml');
 
-    // CHECK atlasmap step is not
-    // cy.openDesignPage();
-    // cy.get('[data-type="node"][data-id^="atlasmap"]').should('have.length', 0);
-    // cy.openSourceCode();
-
-    const stepToInsert = `\n              - simple: '{{}{{}?test}}'
+    const stepToInsert = `\n              - simple: {{}{{}?test}}
                 steps:
                   - to:
                       uri: atlasmap:null`;
