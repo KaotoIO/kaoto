@@ -2,9 +2,12 @@ Cypress.Commands.add('fitToScreen', () => {
   cy.get('.fit-to-screen').click();
 });
 
-Cypress.Commands.add('openStepConfigurationTab', (step, stepIndex) => {
+Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
   stepIndex = stepIndex ?? 0;
-  cy.contains('text', `${step}`).parent().eq(stepIndex).click();
+  cy.get('g.pf-topology__node__label')
+    .find(':contains(' + step + ')')
+    .eq(stepIndex)
+    .click({ force: true });
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
@@ -12,37 +15,59 @@ Cypress.Commands.add('closeStepConfigurationTab', () => {
   cy.get('.pf-topology-side-bar').should('be.hidden');
 });
 
-Cypress.Commands.add('interactWithConfigInputObject', (inputName, value) => {
+Cypress.Commands.add('interactWithExpressinInputObject', (inputName: string, value?: string) => {
+  cy.get('[data-testid="expression-config-card"]').within(() => {
+    cy.interactWithConfigInputObject(inputName, value);
+  });
+});
+
+Cypress.Commands.add('interactWithDataformatInputObject', (inputName: string, value?: string) => {
+  cy.get('[data-testid="dataformat-config-card"]').within(() => {
+    cy.interactWithConfigInputObject(inputName, value);
+  });
+});
+
+Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?: string) => {
   if (value !== undefined && value !== null) {
-    cy.get(`input[name="${inputName}"]`).clear().type(value);
+    cy.get(`input[name="${inputName}"]`).clear();
+    cy.get(`input[name="${inputName}"]`).type(value);
   } else {
     cy.get(`input[name="${inputName}"]`).click();
   }
 });
 
-Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex: number) => {
+Cypress.Commands.add('checkConfigCheckboxObject', (inputName: string, value: boolean) => {
+  const checked = value ? '' : 'not.';
+  cy.get(`input[name="${inputName}"]`).should(`${checked}be.checked`);
+});
+
+Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string) => {
+  cy.get(`input[name="${inputName}"]`).should('have.value', value);
+});
+
+Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'remove', nodeIndex);
   cy.get(nodeName).should('not.exist');
 });
 
-Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex: number) => {
+Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });
 
-Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex: number) => {
+Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'append', nodeIndex);
 });
 
-Cypress.Commands.add('selectInsertSpecialNode', (nodeName: string, nodeIndex: number) => {
+Cypress.Commands.add('selectInsertSpecialNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'insert-special', nodeIndex);
 });
 
-Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex: number) => {
+Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'prepend', nodeIndex);
 });
 
 // allowed actions - append, prepend, replace, remove
-Cypress.Commands.add('performNodeAction', (nodeName: string, action: string, nodeIndex: number) => {
+Cypress.Commands.add('performNodeAction', (nodeName: string, action: string, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
   cy.get('g.pf-topology__node__label')
     .find(':contains(' + nodeName + ')')
@@ -78,4 +103,18 @@ Cypress.Commands.add('deleteBranch', (branchIndex) => {
   branchIndex = branchIndex ?? 0;
   cy.get('[data-testid="stepNode__deleteBranch-btn"]').eq(branchIndex).click();
   cy.get('[data-testid="confirmDeleteBranchDialog__btn"]').click();
+});
+
+Cypress.Commands.add('selectExpression', (expression: string) => {
+  cy.selectCustomMetadataEditor('expression', expression);
+});
+
+Cypress.Commands.add('selectDataformat', (dataformat: string) => {
+  cy.selectCustomMetadataEditor('dataformat', dataformat);
+});
+
+Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
+  cy.get(`div[data-testid="${type}-config-card"] button.pf-v5-c-menu-toggle`).should('be.visible').click();
+  const regex = new RegExp(`^${format}$`);
+  cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });

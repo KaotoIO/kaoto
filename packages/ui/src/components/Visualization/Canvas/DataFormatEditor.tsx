@@ -84,7 +84,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
           <CardTitle>DataFormat</CardTitle>
         </CardHeader>
         <CardExpandableContent>
-          <CardBody>
+          <CardBody data-testid={'dataformat-config-card'}>
             <Dropdown
               id="dataformat-select"
               data-testid="expression-dropdown"
