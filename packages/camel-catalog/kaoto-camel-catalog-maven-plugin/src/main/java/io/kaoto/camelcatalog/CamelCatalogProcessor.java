@@ -96,7 +96,7 @@ public class CamelCatalogProcessor {
         var required = new LinkedHashSet<String>();
         for (var propertyEntry : properties.properties()) {
             var propertyName = propertyEntry.getKey();
-            var property = propertyEntry.getValue();
+            var property = (ObjectNode) propertyEntry.getValue();
             var propertySchema = answerProperties.withObject("/" + propertyName);
             if (property.has("displayName")) propertySchema.put("title", property.get("displayName").asText());
             if (property.has("description")) propertySchema.put("description", property.get("description").asText());
@@ -124,6 +124,9 @@ public class CamelCatalogProcessor {
             if (property.has("enum")) {
                 property.withArray("/enum")
                         .forEach(e -> propertySchema.withArray("/enum").add(e));
+                if (!propertySchema.has("type") || "object".equals(propertySchema.get("type").asText())) {
+                    propertySchema.put("type", "string");
+                }
             } else if ("array".equals(propertyType)) {
                 propertySchema.withObject("/items").put("type", "string");
             } else if ("object".equals(propertyType) && property.has("javaType") && !property.get("javaType").asText().startsWith("java.util.Map")) {

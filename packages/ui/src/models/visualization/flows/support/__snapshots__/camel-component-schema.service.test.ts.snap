@@ -255,7 +255,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
               "Fixed",
             ],
             "title": "Style",
-            "type": "object",
+            "type": "string",
           },
         },
         "required": [
@@ -601,7 +601,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
               "Fixed",
             ],
             "title": "Style",
-            "type": "object",
+            "type": "string",
           },
         },
         "required": [
@@ -943,7 +943,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
               "Fixed",
             ],
             "title": "Style",
-            "type": "object",
+            "type": "string",
           },
         },
         "required": [
