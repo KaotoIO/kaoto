@@ -1,4 +1,3 @@
-import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -11,8 +10,9 @@ import {
   MenuToggle,
   MenuToggleElement,
 } from '@patternfly/react-core';
-import { MetadataEditor } from '../../MetadataEditor';
+import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
+import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from './canvas.models';
 import { DataFormatService } from './dataformat.service';
 
@@ -35,10 +35,9 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
       visualComponentSchema.definition = {};
     }
   }
-  const model = visualComponentSchema?.definition;
-  const { dataFormat: dataFormat, model: dataFormatModel } = DataFormatService.parseDataFormatModel(
+  const { dataFormat, model: dataFormatModel } = DataFormatService.parseDataFormatModel(
     dataFormatCatalogMap,
-    model,
+    visualComponentSchema?.definition,
   );
   const dataFormatSchema = useMemo(() => {
     return DataFormatService.getDataFormatSchema(dataFormat!);
@@ -50,12 +49,13 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   const handleOnChange = useCallback(
     (selectedDataFormat: string, newDataFormatModel: Record<string, unknown>) => {
+      const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
       if (!model) return;
       DataFormatService.setDataFormatModel(dataFormatCatalogMap, model, selectedDataFormat, newDataFormatModel);
       props.selectedNode.data?.vizNode?.updateModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, dataFormatCatalogMap, model, props.selectedNode.data?.vizNode],
+    [entitiesContext, dataFormatCatalogMap, props.selectedNode.data?.vizNode],
   );
 
   const onSelect = useCallback(
@@ -78,7 +78,6 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   return (
     dataFormatCatalogMap &&
-    model &&
     dataFormat && (
       <Card isCompact={true} isExpanded={isExpanded}>
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
