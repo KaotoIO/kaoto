@@ -1,4 +1,3 @@
-import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -11,8 +10,9 @@ import {
   MenuToggle,
   MenuToggleElement,
 } from '@patternfly/react-core';
-import { MetadataEditor } from '../../MetadataEditor';
+import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
+import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from './canvas.models';
 import { ExpressionService } from './expression.service';
 
@@ -34,8 +34,10 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
       visualComponentSchema.definition = {};
     }
   }
-  const model = visualComponentSchema?.definition;
-  const { language, model: expressionModel } = ExpressionService.parseExpressionModel(languageCatalogMap, model);
+  const { language, model: expressionModel } = ExpressionService.parseExpressionModel(
+    languageCatalogMap,
+    visualComponentSchema?.definition,
+  );
   const languageSchema = useMemo(() => {
     return ExpressionService.getLanguageSchema(language!);
   }, [language]);
@@ -46,12 +48,13 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
 
   const handleOnChange = useCallback(
     (selectedLanguage: string, newExpressionModel: Record<string, unknown>) => {
+      const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
       if (!model) return;
       ExpressionService.setExpressionModel(languageCatalogMap, model, selectedLanguage, newExpressionModel);
       props.selectedNode.data?.vizNode?.updateModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, languageCatalogMap, model, props.selectedNode.data?.vizNode],
+    [entitiesContext, languageCatalogMap, props.selectedNode.data?.vizNode],
   );
 
   const onSelect = useCallback(
@@ -74,7 +77,6 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = (props
 
   return (
     languageCatalogMap &&
-    model &&
     language && (
       <Card isCompact={true} isExpanded={isExpanded}>
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
