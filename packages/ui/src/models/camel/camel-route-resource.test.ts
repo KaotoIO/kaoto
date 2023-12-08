@@ -3,6 +3,7 @@ import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
+import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
 import { createCamelResource } from './camel-resource';
@@ -29,10 +30,10 @@ describe('CamelRouteResource', () => {
       [camelRouteJson, CamelRouteVisualEntity],
       [camelFromJson, CamelRouteVisualEntity],
       [{ from: { uri: 'direct:foo', steps: [] } }, CamelRouteVisualEntity],
-      [{ from: 'direct:foo' }, { from: 'direct:foo' }],
-      [{ from: { uri: 'direct:foo' } }, { from: { uri: 'direct:foo' } }],
+      [{ from: 'direct:foo' }, NonVisualEntity],
+      [{ from: { uri: 'direct:foo' } }, NonVisualEntity],
       [{ beans: [] }, BeansEntity],
-      [{}, {}],
+      [{}, NonVisualEntity],
       [undefined, undefined],
       [null, undefined],
       [[], undefined],

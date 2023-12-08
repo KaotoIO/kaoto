@@ -10,7 +10,7 @@ import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { NonVisualizedEntity } from './entities/non-visualized-entity';
+import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private entities: BaseCamelEntity[] = [];
@@ -105,6 +105,6 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     } else if (isBeans(rawItem)) {
       return new BeansEntity(rawItem);
     }
-    return new NonVisualizedEntity(rawItem as string);
+    return new NonVisualEntity(rawItem as string);
   }
 }
