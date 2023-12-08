@@ -6,20 +6,19 @@
   position: relative;
   padding-top: 15px;
 
+  // Tab header shouldn't grow or shrink
+  > div[role='region'] {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  // Tab content is scrollable
   section#{&}__tab-content {
     flex-grow: 1;
+    flex-shrink: 1;
     position: relative;
     padding: 0 15px 15px;
-  }
-}
-
-.canvas-page {
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-
-  &__canvas {
-    flex-grow: 1;
+    overflow: scroll;
   }
 }
 
