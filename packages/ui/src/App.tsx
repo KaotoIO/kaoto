@@ -6,6 +6,7 @@ import { EntitiesProvider } from './providers/entities.provider';
 import { SchemasLoaderProvider } from './providers/schemas.provider';
 import { SourceCodeProvider } from './providers/source-code.provider';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
+import { VisibleFlowsProvider } from './providers';
 
 function App() {
   return (
@@ -15,7 +16,9 @@ function App() {
           <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
             <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
               <CatalogTilesProvider>
-                <Outlet />
+                <VisibleFlowsProvider>
+                  <Outlet />
+                </VisibleFlowsProvider>
               </CatalogTilesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>
