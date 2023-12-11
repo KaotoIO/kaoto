@@ -18,16 +18,29 @@ export function getNonDefaultProperties(
   obj1: JSONSchemaType<unknown>,
   obj2: Record<string, unknown>,
 ): Record<string, unknown> {
-  const newModelUpdated = Object.entries(obj2.parameters as object).reduce(
+  const modelResult = Object.entries(obj2.parameters as object).reduce(
     (acc: [string, unknown][], currentValue: [string, unknown]) => {
-      if (!(obj1[currentValue[0]]['default'] == currentValue[1])) {
-        acc.push(currentValue);
+      if (typeof currentValue[1] === 'object' && Array.isArray(currentValue[1])) {
+        const filteredArray = currentValue[1].filter((item) => item !== undefined && item.length !== 0);
+        if (obj1[currentValue[0]]['default'] !== undefined) {
+          if (!(obj1[currentValue[0]]['default'].toString() === filteredArray.toString())) {
+            acc.push([currentValue[0], filteredArray]);
+          }
+        } else {
+          if (filteredArray.length > 0) {
+            acc.push([currentValue[0], filteredArray]);
+          }
+        }
+      } else {
+        if (!(obj1[currentValue[0]]['default'] == currentValue[1])) {
+          acc.push(currentValue);
+        }
       }
       return acc;
     },
     [],
   );
-  return { ...obj2, parameters: Object.fromEntries(newModelUpdated) };
+  return { ...obj2, parameters: Object.fromEntries(modelResult) };
 }
 
 export function getNonEmptyProperties(obj: Record<string, unknown>): Record<string, unknown> {
@@ -81,9 +94,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
-      if (newModel.parameters === undefined) {
-        props.selectedNode.data?.vizNode?.updateModel(newModel);
-      } else {
+      if (newModel.parameters !== undefined && Object.keys(newModel.parameters as object).length !== 0) {
         // newModelNonDefault will contain only those properties that has different value than default.
         const newModelNonDefault = getNonDefaultProperties(
           props.selectedNode.data?.vizNode?.getComponentSchema()?.schema?.properties.parameters.properties,
@@ -92,6 +103,8 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         // newModelClean will contain only non empty propertis that has different value than default.
         const newModelClean = getNonEmptyProperties(newModelNonDefault);
         props.selectedNode.data?.vizNode?.updateModel(newModelClean);
+      } else {
+        props.selectedNode.data?.vizNode?.updateModel(newModel);
       }
       entitiesContext?.updateSourceCodeFromEntities();
     },

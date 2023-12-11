@@ -266,6 +266,20 @@ describe('CanvasForm getNonEmptyProperties()', () => {
             type: 'object',
             title: 'Exchange Pattern',
           },
+          signedReceiptMicAlgorithms: {
+            type: 'array',
+            title: 'Signed Receipt Mic Algorithms',
+          },
+          endpoints: {
+            type: 'array',
+            title: 'Endpoints',
+            default: ['Etcd3Constants.ETCD_DEFAULT_ENDPOINTS'],
+          },
+          scopes: {
+            title: 'Scopes',
+            type: 'array',
+            default: ['https://www.googleapis.com/auth/calendar'],
+          },
         },
       },
     },
@@ -281,6 +295,9 @@ describe('CanvasForm getNonEmptyProperties()', () => {
       concurrentConsumers: '',
       bridgeErrorHandler: false,
       exchangePattern: {},
+      signedReceiptMicAlgorithms: [undefined],
+      scopes: ['https://www.googleapis.com/auth/calendar'],
+      endpoints: ['Etcd3Constants.ETCD_DEFAULT_ENDPOINTS', undefined, 'test', ''],
     },
   };
 
@@ -293,6 +310,7 @@ describe('CanvasForm getNonEmptyProperties()', () => {
       events: 'CREATE',
       concurrentConsumers: '',
       exchangePattern: {},
+      endpoints: ['Etcd3Constants.ETCD_DEFAULT_ENDPOINTS', 'test'],
     },
   };
 
@@ -303,6 +321,7 @@ describe('CanvasForm getNonEmptyProperties()', () => {
     uri: 'file-watch',
     parameters: {
       events: 'CREATE',
+      endpoints: ['Etcd3Constants.ETCD_DEFAULT_ENDPOINTS', 'test'],
     },
   };
 
@@ -312,7 +331,9 @@ describe('CanvasForm getNonEmptyProperties()', () => {
   });
 
   it('should return only the non-empty properties', () => {
-    const newModelClean = getNonEmptyProperties(newModel);
-    expect(newModelClean).toMatchObject(newModelExpected);
+    const newModelFinal = getNonEmptyProperties(
+      getNonDefaultProperties(schema?.properties.parameters.properties, newModel),
+    );
+    expect(newModelFinal).toMatchObject(newModelExpected);
   });
 });
