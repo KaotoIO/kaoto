@@ -10,6 +10,7 @@ import {
 import { createAutoField } from 'uniforms';
 import { DisabledField } from './DisabledField';
 import { PropertiesField } from './properties/PropertiesField';
+import { BeanReferenceField } from './bean/BeanReferenceField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -26,6 +27,7 @@ export const CustomAutoField = createAutoField((props) => {
     return PropertiesField;
   }
 
+  const comment = props['$comment'] as string;
   switch (props.fieldType) {
     case Array:
       return ListField;
@@ -38,13 +40,10 @@ export const CustomAutoField = createAutoField((props) => {
     case Object:
       return NestField;
     case String:
-      /* TODO Create BeanReferenceField - https://github.com/KaotoIO/kaoto-next/issues/470
-         catalog preprocessor put 'string' as a type and the javaType as a schema $comment
-      const comment = props['$comment'] as string;
+      /* catalog preprocessor put 'string' as a type and the javaType as a schema $comment */
       if (comment?.startsWith('class:')) {
         return BeanReferenceField;
       }
-    */
       return TextField;
   }
 
