@@ -6,7 +6,8 @@ import { CatalogModalProvider } from '../providers/catalog-modal.provider';
 import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
-import { SourceCodeApiContext, SourceCodeContext } from '../providers/source-code.provider';
+import { SourceCodeApiContext } from '../providers/source-code.provider';
+import { VisibleFlowsProvider } from '../providers/visible-flows.provider';
 import { EventNotifier } from '../utils';
 
 interface KaotoBridgeProps {
@@ -50,9 +51,8 @@ interface KaotoBridgeProps {
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>((props, forwardedRef) => {
   const eventNotifier = EventNotifier.getInstance();
-  const sourceCodeContext = useContext(SourceCodeContext);
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
-  const sourceCodeRef = useRef<string>(sourceCodeContext ?? '');
+  const sourceCodeRef = useRef<string>('');
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
@@ -88,10 +88,23 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
    * Subscribe to the `entities:updated` event to update the File content.
    */
   useEffect(() => {
-    return eventNotifier.subscribe('entities:updated', (newContent: string) => {
+    const unsubscribeFromEntities = eventNotifier.subscribe('entities:updated', (newContent: string) => {
       props.onNewEdit(new WorkspaceEdit(newContent));
       sourceCodeRef.current = newContent;
     });
+
+    const unsubscribeFromSourceCode = eventNotifier.subscribe('code:updated', (newContent: string) => {
+      /** Ignore the first change, from an empty string to the file content  */
+      if (sourceCodeRef.current !== '') {
+        props.onNewEdit(new WorkspaceEdit(newContent));
+      }
+      sourceCodeRef.current = newContent;
+    });
+
+    return () => {
+      unsubscribeFromEntities();
+      unsubscribeFromSourceCode();
+    };
   }, [eventNotifier, props]);
 
   /**
@@ -130,7 +143,9 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     <SchemasLoaderProvider catalogUrl={props.catalogUrl}>
       <CatalogLoaderProvider catalogUrl={props.catalogUrl}>
         <CatalogTilesProvider>
-          <CatalogModalProvider>{props.children}</CatalogModalProvider>
+          <VisibleFlowsProvider>
+            <CatalogModalProvider>{props.children}</CatalogModalProvider>
+          </VisibleFlowsProvider>
         </CatalogTilesProvider>
       </CatalogLoaderProvider>
     </SchemasLoaderProvider>
