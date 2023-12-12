@@ -59,7 +59,6 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             data-testid="confirmation-modal-confirm"
             onClick={() => {
               if (proposedFlowType) {
-                entitiesContext.setCurrentSchemaType(proposedFlowType);
                 sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
                 setIsConfirmationModalOpen(false);
               }
