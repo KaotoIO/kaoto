@@ -8,10 +8,17 @@ jest.mock('uniforms', () => {
   };
 });
 
-import { BoolField, DateField, ListField, RadioField, SelectField, TextField } from '@kaoto-next/uniforms-patternfly';
+import {
+  BoolField,
+  DateField,
+  ListField,
+  NestField,
+  RadioField,
+  SelectField,
+  TextField,
+} from '@kaoto-next/uniforms-patternfly';
 import { AutoFieldProps } from 'uniforms';
 import { CustomAutoField } from './CustomAutoField';
-import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
 
 describe('CustomAutoField', () => {
@@ -104,7 +111,7 @@ describe('CustomAutoField', () => {
 
     const result = CustomAutoField(props);
 
-    expect(result).toBe(CustomNestField);
+    expect(result).toBe(NestField);
   });
 
   it('should return `TextField` if `props.fieldType` is `String`', () => {

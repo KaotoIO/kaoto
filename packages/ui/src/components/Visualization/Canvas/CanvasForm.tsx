@@ -1,14 +1,14 @@
-import { AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
+import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { Title } from '@patternfly/react-core';
+import type { JSONSchemaType } from 'ajv';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { EntitiesContext } from '../../../providers/entities.provider';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
-import { CustomAutoField } from '../../Form/CustomAutoField';
-import { CanvasNode } from './canvas.models';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { ExpressionEditor } from './ExpressionEditor';
+import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import { DataFormatEditor } from './DataFormatEditor';
-import type { JSONSchemaType } from 'ajv';
+import { ExpressionEditor } from './ExpressionEditor';
+import { CanvasNode } from './canvas.models';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -112,14 +112,16 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   return schema?.schema === undefined ? null : (
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
-      <Title headingLevel="h1">{componentName}</Title>
-      {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
-      {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-      {isLoadBalanceAwareStep && <p>Load balance strategy configuration is not yet supported.</p>}
-      <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
-        <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
-        <ErrorsField />
-      </AutoForm>
+      <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+        <Title headingLevel="h1">{componentName}</Title>
+        {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
+        {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+        {isLoadBalanceAwareStep && <p>Load balance strategy configuration is not yet supported.</p>}
+        <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
+          <AutoFields omitFields={omitFields} />
+          <ErrorsField />
+        </AutoForm>
+      </AutoField.componentDetectorContext.Provider>
     </ErrorBoundary>
   );
 };
