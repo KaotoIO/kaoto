@@ -1,6 +1,6 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
-import { JSONSchemaBridge } from './JSONSchemaBridge';
+import { CustomJSONSchemaBridge } from './CustomJSONSchemaBridge';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 
 export class SchemaService {
@@ -17,7 +17,7 @@ export class SchemaService {
     addFormats(this.ajv);
   }
 
-  getSchemaBridge(schema?: Record<string, unknown>): JSONSchemaBridge | undefined {
+  getSchemaBridge(schema?: Record<string, unknown>): CustomJSONSchemaBridge | undefined {
     if (!schema) return undefined;
 
     // uniforms passes it down to the React elements as an attribute, causes a warning
@@ -25,7 +25,7 @@ export class SchemaService {
 
     const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
 
-    return new JSONSchemaBridge({ schema, validator: schemaValidator });
+    return new CustomJSONSchemaBridge({ schema, validator: schemaValidator });
   }
 
   private createValidator<T>(schema: JSONSchemaType<T>) {
