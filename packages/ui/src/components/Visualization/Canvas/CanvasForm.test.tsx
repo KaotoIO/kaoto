@@ -1,17 +1,16 @@
+import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
+import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
+import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import { AutoField, AutoFields } from '@kaoto-next/uniforms-patternfly';
 import { render } from '@testing-library/react';
 import { JSONSchemaType } from 'ajv';
+import { AutoForm } from 'uniforms';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../providers/entities.provider';
-import { CanvasForm } from './CanvasForm';
-import { CanvasNode } from './canvas.models';
-import { AutoFields } from '@kaoto-next/uniforms-patternfly';
-import { AutoForm } from 'uniforms';
-import { CustomAutoField } from '../../Form/CustomAutoField';
-import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
-import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
-import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
 import { SchemaService } from '../../Form';
-import { getNonDefaultProperties, getNonEmptyProperties } from './CanvasForm';
+import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CanvasForm, getNonDefaultProperties, getNonEmptyProperties } from './CanvasForm';
+import { CanvasNode } from './canvas.models';
 
 describe('CanvasForm', () => {
   const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -135,9 +134,11 @@ describe('CanvasForm', () => {
         /* eslint-disable  @typescript-eslint/no-explicit-any */
         const schema = schemaService.getSchemaBridge((catalog as any).propertiesSchema);
         render(
-          <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
-            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
-          </AutoForm>,
+          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+            <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
+              <AutoFields omitFields={omitFields} />
+            </AutoForm>
+          </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
         /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -155,9 +156,11 @@ describe('CanvasForm', () => {
         const schema = (kamelet as any).propertiesSchema;
         const bridge = schemaService.getSchemaBridge(schema);
         render(
-          <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
-          </AutoForm>,
+          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+            <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
+              <AutoFields omitFields={omitFields} />
+            </AutoForm>
+          </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
         /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -175,9 +178,11 @@ describe('CanvasForm', () => {
         const schema = (pattern as any).propertiesSchema;
         const bridge = schemaService.getSchemaBridge(schema);
         render(
-          <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-            <AutoFields autoField={CustomAutoField} omitFields={omitFields} />
-          </AutoForm>,
+          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+            <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
+              <AutoFields omitFields={omitFields} />
+            </AutoForm>
+          </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
         /* eslint-disable  @typescript-eslint/no-explicit-any */

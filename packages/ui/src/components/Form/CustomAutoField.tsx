@@ -1,6 +1,13 @@
-import { BoolField, DateField, ListField, RadioField, SelectField, TextField } from '@kaoto-next/uniforms-patternfly';
+import {
+  BoolField,
+  DateField,
+  ListField,
+  NestField,
+  RadioField,
+  SelectField,
+  TextField,
+} from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
-import { CustomNestField } from './CustomNestField';
 import { DisabledField } from './DisabledField';
 import { PropertiesField } from './properties/PropertiesField';
 
@@ -29,7 +36,7 @@ export const CustomAutoField = createAutoField((props) => {
     case Number:
       return TextField;
     case Object:
-      return CustomNestField;
+      return NestField;
     case String:
       /* TODO Create BeanReferenceField - https://github.com/KaotoIO/kaoto-next/issues/470
          catalog preprocessor put 'string' as a type and the javaType as a schema $comment
@@ -46,3 +53,5 @@ export const CustomAutoField = createAutoField((props) => {
   /** Once all the fields are supported, we could fail fast again and uncomment the following line */
   /** return invariant(false, 'Unsupported field type: %s', props.fieldType); */
 });
+
+export const CustomAutoFieldDetector = () => CustomAutoField;

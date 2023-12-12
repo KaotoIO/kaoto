@@ -26,7 +26,7 @@ exports[`CanvasForm should render 1`] = `
         >
           <label
             class="pf-v5-c-form__label"
-            for="uniforms-0000-0003"
+            for="uniforms-0000-0005"
           >
             <span
               class="pf-v5-c-form__label-text"
@@ -49,7 +49,7 @@ exports[`CanvasForm should render 1`] = `
               data-ouia-component-type="PF5/TextInput"
               data-ouia-safe="true"
               data-testid="text-field"
-              id="uniforms-0000-0003"
+              id="uniforms-0000-0005"
               label="Name"
               name="name"
               type="text"

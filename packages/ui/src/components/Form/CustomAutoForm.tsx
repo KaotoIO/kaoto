@@ -2,7 +2,7 @@ import { AutoField, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfl
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { IDataTestID } from '../../models';
-import { CustomAutoField } from './CustomAutoField';
+import { CustomAutoFieldDetector } from './CustomAutoField';
 
 interface CustomAutoFormProps extends IDataTestID {
   schemaBridge?: JSONSchemaBridge;
@@ -35,7 +35,7 @@ export const CustomAutoForm = forwardRef<{ fields: HTMLElement[] }, CustomAutoFo
   }));
 
   return (
-    <AutoField.componentDetectorContext.Provider value={() => CustomAutoField}>
+    <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
       <AutoForm
         schema={props.schemaBridge}
         model={props.model}
