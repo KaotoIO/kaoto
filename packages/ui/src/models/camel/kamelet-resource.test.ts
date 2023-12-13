@@ -1,4 +1,4 @@
-import { kameletJson } from '../../stubs/kamelet';
+import { kameletJson } from '../../stubs/kamelet-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { createCamelResource } from './camel-resource';

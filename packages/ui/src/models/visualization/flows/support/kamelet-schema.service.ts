@@ -25,4 +25,9 @@ export class KameletSchemaService {
 
     return CamelCatalogService.getComponent(CatalogKind.Kamelet, stepName);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getNodeLabel(step: PipeStep, path: string): string {
+    return step?.ref?.name ?? `${path}: Unknown`;
+  }
 }

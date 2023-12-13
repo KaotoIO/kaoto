@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
-import { isDefined } from '../../../../utils';
+import { getUriString, isDefined } from '../../../../utils';
 import { ComponentsCatalogTypes } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
@@ -47,18 +47,23 @@ export class CamelComponentSchemaService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getLabel(camelElementLookup: ICamelElementLookupResult, definition: any): string {
+  static getNodeLabel(camelElementLookup: ICamelElementLookupResult, definition?: any): string {
+    if (typeof definition?.description === 'string' && definition.description !== '') {
+      return definition.description;
+    }
+
     if (camelElementLookup.componentName !== undefined) {
       return camelElementLookup.componentName;
     }
 
+    const uriString = getUriString(definition);
     switch (camelElementLookup.processorName) {
       case 'from' as keyof ProcessorDefinition:
-        return definition.uri ?? '';
+        return uriString ?? 'from: Unknown';
 
       case 'to':
       case 'toD':
-        return typeof definition === 'string' ? definition : definition.uri ?? camelElementLookup.processorName;
+        return uriString ?? camelElementLookup.processorName;
 
       default:
         return camelElementLookup.processorName;
@@ -141,11 +146,15 @@ export class CamelComponentSchemaService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static getCamelElement(processorName: keyof ProcessorDefinition, definition: any): ICamelElementLookupResult {
+    if (!isDefined(definition)) {
+      return { processorName };
+    }
+
     switch (processorName) {
       case 'from' as keyof ProcessorDefinition:
         return {
           processorName,
-          componentName: this.getComponentNameFromUri(definition.uri),
+          componentName: this.getComponentNameFromUri(definition?.uri),
         };
 
       case 'to':
@@ -161,7 +170,7 @@ export class CamelComponentSchemaService {
         /** The To processor is using `to: { uri: 'timer:tick?period=1000' }` form */
         return {
           processorName,
-          componentName: this.getComponentNameFromUri(definition.uri),
+          componentName: this.getComponentNameFromUri(definition?.uri),
         };
 
       default:

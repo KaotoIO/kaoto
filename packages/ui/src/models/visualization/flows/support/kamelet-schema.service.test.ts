@@ -68,4 +68,25 @@ describe('KameletSchemaService', () => {
 
     expect(result).toMatchSnapshot();
   });
+
+  it('should return the Kamelet name as the node label', () => {
+    const result = KameletSchemaService.getNodeLabel(
+      {
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'beer-source',
+        },
+      },
+      'source',
+    );
+
+    expect(result).toEqual('beer-source');
+  });
+
+  it('should return the Kamelet name as the node label', () => {
+    const result = KameletSchemaService.getNodeLabel(undefined, 'sink');
+
+    expect(result).toEqual('sink: Unknown');
+  });
 });

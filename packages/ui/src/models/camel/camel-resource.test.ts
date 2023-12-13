@@ -1,11 +1,11 @@
-import { createCamelResource } from './camel-resource';
-import { SourceSchemaType } from './source-schema-type';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { integrationJson } from '../../stubs/integration';
+import { kameletBindingJson } from '../../stubs/kamelet-binding-route';
+import { kameletJson } from '../../stubs/kamelet-route';
 import { pipeJson } from '../../stubs/pipe';
 import { CamelRouteVisualEntity, PipeVisualEntity } from '../visualization/flows';
-import { kameletBindingJson } from '../../stubs/kamelet-binding-route';
-import { kameletJson } from '../../stubs/kamelet';
+import { createCamelResource } from './camel-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 describe('createCamelResource', () => {
   it('should create an empty CamelRouteResource if no args is specified', () => {

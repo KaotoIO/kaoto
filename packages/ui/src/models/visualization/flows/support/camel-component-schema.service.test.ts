@@ -155,9 +155,9 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
-  describe('getLabel', () => {
+  describe('getNodeLabel', () => {
     it('should return the component name if provided', () => {
-      const label = CamelComponentSchemaService.getLabel(
+      const label = CamelComponentSchemaService.getNodeLabel(
         { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' },
         {},
       );
@@ -166,24 +166,40 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it.each([
+      [{ processorName: 'from' as keyof ProcessorDefinition }, { uri: 'timer:foo', description: '' }, 'timer:foo'],
+      [
+        { processorName: 'from' as keyof ProcessorDefinition },
+        { uri: 'timer:foo', description: 'this is a description' },
+        'this is a description',
+      ],
       [
         { processorName: 'from' as keyof ProcessorDefinition },
         { uri: 'timer:foo?delay=1000&period=1000' },
         'timer:foo?delay=1000&period=1000',
       ],
-      [{ processorName: 'from' as keyof ProcessorDefinition }, {}, ''],
+      [{ processorName: 'from' as keyof ProcessorDefinition }, {}, 'from: Unknown'],
+      [{ processorName: 'from' as keyof ProcessorDefinition, uri: '' }, {}, 'from: Unknown'],
+      [{ processorName: 'from' as keyof ProcessorDefinition, uri: null }, {}, 'from: Unknown'],
+      [{ processorName: 'from' as keyof ProcessorDefinition, uri: 10 }, {}, 'from: Unknown'],
+      [{ processorName: 'from' as keyof ProcessorDefinition, uri: undefined }, {}, 'from: Unknown'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, 'timer:foo', 'timer:foo'],
-      [{ processorName: 'toD' as keyof ProcessorDefinition }, 'log', 'log'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, { uri: 'timer:foo' }, 'timer:foo'],
-      [{ processorName: 'toD' as keyof ProcessorDefinition }, { uri: 'log' }, 'log'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, {}, 'to'],
+      [{ processorName: 'to' as keyof ProcessorDefinition }, undefined, 'to'],
+      [{ processorName: 'to' as keyof ProcessorDefinition }, null, 'to'],
+      [{ processorName: 'to' as keyof ProcessorDefinition }, '', 'to'],
+      [{ processorName: 'toD' as keyof ProcessorDefinition }, 'timer:foo', 'timer:foo'],
+      [{ processorName: 'toD' as keyof ProcessorDefinition }, { uri: 'timer:foo' }, 'timer:foo'],
       [{ processorName: 'toD' as keyof ProcessorDefinition }, {}, 'toD'],
+      [{ processorName: 'toD' as keyof ProcessorDefinition }, undefined, 'toD'],
+      [{ processorName: 'toD' as keyof ProcessorDefinition }, null, 'toD'],
+      [{ processorName: 'toD' as keyof ProcessorDefinition }, '', 'toD'],
       [{ processorName: 'choice' as keyof ProcessorDefinition }, {}, 'choice'],
       [{ processorName: 'otherwise' as keyof ProcessorDefinition }, {}, 'otherwise'],
     ])(
-      'should return the processor name if the component name is not provided: %s',
+      'should return the processor name if the component name is not provided: %s [%s]',
       (componentLookup, definition, result) => {
-        const label = CamelComponentSchemaService.getLabel(componentLookup, definition);
+        const label = CamelComponentSchemaService.getNodeLabel(componentLookup, definition);
 
         expect(label).toEqual(result);
       },

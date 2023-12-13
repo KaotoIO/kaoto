@@ -119,7 +119,7 @@ describe('CanvasService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = createVisualizationNode({ label: 'node' });
+      const vizNode = createVisualizationNode('node', {});
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
@@ -127,7 +127,6 @@ describe('CanvasService', () => {
         {
           ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
-          label: 'node',
           parentNode: undefined,
           data: { vizNode },
         },
@@ -136,8 +135,8 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode({ label: 'node' });
-      const childNode = createVisualizationNode({ label: 'child' });
+      const vizNode = createVisualizationNode('node', {});
+      const childNode = createVisualizationNode('child', {});
       vizNode.addChild(childNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
@@ -146,14 +145,12 @@ describe('CanvasService', () => {
         {
           ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
-          label: 'node',
           parentNode: undefined,
           data: { vizNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'child-1234',
-          label: 'child',
           parentNode: 'node-1234',
           data: { vizNode: childNode },
         },
@@ -169,32 +166,32 @@ describe('CanvasService', () => {
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode({ label: 'node' });
+      const vizNode = createVisualizationNode('node', {});
 
-      const setHeaderNode = createVisualizationNode({ label: 'set-header' });
+      const setHeaderNode = createVisualizationNode('set-header', {});
       vizNode.setNextNode(setHeaderNode);
       setHeaderNode.setPreviousNode(vizNode);
 
-      const choiceNode = createVisualizationNode({ label: 'choice' });
+      const choiceNode = createVisualizationNode('choice', {});
       setHeaderNode.setNextNode(choiceNode);
       choiceNode.setPreviousNode(setHeaderNode);
 
-      const directNode = createVisualizationNode({ label: 'direct' });
+      const directNode = createVisualizationNode('direct', {});
       choiceNode.setNextNode(directNode);
       directNode.setPreviousNode(choiceNode);
 
-      const whenNode = createVisualizationNode({ label: 'when' });
+      const whenNode = createVisualizationNode('when', {});
       choiceNode.addChild(whenNode);
 
-      const otherwiseNode = createVisualizationNode({ label: 'otherwise' });
+      const otherwiseNode = createVisualizationNode('otherwise', {});
       choiceNode.addChild(otherwiseNode);
 
-      const whenLeafNode = createVisualizationNode({ label: 'when-leaf' });
+      const whenLeafNode = createVisualizationNode('when-leaf', {});
       whenNode.addChild(whenLeafNode);
 
-      const processNode = createVisualizationNode({ label: 'process' });
+      const processNode = createVisualizationNode('process', {});
       otherwiseNode.addChild(processNode);
-      const logNode = createVisualizationNode({ label: 'log' });
+      const logNode = createVisualizationNode('log', {});
       processNode.addChild(logNode);
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
@@ -203,63 +200,54 @@ describe('CanvasService', () => {
         {
           ...DEFAULT_NODE_PROPS,
           id: 'node-1234',
-          label: 'node',
           parentNode: undefined,
           data: { vizNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'set-header-1234',
-          label: 'set-header',
           parentNode: undefined,
           data: { vizNode: setHeaderNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'choice-1234',
-          label: 'choice',
           parentNode: undefined,
           data: { vizNode: choiceNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'when-1234',
-          label: 'when',
           parentNode: 'choice-1234',
           data: { vizNode: whenNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'when-leaf-1234',
-          label: 'when-leaf',
           parentNode: 'when-1234',
           data: { vizNode: whenLeafNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'otherwise-1234',
-          label: 'otherwise',
           parentNode: 'choice-1234',
           data: { vizNode: otherwiseNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'process-1234',
-          label: 'process',
           parentNode: 'otherwise-1234',
           data: { vizNode: processNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'log-1234',
-          label: 'log',
           parentNode: 'process-1234',
           data: { vizNode: logNode },
         },
         {
           ...DEFAULT_NODE_PROPS,
           id: 'direct-1234',
-          label: 'direct',
           parentNode: undefined,
           data: { vizNode: directNode },
         },

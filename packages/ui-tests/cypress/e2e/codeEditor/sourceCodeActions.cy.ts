@@ -37,7 +37,7 @@ describe('source code and drag and drop', () => {
     cy.editorDeleteLine(12, 6);
     cy.openDesignPage();
     // CHECK the kafka-sink step was removed
-    cy.get('[data-type="node"][data-id^="sink: Unknown"]').should('have.length', 1);
+    cy.get('[data-type="node"][data-id^="sink-"]').should('have.length', 1);
   });
 
   it('User edits step in the YAML', () => {
