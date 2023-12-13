@@ -1,7 +1,7 @@
 import * as yamlDslSchema from '@kaoto-next/camel-catalog/camelYamlDsl.json';
 import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ExpressionEditor } from './ExpressionEditor';
+import { StepExpressionEditor } from './StepExpressionEditor';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { CanvasNode } from './canvas.models';
@@ -11,7 +11,7 @@ import { useSchemasStore } from '../../../store';
 import { act } from 'react-dom/test-utils';
 import { MetadataEditor } from '../../MetadataEditor';
 
-describe('ExpressionEditor', () => {
+describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
   beforeAll(() => {
     /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -64,7 +64,7 @@ describe('ExpressionEditor', () => {
   });
 
   it('should render', () => {
-    render(<ExpressionEditor selectedNode={mockNode} />);
+    render(<StepExpressionEditor selectedNode={mockNode} />);
     const buttons = screen.getAllByRole('button');
     fireEvent.click(buttons[1]);
     const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
