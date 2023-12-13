@@ -3,8 +3,7 @@ import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
 export const kameletTemplate = () => {
   const kameletId = getCamelRandomId('kamelet');
 
-  return `
-apiVersion: camel.apache.org/v1alpha1
+  return `apiVersion: camel.apache.org/v1alpha1
 kind: Kamelet
 metadata:
   name: ${kameletId}
