@@ -308,7 +308,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
         javaType={javaType}
         onCreateBean={handleCreateBean}
         onCancelCreateBean={handleCancelCreateBean}
-      ></NewBeanModal>
+      />
     </>,
   );
 };
