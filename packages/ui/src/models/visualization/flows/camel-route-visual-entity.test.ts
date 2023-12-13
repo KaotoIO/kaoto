@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash.clonedeep';
 import { camelFromJson } from '../../../stubs/camel-from';
@@ -72,6 +72,26 @@ describe('Camel Route', () => {
     it('should change the id', () => {
       camelEntity.setId('camelEntity-12345');
       expect(camelEntity.getId()).toEqual('camelEntity-12345');
+    });
+  });
+
+  describe('getNodeLabel', () => {
+    it('should return an empty string if path is not provided', () => {
+      expect(camelEntity.getNodeLabel()).toEqual('');
+    });
+
+    it('should delegate the label lookup to the CamelComponentSchemaService.getNodeLabel() method', () => {
+      const lookupValue = {
+        processorName: 'from' as keyof ProcessorDefinition,
+        componentName: 'timer',
+      };
+      const getNodeLabelSpy = jest.spyOn(CamelComponentSchemaService, 'getNodeLabel');
+      jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
+
+      const label = camelEntity.getNodeLabel('from');
+
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from);
+      expect(label).toEqual('timer');
     });
   });
 
@@ -257,14 +277,14 @@ describe('Camel Route', () => {
     it('should use the uri as the node label', () => {
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.data.label).toEqual('timer');
+      expect(vizNode.getNodeLabel()).toEqual('timer');
     });
 
     it('should set a default label if the uri is not available', () => {
       camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.data.label).toEqual('from: Unknown');
+      expect(vizNode.getNodeLabel()).toEqual('from: Unknown');
     });
 
     it('should not create a viz node if a single-clause property is not defined', () => {
@@ -281,7 +301,7 @@ describe('Camel Route', () => {
 
       /** from */
       expect(vizNode.data.path).toEqual('from');
-      expect(vizNode.data.label).toEqual('timer');
+      expect(vizNode.getNodeLabel()).toEqual('timer');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
@@ -290,7 +310,7 @@ describe('Camel Route', () => {
       /** choice */
       const choiceNode = vizNode.getChildren()?.[0] as IVisualizationNode;
       expect(choiceNode.data.path).toEqual('from.steps.0.choice');
-      expect(choiceNode.data.label).toEqual('choice');
+      expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBeUndefined();
       expect(choiceNode.getNextNode()).toBeUndefined();
       expect(choiceNode.getChildren()).toHaveLength(1);
@@ -299,7 +319,7 @@ describe('Camel Route', () => {
       const whenNode = choiceNode.getChildren()?.[0];
       expect(whenNode).toBeDefined();
       expect(whenNode!.data.path).toEqual('from.steps.0.choice.when.0');
-      expect(whenNode!.data.label).toEqual('when');
+      expect(whenNode!.getNodeLabel()).toEqual('when');
     });
 
     it('should populate the viz node chain with the steps', () => {
@@ -320,7 +340,7 @@ describe('Camel Route', () => {
 
       /** from */
       expect(vizNode.data.path).toEqual('from');
-      expect(vizNode.data.label).toEqual('timer');
+      expect(vizNode.getNodeLabel()).toEqual('timer');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
@@ -329,7 +349,7 @@ describe('Camel Route', () => {
       /** setHeader */
       const setHeaderNode = vizNode.getChildren()?.[0] as IVisualizationNode;
       expect(setHeaderNode.data.path).toEqual('from.steps.0.set-header');
-      expect(setHeaderNode.data.label).toEqual('set-header');
+      expect(setHeaderNode.getNodeLabel()).toEqual('set-header');
       expect(setHeaderNode.getPreviousNode()).toBeUndefined();
       expect(setHeaderNode.getNextNode()).toBeDefined();
       expect(setHeaderNode.getChildren()).toBeUndefined();
@@ -337,7 +357,7 @@ describe('Camel Route', () => {
       /** choice */
       const choiceNode = setHeaderNode.getNextNode()!;
       expect(choiceNode.data.path).toEqual('from.steps.1.choice');
-      expect(choiceNode.data.label).toEqual('choice');
+      expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBe(setHeaderNode);
       expect(choiceNode.getNextNode()).toBeDefined();
       expect(choiceNode.getChildren()).toHaveLength(2);
@@ -345,7 +365,7 @@ describe('Camel Route', () => {
       /** toDirect */
       const toDirectNode = choiceNode.getNextNode()!;
       expect(toDirectNode.data.path).toEqual('from.steps.2.to');
-      expect(toDirectNode.data.label).toEqual('direct');
+      expect(toDirectNode.getNodeLabel()).toEqual('direct');
       expect(toDirectNode.getPreviousNode()).toBe(choiceNode);
       expect(toDirectNode.getNextNode()).toBeUndefined();
 
@@ -353,7 +373,7 @@ describe('Camel Route', () => {
       const whenNode = choiceNode.getChildren()?.[0];
       expect(whenNode).toBeDefined();
       expect(whenNode!.data.path).toEqual('from.steps.1.choice.when.0');
-      expect(whenNode!.data.label).toEqual('when');
+      expect(whenNode!.getNodeLabel()).toEqual('when');
       /** There's no next step since this spawn a new node's tree */
       expect(whenNode!.getPreviousNode()).toBeUndefined();
       expect(whenNode!.getNextNode()).toBeUndefined();
@@ -364,7 +384,7 @@ describe('Camel Route', () => {
       const logWhenNode = whenNode?.getChildren()?.[0];
       expect(logWhenNode).toBeDefined();
       expect(logWhenNode!.data.path).toEqual('from.steps.1.choice.when.0.steps.0.log');
-      expect(logWhenNode!.data.label).toEqual('log');
+      expect(logWhenNode!.getNodeLabel()).toEqual('log');
       expect(logWhenNode!.getPreviousNode()).toBeUndefined();
       expect(logWhenNode!.getNextNode()).toBeUndefined();
       expect(logWhenNode!.getParentNode()).toBe(whenNode);
@@ -374,7 +394,7 @@ describe('Camel Route', () => {
       const otherwiseNode = choiceNode.getChildren()?.[1];
       expect(otherwiseNode).toBeDefined();
       expect(otherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise');
-      expect(otherwiseNode!.data.label).toEqual('otherwise');
+      expect(otherwiseNode!.getNodeLabel()).toEqual('otherwise');
       expect(otherwiseNode!.getPreviousNode()).toBeUndefined();
       expect(otherwiseNode!.getNextNode()).toBeUndefined();
       expect(otherwiseNode!.getParentNode()).toBe(choiceNode);
@@ -384,7 +404,7 @@ describe('Camel Route', () => {
       const firstToOtherwiseNode = otherwiseNode?.getChildren()?.[0];
       expect(firstToOtherwiseNode).toBeDefined();
       expect(firstToOtherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise.steps.0.to');
-      expect(firstToOtherwiseNode!.data.label).toEqual('amqp');
+      expect(firstToOtherwiseNode!.getNodeLabel()).toEqual('amqp');
       expect(firstToOtherwiseNode!.getPreviousNode()).toBeUndefined();
       expect(firstToOtherwiseNode!.getNextNode()).toBeDefined();
       expect(firstToOtherwiseNode!.getParentNode()).toBe(otherwiseNode);
@@ -394,7 +414,7 @@ describe('Camel Route', () => {
       const secondToOtherwiseNode = otherwiseNode?.getChildren()?.[1];
       expect(secondToOtherwiseNode).toBeDefined();
       expect(secondToOtherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise.steps.1.to');
-      expect(secondToOtherwiseNode!.data.label).toEqual('amqp');
+      expect(secondToOtherwiseNode!.getNodeLabel()).toEqual('amqp');
       expect(secondToOtherwiseNode!.getPreviousNode()).toBe(firstToOtherwiseNode);
       expect(secondToOtherwiseNode!.getNextNode()).toBeDefined();
       expect(secondToOtherwiseNode!.getParentNode()).toBe(otherwiseNode);
@@ -404,7 +424,7 @@ describe('Camel Route', () => {
       const logOtherwiseNode = otherwiseNode?.getChildren()?.[2];
       expect(logOtherwiseNode).toBeDefined();
       expect(logOtherwiseNode!.data.path).toEqual('from.steps.1.choice.otherwise.steps.2.log');
-      expect(logOtherwiseNode!.data.label).toEqual('log');
+      expect(logOtherwiseNode!.getNodeLabel()).toEqual('log');
       expect(logOtherwiseNode!.getPreviousNode()).toBe(secondToOtherwiseNode);
       expect(logOtherwiseNode!.getNextNode()).toBeUndefined();
       expect(logOtherwiseNode!.getParentNode()).toBe(otherwiseNode);

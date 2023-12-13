@@ -72,6 +72,18 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     return this.id;
   }
 
+  getNodeLabel(path?: string): string {
+    if (!path) return '';
+
+    const componentModel = get(this.route, path);
+    const label = CamelComponentSchemaService.getNodeLabel(
+      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
+      componentModel,
+    );
+
+    return label;
+  }
+
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
 
@@ -240,7 +252,6 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
     rootNode.data.entity = this;
 
     if (!this.route.from?.uri) {
-      rootNode.data.label = 'from: Unknown';
       rootNode.data.icon = NodeIconResolver.getPlaceholderIcon();
     }
 
@@ -249,14 +260,13 @@ export class CamelRouteVisualEntity implements BaseVisualCamelEntity {
 
   private getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
     const data: CamelRouteVisualEntityData = {
-      label: CamelComponentSchemaService.getLabel(componentLookup, get(this.route, path)),
       path,
       icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup)),
       processorName: componentLookup.processorName,
       componentName: componentLookup.componentName,
     };
 
-    const vizNode = createVisualizationNode(data);
+    const vizNode = createVisualizationNode(componentLookup.componentName ?? componentLookup.processorName, data);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName as keyof ProcessorDefinition,

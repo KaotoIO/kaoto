@@ -148,7 +148,7 @@ describe('Pipe', () => {
     it('should use the uri as the node label', () => {
       const vizNode = pipe.toVizNode();
 
-      expect(vizNode.data.label).toEqual('webhook-source');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
     });
 
     it('should set the node labels as `Unknown` if the uri is not available', () => {
@@ -156,27 +156,27 @@ describe('Pipe', () => {
       const sourceNode = pipe.toVizNode();
       const sinkNode = sourceNode.getNextNode();
 
-      expect(sourceNode.data.label).toEqual('source: Unknown');
-      expect(sinkNode!.data.label).toEqual('sink: Unknown');
+      expect(sourceNode.getNodeLabel()).toEqual('source: Unknown');
+      expect(sinkNode!.getNodeLabel()).toEqual('sink: Unknown');
     });
 
     it('should populate the viz node chain with the steps', () => {
       const vizNode = pipe.toVizNode();
 
       expect(vizNode.data.path).toEqual('source');
-      expect(vizNode.data.label).toEqual('webhook-source');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeDefined();
 
       const steps0 = vizNode.getNextNode()!;
       expect(steps0.data.path).toEqual('steps.0');
-      expect(steps0.data.label).toEqual('delay-action');
+      expect(steps0.getNodeLabel()).toEqual('delay-action');
       expect(steps0.getPreviousNode()).toBe(vizNode);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
       expect(sink.data.path).toEqual('sink');
-      expect(sink.data.label).toEqual('log-sink');
+      expect(sink.getNodeLabel()).toEqual('log-sink');
       expect(sink.getPreviousNode()).toBe(steps0);
       expect(sink.getNextNode()).toBeUndefined();
     });

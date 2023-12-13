@@ -10,8 +10,9 @@ import {
 } from './base-visual-entity';
 
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
+  id: string,
   data: T,
-): IVisualizationNode<T> => new VisualizationNode(data);
+): IVisualizationNode<T> => new VisualizationNode(getCamelRandomId(id), data);
 
 /**
  * VisualizationNode
@@ -19,20 +20,33 @@ export const createVisualizationNode = <T extends IVisualizationNodeData = IVisu
  * It shouldn't be used directly, but rather through the IVisualizationNode interface.
  */
 class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> implements IVisualizationNode<T> {
-  readonly id: string;
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
-  data: T;
 
-  constructor(data: T) {
-    this.id = getCamelRandomId(data.label);
-    this.data = data;
-  }
+  constructor(
+    public readonly id: string,
+    public data: T,
+  ) {}
 
   getBaseEntity(): BaseVisualCamelEntity | undefined {
     return this.data.entity;
+  }
+
+  getRootNode(): IVisualizationNode {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let rootNode: IVisualizationNode | undefined = this;
+
+    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
+      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
+    }
+
+    return rootNode!;
+  }
+
+  getNodeLabel(): string {
+    return this.getRootNode().getBaseEntity()?.getNodeLabel(this.data.path) ?? this.id;
   }
 
   addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
@@ -56,17 +70,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   updateModel(value: unknown): void {
     this.getRootNode().getBaseEntity()?.updateModel(this.data.path, value);
-  }
-
-  getRootNode(): IVisualizationNode {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let rootNode: IVisualizationNode | undefined = this;
-
-    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
-      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
-    }
-
-    return rootNode!;
   }
 
   getParentNode(): IVisualizationNode | undefined {

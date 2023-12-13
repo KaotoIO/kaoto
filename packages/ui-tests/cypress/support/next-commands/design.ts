@@ -4,10 +4,7 @@ Cypress.Commands.add('fitToScreen', () => {
 
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
   stepIndex = stepIndex ?? 0;
-  cy.get('g.pf-topology__node__label')
-    .find(':contains(' + step + ')')
-    .eq(stepIndex)
-    .click({ force: true });
+  cy.get(`[data-nodelabel="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
@@ -66,13 +63,11 @@ Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number)
   cy.performNodeAction(nodeName, 'prepend', nodeIndex);
 });
 
-// allowed actions - append, prepend, replace, remove
-Cypress.Commands.add('performNodeAction', (nodeName: string, action: string, nodeIndex?: number) => {
+Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get('g.pf-topology__node__label')
-    .find(':contains(' + nodeName + ')')
-    .eq(nodeIndex)
+  cy.get(`[data-nodelabel="${nodeName}"]`)
     .parent()
+    .eq(nodeIndex)
     .find('g.pf-topology__node__action-icon > rect')
     .click({ force: true });
   cy.get(`[data-testid="context-menu-item-${action}"]`).click();
@@ -80,9 +75,7 @@ Cypress.Commands.add('performNodeAction', (nodeName: string, action: string, nod
 
 Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
   nodesCount = nodesCount ?? 1;
-  cy.get('g.pf-topology__node__label')
-    .find(':contains(' + inputName + ')')
-    .should('have.length', nodesCount);
+  cy.get(`[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
 });
 
 Cypress.Commands.add('checkEdgeExists', (sourceName: string, targetName: string) => {

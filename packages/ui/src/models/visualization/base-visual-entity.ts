@@ -17,6 +17,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
 
   setId: (id: string) => void;
 
+  /** Given a path, get the component label */
+  getNodeLabel: (path?: string) => string;
+
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 
@@ -58,6 +61,12 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
 
+  /** This method returns the root IVisualizationNode where the BaseEntity is defined */
+  getRootNode(): IVisualizationNode;
+
+  /** This method returns the label to be used by the canvas nodes */
+  getNodeLabel(): string;
+
   addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
 
   getNodeInteraction(): NodeInteraction;
@@ -65,8 +74,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getComponentSchema(): VisualComponentSchema | undefined;
 
   updateModel(value: unknown): void;
-
-  getRootNode(): IVisualizationNode;
 
   getParentNode(): IVisualizationNode | undefined;
 
@@ -90,7 +97,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 }
 
 export interface IVisualizationNodeData {
-  label: string;
   icon?: string;
   path?: string;
   entity?: BaseVisualCamelEntity;

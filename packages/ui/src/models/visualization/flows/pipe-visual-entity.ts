@@ -1,6 +1,7 @@
 import { Pipe } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
+import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
@@ -16,7 +17,6 @@ import {
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './support/kamelet-schema.service';
-import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -42,6 +42,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   setId(routeId: string): void {
     this.id = routeId;
     this.metadata.name = this.id;
+  }
+
+  getNodeLabel(path?: string): string {
+    if (!path) return '';
+
+    const stepModel = get(this.spec, path) as PipeStep;
+    return KameletSchemaService.getNodeLabel(stepModel, path);
   }
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
@@ -196,14 +203,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       : kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
 
     const data: IVisualizationNodeData = {
-      label: step?.ref?.name ?? `${path}: Unknown`,
       path,
       entity: isRoot ? this : undefined,
       isPlaceholder,
       icon,
     };
 
-    return createVisualizationNode(data);
+    return createVisualizationNode(step?.ref?.name ?? path, data);
   }
 
   private getVizNodesFromSteps(steps?: PipeStep[]): IVisualizationNode[] {

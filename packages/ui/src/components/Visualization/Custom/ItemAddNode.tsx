@@ -45,7 +45,7 @@ export const ItemAddNode: FunctionComponent<ItemAddNodeProps> = (props) => {
   return shouldRender ? (
     <ContextMenuItem onClick={onAddNode} data-testid={props['data-testid']}>
       {props.mode === AddStepMode.PrependStep ? <AngleUpIcon /> : <AngleDownIcon />} Add node
-      {props.mode === AddStepMode.PrependStep ? ' before' : ' after'} {vizNode?.data.label}
+      {props.mode === AddStepMode.PrependStep ? ' before' : ' after'} {vizNode?.id}
     </ContextMenuItem>
   ) : null;
 };

@@ -176,7 +176,6 @@ export class CanvasService {
       vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
 
     return this.getNode(vizNodeParam.id, {
-      label: vizNodeParam.data.label,
       parentNode,
       data: { vizNode: vizNodeParam },
     });
@@ -208,14 +207,10 @@ export class CanvasService {
     return edges;
   }
 
-  private static getNode(
-    id: string,
-    options: { label?: string; parentNode?: string; data?: CanvasNode['data'] } = {},
-  ): CanvasNode {
+  private static getNode(id: string, options: { parentNode?: string; data?: CanvasNode['data'] } = {}): CanvasNode {
     return {
       id,
       type: 'node',
-      label: options.label ?? id,
       parentNode: options.parentNode,
       data: options.data,
       width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
