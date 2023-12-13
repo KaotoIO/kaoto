@@ -1,4 +1,4 @@
-import { ExpressionEditor, MetadataEditor } from '@kaoto-next/ui';
+import { StepExpressionEditor, MetadataEditor } from '@kaoto-next/ui';
 import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
@@ -45,15 +45,15 @@ const EntitiesContextDecorator = (Story: StoryFn) => (
 
 export default {
   title: 'MetadataEditor/ExpressionEditor',
-  component: ExpressionEditor,
+  component: StepExpressionEditor,
   decorators: [EntitiesContextDecorator],
   parameters: {
     layout: 'fullscreen',
   },
-} as Meta<typeof ExpressionEditor>;
+} as Meta<typeof StepExpressionEditor>;
 
 const Template: StoryFn<typeof MetadataEditor> = (args: CanvasNode) => {
-  return <ExpressionEditor {...args} />;
+  return <StepExpressionEditor {...args} />;
 };
 
 export const Default = Template.bind({});

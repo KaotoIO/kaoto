@@ -11,6 +11,7 @@ import { createAutoField } from 'uniforms';
 import { DisabledField } from './DisabledField';
 import { PropertiesField } from './properties/PropertiesField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
+import { ExpressionField } from './expression/ExpressionField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -21,13 +22,16 @@ export const CustomAutoField = createAutoField((props) => {
     return props.checkboxes && props.fieldType !== Array ? RadioField : SelectField;
   }
 
+  const comment = props['$comment'] as string;
   // Assuming generic object field without any children to use PropertiesField
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (props.fieldType === Object && (props.field as any)?.type === 'object' && !(props.field as any)?.properties) {
+    if (comment === 'expression') {
+      return ExpressionField;
+    }
     return PropertiesField;
   }
 
-  const comment = props['$comment'] as string;
   switch (props.fieldType) {
     case Array:
       return ListField;

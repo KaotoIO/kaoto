@@ -2,6 +2,8 @@ import { CamelCatalogService } from '../../../models/visualization/flows';
 import { ICamelLanguageDefinition } from '../../../models';
 
 export class ExpressionService {
+  static DEFAULT_LANGUAGE_NAME = 'simple';
+
   /**
    * Get the language catalog map from the Camel catalog. Since "language" language is not in the languages Camel
    *  catalog, it is extracted from the YAML DSL schema.
@@ -17,6 +19,17 @@ export class ExpressionService {
    */
   static getLanguageSchema(languageCatalog: ICamelLanguageDefinition) {
     return languageCatalog.propertiesSchema;
+  }
+
+  static getDefinitionFromModelName(
+    languageCatalogMap: Record<string, ICamelLanguageDefinition>,
+    modelName: string,
+  ): ICamelLanguageDefinition | undefined {
+    return Object.values(languageCatalogMap).find((model) => model.model.name === modelName);
+  }
+
+  static getDefaultLanguage(languageCatalogMap: Record<string, ICamelLanguageDefinition>) {
+    return this.getDefinitionFromModelName(languageCatalogMap, this.DEFAULT_LANGUAGE_NAME);
   }
 
   /**
@@ -58,7 +71,7 @@ export class ExpressionService {
    * @param languageCatalogMap The language catalog map to use as a dictionary.
    * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
    * */
-  static parseExpressionModel(
+  static parseStepExpressionModel(
     languageCatalogMap: Record<string, ICamelLanguageDefinition>,
     parentModel: Record<string, unknown>,
   ): {
@@ -101,13 +114,6 @@ export class ExpressionService {
     }
   }
 
-  private static getDefinitionFromModelName(
-    languageCatalogMap: Record<string, ICamelLanguageDefinition>,
-    modelName: string,
-  ): ICamelLanguageDefinition | undefined {
-    return Object.values(languageCatalogMap).find((model) => model.model.name === modelName);
-  }
-
   /**
    * Set the expression model to the parent step model object. This method uses the most verbose dialect, i.e.
    * ```yaml
@@ -122,7 +128,7 @@ export class ExpressionService {
    * @param languageModelName The language model name string to set. e.g. `simple`.
    * @param newExpressionModel The new expression model to set, e.g. `/setBody/expression/simple` contents.
    */
-  static setExpressionModel(
+  static setStepExpressionModel(
     languageCatalogMap: Record<string, ICamelLanguageDefinition>,
     parentModel: Record<string, unknown>,
     languageModelName: string,
@@ -133,5 +139,56 @@ export class ExpressionService {
     });
     parentModel.expression = {};
     (parentModel.expression as Record<string, unknown>)[languageModelName] = newExpressionModel;
+  }
+
+  /**
+   * Parse the property expression model from the parent parameter model object.
+   * @param languageCatalogMap The language catalog map to use as a dictionary.
+   * @param parentModel The parent parameter model object which is an expression type. For example `completionPredicate` parameter contents of `aggregate` EIP.
+   */
+  static parsePropertyExpressionModel(
+    languageCatalogMap: Record<string, ICamelLanguageDefinition>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parentModel: any,
+  ): {
+    language: ICamelLanguageDefinition | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any;
+  } {
+    let languageModelName = 'simple';
+    let model = undefined;
+    for (const language of Object.values(languageCatalogMap)) {
+      if (parentModel && parentModel[language.model.name]) {
+        languageModelName = language.model.name;
+        model = ExpressionService.parseLanguageModel(parentModel, language.model.name);
+        break;
+      }
+    }
+    if (!model) {
+      model = {};
+      parentModel[languageModelName] = model;
+    }
+    const language = this.getDefinitionFromModelName(languageCatalogMap, languageModelName);
+    return { language, model };
+  }
+
+  /**
+   * Set the property expression model to the parent parameter model object.
+   * @param languageCatalogMap The language catalog map to use as a dictionary.
+   * @param parentModel The parent parameter model object which is an expression type. For example `completionPredicate` parameter contents of `aggregate` EIP.
+   * @param languageName The language model name string to set. e.g. `simple`.
+   * @param newExpressionModel The new expression model to set, e.g. `/aggregate/completionPredicate/simple` contents.
+   */
+  static setPropertyExpressionModel(
+    languageCatalogMap: Record<string, ICamelLanguageDefinition>,
+    parentModel: Record<string, unknown>,
+    languageName: string,
+    newExpressionModel: Record<string, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any {
+    Object.values(languageCatalogMap).forEach((language) => {
+      delete parentModel[language.model.name];
+    });
+    parentModel[languageName] = newExpressionModel;
   }
 }

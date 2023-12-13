@@ -7,7 +7,7 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import { DataFormatEditor } from './DataFormatEditor';
-import { ExpressionEditor } from './ExpressionEditor';
+import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
 
 interface CanvasFormProps {
@@ -114,7 +114,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <Title headingLevel="h1">{componentName}</Title>
-        {isExpressionAwareStep && <ExpressionEditor selectedNode={props.selectedNode} />}
+        {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
         {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
         {isLoadBalanceAwareStep && <p>Load balance strategy configuration is not yet supported.</p>}
         <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
