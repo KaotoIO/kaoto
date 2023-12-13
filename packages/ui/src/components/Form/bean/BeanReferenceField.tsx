@@ -19,6 +19,7 @@ import { EntityType } from '../../../models/camel/entities';
 import { BeansEntity } from '../../../models/visualization/metadata';
 import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { NewBeanModal } from './NewBeanModal';
+import { BeansAwareResource } from '../../../models/camel';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BeanReferenceFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -214,12 +215,15 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
 
   const handleCreateBean = useCallback(
     (model: RegistryBeanDefinition) => {
-      beansEntity?.parent.beans.push(model);
+      const beansEntityToAdd = beansEntity
+        ? beansEntity
+        : (camelResource as unknown as BeansAwareResource)?.createBeansEntity();
+      beansEntityToAdd.parent.beans.push(model);
       const beanRef = '#' + model.name;
       onSelect(undefined, beanRef);
       setIsNewBeanModalOpen(false);
     },
-    [beansEntity?.parent.beans, props],
+    [beansEntity, camelResource, onSelect],
   );
 
   const handleCancelCreateBean = useCallback(() => {
@@ -235,7 +239,6 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
           onClick={onToggleClick}
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
-          //onBlur={onTextInputBlur}
           id="create-typeahead-select-input"
           autoComplete="off"
           innerRef={textInputRef}
