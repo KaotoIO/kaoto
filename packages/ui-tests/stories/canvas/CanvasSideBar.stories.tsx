@@ -1,7 +1,6 @@
 import {
   CanvasNode,
   CanvasSideBar,
-  DataFormatEditor,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeIconResolver,
@@ -81,7 +80,7 @@ const unknownSelectedNode: CanvasNode = {
 };
 
 export default {
-  title: 'Components/CanvasSideBar',
+  title: 'Canvas/CanvasSideBar',
   component: CanvasSideBar,
 } as Meta<typeof CanvasSideBar>;
 
