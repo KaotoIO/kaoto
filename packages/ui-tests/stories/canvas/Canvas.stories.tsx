@@ -14,7 +14,7 @@ import {
   pipeJson,
 } from '@kaoto-next/ui/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import complexRouteMock from '../cypress/fixtures/complexRouteMock.json';
+import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
 
 const emptyPipeJson = {
   apiVersion: 'camel.apache.org/v1',

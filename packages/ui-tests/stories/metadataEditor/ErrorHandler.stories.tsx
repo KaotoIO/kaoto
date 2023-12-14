@@ -1,10 +1,10 @@
 import { MetadataEditor } from '@kaoto-next/ui';
 import { Meta, StoryFn } from '@storybook/react';
 
-import errorHandler from '../cypress/fixtures/metadata/errorHandlerSchema.json';
+import errorHandler from '../../cypress/fixtures/metadata/errorHandlerSchema.json';
 
 export default {
-  title: 'Components/ErrorHandler',
+  title: 'MetadataEditor/ErrorHandler',
   component: MetadataEditor,
 } as Meta<typeof MetadataEditor>;
 

@@ -1,10 +1,10 @@
 import { ITile, PropertiesModal } from '@kaoto-next/ui';
 import { Meta, StoryFn } from '@storybook/react';
 import { useState } from 'react';
-import aggregate from '../cypress/fixtures/aggregate.json';
-import cronSource from '../cypress/fixtures/cronSource.json';
-import activeMq from '../cypress/fixtures/activeMq.json';
-import box from '../cypress/fixtures/box.json';
+import aggregate from '../../cypress/fixtures/aggregate.json';
+import cronSource from '../../cypress/fixtures/cronSource.json';
+import activeMq from '../../cypress/fixtures/activeMq.json';
+import box from '../../cypress/fixtures/box.json';
 
 export default {
   title: 'Components/PropertiesModal',
