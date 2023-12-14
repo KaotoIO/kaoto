@@ -1,6 +1,7 @@
 import {
   CanvasNode,
   CanvasSideBar,
+  DataFormatEditor,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeIconResolver,

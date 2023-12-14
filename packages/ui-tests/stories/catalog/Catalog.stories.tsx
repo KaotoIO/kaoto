@@ -1,6 +1,6 @@
 import { Catalog, ITile } from '@kaoto-next/ui';
 import { Meta, StoryFn } from '@storybook/react';
-import catalog from '../cypress/fixtures/catalog-slim.json';
+import catalog from '../../cypress/fixtures/catalog-slim.json';
 
 export default {
   title: 'Catalog/Catalog',

@@ -10,7 +10,7 @@ import {
 } from '@kaoto-next/ui/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';
-import camelRouteMock from '../cypress/fixtures/camelRouteMock.json';
+import camelRouteMock from '../../cypress/fixtures/camelRouteMock.json';
 
 const EntitiesContextDecorator = (Story: StoryFn) => (
   <SourceCodeContext.Provider value={{ sourceCode: '', setCodeAndNotify: () => {} }}>
@@ -29,7 +29,7 @@ const EntitiesContextDecorator = (Story: StoryFn) => (
 );
 
 export default {
-  title: 'Components/ContextToolbar',
+  title: 'Canvas/ContextToolbar',
   component: ContextToolbar,
   decorators: [EntitiesContextDecorator],
   parameters: {

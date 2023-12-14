@@ -1,11 +1,11 @@
 import { MetadataEditor } from '@kaoto-next/ui';
 import { Meta, StoryFn } from '@storybook/react';
 
-import mockSchema from '../cypress/fixtures/metadata/beansSchema.json';
-import mockModel from '../cypress/fixtures/metadata/beansModel.json';
+import mockSchema from '../../cypress/fixtures/metadata/beansSchema.json';
+import mockModel from '../../cypress/fixtures/metadata/beansModel.json';
 
 export default {
-  title: 'Components/BeanEditor',
+  title: 'MetadataEditor/BeanEditor',
   component: MetadataEditor,
 } as Meta<typeof MetadataEditor>;
 
