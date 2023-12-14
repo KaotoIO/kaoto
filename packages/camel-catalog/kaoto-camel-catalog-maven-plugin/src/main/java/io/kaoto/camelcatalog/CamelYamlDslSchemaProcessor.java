@@ -37,6 +37,10 @@ public class CamelYamlDslSchemaProcessor {
     private static final String EXPRESSION_SUB_ELEMENT_DEFINITION = "org.apache.camel.model.ExpressionSubElementDefinition";
     private static final String SAGA_DEFINITION = "org.apache.camel.model.SagaDefinition";
     private static final String PROPERTY_EXPRESSION_DEFINITION = "org.apache.camel.model.PropertyExpressionDefinition";
+    private static final String ERROR_HANDLER_DEFINITION = "org.apache.camel.model.ErrorHandlerDefinition";
+    private static final String ERROR_HANDLER_DESERIALIZER = "org.apache.camel.dsl.yaml.deserializers.ErrorHandlerBuilderDeserializer";
+    private static final String ROUTE_TEMPLATE_BEAN_DEFINITION = "org.apache.camel.model.RouteTemplateBeanDefinition";
+    private static final String TEMPLATED_ROUTE_BEAN_DEFINITION = "org.apache.camel.model.TemplatedRouteBeanDefinition";
     private final ObjectMapper jsonMapper;
     private final ObjectNode yamlDslSchema;
     private final List<String> processorBlocklist = List.of(
@@ -198,6 +202,11 @@ public class CamelYamlDslSchemaProcessor {
                 if (refParent != null) {
                     var ref = getNameFromRef(refParent);
                     if (processorReferenceBlockList.contains(ref)) {
+                        if (processor.has("$comment")) {
+                            processor.put("$comment", processor.get("$comment").asText() + ",steps");
+                        } else {
+                            processor.put("$comment", "steps");
+                        }
                         propToRemove.add(propName);
                     }
                     if (EXPRESSION_SUB_ELEMENT_DEFINITION.equals(ref)) {
@@ -263,6 +272,10 @@ public class CamelYamlDslSchemaProcessor {
                 definition.put("$comment", "loadbalance");
                 break;
             }
+            if (List.of(ERROR_HANDLER_DEFINITION, ERROR_HANDLER_DESERIALIZER).contains(name)) {
+                definition.put("$comment", "errorhandler");
+                break;
+            }
         }
         definition.remove("anyOf");
         return definition;
@@ -293,6 +306,12 @@ public class CamelYamlDslSchemaProcessor {
                     // TODO remove this once updated to camel 4.3.0
                     propToRemove.add(propName);
                 }
+                var propValue = property.getValue();
+                if (!propValue.has("$ref") && !propValue.has("type")) {
+                    // inherited properties, such as for expression - supposed to be handled separately
+                    propToRemove.add(propName);
+                }
+
             }
             propToRemove.forEach(definitionProperties::remove);
             if (PROPERTY_EXPRESSION_DEFINITION.equals(definitionName)) {
@@ -407,6 +426,100 @@ public class CamelYamlDslSchemaProcessor {
                 }
             }
         }
+        return answer;
+    }
+
+    /**
+     * Extract the entity definitions from the main Camel YAML DSL JSON schema in the usable
+     * format for uniforms to render the configuration form. "entity" here means the top level
+     * properties in Camel YAML DSL, such as "route", "rest", "beans", "routeConfiguration", etc.
+     * They are marked with "@YamlIn" annotation in the Camel codebase.
+     * It does a couple of things:
+     * <li>Remove "oneOf" and "anyOf"</li>
+     * <li>Remove properties those are supposed to be handled separately:
+     * <ul>
+     *     <li>"steps": branching steps</li>
+     *     <li>"parameters": component parameters</li>
+     *     <li>expression languages</li>
+     *     <li>dataformats</li>
+     * </ul></li>
+     * <li>If the processor is expression aware, it puts "expression" as a "$comment" in the schema</li>
+     * <li>If the processor is dataformat aware, it puts "dataformat" as a "$comment" in the schema</li>
+     * <li>If the processor property is expression aware, it puts "expression" as a "$comment" in the property schema</li>
+     * @return
+     */
+    public Map<String, ObjectNode> getEntities() throws Exception {
+        var definitions = yamlDslSchema
+                .withObject("/items")
+                .withObject("/definitions");
+        var relocatedDefinitions = relocateToRootDefinitions(definitions);
+        var yamlIn = yamlDslSchema
+                .withObject("/items")
+                .withObject("/properties");
+
+        var answer = new LinkedHashMap<String, ObjectNode>();
+        for (var yamlInRef : yamlIn.properties()) {
+            var yamlInName = yamlInRef.getKey();
+            var yamlInRefValue = (ObjectNode) yamlInRef.getValue();
+            var yamlInFQCN = getNameFromRef((ObjectNode)yamlInRefValue);
+            var yamlInDefinition = relocatedDefinitions.withObject("/" + yamlInFQCN);
+            yamlInDefinition = extractFromOneOf(yamlInFQCN, yamlInDefinition);
+            yamlInDefinition.remove("oneOf");
+            yamlInDefinition = extractFromAnyOfOneOf(yamlInFQCN, yamlInDefinition);
+            yamlInDefinition.remove("anyOf");
+            Set<String> propToRemove = new HashSet<>();
+            var yamlInProperties = yamlInDefinition.withObject("/properties");
+            for (var yamlInPropertyEntry : yamlInProperties.properties()) {
+                var propertyName = yamlInPropertyEntry.getKey();
+                var property = (ObjectNode) yamlInPropertyEntry.getValue();
+                var refParent = property.findParent("$ref");
+                if (refParent != null) {
+                    var ref = getNameFromRef(refParent);
+                    if (processorReferenceBlockList.contains(ref)) {
+                        if (yamlInDefinition.has("$comment")) {
+                            yamlInDefinition.put("$comment", yamlInDefinition.get("$comment").asText() + ",steps");
+                        } else {
+                            yamlInDefinition.put("$comment", "steps");
+                        }
+                        propToRemove.add(propertyName);
+                    }
+                    if (EXPRESSION_SUB_ELEMENT_DEFINITION.equals(ref)) {
+                        refParent.remove("$ref");
+                        refParent.put("type", "object");
+                        refParent.put("$comment", "expression");
+                    }
+                    continue;
+                }
+                if (!property.has("type")) {
+                    // inherited properties, such as for expression - supposed to be handled separately
+                    propToRemove.add(propertyName);
+                }
+            }
+            propToRemove.forEach(yamlInProperties::remove);
+            populateDefinitions(yamlInDefinition, relocatedDefinitions);
+            sanitizeDefinitions(yamlInFQCN, yamlInDefinition);
+            answer.put(yamlInName, yamlInDefinition);
+        }
+        return answer;
+    }
+
+    public ObjectNode getRouteTemplateBean() {
+        var definitions = yamlDslSchema
+                .withObject("/items")
+                .withObject("/definitions");
+        var relocatedDefinitions = relocateToRootDefinitions(definitions);
+        var answer = relocatedDefinitions.withObject(ROUTE_TEMPLATE_BEAN_DEFINITION);
+        populateDefinitions(answer, relocatedDefinitions);
+        return answer;
+    }
+
+    public ObjectNode getTemplatedRouteBean() {
+        var definitions = yamlDslSchema
+                .withObject("/items")
+                .withObject("/definitions");
+        var relocatedDefinitions = relocateToRootDefinitions(definitions);
+        var answer = relocatedDefinitions.withObject(TEMPLATED_ROUTE_BEAN_DEFINITION);
+        populateDefinitions(answer, relocatedDefinitions);
         return answer;
     }
 }

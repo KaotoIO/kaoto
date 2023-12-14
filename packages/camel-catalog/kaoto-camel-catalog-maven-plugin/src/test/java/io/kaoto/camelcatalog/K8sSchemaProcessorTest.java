@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.kaoto.camelcatalog;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.kaoto.camelcatalog.K8sSchemaProcessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 

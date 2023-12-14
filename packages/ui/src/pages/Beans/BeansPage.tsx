@@ -1,21 +1,21 @@
 import { TextContent } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { MetadataEditor } from '../../components/MetadataEditor';
-import { useSchemasStore } from '../../store';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
 import { EntityType } from '../../models/camel/entities';
 import { BeansEntity } from '../../models/visualization/metadata';
 import { BeansAwareResource } from '../../models/camel';
+import { CamelCatalogService, CatalogKind } from '../../models';
 
 export const BeansPage: FunctionComponent = () => {
-  const schemaMap = useSchemasStore((state) => state.schemas);
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
 
   const beansSchema = useMemo(() => {
-    return schemaMap['beans'].schema;
-  }, [schemaMap]);
+    const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans');
+    return beanCatalog?.propertiesSchema;
+  }, []);
 
   const isSupported = useMemo(() => {
     return (camelResource as unknown as BeansAwareResource).createBeansEntity !== undefined;

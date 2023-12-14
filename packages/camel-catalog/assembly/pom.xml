@@ -176,6 +176,7 @@
               <camelVersion>${version.camel}</camelVersion>
               <camelKCRDVersion>${version.camel-k-crds}</camelKCRDVersion>
               <kameletsVersion>${version.camel-kamelets}</kameletsVersion>
+              <generateSubSchema>true</generateSubSchema>
               <kubernetesDefinitions>
                 <kubernetesDefinition>io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta</kubernetesDefinition>
                 <kubernetesDefinition>io.k8s.api.core.v1.ObjectReference</kubernetesDefinition>

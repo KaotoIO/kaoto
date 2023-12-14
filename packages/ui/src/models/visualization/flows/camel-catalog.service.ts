@@ -22,6 +22,8 @@ export class CamelCatalogService {
 
   static getComponent(catalogKey: CatalogKind.Component, componentName?: string): ICamelComponentDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Processor, componentName?: string): ICamelProcessorDefinition | undefined;
+  static getComponent(catalogKey: CatalogKind.Pattern, patternName?: string): ICamelProcessorDefinition | undefined;
+  static getComponent(catalogKey: CatalogKind.Entity, entityName?: string): ICamelProcessorDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Language, languageName?: string): ICamelLanguageDefinition | undefined;
   static getComponent(
     catalogKey: CatalogKind.Dataformat,

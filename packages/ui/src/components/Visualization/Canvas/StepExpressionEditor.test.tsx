@@ -1,4 +1,3 @@
-import * as yamlDslSchema from '@kaoto-next/camel-catalog/camelYamlDsl.json';
 import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { StepExpressionEditor } from './StepExpressionEditor';
@@ -7,34 +6,17 @@ import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { CanvasNode } from './canvas.models';
 import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { useSchemasStore } from '../../../store';
-import { act } from 'react-dom/test-utils';
 import { MetadataEditor } from '../../MetadataEditor';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
   beforeAll(() => {
     /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (yamlDslSchema as any).default;
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(
       CatalogKind.Language,
       languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
     );
-
-    act(() => {
-      useSchemasStore.setState({
-        schemas: {
-          camelYamlDsl: {
-            name: 'camelYamlDsl',
-            tags: ['camel'],
-            version: '1.0.0',
-            uri: '',
-            schema: yamlDslSchema as unknown as Record<string, unknown>,
-          },
-        },
-      });
-    });
 
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',

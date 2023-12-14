@@ -1,12 +1,15 @@
 import { NewBeanModal } from './NewBeanModal';
 import { fireEvent, render } from '@testing-library/react';
 import { screen } from '@testing-library/dom';
-import { useSchemasStore } from '../../../store';
-import * as beansSchema from '@kaoto-next/camel-catalog/camelYamlDsl-beans.json';
+import * as entitiesCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-entities.json';
+import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
 describe('NewBeanModal', () => {
-  useSchemasStore.setState({
-    schemas: { beans: { name: 'beans', tags: [], version: '0', uri: '', schema: beansSchema } },
-  });
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  delete (entitiesCatalog as any).default;
+  CamelCatalogService.setCatalogKey(
+    CatalogKind.Entity,
+    entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
+  );
 
   it('should render', () => {
     const mockOnCreate = jest.fn();
