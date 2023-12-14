@@ -1,8 +1,8 @@
 import { MetadataEditor } from '../../MetadataEditor';
 import { Button, Modal } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSchemasStore } from '../../../store';
 import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
+import { CamelCatalogService, CatalogKind } from '../../../models';
 
 export type NewBeanModalProps = {
   beanName?: string;
@@ -14,23 +14,10 @@ export type NewBeanModalProps = {
 };
 
 export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBeanModalProps) => {
-  const schemaMap = useSchemasStore((state) => state.schemas);
   const beanSchema = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beansSchema = schemaMap['beans']?.schema as any;
-    const beanDefinition = beansSchema?.definitions['org.apache.camel.model.app.RegistryBeanDefinition'];
-    if (!beanDefinition) {
-      return undefined;
-    }
-    return {
-      title: beansSchema.title,
-      description: beansSchema.description,
-      additionalProperties: false,
-      type: 'object',
-      properties: beanDefinition.properties,
-      required: beanDefinition.required,
-    };
-  }, [schemaMap]);
+    const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'bean');
+    return beanCatalog?.propertiesSchema;
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [beanModel, setBeanModel] = useState<any>();

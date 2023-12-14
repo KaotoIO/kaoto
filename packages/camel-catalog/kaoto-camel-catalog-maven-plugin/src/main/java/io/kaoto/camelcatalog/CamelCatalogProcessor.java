@@ -24,9 +24,11 @@ import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.JsonMapper;
 
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,11 +58,13 @@ public class CamelCatalogProcessor {
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
         var patternCatalog = getPatternCatalog();
+        var entityCatalog = getEntityCatalog();
         answer.put("components", componentCatalog);
         answer.put("dataformats", dataFormatCatalog);
         answer.put("languages", languageCatalog);
         answer.put("models", modelCatalog);
         answer.put("patterns", patternCatalog);
+        answer.put("entities", entityCatalog);
         return answer;
     }
 
@@ -266,5 +270,257 @@ public class CamelCatalogProcessor {
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
         jsonMapper.writeTree(jsonGenerator, answer);
         return writer.toString();
+    }
+
+    /**
+     * Get a Camel entity catalog filtered from model catalog, then combine the corresponding part of
+     * Camel YAML DSL JSON schema as a `propertiesSchema` in the usable format for uniforms to render
+     * the configuration form. "entity" here means the top level properties in Camel YAML DSL, such as
+     * "route", "rest", "beans", "routeConfiguration", etc. They are marked with "@YamlIn" annotation
+     * in the Camel codebase.
+     * This also adds `routeTemplateBean` and `templatedRouteBean` separately. `routeTemplateBean` is
+     * also used for Kamelet.
+     * @return
+     * @throws Exception
+     */
+    public String getEntityCatalog() throws Exception {
+        var answer = jsonMapper.createObjectNode();
+        var entities = schemaProcessor.getEntities();
+        var catalogMap = new LinkedHashMap<String, EipModel>();
+        for (var name : api.findModelNames()) {
+            var modelCatalog = (EipModel) api.model(Kind.eip, name);
+            catalogMap.put(name, modelCatalog);
+        }
+        InputStream is = api.getClass().getClassLoader().getResourceAsStream("org/apache/camel/catalog/models-app/bean.json");
+        var beanJsonObj = JsonMapper.deserialize(new String(is.readAllBytes()));
+        var beanModel = JsonMapper.generateEipModel(beanJsonObj);
+        catalogMap.put("beans", beanModel);
+        for (var entry : entities.entrySet()) {
+            var entityName = entry.getKey();
+            var entitySchema = entry.getValue();
+            var entityCatalog = catalogMap.get(entityName);
+            if ("beans".equals(entityName)) {
+                processBeansParameters(entitySchema, entityCatalog);
+            } else if ("from".equals(entityName)) {
+                processFromParameters(entitySchema, entityCatalog);
+            } else if ("route".equals(entityName)) {
+                processRouteParameters(entitySchema, entityCatalog);
+            } else if ("routeTemplate".equals(entityName)) {
+                processRouteTemplateParameters(entitySchema, entityCatalog);
+            } else if ("templatedRoute".equals(entityName)) {
+                processTemplatedRouteParameters(entitySchema, entityCatalog);
+            } else if ("restConfiguration".equals(entityName)) {
+                processRestConfigurationParameters(entitySchema, entityCatalog);
+            } else if ("rest".equals(entityName)) {
+                processRestParameters(entitySchema, entityCatalog);
+            } else {
+                processEntityParameters(entityName, entitySchema, entityCatalog);
+            }
+            var json = JsonMapper.asJsonObject(entityCatalog).toJson();
+            var catalogTree = (ObjectNode) jsonMapper.readTree(json);
+            catalogTree.set("propertiesSchema", entitySchema);
+            answer.set(entityName, catalogTree);
+        }
+        addMoreBeans(answer, catalogMap);
+
+        StringWriter writer = new StringWriter();
+        var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
+        jsonMapper.writeTree(jsonGenerator, answer);
+        return writer.toString();
+    }
+
+    private void doProcessParameter(EipModel entityCatalog, String propertyName, ObjectNode propertySchema) throws Exception {
+        var catalogOp = entityCatalog.getOptions().stream().filter(op -> op.getName().equals(propertyName)).findFirst();
+        if (catalogOp.isEmpty()) {
+            throw new Exception(String.format("Option '%s' not found for '%s'", propertyName, entityCatalog.getName()));
+        }
+        var catalogOption = catalogOp.get();
+        if (catalogOption.getDisplayName() != null) propertySchema.put("title", catalogOption.getDisplayName());
+        if (catalogOption.getDescription() != null) propertySchema.put("description", catalogOption.getDescription());
+        var propertyType = propertySchema.has("type") ? propertySchema.get("type").asText() : null;
+        if (catalogOption.getDefaultValue() != null) {
+            if ("array".equals(propertyType)) {
+                propertySchema.withArray("/default").add(catalogOption.getDefaultValue().toString());
+            } else {
+                propertySchema.put("default", catalogOption.getDefaultValue().toString());
+            }
+        }
+        if (catalogOption.getEnums() != null) {
+            catalogOption.getEnums()
+                    .forEach(e -> propertySchema.withArray("/enum").add(e));
+            if (!propertySchema.has("type") || "object".equals(propertySchema.get("type").asText())) {
+                propertySchema.put("type", "string");
+            }
+        }
+    }
+
+    private void processBeansParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        var beanDef = entitySchema.withObject("/definitions").withObject("/org.apache.camel.model.app.RegistryBeanDefinition");
+        for (var property : beanDef.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processFromParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("parameters".equals(propertyName)) {
+                // "parameters" as a common property is omitted in the catalog, but we need this for "from"
+                propertySchema.put("title", "Parameters");
+                propertySchema.put("description", "URI parameters");
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processRouteParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var op : entityCatalog.getOptions()) {
+            // parameter name mismatch between schema and catalog
+            if ("routePolicyRef".equals(op.getName())) {
+                op.setName("routePolicy");
+            } else if ("streamCache".equals(op.getName())) {
+                op.setName("streamCaching");
+            }
+        }
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("from".equals(propertyName)) {
+                // no "from" in the catalog
+                propertySchema.put("title", "From");
+                propertySchema.put("description", "From");
+                continue;
+            } else if (List.of("inputType", "outputType").contains(propertyName)) {
+                // no "inputType" and "outputType" in the catalog, just keep it as-is
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processRouteTemplateParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var op : entityCatalog.getOptions()) {
+            // parameter name mismatch between schema and catalog
+            if ("templateBean".equals(op.getName())) {
+                op.setName("beans");
+            }
+        }
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("from".equals(propertyName)) {
+                // no "from" in the catalog
+                propertySchema.put("title", "From");
+                propertySchema.put("description", "From");
+                continue;
+            } else if ("parameters".equals(propertyName)) {
+                // "parameters" as a common property is omitted in the catalog, but we need this for "from"
+                propertySchema.put("title", "Parameters");
+                propertySchema.put("description", "URI parameters");
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processTemplatedRouteParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var op : entityCatalog.getOptions()) {
+            // parameter name mismatch between schema and catalog
+            if ("bean".equals(op.getName())) {
+                op.setName("beans");
+            }
+        }
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("from".equals(propertyName)) {
+                // no "from" in the catalog
+                propertySchema.put("title", "From");
+                propertySchema.put("description", "From");
+                continue;
+            } else if ("parameters".equals(propertyName)) {
+                // "parameters" as a common property is omitted in the catalog, but we need this for "from"
+                propertySchema.put("title", "Parameters");
+                propertySchema.put("description", "URI parameters");
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processRestConfigurationParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("enableCors".equals(propertyName)) {
+                // no "from" in the catalog
+                propertySchema.put("title", "Enable CORS");
+                propertySchema.put("description", "Enable CORS");
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processRestParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("enableCors".equals(propertyName)) {
+                // no "from" in the catalog
+                propertySchema.put("title", "Enable CORS");
+                propertySchema.put("description", "Enable CORS");
+                continue;
+            } else if (List.of("get", "post", "put", "patch", "delete", "head").contains(propertyName)) {
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void processEntityParameters(String entityName, ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
+        for (var property : entitySchema.withObject("/properties").properties()) {
+            var propertyName = property.getKey();
+            var propertySchema = (ObjectNode) property.getValue();
+            if ("from".equals(entityName) && "parameters".equals(propertyName)) {
+                // "parameters" as a common property is omitted in the catalog, but we need this for "from"
+                propertySchema.put("title", "Parameters");
+                propertySchema.put("description", "URI parameters");
+                continue;
+            }
+            doProcessParameter(entityCatalog, propertyName, propertySchema);
+        }
+    }
+
+    private void addMoreBeans(ObjectNode answer, Map<String, EipModel> catalogMap) throws Exception {
+        var beansCatalog = catalogMap.get("beans");
+        var json = JsonMapper.asJsonObject(beansCatalog).toJson();
+        var catalogTree = (ObjectNode) jsonMapper.readTree(json);
+        var beanDefinition = answer.withObject("/beans")
+                .withObject("/propertiesSchema")
+                .withObject("/definitions")
+                .withObject("/org.apache.camel.model.app.RegistryBeanDefinition");
+        catalogTree.set("propertiesSchema", beanDefinition);
+        answer.set("bean", catalogTree);
+
+        var routeTemplateBeanCatalog = catalogMap.get("templateBean");
+        json = JsonMapper.asJsonObject(routeTemplateBeanCatalog).toJson();
+        catalogTree = (ObjectNode) jsonMapper.readTree(json);
+        var propertiesSchema = schemaProcessor.getRouteTemplateBean();
+        processEntityParameters("routeTemplateBean", propertiesSchema, routeTemplateBeanCatalog);
+        catalogTree.set("propertiesSchema", propertiesSchema);
+        answer.set("routeTemplateBean", catalogTree);
+
+        var templatedRouteBeanCatalog = catalogMap.get("templatedRouteBean");
+        json = JsonMapper.asJsonObject(templatedRouteBeanCatalog).toJson();
+        catalogTree = (ObjectNode) jsonMapper.readTree(json);
+        propertiesSchema = schemaProcessor.getTemplatedRouteBean();
+        processEntityParameters( "templatedRouteBean", propertiesSchema, templatedRouteBeanCatalog);
+        catalogTree.set("propertiesSchema", propertiesSchema);
+        answer.set("templatedRouteBean", catalogTree);
     }
 }

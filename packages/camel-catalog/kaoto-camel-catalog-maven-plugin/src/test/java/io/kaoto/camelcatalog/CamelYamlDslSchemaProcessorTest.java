@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.kaoto.camelcatalog;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.kaoto.camelcatalog.CamelYamlDslSchemaProcessor;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,7 +121,7 @@ public class CamelYamlDslSchemaProcessorTest {
 
         var loadBalance = processorMap.get("org.apache.camel.model.LoadBalanceDefinition");
         assertFalse(loadBalance.has("anyOf"));
-        assertEquals("loadbalance", loadBalance.get("$comment").asText());
+        assertEquals("loadbalance,steps", loadBalance.get("$comment").asText());
 
         var saga = processorMap.get("org.apache.camel.model.SagaDefinition");
         var sagaCompensation = saga.withObject("/properties").withObject("/compensation");
@@ -129,5 +132,40 @@ public class CamelYamlDslSchemaProcessorTest {
         var propExpDef = saga.withObject("/definitions").withObject("/org.apache.camel.model.PropertyExpressionDefinition");
         assertEquals("object", propExpDef.withObject("/properties").withObject("/expression").get("type").asText());
         assertEquals("expression", propExpDef.withObject("/properties").withObject("/expression").get("$comment").asText());
+    }
+
+    @Test
+    public void testGetEntities() throws Exception {
+        var entityMap = processor.getEntities();
+        List.of(
+                "beans",
+                "errorHandler",
+                "from",
+                "intercept",
+                "interceptFrom",
+                "interceptSendToEndpoint",
+                "onCompletion",
+                "onException",
+                "routeConfiguration",
+                "route",
+                "routeTemplate",
+                "templatedRoute",
+                "restConfiguration",
+                "rest"
+        ).forEach(name -> assertTrue(entityMap.containsKey(name), name));
+    }
+
+    @Test
+    public void testGetRouteTemplateBean() {
+        var rtb = processor.getRouteTemplateBean();
+        assertNotNull(rtb);
+        assertNotNull(rtb.withObject("/definitions").withObject("/org.apache.camel.model.PropertyDefinition"));
+    }
+
+    @Test
+    public void testGetTemplatedRouteBean() {
+        var trb = processor.getTemplatedRouteBean();
+        assertNotNull(trb);
+        assertNotNull(trb.withObject("/definitions").withObject("/org.apache.camel.model.PropertyDefinition"));
     }
 }

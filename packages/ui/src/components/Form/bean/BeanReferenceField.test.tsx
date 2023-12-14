@@ -1,4 +1,3 @@
-import * as beansSchema from '@kaoto-next/camel-catalog/camelYamlDsl-beans.json';
 import { AutoField, AutoForm } from '@kaoto-next/uniforms-patternfly';
 import { screen } from '@testing-library/dom';
 import { fireEvent, render } from '@testing-library/react';
@@ -6,17 +5,21 @@ import { act } from 'react-dom/test-utils';
 import { EntitiesContextResult } from '../../../hooks';
 import { BeansEntity } from '../../../models/visualization/metadata';
 import { EntitiesContext } from '../../../providers';
-import { useSchemasStore } from '../../../store';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { SchemaService } from '../schema.service';
 import { BeanReferenceField } from './BeanReferenceField';
 import { BeansAwareResource, CamelRouteResource } from '../../../models/camel';
-
-useSchemasStore.setState({
-  schemas: { beans: { name: 'beans', tags: [], version: '0', uri: '', schema: beansSchema } },
-});
+import * as entitiesCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-entities.json';
+import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
 
 describe('BeanReferenceField', () => {
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  delete (entitiesCatalog as any).default;
+  CamelCatalogService.setCatalogKey(
+    CatalogKind.Entity,
+    entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
+  );
+
   const mockSchema = {
     title: 'Single Bean',
     description: 'Single Bean Configuration',

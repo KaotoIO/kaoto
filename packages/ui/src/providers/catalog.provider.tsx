@@ -29,6 +29,10 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         const camelPatternsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Pattern]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.patterns.file}`,
         );
+        /** Short list of entities to fill the Catalog, as opposed of the CatalogKind.Processor which have all definitions */
+        const camelEntitiesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Entity]>(
+          `${props.catalogUrl}/${catalogIndex.catalogs.entities.file}`,
+        );
         /** Camel Languages list */
         const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.languages.file}`,
@@ -50,6 +54,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           camelComponents,
           camelModels,
           camelPatterns,
+          camelEntities,
           camelLanguages,
           camelDataformats,
           kamelets,
@@ -58,6 +63,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           camelComponentsFiles,
           camelModelsFiles,
           camelPatternsFiles,
+          camelEntitiesFiles,
           camelLanguagesFiles,
           camelDataformatsFiles,
           kameletsFiles,
@@ -67,6 +73,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Entity, camelEntities.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });

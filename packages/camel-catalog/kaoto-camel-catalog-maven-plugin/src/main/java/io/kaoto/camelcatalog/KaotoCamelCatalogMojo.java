@@ -94,6 +94,9 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     @Parameter
     private List<String> additionalSchemas;
 
+    @Parameter
+    private boolean generateSubSchema = true;
+
     public void execute() {
         if (!inputDirectory.exists()) {
             getLog().error(new IllegalArgumentException(String.format(
@@ -145,23 +148,25 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         try {
             var yamlDslSchema = (ObjectNode) jsonMapper.readTree(schema.toFile());
             var schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
-            var schemaMap = schemaProcessor.processSubSchema();
-            schemaMap.forEach((name, subSchema) -> {
-                var subSchemaFileName = String.format("%s-%s.json", KaotoCamelCatalogMojo.CAMEL_YAML_DSL, name);
-                var subSchemaPath = outputDirectory.toPath().resolve(subSchemaFileName);
-                try {
-                    subSchemaPath.getParent().toFile().mkdirs();
-                    Files.writeString(subSchemaPath, subSchema);
-                    var subSchemaIndexEntry = new Entry(
-                            name,
-                            "Camel YAML DSL JSON schema: " + name,
-                            camelVersion,
-                            subSchemaFileName);
-                    index.getSchemas().put(name, subSchemaIndexEntry);
-                } catch (Exception e) {
-                    getLog().error(e);
-                }
-            });
+            if (generateSubSchema) {
+                var schemaMap = schemaProcessor.processSubSchema();
+                schemaMap.forEach((name, subSchema) -> {
+                    var subSchemaFileName = String.format("%s-%s.json", KaotoCamelCatalogMojo.CAMEL_YAML_DSL, name);
+                    var subSchemaPath = outputDirectory.toPath().resolve(subSchemaFileName);
+                    try {
+                        subSchemaPath.getParent().toFile().mkdirs();
+                        Files.writeString(subSchemaPath, subSchema);
+                        var subSchemaIndexEntry = new Entry(
+                                name,
+                                "Camel YAML DSL JSON schema: " + name,
+                                camelVersion,
+                                subSchemaFileName);
+                        index.getSchemas().put(name, subSchemaIndexEntry);
+                    } catch (Exception e) {
+                        getLog().error(e);
+                    }
+                });
+            }
             return schemaProcessor;
         } catch (Exception e) {
             getLog().error(e);

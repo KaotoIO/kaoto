@@ -1,5 +1,4 @@
 import { ExpressionService } from './expression.service';
-import * as yamlDslSchema from '@kaoto-next/camel-catalog/camelYamlDsl.json';
 import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
 import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
@@ -7,7 +6,6 @@ import { CamelCatalogService } from '../../../models/visualization/flows';
 describe('ExpressionService', () => {
   beforeAll(() => {
     /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (yamlDslSchema as any).default;
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(
       CatalogKind.Language,

@@ -1,4 +1,3 @@
-import * as yamlDslSchema from '@kaoto-next/camel-catalog/camelYamlDsl.json';
 import * as dataformatCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-dataformats.json';
 import { CatalogKind, ICamelDataformatDefinition, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
@@ -7,7 +6,6 @@ import { DataFormatService } from './dataformat.service';
 describe('DataFormatService', () => {
   beforeAll(() => {
     /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (yamlDslSchema as any).default;
     delete (dataformatCatalog as any).default;
     CamelCatalogService.setCatalogKey(
       CatalogKind.Dataformat,

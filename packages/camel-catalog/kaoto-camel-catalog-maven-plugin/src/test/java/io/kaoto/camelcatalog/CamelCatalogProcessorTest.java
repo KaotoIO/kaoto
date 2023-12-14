@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.kaoto.camelcatalog;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.kaoto.camelcatalog.CamelCatalogProcessor;
@@ -35,6 +37,7 @@ public class CamelCatalogProcessorTest {
     private final ObjectNode languageCatalog;
     private final ObjectNode modelCatalog;
     private final ObjectNode processorCatalog;
+    private final ObjectNode entityCatalog;
 
     public CamelCatalogProcessorTest() throws Exception {
         this.jsonMapper = new ObjectMapper();
@@ -47,6 +50,7 @@ public class CamelCatalogProcessorTest {
         this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
         this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
         this.processorCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getPatternCatalog());
+        this.entityCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getEntityCatalog());
     }
 
     @Test
@@ -220,5 +224,50 @@ public class CamelCatalogProcessorTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testGetEntityCatalog() throws Exception {
+        List.of(
+                "bean",
+                "beans",
+                "errorHandler",
+                "from",
+                "intercept",
+                "interceptFrom",
+                "interceptSendToEndpoint",
+                "onCompletion",
+                "onException",
+                "routeConfiguration",
+                "route",
+                "routeTemplate",
+                "templatedRoute",
+                "restConfiguration",
+                "rest",
+                "routeTemplateBean",
+                "templatedRouteBean"
+        ).forEach(name -> assertTrue(entityCatalog.has(name), name));
+        var bean = entityCatalog.withObject("/bean");
+        var beanScriptLanguage = bean.withObject("/propertiesSchema")
+                .withObject("/properties")
+                .withObject("/scriptLanguage");
+        assertEquals("Script Language", beanScriptLanguage.get("title").asText());
+        var beans = entityCatalog.withObject("/beans");
+        var beansScript = beans.withObject("/propertiesSchema")
+                .withObject("/definitions")
+                .withObject("/org.apache.camel.model.app.RegistryBeanDefinition")
+                .withObject("/properties")
+                .withObject("/script");
+        assertEquals("Script", beansScript.get("title").asText());
+        var routeTemplateBean = entityCatalog.withObject("/routeTemplateBean");
+        var routeTemplateBeanType = routeTemplateBean.withObject("/propertiesSchema")
+                .withObject("/properties")
+                .withObject("/type");
+        assertEquals("Type", routeTemplateBeanType.get("title").asText());
+        var templatedRouteBean = entityCatalog.withObject("/templatedRouteBean");
+        var templatedRouteBeanProperties = templatedRouteBean.withObject("/propertiesSchema")
+                .withObject("/properties")
+                .withObject("/properties");
+        assertEquals("Properties", templatedRouteBeanProperties.get("title").asText());
     }
 }
