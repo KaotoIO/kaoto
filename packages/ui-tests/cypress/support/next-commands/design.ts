@@ -111,3 +111,19 @@ Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string
   const regex = new RegExp(`^${format}$`);
   cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });
+
+Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
+  cy.get(`[data-fieldname="${inputName}"]`).scrollIntoView().click();
+  cy.get('#select-typeahead-kaoto-create-new').click();
+});
+
+Cypress.Commands.add('configureBeanReference', (inputName: string, value?: string) => {
+  cy.get(`[data-fieldname="${inputName}"]`).scrollIntoView();
+  cy.get(`[data-fieldname="${inputName}"]`).click();
+  cy.get(`[id$="${value}"]`).click();
+  cy.get(`div[data-fieldname="${inputName}"] input[value="#${value}"]`).should('exist');
+});
+
+Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
+  cy.get(`div[data-fieldname="${inputName}"] button[aria-label="Clear input value"]`).click();
+});

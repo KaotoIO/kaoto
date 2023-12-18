@@ -1,0 +1,26 @@
+- route:
+    id: SqlBeansRoute
+    from:
+      uri: timer
+      steps:
+        - to:
+            uri: sql
+        - to:
+            uri: log:test
+- beans:
+    - name: mysqlDataSource
+      type: io.kaoto.MysqlDataSource
+      properties:
+        port: "3306"
+        url: jdbc:mysql://localhost/test
+        username: dbuser
+        password: dbpass
+        driver-class-name: com.mysql.jdbc.Driver
+    - name: mysqlPostgreSqlSource
+      type: io.kaoto.MysqlPostgreSqlSource
+      properties:
+        port: "5432"
+        url: jdbc:postgresql://localhost/test
+        username: dbuser
+        password: dbpass
+        driver-class-name: org.postgresql.Driver
