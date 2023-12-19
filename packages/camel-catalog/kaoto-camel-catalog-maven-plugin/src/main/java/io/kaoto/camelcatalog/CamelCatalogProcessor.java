@@ -33,6 +33,8 @@ import java.util.Map;
  * Customize Camel Catalog for Kaoto.
  */
 public class CamelCatalogProcessor {
+    private static final String TO_DYNAMIC_DEFINITION = "org.apache.camel.model.ToDynamicDefinition";
+    private static final String SET_HEADERS_DEFINITION = "org.apache.camel.model.SetHeadersDefinition";
     private final ObjectMapper jsonMapper;
     private final DefaultCamelCatalog api;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
@@ -234,10 +236,15 @@ public class CamelCatalogProcessor {
             for (var property : processorSchema.withObject("/properties").properties()) {
                 var propertyName = property.getKey();
                 var propertySchema = (ObjectNode) property.getValue();
-                if ("org.apache.camel.model.ToDynamicDefinition".equals(processorFQCN) && "parameters".equals(propertyName)) {
+                if (TO_DYNAMIC_DEFINITION.equals(processorFQCN) && "parameters".equals(propertyName)) {
                     // "parameters" as a common property is omitted in the catalog, but we need this for "toD"
                     propertySchema.put("title", "Parameters");
                     propertySchema.put("description", "URI parameters");
+                    continue;
+                }
+                if (SET_HEADERS_DEFINITION.equals((processorFQCN)) && "headers".equals(propertyName)) {
+                    propertySchema.put("title", "Headers");
+                    propertySchema.put("description", "Headers to set");
                     continue;
                 }
                 var catalogOpOptional = processorCatalog.getOptions().stream().filter(op -> op.getName().equals(propertyName)).findFirst();
