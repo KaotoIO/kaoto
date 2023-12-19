@@ -217,6 +217,20 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "title": "Show Properties",
             "type": "boolean",
           },
+          "showRouteGroup": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route Group.",
+            "title": "Show Route Group",
+            "type": "boolean",
+          },
+          "showRouteId": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route ID.",
+            "title": "Show Route Id",
+            "type": "boolean",
+          },
           "showStackTrace": {
             "default": false,
             "deprecated": false,
@@ -563,6 +577,20 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
             "title": "Show Properties",
             "type": "boolean",
           },
+          "showRouteGroup": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route Group.",
+            "title": "Show Route Group",
+            "type": "boolean",
+          },
+          "showRouteId": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route ID.",
+            "title": "Show Route Id",
+            "type": "boolean",
+          },
           "showStackTrace": {
             "default": false,
             "deprecated": false,
@@ -903,6 +931,20 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
             "deprecated": false,
             "description": "Show the exchange properties (only custom). Use showAllProperties to show both internal and custom properties.",
             "title": "Show Properties",
+            "type": "boolean",
+          },
+          "showRouteGroup": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route Group.",
+            "title": "Show Route Group",
+            "type": "boolean",
+          },
+          "showRouteId": {
+            "default": false,
+            "deprecated": false,
+            "description": "Show route ID.",
+            "title": "Show Route Id",
             "type": "boolean",
           },
           "showStackTrace": {

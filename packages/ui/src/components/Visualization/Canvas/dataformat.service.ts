@@ -53,7 +53,11 @@ export class DataFormatService {
       return dataFormatModel as Record<string, unknown>;
     } else {
       const answer = {} as Record<string, unknown>;
-      const firstProperty = Object.entries(dataFormat.properties).find(([_name, prop]) => prop.index === 0);
+      const firstProperty = Object.entries(dataFormat.properties)
+        .sort((a, b) => {
+          return a[1].index - b[1].index;
+        })
+        .find(([name, _prop]) => !['id', 'description'].includes(name));
       if (firstProperty) {
         answer[firstProperty[0]] = dataFormatModel;
       }
