@@ -47,6 +47,9 @@ declare global {
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
       selectExpression(expression: string): Chainable<JQuery<Element>>;
+      configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
+      configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
+      deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
       selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

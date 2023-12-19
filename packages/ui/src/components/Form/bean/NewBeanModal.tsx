@@ -56,10 +56,10 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
         isOpen={props.isOpen}
         onClose={handleCancel}
         actions={[
-          <Button key="confirm" variant="primary" onClick={handleConfirm}>
+          <Button key="confirm" variant="primary" onClick={handleConfirm} data-testid="create-bean-btn">
             Create
           </Button>,
-          <Button key="cancel" variant="link" onClick={handleCancel}>
+          <Button key="cancel" variant="link" onClick={handleCancel} data-testid="cancel-bean-btn">
             Cancel
           </Button>,
         ]}
