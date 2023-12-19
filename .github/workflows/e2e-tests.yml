@@ -81,13 +81,13 @@ jobs:
           java-version: '21'
 
       - name: 🗄️ Download the UI build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
 
       - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: catalog-dist
           path: packages/camel-catalog/dist
@@ -139,13 +139,13 @@ jobs:
           java-version: '21'
 
       - name: 🗄️ Download the UI build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
 
       - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: catalog-dist
           path: packages/camel-catalog/dist
@@ -197,13 +197,13 @@ jobs:
           java-version: '21'
 
       - name: 🗄️ Download the UI build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
 
       - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: catalog-dist
           path: packages/camel-catalog/dist
