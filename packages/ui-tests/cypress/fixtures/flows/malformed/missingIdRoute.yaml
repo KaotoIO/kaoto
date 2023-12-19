@@ -1,0 +1,16 @@
+- route:
+    from:
+      id: from-4257
+      uri: timer:template
+      parameters:
+        timerName: timer-name
+        repeatCount: "5"
+      steps:
+        - setBody:
+            id: setBody-6976
+            expression:
+              constant:
+                expression: body-constant
+        - log:
+            id: log-4225
+            message: template message
