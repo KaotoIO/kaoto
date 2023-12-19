@@ -1,0 +1,16 @@
+apiVersion: camel.apache.org/v1alpha1
+# missing kind specification - results in canvas not displaying the nodes
+# kind: KameletBinding
+metadata:
+  name: timer-kafka
+spec:
+  source:
+    ref:
+      apiVersion: camel.apache.org/v1alpha1
+      name: timer-source
+      kind: Kamelet
+  sink:
+    ref:
+      apiVersion: camel.apache.org/v1alpha1
+      name: kafka-sink
+      kind: Kamelet

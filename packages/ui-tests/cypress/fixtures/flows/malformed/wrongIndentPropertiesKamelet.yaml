@@ -1,0 +1,17 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: KameletBinding
+metadata:
+  name: timer-kafka
+spec:
+  source:
+    ref:
+    # wrong indent
+    apiVersion: camel.apache.org/v1alpha1
+    name: timer-source
+    kind: Kamelet
+    # wrong indent
+  sink:
+    ref:
+      apiVersion: camel.apache.org/v1alpha1
+      name: kafka-sink
+      kind: Kamelet

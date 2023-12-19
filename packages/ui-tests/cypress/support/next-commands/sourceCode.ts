@@ -50,3 +50,15 @@ Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
     return cy.get('[data-testid="sourceCode--undoButton"]').click();
   });
 });
+
+Cypress.Commands.add('compareFileWithMonacoEditor', (filePath: string) => {
+  cy.fixture(filePath).then((fileContent) => {
+    const fileLines = fileContent.split('\n').filter((line: string) => line.trim() !== '');
+
+    fileLines.forEach((line: string) => {
+      cy.get('.pf-v5-c-code-editor').within(() => {
+        cy.get('span:only-child').contains(line.trim()).should('have.length', 1);
+      });
+    });
+  });
+});
