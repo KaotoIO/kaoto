@@ -51,14 +51,14 @@ jobs:
         run: yarn workspace @kaoto-next/ui run build:lib
 
       - name: 💾 Save build folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ui-dist
           if-no-files-found: error
           path: packages/ui/dist
 
       - name: 💾 Save catalog build folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: catalog-dist
           if-no-files-found: error
@@ -110,14 +110,14 @@ jobs:
 
       - name: 💾 Save videos
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: videos-firefox
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: screenshots-firefox
           path: packages/ui-tests/cypress/screenshots
@@ -168,14 +168,14 @@ jobs:
 
       - name: 💾 Save videos
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: videos-chrome
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: screenshots-chrome
           path: packages/ui-tests/cypress/screenshots
@@ -226,14 +226,14 @@ jobs:
 
       - name: 💾 Save videos
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: videos-edge
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: screenshots-edge
           path: packages/ui-tests/cypress/screenshots
