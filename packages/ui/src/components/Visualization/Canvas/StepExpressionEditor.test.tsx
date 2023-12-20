@@ -65,8 +65,10 @@ describe('StepExpressionEditor', () => {
 
   it('should render', () => {
     render(<StepExpressionEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
+    const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
+    fireEvent.click(launcherButton[0]);
+    const dropdownButton = screen.getAllByRole('button').filter((button) => button.textContent === 'Simple');
+    fireEvent.click(dropdownButton[0]);
     const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-expression');
