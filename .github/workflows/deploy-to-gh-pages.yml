@@ -46,7 +46,7 @@ jobs:
         run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
 
       - name: 📤 Upload artifact @kaoto-next/ui web application
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: 'packages/ui/dist'
 
