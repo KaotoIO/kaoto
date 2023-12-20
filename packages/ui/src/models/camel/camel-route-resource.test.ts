@@ -157,4 +157,33 @@ describe('CamelRouteResource', () => {
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
     });
   });
+
+  describe.only('toJson', () => {
+    it.each([
+      [camelRouteJson],
+      [camelFromJson],
+      [{ from: { uri: 'direct:foo', steps: [] } }],
+      [{ from: 'direct:foo' }],
+      [{ from: { uri: 'direct:foo' } }],
+      [{ beans: [] }],
+      [{ errorHandler: [] }],
+      [{ intercept: {} }],
+      [{ interceptFrom: {} }],
+      [{ interceptSendToEndpoint: {} }],
+      [{ onCompletion: {} }],
+      [{ onException: {} }],
+      [{ rest: {} }],
+      [{ restConfiguration: {} }],
+      [{ route: {} }],
+      [{ routeConfiguration: {} }],
+      [{ routeTemplate: {} }],
+      [{ templatedRoute: {} }],
+      [{ anotherUnknownContent: {} }],
+      [{}],
+    ])('should not throw error when calling: %s', (json) => {
+      const resource = new CamelRouteResource(json);
+      const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
+      expect(firstEntity.toJSON()).not.toBeUndefined();
+    });
+  });
 });
