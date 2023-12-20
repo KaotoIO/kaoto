@@ -12,6 +12,7 @@ import { DisabledField } from './DisabledField';
 import { PropertiesField } from './properties/PropertiesField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
 import { ExpressionField } from './expression/ExpressionField';
+import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -30,6 +31,10 @@ export const CustomAutoField = createAutoField((props) => {
       return ExpressionField;
     }
     return PropertiesField;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } else if (props.fieldType === Object && (props.field as any)?.type === 'object' && comment === 'expression') {
+    // The property which supports inlined expression such as `/setHeaders/headers[n]
+    return ExpressionAwareNestField;
   }
 
   switch (props.fieldType) {

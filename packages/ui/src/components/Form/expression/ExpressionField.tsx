@@ -1,11 +1,9 @@
 import { connectField, HTMLFieldProps } from 'uniforms';
-import { Button, Modal } from '@patternfly/react-core';
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { PencilAltIcon } from '@patternfly/react-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ExpressionEditor } from './ExpressionEditor';
 import { ExpressionService } from './expression.service';
 import { ICamelLanguageDefinition } from '../../../models';
+import { ExpressionModalLauncher } from './ExpressionModalLauncher';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExpressionFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -14,18 +12,21 @@ const ExpressionFieldComponent = (props: ExpressionFieldProps) => {
   const languageCatalogMap = useMemo(() => {
     return ExpressionService.getLanguageMap();
   }, []);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [preparedLanguage, setPreparedLanguage] = useState<ICamelLanguageDefinition>();
   const [preparedModel, setPreparedModel] = useState<Record<string, unknown>>({});
 
-  useEffect(() => {
+  const resetModel = useCallback(() => {
     const { language, model: expressionModel } = ExpressionService.parsePropertyExpressionModel(
       languageCatalogMap,
       props.value,
     );
     setPreparedLanguage(language);
     setPreparedModel(expressionModel);
-  }, [languageCatalogMap, props.value, modalIsOpen]);
+  }, [languageCatalogMap, props.value]);
+
+  useEffect(() => {
+    resetModel();
+  }, [resetModel]);
 
   const onChange = useCallback(
     (languageName: string, model: Record<string, unknown>) => {
@@ -46,50 +47,25 @@ const ExpressionFieldComponent = (props: ExpressionFieldProps) => {
       );
       props.onChange(props.value);
     }
-    setModalIsOpen(false);
   }, [languageCatalogMap, preparedLanguage, preparedModel, props]);
 
   const handleCancel = useCallback(() => {
-    setModalIsOpen(false);
-  }, []);
+    resetModel();
+  }, [resetModel]);
 
   return wrapField(
     props,
-    <>
-      <Button
-        variant="link"
-        aria-label="Configure Expression"
-        icon={<PencilAltIcon />}
-        onClick={() => setModalIsOpen(true)}
-      >
-        Configure Expression
-      </Button>
-      <Modal
-        isOpen={modalIsOpen}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data-testid={`ExpressionModal-${(props.field as any).name}`}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        title={`${(props.field as any).title}`}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        description={`Configure "${(props.field as any).title}" expression`}
-        onClose={handleCancel}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={handleConfirm}>
-            Apply
-          </Button>,
-          <Button key="cancel" variant="link" onClick={handleCancel}>
-            Cancel
-          </Button>,
-        ]}
-        ouiaId="ExpressionModal"
-      >
-        <ExpressionEditor
-          expressionModel={preparedModel}
-          language={preparedLanguage}
-          onChangeExpressionModel={onChange}
-        ></ExpressionEditor>
-      </Modal>
-    </>,
+    <ExpressionModalLauncher
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      name={(props.field as any).name}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      title={(props.field as any).title}
+      language={preparedLanguage}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+      model={preparedModel}
+      onChange={onChange}
+    />,
   );
 };
 export const ExpressionField = connectField(ExpressionFieldComponent);
