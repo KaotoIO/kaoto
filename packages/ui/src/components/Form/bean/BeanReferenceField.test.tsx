@@ -183,6 +183,28 @@ describe('BeanReferenceField', () => {
     expect(options.filter((o) => o.innerHTML.includes('Create new bean "myB"'))).toHaveLength(1);
   });
 
+  it('should remove selected options', async () => {
+    await act(async () => {
+      render(
+        <EntitiesContext.Provider value={getContextValue()}>
+          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+            <AutoForm schema={schemaBridge} model={{}}>
+              <BeanReferenceField name="beanName" label="Bean reference field label" {...fieldProperties} />
+            </AutoForm>
+          </AutoField.componentDetectorContext.Provider>
+        </EntitiesContext.Provider>,
+      );
+    });
+    const removeButton = screen.getByTestId('beanName-clear-input-value-btn');
+    await act(async () => {
+      fireEvent.click(removeButton);
+    });
+
+    const inputField = screen.getByPlaceholderText('some field title bean reference');
+    expect(inputField).toHaveValue('');
+    expect(inputField).toBeInTheDocument();
+  });
+
   it('should render a modal', async () => {
     await act(async () => {
       render(
