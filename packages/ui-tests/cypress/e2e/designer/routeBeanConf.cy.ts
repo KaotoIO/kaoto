@@ -52,8 +52,7 @@ describe('Test for node bean reference and configuration support', () => {
     cy.checkCodeSpanLine('dataSource: "#mysqlPostgreSqlSource"');
   });
 
-  // blocked by https://github.com/KaotoIO/kaoto-next/issues/559
-  it.skip('Beans - unselect selected bean', () => {
+  it('Beans - unselect selected bean', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/SqlBeansCR.yaml');
 

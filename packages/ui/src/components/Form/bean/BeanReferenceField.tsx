@@ -253,11 +253,13 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
         <TextInputGroupUtilities>
           {!!inputValue && (
             <Button
+              data-testid={`${props.name}-clear-input-value-btn`}
               variant="plain"
               onClick={() => {
                 setSelected('');
                 setInputValue('');
                 setFilterValue('');
+                props.onChange('');
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
