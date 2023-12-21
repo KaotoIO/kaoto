@@ -13,7 +13,7 @@ Cypress.Commands.add('closeStepConfigurationTab', () => {
 });
 
 Cypress.Commands.add('interactWithExpressinInputObject', (inputName: string, value?: string) => {
-  cy.get('[data-testid="expression-config-card"]').within(() => {
+  cy.get('[data-testid="expression-modal"]').within(() => {
     cy.interactWithConfigInputObject(inputName, value);
   });
 });
@@ -98,8 +98,22 @@ Cypress.Commands.add('deleteBranch', (branchIndex) => {
   cy.get('[data-testid="confirmDeleteBranchDialog__btn"]').click();
 });
 
+Cypress.Commands.add('openExpressionModal', () => {
+  cy.get('[data-testid="launch-expression-modal-btn"]').should('be.visible').click();
+});
+
+Cypress.Commands.add('confirmExpressionModal', () => {
+  cy.get('[data-testid="confirm-expression-modal-btn"]').should('be.visible').click();
+});
+
+Cypress.Commands.add('cancelExpressionModal', () => {
+  cy.get('[data-testid="cancel-expression-modal-btn"]').should('be.visible').click();
+});
+
 Cypress.Commands.add('selectExpression', (expression: string) => {
-  cy.selectCustomMetadataEditor('expression', expression);
+  cy.get('div[data-testid="expression-modal"] button.pf-v5-c-menu-toggle').should('be.visible').click();
+  const regex = new RegExp(`^${expression}$`);
+  cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });
 
 Cypress.Commands.add('selectDataformat', (dataformat: string) => {

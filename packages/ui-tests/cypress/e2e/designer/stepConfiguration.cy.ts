@@ -36,10 +36,12 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
+    cy.openExpressionModal();
     cy.selectExpression('Simple');
     cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
     cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
     cy.interactWithExpressinInputObject('resultType', 'java.lang.String');
+    cy.confirmExpressionModal();
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
@@ -82,11 +84,13 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
+    cy.openExpressionModal();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
     cy.interactWithConfigInputObject('headerName', 'id');
     cy.interactWithConfigInputObject('trim');
+    cy.confirmExpressionModal();
 
     cy.selectAppendNode('setHeader');
     cy.get('[data-testid="processor-catalog-tab"]').click();
@@ -99,26 +103,32 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('setHeader', 2);
 
     cy.openStepConfigurationTab('setHeader', 1);
+    cy.openExpressionModal();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
     cy.interactWithConfigInputObject('headerName', 'name');
     cy.interactWithConfigInputObject('trim');
+    cy.confirmExpressionModal();
 
     cy.openStepConfigurationTab('setHeader', 0);
 
     // Check the configured fields didn't disappear from the first node
+    cy.openExpressionModal();
     cy.checkConfigCheckboxObject('trim', true);
     cy.checkConfigInputObject('headerName', 'id');
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.id');
+    cy.cancelExpressionModal();
 
     // Check the configured fields didn't disappear from the second node
     cy.openStepConfigurationTab('setHeader', 0);
+    cy.openExpressionModal();
     cy.checkConfigCheckboxObject('trim', true);
     cy.checkConfigInputObject('headerName', 'name');
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.name');
+    cy.cancelExpressionModal();
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
