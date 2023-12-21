@@ -53,6 +53,7 @@ export const ExpressionModalLauncher = ({
         </SplitItem>
         <SplitItem>
           <Button
+            data-testid="launch-expression-modal-btn"
             variant="link"
             aria-label="Configure Expression"
             icon={<PencilAltIcon />}
@@ -63,17 +64,17 @@ export const ExpressionModalLauncher = ({
       <Modal
         isOpen={isModalOpen}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data-testid={`ExpressionModal-${name}`}
+        data-testid={`expression-modal`}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         title={title ? `${title}` : 'Expression'}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         description={description}
         onClose={onCancel}
         actions={[
-          <Button key="confirm" variant="primary" onClick={handleOnConfirm}>
+          <Button data-testid="confirm-expression-modal-btn" key="confirm" variant="primary" onClick={handleOnConfirm}>
             Apply
           </Button>,
-          <Button key="cancel" variant="link" onClick={handleOnCancel}>
+          <Button data-testid="cancel-expression-modal-btn" key="cancel" variant="link" onClick={handleOnCancel}>
             Cancel
           </Button>,
         ]}

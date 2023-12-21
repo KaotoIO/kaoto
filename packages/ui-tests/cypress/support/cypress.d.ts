@@ -46,6 +46,9 @@ declare global {
       checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
+      openExpressionModal(): Chainable<JQuery<Element>>;
+      confirmExpressionModal(): Chainable<JQuery<Element>>;
+      cancelExpressionModal(): Chainable<JQuery<Element>>;
       selectExpression(expression: string): Chainable<JQuery<Element>>;
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;

@@ -44,6 +44,7 @@ describe('ExpressionModalLauncher', () => {
       fireEvent.click(link);
     });
     expect(screen.queryByRole('dialog')).toBeInTheDocument();
+    screen.debug(screen.getByRole('dialog'));
     const cancelBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Cancel');
     expect(cancelBtn).toHaveLength(1);
     act(() => {
