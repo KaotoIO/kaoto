@@ -32,11 +32,12 @@ export const MetadataPage: FunctionComponent = () => {
           entity = camelkResource.createMetadataEntity();
         } else {
           entity.parent.metadata = model;
+          camelkResource.refreshVisualMetadata();
         }
       } else {
         camelkResource.deleteMetadataEntity();
       }
-      entitiesContext?.updateSourceCodeFromEntities();
+      entitiesContext?.updateEntitiesFromCamelResource();
     },
     [camelkResource, entitiesContext],
   );
