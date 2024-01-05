@@ -49,6 +49,10 @@ export class PipeResource extends CamelKResource {
     return SourceSchemaType.Pipe;
   }
 
+  refreshVisualMetadata() {
+    this.flow = new PipeVisualEntity(this.pipe.spec, this.pipe.metadata);
+  }
+
   getVisualEntities(): PipeVisualEntity[] {
     return this.flow ? [this.flow] : [];
   }
