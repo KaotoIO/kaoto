@@ -22,6 +22,8 @@
     /* Typings */
     "types": [
       "@testing-library/jest-dom",
+      "@types/jest",
+      "@types/node",
     ]
   },
   "include": ["src"],
