@@ -41,7 +41,7 @@ export const getCamelCatalogFiles = () => {
   /** List all the JSON files in the Camel Catalog folder */
   const jsonFiles = readdirSync(camelCatalogPath)
     .filter((file) => file.endsWith('.json'))
-    .map((file) => join(camelCatalogPath, file));
+    .map((file) => normalizePath(join(camelCatalogPath, file)));
 
   return jsonFiles;
 };
