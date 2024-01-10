@@ -79,7 +79,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p packages/ui/dist
-          tar -xzf "${{ runner.temp }}/kaoto-ui.tgz -C packages/ui/dist
+          tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
       - name: "📤 Upload artifact @kaoto-next/ui web application"
         uses: actions/upload-pages-artifact@v3
@@ -108,7 +108,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p packages/ui/dist
-          tar -xzf "${{ runner.temp }}/kaoto-ui.tgz -C packages/ui/dist
+          tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
       - name: "🛰️ Login to Container Registry"
         uses: docker/login-action@v2
