@@ -1,7 +1,5 @@
-FROM nginxinc/nginx-unprivileged
+FROM registry.access.redhat.com/ubi8/nginx-122
 
-ADD packages/ui/dist /usr/share/nginx/html
-
-EXPOSE 8080
+ADD packages/ui/dist .
 
 CMD ["nginx", "-g", "daemon off;"]
