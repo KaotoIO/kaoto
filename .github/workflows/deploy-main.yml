@@ -48,7 +48,7 @@ jobs:
       - name: "🔧 Tar UI Dist"
         shell: bash
         run: |
-          tar -czf ${{ runner.temp }}/kaoto-ui.tgz packages/ui/dist
+          tar -czf ${{ runner.temp }}/kaoto-ui.tgz -C packages/ui/dist .
           ls -lh ${{ runner.temp }}/kaoto-ui.tgz
 
       - name: "🔧 Persist UI Dist"
