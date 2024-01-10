@@ -1,18 +1,11 @@
-import {
-  BoolField,
-  DateField,
-  ListField,
-  NestField,
-  RadioField,
-  SelectField,
-  TextField,
-} from '@kaoto-next/uniforms-patternfly';
+import { DateField, ListField, NestField, RadioField, SelectField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { DisabledField } from './DisabledField';
 import { PropertiesField } from './properties/PropertiesField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
 import { ExpressionField } from './expression/ExpressionField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
+import BoolField from './customField/BoolField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
