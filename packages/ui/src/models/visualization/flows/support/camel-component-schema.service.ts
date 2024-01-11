@@ -239,20 +239,39 @@ export class CamelComponentSchemaService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
+    /** Clone the original definition since we want to preserve the original one, until the form is changed */
+    let updatedDefinition = cloneDeep(definition);
     switch (camelElementLookup.processorName) {
       case 'to':
       case 'toD':
         if (typeof definition === 'string') {
-          return { uri: definition };
+          updatedDefinition = { uri: definition };
         }
         break;
 
       case 'log':
         if (typeof definition === 'string') {
-          return { message: definition };
+          updatedDefinition = { message: definition };
         }
         break;
     }
-    return definition;
+
+    if (camelElementLookup.componentName !== undefined) {
+      this.applyParametersFromSyntax(camelElementLookup.componentName, updatedDefinition);
+    }
+
+    return updatedDefinition;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static applyParametersFromSyntax(componentName: string, definition: any) {
+    const componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    const parametersFromSynax = CamelUriHelper.uriSyntaxToParameters(
+      componentDefinition?.component.syntax,
+      definition?.uri,
+    );
+    definition.parameters = definition.parameters ?? {};
+    definition.uri = this.getComponentNameFromUri(definition.uri);
+    Object.assign(definition.parameters, parametersFromSynax);
   }
 }

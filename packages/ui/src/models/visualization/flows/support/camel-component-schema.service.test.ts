@@ -1,47 +1,52 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
-import { CatalogKind } from '../../..';
+import { CatalogKind } from '../../../catalog-kind';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
-import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
-import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
-import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
-import * as modelCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-models.json';
+import componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
+import kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
+import modelCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-models.json';
+import { ICamelComponentDefinition } from '../../../camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
+import { IKameletDefinition } from '../../../kamelets-catalog';
 
 describe('CamelComponentSchemaService', () => {
+  let path: string;
+  let definition: { uri: string };
+
+  beforeAll(() => {
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Component,
+      componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
+    );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Processor,
+      modelCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Pattern,
+      patternCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Kamelet,
+      kameletCatalogMap as unknown as Record<string, IKameletDefinition>,
+    );
+  });
+
   beforeEach(() => {
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log: (componentCatalogMap as any)['log'],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      timer: (componentCatalogMap as any)['timer'],
-    });
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log: (modelCatalogMap as any)['log'],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      to: (modelCatalogMap as any)['to'],
-    });
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log: (patternCatalogMap as any)['log'],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      to: (patternCatalogMap as any)['to'],
-    });
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'beer-source': (kameletCatalogMap as any)['beer-source'],
-    });
+    path = 'from';
+    definition = { uri: 'timer:foo?delay=1000&period=1000' };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
     CamelCatalogService.clearCatalogs();
   });
 
   describe('getVisualComponentSchema', () => {
-    const path = 'from';
-    const definition = { uri: 'timer:foo?delay=1000&period=1000' };
-
     it('should leverage the getCamelComponentLookup method', () => {
       const getCamelComponentLookupSpy = jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup');
       CamelComponentSchemaService.getVisualComponentSchema(path, definition);
@@ -50,11 +55,13 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should return an empty schema when the processor it is not found', () => {
-      jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup');
+      jest
+        .spyOn(CamelComponentSchemaService, 'getCamelComponentLookup')
+        .mockReturnValueOnce({ processorName: 'non-existing-processor' as keyof ProcessorDefinition });
       const result = CamelComponentSchemaService.getVisualComponentSchema(path, definition);
 
       expect(result).toEqual({
-        title: 'from',
+        title: 'non-existing-processor',
         schema: {},
         definition,
       });
@@ -116,6 +123,64 @@ describe('CamelComponentSchemaService', () => {
       const result = CamelComponentSchemaService.getVisualComponentSchema(logPath, logDefinition);
 
       expect(result).toMatchSnapshot();
+    });
+
+    it(`should clone the component's definition`, () => {
+      const toLogPath = 'from.steps.0.to';
+      const toLogDefinition = {
+        id: 'to-3044',
+        uri: 'log',
+        parameters: {
+          groupActiveOnly: true,
+          logMask: true,
+          level: 'ERROR',
+        },
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
+
+      expect(result!.definition).not.toBe(toLogDefinition);
+      expect(result!.definition).toEqual(toLogDefinition);
+    });
+
+    it(`should parse and clean the component's URI field`, () => {
+      const toLogPath = 'from';
+      const toLogDefinition = {
+        uri: 'timer:timer-1?period=5000&delay=5&synchronous=true',
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
+
+      expect(result!.definition.uri).toEqual('timer');
+      expect(result!.definition.parameters).toEqual({
+        timerName: 'timer-1',
+        period: 5000,
+        delay: 5,
+        synchronous: true,
+      });
+    });
+
+    it(`should not apply missing syntax's path segments`, () => {
+      const toLogPath = 'from';
+      const toLogDefinition = {
+        uri: 'timer',
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
+
+      expect(result!.definition.uri).toEqual('timer');
+      expect(result!.definition.parameters).toEqual({});
+    });
+
+    it(`should create the parameters property if not exists`, () => {
+      const toLogPath = 'from';
+      const toLogDefinition = {
+        uri: 'timer',
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
+
+      expect(result!.definition.parameters).not.toBeUndefined();
     });
 
     it('should not build a schema for an unknown component', () => {
@@ -291,7 +356,7 @@ describe('CamelComponentSchemaService', () => {
 
     it('should return an empty string if not found', () => {
       const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'from' as keyof ProcessorDefinition,
+        processorName: 'non-existing-processor' as keyof ProcessorDefinition,
       });
 
       expect(iconName).toEqual('');

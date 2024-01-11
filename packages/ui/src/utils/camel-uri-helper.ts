@@ -24,17 +24,21 @@ export class CamelUriHelper {
   }
 
   /** Given a URI Syntax and a URI string, return the parametrized version of it */
-  static uriSyntaxToParameters(uriSyntax: string, uriString: string): Record<string, string | boolean | number> {
-    /** If `:` is not present in the syntax, we can return an empty object */
-    if (!uriSyntax.includes(':')) return {};
+  static uriSyntaxToParameters(uriSyntax?: string, uriString?: string): Record<string, string | boolean | number> {
+    /** If `:` is not present in the syntax, we can return an empty object since there's nothing to parse */
+    if (!uriSyntax || !uriString || !uriSyntax.includes(':')) return {};
 
     /** Holder for parsed parameters */
     const parameters: Record<string, string | boolean | number> = {};
 
     /** Remove the scheme from the URI syntax: 'avro:transport:host:port/messageName' => 'transport:host:port/messageName' */
     const syntaxWithoutScheme = uriSyntax.substring(uriSyntax.indexOf(':') + 1);
+
+    /** Validate that the actual URI contains the correct schema, otherwise return empty object since we could be validating the wrong URI */
+    if (!uriString.startsWith(uriSyntax.substring(0, uriSyntax.indexOf(':')))) return {};
+
     /** Remove the scheme from the URI string: 'avro:netty:localhost:41414/foo' => 'netty:localhost:41414/foo' */
-    const uriWithoutScheme = uriString.substring(uriString.indexOf(':') + 1);
+    const uriWithoutScheme = uriString.substring(uriSyntax.indexOf(':') + 1);
 
     /** Split the string into path parameters and query parameters: pathParameters?queryParameters */
     const stringParts = uriWithoutScheme.split('?');
@@ -59,17 +63,24 @@ export class CamelUriHelper {
     this.URI_SEPARATORS_REGEX.lastIndex = 0;
 
     /** If the syntax does not contain any delimiters, we can return the URI string as is */
-    if (delimiters === null) {
+    if (delimiters === null && pathParametersString !== '') {
       parameters[syntaxWithoutScheme] = pathParametersString;
-    } else {
-      /** Otherwise, we can split the path parameters string by the delimiters */
+    } else if (delimiters !== null) {
+      /** Otherwise, we create a RegExp using the delimiters found [':', ':', '/'] */
       const delimitersRegex = new RegExp(delimiters.join('|'), 'g');
+
+      /**
+       * Splitting the syntax and the URI string using the delimiters
+       * keys: [ 'transport', 'host', 'port', 'messageName' ]
+       * values: [ 'netty', 'localhost', '41414', 'foo' ]
+       */
       const keys = syntaxWithoutScheme.split(delimitersRegex);
       const values = pathParametersString.split(delimitersRegex);
 
       keys.forEach((key, index) => {
-        if (key !== '') {
-          parameters[key] = getParsedValue(values[index]);
+        const parsedValue = getParsedValue(values[index]);
+        if (key !== '' && parsedValue !== '') {
+          parameters[key] = parsedValue;
         }
       });
     }
