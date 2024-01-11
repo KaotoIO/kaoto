@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
-import { getUriString, isDefined } from '../../../../utils';
+import { CamelUriHelper, isDefined } from '../../../../utils';
 import { ComponentsCatalogTypes } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
@@ -56,7 +56,7 @@ export class CamelComponentSchemaService {
       return camelElementLookup.componentName;
     }
 
-    const uriString = getUriString(definition);
+    const uriString = CamelUriHelper.getUriString(definition);
     switch (camelElementLookup.processorName) {
       case 'from' as keyof ProcessorDefinition:
         return uriString ?? 'from: Unknown';
