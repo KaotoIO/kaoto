@@ -9,7 +9,7 @@ exports[`createCamelResource should create an empty KameletResource if no args i
         "steps": [],
         "uri": "kamelet:source",
       },
-      "id": "kamelet-1234",
+      "id": undefined,
     },
   },
 ]

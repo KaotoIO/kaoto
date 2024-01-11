@@ -50,14 +50,12 @@ describe('KameletResource', () => {
 
   it('should remove the entity', () => {
     const kameletResource = new KameletResource();
-    const previousKameletId = kameletResource.getVisualEntities()[0].id;
 
     kameletResource.removeEntity();
 
     const kameletVisualEntities = kameletResource.getVisualEntities();
 
     expect(kameletVisualEntities).toHaveLength(1);
-    expect(kameletVisualEntities[0].route.id).not.toEqual(previousKameletId);
   });
 
   it('should get the type', () => {

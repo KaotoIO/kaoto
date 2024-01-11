@@ -88,7 +88,7 @@ exports[`KameletResource should get the visual entities (Camel Route Visual Enti
         "steps": [],
         "uri": "kamelet:source",
       },
-      "id": "kamelet-1234",
+      "id": undefined,
     },
   },
 ]
