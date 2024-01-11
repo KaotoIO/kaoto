@@ -23,8 +23,13 @@ describe('CamelUriHelper', () => {
 
   describe('uriSyntaxToParameters', () => {
     it.each([
+      { syntax: undefined, uri: undefined, result: {} },
+      { syntax: 'log:loggerName', uri: undefined, result: {} },
+      { syntax: undefined, uri: 'log:myLogger', result: {} },
       { syntax: 'log:loggerName', uri: 'log:myLogger', result: { loggerName: 'myLogger' } },
+      { syntax: 'log:loggerName', uri: 'log', result: {} },
       { syntax: 'log', uri: 'log:myLogger', result: {} },
+      { syntax: 'as2:apiName/methodName', uri: 'as2', result: {} },
       {
         syntax: 'timer:timerName',
         uri: 'timer:timer-1?period=5000&delay=5&synchronous=true',
@@ -63,7 +68,7 @@ describe('CamelUriHelper', () => {
       {
         syntax: 'avro:transport:host:port/messageName',
         uri: 'avro:::/',
-        result: { transport: '', host: '', port: '', messageName: '' },
+        result: {},
       },
       {
         syntax: 'aws2-eventbridge://eventbusNameOrArn',

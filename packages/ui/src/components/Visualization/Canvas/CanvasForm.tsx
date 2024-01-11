@@ -56,7 +56,17 @@ export function getNonEmptyProperties(obj: Record<string, unknown>): Record<stri
   return { ...obj, parameters: Object.fromEntries(result) };
 }
 
-const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
+const omitFields = [
+  'expression',
+  'dataFormatType',
+  'outputs',
+  'steps',
+  'when',
+  'otherwise',
+  'doCatch',
+  'doFinally',
+  'uri',
+];
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
