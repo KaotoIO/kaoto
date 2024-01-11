@@ -33,8 +33,8 @@ export class PipeResource extends CamelKResource {
   removeEntity(): void {
     super.removeEntity();
     const flowTemplate: PipeType = FlowTemplateService.getFlowTemplate(this.getType());
-    this.pipe.spec = flowTemplate.spec;
-    this.flow = new PipeVisualEntity(flowTemplate.spec);
+    this.pipe = flowTemplate;
+    this.flow = new PipeVisualEntity(flowTemplate.spec, flowTemplate.metadata);
   }
 
   getEntities(): BaseCamelEntity[] {
