@@ -99,3 +99,26 @@ describe('ExpressionModalLauncher', () => {
     expect(mockOnConfirm.mock.calls).toHaveLength(1);
   });
 });
+
+it('should close the modal when the close button is clicked', () => {
+  render(
+    <ExpressionModalLauncher
+      name="test"
+      title="test"
+      language={undefined}
+      model={{}}
+      onCancel={jest.fn()}
+      onChange={jest.fn()}
+      onConfirm={jest.fn()}
+    />,
+  );
+  const link = screen.getByRole('button', { name: 'Configure Expression' });
+  act(() => {
+    fireEvent.click(link);
+  });
+  const closeButton = screen.getByLabelText('Close');
+  act(() => {
+    fireEvent.click(closeButton);
+  });
+  expect(screen.queryByRole('dialog')).toBeNull();
+});

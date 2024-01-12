@@ -69,7 +69,7 @@ export const ExpressionModalLauncher = ({
         title={title ? `${title}` : 'Expression'}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         description={description}
-        onClose={onCancel}
+        onClose={handleOnCancel}
         actions={[
           <Button data-testid="confirm-expression-modal-btn" key="confirm" variant="primary" onClick={handleOnConfirm}>
             Apply
