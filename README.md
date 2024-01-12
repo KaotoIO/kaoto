@@ -80,3 +80,10 @@ yarn workspace @kaoto-next/ui build:lib
 yarn workspace @kaoto-next/ui-tests storybook
 ```
 To publish to Chromatic: `yarn workspace @kaoto-next/ui-tests chromatic`
+
+## Running kaoto-next with Docker
+For trial purposes, there is a docker image that can be run locally:
+
+```sh
+docker run --rm -p 8080:8080  --name kaoto-next quay.io/kaotoio/kaoto-app:main
+```
