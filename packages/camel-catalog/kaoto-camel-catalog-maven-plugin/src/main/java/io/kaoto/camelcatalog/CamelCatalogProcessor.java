@@ -59,12 +59,14 @@ public class CamelCatalogProcessor {
         var modelCatalog = getModelCatalog();
         var patternCatalog = getPatternCatalog();
         var entityCatalog = getEntityCatalog();
+        var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);
         answer.put("dataformats", dataFormatCatalog);
         answer.put("languages", languageCatalog);
         answer.put("models", modelCatalog);
         answer.put("patterns", patternCatalog);
         answer.put("entities", entityCatalog);
+        answer.put("loadbalancers", loadBalancerCatalog);
         return answer;
     }
 
@@ -522,5 +524,31 @@ public class CamelCatalogProcessor {
         processEntityParameters( "templatedRouteBean", propertiesSchema, templatedRouteBeanCatalog);
         catalogTree.set("propertiesSchema", propertiesSchema);
         answer.set("templatedRouteBean", catalogTree);
+    }
+
+    /**
+     * Get Camel LoadBalancer catalog with a custom loadbalancer added.
+     * @return
+     * @throws Exception
+     */
+    public String getLoadBalancerCatalog() throws Exception {
+        var answer = jsonMapper.createObjectNode();
+        var loadBalancerSchemaMap = schemaProcessor.getLoadBalancers();
+        for (var entry : loadBalancerSchemaMap.entrySet()) {
+            var loadBalancerName = entry.getKey();
+            var loadBalancerSchema = entry.getValue();
+            var loadBalancerCatalog = (EipModel) api.model(Kind.eip, loadBalancerName);
+            if (loadBalancerCatalog == null) {
+                throw new Exception("LoadBalancer " + loadBalancerName + " is not found in Camel model catalog.");
+            }
+            var json = JsonMapper.asJsonObject(loadBalancerCatalog).toJson();
+            var catalogTree = (ObjectNode) jsonMapper.readTree(json);
+            catalogTree.set("propertiesSchema", loadBalancerSchema);
+            answer.set(loadBalancerName, catalogTree);
+        }
+        StringWriter writer = new StringWriter();
+        var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
+        jsonMapper.writeTree(jsonGenerator, answer);
+        return writer.toString();
     }
 }

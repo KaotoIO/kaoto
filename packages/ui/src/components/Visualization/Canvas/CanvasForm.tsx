@@ -9,6 +9,7 @@ import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import { DataFormatEditor } from './DataFormatEditor';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
+import { LoadBalancerEditor } from './LoadBalancerEditor';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -116,7 +117,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         <Title headingLevel="h1">{componentName}</Title>
         {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
         {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-        {isLoadBalanceAwareStep && <p>Load balance strategy configuration is not yet supported.</p>}
+        {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
         <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
           <AutoFields omitFields={omitFields} />
           <ErrorsField />

@@ -5,5 +5,6 @@ export const enum CatalogKind {
   Entity = 'entity',
   Language = 'language',
   Dataformat = 'dataformat',
+  Loadbalancer = 'loadbalancer',
   Kamelet = 'kamelet',
 }

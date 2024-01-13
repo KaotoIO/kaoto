@@ -5,6 +5,7 @@ import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
+import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
 
 export class CamelCatalogService {
   private static catalogs: ComponentsCatalog = {};
@@ -29,6 +30,10 @@ export class CamelCatalogService {
     catalogKey: CatalogKind.Dataformat,
     dataformatName?: string,
   ): ICamelDataformatDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.Loadbalancer,
+    loadBalancerName?: string,
+  ): ICamelLoadBalancerDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Kamelet, componentName?: string): IKameletDefinition | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined {
@@ -43,6 +48,10 @@ export class CamelCatalogService {
 
   static getDataFormatMap(): Record<string, ICamelDataformatDefinition> {
     return this.catalogs[CatalogKind.Dataformat] || {};
+  }
+
+  static getLoadBalancerMap(): Record<string, ICamelLoadBalancerDefinition> {
+    return this.catalogs[CatalogKind.Loadbalancer] || {};
   }
 
   /**

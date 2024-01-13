@@ -38,6 +38,7 @@ public class CamelCatalogProcessorTest {
     private final ObjectNode modelCatalog;
     private final ObjectNode processorCatalog;
     private final ObjectNode entityCatalog;
+    private final ObjectNode loadBalancerCatalog;
 
     public CamelCatalogProcessorTest() throws Exception {
         this.jsonMapper = new ObjectMapper();
@@ -51,6 +52,7 @@ public class CamelCatalogProcessorTest {
         this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
         this.processorCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getPatternCatalog());
         this.entityCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getEntityCatalog());
+        this.loadBalancerCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLoadBalancerCatalog());
     }
 
     @Test
@@ -61,6 +63,8 @@ public class CamelCatalogProcessorTest {
         assertEquals(processor.getLanguageCatalog(), catalogMap.get("languages"));
         assertEquals(processor.getModelCatalog(), catalogMap.get("models"));
         assertEquals(processor.getPatternCatalog(), catalogMap.get("patterns"));
+        assertEquals(processor.getEntityCatalog(), catalogMap.get("entities"));
+        assertEquals(processor.getLoadBalancerCatalog(), catalogMap.get("loadbalancers"));
     }
 
     @Test
@@ -269,5 +273,25 @@ public class CamelCatalogProcessorTest {
                 .withObject("/properties")
                 .withObject("/properties");
         assertEquals("Properties", templatedRouteBeanProperties.get("title").asText());
+    }
+
+    @Test
+    public void testGetLoadBalancerCatalog() throws Exception {
+        assertFalse(loadBalancerCatalog.isEmpty());
+        var failoverModel = loadBalancerCatalog.withObject("/failover/model");
+        assertEquals("failover", failoverModel.get("name").asText());
+        var failoverSchema = loadBalancerCatalog.withObject("/failover/propertiesSchema");
+        var maximumFailoverAttempts = failoverSchema.withObject("/properties/maximumFailoverAttempts");
+        assertEquals("string", maximumFailoverAttempts.get("type").asText());
+        assertEquals("-1", maximumFailoverAttempts.get("default").asText());
+        var roundRobinSchema = loadBalancerCatalog.withObject("/roundRobin/propertiesSchema");
+        var roundRobinId = roundRobinSchema.withObject("/properties/id");
+        assertEquals("string", roundRobinId.get("type").asText());
+        var customModel = loadBalancerCatalog.withObject("/customLoadBalancer/model");
+        assertEquals("Custom Load Balancer", customModel.get("title").asText());
+        var customSchema = loadBalancerCatalog.withObject("/customLoadBalancer/propertiesSchema");
+        assertEquals("Custom Load Balancer", customSchema.get("title").asText());
+        var customRef = customSchema.withObject("/properties/ref");
+        assertEquals("Ref", customRef.get("title").asText());
     }
 }
