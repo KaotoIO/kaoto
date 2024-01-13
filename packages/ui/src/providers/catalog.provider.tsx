@@ -41,6 +41,10 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         const camelDataformatsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Dataformat]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.dataformats.file}`,
         );
+        /** Camel Loadbalancers list */
+        const camelLoadbalancersFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Loadbalancer]>(
+          `${props.catalogUrl}/${catalogIndex.catalogs.loadbalancers.file}`,
+        );
         /** Camel Kamelets definitions list (CRDs) */
         const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           `${props.catalogUrl}/${catalogIndex.catalogs.kamelets.file}`,
@@ -57,6 +61,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           camelEntities,
           camelLanguages,
           camelDataformats,
+          camelLoadbalancers,
           kamelets,
           kameletBoundaries,
         ] = await Promise.all([
@@ -66,6 +71,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
           camelEntitiesFiles,
           camelLanguagesFiles,
           camelDataformatsFiles,
+          camelLoadbalancersFiles,
           kameletsFiles,
           kameletBoundariesFiles,
         ]);
@@ -76,6 +82,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         CamelCatalogService.setCatalogKey(CatalogKind.Entity, camelEntities.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, camelLoadbalancers.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
       })
       .then(() => {

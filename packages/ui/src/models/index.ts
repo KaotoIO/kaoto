@@ -3,6 +3,7 @@ export * from './camel-components-catalog';
 export * from './camel-processors-catalog';
 export * from './camel-languages-catalog';
 export * from './camel-dataformats-catalog';
+export * from './camel-loadbalancers-catalog';
 export * from './camel-properties-common';
 export * from './catalog-kind';
 export * from './kamelets-catalog';
