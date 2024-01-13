@@ -1,5 +1,6 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
+import cloneDeep from 'lodash/cloneDeep';
 import { CamelUriHelper, isDefined } from '../../../../utils';
 import { ComponentsCatalogTypes } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
@@ -202,7 +203,10 @@ export class CamelComponentSchemaService {
 
     if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;
 
-    const schema = processorDefinition.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
+    let schema = {} as unknown as JSONSchemaType<unknown>;
+    if (processorDefinition.propertiesSchema !== undefined) {
+      schema = cloneDeep(processorDefinition.propertiesSchema);
+    }
 
     if (camelElementLookup.componentName !== undefined) {
       let componentDefinition: ComponentsCatalogTypes | undefined;
