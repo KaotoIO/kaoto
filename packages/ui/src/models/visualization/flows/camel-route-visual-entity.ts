@@ -1,10 +1,8 @@
 /* eslint-disable no-case-declarations */
-import { FromDefinition, ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { FromDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { NodeIconResolver, isDefined } from '../../../utils';
+import { isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities';
-import { BaseVisualCamelEntity, IVisualizationNode } from '../base-visual-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 
 /** Very basic check to determine whether this object is a Camel Route */
@@ -37,7 +35,7 @@ export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefini
   return isFromHolder && isValidUriField && isValidStepsArray;
 };
 
-export class CamelRouteVisualEntity extends AbstractCamelVisualEntity implements BaseVisualCamelEntity {
+export class CamelRouteVisualEntity extends AbstractCamelVisualEntity {
   id: string;
   readonly type = EntityType.Route;
 
@@ -46,27 +44,14 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity implements
     this.id = route.id ?? getCamelRandomId('route');
     this.route.id = this.id;
   }
+
   /** Internal API methods */
   setId(routeId: string): void {
     this.id = routeId;
     this.route.id = this.id;
   }
 
-  getId(): string {
-    return this.id;
-  }
-
-  toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromProcessor('from', {
-      processorName: 'from' as keyof ProcessorDefinition,
-      componentName: CamelComponentSchemaService.getComponentNameFromUri(this.route.from!.uri),
-    });
-    rootNode.data.entity = this;
-
-    if (!this.route.from?.uri) {
-      rootNode.data.icon = NodeIconResolver.getPlaceholderIcon();
-    }
-
-    return rootNode;
+  protected getRootUri(): string | undefined {
+    return this.route.from?.uri;
   }
 }
