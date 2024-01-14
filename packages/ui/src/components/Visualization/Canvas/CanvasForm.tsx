@@ -10,6 +10,7 @@ import { DataFormatEditor } from './DataFormatEditor';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
 import { LoadBalancerEditor } from './LoadBalancerEditor';
+import './CanvasForm.scss';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -118,7 +119,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
         {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
         {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-        <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange}>
+        <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange} data-testid="autoform">
           <AutoFields omitFields={omitFields} />
           <ErrorsField />
         </AutoForm>

@@ -12,7 +12,7 @@ exports[`CanvasForm should render 1`] = `
   </h1>
   <form
     class="pf-v5-c-form"
-    data-testid="base-form"
+    data-testid="autoform"
     novalidate=""
   >
     <div>
