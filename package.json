@@ -29,7 +29,7 @@
     "publish": "lerna publish from-package"
   },
   "engines": {
-    "node": "18.x"
+    "node": ">=18.x"
   },
   "devDependencies": {
     "@lerna-lite/cli": "^3.0.0",
