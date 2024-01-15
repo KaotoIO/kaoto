@@ -52,7 +52,7 @@ jobs:
           ls -lh ${{ runner.temp }}/kaoto-ui.tgz
 
       - name: "🔧 Persist UI Dist"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "kaoto-ui-${{ github.run_id }}"
           path: "${{ runner.temp }}/kaoto-ui.tgz"
