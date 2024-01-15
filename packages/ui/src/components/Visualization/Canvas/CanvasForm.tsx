@@ -1,15 +1,16 @@
 import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
-import { Title } from '@patternfly/react-core';
+import { CodeBlock, CodeBlockCode, Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { stringify } from 'yaml';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import './CanvasForm.scss';
 import { DataFormatEditor } from './DataFormatEditor';
+import { LoadBalancerEditor } from './LoadBalancerEditor';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
-import { LoadBalancerEditor } from './LoadBalancerEditor';
-import './CanvasForm.scss';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -70,18 +71,28 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     return schema?.schema && schema.schema['$comment']?.includes('loadbalance');
   }, [schema]);
 
-  return schema?.schema === undefined ? null : (
+  const isUnknownComponent = useMemo(() => {
+    return schema?.schema === undefined || Object.keys(schema?.schema).length === 0;
+  }, [schema]);
+
+  return (
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
-      <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-        <Title headingLevel="h1">{componentName}</Title>
-        {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-        {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-        {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-        <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange} data-testid="autoform">
-          <AutoFields omitFields={omitFields} />
-          <ErrorsField />
-        </AutoForm>
-      </AutoField.componentDetectorContext.Provider>
+      <Title headingLevel="h1">{componentName}</Title>
+      {isUnknownComponent ? (
+        <CodeBlock>
+          <CodeBlockCode>{stringify(model)}</CodeBlockCode>
+        </CodeBlock>
+      ) : (
+        <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+          {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
+          {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+          {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+          <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange} data-testid="autoform">
+            <AutoFields omitFields={omitFields} />
+            <ErrorsField />
+          </AutoForm>
+        </AutoField.componentDetectorContext.Provider>
+      )}
     </ErrorBoundary>
   );
 };
