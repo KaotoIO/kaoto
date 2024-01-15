@@ -1,3 +1,4 @@
+export * from './create-camel-properties-sorter';
 export * from './camel-uri-helper';
 export * from './catalog-schema-loader';
 export * from './event-notifier';

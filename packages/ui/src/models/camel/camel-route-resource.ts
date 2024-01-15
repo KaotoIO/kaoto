@@ -1,6 +1,6 @@
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
-import { isDefined } from '../../utils';
+import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
 import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
@@ -13,6 +13,11 @@ import { SourceSchemaType } from './source-schema-type';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
+  static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
+  readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
+    a: unknown,
+    b: unknown,
+  ) => number;
   private entities: BaseCamelEntity[] = [];
 
   constructor(json?: unknown) {
