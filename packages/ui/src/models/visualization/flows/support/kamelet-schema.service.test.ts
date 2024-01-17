@@ -19,74 +19,93 @@ describe('KameletSchemaService', () => {
     CamelCatalogService.clearCatalogs();
   });
 
-  it('should return undefined when step is undefined', () => {
-    expect(KameletSchemaService.getVisualComponentSchema(undefined)).toBeUndefined();
-  });
-
-  it('should build the appropriate schema for kamelets', () => {
-    const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-
-    const result = KameletSchemaService.getVisualComponentSchema({
-      ref: {
-        kind: 'Kamelet',
-        apiVersion: 'camel.apache.org/v1',
-        name: 'beer-source',
-      },
+  describe('getVisualComponentSchema', () => {
+    it('should return undefined when step is undefined', () => {
+      expect(KameletSchemaService.getVisualComponentSchema(undefined)).toBeUndefined();
     });
 
-    expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source');
-    expect(result).toMatchSnapshot();
-  });
+    it('should build the appropriate schema for kamelets', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
 
-  it('should build the appropriate schema for kamelets with required properties', () => {
-    const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-
-    const result = KameletSchemaService.getVisualComponentSchema({
-      ref: {
-        kind: 'Kamelet',
-        apiVersion: 'camel.apache.org/v1',
-        name: 'xj-template-action',
-      },
-    });
-
-    expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'xj-template-action');
-    expect(result).toMatchSnapshot();
-  });
-
-  it('should provide a default empty string if the kamelet name is not found', () => {
-    const namelessKamelet = cloneDeep((kameletCatalogMap as any)['beer-source']);
-    namelessKamelet.metadata.name = undefined as unknown as string;
-    jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(namelessKamelet);
-
-    const result = KameletSchemaService.getVisualComponentSchema({
-      ref: {
-        kind: 'Kamelet',
-        apiVersion: 'camel.apache.org/v1',
-        name: 'beer-source',
-      },
-    });
-
-    expect(result).toMatchSnapshot();
-  });
-
-  it('should return the Kamelet name as the node label', () => {
-    const result = KameletSchemaService.getNodeLabel(
-      {
+      const result = KameletSchemaService.getVisualComponentSchema({
         ref: {
           kind: 'Kamelet',
           apiVersion: 'camel.apache.org/v1',
           name: 'beer-source',
         },
-      },
-      'source',
-    );
+      });
 
-    expect(result).toEqual('beer-source');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source');
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should build the appropriate schema for kamelets with required properties', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+
+      const result = KameletSchemaService.getVisualComponentSchema({
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'xj-template-action',
+        },
+      });
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'xj-template-action');
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should provide a default empty string if the kamelet name is not found', () => {
+      const namelessKamelet = cloneDeep((kameletCatalogMap as any)['beer-source']);
+      namelessKamelet.metadata.name = undefined as unknown as string;
+      jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(namelessKamelet);
+
+      const result = KameletSchemaService.getVisualComponentSchema({
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'beer-source',
+        },
+      });
+
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should retrieve the properties from the step', () => {
+      const result = KameletSchemaService.getVisualComponentSchema({
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'beer-source',
+        },
+        properties: {
+          foo: 'bar',
+        },
+      });
+
+      expect(result?.definition).toMatchSnapshot();
+    });
   });
 
-  it('should return the Kamelet name as the node label', () => {
-    const result = KameletSchemaService.getNodeLabel(undefined, 'sink');
+  describe('getNodeLabel', () => {
+    it('should return the Kamelet name as the node label', () => {
+      const result = KameletSchemaService.getNodeLabel(
+        {
+          ref: {
+            kind: 'Kamelet',
+            apiVersion: 'camel.apache.org/v1',
+            name: 'beer-source',
+          },
+        },
+        'source',
+      );
 
-    expect(result).toEqual('sink: Unknown');
+      expect(result).toEqual('beer-source');
+    });
+
+    it('should return the Kamelet name as the node label', () => {
+      const result = KameletSchemaService.getNodeLabel(undefined, 'sink');
+
+      expect(result).toEqual('sink: Unknown');
+    });
   });
 });
