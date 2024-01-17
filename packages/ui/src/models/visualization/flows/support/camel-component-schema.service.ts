@@ -266,12 +266,23 @@ export class CamelComponentSchemaService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static applyParametersFromSyntax(componentName: string, definition: any) {
     const componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
-    const parametersFromSynax = CamelUriHelper.uriSyntaxToParameters(
+
+    const requiredParameters: string[] = [];
+    if (componentDefinition?.properties !== undefined) {
+      Object.entries(componentDefinition.properties).forEach(([key, value]) => {
+        if (value.required) {
+          requiredParameters.push(key);
+        }
+      });
+    }
+
+    const parametersFromSyntax = CamelUriHelper.uriSyntaxToParameters(
       componentDefinition?.component.syntax,
       definition?.uri,
+      { requiredParameters },
     );
     definition.parameters = definition.parameters ?? {};
     definition.uri = this.getComponentNameFromUri(definition.uri);
-    Object.assign(definition.parameters, parametersFromSynax);
+    Object.assign(definition.parameters, parametersFromSyntax);
   }
 }
