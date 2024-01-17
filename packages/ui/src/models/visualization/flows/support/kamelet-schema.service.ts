@@ -16,7 +16,7 @@ export class KameletSchemaService {
     return {
       title: definition?.metadata.name || '',
       schema: definition?.propertiesSchema || ({} as JSONSchemaType<unknown>),
-      definition: stepModel?.ref?.properties || {},
+      definition: stepModel?.properties || {},
     };
   }
 

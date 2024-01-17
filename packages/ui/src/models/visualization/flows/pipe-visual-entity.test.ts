@@ -75,9 +75,17 @@ describe('Pipe', () => {
     it('should update the model', () => {
       const name = 'webhook-source';
 
-      pipe.updateModel('source.ref.name', name);
+      pipe.updateModel('source', { name });
 
-      expect(pipe.spec?.source?.ref?.name).toEqual(name);
+      expect(pipe.spec?.source?.properties?.name).toEqual(name);
+    });
+
+    it('should not update the model if the path is not correct', () => {
+      const name = 'webhook-source';
+
+      pipe.updateModel('nonExistingPath', { name });
+
+      expect(pipe.spec?.source?.properties).toBeUndefined();
     });
   });
 
