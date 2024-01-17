@@ -1,56 +1,35 @@
-import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
-import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import set from 'lodash.set';
+import { TileFilter } from '../../public-api';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
+import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
+import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
+import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
 import { CamelKResource } from './camel-k-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
-import { TileFilter } from '../../public-api';
-import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 
 export class KameletResource extends CamelKResource {
-  private kamelet;
   private flow: KameletVisualEntity;
 
   constructor(kamelet?: IKameletDefinition) {
     super(kamelet);
-    const kameletId = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
 
-    if (kamelet) {
-      this.kamelet = kamelet;
-    } else {
-      this.kamelet = this.resource as IKameletDefinition;
-      this.kamelet.kind = SourceSchemaType.Kamelet;
-      this.kamelet.spec = {
-        definition: {
-          title: kameletId,
-          type: 'source',
-        },
-        dependencies: [],
-        template: {
-          from: {
-            id: getCamelRandomId('from'),
-            uri: 'kamelet:source',
-            steps: [],
-          },
-          beans: {},
-        },
-      };
+    if (!kamelet) {
+      this.resource = FlowTemplateService.getFlowTemplate(this.getType());
     }
 
-    this.flow = new KameletVisualEntity(this.kamelet);
+    this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
   }
 
   refreshVisualMetadata() {
-    this.flow = new KameletVisualEntity(this.kamelet);
+    this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
   }
 
   removeEntity(): void {
     super.removeEntity();
-    const flowTemplate: IKameletDefinition = FlowTemplateService.getFlowTemplate(this.getType());
-    this.kamelet = flowTemplate;
-    this.flow = new KameletVisualEntity(this.kamelet);
+    this.resource = FlowTemplateService.getFlowTemplate(this.getType());
+    this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
   }
 
   getType(): SourceSchemaType {
@@ -72,7 +51,9 @@ export class KameletResource extends CamelKResource {
      * and this way the kamelet definition is updated when the user interacts with
      * the CamelRouteVisualEntity.
      */
-    return this.kamelet;
+    set(this.resource, 'metadata.name', this.flow.getId());
+    set(this.resource, 'spec.template.from', this.flow.route.from);
+    return this.resource as IKameletDefinition;
   }
 
   /** Components Catalog related methods */
