@@ -41,6 +41,7 @@ exports[`KameletResource should convert to JSON 1`] = `
         "id": "from-1234",
         "parameters": {
           "period": "{{period}}",
+          "timerName": "user",
         },
         "steps": [
           {
@@ -50,7 +51,7 @@ exports[`KameletResource should convert to JSON 1`] = `
             "to": "kamelet:sink",
           },
         ],
-        "uri": "timer:user",
+        "uri": "timer",
       },
     },
     "types": {
@@ -103,6 +104,7 @@ exports[`KameletResource should create a new KameletResource 1`] = `
         "id": "from-1234",
         "parameters": {
           "period": "{{period}}",
+          "timerName": "user",
         },
         "steps": [
           {
@@ -112,7 +114,7 @@ exports[`KameletResource should create a new KameletResource 1`] = `
             "to": "kamelet:sink",
           },
         ],
-        "uri": "timer:user",
+        "uri": "timer",
       },
     },
     "types": {
@@ -167,6 +169,7 @@ exports[`KameletResource should get the visual entities (Camel Route Visual Enti
         "id": "from-1234",
         "parameters": {
           "period": "{{period}}",
+          "timerName": "user",
         },
         "steps": [
           {
@@ -176,7 +179,7 @@ exports[`KameletResource should get the visual entities (Camel Route Visual Enti
             "to": "kamelet:sink",
           },
         ],
-        "uri": "timer:user",
+        "uri": "timer",
       },
       "id": "kamelet-1234",
     },

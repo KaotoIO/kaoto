@@ -11,6 +11,7 @@ import { DataFormatEditor } from './DataFormatEditor';
 import { LoadBalancerEditor } from './LoadBalancerEditor';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
+import { ModelValidationService } from '../../../models/visualization/flows/support/model-validation.service';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -53,10 +54,13 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChange = useCallback(
     (newModel: Record<string, unknown>) => {
-      props.selectedNode.data?.vizNode?.updateModel(newModel);
+      if (props.selectedNode.data?.vizNode) {
+        props.selectedNode.data.vizNode.updateModel(newModel);
+        ModelValidationService.validateNodeStatus(visualComponentSchema, newModel, props.selectedNode.data.vizNode);
+      }
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, props.selectedNode.data?.vizNode, props.selectedNode.id],
+    [entitiesContext, props.selectedNode.data?.vizNode, visualComponentSchema],
   );
 
   const isExpressionAwareStep = useMemo(() => {
