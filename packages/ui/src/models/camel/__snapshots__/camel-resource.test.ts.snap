@@ -8,6 +8,7 @@ exports[`createCamelResource should create an empty KameletResource if no args i
         "id": "from-1234",
         "parameters": {
           "period": "{{period}}",
+          "timerName": "user",
         },
         "steps": [
           {
@@ -17,7 +18,7 @@ exports[`createCamelResource should create an empty KameletResource if no args i
             "to": "kamelet:sink",
           },
         ],
-        "uri": "timer:user",
+        "uri": "timer",
       },
       "id": "kamelet-1234",
     },

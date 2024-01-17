@@ -22,6 +22,7 @@ describe('CanvasService', () => {
     type: 'node',
     data: undefined,
     shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
+    status: CanvasDefaults.DEFAULT_NODE_STATUS,
     width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
     height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
   };

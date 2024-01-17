@@ -22,6 +22,7 @@ import {
   ICamelElementLookupResult,
 } from './support/camel-component-types';
 import { EntityType } from '../../camel/entities';
+import { ModelValidationService } from './support/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity {
   constructor(public route: RouteDefinition) {}
@@ -240,6 +241,9 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
     });
 
+    const schema = this.getComponentSchema(path);
+    const model = get(this.route, path);
+    ModelValidationService.validateNodeStatus(schema, model, vizNode);
     return vizNode;
   }
 
