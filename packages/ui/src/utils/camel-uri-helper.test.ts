@@ -75,8 +75,29 @@ describe('CamelUriHelper', () => {
         uri: 'aws2-eventbridge://arn:aws:iam::123456789012:user/johndoe',
         result: { eventbusNameOrArn: 'arn:aws:iam::123456789012:user/johndoe' },
       },
-    ])('for an URI: `$uri`, using the syntax: `$syntax`, should return `$result`', ({ syntax, uri, result }) => {
-      expect(CamelUriHelper.uriSyntaxToParameters(syntax, uri)).toEqual(result);
-    });
+      {
+        syntax: 'jms:destinationType:destinationName',
+        uri: 'jms:queue:myQueue?selector=foo',
+        result: { destinationType: 'queue', destinationName: 'myQueue', selector: 'foo' },
+        requiredParameters: ['destinationName'],
+      },
+      {
+        syntax: 'jms:destinationType:destinationName',
+        uri: 'jms:myQueue',
+        result: { destinationName: 'myQueue' },
+        requiredParameters: ['destinationName'],
+      },
+      {
+        syntax: 'jms:destinationType:destinationName',
+        uri: 'jms:myQueue?selector=foo',
+        result: { destinationName: 'myQueue', selector: 'foo' },
+        requiredParameters: ['destinationName'],
+      },
+    ])(
+      'for an URI: `$uri`, using the syntax: `$syntax`, should return `$result`',
+      ({ syntax, uri, result, requiredParameters }) => {
+        expect(CamelUriHelper.uriSyntaxToParameters(syntax, uri, { requiredParameters })).toEqual(result);
+      },
+    );
   });
 });

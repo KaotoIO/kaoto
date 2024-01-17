@@ -24,7 +24,11 @@ export class CamelUriHelper {
   }
 
   /** Given a URI Syntax and a URI string, return the parametrized version of it */
-  static uriSyntaxToParameters(uriSyntax?: string, uriString?: string): Record<string, string | boolean | number> {
+  static uriSyntaxToParameters(
+    uriSyntax?: string,
+    uriString?: string,
+    options?: { requiredParameters?: string[] },
+  ): Record<string, string | boolean | number> {
     /** If `:` is not present in the syntax, we can return an empty object since there's nothing to parse */
     if (!uriSyntax || !uriString || !uriSyntax.includes(':')) return {};
 
@@ -43,17 +47,11 @@ export class CamelUriHelper {
     /** Split the string into path parameters and query parameters: pathParameters?queryParameters */
     const stringParts = uriWithoutScheme.split('?');
     const pathParametersString = stringParts[0];
-    const queryParametersString = stringParts[1];
 
-    /** Process query parameters */
-    if (queryParametersString !== undefined) {
-      const queryParameters = queryParametersString.split('&');
+    this.applyQueryParameters(parameters, stringParts[1]);
 
-      queryParameters.forEach((parameter) => {
-        const [key, stringValue] = parameter.split('=');
-        parameters[key] = getParsedValue(stringValue);
-      });
-    }
+    /** Prepare options */
+    const requiredParameters = options?.requiredParameters ?? [];
 
     /**
      * Retrieve the delimiters from the syntax by matching the delimiters
@@ -77,6 +75,20 @@ export class CamelUriHelper {
       const keys = syntaxWithoutScheme.split(delimitersRegex);
       const values = pathParametersString.split(delimitersRegex);
 
+      /**
+       * There are special cases where some keys are not required, and the user didn't provide them.
+       * This is the case for the `jms`, `amqp`, and `activemq` components, where the `destinationType` is not required,
+       * so the user can provide the `destinationName` directly.
+       * In this situation, if the values length matches the required parameters length,
+       * we can remove the non-required key, so we can match the values with the keys.
+       */
+      if (requiredParameters.length < keys.length && requiredParameters.length === values.length) {
+        const nonRequiredKeyIndex = keys.findIndex((key) => !requiredParameters.includes(key));
+        if (nonRequiredKeyIndex !== -1) {
+          keys.splice(nonRequiredKeyIndex, 1);
+        }
+      }
+
       keys.forEach((key, index) => {
         const parsedValue = getParsedValue(values[index]);
         if (key !== '' && parsedValue !== '') {
@@ -86,5 +98,19 @@ export class CamelUriHelper {
     }
 
     return parameters;
+  }
+
+  private static applyQueryParameters(
+    parameters: Record<string, string | boolean | number>,
+    queryParametersString?: string,
+  ): void {
+    /** Process query parameters */
+    if (!queryParametersString) return;
+    const queryParameters = queryParametersString.split('&');
+
+    queryParameters.forEach((parameter) => {
+      const [key, stringValue] = parameter.split('=');
+      parameters[key] = getParsedValue(stringValue);
+    });
   }
 }
