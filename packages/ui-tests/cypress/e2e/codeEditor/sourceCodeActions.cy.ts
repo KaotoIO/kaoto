@@ -1,4 +1,4 @@
-describe('source code and drag and drop', () => {
+describe('Test source code editor', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
