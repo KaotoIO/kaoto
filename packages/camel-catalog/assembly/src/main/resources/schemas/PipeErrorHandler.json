@@ -24,10 +24,12 @@
             "type": "object",
             "properties": {
               "maximumRedeliveries": {
-                "type": "number"
+                "type": "number",
+                "description" : "Sets the maximum redeliveries x = redeliver at most x times 0 = no redeliveries -1 = redeliver forever"
               },
               "redeliveryDelay": {
-                "type": "number"
+                "type": "number",
+                "description" : "Sets the maximum delay between redelivery"
               }
             },
             "additionalProperties": {
@@ -83,10 +85,12 @@
             "type": "object",
             "properties": {
               "maximumRedeliveries": {
-                "type": "number"
+                "type": "number",
+                "description" : "Sets the maximum redeliveries x = redeliver at most x times 0 = no redeliveries -1 = redeliver forever"
               },
               "redeliveryDelay": {
-                "type": "number"
+                "type": "number",
+                "description" : "Sets the maximum delay between redelivery"
               }
             },
             "additionalProperties": {
