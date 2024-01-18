@@ -70,6 +70,19 @@ export class CamelComponentSchemaService {
     }
   }
 
+  static getTooltipContent(camelElementLookup: ICamelElementLookupResult): string {
+    const schema = this.getSchema(camelElementLookup);
+    if (schema.description !== undefined) {
+      return schema.description;
+    }
+
+    if (camelElementLookup.componentName !== undefined) {
+      return camelElementLookup.componentName;
+    }
+
+    return camelElementLookup.processorName;
+  }
+
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
   }

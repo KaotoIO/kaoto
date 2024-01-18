@@ -26,8 +26,16 @@ export class KameletSchemaService {
     return CamelCatalogService.getComponent(CatalogKind.Kamelet, stepName);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getNodeLabel(step: PipeStep, path: string): string {
+    return step?.ref?.name ?? `${path}: Unknown`;
+  }
+
+  static getTooltipContent(step: PipeStep, path: string): string {
+    const schema = this.getKameletDefinition(step)?.propertiesSchema;
+    if (schema !== undefined && schema.description !== undefined) {
+      return schema.description;
+    }
+
     return step?.ref?.name ?? `${path}: Unknown`;
   }
 }

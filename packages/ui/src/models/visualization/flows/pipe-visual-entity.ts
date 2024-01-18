@@ -51,6 +51,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return KameletSchemaService.getNodeLabel(stepModel, path);
   }
 
+  getTooltipContent(path?: string): string {
+    if (!path) return '';
+
+    const stepModel = get(this.spec, path) as PipeStep;
+    return KameletSchemaService.getTooltipContent(stepModel, path);
+  }
+
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
     const stepModel = get(this.spec, path) as PipeStep;

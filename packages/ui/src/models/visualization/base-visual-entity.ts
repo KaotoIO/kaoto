@@ -20,6 +20,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Given a path, get the component label */
   getNodeLabel: (path?: string) => string;
 
+  /** Given a path, get the component tooltip content */
+  getTooltipContent: (path?: string) => string;
+
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 
@@ -66,6 +69,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** This method returns the label to be used by the canvas nodes */
   getNodeLabel(): string;
+
+  /** This method returns the tooltip content to be used by the canvas nodes */
+  getTooltipContent(): string;
 
   addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
 

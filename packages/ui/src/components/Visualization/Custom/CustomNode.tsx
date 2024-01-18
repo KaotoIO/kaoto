@@ -17,11 +17,7 @@ interface CustomNodeProps extends WithSelectionProps {
 const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) => {
   const vizNode = element.getData()?.vizNode;
   const label = vizNode?.getNodeLabel();
-
-  let tooltipContent = vizNode?.getComponentSchema()?.definition.description;
-  if (tooltipContent === undefined || tooltipContent === null) {
-    tooltipContent = vizNode?.getComponentSchema()?.schema.description;
-  }
+  const tooltipContent = vizNode?.getTooltipContent();
 
   return (
     <DefaultNode element={element} label={label} truncateLength={15} {...rest} showStatusDecorator>
