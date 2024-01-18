@@ -2651,6 +2651,7 @@ __metadata:
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
     babel-jest: ^29.4.2
+    clsx: ^2.1.0
     copyfiles: ^2.4.1
     eslint: ^8.45.0
     eslint-config-prettier: ^9.0.0
@@ -8280,6 +8281,13 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: d06418b7335897209e77bdd430d04f882189582e67bd1f75a04565f3f07f5b3f119a9d670c943b6697d0afb100f03b866b3b8a1f91d4d02d72c4ecf2bb64b5dd
+  languageName: node
+  linkType: hard
+
+"clsx@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "clsx@npm:2.1.0"
+  checksum: 43fefc29b6b49c9476fbce4f8b1cc75c27b67747738e598e6651dd40d63692135dc60b18fa1c5b78a2a9ba8ae6fd2055a068924b94e20b42039bd53b78b98e1d
   languageName: node
   linkType: hard
 

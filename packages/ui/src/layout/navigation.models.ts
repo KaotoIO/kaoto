@@ -9,11 +9,13 @@ export interface SelectedNavItem {
 interface SingleNavElement {
   title: string;
   to: Links;
+  hidden?: boolean;
 }
 
 interface NestedNavElement {
   title: string;
   children: SingleNavElement[];
+  hidden?: boolean;
 }
 
 export type NavElements = Array<SingleNavElement | NestedNavElement>;

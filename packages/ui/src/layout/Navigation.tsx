@@ -1,9 +1,9 @@
 import { Nav, NavExpandable, NavItem, NavList, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Links } from '../router/links.models';
 import { NavElements } from './navigation.models';
-
 interface INavigationSidebar {
   isNavOpen: boolean;
 }
@@ -22,6 +22,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
                   <NavExpandable
                     id={nav.title}
                     key={nav.title}
+                    className={clsx({ 'pf-v5-u-hidden': nav.hidden })}
                     title={nav.title}
                     groupId={nav.title}
                     isActive={nav.children.some((child) => child.to === currentLocation.pathname)}
@@ -32,6 +33,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
                         id={child.title}
                         key={child.title}
                         itemId={index}
+                        className={clsx({ 'pf-v5-u-hidden': child.hidden })}
                         isActive={currentLocation.pathname === child.to}
                       >
                         <Link data-testid={child.title} to={child.to}>
@@ -44,7 +46,13 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
               }
 
               return (
-                <NavItem id={nav.title} key={nav.title} itemId={index} isActive={currentLocation.pathname === nav.to}>
+                <NavItem
+                  id={nav.title}
+                  className={clsx({ 'pf-v5-u-hidden': nav.hidden })}
+                  key={nav.title}
+                  itemId={index}
+                  isActive={currentLocation.pathname === nav.to}
+                >
                   <Link data-testid={nav.title} to={nav.to}>
                     {nav.title}
                   </Link>
@@ -67,7 +75,7 @@ const navElements: NavElements = [
     ],
   },
   { title: 'Beans', to: Links.Beans },
-  { title: 'Rest', to: Links.Rest },
+  { title: 'Rest', to: Links.Rest, hidden: true },
   { title: 'Metadata', to: Links.Metadata },
   { title: 'Pipe ErrorHandler', to: Links.PipeErrorHandler },
   { title: 'Catalog', to: Links.Catalog },
