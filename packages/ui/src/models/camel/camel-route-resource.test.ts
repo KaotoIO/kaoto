@@ -158,7 +158,7 @@ describe('CamelRouteResource', () => {
     });
   });
 
-  describe.only('toJson', () => {
+  describe('toJson', () => {
     it.each([
       [camelRouteJson],
       [camelFromJson],

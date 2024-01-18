@@ -67,6 +67,12 @@ describe('CamelComponentSchemaService', () => {
       });
     });
 
+    it('should clone the component processor schema to avoid mutating the original one', () => {
+      const result = CamelComponentSchemaService.getVisualComponentSchema('from', definition);
+
+      expect(result!.schema).not.toBe(modelCatalogMap.from.propertiesSchema);
+    });
+
     it('should build the appropriate schema for standalone processors', () => {
       const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
       const logPath = 'from.steps.0.log';
@@ -213,6 +219,7 @@ describe('CamelComponentSchemaService', () => {
       ['from.steps.3.choice', {}, { processorName: 'choice' }],
       ['from.steps.3.choice.when.0', {}, { processorName: 'when' }],
       ['from.steps.3.choice.otherwise', {}, { processorName: 'otherwise' }],
+      ['from.steps.3.choice.otherwise', undefined, { processorName: 'otherwise' }],
     ])('should return the processor and component name for %s', (path, definition, result) => {
       const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
 
@@ -354,7 +361,16 @@ describe('CamelComponentSchemaService', () => {
       expect(iconName).toEqual('log');
     });
 
-    it('should return an empty string if not found', () => {
+    it('should return an empty string if the component cannot be found', () => {
+      const iconName = CamelComponentSchemaService.getIconName({
+        processorName: 'to',
+        componentName: 'unknown-component',
+      });
+
+      expect(iconName).toEqual('');
+    });
+
+    it('should return an empty string if the processor cannot be found', () => {
       const iconName = CamelComponentSchemaService.getIconName({
         processorName: 'non-existing-processor' as keyof ProcessorDefinition,
       });
@@ -371,6 +387,12 @@ describe('CamelComponentSchemaService', () => {
 
     it('should return the kamelet component name', () => {
       const uri = 'kamelet:beer-source';
+      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
+      expect(componentName).toEqual('kamelet:beer-source');
+    });
+
+    it('should return the kamelet component name when having query parameters', () => {
+      const uri = 'kamelet:beer-source?foo=bar';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
       expect(componentName).toEqual('kamelet:beer-source');
     });
