@@ -29,6 +29,7 @@ export class CamelUriHelper {
     uriString?: string,
     options?: { requiredParameters?: string[] },
   ): Record<string, string | boolean | number> {
+    console.log('begin uriSyntaxToParameters');
     /** If `:` is not present in the syntax, we can return an empty object since there's nothing to parse */
     if (!uriSyntax || !uriString || !uriSyntax.includes(':')) return {};
 
@@ -47,6 +48,8 @@ export class CamelUriHelper {
     /** Split the string into path parameters and query parameters: pathParameters?queryParameters */
     const stringParts = uriWithoutScheme.split('?');
     const pathParametersString = stringParts[0];
+
+    console.log('apply query parameters on ' + stringParts[1]);
 
     this.applyQueryParameters(parameters, stringParts[1]);
 

@@ -7,6 +7,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -122,7 +123,14 @@ export class CamelComponentSchemaService {
 
       if (camelElementLookup.componentName.startsWith('kamelet:')) {
         catalogKind = CatalogKind.Kamelet;
-        lookupName = camelElementLookup.componentName.replace('kamelet:', '');
+        const componentNameWithoutKameletPrefix = camelElementLookup.componentName.replace('kamelet:', '');
+        const positionOfQuestionMark = componentNameWithoutKameletPrefix.indexOf('?');
+        if (positionOfQuestionMark !== -1) {
+          lookupName = componentNameWithoutKameletPrefix.substring(0, positionOfQuestionMark);
+        } else {
+          lookupName = componentNameWithoutKameletPrefix;
+        }
+        console.log('#### ' + lookupName);
       }
 
       if (isDefined(CamelCatalogService.getComponent(catalogKind, lookupName))) {
@@ -190,7 +198,13 @@ export class CamelComponentSchemaService {
     }
     const uriParts = uri.split(':');
     if (uriParts[0] === 'kamelet') {
-      return uriParts[0] + ':' + uriParts[1];
+      const componentNameWithoutKameletPrefix = uriParts[1];
+      const positionOfQuestionMark = componentNameWithoutKameletPrefix.indexOf('?');
+      if (positionOfQuestionMark !== -1) {
+        return uriParts[0] + ':' + componentNameWithoutKameletPrefix.substring(0, positionOfQuestionMark);
+      } else {
+        return uriParts[0] + ':' + uriParts[1];
+      }
     }
     return uriParts[0];
   }
@@ -213,10 +227,15 @@ export class CamelComponentSchemaService {
       let componentSchema: JSONSchemaType<unknown>;
 
       if (camelElementLookup.componentName.startsWith('kamelet:')) {
-        componentDefinition = CamelCatalogService.getComponent(
-          CatalogKind.Kamelet,
-          camelElementLookup.componentName.replace('kamelet:', ''),
-        );
+        const componentNameWithoutKameletPrefix = camelElementLookup.componentName.replace('kamelet:', '');
+        const positionOfQuestionMark = componentNameWithoutKameletPrefix.indexOf('?');
+        let lookupName;
+        if (positionOfQuestionMark !== -1) {
+          lookupName = componentNameWithoutKameletPrefix.substring(0, positionOfQuestionMark);
+        } else {
+          lookupName = componentNameWithoutKameletPrefix;
+        }
+        componentDefinition = CamelCatalogService.getComponent(CatalogKind.Kamelet, lookupName);
         componentSchema = componentDefinition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
       } else {
         componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName);
@@ -265,7 +284,16 @@ export class CamelComponentSchemaService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static applyParametersFromSyntax(componentName: string, definition: any) {
-    const componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    // TODO: here we have to get parameters for Kamelets too, which requires more code change
+    let componentDefinition :ICamelComponentDefinition | undefined;
+    if (componentName.startsWith('kamelet:')) {
+      componentDefinition = CamelCatalogService.getComponent(
+        CatalogKind.Kamelet,
+        componentName.replace('kamelet:', ''),
+      )?.;
+    } else {
+      componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    }
 
     const requiredParameters: string[] = [];
     if (componentDefinition?.properties !== undefined) {
