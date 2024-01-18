@@ -2,7 +2,6 @@ import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { CamelUriHelper, isDefined } from '../../../../utils';
-import { ComponentsCatalogTypes } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
@@ -117,15 +116,8 @@ export class CamelComponentSchemaService {
 
   static getIconName(camelElementLookup: ICamelElementLookupResult): string | undefined {
     if (isDefined(camelElementLookup.componentName)) {
-      let catalogKind: CatalogKind = CatalogKind.Component;
-      let lookupName: string = camelElementLookup.componentName;
-
-      if (camelElementLookup.componentName.startsWith('kamelet:')) {
-        catalogKind = CatalogKind.Kamelet;
-        lookupName = camelElementLookup.componentName.replace('kamelet:', '');
-      }
-
-      if (isDefined(CamelCatalogService.getComponent(catalogKind, lookupName))) {
+      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+      if (isDefined(catalogLookup.definition)) {
         return camelElementLookup.componentName;
       }
     }
@@ -182,15 +174,20 @@ export class CamelComponentSchemaService {
   /**
    * Extract the component name from the endpoint uri
    * An URI is composed by a component name and query parameters, separated by a colon
-   * For instance: `timer:tick?period=1000`
+   * For instance:
+   *    - `log:MyLogger`
+   *    - `timer:tick?period=1000`
+   *    - `file:inbox?fileName=orders.txt&noop=true`
+   *    - `kamelet:kafka-not-secured-sink?topic=foobar&bootstrapServers=localhost`
    */
   static getComponentNameFromUri(uri: string): string | undefined {
     if (!uri) {
       return undefined;
     }
     const uriParts = uri.split(':');
-    if (uriParts[0] === 'kamelet') {
-      return uriParts[0] + ':' + uriParts[1];
+    if (uriParts[0] === 'kamelet' && uriParts.length > 1) {
+      const kameletName = uriParts[1].split('?')[0];
+      return uriParts[0] + ':' + kameletName;
     }
     return uriParts[0];
   }
@@ -209,21 +206,11 @@ export class CamelComponentSchemaService {
     }
 
     if (camelElementLookup.componentName !== undefined) {
-      let componentDefinition: ComponentsCatalogTypes | undefined;
-      let componentSchema: JSONSchemaType<unknown>;
+      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+      const componentSchema: JSONSchemaType<unknown> =
+        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
 
-      if (camelElementLookup.componentName.startsWith('kamelet:')) {
-        componentDefinition = CamelCatalogService.getComponent(
-          CatalogKind.Kamelet,
-          camelElementLookup.componentName.replace('kamelet:', ''),
-        );
-        componentSchema = componentDefinition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
-      } else {
-        componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName);
-        componentSchema = componentDefinition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
-      }
-
-      if (componentDefinition !== undefined && componentSchema !== undefined) {
+      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
         schema.properties.parameters = {
           type: 'object',
           title: 'Endpoint Properties',
@@ -257,6 +244,7 @@ export class CamelComponentSchemaService {
     }
 
     if (camelElementLookup.componentName !== undefined) {
+      updatedDefinition.parameters = updatedDefinition.parameters ?? {};
       this.applyParametersFromSyntax(camelElementLookup.componentName, updatedDefinition);
     }
 
@@ -265,24 +253,32 @@ export class CamelComponentSchemaService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static applyParametersFromSyntax(componentName: string, definition: any) {
-    const componentDefinition = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    const catalogLookup = CamelCatalogService.getCatalogLookup(componentName);
+    if (catalogLookup === undefined) return;
 
-    const requiredParameters: string[] = [];
-    if (componentDefinition?.properties !== undefined) {
-      Object.entries(componentDefinition.properties).forEach(([key, value]) => {
-        if (value.required) {
-          requiredParameters.push(key);
-        }
-      });
+    const [pathUri, queryUri] = definition.uri?.split('?') ?? [undefined, undefined];
+    if (queryUri) {
+      definition.uri = pathUri;
+      Object.assign(definition.parameters, CamelUriHelper.getParametersFromQueryString(queryUri));
     }
 
-    const parametersFromSyntax = CamelUriHelper.uriSyntaxToParameters(
-      componentDefinition?.component.syntax,
-      definition?.uri,
-      { requiredParameters },
-    );
-    definition.parameters = definition.parameters ?? {};
-    definition.uri = this.getComponentNameFromUri(definition.uri);
-    Object.assign(definition.parameters, parametersFromSyntax);
+    if (pathUri && catalogLookup.catalogKind === CatalogKind.Component) {
+      const requiredParameters: string[] = [];
+      if (catalogLookup.definition?.properties !== undefined) {
+        Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
+          if (value.required) {
+            requiredParameters.push(key);
+          }
+        });
+      }
+
+      const parametersFromSyntax = CamelUriHelper.getParametersFromPathString(
+        catalogLookup.definition?.component.syntax,
+        definition?.uri,
+        { requiredParameters },
+      );
+      definition.uri = this.getComponentNameFromUri(definition.uri);
+      Object.assign(definition.parameters, parametersFromSyntax);
+    }
   }
 }

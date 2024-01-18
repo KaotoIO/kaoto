@@ -1,6 +1,8 @@
 import get from 'lodash.get';
 import { getParsedValue } from './get-parsed-value';
 
+type ParsedParameters = Record<string, string | boolean | number>;
+
 /**
  * Helper class for working with Camel URIs
  */
@@ -23,17 +25,14 @@ export class CamelUriHelper {
     return undefined;
   }
 
-  /** Given a URI Syntax and a URI string, return the parametrized version of it */
-  static uriSyntaxToParameters(
+  /** Transform the path string portion of a URI `atmosphere-websocket://localhost:8080/echo`, into a key-value object */
+  static getParametersFromPathString(
     uriSyntax?: string,
     uriString?: string,
     options?: { requiredParameters?: string[] },
-  ): Record<string, string | boolean | number> {
+  ): ParsedParameters {
     /** If `:` is not present in the syntax, we can return an empty object since there's nothing to parse */
     if (!uriSyntax || !uriString || !uriSyntax.includes(':')) return {};
-
-    /** Holder for parsed parameters */
-    const parameters: Record<string, string | boolean | number> = {};
 
     /** Remove the scheme from the URI syntax: 'avro:transport:host:port/messageName' => 'transport:host:port/messageName' */
     const syntaxWithoutScheme = uriSyntax.substring(uriSyntax.indexOf(':') + 1);
@@ -44,14 +43,10 @@ export class CamelUriHelper {
     /** Remove the scheme from the URI string: 'avro:netty:localhost:41414/foo' => 'netty:localhost:41414/foo' */
     const uriWithoutScheme = uriString.substring(uriSyntax.indexOf(':') + 1);
 
-    /** Split the string into path parameters and query parameters: pathParameters?queryParameters */
-    const stringParts = uriWithoutScheme.split('?');
-    const pathParametersString = stringParts[0];
-
-    this.applyQueryParameters(parameters, stringParts[1]);
-
     /** Prepare options */
     const requiredParameters = options?.requiredParameters ?? [];
+    /** Holder for parsed parameters */
+    const parameters: ParsedParameters = {};
 
     /**
      * Retrieve the delimiters from the syntax by matching the delimiters
@@ -61,8 +56,8 @@ export class CamelUriHelper {
     this.URI_SEPARATORS_REGEX.lastIndex = 0;
 
     /** If the syntax does not contain any delimiters, we can return the URI string as is */
-    if (delimiters === null && pathParametersString !== '') {
-      parameters[syntaxWithoutScheme] = pathParametersString;
+    if (delimiters === null && uriWithoutScheme !== '') {
+      parameters[syntaxWithoutScheme] = uriWithoutScheme;
     } else if (delimiters !== null) {
       /** Otherwise, we create a RegExp using the delimiters found [':', ':', '/'] */
       const delimitersRegex = new RegExp(delimiters.join('|'), 'g');
@@ -73,7 +68,7 @@ export class CamelUriHelper {
        * values: [ 'netty', 'localhost', '41414', 'foo' ]
        */
       const keys = syntaxWithoutScheme.split(delimitersRegex);
-      const values = pathParametersString.split(delimitersRegex);
+      const values = uriWithoutScheme.split(delimitersRegex);
 
       /**
        * There are special cases where some keys are not required, and the user didn't provide them.
@@ -100,17 +95,17 @@ export class CamelUriHelper {
     return parameters;
   }
 
-  private static applyQueryParameters(
-    parameters: Record<string, string | boolean | number>,
-    queryParametersString?: string,
-  ): void {
-    /** Process query parameters */
-    if (!queryParametersString) return;
-    const queryParameters = queryParametersString.split('&');
+  /** Transform the query string portion of a URI `param1=12&param2=hey`, into a key-value object */
+  static getParametersFromQueryString(queryString?: string): ParsedParameters {
+    return (
+      queryString?.split('&').reduce((parameters, parameter) => {
+        if (parameter) {
+          const [key, stringValue] = parameter.split('=');
+          parameters[key] = getParsedValue(stringValue);
+        }
 
-    queryParameters.forEach((parameter) => {
-      const [key, stringValue] = parameter.split('=');
-      parameters[key] = getParsedValue(stringValue);
-    });
+        return parameters;
+      }, {} as ParsedParameters) ?? {}
+    );
   }
 }

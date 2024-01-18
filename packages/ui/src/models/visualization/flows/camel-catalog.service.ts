@@ -2,10 +2,10 @@ import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel-catalog-i
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
+import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
-import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
 
 export class CamelCatalogService {
   private static catalogs: ComponentsCatalog = {};
@@ -60,5 +60,34 @@ export class CamelCatalogService {
    */
   static clearCatalogs(): void {
     this.catalogs = {};
+  }
+
+  /** Method to return whether this is a Camel Component or a Kamelet */
+  static getCatalogLookup(componentName: string): {
+    catalogKind: CatalogKind.Component;
+    definition?: ICamelComponentDefinition;
+  };
+  static getCatalogLookup(componentName: string): {
+    catalogKind: CatalogKind.Kamelet;
+    definition?: IKameletDefinition;
+  };
+  static getCatalogLookup(
+    componentName: string,
+  ): { catalogKind: CatalogKind; definition?: ComponentsCatalogTypes } | undefined {
+    if (!componentName) {
+      return undefined;
+    }
+
+    if (componentName.startsWith('kamelet:')) {
+      return {
+        catalogKind: CatalogKind.Kamelet,
+        definition: this.getComponent(CatalogKind.Kamelet, componentName.replace('kamelet:', '')),
+      };
+    }
+
+    return {
+      catalogKind: CatalogKind.Component,
+      definition: this.getComponent(CatalogKind.Component, componentName),
+    };
   }
 }
