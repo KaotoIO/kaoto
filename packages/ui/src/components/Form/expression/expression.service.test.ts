@@ -1,10 +1,11 @@
 import { ExpressionService } from './expression.service';
-import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 
 describe('ExpressionService', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(

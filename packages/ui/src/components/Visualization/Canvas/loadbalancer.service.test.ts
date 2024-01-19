@@ -1,10 +1,11 @@
-import * as loadbalancerCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-loadbalancers.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { LoadBalancerService } from './loadbalancer.service';
 
 describe('LoadBalancerService', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    const loadbalancerCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (loadbalancerCatalog as any).default;
     CamelCatalogService.setCatalogKey(

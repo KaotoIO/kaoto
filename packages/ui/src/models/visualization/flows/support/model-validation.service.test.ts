@@ -1,7 +1,5 @@
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { ModelValidationService } from './model-validation.service';
-import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
-import * as modelCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-models.json';
-import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
 import { createVisualizationNode } from '../../visualization-node';
 import { NodeStatus } from '@patternfly/react-topology';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
@@ -27,7 +25,10 @@ describe('ModelValidationService', () => {
     },
   };
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    const componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
+    const modelCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file);
+    const patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
     CamelCatalogService.setCatalogKey(
       CatalogKind.Component,
       componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
