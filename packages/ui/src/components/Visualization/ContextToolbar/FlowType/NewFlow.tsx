@@ -51,7 +51,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         title="Warning"
         data-testid="confirmation-modal"
         titleIconVariant="warning"
-        variant={'small'}
+        variant="small"
         actions={[
           <Button
             key="confirm"
