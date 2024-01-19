@@ -15,8 +15,10 @@
  */
 package io.kaoto.camelcatalog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,6 +99,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
     @Parameter
     private boolean generateSubSchema = true;
 
+
     public void execute() {
         if (!inputDirectory.exists()) {
             getLog().error(new IllegalArgumentException(String.format(
@@ -129,21 +132,21 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             )));
             return null;
         }
-        var outputFileName = CAMEL_YAML_DSL + ".json";
-        var output = outputDirectory.toPath().resolve(outputFileName);
         try {
+            var outputFileName = String.format("%s-%s.json", CAMEL_YAML_DSL, Util.generateHash(schema));
+            var output = outputDirectory.toPath().resolve(outputFileName);
             output.getParent().toFile().mkdirs();
             Files.copy(schema, output, StandardCopyOption.REPLACE_EXISTING);
+            var indexEntry = new Entry(
+                    "camelYamlDsl",
+                    "Camel YAML DSL JSON schema",
+                    camelVersion,
+                    outputFileName);
+            index.getSchemas().put("camelYamlDsl", indexEntry);
         } catch (Exception e) {
             getLog().error(e);
             return null;
         }
-        var indexEntry = new Entry(
-                "camelYamlDsl",
-                "Camel YAML DSL JSON schema",
-                camelVersion,
-                outputFileName);
-        index.getSchemas().put("camelYamlDsl", indexEntry);
 
         try {
             var yamlDslSchema = (ObjectNode) jsonMapper.readTree(schema.toFile());
@@ -151,9 +154,13 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             if (generateSubSchema) {
                 var schemaMap = schemaProcessor.processSubSchema();
                 schemaMap.forEach((name, subSchema) -> {
-                    var subSchemaFileName = String.format("%s-%s.json", KaotoCamelCatalogMojo.CAMEL_YAML_DSL, name);
-                    var subSchemaPath = outputDirectory.toPath().resolve(subSchemaFileName);
                     try {
+                        var subSchemaFileName = String.format(
+                                "%s-%s-%s.json",
+                                KaotoCamelCatalogMojo.CAMEL_YAML_DSL,
+                                name,
+                                Util.generateHash(subSchema));
+                        var subSchemaPath = outputDirectory.toPath().resolve(subSchemaFileName);
                         subSchemaPath.getParent().toFile().mkdirs();
                         Files.writeString(subSchemaPath, subSchema);
                         var subSchemaIndexEntry = new Entry(
@@ -191,7 +198,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             for (var entry : schemaMap.entrySet()) {
                 var name = entry.getKey();
                 var schema = entry.getValue();
-                var outputFileName = String.format("%s-%s.json", K8S_V1_OPENAPI, name);
+                var outputFileName = String.format("%s-%s-%s.json", K8S_V1_OPENAPI, name, Util.generateHash(schema));
                 var output = outputDirectory.toPath().resolve(outputFileName);
                 Files.writeString(output, schema);
                 var indexEntry = new Entry(
@@ -211,10 +218,10 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         try {
             var catalogMap = catalogProcessor.processCatalog();
             catalogMap.forEach((name, catalog) -> {
-                var outputFileName = String.format(
-                        "%s-%s.json", CAMEL_CATALOG_AGGREGATE, name);
-                var output = outputDirectory.toPath().resolve(outputFileName);
                 try {
+                    var outputFileName = String.format(
+                            "%s-%s-%s.json", CAMEL_CATALOG_AGGREGATE, name, Util.generateHash(catalog));
+                    var output = outputDirectory.toPath().resolve(outputFileName);
                     Files.writeString(output, catalog);
                     var indexEntry = new Entry(
                             name,
@@ -268,13 +275,14 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                             + file.getFileName()));
             return;
         }
-        var outputFileName = String.format(
-                "%s-%s.json", CRD_SCHEMA, underscoreSplitted[1]);
-        var output = outputDirectory.toPath().resolve(outputFileName);
         try {
             var crd = yamlMapper.readValue(file.toFile(), CustomResourceDefinition.class);
             var schema = crd.getSpec().getVersions().get(0).getSchema().getOpenAPIV3Schema();
-            jsonMapper.writerWithDefaultPrettyPrinter().writeValue(output.toFile(), schema);
+            var bytes = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(schema);
+            var outputFileName = String.format(
+                    "%s-%s-%s.json", CRD_SCHEMA, underscoreSplitted[1], Util.generateHash(bytes));
+            var output = outputDirectory.toPath().resolve(outputFileName);
+            Files.write(output, bytes);
             var name = crd.getSpec().getNames().getKind();
             var description = name;
             var indexEntry = new Entry(
@@ -306,12 +314,15 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
                         }
                     }
             );
-            var outputFileName = KAMELETS_AGGREGATE + ".json";
-            var output = outputDirectory.toPath().resolve(outputFileName);
             JsonFactory jsonFactory = new JsonFactory();
-            var writer = new FileWriter(output.toFile());
+            var outputStream = new ByteArrayOutputStream();
+            var writer = new OutputStreamWriter(outputStream);
             var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(jsonGenerator, root);
+            var rootBytes = outputStream.toByteArray();
+            var outputFileName = String.format("%s-%s.json", KAMELETS_AGGREGATE, Util.generateHash(rootBytes));
+            var output = outputDirectory.toPath().resolve(outputFileName);
+            Files.write(output, rootBytes);
             var indexEntry = new Entry(
                     KAMELETS,
                     "Aggregated Kamelet definitions in JSON",
@@ -331,12 +342,16 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             }
             var category = jsonMapper.createObjectNode();
             Files.list(dir).sorted().forEach(f -> processKameletFile(f, category));
-            var outputFileName = String.format("%s-%s.json", KAMELET, categoryName);
-            var output = outputDirectory.toPath().resolve(outputFileName);
+
             JsonFactory jsonFactory = new JsonFactory();
-            var writer = new FileWriter(output.toFile());
+            var outputStream = new ByteArrayOutputStream();
+            var writer = new OutputStreamWriter(outputStream);
             var jsonGenerator = jsonFactory.createGenerator(writer).useDefaultPrettyPrinter();
             jsonMapper.writeTree(jsonGenerator, category);
+            var categoryBytes = outputStream.toByteArray();
+            var outputFileName = String.format("%s-%s-%s.json", KAMELET, categoryName, Util.generateHash(categoryBytes));
+            var output = outputDirectory.toPath().resolve(outputFileName);
+            Files.write(output, categoryBytes);
             var capitalizedCategoryName = categoryName.toString().substring(0, 1).toUpperCase()
                     + categoryName.toString().substring(1);
             var indexEntryName = String.format("%s%s", KAMELET, capitalizedCategoryName);
@@ -383,15 +398,16 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         for (String schema : additionalSchemas) {
             try {
                 var input = Paths.get(schema);
-                var name = input.getFileName().toString().split("\\.")[0];
-                var output = outputDirectory.toPath().resolve(input.getFileName());
+                var fileNameSegments = input.getFileName().toString().split("\\.");
+                var outputFileName = String.format("%s-%s.%s", fileNameSegments[0], Util.generateHash(input), fileNameSegments[1]);
+                var output = outputDirectory.toPath().resolve(outputFileName);
                 Files.copy(input, output, StandardCopyOption.REPLACE_EXISTING);
                 var indexEntry = new Entry(
-                        name,
+                        fileNameSegments[0],
                         "Camel K Pipe ErrorHandler JSON schema",
                         "1",
-                        output.getFileName().toString());
-                index.getSchemas().put(name, indexEntry);
+                        outputFileName);
+                index.getSchemas().put(fileNameSegments[0], indexEntry);
             } catch (Exception e) {
                 getLog().error(e);
             }

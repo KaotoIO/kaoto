@@ -2,10 +2,12 @@ import cloneDeep from 'lodash/cloneDeep';
 import { CatalogKind } from '../../..';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { KameletSchemaService } from './kamelet-schema.service';
-import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 
 describe('KameletSchemaService', () => {
-  beforeEach(() => {
+  let kameletCatalogMap: Record<string, unknown>;
+  beforeEach(async () => {
+    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       'beer-source': (kameletCatalogMap as any)['beer-source'],

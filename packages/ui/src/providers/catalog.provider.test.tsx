@@ -99,22 +99,26 @@ describe('CatalogLoaderProvider', () => {
     });
 
     expect(fetchFileMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components.json`,
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models.json`,
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns.json`,
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages.json`,
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats.json`,
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats`),
     );
-    expect(fetchFileMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`);
-    expect(fetchFileMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`);
+    expect(fetchFileMock).toHaveBeenCalledWith(
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate`),
+    );
+    expect(fetchFileMock).toHaveBeenCalledWith(
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries`),
+    );
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -146,24 +150,68 @@ describe('CatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Component, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components.json`]: 'dummy-data',
+    let count = 0;
+    setCatalogKeySpy.mock.calls.forEach((call) => {
+      if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Component);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models`)
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Processor);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns`)
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Pattern);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-entities`)
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Entity);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Language);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Dataformat);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-loadbalancers`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Loadbalancer);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries`)) {
+        expect(call[0]).toEqual(CatalogKind.Kamelet);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.keys(call[1])[1]).toContain(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate`);
+        expect(Object.values(call[1])[1]).toEqual('dummy-data');
+        count++;
+      } else {
+        throw new Error(call);
+      }
     });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Processor, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models.json`]: 'dummy-data',
-    });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Pattern, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns.json`]: 'dummy-data',
-    });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Language, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages.json`]: 'dummy-data',
-    });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Dataformat, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats.json`]: 'dummy-data',
-    });
-    expect(setCatalogKeySpy).toHaveBeenCalledWith(CatalogKind.Kamelet, {
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate.json`]: 'dummy-data',
-      [`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries.json`]: 'dummy-data',
-    });
+    expect(count).toEqual(setCatalogKeySpy.mock.calls.length);
   });
 });

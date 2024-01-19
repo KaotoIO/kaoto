@@ -1,9 +1,13 @@
 import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
 import { within } from '@testing-library/dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import * as pipeErrorHandlerSchema from '@kaoto-next/camel-catalog/PipeErrorHandler.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 
 describe('PipeErrorHandlerEditor', () => {
+  let pipeErrorHandlerSchema: Record<string, unknown>;
+  beforeAll(async () => {
+    pipeErrorHandlerSchema = await import('@kaoto-next/camel-catalog/' + catalogIndex.schemas.PipeErrorHandler.file);
+  });
   it('should render', () => {
     const model = {
       log: {

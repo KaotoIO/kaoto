@@ -1,20 +1,22 @@
 import { ExpressionEditor } from './ExpressionEditor';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
-import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { ExpressionService } from './expression.service';
 import { act } from 'react-dom/test-utils';
 
 describe('ExpressionEditor', () => {
   const onChangeMock = jest.fn();
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  delete (languageCatalog as any).default;
-  CamelCatalogService.setCatalogKey(
-    CatalogKind.Language,
-    languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-  );
 
-  beforeAll(() => {
+  let languageCatalog: Record<string, ICamelLanguageDefinition>;
+  beforeAll(async () => {
+    languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    delete (languageCatalog as any).default;
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Language,
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+    );
     onChangeMock.mockClear();
   });
 

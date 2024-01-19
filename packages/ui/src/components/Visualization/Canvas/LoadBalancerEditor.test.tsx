@@ -1,4 +1,4 @@
-import * as loadbalancerCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-loadbalancers.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
@@ -10,7 +10,9 @@ import { MetadataEditor } from '../../MetadataEditor';
 
 describe('LoadBalancerEditor', () => {
   let mockNode: CanvasNode;
-  beforeAll(() => {
+  let loadbalancerCatalog: Record<string, ICamelLoadBalancerDefinition>;
+  beforeAll(async () => {
+    loadbalancerCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (loadbalancerCatalog as any).default;
     CamelCatalogService.setCatalogKey(
