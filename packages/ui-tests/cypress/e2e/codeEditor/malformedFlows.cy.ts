@@ -23,7 +23,8 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.compareFileWithMonacoEditor('flows/malformed/missingIdRoute.yaml');
   });
 
-  it('User creates kameletBinding with missing kind definition', () => {
+  // blocked ATM by https://github.com/KaotoIO/kaoto-next/issues/683
+  it.skip('User creates kameletBinding with missing kind definition', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/malformed/missingKindKamelet.yaml');
     cy.openDesignPage();
