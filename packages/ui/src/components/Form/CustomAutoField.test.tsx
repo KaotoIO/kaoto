@@ -8,10 +8,9 @@ jest.mock('uniforms', () => {
   };
 });
 
-import { DateField, ListField, NestField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
+import { BoolField, DateField, ListField, NestField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { AutoFieldProps } from 'uniforms';
 import { CustomAutoField } from './CustomAutoField';
-import BoolField from './customField/BoolField';
 import { CustomSelectField } from './customField/CustomSelectField';
 import { DisabledField } from './customField/DisabledField';
 
