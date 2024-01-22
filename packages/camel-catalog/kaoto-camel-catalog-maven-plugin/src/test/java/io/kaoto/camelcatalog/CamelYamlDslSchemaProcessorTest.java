@@ -168,4 +168,15 @@ public class CamelYamlDslSchemaProcessorTest {
         assertNotNull(trb);
         assertNotNull(trb.withObject("/definitions").withObject("/org.apache.camel.model.PropertyDefinition"));
     }
+
+    @Test
+    public void testGetLoadBalancers() throws Exception {
+        var lbMap = processor.getLoadBalancers();
+        assertTrue(lbMap.containsKey("customLoadBalancer"));
+        var customLb = lbMap.get("customLoadBalancer");
+        assertEquals("Custom Load Balancer", customLb.get("title").asText());
+        var customLbRefProp = customLb.withObject("/properties/ref");
+        assertEquals("string", customLbRefProp.get("type").asText());
+        assertEquals("Ref", customLbRefProp.get("title").asText());
+    }
 }

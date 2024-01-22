@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`KameletSchemaService should build the appropriate schema for kamelets 1`] = `
+exports[`KameletSchemaService getVisualComponentSchema should build the appropriate schema for kamelets 1`] = `
 {
   "definition": {},
   "schema": {
@@ -21,7 +21,7 @@ exports[`KameletSchemaService should build the appropriate schema for kamelets 1
 }
 `;
 
-exports[`KameletSchemaService should build the appropriate schema for kamelets with required properties 1`] = `
+exports[`KameletSchemaService getVisualComponentSchema should build the appropriate schema for kamelets with required properties 1`] = `
 {
   "definition": {},
   "schema": {
@@ -54,7 +54,7 @@ exports[`KameletSchemaService should build the appropriate schema for kamelets w
 }
 `;
 
-exports[`KameletSchemaService should provide a default empty string if the kamelet name is not found 1`] = `
+exports[`KameletSchemaService getVisualComponentSchema should provide a default empty string if the kamelet name is not found 1`] = `
 {
   "definition": {},
   "schema": {
@@ -72,5 +72,11 @@ exports[`KameletSchemaService should provide a default empty string if the kamel
     "type": "object",
   },
   "title": "",
+}
+`;
+
+exports[`KameletSchemaService getVisualComponentSchema should retrieve the properties from the step 1`] = `
+{
+  "foo": "bar",
 }
 `;

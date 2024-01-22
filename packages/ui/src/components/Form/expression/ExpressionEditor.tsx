@@ -57,6 +57,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
           isOpen={isOpen}
           selected={selectedLanguage.model.name}
           onSelect={onSelect}
+          onOpenChange={setIsOpen}
           toggle={toggle}
           isScrollable={true}
         >

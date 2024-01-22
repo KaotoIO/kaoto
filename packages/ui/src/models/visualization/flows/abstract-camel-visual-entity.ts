@@ -7,6 +7,7 @@ import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import {
   AddStepMode,
+  BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -20,9 +21,20 @@ import {
   CamelRouteVisualEntityData,
   ICamelElementLookupResult,
 } from './support/camel-component-types';
+import { EntityType } from '../../camel/entities';
+import { ModelValidationService } from './support/model-validation.service';
 
-export abstract class AbstractCamelVisualEntity {
+export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity {
   constructor(public route: RouteDefinition) {}
+
+  abstract id: string;
+  abstract type: EntityType;
+  abstract setId(id: string): void;
+  protected abstract getRootUri(): string | undefined;
+
+  getId(): string {
+    return this.id;
+  }
 
   getNodeLabel(path?: string): string {
     if (!path) return '';
@@ -207,7 +219,21 @@ export abstract class AbstractCamelVisualEntity {
     };
   }
 
-  getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
+  toVizNode(): IVisualizationNode {
+    const rootNode = this.getVizNodeFromProcessor('from', {
+      processorName: 'from' as keyof ProcessorDefinition,
+      componentName: CamelComponentSchemaService.getComponentNameFromUri(this.getRootUri()!),
+    });
+    rootNode.data.entity = this;
+
+    if (!this.getRootUri()) {
+      rootNode.data.icon = NodeIconResolver.getPlaceholderIcon();
+    }
+
+    return rootNode;
+  }
+
+  private getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
     const data: CamelRouteVisualEntityData = {
       path,
       icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup)),
@@ -226,6 +252,9 @@ export abstract class AbstractCamelVisualEntity {
       childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
     });
 
+    const schema = this.getComponentSchema(path);
+    const model = get(this.route, path);
+    ModelValidationService.validateNodeStatus(schema, model, vizNode);
     return vizNode;
   }
 

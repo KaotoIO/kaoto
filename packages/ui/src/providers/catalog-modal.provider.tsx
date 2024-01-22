@@ -101,7 +101,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
       {props.children}
 
       {isModalOpen && (
-        <Modal title="Catalog" isOpen onClose={handleCloseModal} ouiaId="CatalogModal">
+        <Modal title="Catalog" position="top" isOpen onClose={handleCloseModal} ouiaId="CatalogModal">
           <Catalog tiles={filteredTiles} onTileClick={handleSelectComponent} />
         </Modal>
       )}

@@ -8,11 +8,13 @@ https://kaotoio.github.io/kaoto-next/
 - [Getting Started](#getting-started)
   - [Clone the Repository](#clone-the-repository)
   - [Install Dependencies](#install-dependencies)
+- [Running kaoto-next with Docker](#running-kaoto-next-with-docker)
 - [Development](#development)
   - [Web Application](#web-application)
     - [Run](#run)
     - [Build](#build)
   - [Public Components](#public-components)
+- [How to do a release](/RELEASE.md)
 - [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
 - [Storybook](#storybook)
 
@@ -39,6 +41,13 @@ cd kaoto-next
 yarn install
 ```
 _Note: By default, `@kaoto-next/camel-catalog` will also be built using the `mvn` wrapper._
+
+## Running kaoto-next with Docker
+For trial purposes, there is a docker image that can be run locally:
+
+```sh
+docker run --rm -p 8080:8080 --name kaoto-next quay.io/kaotoio/kaoto-app:main
+```
 
 ## Development
 ### Web Application
@@ -76,14 +85,8 @@ To run Storybook locally:
 ``` bash
 # first build the ui library
 yarn workspace @kaoto-next/ui build:lib
-# run the storybook 
+
+# run the storybook
 yarn workspace @kaoto-next/ui-tests storybook
 ```
 To publish to Chromatic: `yarn workspace @kaoto-next/ui-tests chromatic`
-
-## Running kaoto-next with Docker
-For trial purposes, there is a docker image that can be run locally:
-
-```sh
-docker run --rm -p 8080:8080  --name kaoto-next quay.io/kaotoio/kaoto-app:main
-```

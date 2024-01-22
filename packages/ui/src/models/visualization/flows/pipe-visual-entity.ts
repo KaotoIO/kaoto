@@ -72,7 +72,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     if (!path) return;
 
     const stepModel = get(this.spec, path) as PipeStep;
-    if (stepModel) set(stepModel, 'ref.properties', value);
+    if (stepModel) set(stepModel, 'properties', value);
   }
 
   getSteps() {

@@ -522,4 +522,64 @@ public class CamelYamlDslSchemaProcessor {
         populateDefinitions(answer, relocatedDefinitions);
         return answer;
     }
+
+    public Map<String, ObjectNode> getLoadBalancers() throws Exception {
+        var definitions = yamlDslSchema
+                .withObject("/items")
+                .withObject("/definitions");
+        var relocatedDefinitions = relocateToRootDefinitions(definitions);
+        var loadBalancerAnyOfOneOf = relocatedDefinitions
+                .withObject("/" + LOAD_BALANCE_DEFINITION)
+                .withArray("/anyOf").get(0)
+                .withArray("/oneOf");
+
+        var answer = new LinkedHashMap<String, ObjectNode>();
+        for( var entry : loadBalancerAnyOfOneOf) {
+            if (entry.has("not")) {
+                continue;
+            }
+            if (!"object".equals(entry.get("type").asText()) || !entry.has("required")) {
+                throw new Exception("Unexpected loadbalancer entry " + entry.asText());
+            }
+            var entryName = entry.withArray("/required").get(0).asText();
+            var property = entry
+                    .withObject("/properties")
+                    .withObject("/" + entryName);
+            var entryDefinitionName = getNameFromRef(property);
+            var loadBalancer = relocatedDefinitions.withObject("/" + entryDefinitionName);
+            if (loadBalancer.has("oneOf")) {
+                var lbOneOf = loadBalancer.withArray("/oneOf");
+                if (lbOneOf.size() != 2) {
+                    throw new Exception(String.format(
+                            "LoadBalancer '%s' has '%s' entries in oneOf unexpectedly, look it closer",
+                            entryDefinitionName,
+                            lbOneOf.size()));
+                }
+                for (var def : lbOneOf) {
+                    if (def.get("type").asText().equals("object")) {
+                        var objectDef = (ObjectNode) def;
+                        objectDef.set("title", loadBalancer.get("title"));
+                        objectDef.set("description", loadBalancer.get("description"));
+                        loadBalancer = objectDef;
+                        break;
+                    }
+                }
+            }
+            populateDefinitions(loadBalancer, relocatedDefinitions);
+            for (var prop : loadBalancer.withObject("/properties").properties()) {
+                var propertyDef = (ObjectNode) prop.getValue();
+                var refParent = propertyDef.findParent("$ref");
+                if (refParent != null) {
+                    var ref = getNameFromRef(refParent);
+                    if (EXPRESSION_SUB_ELEMENT_DEFINITION.equals(ref)) {
+                        refParent.remove("$ref");
+                        refParent.put("type", "object");
+                        refParent.put("$comment", "expression");
+                    }
+                }
+            }
+            answer.put(entryName, loadBalancer);
+        }
+        return answer;
+    }
 }

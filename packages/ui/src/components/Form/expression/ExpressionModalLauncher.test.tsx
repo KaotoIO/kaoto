@@ -1,17 +1,21 @@
 import { ExpressionModalLauncher } from './ExpressionModalLauncher';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { ExpressionService } from './expression.service';
 
 describe('ExpressionModalLauncher', () => {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  delete (languageCatalog as any).default;
-  CamelCatalogService.setCatalogKey(
-    CatalogKind.Language,
-    languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-  );
+  let languageCatalog: Record<string, ICamelLanguageDefinition>;
+  beforeAll(async () => {
+    languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    delete (languageCatalog as any).default;
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Language,
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+    );
+  });
 
   it('should render', () => {
     render(

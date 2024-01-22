@@ -9,16 +9,19 @@ import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { SchemaService } from '../schema.service';
 import { BeanReferenceField } from './BeanReferenceField';
 import { BeansAwareResource, CamelRouteResource } from '../../../models/camel';
-import * as entitiesCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-entities.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
 
 describe('BeanReferenceField', () => {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  delete (entitiesCatalog as any).default;
-  CamelCatalogService.setCatalogKey(
-    CatalogKind.Entity,
-    entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
-  );
+  beforeAll(async () => {
+    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    delete (entitiesCatalog as any).default;
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Entity,
+      entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+  });
 
   const mockSchema = {
     title: 'Single Bean',

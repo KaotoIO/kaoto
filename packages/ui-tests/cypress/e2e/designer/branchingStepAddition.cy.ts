@@ -51,6 +51,7 @@ describe('Test for Branching actions from the canvas', () => {
     cy.checkNodeExist('otherwise', 1);
 
     cy.openSourceCode();
+    cy.editorScrollToTop();
     cy.checkCodeSpanLine('choice:', 1);
     cy.checkCodeSpanLine('otherwise:', 1);
   });

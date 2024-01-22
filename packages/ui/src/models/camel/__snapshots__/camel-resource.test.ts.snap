@@ -6,10 +6,21 @@ exports[`createCamelResource should create an empty KameletResource if no args i
     "route": {
       "from": {
         "id": "from-1234",
-        "steps": [],
-        "uri": "kamelet:source",
+        "parameters": {
+          "period": "{{period}}",
+          "timerName": "user",
+        },
+        "steps": [
+          {
+            "to": "https://random-data-api.com/api/v2/users",
+          },
+          {
+            "to": "kamelet:sink",
+          },
+        ],
+        "uri": "timer",
       },
-      "id": undefined,
+      "id": "kamelet-1234",
     },
   },
 ]

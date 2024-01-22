@@ -1,4 +1,4 @@
-import * as dataformatCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-dataformats.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { CatalogKind, ICamelDataformatDefinition } from '../../../models';
@@ -10,7 +10,9 @@ import { MetadataEditor } from '../../MetadataEditor';
 
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
-  beforeAll(() => {
+  let dataformatCatalog: Record<string, ICamelDataformatDefinition>;
+  beforeAll(async () => {
+    dataformatCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (dataformatCatalog as any).default;
     CamelCatalogService.setCatalogKey(

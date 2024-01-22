@@ -1,11 +1,12 @@
-import { DateField, ListField, NestField, RadioField, SelectField, TextField } from '@kaoto-next/uniforms-patternfly';
+import { DateField, ListField, NestField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
-import { DisabledField } from './DisabledField';
-import { PropertiesField } from './properties/PropertiesField';
+import { CustomSelectField } from './customField/CustomSelectField';
+import { DisabledField } from './customField/DisabledField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
-import { ExpressionField } from './expression/ExpressionField';
-import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import BoolField from './customField/BoolField';
+import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
+import { ExpressionField } from './expression/ExpressionField';
+import { PropertiesField } from './properties/PropertiesField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -13,7 +14,7 @@ import BoolField from './customField/BoolField';
  */
 export const CustomAutoField = createAutoField((props) => {
   if (props.options) {
-    return props.checkboxes && props.fieldType !== Array ? RadioField : SelectField;
+    return props.checkboxes && props.fieldType !== Array ? RadioField : CustomSelectField;
   }
 
   const comment = props['$comment'] as string;

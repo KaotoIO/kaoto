@@ -91,6 +91,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
               isOpen={isOpen}
               selected={dataFormat.model.name}
               onSelect={onSelect}
+              onOpenChange={setIsOpen}
               toggle={toggle}
               isScrollable={true}
             >

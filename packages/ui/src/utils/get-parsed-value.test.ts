@@ -4,6 +4,8 @@ describe('getParsedValue', () => {
   it.each([
     ['true', true],
     ['false', false],
+    [undefined, ''],
+    ['undefined', 'undefined'],
     ['1', 1],
     ['0', 0],
     ['1.5', 1.5],

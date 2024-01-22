@@ -1,5 +1,5 @@
 import { ConnectedFieldProps, connectField } from 'uniforms';
-import { ExpandableDetails } from './ExpandableDetails';
+import { ExpandableDetails } from '../ExpandableDetails';
 import { Card, CardBody, CardTitle } from '@patternfly/react-core';
 
 interface CustomStepsFieldProps {

@@ -1,7 +1,7 @@
 {
   "name": "@kaoto-next/ui-tests",
   "private": true,
-  "version": "0.7.0",
+  "version": "2.0.0-TP1-RC1",
   "type": "module",
   "description": "Kaoto UI tests and storybook",
   "repository": "https://github.com/KaotoIO/kaoto-next",

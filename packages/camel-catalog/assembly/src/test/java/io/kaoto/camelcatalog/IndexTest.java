@@ -17,9 +17,6 @@ package io.kaoto.camelcatalog;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IndexTest extends CamelCatalogTestSupport {

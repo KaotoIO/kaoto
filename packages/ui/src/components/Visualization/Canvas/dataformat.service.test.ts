@@ -1,10 +1,11 @@
-import * as dataformatCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-dataformats.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CatalogKind, ICamelDataformatDefinition, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { DataFormatService } from './dataformat.service';
 
 describe('DataFormatService', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    const dataformatCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (dataformatCatalog as any).default;
     CamelCatalogService.setCatalogKey(

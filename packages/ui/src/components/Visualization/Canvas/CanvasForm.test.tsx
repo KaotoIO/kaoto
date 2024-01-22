@@ -1,6 +1,4 @@
-import * as componentCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
-import * as patternCatalogMap from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
-import * as kameletCatalogMap from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { AutoField, AutoFields } from '@kaoto-next/uniforms-patternfly';
 import { render } from '@testing-library/react';
 import { JSONSchemaType } from 'ajv';
@@ -9,7 +7,7 @@ import { IVisualizationNode, VisualComponentSchema } from '../../../models/visua
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
-import { CanvasForm, getNonDefaultProperties, getNonEmptyProperties } from './CanvasForm';
+import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
 
 describe('CanvasForm', () => {
@@ -127,7 +125,8 @@ describe('CanvasForm', () => {
     expect(visualComponentSchema.definition.parameters).toEqual({});
   });
 
-  it('should render for all component without an error', () => {
+  it('should render for all component without an error', async () => {
+    const componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
     Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
       try {
         if (name === 'default') return;
@@ -147,7 +146,8 @@ describe('CanvasForm', () => {
     });
   });
 
-  it('should render for all kamelets without an error', () => {
+  it('should render for all kamelets without an error', async () => {
+    const kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     Object.entries(kameletCatalogMap).forEach(([name, kamelet]) => {
       try {
         if (name === 'default') return;
@@ -169,7 +169,8 @@ describe('CanvasForm', () => {
     });
   });
 
-  it('should render for all patterns without an error', () => {
+  it('should render for all patterns without an error', async () => {
+    const patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
     Object.entries(patternCatalogMap).forEach(([name, pattern]) => {
       try {
         if (name === 'default') return;
@@ -189,135 +190,5 @@ describe('CanvasForm', () => {
         throw new Error(`Error rendering ${name} pattern: ${(e as any).message}`);
       }
     });
-  });
-});
-
-describe('CanvasForm getNonDefaultProperties()', () => {
-  const schema = {
-    type: 'object',
-    properties: {
-      parameters: {
-        properties: {
-          events: {
-            type: 'string',
-            default: 'CREATE,MODIFY,DELETE',
-            title: 'Events',
-          },
-          concurrentConsumers: {
-            type: 'integer',
-            default: 1,
-            title: 'Concurrent Consumers',
-          },
-          bridgeErrorHandler: {
-            type: 'boolean',
-            default: false,
-            title: 'Bridge Error Handler',
-          },
-        },
-      },
-    },
-  } as unknown as JSONSchemaType<unknown>;
-
-  const newModel: Record<string, unknown> = {
-    id: 'from-7126',
-    description: 'test',
-    steps: [],
-    uri: 'file-watch',
-    parameters: {
-      events: 'CREATE',
-      concurrentConsumers: '1',
-      bridgeErrorHandler: false,
-    },
-  };
-
-  const newModelExpected: Record<string, unknown> = {
-    id: 'from-7126',
-    description: 'test',
-    steps: [],
-    uri: 'file-watch',
-    parameters: {
-      events: 'CREATE',
-    },
-  };
-
-  it('should return only the properties which are different from default', () => {
-    const newModelClean = getNonDefaultProperties(schema?.properties.parameters.properties, newModel);
-    expect(newModelClean).toMatchObject(newModelExpected);
-  });
-});
-
-describe('CanvasForm getNonEmptyProperties()', () => {
-  const schema = {
-    type: 'object',
-    properties: {
-      parameters: {
-        properties: {
-          events: {
-            type: 'string',
-            default: 'CREATE,MODIFY,DELETE',
-            title: 'Events',
-          },
-          concurrentConsumers: {
-            type: 'integer',
-            default: 1,
-            title: 'Concurrent Consumers',
-          },
-          bridgeErrorHandler: {
-            type: 'boolean',
-            default: false,
-            title: 'Bridge Error Handler',
-          },
-          exchangePattern: {
-            type: 'object',
-            title: 'Exchange Pattern',
-          },
-        },
-      },
-    },
-  } as unknown as JSONSchemaType<unknown>;
-
-  const newModel: Record<string, unknown> = {
-    id: 'from-7126',
-    description: 'test',
-    steps: [],
-    uri: 'file-watch',
-    parameters: {
-      events: 'CREATE',
-      concurrentConsumers: '',
-      bridgeErrorHandler: false,
-      exchangePattern: {},
-    },
-  };
-
-  const newModelIntermediate: Record<string, unknown> = {
-    id: 'from-7126',
-    description: 'test',
-    steps: [],
-    uri: 'file-watch',
-    parameters: {
-      events: 'CREATE',
-      concurrentConsumers: '',
-      exchangePattern: {},
-    },
-  };
-
-  const newModelExpected: Record<string, unknown> = {
-    id: 'from-7126',
-    description: 'test',
-    steps: [],
-    uri: 'file-watch',
-    parameters: {
-      events: 'CREATE',
-    },
-  };
-
-  it('should return only the properties which are different from default', () => {
-    const newModelClean = getNonDefaultProperties(schema?.properties.parameters.properties, newModel);
-    expect(newModelClean).toMatchObject(newModelIntermediate);
-  });
-
-  it('should return only the non-empty properties', () => {
-    const newModelClean = getNonEmptyProperties(newModel);
-    expect(newModelClean).toMatchObject(newModelExpected);
   });
 });

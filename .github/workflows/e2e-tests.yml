@@ -19,7 +19,7 @@ jobs:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             **/node_modules
@@ -27,7 +27,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -93,7 +93,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.6.0
+        uses: cypress-io/github-action@v6.6.1
         with:
           browser: firefox
           # we have already installed all dependencies above
@@ -151,7 +151,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.6.0
+        uses: cypress-io/github-action@v6.6.1
         with:
           browser: chrome
           # we have already installed all dependencies above
@@ -209,7 +209,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.6.0
+        uses: cypress-io/github-action@v6.6.1
         with:
           browser: edge
           # we have already installed all dependencies above

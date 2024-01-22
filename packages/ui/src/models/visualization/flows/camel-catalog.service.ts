@@ -2,6 +2,7 @@ import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel-catalog-i
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
+import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
@@ -29,6 +30,10 @@ export class CamelCatalogService {
     catalogKey: CatalogKind.Dataformat,
     dataformatName?: string,
   ): ICamelDataformatDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.Loadbalancer,
+    loadBalancerName?: string,
+  ): ICamelLoadBalancerDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Kamelet, componentName?: string): IKameletDefinition | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined {
@@ -45,11 +50,44 @@ export class CamelCatalogService {
     return this.catalogs[CatalogKind.Dataformat] || {};
   }
 
+  static getLoadBalancerMap(): Record<string, ICamelLoadBalancerDefinition> {
+    return this.catalogs[CatalogKind.Loadbalancer] || {};
+  }
+
   /**
    * Public only as a convenience method for test
    * not meant to be used in production code
    */
   static clearCatalogs(): void {
     this.catalogs = {};
+  }
+
+  /** Method to return whether this is a Camel Component or a Kamelet */
+  static getCatalogLookup(componentName: string): {
+    catalogKind: CatalogKind.Component;
+    definition?: ICamelComponentDefinition;
+  };
+  static getCatalogLookup(componentName: string): {
+    catalogKind: CatalogKind.Kamelet;
+    definition?: IKameletDefinition;
+  };
+  static getCatalogLookup(
+    componentName: string,
+  ): { catalogKind: CatalogKind; definition?: ComponentsCatalogTypes } | undefined {
+    if (!componentName) {
+      return undefined;
+    }
+
+    if (componentName.startsWith('kamelet:')) {
+      return {
+        catalogKind: CatalogKind.Kamelet,
+        definition: this.getComponent(CatalogKind.Kamelet, componentName.replace('kamelet:', '')),
+      };
+    }
+
+    return {
+      catalogKind: CatalogKind.Component,
+      definition: this.getComponent(CatalogKind.Component, componentName),
+    };
   }
 }

@@ -58,9 +58,10 @@ describe('useEntities', () => {
     id: route-1234
     from:
       id: from-1234
-      uri: timer:template
+      uri: timer
       parameters:
         period: "1000"
+        timerName: template
       steps:
         - log:
             id: log-1234

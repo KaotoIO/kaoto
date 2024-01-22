@@ -12,7 +12,7 @@ exports[`CanvasForm should render 1`] = `
   </h1>
   <form
     class="pf-v5-c-form"
-    data-testid="base-form"
+    data-testid="autoform"
     novalidate=""
   >
     <div>
@@ -78,6 +78,59 @@ exports[`CanvasForm should render 1`] = `
 </div>
 `;
 
-exports[`CanvasForm should render nothing if no schema and no definition is available 1`] = `<div />`;
+exports[`CanvasForm should render nothing if no schema and no definition is available 1`] = `
+<div>
+  <h1
+    class="pf-v5-c-title pf-m-2xl"
+    data-ouia-component-id="OUIA-Generated-Title-3"
+    data-ouia-component-type="PF5/Title"
+    data-ouia-safe="true"
+  >
+    My Node
+  </h1>
+  <div
+    class="pf-v5-c-code-block"
+  >
+    <div
+      class="pf-v5-c-code-block__content"
+    >
+      <pre
+        class="pf-v5-c-code-block__pre"
+      >
+        <code
+          class="pf-v5-c-code-block__code"
+        >
+          null
 
-exports[`CanvasForm should render nothing if no schema is available 1`] = `<div />`;
+        </code>
+      </pre>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`CanvasForm should render nothing if no schema is available 1`] = `
+<div>
+  <h1
+    class="pf-v5-c-title pf-m-2xl"
+    data-ouia-component-id="OUIA-Generated-Title-2"
+    data-ouia-component-type="PF5/Title"
+    data-ouia-safe="true"
+  />
+  <div
+    class="pf-v5-c-code-block"
+  >
+    <div
+      class="pf-v5-c-code-block__content"
+    >
+      <pre
+        class="pf-v5-c-code-block__pre"
+      >
+        <code
+          class="pf-v5-c-code-block__code"
+        />
+      </pre>
+    </div>
+  </div>
+</div>
+`;

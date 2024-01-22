@@ -1,4 +1,4 @@
-import * as languageCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-languages.json';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CamelCatalogService } from '../../../models/visualization/flows';
@@ -10,7 +10,9 @@ import { MetadataEditor } from '../../MetadataEditor';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
-  beforeAll(() => {
+  let languageCatalog: Record<string, ICamelLanguageDefinition>;
+  beforeAll(async () => {
+    languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(

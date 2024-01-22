@@ -1,6 +1,6 @@
 {
   "name": "kaoto-next",
-  "version": "0.0.0",
+  "version": "2.0.0-TP1-RC1",
   "description": "Next version of the UI of the Kaoto project",
   "repository": "https://github.com/KaotoIO/kaoto-next",
   "author": "The Kaoto Team",
@@ -29,7 +29,7 @@
     "publish": "lerna publish from-package"
   },
   "engines": {
-    "node": "18.x"
+    "node": ">=18.x"
   },
   "devDependencies": {
     "@lerna-lite/cli": "^3.0.0",

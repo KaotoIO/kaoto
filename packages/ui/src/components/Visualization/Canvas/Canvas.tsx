@@ -24,15 +24,16 @@ import {
 } from 'react';
 import layoutHorizontalIcon from '../../../assets/layout-horizontal.png';
 import layoutVerticalIcon from '../../../assets/layout-vertical.png';
+import { useLocalStorage } from '../../../hooks';
+import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
+import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
-import { useLocalStorage } from '../../../hooks';
-import { LocalStorageKeys } from '../../../models';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -51,6 +52,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
 
   const controller = useMemo(() => CanvasService.createController(), []);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
+  const shouldShowEmptyState = useMemo(() => {
+    const areNoFlows = props.entities.length === 0;
+    const areAllFlowsHidden = Object.values(visibleFlows).every((visible) => !visible);
+    return areNoFlows || areAllFlowsHidden;
+  }, [props.entities.length, visibleFlows]);
+
   const controlButtons = useMemo(() => {
     const customButtons = catalogModalContext
       ? [
@@ -187,7 +194,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
     >
       <VisualizationProvider controller={controller}>
-        <VisualizationSurface state={{ selectedIds }} />
+        {shouldShowEmptyState ? (
+          <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={props.entities.length} />
+        ) : (
+          <VisualizationSurface state={{ selectedIds }} />
+        )}
       </VisualizationProvider>
     </TopologyView>
   );

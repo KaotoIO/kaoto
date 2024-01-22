@@ -1,6 +1,7 @@
 import type { JSONSchemaType } from 'ajv';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
+import { NodeStatus } from '@patternfly/react-topology';
 
 /**
  * BaseVisualCamelEntity
@@ -100,6 +101,14 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   removeChild(): void;
 
   populateLeafNodesIds(ids: string[]): void;
+
+  addNodeStatusListener(listener: (status: NodeStatus, message: string | undefined) => void): void;
+
+  getNodeStatus(): NodeStatus;
+
+  setNodeStatus(status: NodeStatus, message: string | undefined): void;
+
+  getNodeStatusMessage(): string | undefined;
 }
 
 export interface IVisualizationNodeData {
