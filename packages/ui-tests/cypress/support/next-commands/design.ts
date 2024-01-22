@@ -128,13 +128,13 @@ Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string
 
 Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
   cy.get(`[data-fieldname="${inputName}"]`).scrollIntoView();
-  cy.get(`[data-fieldname="${inputName}"]`).click();
+  cy.get(`[data-fieldname="${inputName}"] input`).click();
   cy.get('#select-typeahead-kaoto-create-new').click();
 });
 
 Cypress.Commands.add('configureBeanReference', (inputName: string, value?: string) => {
   cy.get(`[data-fieldname="${inputName}"]`).scrollIntoView();
-  cy.get(`[data-fieldname="${inputName}"]`).click();
+  cy.get(`[data-fieldname="${inputName}"] input`).click();
   cy.get(`[id$="${value}"]`).click();
   cy.get(`div[data-fieldname="${inputName}"] input[value="#${value}"]`).should('exist');
 });
