@@ -1,6 +1,6 @@
 {
   "name": "@kaoto-next/camel-catalog",
-  "version": "2.0.0-TP1-dev",
+  "version": "2.0.0-TP1-RC1",
   "type": "commonjs",
   "description": "Camel Catalog and schemas for Kaoto",
   "repository": "https://github.com/KaotoIO/kaoto-next",
