@@ -2624,7 +2624,7 @@ __metadata:
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
     "@kaoto-next/camel-catalog": "workspace:*"
-    "@kaoto-next/uniforms-patternfly": ^0.5.7
+    "@kaoto-next/uniforms-patternfly": ^0.6.0
     "@kie-tools-core/editor": 0.32.0
     "@kie-tools-core/notifications": 0.32.0
     "@patternfly/patternfly": ^5.0.0
@@ -2694,9 +2694,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kaoto-next/uniforms-patternfly@npm:^0.5.7":
-  version: 0.5.7
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.5.7"
+"@kaoto-next/uniforms-patternfly@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.0"
   dependencies:
     "@types/invariant": ^2.2.35
     invariant: ^2.2.4
@@ -2704,7 +2704,7 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
     uniforms: 4.0.0-alpha.5
-  checksum: 169e3e39fc12591d039347500b7fc8acc1c4c6a5d7c6261896a434409de8c848bd20e59ce03a6b47c822b9f52e869a4c4ab1b372a2e0b922edf31e02d5ed524c
+  checksum: 22754303037aaaa37a16f89f39976dcabaf9b72f79fdb58d3dc0f1cfd9b74d2382958ab592dd38e3078d40ba6b1e222672164a501f5fb4bbb06207ec4e050525
   languageName: node
   linkType: hard
 

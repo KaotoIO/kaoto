@@ -1,11 +1,11 @@
 import { AutoField, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { IDataTestID } from '../../models';
 import { CustomAutoFieldDetector } from './CustomAutoField';
-import { CustomJSONSchemaBridge } from './CustomJSONSchemaBridge';
 
 interface CustomAutoFormProps extends IDataTestID {
-  schemaBridge?: CustomJSONSchemaBridge;
+  schemaBridge?: JSONSchemaBridge;
   model: unknown;
   disabled?: boolean;
   onChangeModel: (model: unknown) => void;
