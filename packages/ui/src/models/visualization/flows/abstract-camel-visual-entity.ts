@@ -5,6 +5,7 @@ import set from 'lodash.set';
 import { getArrayProperty, isDefined } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
+import { EntityType } from '../../camel/entities';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -21,8 +22,7 @@ import {
   CamelRouteVisualEntityData,
   ICamelElementLookupResult,
 } from './support/camel-component-types';
-import { EntityType } from '../../camel/entities';
-import { ModelValidationService } from './support/model-validation.service';
+import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity {
   constructor(public route: RouteDefinition) {}
@@ -208,6 +208,13 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     };
   }
 
+  getNodeValidationText(path?: string | undefined): string | undefined {
+    const componentVisualSchema = this.getComponentSchema(path);
+    if (!componentVisualSchema) return undefined;
+
+    return ModelValidationService.validateNodeStatus(componentVisualSchema);
+  }
+
   toVizNode(): IVisualizationNode {
     const rootNode = this.getVizNodeFromProcessor('from', {
       processorName: 'from' as keyof ProcessorDefinition,
@@ -241,9 +248,6 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
     });
 
-    const schema = this.getComponentSchema(path);
-    const model = get(this.route, path);
-    ModelValidationService.validateNodeStatus(schema, model, vizNode);
     return vizNode;
   }
 

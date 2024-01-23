@@ -166,6 +166,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     };
   }
 
+  getNodeValidationText(_path?: string | undefined): string | undefined {
+    return undefined;
+  }
+
   toVizNode(): IVisualizationNode {
     const sourceNode = this.getVizNodeFromStep(this.spec.source, 'source', true);
     const stepNodes = this.getVizNodesFromSteps(this.spec.steps);
