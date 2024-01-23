@@ -61,9 +61,7 @@ spec:
                       log-name: yaml
             otherwise:
               steps:
-                - pipeline:
-                    steps:
-                      - aggregate: {}
+                - aggregate: {}
         - filter:
             simple: "{{?foo}}"
         - to:

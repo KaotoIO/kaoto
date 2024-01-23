@@ -7,12 +7,12 @@ metadata:
   name: ${getCamelRandomId('pipe')}
 spec:
   source:
+    properties:
+      message: hello
     ref:
       kind: Kamelet
       apiVersion: camel.apache.org/v1
       name: timer-source
-      properties:
-        message: hello
   sink:
     ref:
       kind: Kamelet
