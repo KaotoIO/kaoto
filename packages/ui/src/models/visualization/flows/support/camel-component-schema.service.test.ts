@@ -281,35 +281,27 @@ describe('CamelComponentSchemaService', () => {
   });
 
   describe('getTooltipContent', () => {
-    it('should return the schema description if provided', () => {
-      const path = 'from.steps.0.to';
-      const definition = { uri: 'log' };
-
-      const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
+    it('should return the component schema description if provided or return component name', () => {
+      const camelElementLookup = { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const expectedContent = CamelComponentSchemaService.getVisualComponentSchema(path, definition)?.schema
-        .description;
+      const expectedContent =
+        CamelCatalogService.getComponent(CatalogKind.Component, camelElementLookup.componentName)?.component
+          .description ?? camelElementLookup.componentName;
 
       expect(actualContent).toEqual(expectedContent);
     });
 
-    it('should return the component name if provided', () => {
-      const actualContent = CamelComponentSchemaService.getTooltipContent({
-        processorName: 'from' as keyof ProcessorDefinition,
-        componentName: 'test',
-      });
-
-      expect(actualContent).toEqual('test');
-    });
-
-    it('should return the processor name', () => {
-      const path = 'from';
-      const definition = {};
+    it('should return the processor schema description if provided or return processor name', () => {
+      const path = 'from.steps.0.aggregate';
+      const definition = { id: 'aggregate-2202' };
       const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
-      const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const ExpectedContent = camelElementLookup.processorName;
 
-      expect(actualContent).toEqual(ExpectedContent);
+      const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
+      const expectedContent =
+        CamelComponentSchemaService.getVisualComponentSchema(path, definition)?.schema.description ??
+        camelElementLookup.processorName;
+
+      expect(actualContent).toEqual(expectedContent);
     });
   });
 
