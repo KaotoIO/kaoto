@@ -2,7 +2,7 @@ import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
-import { CanvasNode } from './canvas.models';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { LoadBalancerEditor } from './LoadBalancerEditor';

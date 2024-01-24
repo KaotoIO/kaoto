@@ -9,7 +9,7 @@ import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import './CanvasForm.scss';
 import { DataFormatEditor } from './DataFormatEditor';
-import { LoadBalancerEditor } from './LoadBalancerEditor';
+import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
 
