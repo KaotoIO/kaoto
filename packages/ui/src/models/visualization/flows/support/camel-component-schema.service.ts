@@ -6,6 +6,8 @@ import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { IKameletDefinition } from '../../../kamelets-catalog';
+import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
@@ -74,11 +76,17 @@ export class CamelComponentSchemaService {
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
       if (catalogLookup.catalogKind === 'component') {
-        return catalogLookup.definition?.component.description ?? camelElementLookup.componentName;
+        return (
+          (catalogLookup.definition as unknown as ICamelComponentDefinition)?.component.description ??
+          camelElementLookup.componentName
+        );
       }
 
       if (catalogLookup.catalogKind === 'kamelet') {
-        return catalogLookup.definition?.spec.definition.description ?? camelElementLookup.componentName;
+        return (
+          (catalogLookup.definition as unknown as IKameletDefinition)?.spec.definition.description ??
+          camelElementLookup.componentName
+        );
       }
     }
 

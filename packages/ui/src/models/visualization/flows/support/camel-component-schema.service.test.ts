@@ -284,9 +284,11 @@ describe('CamelComponentSchemaService', () => {
     it('should return the component schema description if provided or return component name', () => {
       const camelElementLookup = { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const expectedContent =
-        CamelCatalogService.getCatalogLookup(camelElementLookup.componentName)?.definition?.component.description ??
-        camelElementLookup.componentName;
+      const componentDefinition: ICamelComponentDefinition | undefined = CamelCatalogService.getCatalogLookup(
+        camelElementLookup.componentName,
+      )?.definition;
+
+      const expectedContent = componentDefinition?.component.description ?? camelElementLookup.componentName;
 
       expect(actualContent).toEqual(expectedContent);
     });
@@ -297,9 +299,11 @@ describe('CamelComponentSchemaService', () => {
         componentName: 'kamelet:avro-deserialize-action',
       };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const expectedContent =
-        CamelCatalogService.getCatalogLookup(camelElementLookup.componentName)?.definition?.spec.definition
-          .description ?? camelElementLookup.componentName;
+      const kameletDefinition: IKameletDefinition | undefined = CamelCatalogService.getCatalogLookup(
+        camelElementLookup.componentName,
+      )?.definition;
+
+      const expectedContent = kameletDefinition?.spec.definition.description ?? camelElementLookup.componentName;
 
       expect(actualContent).toEqual(expectedContent);
     });
