@@ -48,7 +48,12 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should render', () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(
+      <LoadBalancerEditor
+        selectedNode={mockNode}
+        parentModel={mockNode.data?.vizNode?.getComponentSchema()?.definition}
+      />,
+    );
     const launchExpressionModalBtn = screen.getAllByRole('button')[1];
 
     fireEvent.click(launchExpressionModalBtn);

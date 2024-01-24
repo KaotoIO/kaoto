@@ -18,6 +18,7 @@ import { LoadBalancerService } from './loadbalancer.service';
 
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
+  parentModel: Record<string, unknown>;
 }
 
 export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (props) => {
@@ -49,18 +50,17 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   const handleOnChange = useCallback(
     (selectedLoadBalancer: string, newLoadBalancerModel: Record<string, unknown>) => {
-      const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
-      if (!model) return;
+      if (!props.parentModel) return;
       LoadBalancerService.setLoadBalancerModel(
         loadBalancerCatalogMap,
-        model,
+        props.parentModel,
         selectedLoadBalancer,
         newLoadBalancerModel,
       );
-      props.selectedNode.data?.vizNode?.updateModel(model);
+      props.selectedNode.data?.vizNode?.updateModel(props.parentModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, loadBalancerCatalogMap, props.selectedNode.data?.vizNode],
+    [entitiesContext, loadBalancerCatalogMap, props.parentModel, props.selectedNode.data?.vizNode],
   );
 
   const onSelect = useCallback(

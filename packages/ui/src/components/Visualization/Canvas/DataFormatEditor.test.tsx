@@ -48,7 +48,12 @@ describe('DataFormatEditor', () => {
   });
 
   it('should render', () => {
-    render(<DataFormatEditor selectedNode={mockNode} />);
+    render(
+      <DataFormatEditor
+        selectedNode={mockNode}
+        parentModel={mockNode.data?.vizNode?.getComponentSchema()?.definition}
+      />,
+    );
     const buttons = screen.getAllByRole('button');
     fireEvent.click(buttons[1]);
     const json = screen.getByTestId('dataformat-dropdownitem-json');

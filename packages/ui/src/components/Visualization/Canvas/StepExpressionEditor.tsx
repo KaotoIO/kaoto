@@ -7,6 +7,7 @@ import { ExpressionModalLauncher } from '../../Form/expression/ExpressionModalLa
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
+  parentModel: Record<string, unknown>;
 }
 
 export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> = (props) => {
@@ -47,10 +48,14 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   );
 
   const handleConfirm = useCallback(() => {
-    const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
     if (preparedLanguage && preparedModel) {
-      ExpressionService.setStepExpressionModel(languageCatalogMap, model, preparedLanguage.model.name, preparedModel);
-      props.selectedNode.data?.vizNode?.updateModel(model);
+      ExpressionService.setStepExpressionModel(
+        languageCatalogMap,
+        props.parentModel,
+        preparedLanguage.model.name,
+        preparedModel,
+      );
+      props.selectedNode.data?.vizNode?.updateModel(props.parentModel);
       entitiesContext?.updateSourceCodeFromEntities();
     }
   }, [entitiesContext, languageCatalogMap, preparedLanguage, preparedModel, props.selectedNode.data?.vizNode]);

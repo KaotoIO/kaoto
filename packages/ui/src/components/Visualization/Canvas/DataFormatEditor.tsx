@@ -18,6 +18,7 @@ import { DataFormatService } from './dataformat.service';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
+  parentModel: Record<string, unknown>;
 }
 
 export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props) => {
@@ -49,10 +50,14 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   const handleOnChange = useCallback(
     (selectedDataFormat: string, newDataFormatModel: Record<string, unknown>) => {
-      const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
-      if (!model) return;
-      DataFormatService.setDataFormatModel(dataFormatCatalogMap, model, selectedDataFormat, newDataFormatModel);
-      props.selectedNode.data?.vizNode?.updateModel(model);
+      if (!props.parentModel) return;
+      DataFormatService.setDataFormatModel(
+        dataFormatCatalogMap,
+        props.parentModel,
+        selectedDataFormat,
+        newDataFormatModel,
+      );
+      props.selectedNode.data?.vizNode?.updateModel(props.parentModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
     [entitiesContext, dataFormatCatalogMap, props.selectedNode.data?.vizNode],
@@ -87,7 +92,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
           <CardBody data-testid={'dataformat-config-card'}>
             <Dropdown
               id="dataformat-select"
-              data-testid="expression-dropdown"
+              data-testid="dataformat-dropdown"
               isOpen={isOpen}
               selected={dataFormat.model.name}
               onSelect={onSelect}

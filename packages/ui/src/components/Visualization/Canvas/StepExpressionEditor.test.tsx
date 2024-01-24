@@ -48,7 +48,12 @@ describe('StepExpressionEditor', () => {
   });
 
   it('should render', () => {
-    render(<StepExpressionEditor selectedNode={mockNode} />);
+    render(
+      <StepExpressionEditor
+        selectedNode={mockNode}
+        parentModel={mockNode.data?.vizNode?.getComponentSchema()?.definition}
+      />,
+    );
     const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
     fireEvent.click(launcherButton[0]);
     const dropdownButton = screen.getAllByRole('button').filter((button) => button.textContent === 'Simple');

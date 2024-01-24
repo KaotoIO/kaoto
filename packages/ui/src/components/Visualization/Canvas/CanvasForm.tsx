@@ -86,9 +86,9 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         </CodeBlock>
       ) : (
         <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-          {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-          {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-          {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+          {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} parentModel={model} />}
+          {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} parentModel={model} />}
+          {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} parentModel={model} />}
           <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange} data-testid="autoform">
             <AutoFields omitFields={omitFields} />
             <ErrorsField />
