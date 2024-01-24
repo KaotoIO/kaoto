@@ -57,6 +57,5 @@ describe('ExpressionEditor', () => {
     });
     expect(onChangeMock.mock.calls).toHaveLength(1);
     expect(onChangeMock.mock.calls[0][1]).toEqual({ expression: '.field3', resultType: 'string', headerName: 'foo' });
-    screen.debug(resultTypeInput);
   });
 });

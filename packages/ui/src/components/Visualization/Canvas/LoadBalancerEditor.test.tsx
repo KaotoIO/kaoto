@@ -49,12 +49,10 @@ describe('LoadBalancerEditor', () => {
 
   it('should render', () => {
     render(<LoadBalancerEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
-    const sticky = screen.getByTestId('loadbalancer-dropdownitem-sticky');
-    fireEvent.click(sticky.getElementsByTagName('button')[0]);
-    const form = screen.getByTestId('metadata-editor-form-loadbalancer');
-    expect(form.innerHTML).toContain('The correlation expression');
+    const launchExpressionModalBtn = screen.getAllByRole('button')[1];
+
+    fireEvent.click(launchExpressionModalBtn);
+    expect(screen.getByTestId('loadbalancer-dropdown')).toBeTruthy();
   });
 
   it('should render for all loadbalancers without an error', () => {

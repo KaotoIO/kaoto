@@ -1,11 +1,11 @@
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import cloneDeep from 'lodash/cloneDeep';
 import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { SchemaService } from '../Form';
 import { CustomAutoForm } from '../Form/CustomAutoForm';
 import { TopmostArrayTable } from './TopmostArrayTable';
 import './MetadataEditor.scss';
-import { CustomJSONSchemaBridge } from '../Form/CustomJSONSchemaBridge';
 
 interface MetadataEditorProps {
   name: string;
@@ -19,7 +19,7 @@ interface MetadataEditorProps {
 
 export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorProps>> = (props) => {
   const schemaServiceRef = useRef(new SchemaService());
-  const [schemaBridge, setSchemaBridge] = useState<CustomJSONSchemaBridge | undefined>(
+  const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
     schemaServiceRef.current.getSchemaBridge(getFormSchema()),
   );
   const fieldsRefs = useRef<{ fields: HTMLElement[] }>(null);
