@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, PropsWithChildren, ReactNode, useMemo } from 'react';
 import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
@@ -13,9 +13,11 @@ interface CanvasProps {
 }
 
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
+  const lastUpdate = useMemo(() => Date.now(), [props.entities]);
+
   return (
     <div className={`canvas-surface ${props.className ?? ''}`}>
-      <ErrorBoundary fallback={props.fallback ?? <CanvasFallback />}>
+      <ErrorBoundary key={lastUpdate} fallback={props.fallback ?? <CanvasFallback />}>
         <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
       </ErrorBoundary>
     </div>
