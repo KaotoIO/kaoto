@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { StepExpressionEditor } from './StepExpressionEditor';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
-import { CanvasNode } from './canvas.models';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { MetadataEditor } from '../../MetadataEditor';

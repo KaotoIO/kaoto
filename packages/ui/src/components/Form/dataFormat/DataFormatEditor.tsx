@@ -13,7 +13,7 @@ import {
 import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
 import { MetadataEditor } from '../../MetadataEditor';
-import { CanvasNode } from './canvas.models';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { DataFormatService } from './dataformat.service';
 
 interface DataFormatEditorProps {

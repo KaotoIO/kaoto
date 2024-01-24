@@ -1,9 +1,9 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
-import { CanvasNode } from './canvas.models';
-import { ExpressionService } from '../../Form/expression/expression.service';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
+import { ExpressionService } from '..//expression/expression.service';
 import { ICamelLanguageDefinition } from '../../../models';
-import { ExpressionModalLauncher } from '../../Form/expression/ExpressionModalLauncher';
+import { ExpressionModalLauncher } from '../expression/ExpressionModalLauncher';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
