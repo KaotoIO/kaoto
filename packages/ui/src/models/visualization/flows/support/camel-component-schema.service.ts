@@ -72,11 +72,14 @@ export class CamelComponentSchemaService {
 
   static getTooltipContent(camelElementLookup: ICamelElementLookupResult): string {
     if (camelElementLookup.componentName !== undefined) {
-      const componentDefinition = CamelCatalogService.getComponent(
-        CatalogKind.Component,
-        camelElementLookup.componentName,
-      );
-      return componentDefinition?.component.description ?? camelElementLookup.componentName;
+      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+      if (catalogLookup.catalogKind === 'component') {
+        return catalogLookup.definition?.component.description ?? camelElementLookup.componentName;
+      }
+
+      if (catalogLookup.catalogKind === 'kamelet') {
+        return catalogLookup.definition?.spec.definition.description ?? camelElementLookup.componentName;
+      }
     }
 
     const schema = this.getSchema(camelElementLookup);
