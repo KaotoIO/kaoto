@@ -8,9 +8,9 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 import './CanvasForm.scss';
-import { DataFormatEditor } from './DataFormatEditor';
+import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
-import { StepExpressionEditor } from './StepExpressionEditor';
+import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
 import { CanvasNode } from './canvas.models';
 
 interface CanvasFormProps {
