@@ -91,6 +91,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   deploy-images:
+    if: github.repository == 'KaotoIO/kaoto-next'
     runs-on: ubuntu-latest
     needs:
       - build-distribution
