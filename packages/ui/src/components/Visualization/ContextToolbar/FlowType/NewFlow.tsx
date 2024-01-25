@@ -52,6 +52,9 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         data-testid="confirmation-modal"
         titleIconVariant="warning"
         variant="small"
+        onClose={() => {
+          setIsConfirmationModalOpen(false);
+        }}
         actions={[
           <Button
             key="confirm"
