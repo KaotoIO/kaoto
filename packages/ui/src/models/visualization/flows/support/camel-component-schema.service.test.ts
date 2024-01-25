@@ -281,44 +281,56 @@ describe('CamelComponentSchemaService', () => {
   });
 
   describe('getTooltipContent', () => {
-    it('should return the component schema description if provided or return component name', () => {
+    it('should return the component schema description', () => {
       const camelElementLookup = { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const componentDefinition = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName)?.definition;
 
-      const expectedContent =
-        (componentDefinition as unknown as ICamelComponentDefinition)?.component.description ??
-        camelElementLookup.componentName;
-
-      expect(actualContent).toEqual(expectedContent);
+      expect(actualContent).toEqual('Generate messages in specified intervals using java.util.Timer.');
     });
 
-    it('should return the kamelet schema description if provided or return kamelet name', () => {
+    it('should return the component name', () => {
+      const camelElementLookup = { processorName: 'from' as keyof ProcessorDefinition, componentName: 'xyz' };
+      const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
+
+      expect(actualContent).toEqual('xyz');
+    });
+
+    it('should return the kamelet schema description', () => {
       const camelElementLookup = {
         processorName: 'to' as keyof ProcessorDefinition,
         componentName: 'kamelet:avro-deserialize-action',
       };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const kameletDefinition = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName)?.definition;
 
-      const expectedContent =
-        (kameletDefinition as unknown as IKameletDefinition)?.spec.definition.description ??
-        camelElementLookup.componentName;
-
-      expect(actualContent).toEqual(expectedContent);
+      expect(actualContent).toEqual('Deserialize payload to Avro');
     });
 
-    it('should return the processor schema description if provided or return processor name', () => {
+    it('should return the kamelet name', () => {
+      const camelElementLookup = {
+        processorName: 'to' as keyof ProcessorDefinition,
+        componentName: 'kamelet:xyz',
+      };
+      const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
+
+      expect(actualContent).toEqual('kamelet:xyz');
+    });
+
+    it('should return the processor schema description', () => {
       const path = 'from.steps.0.aggregate';
       const definition = { id: 'aggregate-2202' };
       const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
-
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
-      const expectedContent =
-        CamelComponentSchemaService.getVisualComponentSchema(path, definition)?.schema.description ??
-        camelElementLookup.processorName;
 
-      expect(actualContent).toEqual(expectedContent);
+      expect(actualContent).toEqual('Aggregates many messages into a single message');
+    });
+
+    it('should return the processor name', () => {
+      const path = 'from.steps.0.xyz';
+      const definition = { id: 'xyz-2202' };
+      const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
+      const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
+
+      expect(actualContent).toEqual('xyz');
     });
   });
 

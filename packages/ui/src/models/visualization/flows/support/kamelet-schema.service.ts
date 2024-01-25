@@ -32,7 +32,7 @@ export class KameletSchemaService {
 
   static getTooltipContent(step: PipeStep, path: string): string {
     const schema = this.getKameletDefinition(step)?.propertiesSchema;
-    if (schema !== undefined && schema.description !== undefined) {
+    if (schema?.description !== undefined) {
       return schema.description;
     }
 
