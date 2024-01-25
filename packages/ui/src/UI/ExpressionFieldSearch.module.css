@@ -1,0 +1,14 @@
+.document {
+  font-size: medium;
+  font-weight: bold;
+}
+
+.field {
+  font-size: small;
+  margin-left: 20;
+}
+
+.searchMenu {
+  margin: var(--pf-global--spacer--form-element) 0;
+  width: 50%;
+}
