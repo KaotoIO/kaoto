@@ -110,4 +110,38 @@ describe('KameletSchemaService', () => {
       expect(result).toEqual('sink: Unknown');
     });
   });
+
+  describe('getTooltipContent', () => {
+    it('should return the Kamelet description as the tooltip content', () => {
+      const step = {
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'beer-source',
+        },
+      };
+      const result = KameletSchemaService.getTooltipContent(step, 'source');
+
+      expect(result).toEqual('Produces periodic events about beers!');
+    });
+
+    it('should return the Kamelet name as the tooltip content', () => {
+      const step = {
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'xyz-source',
+        },
+      };
+      const result = KameletSchemaService.getTooltipContent(step, 'source');
+
+      expect(result).toEqual('xyz-source');
+    });
+
+    it('should return the Kamelet path as the tooltip content', () => {
+      const result = KameletSchemaService.getTooltipContent(undefined, 'sink');
+
+      expect(result).toEqual('sink: Unknown');
+    });
+  });
 });

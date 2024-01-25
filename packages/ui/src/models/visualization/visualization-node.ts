@@ -49,6 +49,10 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getRootNode().getBaseEntity()?.getNodeLabel(this.data.path) ?? this.id;
   }
 
+  getTooltipContent(): string {
+    return this.getRootNode().getBaseEntity()?.getTooltipContent(this.data.path) ?? this.id;
+  }
+
   addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
     this.getRootNode().getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
   }

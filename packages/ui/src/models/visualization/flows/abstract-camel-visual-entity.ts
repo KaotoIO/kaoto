@@ -48,6 +48,17 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     return label;
   }
 
+  getTooltipContent(path?: string): string {
+    if (!path) return '';
+    const componentModel = get(this.route, path);
+
+    const content = CamelComponentSchemaService.getTooltipContent(
+      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
+    );
+
+    return content;
+  }
+
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
 
