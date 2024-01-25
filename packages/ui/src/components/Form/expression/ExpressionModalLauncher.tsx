@@ -1,8 +1,10 @@
-import { Button, Modal, Split, SplitItem, TextInput } from '@patternfly/react-core';
+import { FieldHintPopover } from '@kaoto-next/uniforms-patternfly';
+import { Button, Form, FormGroup, InputGroup, InputGroupItem, Modal, TextInput } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
-import { ExpressionEditor } from './ExpressionEditor';
 import { useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
+import { ExpressionEditor } from './ExpressionEditor';
+import './ExpressionModalLauncher.scss';
 
 export type ExpressionModalLauncherProps = {
   name: string;
@@ -41,26 +43,30 @@ export const ExpressionModalLauncher = ({
   const expressionLabel = language && model?.expression ? language.model.name + ': ' + model.expression : '';
 
   return (
-    <>
-      <Split>
-        <SplitItem>
-          <TextInput
-            id={'expression-preview-' + name}
-            placeholder="Not configured"
-            readOnlyVariant="default"
-            value={expressionLabel}
-          ></TextInput>
-        </SplitItem>
-        <SplitItem>
-          <Button
-            data-testid="launch-expression-modal-btn"
-            variant="link"
-            aria-label="Configure Expression"
-            icon={<PencilAltIcon />}
-            onClick={() => setIsModalOpen(true)}
-          ></Button>
-        </SplitItem>
-      </Split>
+    <div className="expression-field">
+      <Form>
+        <FormGroup label="Expression" labelIcon={<FieldHintPopover description={description} />}>
+          <InputGroup>
+            <InputGroupItem isFill>
+              <TextInput
+                id={'expression-preview-' + name}
+                placeholder="Not configured"
+                readOnlyVariant="default"
+                value={expressionLabel}
+              />
+            </InputGroupItem>
+            <InputGroupItem>
+              <Button
+                data-testid="launch-expression-modal-btn"
+                variant="control"
+                aria-label="Configure Expression"
+                icon={<PencilAltIcon />}
+                onClick={() => setIsModalOpen(true)}
+              />
+            </InputGroupItem>
+          </InputGroup>
+        </FormGroup>
+      </Form>
       <Modal
         isOpen={isModalOpen}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,6 +92,6 @@ export const ExpressionModalLauncher = ({
           onChangeExpressionModel={onChange}
         ></ExpressionEditor>
       </Modal>
-    </>
+    </div>
   );
 };

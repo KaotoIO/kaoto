@@ -1,7 +1,6 @@
 import type { JSONSchemaType } from 'ajv';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
-import { NodeStatus } from '@patternfly/react-topology';
 
 /**
  * BaseVisualCamelEntity
@@ -44,7 +43,11 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
 
+  /** Returns the NodeInteraction information so the UI can show whether this node can have children and/or siblings */
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
+
+  /** Given a path, retrieve the Node validation status */
+  getNodeValidationText(path?: string): string | undefined;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
@@ -102,13 +105,8 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   populateLeafNodesIds(ids: string[]): void;
 
-  addNodeStatusListener(listener: (status: NodeStatus, message: string | undefined) => void): void;
-
-  getNodeStatus(): NodeStatus;
-
-  setNodeStatus(status: NodeStatus, message: string | undefined): void;
-
-  getNodeStatusMessage(): string | undefined;
+  /** Retrieve the node's validation status, relying into the underlying entity */
+  getNodeValidationText(): string | undefined;
 }
 
 export interface IVisualizationNodeData {

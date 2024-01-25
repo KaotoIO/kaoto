@@ -216,7 +216,6 @@ export class CanvasService {
       width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
       height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
       shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
-      status: options.data?.vizNode?.getNodeStatus(),
     };
   }
 

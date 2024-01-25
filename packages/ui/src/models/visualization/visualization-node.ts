@@ -8,7 +8,6 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from './base-visual-entity';
-import { NodeStatus } from '@patternfly/react-topology';
 
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
   id: string,
@@ -25,13 +24,9 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
-  private nodeStatusListeners: ((status: NodeStatus, message: string | undefined) => void)[] = [];
-  private nodeStatus: NodeStatus = NodeStatus.default;
-  private nodeStatusMessage: string | undefined = undefined;
 
   constructor(
     public readonly id: string,
-
     public data: T,
   ) {}
 
@@ -138,25 +133,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     this.children?.forEach((child) => child.populateLeafNodesIds(ids));
   }
 
-  addNodeStatusListener(listener: (status: NodeStatus, message: string | undefined) => void) {
-    this.nodeStatusListeners.push(listener);
-  }
-
-  private notifyNodeStatusListeners() {
-    this.nodeStatusListeners.forEach((listener) => listener(this.nodeStatus, this.nodeStatusMessage));
-  }
-
-  getNodeStatus(): NodeStatus {
-    return this.nodeStatus;
-  }
-
-  setNodeStatus(status: NodeStatus, message: string | undefined) {
-    this.nodeStatus = status;
-    this.nodeStatusMessage = message;
-    this.notifyNodeStatusListeners();
-  }
-
-  getNodeStatusMessage(): string | undefined {
-    return this.nodeStatusMessage;
+  getNodeValidationText(): string | undefined {
+    return this.getRootNode().getBaseEntity()?.getNodeValidationText(this.data.path);
   }
 }

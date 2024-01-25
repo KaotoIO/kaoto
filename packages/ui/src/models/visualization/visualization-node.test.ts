@@ -226,4 +226,26 @@ describe('VisualizationNode', () => {
 
     expect(ids).toEqual(['when-leaf-1234', 'log-1234']);
   });
+
+  describe('getNodeValidationText', () => {
+    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
+      node = createVisualizationNode('test', {});
+      const validationText = node.getNodeValidationText();
+
+      expect(validationText).toBeUndefined();
+    });
+
+    it('should return the validation text from the underlying BaseVisualCamelEntity', () => {
+      const getNodeValidationTextSpy = jest.fn().mockReturnValue('test-validation-text');
+      const visualEntity = {
+        getNodeValidationText: getNodeValidationTextSpy,
+      } as unknown as BaseVisualCamelEntity;
+
+      node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+      const validationText = node.getNodeValidationText();
+
+      expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path);
+      expect(validationText).toEqual('test-validation-text');
+    });
+  });
 });
