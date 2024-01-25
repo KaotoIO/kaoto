@@ -51,11 +51,15 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     formRef.current?.reset();
   }, [props.selectedNode.data?.vizNode]);
 
-  const handleOnChange = useCallback(
-    (newModel: Record<string, unknown>) => {
-      if (props.selectedNode.data?.vizNode) {
-        props.selectedNode.data.vizNode.updateModel(newModel);
+  const handleOnChangeIndividualProp = useCallback(
+    (key: string, value: unknown) => {
+      if (!props.selectedNode.data?.vizNode) {
+        return;
       }
+
+      const newModel = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
+      newModel[key] = value;
+      props.selectedNode.data.vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
     [entitiesContext, props.selectedNode.data?.vizNode],
@@ -89,7 +93,13 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
           {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
           {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
           {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-          <AutoForm ref={formRef} schema={schema} model={model} onChangeModel={handleOnChange} data-testid="autoform">
+          <AutoForm
+            ref={formRef}
+            schema={schema}
+            model={model}
+            onChange={handleOnChangeIndividualProp}
+            data-testid="autoform"
+          >
             <AutoFields omitFields={omitFields} />
             <ErrorsField />
           </AutoForm>
