@@ -10,3 +10,7 @@ form[data-testid='autoform'] > div {
   display: inherit;
   gap: inherit;
 }
+
+.canvas-form {
+  overflow: scroll;
+}

@@ -85,27 +85,29 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   return (
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Title headingLevel="h1">{componentName}</Title>
-      {isUnknownComponent ? (
-        <CodeBlock>
-          <CodeBlockCode>{stringify(model)}</CodeBlockCode>
-        </CodeBlock>
-      ) : (
-        <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
-          {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-          {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-          {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-          <AutoForm
-            ref={formRef}
-            schema={schema}
-            model={model}
-            onChange={handleOnChangeIndividualProp}
-            data-testid="autoform"
-          >
-            <AutoFields omitFields={omitFields} />
-            <ErrorsField />
-          </AutoForm>
-        </AutoField.componentDetectorContext.Provider>
-      )}
+      <div className="canvas-form">
+        {isUnknownComponent ? (
+          <CodeBlock>
+            <CodeBlockCode>{stringify(model)}</CodeBlockCode>
+          </CodeBlock>
+        ) : (
+          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+            {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
+            {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+            {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+            <AutoForm
+              ref={formRef}
+              schema={schema}
+              model={model}
+              onChange={handleOnChangeIndividualProp}
+              data-testid="autoform"
+            >
+              <AutoFields omitFields={omitFields} />
+              <ErrorsField />
+            </AutoForm>
+          </AutoField.componentDetectorContext.Provider>
+        )}
+      </div>
     </ErrorBoundary>
   );
 };
