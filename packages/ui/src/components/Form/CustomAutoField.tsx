@@ -1,6 +1,6 @@
 import { DateField, ListField, NestField, RadioField, TextField, BoolField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
-import { CustomSelectField } from './customField/CustomSelectField';
+import { TypeaheadField } from './customField/TypeaheadField';
 import { DisabledField } from './customField/DisabledField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
@@ -13,7 +13,7 @@ import { PropertiesField } from './properties/PropertiesField';
  */
 export const CustomAutoField = createAutoField((props) => {
   if (props.options) {
-    return props.checkboxes && props.fieldType !== Array ? RadioField : CustomSelectField;
+    return props.checkboxes && props.fieldType !== Array ? RadioField : TypeaheadField;
   }
 
   const comment = props['$comment'] as string;
