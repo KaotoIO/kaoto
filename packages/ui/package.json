@@ -1,6 +1,6 @@
 {
   "name": "@kaoto-next/ui",
-  "version": "2.0.0-TP1-RC2",
+  "version": "2.0.0-TP1",
   "type": "module",
   "description": "Kaoto UI",
   "repository": "https://github.com/KaotoIO/kaoto-next",
