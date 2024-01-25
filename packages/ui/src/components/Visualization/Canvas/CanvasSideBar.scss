@@ -1,3 +1,14 @@
-img[class^='sidebar-icon-'] {
-  max-height: 40px;
+.canvas-sidebar {
+  overflow: scroll;
+  max-height: 100%;
+
+  img[class^='sidebar-icon-'] {
+    max-height: 40px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 }

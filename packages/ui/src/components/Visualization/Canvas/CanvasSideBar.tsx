@@ -19,7 +19,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
      * and doesn't take into account the sidebar children.
      */
     <TopologySideBar show={props.selectedNode !== undefined}>
-      <Card>
+      <Card className="canvas-sidebar">
         <CardHeader>
           <Grid hasGutter>
             <GridItem span={2}>
@@ -37,7 +37,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
             </GridItem>
           </Grid>
         </CardHeader>
-        <CardBody>
+        <CardBody className="canvas-sidebar canvas-sidebar__body">
           {props.selectedNode === undefined ? null : (
             <ErrorBoundary key={props.selectedNode.id} fallback={<p>Something didn't work as expected</p>}>
               <CanvasForm selectedNode={props.selectedNode} />
