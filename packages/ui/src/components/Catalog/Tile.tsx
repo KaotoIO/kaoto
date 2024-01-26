@@ -25,7 +25,6 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       role="button"
       key={props.tile.name}
       id={props.tile.name}
-      onClick={onTileClick}
     >
       <CardHeader
         selectableActions={{
@@ -34,6 +33,8 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
           selectableActionAriaLabelledby: `Selectable ${props.tile.name}`,
           name: props.tile.name,
         }}
+        data-testid={'tile-header-' + props.tile.name}
+        onClick={onTileClick}
       >
         <div className="tile__header">
           <IconResolver className="tile__icon" tile={props.tile} />

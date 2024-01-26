@@ -12,6 +12,7 @@ exports[`Tile renders correctly 1`] = `
 >
   <div
     class="pf-v5-c-card__header"
+    data-testid="tile-header-tile-name"
   >
     <div
       class="pf-v5-c-card__actions"
