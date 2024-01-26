@@ -14,6 +14,7 @@ import { KameletBindingResource } from './kamelet-binding-resource';
 import { KameletResource } from './kamelet-resource';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
+import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
@@ -38,6 +39,12 @@ export interface CamelResource {
 export interface BeansAwareResource {
   createBeansEntity(): BeansEntity;
   deleteBeansEntity(entity: BeansEntity): void;
+}
+
+export interface RouteTemplateBeansAwareResource {
+  createRouteTemplateBeansEntity(): RouteTemplateBeansEntity;
+  getRouteTemplateBeansEntity(): RouteTemplateBeansEntity | undefined;
+  deleteRouteTemplateBeansEntity(): void;
 }
 
 /**

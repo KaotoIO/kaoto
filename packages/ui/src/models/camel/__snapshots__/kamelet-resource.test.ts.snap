@@ -37,6 +37,7 @@ exports[`KameletResource should convert to JSON 1`] = `
       "camel:kamelet",
     ],
     "template": {
+      "beans": undefined,
       "from": {
         "id": "from-1234",
         "parameters": {
@@ -100,6 +101,7 @@ exports[`KameletResource should create a new KameletResource 1`] = `
       "camel:kamelet",
     ],
     "template": {
+      "beans": undefined,
       "from": {
         "id": "from-1234",
         "parameters": {
@@ -150,7 +152,7 @@ exports[`KameletResource should create a new KameletResource with a kamelet 1`] 
     },
     "dependencies": [],
     "template": {
-      "beans": {},
+      "beans": [],
       "from": {
         "id": "from",
         "steps": [],

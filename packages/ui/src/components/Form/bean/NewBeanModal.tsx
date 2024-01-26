@@ -1,10 +1,11 @@
 import { MetadataEditor } from '../../MetadataEditor';
 import { Button, Modal } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { JSONSchemaType } from 'ajv';
 
 export type NewBeanModalProps = {
+  beanSchema: JSONSchemaType<unknown>;
   beanName?: string;
   propertyTitle: string;
   javaType?: string;
@@ -14,11 +15,6 @@ export type NewBeanModalProps = {
 };
 
 export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBeanModalProps) => {
-  const beanSchema = useMemo(() => {
-    const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'bean');
-    return beanCatalog?.propertiesSchema;
-  }, []);
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [beanModel, setBeanModel] = useState<any>();
 
@@ -35,7 +31,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
   }, [props]);
 
   return (
-    beanSchema && (
+    props.beanSchema && (
       <Modal
         data-testid={`NewBeanModal-${props.beanName}`}
         title={`Create a new ${props.propertyTitle} bean`}
@@ -54,7 +50,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
       >
         <MetadataEditor
           name={`${props.propertyTitle} Bean`}
-          schema={beanSchema}
+          schema={props.beanSchema}
           metadata={beanModel}
           onChangeModel={setBeanModel}
         />

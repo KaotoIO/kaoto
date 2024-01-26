@@ -20,7 +20,7 @@ const enum TabList {
 
 const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
   [SourceSchemaType.Route]: [TabList.Design, TabList.Beans],
-  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Metadata],
+  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata],
   [SourceSchemaType.Integration]: [],
   [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
   [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
