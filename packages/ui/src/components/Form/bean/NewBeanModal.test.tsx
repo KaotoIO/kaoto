@@ -2,16 +2,13 @@ import { NewBeanModal } from './NewBeanModal';
 import { fireEvent, render } from '@testing-library/react';
 import { screen } from '@testing-library/dom';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
+
 describe('NewBeanModal', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let beanSchema: any;
   beforeAll(async () => {
     const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (entitiesCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Entity,
-      entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
-    );
+    beanSchema = entitiesCatalog.bean.propertiesSchema;
   });
 
   it('should render', () => {
@@ -20,6 +17,7 @@ describe('NewBeanModal', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render(
       <NewBeanModal
+        beanSchema={beanSchema}
         isOpen={true}
         onCancelCreateBean={mockOnCancel}
         onCreateBean={mockOnCreate}

@@ -15,11 +15,9 @@ import {
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { EntityType } from '../../../models/camel/entities';
-import { BeansEntity } from '../../../models/visualization/metadata';
-import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
+import { RegistryBeanDefinition, RouteTemplateBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { NewBeanModal } from './NewBeanModal';
-import { BeansAwareResource } from '../../../models/camel';
+import { BeansEntityHandler } from '../../../models/visualization/metadata/beans-entity-handler';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BeanReferenceFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -30,13 +28,18 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beanReference = (props.value as string) ?? '';
-  const beansEntity = useMemo(() => {
-    return camelResource?.getEntities().find((item) => item.type === EntityType.Beans) as BeansEntity | undefined;
+  const beansHandler = useMemo(() => {
+    return new BeansEntityHandler(camelResource);
   }, [camelResource]);
+  const beanSchema = useMemo(() => {
+    return beansHandler.getBeanSchema();
+  }, [beansHandler]);
+  const beansEntity = useMemo(() => {
+    return beansHandler.getBeansEntity();
+  }, [beansHandler]);
   const allBeanOptions: SelectOptionProps[] = useMemo(() => {
-    if (!beansEntity) return [];
-    return beansEntity.parent.beans.map((bean: RegistryBeanDefinition) => {
-      const beanRef = '#' + bean.name;
+    return beansHandler.getAllBeansNameAndType().map((bean) => {
+      const beanRef = beansHandler.getReferenceFromName(bean.name);
       return {
         value: beanRef,
         children: bean.name,
@@ -44,7 +47,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
         isSelected: beanRef === beanReference,
       };
     });
-  }, [beanReference, beansEntity]);
+  }, [beanReference, beansHandler]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
@@ -63,7 +66,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
     if (filterValue) {
       let exactMatch = false;
       filteredOptions = allBeanOptions.filter((menuItem) => {
-        if (menuItem.value === filterValue || menuItem.value === '#' + filterValue) {
+        if (menuItem.value === filterValue || menuItem.value === beansHandler.getReferenceFromName(filterValue)) {
           exactMatch = true;
         }
         return (
@@ -71,7 +74,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
           String(menuItem.description).toLowerCase().includes(filterValue.toLowerCase())
         );
       });
-      if (!exactMatch && filterValue !== '#') {
+      if (!exactMatch && !beansHandler.getReferenceQuote()?.includes(filterValue)) {
         filteredOptions.push({
           isDisabled: false,
           isSelected: false,
@@ -214,12 +217,10 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
   );
 
   const handleCreateBean = useCallback(
-    (model: RegistryBeanDefinition) => {
-      const beansEntityToAdd = beansEntity
-        ? beansEntity
-        : (camelResource as unknown as BeansAwareResource)?.createBeansEntity();
-      beansEntityToAdd.parent.beans.push(model);
-      const beanRef = '#' + model.name;
+    (model: RegistryBeanDefinition | RouteTemplateBeanDefinition) => {
+      beansHandler.addNewBean(model);
+
+      const beanRef = beansHandler.getReferenceFromName(model.name);
       onSelect(undefined, beanRef);
       setIsNewBeanModalOpen(false);
     },
@@ -307,7 +308,8 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
       </Select>
       <NewBeanModal
         isOpen={isNewBeanModalOpen}
-        beanName={inputValue.replace('#', '')}
+        beanSchema={beanSchema!}
+        beanName={beansHandler.stripReferenceQuote(inputValue)}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         propertyTitle={(props.field as any)?.title}
         javaType={javaType}

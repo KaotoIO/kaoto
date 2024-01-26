@@ -40,7 +40,7 @@ describe('KameletResource', () => {
             uri: 'kamelet:source',
             steps: [],
           },
-          beans: {},
+          beans: [],
         },
       },
     });

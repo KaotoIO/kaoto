@@ -1,57 +1,36 @@
 import { TextContent } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
-import { MetadataEditor } from '../../components/MetadataEditor';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
-import { EntityType } from '../../models/camel/entities';
-import { BeansEntity } from '../../models/visualization/metadata';
-import { BeansAwareResource } from '../../models/camel';
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { MetadataEditor } from '../../components/MetadataEditor';
+import { BeansEntityHandler } from '../../models/visualization/metadata/beans-entity-handler';
+import { BeansDeserializer, RouteTemplateBeanDefinition } from '@kaoto-next/camel-catalog/types';
 
 export const BeansPage: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
-
-  const beansSchema = useMemo(() => {
-    const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans');
-    return beanCatalog?.propertiesSchema;
-  }, []);
-
+  const beansHandler = useMemo(() => {
+    return new BeansEntityHandler(camelResource);
+  }, [camelResource]);
   const isSupported = useMemo(() => {
-    return (camelResource as unknown as BeansAwareResource).createBeansEntity !== undefined;
-  }, [camelResource]);
-
-  const findBeansEntity = useCallback(() => {
-    return camelResource?.getEntities().find((item) => item.type === EntityType.Beans) as BeansEntity | undefined;
-  }, [camelResource]);
-
+    return beansHandler.isSupported();
+  }, [beansHandler]);
+  const beansSchema = useMemo(() => {
+    return beansHandler.getBeansSchema();
+  }, [beansHandler]);
   const getBeansModel = useCallback(() => {
-    const found = findBeansEntity();
-    return found ? found.parent.beans : [];
-  }, [findBeansEntity]);
+    return beansHandler.getBeansModel() || [];
+  }, [beansHandler]);
 
-  const onChangeModel = useCallback(
-    (model: BeansDeserializer) => {
-      const beansAwareResource = camelResource as unknown as BeansAwareResource;
-      if (model?.length > 0) {
-        let entity = findBeansEntity();
-        if (!entity) {
-          entity = beansAwareResource.createBeansEntity();
-        }
-        entity.parent.beans = model;
-      } else {
-        const entity = findBeansEntity();
-        entity && beansAwareResource.deleteBeansEntity(entity);
-      }
+  const handleChangeModel = useCallback(
+    (model: BeansDeserializer | RouteTemplateBeanDefinition[]) => {
+      beansHandler.setBeansModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [camelResource, entitiesContext, findBeansEntity],
+    [beansHandler, entitiesContext],
   );
 
   return isSupported ? (
-    <>
-      <MetadataEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={onChangeModel} />
-    </>
+    <MetadataEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={handleChangeModel} />
   ) : (
     <TextContent>Not applicable</TextContent>
   );

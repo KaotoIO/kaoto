@@ -8,9 +8,15 @@ import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel
 import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
 import { CamelKResource } from './camel-k-resource';
 import { SourceSchemaType } from './source-schema-type';
+import { RouteTemplateBeansAwareResource } from './camel-resource';
+import {
+  RouteTemplateBeansEntity,
+  RouteTemplateBeansParentType,
+} from '../visualization/metadata/routeTemplateBeansEntity';
 
-export class KameletResource extends CamelKResource {
+export class KameletResource extends CamelKResource implements RouteTemplateBeansAwareResource {
   private flow: KameletVisualEntity;
+  private beans?: RouteTemplateBeansEntity;
 
   constructor(kamelet?: IKameletDefinition) {
     super(kamelet);
@@ -20,6 +26,9 @@ export class KameletResource extends CamelKResource {
     }
 
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+    if (this.flow.spec.template.beans) {
+      this.beans = new RouteTemplateBeansEntity(this.flow.spec.template as RouteTemplateBeansParentType);
+    }
   }
 
   refreshVisualMetadata() {
@@ -30,6 +39,7 @@ export class KameletResource extends CamelKResource {
     super.removeEntity();
     this.resource = FlowTemplateService.getFlowTemplate(this.getType());
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+    this.beans = undefined;
   }
 
   getType(): SourceSchemaType {
@@ -53,6 +63,7 @@ export class KameletResource extends CamelKResource {
      */
     set(this.resource, 'metadata.name', this.flow.getId());
     set(this.resource, 'spec.template.from', this.flow.route.from);
+    set(this.resource, 'spec.template.beans', this.beans?.parent.beans);
     return this.resource as IKameletDefinition;
   }
 
@@ -64,5 +75,20 @@ export class KameletResource extends CamelKResource {
     definition?: any,
   ): TileFilter {
     return CamelComponentFilterService.getKameletCompatibleComponents(mode, visualEntityData, definition);
+  }
+
+  getRouteTemplateBeansEntity(): RouteTemplateBeansEntity | undefined {
+    return this.beans;
+  }
+
+  createRouteTemplateBeansEntity(): RouteTemplateBeansEntity {
+    this.flow.spec.template.beans = [];
+    this.beans = new RouteTemplateBeansEntity(this.flow.spec.template as RouteTemplateBeansParentType);
+    return this.beans;
+  }
+
+  deleteRouteTemplateBeansEntity(): void {
+    this.flow.spec.template.beans = undefined;
+    this.beans = undefined;
   }
 }
