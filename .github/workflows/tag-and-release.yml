@@ -1,0 +1,30 @@
+name: Create Kaoto-next tag and release
+on:
+  workflow_dispatch:
+    inputs:
+      tag_version:
+        type: The tag to release
+        description: The tag version we want to release
+        required: true
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ github.event.inputs.tag_version }}
+          create_annotated_tag: true
+          tag_prefix: ""
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
