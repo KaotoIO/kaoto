@@ -75,32 +75,18 @@ export class BeansEntityHandler {
   }
 
   setBeansModel(model: BeansDeserializer | RouteTemplateBeanDefinition[]) {
-    switch (this.type) {
-      case 'beans': {
-        if (model?.length > 0) {
-          let entity = this.getBeansEntity() as BeansEntity;
-          if (!entity) {
-            entity = (this.beansAware as BeansAwareResource).createBeansEntity();
-          }
-          entity.parent.beans = model;
-        } else {
-          const entity = this.getBeansEntity();
-          entity && this.deleteBeansEntity(entity);
-        }
-        break;
-      }
-      case 'routeTemplateBean':
-        if (model?.length > 0) {
-          let entity = this.getBeansEntity() as RouteTemplateBeansEntity;
-          if (!entity) {
-            entity = this.createBeansEntity() as RouteTemplateBeansEntity;
-          }
-          entity.parent.beans = model;
-        } else {
-          const entity = this.getBeansEntity() as RouteTemplateBeansEntity;
-          entity && this.deleteBeansEntity(entity);
-        }
-        break;
+    if (!Array.isArray(model) || model.length === 0) {
+      const entity = this.getBeansEntity();
+      entity && this.deleteBeansEntity(entity);
+      return;
+    }
+
+    let entity = this.getBeansEntity();
+    if (!entity) {
+      entity = this.createBeansEntity();
+    }
+    if (entity) {
+      entity.parent.beans = model;
     }
   }
 
