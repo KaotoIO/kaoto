@@ -6,6 +6,7 @@ import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { CamelCatalogService } from '../flows';
 import { CatalogKind } from '../../catalog-kind';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import cloneDeep from 'lodash/cloneDeep';
 
 describe('BeansEntityHandler', () => {
   beforeAll(async () => {
@@ -22,7 +23,7 @@ describe('BeansEntityHandler', () => {
     let model: any;
     let beansHandler: BeansEntityHandler;
     beforeEach(() => {
-      model = { ...routeStub.camelRouteJson };
+      model = cloneDeep(routeStub.camelRouteJson);
       const camelRouteResource = new CamelRouteResource(model);
       beansHandler = new BeansEntityHandler(camelRouteResource);
     });
@@ -74,7 +75,7 @@ describe('BeansEntityHandler', () => {
     let model: any;
     let beansHandler: BeansEntityHandler;
     beforeEach(() => {
-      model = { ...kameletStub.kameletJson };
+      model = cloneDeep(kameletStub.kameletJson);
       const kameletResource = new KameletResource(model);
       beansHandler = new BeansEntityHandler(kameletResource);
     });

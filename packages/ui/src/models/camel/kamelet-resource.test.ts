@@ -4,6 +4,7 @@ import { CamelComponentFilterService } from '../visualization/flows/support/came
 import { createCamelResource } from './camel-resource';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
+import cloneDeep from 'lodash/cloneDeep';
 
 describe('KameletResource', () => {
   it('should create a new KameletResource', () => {
@@ -82,5 +83,19 @@ describe('KameletResource', () => {
 
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
     });
+  });
+
+  it('should support RouteTemplateBeansAwareResource methods', () => {
+    const model = cloneDeep(kameletJson);
+    expect(model.spec.template.beans).toBeUndefined();
+    const kameletResource = new KameletResource(model);
+    expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
+    kameletResource.createRouteTemplateBeansEntity();
+    const beansEntity = kameletResource.getRouteTemplateBeansEntity();
+    expect(beansEntity!.parent.beans).toEqual([]);
+    expect(model.spec.template.beans).toEqual([]);
+    kameletResource.deleteRouteTemplateBeansEntity();
+    expect(model.spec.template.beans).toBeUndefined();
+    expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
   });
 });
