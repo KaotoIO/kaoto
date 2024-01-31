@@ -4,6 +4,7 @@ import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../.
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { ExpressionService } from './expression.service';
 import { act } from 'react-dom/test-utils';
+import { SchemaService } from '../schema.service';
 
 describe('ExpressionEditor', () => {
   const onChangeMock = jest.fn();
@@ -22,7 +23,9 @@ describe('ExpressionEditor', () => {
 
   it('render empty simple if language is not specified', () => {
     render(<ExpressionEditor expressionModel={{}} onChangeExpressionModel={onChangeMock}></ExpressionEditor>);
-    const dropdown = screen.getAllByRole('button').filter((button) => button.textContent === 'Simple');
+    const dropdown = screen
+      .getAllByRole('button')
+      .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
     expect(dropdown).toHaveLength(1);
   });
 

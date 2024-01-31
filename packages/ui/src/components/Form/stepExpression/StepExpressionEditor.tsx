@@ -16,7 +16,7 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   }, []);
 
   const [preparedLanguage, setPreparedLanguage] = useState<ICamelLanguageDefinition>();
-  const [preparedModel, setPreparedModel] = useState<Record<string, unknown>>({});
+  const [preparedModel, setPreparedModel] = useState<Record<string, unknown> | undefined>({});
 
   const resetModel = useCallback(() => {
     const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();

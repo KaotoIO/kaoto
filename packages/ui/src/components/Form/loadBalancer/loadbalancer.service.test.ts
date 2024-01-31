@@ -30,9 +30,9 @@ describe('LoadBalancerService', () => {
     it('should return LoadBalancer schema', () => {
       const loadBalancerMap = LoadBalancerService.getLoadBalancerMap();
       const jsonSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.roundRobin);
-      expect(jsonSchema.properties.id.type).toBe('string');
+      expect(jsonSchema!.properties.id.type).toBe('string');
       const customSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.customLoadBalancer);
-      expect(customSchema.properties.ref.type).toBe('string');
+      expect(customSchema!.properties.ref.type).toBe('string');
     });
   });
 
@@ -50,16 +50,16 @@ describe('LoadBalancerService', () => {
       expect(model).toEqual({ id: 'myRoundRobin' });
     });
 
-    it('should return roundRobin and empty model if model is empty', () => {
+    it('should return undefined if model is empty', () => {
       const { loadBalancer, model } = LoadBalancerService.parseLoadBalancerModel(loadBalancerMap, {});
-      expect(loadBalancer).toEqual(loadBalancerMap.roundRobin);
-      expect(model).toEqual({});
+      expect(loadBalancer).toBeUndefined();
+      expect(model).toBeUndefined();
     });
 
-    it('should return simple and empty model if language map and model is empty', () => {
+    it('should return undefined if language map and model is empty', () => {
       const { loadBalancer, model } = LoadBalancerService.parseLoadBalancerModel({}, {});
       expect(loadBalancer).toBeUndefined();
-      expect(model).toEqual({});
+      expect(model).toBeUndefined();
     });
   });
 

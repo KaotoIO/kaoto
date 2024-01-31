@@ -28,9 +28,9 @@ describe('DataFormatService', () => {
     it('should return DataFormat schema', () => {
       const dataFormatMap = DataFormatService.getDataFormatMap();
       const jsonSchema = DataFormatService.getDataFormatSchema(dataFormatMap.json);
-      expect(jsonSchema.properties.unmarshalType.type).toBe('string');
+      expect(jsonSchema!.properties.unmarshalType.type).toBe('string');
       const customSchema = DataFormatService.getDataFormatSchema(dataFormatMap.custom);
-      expect(customSchema.properties.ref.type).toBe('string');
+      expect(customSchema!.properties.ref.type).toBe('string');
     });
   });
 
@@ -48,16 +48,16 @@ describe('DataFormatService', () => {
       expect(model).toEqual({ unmarshalType: 'String' });
     });
 
-    it('should return json and empty model if model is empty', () => {
+    it('should return undefined if model is empty', () => {
       const { dataFormat, model } = DataFormatService.parseDataFormatModel(dataFormatMap, {});
-      expect(dataFormat).toEqual(dataFormatMap.json);
-      expect(model).toEqual({});
+      expect(dataFormat).toBeUndefined();
+      expect(model).toBeUndefined();
     });
 
     it('should return simple and empty model if language map and model is empty', () => {
       const { dataFormat, model } = DataFormatService.parseDataFormatModel({}, {});
       expect(dataFormat).toBeUndefined();
-      expect(model).toEqual({});
+      expect(model).toBeUndefined();
     });
 
     it('should parse short form avro', () => {

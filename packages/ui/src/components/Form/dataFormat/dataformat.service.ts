@@ -14,23 +14,23 @@ export class DataFormatService {
    * which is combined in @kaoto-next/camel-catalog.
    * @param dataFormatCatalog The {@link ICamelDataformatDefinition} object represents the DataFormat to get the schema.
    */
-  static getDataFormatSchema(dataFormatCatalog: ICamelDataformatDefinition) {
-    return dataFormatCatalog.propertiesSchema;
+  static getDataFormatSchema(dataFormatCatalog?: ICamelDataformatDefinition) {
+    return dataFormatCatalog?.propertiesSchema;
   }
 
   /**
    * Parse the dataformat model from the parent step model object.
    * @param dataFormatCatalogMap The language catalog map to use as a dictionary.
-   * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
+   * @param parentModel The parent step model object which has expression as its parameter. For example `marshal` contents.
    * */
   static parseDataFormatModel(
     dataFormatCatalogMap: Record<string, ICamelDataformatDefinition>,
     parentModel: Record<string, unknown>,
   ): {
     dataFormat: ICamelDataformatDefinition | undefined;
-    model: Record<string, unknown>;
+    model: Record<string, unknown> | undefined;
   } {
-    let dataFormatModelName = 'json';
+    let dataFormatModelName;
     let model = undefined;
     for (const dataFormat of Object.values(dataFormatCatalogMap)) {
       if (parentModel[dataFormat.model.name]) {
@@ -38,6 +38,9 @@ export class DataFormatService {
         model = DataFormatService.doParseDataFormatModel(parentModel, dataFormat);
         break;
       }
+    }
+    if (!dataFormatModelName) {
+      return { dataFormat: undefined, model };
     }
     if (!model) {
       model = {};
@@ -85,12 +88,12 @@ export class DataFormatService {
     dataFormatModelName: string,
     newDataFormatModel: Record<string, unknown>,
   ): void {
-    if (!dataFormatModelName || !dataFormatCatalogMap[dataFormatModelName]) {
-      return;
-    }
     Object.values(dataFormatCatalogMap).forEach((dataFormat) => {
       delete parentModel[dataFormat.model.name];
     });
+    if (!dataFormatModelName || !dataFormatCatalogMap[dataFormatModelName]) {
+      return;
+    }
     (parentModel as Record<string, unknown>)[dataFormatModelName] = newDataFormatModel;
   }
 }
