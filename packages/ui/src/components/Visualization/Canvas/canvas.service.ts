@@ -235,7 +235,7 @@ export class CanvasService {
       children: options.children ?? [],
       data: options.data,
       style: {
-        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER / 2,
+        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.8,
       },
     };
   }

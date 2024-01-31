@@ -2461,7 +2461,7 @@ __metadata:
     "@patternfly/react-core": 5.2.0
     "@patternfly/react-icons": 5.2.0
     "@patternfly/react-table": 5.2.0
-    "@patternfly/react-topology": 5.2.0
+    "@patternfly/react-topology": 5.2.1
     "@testing-library/dom": ^9.3.0
     "@testing-library/jest-dom": ^6.0.0
     "@testing-library/react": ^14.0.0
@@ -3348,9 +3348,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-topology@npm:5.2.0":
-  version: 5.2.0
-  resolution: "@patternfly/react-topology@npm:5.2.0"
+"@patternfly/react-topology@npm:5.2.1":
+  version: 5.2.1
+  resolution: "@patternfly/react-topology@npm:5.2.1"
   dependencies:
     "@patternfly/react-core": ^5.1.1
     "@patternfly/react-icons": ^5.1.1
@@ -3372,7 +3372,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 45e8534f9d37e3271c63eaeb2b70c743f3712690e09ecf4897735549a9c9581aa6a38325d1104bb888405eb0fcbf252b914e948f445098afcb198fd16b40588c
+  checksum: 91dd662a42a21b717cbce815f2305ec9957cc3a013f42591be9a7bac704eba7ff5eba2113736253255b4f8821380d32a0cf84eb04203068f048d66cf189c468b
   languageName: node
   linkType: hard
 

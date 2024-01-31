@@ -128,7 +128,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom In
                         </span>
@@ -164,7 +164,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom Out
                         </span>
@@ -200,7 +200,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Fit to Screen
                         </span>
@@ -236,7 +236,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Reset View
                         </span>
@@ -457,7 +457,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom In
                         </span>
@@ -493,7 +493,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom Out
                         </span>
@@ -529,7 +529,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Fit to Screen
                         </span>
@@ -565,7 +565,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Reset View
                         </span>
@@ -693,10 +693,10 @@ exports[`Canvas should render correctly 1`] = `
                     >
                       <rect
                         class="pf-topology__group__background"
-                        height="150"
-                        width="150"
-                        x="-37.5"
-                        y="-37.5"
+                        height="195"
+                        width="195"
+                        x="-60"
+                        y="-60"
                       />
                     </g>
                   </g>
@@ -939,7 +939,7 @@ exports[`Canvas should render correctly 1`] = `
                       >
                         <g
                           class="pf-topology__group__label"
-                          transform="translate(NaN, 136.5)"
+                          transform="translate(NaN, 159)"
                         >
                           <rect
                             class="pf-topology__node__label__background"
@@ -1103,7 +1103,7 @@ exports[`Canvas should render correctly 1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom In
                         </span>
@@ -1139,7 +1139,7 @@ exports[`Canvas should render correctly 1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom Out
                         </span>
@@ -1175,7 +1175,7 @@ exports[`Canvas should render correctly 1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Fit to Screen
                         </span>
@@ -1211,7 +1211,7 @@ exports[`Canvas should render correctly 1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Reset View
                         </span>
@@ -1339,10 +1339,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     >
                       <rect
                         class="pf-topology__group__background"
-                        height="150"
-                        width="150"
-                        x="-37.5"
-                        y="-37.5"
+                        height="195"
+                        width="195"
+                        x="-60"
+                        y="-60"
                       />
                     </g>
                   </g>
@@ -1585,7 +1585,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                       >
                         <g
                           class="pf-topology__group__label"
-                          transform="translate(NaN, 136.5)"
+                          transform="translate(NaN, 159)"
                         >
                           <rect
                             class="pf-topology__node__label__background"
@@ -1749,7 +1749,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom In
                         </span>
@@ -1785,7 +1785,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom Out
                         </span>
@@ -1821,7 +1821,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Fit to Screen
                         </span>
@@ -1857,7 +1857,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Reset View
                         </span>
@@ -1985,10 +1985,10 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     >
                       <rect
                         class="pf-topology__group__background"
-                        height="150"
-                        width="150"
-                        x="-37.5"
-                        y="-37.5"
+                        height="195"
+                        width="195"
+                        x="-60"
+                        y="-60"
                       />
                     </g>
                   </g>
@@ -2231,7 +2231,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                       >
                         <g
                           class="pf-topology__group__label"
-                          transform="translate(NaN, 136.5)"
+                          transform="translate(NaN, 159)"
                         >
                           <rect
                             class="pf-topology__node__label__background"
@@ -2395,7 +2395,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom In
                         </span>
@@ -2431,7 +2431,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Zoom Out
                         </span>
@@ -2467,7 +2467,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Fit to Screen
                         </span>
@@ -2503,7 +2503,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Reset View
                         </span>
@@ -2537,7 +2537,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           </span>
                         </span>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Horizontal Layout
                         </span>
@@ -2571,7 +2571,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           </span>
                         </span>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Vertical Layout
                         </span>
@@ -2607,7 +2607,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           />
                         </svg>
                         <span
-                          class="pf-v5-u-screen-reader"
+                          class="pf-v5-screen-reader"
                         >
                           Open Catalog
                         </span>
