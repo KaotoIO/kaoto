@@ -176,9 +176,10 @@ describe('VisualizationNode', () => {
       const camelRouteVisualEntityStub = new CamelRouteVisualEntity(camelRouteJson.route);
 
       node = camelRouteVisualEntityStub.toVizNode();
+      const fromNode = node.getChildren()?.[0];
 
       /** Get set-header node */
-      const setHeaderNode = node.getChildren()?.[0];
+      const setHeaderNode = fromNode!.getChildren()?.[0];
 
       /** Remove set-header node */
       setHeaderNode!.removeChild();
@@ -186,7 +187,9 @@ describe('VisualizationNode', () => {
       /** Refresh the Viz Node */
       node = camelRouteVisualEntityStub.toVizNode();
 
-      expect(node.getChildren()?.[0].getNodeLabel()).toEqual('choice');
+      expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
+      expect(fromNode!.getChildren()?.[0].getNodeLabel()).toEqual('choice-1234');
+      expect(fromNode!.getChildren()).toHaveLength(2);
     });
   });
 

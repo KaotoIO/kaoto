@@ -3,6 +3,7 @@ import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash.clonedeep';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
+import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { IVisualizationNode } from '../base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
@@ -267,30 +268,62 @@ describe('Camel Route', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return the viz node and set the initial path to `from`', () => {
+    it(`should return the group viz node and set the initial path to '${ROOT_PATH}'`, () => {
       const vizNode = camelEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
-      expect(vizNode.data.path).toEqual('from');
+      expect(vizNode.data.path).toEqual(ROOT_PATH);
+    });
+
+    it('should return the group first child and set the initial path to `from`', () => {
+      const vizNode = camelEntity.toVizNode();
+      const fromNode = vizNode.getChildren()?.[0];
+
+      expect(fromNode).toBeDefined();
+      expect(fromNode?.data.path).toEqual('from');
+    });
+
+    it('should use the route ID as the group label', () => {
+      const vizNode = camelEntity.toVizNode();
+
+      expect(vizNode.getNodeLabel()).toEqual('route-8888');
+    });
+
+    it('should use the route description as the group label if available', () => {
+      camelEntity.route.description = 'This is a route description';
+      const vizNode = camelEntity.toVizNode();
+
+      expect(vizNode.getNodeLabel()).toEqual('This is a route description');
+    });
+
+    it('should use the default group label if the id is not available', () => {
+      camelEntity.route.id = undefined;
+      const vizNode = camelEntity.toVizNode();
+
+      expect(vizNode.getNodeLabel()).toEqual('');
     });
 
     it('should use the uri as the node label', () => {
       const vizNode = camelEntity.toVizNode();
+      const fromNode = vizNode.getChildren()?.[0];
 
-      expect(vizNode.getNodeLabel()).toEqual('timer');
+      expect(fromNode?.getNodeLabel()).toEqual('timer');
     });
 
     it('should set a default label if the uri is not available', () => {
       camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
       const vizNode = camelEntity.toVizNode();
+      const fromNode = vizNode.getChildren()?.[0];
 
-      expect(vizNode.getNodeLabel()).toEqual('from: Unknown');
+      expect(fromNode?.getNodeLabel()).toEqual('from: Unknown');
     });
 
-    it('should not create a viz node if a single-clause property is not defined', () => {
+    it('should populate the viz node chain with simple steps', () => {
       const vizNode = new CamelRouteVisualEntity({
+        id: 'route-1234',
         from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
       } as unknown as RouteDefinition).toVizNode();
+      const fromNode = vizNode.getChildren()![0];
 
       /** Given a structure of
        * from
@@ -299,16 +332,25 @@ describe('Camel Route', () => {
        *      - log
        */
 
-      /** from */
-      expect(vizNode.data.path).toEqual('from');
-      expect(vizNode.getNodeLabel()).toEqual('timer');
+      /** group node */
+      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.data.isGroup).toBeTruthy();
+      expect(vizNode.getNodeLabel()).toEqual('route-1234');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
       expect(vizNode.getChildren()).toHaveLength(1);
 
+      /** from */
+      expect(fromNode.data.path).toEqual('from');
+      expect(fromNode.getNodeLabel()).toEqual('timer');
+      /** Since this is the first child node, there's no previous step */
+      expect(fromNode.getPreviousNode()).toBeUndefined();
+      expect(fromNode.getNextNode()).toBeUndefined();
+      expect(fromNode.getChildren()).toHaveLength(1);
+
       /** choice */
-      const choiceNode = vizNode.getChildren()?.[0] as IVisualizationNode;
+      const choiceNode = fromNode.getChildren()?.[0] as IVisualizationNode;
       expect(choiceNode.data.path).toEqual('from.steps.0.choice');
       expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBeUndefined();
@@ -324,6 +366,7 @@ describe('Camel Route', () => {
 
     it('should populate the viz node chain with the steps', () => {
       const vizNode = camelEntity.toVizNode();
+      const fromNode = vizNode.getChildren()![0];
 
       /** Given a structure of
        * from
@@ -338,16 +381,25 @@ describe('Camel Route', () => {
        * - toDirect
        */
 
-      /** from */
-      expect(vizNode.data.path).toEqual('from');
-      expect(vizNode.getNodeLabel()).toEqual('timer');
+      /** group node */
+      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.data.isGroup).toBeTruthy();
+      expect(vizNode.getNodeLabel()).toEqual('route-8888');
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
-      expect(vizNode.getChildren()).toHaveLength(3);
+      expect(vizNode.getChildren()).toHaveLength(1);
+
+      /** from */
+      expect(fromNode.data.path).toEqual('from');
+      expect(fromNode.getNodeLabel()).toEqual('timer');
+      /** Since this is the first child node, there's no previous step */
+      expect(fromNode.getPreviousNode()).toBeUndefined();
+      expect(fromNode.getNextNode()).toBeUndefined();
+      expect(fromNode.getChildren()).toHaveLength(3);
 
       /** setHeader */
-      const setHeaderNode = vizNode.getChildren()?.[0] as IVisualizationNode;
+      const setHeaderNode = fromNode.getChildren()?.[0] as IVisualizationNode;
       expect(setHeaderNode.data.path).toEqual('from.steps.0.set-header');
       expect(setHeaderNode.getNodeLabel()).toEqual('set-header');
       expect(setHeaderNode.getPreviousNode()).toBeUndefined();

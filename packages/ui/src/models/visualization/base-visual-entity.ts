@@ -114,6 +114,7 @@ export interface IVisualizationNodeData {
   path?: string;
   entity?: BaseVisualCamelEntity;
   isPlaceholder?: boolean;
+  isGroup?: boolean;
   [key: string]: unknown;
 }
 

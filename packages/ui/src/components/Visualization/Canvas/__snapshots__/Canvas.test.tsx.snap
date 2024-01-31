@@ -613,6 +613,53 @@ exports[`Canvas should render correctly 1`] = `
           <svg
             class="pf-topology-visualization-surface__svg"
           >
+            <defs>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="1"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId--hover"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="3"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="200%"
+                id="NodeShadowsFilterId--danger"
+                width="200%"
+                x="-50%"
+                y="-50%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="0"
+                  flood-color="#DB0000"
+                  flood-opacity="0.5"
+                  stdDeviation="4"
+                />
+              </filter>
+            </defs>
             <g
               data-id="g1"
               data-kind="graph"
@@ -634,7 +681,26 @@ exports[`Canvas should render correctly 1`] = `
                 />
                 <g
                   data-layer-id="groups"
-                />
+                >
+                  <g
+                    data-id="route-8888"
+                    data-kind="node"
+                    data-type="group"
+                    transform="translate(0, 0)"
+                  >
+                    <g
+                      class="pf-topology__group"
+                    >
+                      <rect
+                        class="pf-topology__group__background"
+                        height="150"
+                        width="150"
+                        x="-37.5"
+                        y="-37.5"
+                      />
+                    </g>
+                  </g>
+                </g>
                 <g
                   data-layer-id="default"
                 >
@@ -863,53 +929,123 @@ exports[`Canvas should render correctly 1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="timer-1234"
+                    data-id="route-8888"
                     data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="set-header-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="choice-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="when-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="log-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="otherwise-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="amqp-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="direct-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
+                    data-type="group"
+                  >
+                    <g>
+                      <g
+                        class="pf-topology__group"
+                      >
+                        <g
+                          class="pf-topology__group__label"
+                          transform="translate(NaN, 136.5)"
+                        >
+                          <rect
+                            class="pf-topology__node__label__background"
+                            height="NaN"
+                            rx="4"
+                            ry="4"
+                            width="NaN"
+                            x="0"
+                            y="0"
+                          />
+                          <text
+                            dy="0.35em"
+                            x="8"
+                            y="NaN"
+                          >
+                            route-8888
+                          </text>
+                          <line
+                            class="pf-topology__node__separator"
+                            shape-rendering="crispEdges"
+                            x1="NaN"
+                            x2="NaN"
+                            y1="0"
+                            y2="NaN"
+                          />
+                          <g
+                            class="pf-topology__node__action-icon"
+                          >
+                            <rect
+                              class="pf-topology__node__action-icon__background"
+                              height="NaN"
+                              width="16"
+                              x="NaN"
+                              y="0"
+                            />
+                            <g
+                              class="pf-topology__node__action-icon__icon"
+                              transform="translate(NaN, NaN)"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="pf-v5-svg"
+                                fill="currentColor"
+                                height="1em"
+                                role="img"
+                                viewBox="0 0 448 512"
+                                width="1em"
+                              >
+                                <path
+                                  d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                />
+                              </svg>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                    <g
+                      data-id="timer-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="set-header-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="choice-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="when-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="log-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="otherwise-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="amqp-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="direct-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                  </g>
                 </g>
                 <g
                   data-layer-id="top"
@@ -1123,6 +1259,53 @@ exports[`Canvas should render correctly with more routes  1`] = `
           <svg
             class="pf-topology-visualization-surface__svg"
           >
+            <defs>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="1"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId--hover"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="3"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="200%"
+                id="NodeShadowsFilterId--danger"
+                width="200%"
+                x="-50%"
+                y="-50%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="0"
+                  flood-color="#DB0000"
+                  flood-opacity="0.5"
+                  stdDeviation="4"
+                />
+              </filter>
+            </defs>
             <g
               data-id="g1"
               data-kind="graph"
@@ -1144,7 +1327,26 @@ exports[`Canvas should render correctly with more routes  1`] = `
                 />
                 <g
                   data-layer-id="groups"
-                />
+                >
+                  <g
+                    data-id="route-8888"
+                    data-kind="node"
+                    data-type="group"
+                    transform="translate(0, 0)"
+                  >
+                    <g
+                      class="pf-topology__group"
+                    >
+                      <rect
+                        class="pf-topology__group__background"
+                        height="150"
+                        width="150"
+                        x="-37.5"
+                        y="-37.5"
+                      />
+                    </g>
+                  </g>
+                </g>
                 <g
                   data-layer-id="default"
                 >
@@ -1373,53 +1575,123 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </g>
                   </g>
                   <g
-                    data-id="timer-1234"
+                    data-id="route-8888"
                     data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="set-header-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="choice-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="when-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="log-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="otherwise-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="amqp-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="direct-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
+                    data-type="group"
+                  >
+                    <g>
+                      <g
+                        class="pf-topology__group"
+                      >
+                        <g
+                          class="pf-topology__group__label"
+                          transform="translate(NaN, 136.5)"
+                        >
+                          <rect
+                            class="pf-topology__node__label__background"
+                            height="NaN"
+                            rx="4"
+                            ry="4"
+                            width="NaN"
+                            x="0"
+                            y="0"
+                          />
+                          <text
+                            dy="0.35em"
+                            x="8"
+                            y="NaN"
+                          >
+                            route-8888
+                          </text>
+                          <line
+                            class="pf-topology__node__separator"
+                            shape-rendering="crispEdges"
+                            x1="NaN"
+                            x2="NaN"
+                            y1="0"
+                            y2="NaN"
+                          />
+                          <g
+                            class="pf-topology__node__action-icon"
+                          >
+                            <rect
+                              class="pf-topology__node__action-icon__background"
+                              height="NaN"
+                              width="16"
+                              x="NaN"
+                              y="0"
+                            />
+                            <g
+                              class="pf-topology__node__action-icon__icon"
+                              transform="translate(NaN, NaN)"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="pf-v5-svg"
+                                fill="currentColor"
+                                height="1em"
+                                role="img"
+                                viewBox="0 0 448 512"
+                                width="1em"
+                              >
+                                <path
+                                  d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                />
+                              </svg>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                    <g
+                      data-id="timer-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="set-header-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="choice-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="when-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="log-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="otherwise-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="amqp-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="direct-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                  </g>
                 </g>
                 <g
                   data-layer-id="top"
@@ -1633,6 +1905,53 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
           <svg
             class="pf-topology-visualization-surface__svg"
           >
+            <defs>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="1"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="150%"
+                id="NodeShadowsFilterId--hover"
+                width="150%"
+                x="-25%"
+                y="-25%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="3"
+                  flood-color="#030303"
+                  flood-opacity="0.2"
+                  stdDeviation="2"
+                />
+              </filter>
+              <filter
+                height="200%"
+                id="NodeShadowsFilterId--danger"
+                width="200%"
+                x="-50%"
+                y="-50%"
+              >
+                <fedropshadow
+                  dx="0"
+                  dy="0"
+                  flood-color="#DB0000"
+                  flood-opacity="0.5"
+                  stdDeviation="4"
+                />
+              </filter>
+            </defs>
             <g
               data-id="g1"
               data-kind="graph"
@@ -1654,7 +1973,26 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                 />
                 <g
                   data-layer-id="groups"
-                />
+                >
+                  <g
+                    data-id="route-8888"
+                    data-kind="node"
+                    data-type="group"
+                    transform="translate(0, 0)"
+                  >
+                    <g
+                      class="pf-topology__group"
+                    >
+                      <rect
+                        class="pf-topology__group__background"
+                        height="150"
+                        width="150"
+                        x="-37.5"
+                        y="-37.5"
+                      />
+                    </g>
+                  </g>
+                </g>
                 <g
                   data-layer-id="default"
                 >
@@ -1883,53 +2221,123 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </g>
                   </g>
                   <g
-                    data-id="timer-1234"
+                    data-id="route-8888"
                     data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="set-header-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="choice-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="when-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="log-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="otherwise-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="amqp-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
-                  <g
-                    data-id="direct-1234"
-                    data-kind="node"
-                    data-type="node"
-                    transform="translate(0, 0)"
-                  />
+                    data-type="group"
+                  >
+                    <g>
+                      <g
+                        class="pf-topology__group"
+                      >
+                        <g
+                          class="pf-topology__group__label"
+                          transform="translate(NaN, 136.5)"
+                        >
+                          <rect
+                            class="pf-topology__node__label__background"
+                            height="NaN"
+                            rx="4"
+                            ry="4"
+                            width="NaN"
+                            x="0"
+                            y="0"
+                          />
+                          <text
+                            dy="0.35em"
+                            x="8"
+                            y="NaN"
+                          >
+                            route-8888
+                          </text>
+                          <line
+                            class="pf-topology__node__separator"
+                            shape-rendering="crispEdges"
+                            x1="NaN"
+                            x2="NaN"
+                            y1="0"
+                            y2="NaN"
+                          />
+                          <g
+                            class="pf-topology__node__action-icon"
+                          >
+                            <rect
+                              class="pf-topology__node__action-icon__background"
+                              height="NaN"
+                              width="16"
+                              x="NaN"
+                              y="0"
+                            />
+                            <g
+                              class="pf-topology__node__action-icon__icon"
+                              transform="translate(NaN, NaN)"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="pf-v5-svg"
+                                fill="currentColor"
+                                height="1em"
+                                role="img"
+                                viewBox="0 0 448 512"
+                                width="1em"
+                              >
+                                <path
+                                  d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                />
+                              </svg>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                    <g
+                      data-id="timer-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="set-header-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="choice-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="when-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="log-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="otherwise-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="amqp-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                    <g
+                      data-id="direct-1234"
+                      data-kind="node"
+                      data-type="node"
+                      transform="translate(0, 0)"
+                    />
+                  </g>
                 </g>
                 <g
                   data-layer-id="top"

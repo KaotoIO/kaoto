@@ -4,7 +4,7 @@ import { VisualizationEmptyState } from './VisualizationEmptyState';
 
 describe('VisualizationEmptyState.tsx', () => {
   describe('when there are no routes', () => {
-    it.only('should render the CubesIcon whenever there are no routes', () => {
+    it('should render the CubesIcon whenever there are no routes', () => {
       const wrapper = render(
         <TestProvidersWrapper>
           <VisualizationEmptyState entitiesNumber={0} />

@@ -1,8 +1,10 @@
-import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-/* eslint-disable no-case-declarations */
-import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../..';
+import { JSONSchemaType } from 'ajv';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities';
+import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
+import { VisualComponentSchema } from '../base-visual-entity';
+import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity {
   id: string;
@@ -14,6 +16,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     super({ id: kamelet.metadata?.name, from: kamelet?.spec.template.from });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
     this.metadata = kamelet?.metadata ?? { name: this.id };
+    this.metadata.name = kamelet?.metadata.name ?? this.id;
     this.spec = kamelet.spec;
   }
 
@@ -21,6 +24,19 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
   setId(routeId: string): void {
     this.id = routeId;
     this.metadata.name = this.id;
+  }
+
+  getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
+    if (path === ROOT_PATH) {
+      /** A better schema will be provided at a later stage */
+      return {
+        title: 'Kamelet',
+        schema: {} as JSONSchemaType<unknown>,
+        definition: this.route,
+      };
+    }
+
+    return super.getComponentSchema(path);
   }
 
   protected getRootUri(): string | undefined {
