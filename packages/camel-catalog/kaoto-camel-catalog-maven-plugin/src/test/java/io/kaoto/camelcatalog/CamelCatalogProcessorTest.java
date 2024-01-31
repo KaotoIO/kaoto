@@ -16,13 +16,14 @@
 package io.kaoto.camelcatalog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.kaoto.camelcatalog.CamelCatalogProcessor;
-import io.kaoto.camelcatalog.CamelYamlDslSchemaProcessor;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -106,7 +107,11 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testComponentEnumParameter() throws Exception {
-        for (var entry : componentCatalog.properties()) {
+        checkEnumParameters(componentCatalog);
+    }
+
+    private void checkEnumParameters(ObjectNode catalog) throws Exception {
+        for (var entry : catalog.properties()) {
             var name = entry.getKey();
             var component = entry.getValue();
             for (var prop : component.withObject("/propertiesSchema").withObject("/properties").properties()) {
@@ -114,8 +119,20 @@ public class CamelCatalogProcessorTest {
                 var property = prop.getValue();
                 if (property.has("enum")) {
                     assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
+                    checkEnumDuplicate(name, propName, property.withArray("/enum"));
                 }
             }
+        }
+    }
+
+    private void checkEnumDuplicate(String entityName, String propertyName, ArrayNode enumArray) {
+        Set<String> names = new HashSet<>();
+        for (var enumValue : enumArray) {
+            var name = enumValue.asText();
+            if (names.contains(name)) {
+                fail(String.format("Duplicate enum value [%s] in [%s/%s]", name, entityName, propertyName));
+            }
+            names.add(name);
         }
     }
 
@@ -140,17 +157,7 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testDataFormatEnumParameter() throws Exception {
-        for (var entry : dataFormatCatalog.properties()) {
-            var name = entry.getKey();
-            var dataFormat = entry.getValue();
-            for (var prop : dataFormat.withObject("/propertiesSchema").withObject("/properties").properties()) {
-                var propName = prop.getKey();
-                var property = prop.getValue();
-                if (property.has("enum")) {
-                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
-                }
-            }
-        }
+        checkEnumParameters(dataFormatCatalog);
     }
 
     @Test
@@ -175,17 +182,7 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testLanguageEnumParameter() throws Exception {
-        for (var entry : languageCatalog.properties()) {
-            var name = entry.getKey();
-            var language = entry.getValue();
-            for (var prop : language.withObject("/propertiesSchema").withObject("/properties").properties()) {
-                var propName = prop.getKey();
-                var property = prop.getValue();
-                if (property.has("enum")) {
-                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
-                }
-            }
-        }
+        checkEnumParameters(languageCatalog);
     }
 
     @Test
@@ -196,6 +193,11 @@ public class CamelCatalogProcessorTest {
                 .withObject("/model");
         assertEquals("model", aggregateModel.get("kind").asText());
         assertEquals("Aggregate", aggregateModel.get("title").asText());
+    }
+
+    @Test
+    public void testModelEnumParameter() throws Exception {
+        checkEnumParameters(modelCatalog);
     }
 
     @Test
@@ -217,17 +219,7 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testPatternEnumParameter() throws Exception {
-        for (var entry : processorCatalog.properties()) {
-            var name = entry.getKey();
-            var pattern = entry.getValue();
-            for (var prop : pattern.withObject("/propertiesSchema").withObject("/properties").properties()) {
-                var propName = prop.getKey();
-                var property = prop.getValue();
-                if (property.has("enum")) {
-                    assertTrue(ALLOWED_ENUM_TYPES.contains(property.get("type").asText()), name + ":" + propName);
-                }
-            }
-        }
+        checkEnumParameters(processorCatalog);
     }
 
     @Test
@@ -276,6 +268,11 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
+    public void testEntityEnumParameter() throws Exception {
+        checkEnumParameters(entityCatalog);
+    }
+
+    @Test
     public void testGetLoadBalancerCatalog() throws Exception {
         assertFalse(loadBalancerCatalog.isEmpty());
         var failoverModel = loadBalancerCatalog.withObject("/failover/model");
@@ -293,5 +290,10 @@ public class CamelCatalogProcessorTest {
         assertEquals("Custom Load Balancer", customSchema.get("title").asText());
         var customRef = customSchema.withObject("/properties/ref");
         assertEquals("Ref", customRef.get("title").asText());
+    }
+
+    @Test
+    public void testLoadBalancerEnumParameter() throws Exception {
+        checkEnumParameters(loadBalancerCatalog);
     }
 }
