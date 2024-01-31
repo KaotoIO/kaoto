@@ -347,7 +347,8 @@ public class CamelCatalogProcessor {
                 propertySchema.put("default", catalogOption.getDefaultValue().toString());
             }
         }
-        if (catalogOption.getEnums() != null) {
+        // if the enum is defined in YAML DSL schema, honor that, otherwise copy from the catalog.
+        if (catalogOption.getEnums() != null && !propertySchema.has("enum")) {
             catalogOption.getEnums()
                     .forEach(e -> propertySchema.withArray("/enum").add(e));
             if (!propertySchema.has("type") || "object".equals(propertySchema.get("type").asText())) {
