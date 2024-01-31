@@ -13,15 +13,16 @@ export const CatalogPage: FunctionComponent = () => {
     setIsModalOpen(true);
   }, []);
 
+  const handleOnClose = useCallback(() => {
+    setIsModalOpen(false);
+    setModalTile(undefined);
+  }, []);
+
   return (
     <>
       <Catalog tiles={tiles} onTileClick={onTileClick} />
       {modalTile && (
-        <PropertiesModal
-          tile={modalTile}
-          isModalOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        ></PropertiesModal>
+        <PropertiesModal tile={modalTile} isModalOpen={isModalOpen} onClose={handleOnClose}></PropertiesModal>
       )}
     </>
   );

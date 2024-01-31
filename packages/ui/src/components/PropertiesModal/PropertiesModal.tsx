@@ -1,5 +1,6 @@
-import { Modal } from '@patternfly/react-core';
-import { FunctionComponent, useMemo } from 'react';
+import { Modal, ModalBoxBody, Tab, Tabs } from '@patternfly/react-core';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { IPropertiesTab } from '.';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
@@ -33,6 +34,30 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
         throw Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);
     }
   }, [props.tile]);
+  const [activeTabKey, setActiveTabKey] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<IPropertiesTab>();
+
+  useEffect(() => {
+    setActiveTabKey(0);
+    setActiveTab(tabs[0]);
+  }, [tabs]);
+
+  const handleTabClick = (_event: unknown, tabIndex: string | number) => {
+    setActiveTab(tabs[tabIndex as number]);
+    setActiveTabKey(tabIndex as number);
+  };
+
+  const description = (
+    <div>
+      <p data-testid="properties-modal-description">{props.tile.description}</p>
+      <br />
+      <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label="Properties tabs" isBox={true} role="region">
+        {tabs.map((tab, tab_index) => (
+          <Tab data-testid={'tab-' + tab_index} key={tab_index} eventKey={tab_index} title={tab.rootName}></Tab>
+        ))}
+      </Tabs>
+    </div>
+  );
 
   return (
     <Modal
@@ -41,11 +66,15 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       isOpen={props.isModalOpen}
       onClose={props.onClose}
       ouiaId="BasicModal"
+      description={description}
     >
-      <p data-testid="properties-modal-description">{props.tile.description}</p>
-      <br />
-      {tabs.length == 0 && <EmptyTableState name={props.tile.name}></EmptyTableState>}
-      {tabs.length != 0 && <PropertiesTabs tabs={tabs}></PropertiesTabs>}
+      <ModalBoxBody>
+        {tabs.length === 0 ? (
+          <EmptyTableState name={props.tile.name} />
+        ) : (
+          <PropertiesTabs tab={activeTab!} tab_index={activeTabKey} />
+        )}
+      </ModalBoxBody>
     </Modal>
   );
 };
