@@ -1,9 +1,9 @@
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 
+import { CatalogKind } from '../../models';
 import { ITile } from '../Catalog';
 import { PropertiesModal } from './PropertiesModal';
-import { CatalogKind } from '../../models';
 
 describe('Component tile', () => {
   const tile: ITile = {
@@ -107,7 +107,7 @@ describe('Component tile', () => {
     },
   };
 
-  it('renders component properties table correctly', () => {
+  it('renders component properties table correctly', async () => {
     // modal uses React portals so baseElement needs to be used here
     const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
     // info
@@ -132,6 +132,8 @@ describe('Component tile', () => {
     //tab 1
     expect(screen.getByTestId('tab-1')).toHaveTextContent('Endpoint Options (2)');
     //table1
+    screen.getByTestId('tab-1').click();
+    await new Promise(process.nextTick);
     expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).toHaveTextContent('path parameters (1)');
     //headers
     expect(screen.getByTestId('tab-1-table-0-header-name')).toHaveTextContent('name');
@@ -164,6 +166,8 @@ describe('Component tile', () => {
     //tab 2
     expect(screen.getByTestId('tab-2')).toHaveTextContent('Message Headers (1)');
     //headers
+    screen.getByTestId('tab-2').click();
+    await new Promise(process.nextTick);
     expect(screen.getByTestId('tab-2-table-0-header-name')).toHaveTextContent('name');
     expect(screen.getByTestId('tab-2-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-2-table-0-header-default')).toHaveTextContent('default');
@@ -181,11 +185,13 @@ describe('Component tile', () => {
 
     //tab 3
     expect(screen.getByTestId('tab-3')).toHaveTextContent('APIs (2)');
-    // //headers
+    //headers
+    screen.getByTestId('tab-3').click();
+    await new Promise(process.nextTick);
     expect(screen.getByTestId('tab-3-table-0-header-name')).toHaveTextContent('name');
     expect(screen.getByTestId('tab-3-table-0-header-description')).toHaveTextContent('description');
     expect(screen.getByTestId('tab-3-table-0-header-type')).toHaveTextContent('type');
-    // // rows
+    // rows
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-apiKind')).toHaveTextContent('Api');
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-name')).toHaveTextContent('client');
     expect(screen.getByTestId('tab-3-table-0-row-0-cell-description')).toHaveTextContent('Client api');
@@ -214,15 +220,9 @@ describe('Component tile', () => {
     render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
     // switch to API tab
     expect(screen.getByTestId('tab-0-table-0-properties-modal-table-caption')).toBeVisible();
-    expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).not.toBeVisible();
-    expect(screen.getByTestId('tab-2-table-0-properties-modal-table-caption')).not.toBeVisible();
-    expect(screen.getByTestId('tab-3-table-0-properties-modal-table-caption')).not.toBeVisible();
     expect(screen.getByTestId('tab-3')).toHaveAttribute('aria-selected', 'false');
     screen.getByTestId('tab-3').click();
     await new Promise(process.nextTick);
-    expect(screen.getByTestId('tab-0-table-0-properties-modal-table-caption')).not.toBeVisible();
-    expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).not.toBeVisible();
-    expect(screen.getByTestId('tab-2-table-0-properties-modal-table-caption')).not.toBeVisible();
     expect(screen.getByTestId('tab-3-table-0-properties-modal-table-caption')).toBeVisible();
     expect(screen.getByTestId('tab-3')).toHaveAttribute('aria-selected', 'true');
 
