@@ -2,6 +2,7 @@ import {
   DefaultNode,
   Node,
   NodeStatus,
+  observer,
   withContextMenu,
   withSelection,
   WithSelectionProps,
@@ -22,7 +23,7 @@ interface CustomNodeProps extends WithSelectionProps {
 }
 const noopFn = () => {};
 
-const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) => {
+const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...rest }) => {
   const vizNode = element.getData()?.vizNode;
   const label = vizNode?.getNodeLabel();
   const tooltipContent = vizNode?.getTooltipContent();
@@ -60,7 +61,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }) =>
       </g>
     </DefaultNode>
   );
-};
+});
 
 export const CustomNodeWithSelection: typeof DefaultNode = withContextMenu(() => [
   <ItemAddNode

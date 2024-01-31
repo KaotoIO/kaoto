@@ -6,6 +6,7 @@ import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { IKameletDefinition } from '../../../kamelets-catalog';
+import { ROOT_PATH } from '../../../../utils';
 
 describe('CamelComponentSchemaService', () => {
   let path: string;
@@ -17,6 +18,7 @@ describe('CamelComponentSchemaService', () => {
     modelCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file);
     const patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
     const kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    const entityCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
     CamelCatalogService.setCatalogKey(
       CatalogKind.Component,
       componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
@@ -32,6 +34,10 @@ describe('CamelComponentSchemaService', () => {
     CamelCatalogService.setCatalogKey(
       CatalogKind.Kamelet,
       kameletCatalogMap as unknown as Record<string, IKameletDefinition>,
+    );
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Entity,
+      entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
     );
   });
 
@@ -73,6 +79,17 @@ describe('CamelComponentSchemaService', () => {
       const result = CamelComponentSchemaService.getVisualComponentSchema('from', definition);
 
       expect(result!.schema).not.toBe(modelCatalogMap.from.propertiesSchema);
+    });
+
+    it('should build the appropriate schema for `route` entity', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const rootPath = ROOT_PATH;
+      const routeDefinition = { id: 'route-1234', from: { uri: 'timer:MyTimer?period=1000' } };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(rootPath, routeDefinition);
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'route');
+      expect(result).toMatchSnapshot();
     });
 
     it('should build the appropriate schema for standalone processors', () => {
@@ -212,6 +229,7 @@ describe('CamelComponentSchemaService', () => {
 
   describe('getCamelComponentLookup', () => {
     it.each([
+      [ROOT_PATH, { from: { uri: 'timer:foo?delay=1000&period=1000' } }, { processorName: 'route' }],
       ['from', { uri: 'timer:foo?delay=1000&period=1000' }, { processorName: 'from', componentName: 'timer' }],
       ['from.steps.0.to', { uri: 'log' }, { processorName: 'to', componentName: 'log' }],
       ['from.steps.1.toD', { uri: 'log' }, { processorName: 'toD', componentName: 'log' }],
@@ -240,6 +258,16 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it.each([
+      [
+        { processorName: 'route' as keyof ProcessorDefinition },
+        { id: 'route-1234', description: 'My Route description', from: { uri: 'timer:foo' } },
+        'My Route description',
+      ],
+      [
+        { processorName: 'route' as keyof ProcessorDefinition },
+        { id: 'route-1234', from: { uri: 'timer:foo', description: '' } },
+        'route-1234',
+      ],
       [{ processorName: 'from' as keyof ProcessorDefinition }, { uri: 'timer:foo', description: '' }, 'timer:foo'],
       [
         { processorName: 'from' as keyof ProcessorDefinition },

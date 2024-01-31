@@ -22,7 +22,6 @@ import { act } from 'react-dom/test-utils';
 import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 
 describe('CanvasForm', () => {
-  const omitFields = ['expression', 'dataFormatType', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
   const schemaService = new SchemaService();
 
   const schema = {
@@ -179,11 +178,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const setHeaderNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: setHeaderNode,
         },
       };
 
@@ -242,11 +242,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const setHeaderNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: setHeaderNode,
         },
       };
 
@@ -306,11 +307,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const marshalNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: marshalNode,
         },
       };
 
@@ -339,6 +341,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
     });
+
     it('main form => dataformat', async () => {
       const camelRoute = {
         from: {
@@ -354,11 +357,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const marshalNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: marshalNode,
         },
       };
 
@@ -405,11 +409,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const loadBalanceNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: loadBalanceNode,
         },
       };
 
@@ -438,6 +443,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
+
     it('main form => loadbalancer', async () => {
       const camelRoute = {
         from: {
@@ -453,11 +459,12 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
+      const loadBalanceNode = rootNode.getChildren()![0].getChildren()![0];
       const selectedNode = {
         id: '1',
         type: 'node',
         data: {
-          vizNode: rootNode.getChildren()![0],
+          vizNode: loadBalanceNode,
         },
       };
 
@@ -503,7 +510,7 @@ describe('CanvasForm', () => {
         render(
           <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
             <AutoForm schema={schema!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={omitFields} />
+              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
             </AutoForm>
           </AutoField.componentDetectorContext.Provider>,
         );
@@ -526,7 +533,7 @@ describe('CanvasForm', () => {
         render(
           <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
             <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={omitFields} />
+              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
             </AutoForm>
           </AutoField.componentDetectorContext.Provider>,
         );
@@ -549,7 +556,7 @@ describe('CanvasForm', () => {
         render(
           <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
             <AutoForm schema={bridge!} model={{}} onChangeModel={() => {}}>
-              <AutoFields omitFields={omitFields} />
+              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
             </AutoForm>
           </AutoField.componentDetectorContext.Provider>,
         );

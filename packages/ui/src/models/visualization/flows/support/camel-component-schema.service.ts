@@ -1,7 +1,7 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import type { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
-import { CamelUriHelper, isDefined } from '../../../../utils';
+import { CamelUriHelper, ROOT_PATH, isDefined } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
@@ -29,6 +29,11 @@ export class CamelComponentSchemaService {
     const splitPath = path.split('.');
     const lastPathSegment = splitPath[splitPath.length - 1];
     const pathAsIndex = Number.parseInt(lastPathSegment, 10);
+
+    /** If path is `#` it means the root of the Camel Route */
+    if (path === ROOT_PATH) {
+      return { processorName: 'route' as keyof ProcessorDefinition };
+    }
 
     /**
      * If the last path segment is NaN, it means this is a Camel Processor
@@ -60,6 +65,9 @@ export class CamelComponentSchemaService {
 
     const uriString = CamelUriHelper.getUriString(definition);
     switch (camelElementLookup.processorName) {
+      case 'route' as keyof ProcessorDefinition:
+        return definition?.id ?? '';
+
       case 'from' as keyof ProcessorDefinition:
         return uriString ?? 'from: Unknown';
 
@@ -221,9 +229,23 @@ export class CamelComponentSchemaService {
   }
 
   private static getSchema(camelElementLookup: ICamelElementLookupResult): JSONSchemaType<unknown> {
-    // 'from' is not a ProcessorDefinition, i.e. causes a type error against keyof ProcessorDefinition
-    const catalogKind =
-      (camelElementLookup.processorName as string) === 'from' ? CatalogKind.Processor : CatalogKind.Pattern;
+    let catalogKind: CatalogKind;
+    switch (camelElementLookup.processorName) {
+      case 'route' as keyof ProcessorDefinition:
+        catalogKind = CatalogKind.Entity;
+        break;
+      case 'from' as keyof ProcessorDefinition:
+        /**
+         * The `from` processor is a special case, since it's not a ProcessorDefinition
+         * so its schema is not defined in the Camel Catalog
+         * @see CamelCatalogProcessor#getModelCatalog()
+         */
+        catalogKind = CatalogKind.Processor;
+        break;
+      default:
+        catalogKind = CatalogKind.Pattern;
+    }
+
     const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
 
     if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;

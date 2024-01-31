@@ -1,8 +1,6 @@
 /* eslint-disable no-case-declarations */
 import { DoCatch, ProcessorDefinition, RouteDefinition, When1 } from '@kaoto-next/camel-catalog/types';
-import get from 'lodash.get';
-import set from 'lodash.set';
-import { getArrayProperty, isDefined } from '../../../utils';
+import { getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -39,7 +37,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
   getNodeLabel(path?: string): string {
     if (!path) return '';
 
-    const componentModel = get(this.route, path);
+    const componentModel = getValue(this.route, path);
     const label = CamelComponentSchemaService.getNodeLabel(
       CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
       componentModel,
@@ -50,7 +48,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
 
   getTooltipContent(path?: string): string {
     if (!path) return '';
-    const componentModel = get(this.route, path);
+    const componentModel = getValue(this.route, path);
 
     const content = CamelComponentSchemaService.getTooltipContent(
       CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
@@ -62,7 +60,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
 
-    const componentModel = get(this.route, path);
+    const componentModel = getValue(this.route, path);
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
@@ -75,7 +73,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
 
-    set(this.route, path, value);
+    setValue(this.route, path, value);
   }
 
   getSteps(): ProcessorDefinition[] {
@@ -136,7 +134,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       /** If we're in Replace mode, we need to delete the existing step */
       const deleteCount = options.mode === AddStepMode.ReplaceStep ? 1 : 0;
 
-      const stepsArray: ProcessorDefinition[] = get(this.route, pathArray.slice(0, -2), []);
+      const stepsArray: ProcessorDefinition[] = getValue(this.route, pathArray.slice(0, -2), []);
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
       return;
@@ -150,7 +148,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
      * therefore we replace it with an empty object
      */
     if (path === 'from') {
-      set(this.route, 'from.uri', '');
+      setValue(this.route, 'from.uri', '');
       return;
     }
 
@@ -165,7 +163,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
      * f.i. from.steps.1.choice.when.0
      * last: 0
      */
-    let array = get(this.route, pathArray.slice(0, -1), []);
+    let array = getValue(this.route, pathArray.slice(0, -1), []);
     if (Number.isInteger(Number(last)) && Array.isArray(array)) {
       array.splice(Number(last), 1);
 
@@ -180,7 +178,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
      * last: choice
      * penultimate: 1
      */
-    array = get(this.route, pathArray.slice(0, -2), []);
+    array = getValue(this.route, pathArray.slice(0, -2), []);
     if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate)) && Array.isArray(array)) {
       array.splice(Number(penultimate), 1);
 
@@ -195,7 +193,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
      * last: otherwise
      * penultimate: choice
      */
-    const object = get(this.route, pathArray.slice(0, -1), {});
+    const object = getValue(this.route, pathArray.slice(0, -1), {});
     if (!Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate)) && typeof object === 'object') {
       delete object[last];
     }
@@ -227,17 +225,24 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
   }
 
   toVizNode(): IVisualizationNode {
-    const rootNode = this.getVizNodeFromProcessor('from', {
+    const fromNode = this.getVizNodeFromProcessor('from', {
       processorName: 'from' as keyof ProcessorDefinition,
       componentName: CamelComponentSchemaService.getComponentNameFromUri(this.getRootUri()!),
     });
-    rootNode.data.entity = this;
 
     if (!this.getRootUri()) {
-      rootNode.data.icon = NodeIconResolver.getPlaceholderIcon();
+      fromNode.data.icon = NodeIconResolver.getPlaceholderIcon();
     }
 
-    return rootNode;
+    const routeNode = createVisualizationNode(this.id, {
+      path: '#',
+      entity: this,
+      isGroup: true,
+      icon: NodeIconResolver.getIcon('route'),
+    });
+    routeNode.addChild(fromNode);
+
+    return routeNode;
   }
 
   private getVizNodeFromProcessor(path: string, componentLookup: ICamelElementLookupResult): IVisualizationNode {
@@ -268,14 +273,14 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     switch (stepsProperty.type) {
       case 'branch':
         singlePath = `${path}.${stepsProperty.name}`;
-        const stepsList = get(this.route, singlePath, []) as ProcessorDefinition[];
+        const stepsList = getValue(this.route, singlePath, []) as ProcessorDefinition[];
 
         return stepsList.reduce((accStepsNodes, step, index) => {
           const singlePropertyName = Object.keys(step)[0];
           const childPath = `${singlePath}.${index}.${singlePropertyName}`;
           const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
             childPath,
-            get(step, singlePropertyName),
+            getValue(step, singlePropertyName),
           );
 
           const vizNode = this.getVizNodeFromProcessor(childPath, childComponentLookup);
@@ -295,13 +300,13 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
         const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(childPath, this.route);
 
         /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
-        if (get(this.route, childPath) === undefined) return [];
+        if (getValue(this.route, childPath) === undefined) return [];
 
         return [this.getVizNodeFromProcessor(childPath, childComponentLookup)];
 
       case 'clause-list':
         singlePath = `${path}.${stepsProperty.name}`;
-        const expressionList = get(this.route, singlePath, []) as When1[] | DoCatch[];
+        const expressionList = getValue(this.route, singlePath, []) as When1[] | DoCatch[];
 
         return expressionList.map((_step, index) => {
           const childPath = `${singlePath}.${index}`;
@@ -326,7 +331,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     if (property === undefined) return;
 
     if (property.type === 'single-clause') {
-      set(this.route, `${options.data.path}.${property.name}`, defaultValue);
+      setValue(this.route, `${options.data.path}.${property.name}`, defaultValue);
     } else {
       const arrayPath = getArrayProperty(this.route, `${options.data.path}.${property.name}`);
       arrayPath.unshift(defaultValue);

@@ -4,7 +4,6 @@ import {
   ConcentricLayout,
   DagreLayout,
   DefaultEdge,
-  DefaultGroup,
   EdgeAnimationSpeed,
   EdgeStyle,
   ForceLayout,
@@ -13,9 +12,11 @@ import {
   Visualization,
 } from '@patternfly/react-topology';
 import { createVisualizationNode } from '../../../models/visualization';
+import { CustomGroupWithSelection } from '../Custom';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
+import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 
 describe('CanvasService', () => {
   const DEFAULT_NODE_PROPS = {
@@ -60,7 +61,7 @@ describe('CanvasService', () => {
     it('should return the correct component for a group', () => {
       const component = CanvasService.baselineComponentFactory({} as ModelKind, 'group');
 
-      expect(component).toBe(DefaultGroup);
+      expect(component).toBe(CustomGroupWithSelection);
     });
 
     it('should return the correct component for a graph', () => {
@@ -308,6 +309,30 @@ describe('CanvasService', () => {
           ...DEFAULT_EDGE_PROPS,
         },
       ]);
+    });
+
+    it('should return a group node for a multiple nodes VisualizationNode with a group', () => {
+      const routeNode = createVisualizationNode('route', {
+        entity: { getId: () => 'myId' } as BaseVisualCamelEntity,
+        isGroup: true,
+      });
+
+      const fromNode = createVisualizationNode('timer', {
+        path: 'from',
+        icon: undefined,
+        processorName: 'from',
+        componentName: 'timer',
+      });
+      routeNode.addChild(fromNode);
+
+      const { nodes, edges } = CanvasService.getFlowDiagram(routeNode);
+
+      expect(nodes).toHaveLength(2);
+      expect(edges).toHaveLength(0);
+
+      const group = nodes[nodes.length - 1];
+      expect(group.children).toEqual(['timer-1234']);
+      expect(group.group).toBeTruthy();
     });
   });
 });

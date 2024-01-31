@@ -4,9 +4,21 @@ import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 
 export class SchemaService {
+  static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
+  static readonly OMIT_FORM_FIELDS = [
+    'from',
+    'expression',
+    'dataFormatType',
+    'outputs',
+    'steps',
+    'when',
+    'otherwise',
+    'doCatch',
+    'doFinally',
+    'uri',
+  ];
   private readonly ajv: Ajv;
   private readonly FILTER_DOM_PROPS = ['$comment', 'additionalProperties'];
-  static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
 
   constructor() {
     this.ajv = new Ajv({

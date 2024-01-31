@@ -17,19 +17,6 @@ interface CanvasFormProps {
   selectedNode: CanvasNode;
 }
 
-const omitFields = [
-  'from',
-  'expression',
-  'dataFormatType',
-  'outputs',
-  'steps',
-  'when',
-  'otherwise',
-  'doCatch',
-  'doFinally',
-  'uri',
-];
-
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const formRef = useRef<typeof AutoForm>();
@@ -103,7 +90,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
               onChange={handleOnChangeIndividualProp}
               data-testid="autoform"
             >
-              <AutoFields omitFields={omitFields} />
+              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
               <ErrorsField />
             </AutoForm>
           </AutoField.componentDetectorContext.Provider>

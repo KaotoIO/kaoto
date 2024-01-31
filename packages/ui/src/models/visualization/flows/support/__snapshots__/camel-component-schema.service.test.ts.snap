@@ -1,5 +1,216 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CamelComponentSchemaService getVisualComponentSchema should build the appropriate schema for \`route\` entity 1`] = `
+{
+  "definition": {
+    "from": {
+      "uri": "timer:MyTimer?period=1000",
+    },
+    "id": "route-1234",
+  },
+  "schema": {
+    "additionalProperties": false,
+    "definitions": {
+      "org.apache.camel.model.FromDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+          },
+          "id": {
+            "type": "string",
+          },
+          "parameters": {
+            "type": "object",
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/definitions/org.apache.camel.model.ProcessorDefinition",
+            },
+            "type": "array",
+          },
+          "uri": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "steps",
+          "uri",
+        ],
+        "type": "object",
+      },
+      "org.apache.camel.model.InputTypeDefinition": {
+        "additionalProperties": false,
+        "description": "Set the expected data type of the input message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the transformation from/to XML.",
+        "properties": {
+          "description": {
+            "description": "Sets the description of this node",
+            "title": "Description",
+            "type": "string",
+          },
+          "id": {
+            "description": "Sets the id of this node",
+            "title": "Id",
+            "type": "string",
+          },
+          "urn": {
+            "description": "The input type URN.",
+            "title": "Urn",
+            "type": "string",
+          },
+          "validate": {
+            "description": "Whether if validation is required for this input type.",
+            "title": "Validate",
+            "type": "boolean",
+          },
+        },
+        "required": [
+          "urn",
+        ],
+        "title": "Input Type",
+        "type": "object",
+      },
+      "org.apache.camel.model.OutputTypeDefinition": {
+        "additionalProperties": false,
+        "description": "Set the expected data type of the output message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the XML-Java transformation.",
+        "properties": {
+          "description": {
+            "description": "Sets the description of this node",
+            "title": "Description",
+            "type": "string",
+          },
+          "id": {
+            "description": "Sets the id of this node",
+            "title": "Id",
+            "type": "string",
+          },
+          "urn": {
+            "description": "Set output type URN.",
+            "title": "Urn",
+            "type": "string",
+          },
+          "validate": {
+            "description": "Whether if validation is required for this output type.",
+            "title": "Validate",
+            "type": "boolean",
+          },
+        },
+        "required": [
+          "urn",
+        ],
+        "title": "Output Type",
+        "type": "object",
+      },
+    },
+    "properties": {
+      "autoStartup": {
+        "default": "true",
+        "description": "Whether to auto start this route",
+        "title": "Auto Startup",
+        "type": "boolean",
+      },
+      "description": {
+        "description": "Sets the description of this node",
+        "title": "Description",
+        "type": "string",
+      },
+      "from": {
+        "$ref": "#/definitions/org.apache.camel.model.FromDefinition",
+        "description": "From",
+        "title": "From",
+      },
+      "group": {
+        "description": "The group that this route belongs to; could be the name of the RouteBuilder class or be explicitly configured in the XML. May be null.",
+        "title": "Group",
+        "type": "string",
+      },
+      "id": {
+        "description": "Sets the id of this node",
+        "title": "Id",
+        "type": "string",
+      },
+      "inputType": {
+        "$ref": "#/definitions/org.apache.camel.model.InputTypeDefinition",
+      },
+      "logMask": {
+        "default": "false",
+        "description": "Whether security mask for Logging is enabled on this route.",
+        "title": "Log Mask",
+        "type": "boolean",
+      },
+      "messageHistory": {
+        "description": "Whether message history is enabled on this route.",
+        "title": "Message History",
+        "type": "boolean",
+      },
+      "nodePrefixId": {
+        "description": "Sets a prefix to use for all node ids (not route id).",
+        "title": "Node Prefix Id",
+        "type": "string",
+      },
+      "outputType": {
+        "$ref": "#/definitions/org.apache.camel.model.OutputTypeDefinition",
+      },
+      "precondition": {
+        "description": "The predicate of the precondition in simple language to evaluate in order to determine if this route should be included or not.",
+        "title": "Precondition",
+        "type": "string",
+      },
+      "routeConfigurationId": {
+        "description": "The route configuration id or pattern this route should use for configuration. Multiple id/pattern can be separated by comma.",
+        "title": "Route Configuration Id",
+        "type": "string",
+      },
+      "routePolicy": {
+        "description": "Reference to custom org.apache.camel.spi.RoutePolicy to use by the route. Multiple policies can be configured by separating values using comma.",
+        "title": "Route Policy",
+        "type": "string",
+      },
+      "shutdownRoute": {
+        "default": "Default",
+        "description": "To control how to shutdown the route.",
+        "enum": [
+          "Default",
+          "Defer",
+        ],
+        "title": "Shutdown Route",
+        "type": "string",
+      },
+      "shutdownRunningTask": {
+        "default": "CompleteCurrentTaskOnly",
+        "description": "To control how to shut down the route.",
+        "enum": [
+          "CompleteCurrentTaskOnly",
+          "CompleteAllTasks",
+        ],
+        "title": "Shutdown Running Task",
+        "type": "string",
+      },
+      "startupOrder": {
+        "description": "To configure the ordering of the routes being started",
+        "title": "Startup Order",
+        "type": "number",
+      },
+      "streamCaching": {
+        "description": "Whether stream caching is enabled on this route.",
+        "title": "Stream Cache",
+        "type": "boolean",
+      },
+      "trace": {
+        "description": "Whether tracing is enabled on this route.",
+        "title": "Trace",
+        "type": "boolean",
+      },
+    },
+    "required": [
+      "from",
+    ],
+    "type": "object",
+  },
+  "title": "route",
+}
+`;
+
 exports[`CamelComponentSchemaService getVisualComponentSchema should build the appropriate schema for processors combined that holds a component 1`] = `
 {
   "definition": {
