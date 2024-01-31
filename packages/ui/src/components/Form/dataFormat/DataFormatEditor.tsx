@@ -9,12 +9,16 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Text,
+  TextContent,
+  TextVariants,
 } from '@patternfly/react-core';
-import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, Ref, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { DataFormatService } from './dataformat.service';
+import { SchemaService } from '../schema.service';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
@@ -39,8 +43,14 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     dataFormatCatalogMap,
     visualComponentSchema?.definition,
   );
+  const [selected, setSelected] = useState<string>(dataFormat?.model.name || '');
+
+  useEffect(() => {
+    dataFormat ? setSelected(dataFormat.model.name) : setSelected('');
+  }, [dataFormat]);
+
   const dataFormatSchema = useMemo(() => {
-    return DataFormatService.getDataFormatSchema(dataFormat!);
+    return DataFormatService.getDataFormatSchema(dataFormat);
   }, [dataFormat]);
 
   const onToggleClick = useCallback(() => {
@@ -61,7 +71,8 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
       setIsOpen(false);
-      if (value === dataFormat!.model.name) return;
+      if ((!dataFormat && value === '') || value === dataFormat?.model.name) return;
+      setSelected(value as string);
       handleOnChange(value as string, {});
     },
     [handleOnChange, dataFormat],
@@ -69,19 +80,22 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   const toggle = useCallback(
     (toggleRef: Ref<MenuToggleElement>) => (
-      <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-        {dataFormat!.model.title}
+      <MenuToggle ref={toggleRef} onClick={onToggleClick} isFullWidth isExpanded={isOpen}>
+        {selected || (
+          <TextContent>
+            <Text component={TextVariants.small}>{SchemaService.DROPDOWN_PLACEHOLDER}</Text>
+          </TextContent>
+        )}
       </MenuToggle>
     ),
-    [dataFormat, isOpen, onToggleClick],
+    [isOpen, onToggleClick, selected],
   );
 
   return (
-    dataFormatCatalogMap &&
-    dataFormat && (
+    dataFormatCatalogMap && (
       <Card isCompact={true} isExpanded={isExpanded}>
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
-          <CardTitle>DataFormat</CardTitle>
+          <CardTitle>Data Format</CardTitle>
         </CardHeader>
         <CardExpandableContent>
           <CardBody data-testid={'dataformat-config-card'}>
@@ -89,34 +103,36 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
               id="dataformat-select"
               data-testid="expression-dropdown"
               isOpen={isOpen}
-              selected={dataFormat.model.name}
+              selected={selected !== '' ? selected : undefined}
               onSelect={onSelect}
               onOpenChange={setIsOpen}
               toggle={toggle}
               isScrollable={true}
             >
               <DropdownList data-testid="dataformat-dropdownlist">
-                {Object.values(dataFormatCatalogMap).map((dataFormat) => {
+                {Object.values(dataFormatCatalogMap).map((df) => {
                   return (
                     <DropdownItem
-                      data-testid={`dataformat-dropdownitem-${dataFormat.model.name}`}
-                      key={dataFormat.model.title}
-                      value={dataFormat.model.name}
-                      description={dataFormat.model.description}
+                      data-testid={`dataformat-dropdownitem-${df.model.name}`}
+                      key={df.model.title}
+                      value={df.model.name}
+                      description={df.model.description}
                     >
-                      {dataFormat.model.title}
+                      {df.model.title}
                     </DropdownItem>
                   );
                 })}
               </DropdownList>
             </Dropdown>
-            <MetadataEditor
-              data-testid="dataformat-editor"
-              name={'dataformat'}
-              schema={dataFormatSchema}
-              metadata={dataFormatModel}
-              onChangeModel={(model) => handleOnChange(dataFormat.model.name, model)}
-            />
+            {dataFormat && (
+              <MetadataEditor
+                data-testid="dataformat-editor"
+                name={'dataformat'}
+                schema={dataFormatSchema}
+                metadata={dataFormatModel}
+                onChangeModel={(model) => handleOnChange(dataFormat.model.name, model)}
+              />
+            )}
           </CardBody>
         </CardExpandableContent>
       </Card>

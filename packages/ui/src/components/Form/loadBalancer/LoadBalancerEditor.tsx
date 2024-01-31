@@ -9,12 +9,16 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Text,
+  TextContent,
+  TextVariants,
 } from '@patternfly/react-core';
-import { FunctionComponent, Ref, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, Ref, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
+import { SchemaService } from '../schema.service';
 
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
@@ -39,8 +43,13 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
     loadBalancerCatalogMap,
     visualComponentSchema?.definition,
   );
+  const [selected, setSelected] = useState<string>(loadBalancer?.model.name || '');
+  useEffect(() => {
+    loadBalancer ? setSelected(loadBalancer.model.name) : setSelected('');
+  }, [loadBalancer]);
+
   const loadBalancerSchema = useMemo(() => {
-    return LoadBalancerService.getLoadBalancerSchema(loadBalancer!);
+    return LoadBalancerService.getLoadBalancerSchema(loadBalancer);
   }, [loadBalancer]);
 
   const onToggleClick = useCallback(() => {
@@ -66,7 +75,8 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
       setIsOpen(false);
-      if (value === loadBalancer!.model.name) return;
+      if ((!loadBalancer && value === '') || value === loadBalancer?.model.name) return;
+      setSelected(value as string);
       handleOnChange(value as string, {});
     },
     [handleOnChange, loadBalancer],
@@ -74,19 +84,22 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   const toggle = useCallback(
     (toggleRef: Ref<MenuToggleElement>) => (
-      <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-        {loadBalancer!.model.title}
+      <MenuToggle ref={toggleRef} onClick={onToggleClick} isFullWidth isExpanded={isOpen}>
+        {selected || (
+          <TextContent>
+            <Text component={TextVariants.small}>{SchemaService.DROPDOWN_PLACEHOLDER}</Text>
+          </TextContent>
+        )}
       </MenuToggle>
     ),
-    [loadBalancer, isOpen, onToggleClick],
+    [onToggleClick, isOpen, selected],
   );
 
   return (
-    loadBalancerCatalogMap &&
-    loadBalancer && (
+    loadBalancerCatalogMap && (
       <Card isCompact={true} isExpanded={isExpanded}>
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
-          <CardTitle>LoadBalancer</CardTitle>
+          <CardTitle>Load Balancer</CardTitle>
         </CardHeader>
         <CardExpandableContent>
           <CardBody data-testid={'loadbalancer-config-card'}>
@@ -94,33 +107,35 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
               id="loadbalancer-select"
               data-testid="loadbalancer-dropdown"
               isOpen={isOpen}
-              selected={loadBalancer.model.name}
+              selected={selected !== '' ? selected : undefined}
               onSelect={onSelect}
               toggle={toggle}
               isScrollable={true}
             >
               <DropdownList data-testid="loadbalancer-dropdownlist">
-                {Object.values(loadBalancerCatalogMap).map((loadBalancer) => {
+                {Object.values(loadBalancerCatalogMap).map((lb) => {
                   return (
                     <DropdownItem
-                      data-testid={`loadbalancer-dropdownitem-${loadBalancer.model.name}`}
-                      key={loadBalancer.model.title}
-                      value={loadBalancer.model.name}
-                      description={loadBalancer.model.description}
+                      data-testid={`loadbalancer-dropdownitem-${lb.model.name}`}
+                      key={lb.model.title}
+                      value={lb.model.name}
+                      description={lb.model.description}
                     >
-                      {loadBalancer.model.title}
+                      {lb.model.title}
                     </DropdownItem>
                   );
                 })}
               </DropdownList>
             </Dropdown>
-            <MetadataEditor
-              data-testid="loadbalancer-editor"
-              name={'loadbalancer'}
-              schema={loadBalancerSchema}
-              metadata={loadBalancerModel}
-              onChangeModel={(model) => handleOnChange(loadBalancer.model.name, model)}
-            />
+            {loadBalancer && (
+              <MetadataEditor
+                data-testid="loadbalancer-editor"
+                name={'loadbalancer'}
+                schema={loadBalancerSchema}
+                metadata={loadBalancerModel}
+                onChangeModel={(model) => handleOnChange(loadBalancer.model.name, model)}
+              />
+            )}
           </CardBody>
         </CardExpandableContent>
       </Card>

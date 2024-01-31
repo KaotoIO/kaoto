@@ -196,6 +196,16 @@ describe('CanvasForm', () => {
       act(() => {
         fireEvent.click(launchExpression);
       });
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      act(() => {
+        fireEvent.click(button[0]);
+      });
+      const simple = screen.getByTestId('expression-dropdownitem-simple');
+      act(() => {
+        fireEvent.click(simple.getElementsByTagName('button')[0]);
+      });
       const expressionInput = screen
         .getAllByRole('textbox')
         .filter((textbox) => textbox.getAttribute('label') === 'Expression');
@@ -256,6 +266,16 @@ describe('CanvasForm', () => {
       act(() => {
         fireEvent.click(launchExpression);
       });
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      act(() => {
+        fireEvent.click(button[0]);
+      });
+      const simple = screen.getByTestId('expression-dropdownitem-simple');
+      act(() => {
+        fireEvent.click(simple.getElementsByTagName('button')[0]);
+      });
       const expressionInput = screen
         .getAllByRole('textbox')
         .filter((textbox) => textbox.getAttribute('label') === 'Expression');
@@ -299,7 +319,9 @@ describe('CanvasForm', () => {
           <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
         </EntitiesContext.Provider>,
       );
-      const button = screen.getAllByRole('button').filter((button) => button.innerHTML.includes('JSon'));
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });
@@ -347,12 +369,14 @@ describe('CanvasForm', () => {
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
       act(() => {
-        fireEvent.input(idInput[1], { target: { value: 'modified' } });
+        fireEvent.input(idInput[0], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].marshal!.avro).toBeUndefined();
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button').filter((button) => button.innerHTML.includes('JSon'));
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });
@@ -394,7 +418,9 @@ describe('CanvasForm', () => {
           <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
         </EntitiesContext.Provider>,
       );
-      const button = screen.getAllByRole('button').filter((button) => button.innerHTML.includes('Round Robin'));
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });
@@ -442,12 +468,15 @@ describe('CanvasForm', () => {
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
       act(() => {
-        fireEvent.input(idInput[1], { target: { value: 'modified' } });
+        fireEvent.input(idInput[0], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeUndefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button').filter((button) => button.innerHTML.includes('Round Robin'));
+      screen.debug(screen.getAllByRole('button'));
+      const button = screen
+        .getAllByRole('button')
+        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });

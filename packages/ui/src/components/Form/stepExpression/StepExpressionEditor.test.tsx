@@ -7,6 +7,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { MetadataEditor } from '../../MetadataEditor';
+import { SchemaService } from '../schema.service';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -51,7 +52,9 @@ describe('StepExpressionEditor', () => {
     render(<StepExpressionEditor selectedNode={mockNode} />);
     const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
     fireEvent.click(launcherButton[0]);
-    const dropdownButton = screen.getAllByRole('button').filter((button) => button.textContent === 'Simple');
+    const dropdownButton = screen
+      .getAllByRole('button')
+      .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
     fireEvent.click(dropdownButton[0]);
     const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);

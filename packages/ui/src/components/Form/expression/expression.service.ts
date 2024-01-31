@@ -2,8 +2,6 @@ import { CamelCatalogService } from '../../../models/visualization/flows';
 import { ICamelLanguageDefinition } from '../../../models';
 
 export class ExpressionService {
-  static DEFAULT_LANGUAGE_NAME = 'simple';
-
   /**
    * Get the language catalog map from the Camel catalog. Since "language" language is not in the languages Camel
    *  catalog, it is extracted from the YAML DSL schema.
@@ -26,10 +24,6 @@ export class ExpressionService {
     modelName: string,
   ): ICamelLanguageDefinition | undefined {
     return Object.values(languageCatalogMap).find((model) => model.model.name === modelName);
-  }
-
-  static getDefaultLanguage(languageCatalogMap: Record<string, ICamelLanguageDefinition>) {
-    return this.getDefinitionFromModelName(languageCatalogMap, this.DEFAULT_LANGUAGE_NAME);
   }
 
   /**
@@ -76,9 +70,9 @@ export class ExpressionService {
     parentModel: Record<string, unknown>,
   ): {
     language: ICamelLanguageDefinition | undefined;
-    model: Record<string, unknown>;
+    model: Record<string, unknown> | undefined;
   } {
-    let languageModelName = 'simple';
+    let languageModelName;
     let model = undefined;
     if (parentModel?.expression && Object.keys(parentModel.expression).length > 0) {
       languageModelName = Object.keys(parentModel.expression)[0];
@@ -93,6 +87,9 @@ export class ExpressionService {
           model = ExpressionService.parseLanguageModel(parentModel, language.model.name);
           break;
         }
+      }
+      if (!languageModelName) {
+        return { language: undefined, model };
       }
       if (!model) {
         parentModel.expression = {};
@@ -155,7 +152,7 @@ export class ExpressionService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model: any;
   } {
-    let languageModelName = 'simple';
+    let languageModelName;
     let model = undefined;
     for (const language of Object.values(languageCatalogMap)) {
       if (parentModel && parentModel[language.model.name]) {
@@ -163,6 +160,9 @@ export class ExpressionService {
         model = ExpressionService.parseLanguageModel(parentModel, language.model.name);
         break;
       }
+    }
+    if (!languageModelName) {
+      return { language: undefined, model };
     }
     if (!model) {
       model = {};

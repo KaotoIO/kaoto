@@ -1,8 +1,18 @@
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
+  Text,
+  TextContent,
+  TextVariants,
+} from '@patternfly/react-core';
 import { FunctionComponent, Ref, useCallback, useMemo, useState } from 'react';
 import { MetadataEditor } from '../../MetadataEditor';
 import { ExpressionService } from './expression.service';
 import { ICamelLanguageDefinition } from '../../../models';
+import { SchemaService } from '../schema.service';
 
 interface ExpressionEditorProps {
   language?: ICamelLanguageDefinition;
@@ -19,19 +29,20 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
   const languageCatalogMap = useMemo(() => {
     return ExpressionService.getLanguageMap();
   }, []);
+  const [selected, setSelected] = useState<string>(language?.model.name || '');
 
-  const selectedLanguage = language || ExpressionService.getDefaultLanguage(languageCatalogMap);
   const languageSchema = useMemo(() => {
-    return selectedLanguage && ExpressionService.getLanguageSchema(selectedLanguage);
-  }, [selectedLanguage]);
+    return language && ExpressionService.getLanguageSchema(language);
+  }, [language]);
 
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
       setIsOpen(false);
-      if (value === selectedLanguage!.model.name) return;
+      if ((!language && value === '') || value === language?.model.name) return;
+      setSelected(value as string);
       onChangeExpressionModel(value as string, {});
     },
-    [onChangeExpressionModel, selectedLanguage],
+    [onChangeExpressionModel, language],
   );
 
   const onToggleClick = useCallback(() => {
@@ -41,21 +52,24 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
   const toggle = useCallback(
     (toggleRef: Ref<MenuToggleElement>) => (
       <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-        {selectedLanguage!.model.title}
+        {language?.model.title || (
+          <TextContent>
+            <Text component={TextVariants.small}>{SchemaService.DROPDOWN_PLACEHOLDER}</Text>
+          </TextContent>
+        )}
       </MenuToggle>
     ),
-    [onToggleClick, isOpen, selectedLanguage],
+    [onToggleClick, isOpen, language],
   );
 
   return (
-    languageCatalogMap &&
-    selectedLanguage && (
+    languageCatalogMap && (
       <>
         <Dropdown
           id="expression-select"
           data-testid="expression-dropdown"
           isOpen={isOpen}
-          selected={selectedLanguage.model.name}
+          selected={selected !== '' ? selected : undefined}
           onSelect={onSelect}
           onOpenChange={setIsOpen}
           toggle={toggle}
@@ -76,13 +90,15 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
             })}
           </DropdownList>
         </Dropdown>
-        <MetadataEditor
-          data-testid="expression-editor"
-          name={'expression'}
-          schema={languageSchema}
-          metadata={expressionModel}
-          onChangeModel={(model) => onChangeExpressionModel(selectedLanguage.model.name, model)}
-        />
+        {language && (
+          <MetadataEditor
+            data-testid="expression-editor"
+            name={'expression'}
+            schema={languageSchema}
+            metadata={expressionModel}
+            onChangeModel={(model) => onChangeExpressionModel(language.model.name, model)}
+          />
+        )}
       </>
     )
   );

@@ -14,8 +14,8 @@ export class LoadBalancerService {
    * which is combined in @kaoto-next/camel-catalog.
    * @param loadBalancerCatalog The {@link ICamelLoadBalancerDefinition} object represents the LoadBalancer to get the schema.
    */
-  static getLoadBalancerSchema(loadBalancerCatalog: ICamelLoadBalancerDefinition) {
-    return loadBalancerCatalog.propertiesSchema;
+  static getLoadBalancerSchema(loadBalancerCatalog?: ICamelLoadBalancerDefinition) {
+    return loadBalancerCatalog?.propertiesSchema;
   }
 
   /**
@@ -28,9 +28,9 @@ export class LoadBalancerService {
     parentModel: Record<string, unknown>,
   ): {
     loadBalancer: ICamelLoadBalancerDefinition | undefined;
-    model: Record<string, unknown>;
+    model: Record<string, unknown> | undefined;
   } {
-    let loadBalancerModelName = 'roundRobin';
+    let loadBalancerModelName;
     let model = undefined;
     for (const loadBalancer of Object.values(loadBalancerCatalogMap)) {
       if (parentModel[loadBalancer.model.name]) {
@@ -38,6 +38,9 @@ export class LoadBalancerService {
         model = LoadBalancerService.doParseLoadBalancerModel(parentModel, loadBalancer);
         break;
       }
+    }
+    if (!loadBalancerModelName) {
+      return { loadBalancer: undefined, model };
     }
     if (!model) {
       model = {};
@@ -85,12 +88,12 @@ export class LoadBalancerService {
     loadBalancerModelName: string,
     newLoadBalancerModel: Record<string, unknown>,
   ): void {
-    if (!loadBalancerModelName || !loadBalancerCatalogMap[loadBalancerModelName]) {
-      return;
-    }
     Object.values(loadBalancerCatalogMap).forEach((loadBalancer) => {
       delete parentModel[loadBalancer.model.name];
     });
+    if (!loadBalancerModelName || !loadBalancerCatalogMap[loadBalancerModelName]) {
+      return;
+    }
     (parentModel as Record<string, unknown>)[loadBalancerModelName] = newLoadBalancerModel;
   }
 }

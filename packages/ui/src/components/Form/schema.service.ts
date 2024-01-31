@@ -6,6 +6,7 @@ import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 export class SchemaService {
   private readonly ajv: Ajv;
   private readonly FILTER_DOM_PROPS = ['$comment', 'additionalProperties'];
+  static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
 
   constructor() {
     this.ajv = new Ajv({

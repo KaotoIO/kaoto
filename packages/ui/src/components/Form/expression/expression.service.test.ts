@@ -75,16 +75,16 @@ describe('ExpressionService', () => {
       expect(model).toEqual({ expression: '${body}' });
     });
 
-    it('should return simple and empty model if model is empty', () => {
+    it('should return undefined if model is empty', () => {
       const { language, model } = ExpressionService.parseStepExpressionModel(languageMap, {});
-      expect(language).toEqual(languageMap.simple);
-      expect(model).toEqual({});
+      expect(language).toBeUndefined();
+      expect(model).toBeUndefined();
     });
 
-    it('should return simple and empty model if language map and model is empty', () => {
+    it('should return undefined if language map and model is empty', () => {
       const { language, model } = ExpressionService.parseStepExpressionModel({}, {});
       expect(language).toBeUndefined();
-      expect(model).toEqual({});
+      expect(model).toBeUndefined();
     });
 
     it('should parse number constant', () => {
@@ -148,10 +148,10 @@ describe('ExpressionService', () => {
       expect(model).toEqual({ expression: '${body}' });
     });
 
-    it('should return simple as a default', () => {
+    it('should return undefined if model is empty', () => {
       const { language, model } = ExpressionService.parsePropertyExpressionModel(languageMap, {});
-      expect(language).toEqual(languageMap.simple);
-      expect(model).toEqual({});
+      expect(language).toBeUndefined();
+      expect(model).toBeUndefined();
     });
   });
 
