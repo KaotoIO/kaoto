@@ -22,14 +22,13 @@ import {
 } from '@patternfly/react-core';
 import { DocumentFieldPreview, DocumentFieldPreviewResults } from '../UI';
 import { IAtlasmapField, IAtlasmapMapping } from '../Views';
+import { ICell, IRow } from '@patternfly/react-table';
 import {
-  ICell,
-  IRow,
   Table,
   TableBody,
   TableHeader,
-} from '@patternfly/react-table';
-import React, { FunctionComponent, MouseEvent } from 'react';
+} from '@patternfly/react-table/deprecated';
+import { FunctionComponent } from 'react';
 
 import { MainContent } from '../Layout';
 import { TableIcon } from '@patternfly/react-icons';
@@ -43,7 +42,7 @@ const emptyContent = [
         props: { colSpan: 8 },
         title: (
           <Bullseye>
-            <EmptyState variant={EmptyStateVariant.small}>
+            <EmptyState variant={EmptyStateVariant.sm}>
               <EmptyStateIcon icon={TableIcon} />
               <Title headingLevel="h2" size="lg">
                 No mappings found
@@ -122,7 +121,7 @@ export const MappingTableView: FunctionComponent<IMappingTableProps> = ({
 
   const columns = ['Sources', 'Targets', 'Types'];
 
-  const handleSelectMapping = (_event: MouseEvent, row: IRow) => {
+  const handleSelectMapping = (_event: any, row: IRow) => {
     const mapping: IAtlasmapMapping | undefined = mappings.find(
       (mapping) => (row.cells?.[0] as ICell).data === mapping.id,
     );
@@ -138,7 +137,8 @@ export const MappingTableView: FunctionComponent<IMappingTableProps> = ({
       </Title>
       <Table aria-label="Mappings" cells={columns} rows={rows}>
         <TableHeader />
-        <TableBody onRowClick={handleSelectMapping} />
+        <TableBody onRowClick={handleSelectMapping}>
+        </TableBody>
       </Table>
     </MainContent>
   );

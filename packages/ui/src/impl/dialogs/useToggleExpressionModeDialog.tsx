@@ -15,11 +15,11 @@
 */
 import { ReactElement, useCallback } from 'react';
 
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useToggleExpressionModeDialog(): [ReactElement, () => void] {
-  const { mappingHasSourceCollection, toggleExpressionMode } = useAtlasmap();
+  const { mappingHasSourceCollection, toggleExpressionMode } = useDataMapper();
   const [toggleExpressionModeDialog, openToggleExpressionModeDialog] =
     useConfirmationDialog(
       'Disable Expression?',

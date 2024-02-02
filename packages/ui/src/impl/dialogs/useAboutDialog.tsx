@@ -16,11 +16,11 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 
 import { AboutDialog } from '../../UI';
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useToggle } from '../utils';
 
 export function useAboutDialog(): [ReactElement, () => void] {
-  const { getRuntimeVersion, getUIVersion } = useAtlasmap();
+  const { getRuntimeVersion, getUIVersion } = useDataMapper();
   const uiVersion = getUIVersion();
   const [runtimeVersion, setRuntimeVersion]: [
     string,

@@ -16,14 +16,14 @@
 import { ReactElement, useCallback } from 'react';
 
 import { IAtlasmapMapping } from '../../Views';
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useDeleteMappingDialog(): [
   ReactElement,
   (mapping: IAtlasmapMapping) => void,
 ] {
-  const { removeMapping, deselectMapping } = useAtlasmap();
+  const { removeMapping, deselectMapping } = useDataMapper();
   const [deleteMappingDialog, openDeleteMappingDialog] = useConfirmationDialog(
     'Remove Mapping?',
     'Are you sure you want to remove the current mapping?',

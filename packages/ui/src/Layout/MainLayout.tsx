@@ -13,15 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import React, { FunctionComponent, ReactElement, ReactNode, memo } from 'react';
+import {FunctionComponent, ReactElement, ReactNode, memo, PropsWithChildren} from 'react';
 import { Stack, StackItem } from '@patternfly/react-core';
 
-import { Loading } from '../UI';
 import { Sidebar } from './Sidebar';
 import styles from './MainLayout.module.css';
 
-export interface IMainLayoutProps {
-  loading: boolean;
+export interface IMainLayoutProps extends PropsWithChildren {
   showSidebar: boolean;
   contextToolbar?: ReactNode;
   expressionToolbar?: ReactNode;
@@ -31,7 +29,6 @@ export interface IMainLayoutProps {
 
 export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(
   function MainLayout({
-    loading,
     showSidebar,
     renderSidebar,
     contextToolbar,
@@ -45,9 +42,7 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(
       `${sideBar ? ' pf-topology-container__with-sidebar' : ''}` +
       `${showSidebar ? ' pf-topology-container__with-sidebar--open' : ''}`;
 
-    return loading ? (
-      <Loading />
-    ) : (
+    return (
       <Stack className={styles.view}>
         {contextToolbar && (
           <StackItem isFilled={false}>{contextToolbar}</StackItem>

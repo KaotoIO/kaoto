@@ -29,7 +29,7 @@ import React, { useMemo, useState } from 'react';
 
 import { ContextToolbar } from '../Layout';
 import { ToolbarGroup } from '@patternfly/react-core';
-import { useAtlasmap } from './AtlasmapProvider';
+import { useDataMapper } from './DataMapperProvider';
 import { useToggle } from './utils';
 
 export type Views =
@@ -90,7 +90,7 @@ export function useContextToolbar({
     toggleShowMappedFields: amToggleShowMappedFields,
     toggleShowUnmappedFields: amToggleShowUnmappedFields,
     newMapping,
-  } = useAtlasmap();
+  } = useDataMapper();
 
   const [activeView, setActiveView] = useState<Views>('ColumnMapper');
   const { state: showMappingPreview, toggle: toggleShowMappingPreview } =

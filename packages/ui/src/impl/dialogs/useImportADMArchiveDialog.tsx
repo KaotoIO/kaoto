@@ -15,14 +15,14 @@
 */
 import { ReactElement, useCallback } from 'react';
 
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useImportADMArchiveDialog(): [
   ReactElement,
   (file: File) => void,
 ] {
-  const { importADMArchiveFile } = useAtlasmap();
+  const { importADMArchiveFile } = useDataMapper();
   const [ImportADMArchiveDialog, openImportADMArchiveDialog] =
     useConfirmationDialog(
       'Import ADM archive file?',

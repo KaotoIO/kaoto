@@ -15,11 +15,11 @@
 */
 import { ReactElement, useCallback } from 'react';
 
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useResetAtlasmapDialog(): [ReactElement, () => void] {
-  const { resetAtlasmap } = useAtlasmap();
+  const { resetAtlasmap } = useDataMapper();
   const [resetDialog, openResetDialog] = useConfirmationDialog(
     'Reset All Mappings and Imports?',
     'Are you sure you want to reset all mappings and clear all imported documents?',

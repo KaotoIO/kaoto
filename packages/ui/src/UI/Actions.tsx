@@ -13,10 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import React, { Children, FunctionComponent } from 'react';
+import {Children, FunctionComponent, PropsWithChildren} from 'react';
 import styles from './Actions.module.css';
 
-export const Actions: FunctionComponent = ({ children }) => (
+export const Actions: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <div className={styles.toolbar}>
     {Children.map(children, (c, idx) => (
       <div className={styles.toolbarItem} key={idx}>

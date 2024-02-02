@@ -17,7 +17,7 @@ import {
   CanvasProvider,
   ConditionalExpressionInput,
   FieldDragLayer,
-  FieldsDndProvider,
+  FieldsDndProvider, Loading,
   TimedToast,
 } from '../UI';
 import { ExpressionToolbar, MainLayout } from '../Layout';
@@ -31,15 +31,15 @@ import {
   SourceTargetView,
 } from '../Views';
 import { IUseContextToolbarData, useContextToolbar } from './useContextToolbar';
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { FunctionComponent, useCallback, useMemo } from 'react';
 import { getConstantType, getPropertyType } from './utils';
 
 import { AlertGroup } from '@patternfly/react-core';
-import { useAtlasmap } from './AtlasmapProvider';
-import { useAtlasmapDialogs } from './useAtlasmapDialogs';
+import { useDataMapper } from './DataMapperProvider';
+import { useDataMapperDialogs } from './useDataMapperDialogs';
 import { useSidebar } from './useSidebar';
 
-export interface IAtlasmapProps {
+export interface IDataMapperProps {
   allowImport?: boolean;
   allowExport?: boolean;
   allowReset?: boolean;
@@ -49,7 +49,7 @@ export interface IAtlasmapProps {
   toolbarOptions?: IUseContextToolbarData;
 }
 
-export const Atlasmap: FunctionComponent<IAtlasmapProps> = ({
+export const DataMapper: FunctionComponent<IDataMapperProps> = ({
   allowImport = true,
   allowExport = true,
   allowReset = true,
@@ -62,7 +62,6 @@ export const Atlasmap: FunctionComponent<IAtlasmapProps> = ({
     pending,
     // error,
     notifications,
-    markNotificationRead,
     sourceProperties,
     targetProperties,
     constants,
@@ -96,9 +95,9 @@ export const Atlasmap: FunctionComponent<IAtlasmapProps> = ({
     onRemoveFromMapping,
     onCreateMapping,
     isEnumerationMapping,
-  } = useAtlasmap();
+  } = useDataMapper();
 
-  const { handlers, dialogs } = useAtlasmapDialogs({
+  const { handlers, dialogs } = useDataMapperDialogs({
     modalContainer: document.getElementById(modalsContainerId)!,
   });
   const { activeView, showMappingPreview, showTypes, contextToolbar } =
@@ -421,17 +420,22 @@ export const Atlasmap: FunctionComponent<IAtlasmapProps> = ({
   return (
     <FieldsDndProvider>
       <CanvasProvider>
-        <MainLayout
-          loading={pending}
-          contextToolbar={contextToolbar}
-          expressionToolbar={
-            activeView !== 'NamespaceTable' && expressionToolbar
-          }
-          showSidebar={!!selectedMapping}
-          renderSidebar={renderSidebar}
-        >
-          {currentView}
-        </MainLayout>
+        {pending
+          ? (
+            <Loading />
+          )
+          : (
+            <MainLayout
+            contextToolbar={contextToolbar}
+            expressionToolbar={
+              activeView !== 'NamespaceTable' && expressionToolbar
+            }
+            showSidebar={!!selectedMapping}
+            renderSidebar={renderSidebar}
+          >
+            {currentView}
+          </MainLayout>
+          )}
         <FieldDragLayer />
         <AlertGroup isToast>
           {notifications
@@ -442,8 +446,8 @@ export const Atlasmap: FunctionComponent<IAtlasmapProps> = ({
                 variant={variant}
                 title={title}
                 key={id}
-                onClose={() => markNotificationRead(id)}
-                onTimeout={() => markNotificationRead(id)}
+                onClose={() => {}}
+                onTimeout={() => {}}
               >
                 {description}
               </TimedToast>

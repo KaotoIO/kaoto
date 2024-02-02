@@ -20,7 +20,7 @@ import { useToggle } from '../impl/utils';
 
 export interface IAutoDropdown
   extends Omit<Omit<DropdownProps, 'css'>, 'toggle'> {
-  toggle: (props: { isOpen: boolean; toggleOpen: () => void }) => ReactElement;
+  toggle: (toggleRef: React.RefObject<any>) => ReactElement;
 }
 
 export const AutoDropdown: FunctionComponent<IAutoDropdown> = ({
@@ -34,7 +34,7 @@ export const AutoDropdown: FunctionComponent<IAutoDropdown> = ({
       {...props}
       isOpen={isOpen}
       onSelect={toggleOpen}
-      toggle={toggle({ isOpen, toggleOpen })}
+      toggle={toggle}
     />
   );
 };

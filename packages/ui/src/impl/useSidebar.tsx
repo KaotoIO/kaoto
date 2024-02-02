@@ -21,7 +21,7 @@ import {
 import { useCallback } from 'react';
 
 import { CommonUtil } from '../core';
-import { useAtlasmap } from './AtlasmapProvider';
+import { useDataMapper } from './DataMapperProvider';
 
 export interface IUseSidebarProps {
   onCreateConstant: (
@@ -72,7 +72,7 @@ export function useSidebar({
     handleTransformationArgumentChange,
     handleMultiplicityChange,
     handleMultiplicityArgumentChange,
-  } = useAtlasmap();
+  } = useDataMapper();
 
   return useCallback(() => {
     if (selectedMapping) {

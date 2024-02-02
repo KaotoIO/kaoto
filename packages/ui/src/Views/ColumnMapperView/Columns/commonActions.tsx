@@ -15,8 +15,8 @@
 */
 import {
   Button,
-  DropdownItem,
-  DropdownToggle,
+  DropdownItem, DropdownList,
+  MenuToggle,
   Split,
   SplitItem,
   Title,
@@ -31,7 +31,6 @@ import {
 
 import { AutoDropdown } from '../../../UI';
 import { IAtlasmapMapping } from '../../../Views';
-import React from 'react';
 
 export interface ICommonActionsProps {
   connectedMappings: IAtlasmapMapping[];
@@ -63,18 +62,18 @@ export function commonActions({
     >
       {connectedMappings.length > 1 ? (
         <AutoDropdown
-          toggle={({ toggleOpen }) => (
-            <DropdownToggle
-              toggleIndicator={null}
+          toggle={(toggleRef) => (
+            <MenuToggle
+              ref={toggleRef}
               aria-label="Show mapping details"
-              onToggle={toggleOpen}
             >
               <ExchangeAltIcon />
-            </DropdownToggle>
+            </MenuToggle>
           )}
           isPlain={true}
-          position={'right'}
-          dropdownItems={connectedMappings.map((m) => (
+        >
+          <DropdownList data-testid={'mappings-dropdownlist'}>
+            {connectedMappings.map((m) => (
             <DropdownItem key={m.id} onClick={() => onShowMappingDetails(m)}>
               <Title headingLevel="h2" size="lg">
                 {m.name}
@@ -98,9 +97,9 @@ export function commonActions({
                 </SplitItem>
               </Split>
             </DropdownItem>
-          ))}
-          disabled={connectedMappings.length === 0}
-        />
+            ))}
+          </DropdownList>
+        </AutoDropdown>
       ) : (
         <Button
           variant="plain"

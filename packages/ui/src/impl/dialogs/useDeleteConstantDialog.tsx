@@ -15,14 +15,14 @@
 */
 import { ReactElement, useCallback } from 'react';
 
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useDeleteConstantDialog(): [
   ReactElement,
   (constName: string) => void,
 ] {
-  const { deleteConstant } = useAtlasmap();
+  const { deleteConstant } = useDataMapper();
   const [deleteConstantDialog, openDeleteConstantDialog] =
     useConfirmationDialog(
       'Delete constant?',

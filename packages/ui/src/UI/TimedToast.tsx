@@ -19,11 +19,11 @@ import {
   AlertProps,
   // Progress,
 } from '@patternfly/react-core';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import {FunctionComponent, PropsWithChildren, useEffect, useState} from 'react';
 
 import { useToggle } from '../impl/utils';
 
-export interface ITimedToastProps {
+export interface ITimedToastProps extends PropsWithChildren {
   variant: AlertProps['variant'];
   title: string;
   onTimeout: () => void;
@@ -49,7 +49,7 @@ export const TimedToast: FunctionComponent<ITimedToastProps> = ({
     const tick = () => {
       setElapsed((elapsed) => elapsed - intervalTime);
     };
-    let timer: NodeJS.Timer | undefined = undefined;
+    let timer: NodeJS.Timeout | undefined = undefined;
     if (elapsed <= 0) {
       onTimeout();
     } else if (!hovering && !timer) {

@@ -25,7 +25,6 @@ import {
 } from '../models/field-action.model';
 import {
   IActionDetail,
-  IActionDetailsContainer,
   Multiplicity,
 } from '../contracts/field-action';
 
@@ -33,7 +32,6 @@ import { ConfigModel } from '../models/config.model';
 import { Field } from '../models/field.model';
 import { FieldType } from '../contracts/common';
 import { MappingModel } from '../models/mapping.model';
-import ky from 'ky';
 
 export class FieldActionService {
   cfg: ConfigModel = ConfigModel.getConfig();
@@ -46,12 +44,6 @@ export class FieldActionService {
   };
 
   isInitialized = false;
-  private headers = {
-    'Content-Type': 'application/json; application/octet-stream',
-    Accept: 'application/json; application/octet-stream',
-  };
-
-  constructor(private api: typeof ky) {}
 
   async fetchFieldActions(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -179,11 +171,12 @@ export class FieldActionService {
   }
 
   private doFetchFieldActions(): Promise<FieldActionDefinition[]> {
-    return new Promise<FieldActionDefinition[]>((resolve, reject) => {
-      const actionConfigs: FieldActionDefinition[] = [];
-      const url: string =
-        this.cfg.initCfg.baseMappingServiceUrl + 'fieldActions';
+    return new Promise<FieldActionDefinition[]>((_resolve, _reject) => {
+      //const actionConfigs: FieldActionDefinition[] = [];
+      //const url: string =
+//        this.cfg.initCfg.baseMappingServiceUrl + 'fieldActions';
       this.cfg.logger!.debug('Field Action Config Request');
+      /*
       this.api
         .get(url, { headers: this.headers })
         .json<IActionDetailsContainer>()
@@ -203,6 +196,8 @@ export class FieldActionService {
         .catch((error: any) => {
           reject(error);
         });
+
+       */
     });
   }
 

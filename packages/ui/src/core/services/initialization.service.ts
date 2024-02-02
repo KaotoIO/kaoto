@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { DocumentType, IStringContainer } from '../contracts/common';
+import { DocumentType } from '../contracts/common';
 import {
   ErrorInfo,
   ErrorLevel,
@@ -37,7 +37,6 @@ import { MappingPreviewService } from './mapping-preview.service';
 import { MappingSerializer } from '../utils/mapping-serializer';
 import { MappingUtil } from '../utils/mapping-util';
 import { first } from 'rxjs/operators';
-import ky from 'ky';
 import log from 'loglevel';
 
 log.setDefaultLevel(log.levels.WARN);
@@ -56,7 +55,24 @@ export class InitializationService {
   initializationStatusChanged$: Observable<void> =
     this.initializationStatusChangedSource.asObservable();
 
+  private documentService: DocumentManagementService;
+  private mappingService: MappingManagementService;
+  private errorService: ErrorHandlerService;
+  private fieldActionService: FieldActionService;
+  private fileService: FileManagementService;
+  private previewService: MappingPreviewService;
+  private expressionService: MappingExpressionService;
+
   constructor() {
+    this.documentService = new DocumentManagementService();
+    this.mappingService = new MappingManagementService();
+    this.errorService = new ErrorHandlerService();
+    this.fieldActionService = new FieldActionService();
+    this.fileService = new FileManagementService();
+    this.previewService = new MappingPreviewService();
+    this.expressionService = new MappingExpressionService();
+    this.resetConfig();
+    this.documentService.initialize();
   }
 
   resetConfig(): void {
@@ -173,9 +189,10 @@ export class InitializationService {
    * Return true if the runtime service is available, false otherwise.
    */
   runtimeServiceActive(): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      const url: string = this.cfg.initCfg.baseMappingServiceUrl + 'ping';
+    return new Promise<boolean>((_resolve, _reject) => {
+      //const url: string = this.cfg.initCfg.baseMappingServiceUrl + 'ping';
       this.cfg.logger!.debug('Runtime Service Ping Request');
+      /*
       this.api
         .get(url)
         .json<IStringContainer>()
@@ -188,6 +205,8 @@ export class InitializationService {
         .catch((error: any) => {
           reject(error);
         });
+
+       */
     });
   }
 
@@ -196,8 +215,9 @@ export class InitializationService {
    * @returns
    */
   getRuntimeVersion(): Promise<string> {
-    const url = this.cfg.initCfg.baseMappingServiceUrl + 'version';
-    return new Promise<string>((resolve, reject) => {
+    //const url = this.cfg.initCfg.baseMappingServiceUrl + 'version';
+    return new Promise<string>((_resolve, _reject) => {
+      /*
       this.api
         .get(url)
         .json<IStringContainer>()
@@ -210,6 +230,8 @@ export class InitializationService {
         .catch((error) => {
           reject(error);
         });
+
+       */
     });
   }
 

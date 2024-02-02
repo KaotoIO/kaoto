@@ -16,12 +16,12 @@
 import React, { ReactElement, useCallback } from 'react';
 
 import { ExportCatalogDialog } from '../../UI';
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useToggle } from '../utils';
 
 export function useExportADMArchiveDialog(): [ReactElement, () => void] {
   const { state, toggleOn, toggleOff } = useToggle(false);
-  const { exportADMArchiveFile } = useAtlasmap();
+  const { exportADMArchiveFile } = useDataMapper();
   const onExportADMArchiveFile = useCallback(
     (filename: string) => {
       exportADMArchiveFile(filename);

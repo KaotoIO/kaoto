@@ -23,9 +23,6 @@ import {
   notificationsReducer,
 } from './reducers';
 import {
-  DocumentInitializationModel,
-  DocumentType,
-  InspectionType,
   MappingSerializer,
   TransitionMode,
 } from '../core';
@@ -36,7 +33,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useReducer,
+  useReducer, PropsWithChildren,
 } from 'react';
 import {
   addToCurrentMapping,
@@ -105,53 +102,19 @@ import {
   trailerId,
 } from './utils';
 
-import { LogLevelDesc } from 'loglevel';
 import { debounceTime } from 'rxjs/operators';
 
-// the document payload with get from Syndesis
-export interface IExternalDocumentProps {
-  id: string;
-  name: string;
-  description: string;
-  documentType: DocumentType;
-  inspectionType: InspectionType;
-  inspectionSource: string;
-  inspectionParameters: { [key: string]: string };
-  inspectionResult: string;
-  showFields: boolean;
-}
-interface IAtlasmapContext extends IDataState, INotificationsState {
+interface IDataMapperContext extends IDataState, INotificationsState {
   onLoading: () => void;
   onReset: () => void;
-  markNotificationRead: (id: string) => void;
 }
-const AtlasmapContext = createContext<IAtlasmapContext | null>(null);
+const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
-export interface IAtlasmapProviderProps {
-  baseJavaInspectionServiceUrl: string;
-  baseXMLInspectionServiceUrl: string;
-  baseJSONInspectionServiceUrl: string;
-  baseCSVInspectionServiceUrl: string;
-  baseMappingServiceUrl: string;
-  logLevel: string;
-
-  externalDocument?: {
-    documentId: string;
-    inputDocuments: IExternalDocumentProps[];
-    outputDocument: IExternalDocumentProps;
-    initialMappings?: string;
-  };
+export interface IDataMapperProviderProps extends PropsWithChildren {
   onMappingChange?: (serializedMappings: string) => void;
 }
-export const AtlasmapProvider: FunctionComponent<IAtlasmapProviderProps> = ({
-  baseJavaInspectionServiceUrl,
-  baseXMLInspectionServiceUrl,
-  baseJSONInspectionServiceUrl,
-  baseCSVInspectionServiceUrl,
-  baseMappingServiceUrl,
-  externalDocument,
+export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = ({
   onMappingChange,
-  logLevel,
   children,
 }) => {
   const [data, dispatchData] = useReducer(dataReducer, {}, initDataState);
@@ -179,76 +142,20 @@ export const AtlasmapProvider: FunctionComponent<IAtlasmapProviderProps> = ({
     });
   };
 
-  const markNotificationRead = (id: string) =>
-    dispatchNotifications({ type: 'dismiss', payload: { id } });
-
   useEffect(
     function onInitializationCb() {
       onReset();
       initializationService.resetConfig();
-      const cfg = initializationService.cfg;
-      cfg.logger?.setLevel(logLevel as LogLevelDesc);
-
-      cfg.initCfg.baseMappingServiceUrl = baseMappingServiceUrl;
-      cfg.initCfg.baseJavaInspectionServiceUrl = baseJavaInspectionServiceUrl;
-      cfg.initCfg.baseXMLInspectionServiceUrl = baseXMLInspectionServiceUrl;
-      cfg.initCfg.baseJSONInspectionServiceUrl = baseJSONInspectionServiceUrl;
-      cfg.initCfg.baseCSVInspectionServiceUrl = baseCSVInspectionServiceUrl;
-
-      if (externalDocument) {
-        externalDocument.inputDocuments.forEach((d) => {
-          const inputDoc: DocumentInitializationModel =
-            new DocumentInitializationModel();
-          inputDoc.type = d.documentType;
-          inputDoc.inspectionType = d.inspectionType;
-          inputDoc.inspectionSource = d.inspectionSource;
-          inputDoc.inspectionParameters = d.inspectionParameters;
-          inputDoc.inspectionResult = d.inspectionResult;
-          inputDoc.id = d.id;
-          inputDoc.name = d.name;
-          inputDoc.description = d.description;
-          inputDoc.isSource = true;
-          inputDoc.showFields = d.showFields;
-          cfg.addDocument(inputDoc);
-        });
-
-        const outputDoc: DocumentInitializationModel =
-          new DocumentInitializationModel();
-        outputDoc.type = externalDocument.outputDocument.documentType;
-        outputDoc.inspectionType =
-          externalDocument.outputDocument.inspectionType;
-        outputDoc.inspectionSource =
-          externalDocument.outputDocument.inspectionSource;
-        outputDoc.inspectionParameters =
-          externalDocument.outputDocument.inspectionParameters;
-        outputDoc.inspectionResult =
-          externalDocument.outputDocument.inspectionResult;
-        outputDoc.id = externalDocument.outputDocument.id;
-        outputDoc.name = externalDocument.outputDocument.name;
-        outputDoc.description = externalDocument.outputDocument.description;
-        outputDoc.isSource = false;
-        outputDoc.showFields = externalDocument.outputDocument.showFields;
-        cfg.addDocument(outputDoc);
-
-        if (externalDocument.initialMappings) {
-          cfg.preloadedMappingJson = externalDocument.initialMappings;
-        }
-      }
-
+      //const cfg = initializationService.cfg;
       initializationService.initialize();
+      /*
+      const outputDoc: DocumentInitializationModel =
+        new DocumentInitializationModel();
+      cfg.addDocument(outputDoc);
 
+       */
       onLoading();
-    },
-    [
-      baseCSVInspectionServiceUrl,
-      baseJSONInspectionServiceUrl,
-      baseJavaInspectionServiceUrl,
-      baseMappingServiceUrl,
-      baseXMLInspectionServiceUrl,
-      externalDocument,
-      logLevel,
-    ],
-  );
+    },[]);
 
   const configModel = initializationService.cfg;
 
@@ -407,11 +314,6 @@ export const AtlasmapProvider: FunctionComponent<IAtlasmapProviderProps> = ({
       };
     },
     [
-      baseJavaInspectionServiceUrl,
-      baseXMLInspectionServiceUrl,
-      baseJSONInspectionServiceUrl,
-      baseCSVInspectionServiceUrl,
-      baseMappingServiceUrl,
       configModel,
       data.pending,
       data.selectedMapping,
@@ -439,26 +341,25 @@ export const AtlasmapProvider: FunctionComponent<IAtlasmapProviderProps> = ({
   );
 
   return (
-    <AtlasmapContext.Provider
+    <DataMapperContext.Provider
       value={{
         ...data,
         ...notifications,
         onLoading,
         onReset,
-        markNotificationRead,
       }}
     >
       {children}
-    </AtlasmapContext.Provider>
+    </DataMapperContext.Provider>
   );
 };
 
-export function useAtlasmap() {
-  const context = useContext(AtlasmapContext);
+export function useDataMapper() {
+  const context = useContext(DataMapperContext);
 
   if (!context) {
     throw new Error(
-      `useAtlasmap must be used inside an AtlasmapProvider component`,
+      `useDataMapper must be used inside an DataMapperProvider component`,
     );
   }
 

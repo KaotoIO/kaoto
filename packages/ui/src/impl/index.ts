@@ -14,6 +14,6 @@
     limitations under the License.
 */
 export * from './utils';
-export * from './Atlasmap';
-export * from './AtlasmapProvider';
-export * from './useAtlasmapDialogs';
+export * from './DataMapper';
+export * from './DataMapperProvider';
+export * from './useDataMapperDialogs';

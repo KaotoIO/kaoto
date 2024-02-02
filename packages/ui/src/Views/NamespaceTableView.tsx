@@ -27,13 +27,11 @@ import {
 import {
   ICell,
   IRowData,
-  Table,
-  TableBody,
-  TableHeader,
   textCenter,
 } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { PlusIcon, TableIcon } from '@patternfly/react-icons';
-import React, { FunctionComponent, ReactElement } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
 
 import { Actions } from '../UI';
 import { IAtlasmapDocument } from '.';
@@ -167,7 +165,7 @@ export const NamespaceTableView: FunctionComponent<INamespaceTableProps> = ({
 
   return namespaceTables.length === 0 ? (
     <Bullseye>
-      <EmptyState variant={EmptyStateVariant.small}>
+      <EmptyState variant={EmptyStateVariant.sm}>
         <EmptyStateIcon icon={TableIcon} />
         <Title headingLevel="h2" size="lg">
           No XML sources found

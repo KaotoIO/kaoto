@@ -15,20 +15,17 @@
 */
 import {
   ErrorInfo,
-  ErrorLevel,
-  ErrorScope,
-  ErrorType,
+//  ErrorType,
 } from '../models/error.model';
 import {
   IProcessMappingRequestContainer,
-  IProcessMappingResponseContainer,
+//  IProcessMappingResponseContainer,
   PROCESS_MAPPING_REQUEST_JSON_TYPE,
 } from '../contracts/mapping-preview';
 import { Subject, Subscription } from 'rxjs';
 import { ConfigModel } from '../models/config.model';
 import { MappingModel } from '../models/mapping.model';
 import { MappingSerializer } from '../utils/mapping-serializer';
-import ky from 'ky';
 
 /**
  * Manages Mapping Preview.
@@ -45,8 +42,6 @@ export class MappingPreviewService {
 
   private mappingPreviewInputSubscription?: Subscription;
   private mappingUpdatedSubscription?: Subscription;
-
-  constructor(private api: typeof ky) {}
 
   /**
    * Enable Mapping Preview.
@@ -89,8 +84,9 @@ export class MappingPreviewService {
       this.cfg.logger!.debug(
         `Process Mapping Preview Request: ${JSON.stringify(payload)}`
       );
-      const url: string =
-        this.cfg.initCfg.baseMappingServiceUrl + 'mapping/process';
+//      const url: string =
+  //      this.cfg.initCfg.baseMappingServiceUrl + 'mapping/process';
+      /*
       this.api
         .put(url, { json: payload })
         .json<IProcessMappingResponseContainer>()
@@ -120,6 +116,8 @@ export class MappingPreviewService {
             new ErrorInfo({ message: error, level: ErrorLevel.ERROR }),
           ]);
         });
+
+       */
     });
   }
 
@@ -139,6 +137,7 @@ export class MappingPreviewService {
     };
   }
 
+  /*
   private processPreviewResponse(
     inputFieldMapping: MappingModel,
     body: IProcessMappingResponseContainer
@@ -177,6 +176,7 @@ export class MappingPreviewService {
     }
     this.mappingPreviewErrorSource.next(audits);
   }
+   */
 
   private createMappingUpdatedSubscription(): Subscription {
     return this.cfg.mappingService.mappingUpdated$.subscribe(() => {

@@ -18,7 +18,7 @@ import
   FunctionComponent,
   createContext,
   useContext,
-  useRef,
+  useRef, PropsWithChildren,
 } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -31,7 +31,7 @@ const probablyTouch =
     window.matchMedia('(pointer: coarse)').matches) &&
   window.matchMedia('(hover: none)').matches;
 
-const TouchAndPointerProvider: FunctionComponent = ({ children }) => {
+const TouchAndPointerProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       {children}
@@ -39,7 +39,7 @@ const TouchAndPointerProvider: FunctionComponent = ({ children }) => {
   );
 };
 
-const MouseOnlyProvider: FunctionComponent = ({ children }) => (
+const MouseOnlyProvider: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <DndProvider backend={HTML5Backend}>{children}</DndProvider>
 );
 
@@ -50,7 +50,7 @@ interface IFieldsDndContext {
 
 const FieldsDndContext = createContext<IFieldsDndContext | null>(null);
 
-export const FieldsDndProvider: FunctionComponent = ({ children }) => {
+export const FieldsDndProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const hoveredTarget = useRef<IDragAndDropField | null>(null);
   const getHoveredTarget = () => hoveredTarget.current;
   const setHoveredTarget = (target: IDragAndDropField | null) =>

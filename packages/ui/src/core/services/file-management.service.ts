@@ -21,16 +21,13 @@ import {
 } from '../models/error.model';
 import {
   IAtlasMappingContainer,
-  IStringMapContainer,
 } from '../contracts/mapping';
 import { gzip, inflate } from 'pako';
 
 import { ADMDigest } from '../contracts/adm-digest';
 import { CommonUtil } from '../utils/common-util';
 import { ConfigModel } from '../models/config.model';
-import { HTTP_STATUS_NO_CONTENT } from '../common/config.types';
 import { MappingDigestUtil } from '../utils/mapping-digest-util';
-import ky from 'ky';
 import log from 'loglevel';
 
 export enum FileName {
@@ -51,8 +48,6 @@ export enum FileType {
 export class FileManagementService {
   _cfg!: ConfigModel;
 
-  constructor(private api: typeof ky) {}
-
   get cfg() {
     return this._cfg;
   }
@@ -65,12 +60,9 @@ export class FileManagementService {
   }
 
   findMappingFiles(filter: string): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
-      const url =
-        this.cfg.initCfg.baseMappingServiceUrl +
-        'mappings' +
-        (filter == null ? '' : '?filter=' + filter);
-      this.cfg.logger!.debug('Mapping List Request');
+    return new Promise<string[]>((_resolve, _reject) => {
+      this.cfg.logger!.debug(`Mapping List Request: ${filter}`);
+      /*
       this.api
         .get(url)
         .json<IStringMapContainer>()
@@ -90,6 +82,8 @@ export class FileManagementService {
             reject(error);
           }
         });
+
+       */
     });
   }
 
@@ -126,14 +120,10 @@ export class FileManagementService {
     fileName: string,
     fileType: string
   ): Promise<Uint8Array | null> {
-    return new Promise<Uint8Array | null>((resolve, reject) => {
+    return new Promise<Uint8Array | null>((_resolve, _reject) => {
       const url = `${this.cfg.initCfg.baseMappingServiceUrl}mapping/${fileType}/`;
       this.cfg.logger!.debug(`Get Current ${fileName} Request: ${url}`);
-      const headers = {
-        'Content-Type': 'application/octet-stream',
-        Accept: 'application/octet-stream',
-        'Response-Type': 'application/octet-stream',
-      };
+      /*
       this.api
         .get(url, { headers })
         .arrayBuffer()
@@ -156,6 +146,8 @@ export class FileManagementService {
             reject(error);
           }
         });
+
+       */
     });
   }
 
@@ -163,9 +155,10 @@ export class FileManagementService {
    * Delete mapping files on the runtime.
    */
   resetMappings(): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/RESET';
+    return new Promise<boolean>((_resolve) => {
+      //const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/RESET';
       this.cfg.logger!.debug('Reset Mappings Request');
+      /*
       this.api
         .delete(url)
         .arrayBuffer()
@@ -183,6 +176,8 @@ export class FileManagementService {
           );
           resolve(false);
         });
+
+       */
     });
   }
 
@@ -190,9 +185,10 @@ export class FileManagementService {
    * Delete user-defined JAR library files on the runtime.
    */
   resetLibs(): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/resetLibs';
+    return new Promise<boolean>((_resolve) => {
+      //const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/resetLibs';
       this.cfg.logger!.debug('Reset Libs Request');
+      /*
       this.api
         .delete(url)
         .arrayBuffer()
@@ -208,6 +204,8 @@ export class FileManagementService {
           );
           resolve(false);
         });
+
+       */
     });
   }
 
@@ -265,16 +263,12 @@ export class FileManagementService {
    * @param buffer - The stringified AtlasMapping JSON
    */
   setMappingStringToService(jsonBuffer: string): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/JSON';
-      const headers = {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'Response-Type': 'application/json',
-      };
+    return new Promise<boolean>((_resolve) => {
+      //const url = this.cfg.initCfg.baseMappingServiceUrl + 'mapping/JSON';
       this.cfg.logger!.debug(
         `Set Mapping Request (set mapping): ${jsonBuffer}`
       );
+      /*
       this.api
         .put(url, { headers, body: jsonBuffer })
         .arrayBuffer()
@@ -291,6 +285,8 @@ export class FileManagementService {
           );
           resolve(false);
         });
+
+       */
     });
   }
 
@@ -349,8 +345,9 @@ export class FileManagementService {
     url: string,
     fileName: FileName
   ): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      this.cfg.logger!.debug(`Set ${fileName} Request`);
+    return new Promise<boolean>((_resolve) => {
+      this.cfg.logger!.debug(`Set ${fileName} Request: ${compressedBuffer}, ${url}`);
+      /*
       this.api
         .put(url, { body: compressedBuffer })
         .arrayBuffer()
@@ -368,6 +365,8 @@ export class FileManagementService {
           );
           resolve(false);
         });
+
+       */
     });
   }
 
@@ -526,15 +525,16 @@ export class FileManagementService {
    * Retrieve the current user AtlasMap data mappings from the server as a JSON object.
    */
   getCurrentMappingJson(): Promise<IAtlasMappingContainer> {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>((_resolve, reject) => {
       if (this.cfg.mappings === null) {
         reject();
         return;
       }
       this.cfg.mappingFiles[0] = this.cfg.mappings.name!;
-      const baseURL: string =
-        this.cfg.initCfg.baseMappingServiceUrl + 'mapping/JSON/';
+      //const baseURL: string =
+//        this.cfg.initCfg.baseMappingServiceUrl + 'mapping/JSON/';
       this.cfg.logger!.debug('Get Current Mapping Request');
+      /*
       this.api
         .get(baseURL)
         .json<IAtlasMappingContainer>()
@@ -555,6 +555,8 @@ export class FileManagementService {
             resolve(undefined);
           }
         });
+
+       */
     });
   }
 }

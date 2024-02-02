@@ -1,11 +1,11 @@
 {
-  "name": "@kdm/ui",
+  "name": "@datamapper-poc/ui",
   "version": "0.0.1",
   "type": "module",
-  "description": "kdm",
-  "repository": "https://github.com/igarashitm/kdm",
+  "description": "datamapper-poc",
+  "repository": "https://github.com/KaotoIO/datamapper-poc",
   "repositoryDirectory": "packages/ui",
-  "author": "kdm",
+  "author": "KaotoIO",
   "publishConfig": {
     "access": "public"
   },
@@ -44,6 +44,7 @@
     "@patternfly/react-core": "^5.1.2",
     "@patternfly/react-table": "^5.1.2",
     "@patternfly/react-topology": "^5.1.0",
+    "@types/pako": "^2.0.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "fast-xml-parser": "^4.3.3",

@@ -13,10 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import React, { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 import styles from './MainContent.module.css';
 
-export const MainContent: FunctionComponent = ({ children }) => (
+export const MainContent: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <div className={styles.wrapper} role={'main'}>
     {children}
   </div>

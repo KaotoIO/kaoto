@@ -14,8 +14,8 @@
     limitations under the License.
 */
 import { Coords, RectWithId, Rects } from './models';
-import { FunctionComponent, createContext, useContext } from 'react';
-import React, {
+import {FunctionComponent, createContext, useContext, PropsWithChildren} from 'react';
+import {
   ReactElement,
   useCallback,
   useEffect,
@@ -61,7 +61,7 @@ export interface ICanvasContext {
 }
 const CanvasContext = createContext<ICanvasContext | null>(null);
 
-export interface ICanvasProviderProps {
+export interface ICanvasProviderProps extends PropsWithChildren {
   allowPanning?: boolean;
   initialWidth?: number;
   initialHeight?: number;

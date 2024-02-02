@@ -13,10 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AtlasmapProvider, IAtlasmapProviderProps } from './AtlasmapProvider';
+import { DataMapperProvider, IDataMapperProviderProps } from './DataMapperProvider';
 import { boolean, text } from '@storybook/addon-knobs';
 
-import { Atlasmap } from './Atlasmap';
+import { DataMapper } from './DataMapper';
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { html } from '../stories/htmlKnob';
@@ -76,7 +76,7 @@ const obj = {
 export default obj;
 
 export const wiredToTheBackend = () => (
-  <AtlasmapProvider
+  <DataMapperProvider
     baseJavaInspectionServiceUrl={text(
       'baseJavaInspectionServiceUrl',
       'http://localhost:8585/v2/atlas/java/',
@@ -100,7 +100,7 @@ export const wiredToTheBackend = () => (
     logLevel={text('logLevel', 'info')}
     onMappingChange={action('onMappingChange')}
   >
-    <Atlasmap
+    <DataMapper
       allowImport={boolean('allow Import', true)}
       allowExport={boolean('allow Export', true)}
       allowReset={boolean('allow Reset', true)}
@@ -130,7 +130,7 @@ export const wiredToTheBackend = () => (
         ),
       }}
     />
-  </AtlasmapProvider>
+  </DataMapperProvider>
 );
 
 export const embeddedInSyndesis = () => {
@@ -138,14 +138,14 @@ export const embeddedInSyndesis = () => {
     'External document',
     sampleExternalDocument,
   );
-  let externalDocument: IAtlasmapProviderProps['externalDocument'];
+  let externalDocument: IDataMapperProviderProps['externalDocument'];
   try {
     externalDocument = JSON.parse(externalDocumentFromKnob);
   } catch (e) {
     // do nothing
   }
   return (
-    <AtlasmapProvider
+    <DataMapperProvider
       baseJavaInspectionServiceUrl={text(
         'baseJavaInspectionServiceUrl',
         'http://localhost:8585/v2/atlas/java/',
@@ -170,13 +170,13 @@ export const embeddedInSyndesis = () => {
       externalDocument={externalDocument}
       onMappingChange={action('onMappingChange')}
     >
-      <Atlasmap
+      <DataMapper
         allowImport={false}
         allowExport={false}
         allowReset={false}
         allowDelete={false}
         allowCustomJavaClasses={false}
       />
-    </AtlasmapProvider>
+    </DataMapperProvider>
   );
 };

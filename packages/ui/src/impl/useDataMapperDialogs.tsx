@@ -47,12 +47,12 @@ import {
 
 import { IAtlasmapDocument } from '../Views';
 import { createPortal } from 'react-dom';
-import { useAtlasmap } from './AtlasmapProvider';
+import { useDataMapper } from './DataMapperProvider';
 
 export interface IUseAtlasmapDialogsProps {
   modalContainer: HTMLElement;
 }
-export function useAtlasmapDialogs({
+export function useDataMapperDialogs({
   modalContainer,
 }: IUseAtlasmapDialogsProps) {
   const {
@@ -66,7 +66,7 @@ export function useAtlasmapDialogs({
     editNamespace,
     deleteNamespace,
     changeDocumentName,
-  } = useAtlasmap();
+  } = useDataMapper();
 
   //#region constant dialogs
   const [createConstantDialog, openCreateConstantDialog] =

@@ -27,7 +27,6 @@ import {
   ErrorType,
 } from '../models/error.model';
 import {
-  HTTP_STATUS_NO_CONTENT,
   constantTypes,
   propertyTypes,
 } from '../common/config.types';
@@ -40,7 +39,6 @@ import { DocumentInspectionModel } from '../models/inspect/document-inspection.m
 import { DocumentInspectionUtil } from '../utils/document-inspection-util';
 import { Field } from '../models/field.model';
 import { Guid } from '../utils';
-import ky from 'ky';
 
 /**
  * Manages Document object lifecycle. Import a Document source
@@ -52,8 +50,6 @@ export class DocumentManagementService {
 
   private mappingUpdatedSubscription!: Subscription;
   private MAX_SEARCH_MATCH = 10000;
-
-  constructor(private api: typeof ky) {}
 
   initialize(): void {
     this.mappingUpdatedSubscription =
@@ -130,6 +126,7 @@ export class DocumentManagementService {
       this.cfg.logger!.debug(
         `Document Inspection Request: ${JSON.stringify(request.options.json)}`
       );
+      /*
       this.api
         .post(request.url, request.options)
         .json()
@@ -150,11 +147,13 @@ export class DocumentManagementService {
           docDef.errorOccurred = true;
           reject(error);
         });
+
+       */
     });
   }
 
   getLibraryClassNames(): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
+    return new Promise<string[]>((resolve, _reject) => {
       if (typeof this.cfg.initCfg.baseMappingServiceUrl === 'undefined') {
         resolve([]);
         return;
@@ -162,6 +161,7 @@ export class DocumentManagementService {
       const url: string =
         this.cfg.initCfg.baseMappingServiceUrl + 'library/list';
       this.cfg.logger!.debug('Library Class List Service Request: ' + url);
+      /*
       this.api
         .get(url)
         .json()
@@ -183,6 +183,8 @@ export class DocumentManagementService {
             resolve([]);
           }
         });
+
+       */
     });
   }
 
@@ -493,7 +495,7 @@ export class DocumentManagementService {
             // All fields below the matching field are also visible.
             try {
               this.markChildrenVisible(field);
-            } catch (error) {
+            } catch (error: any) {
               cfg.errorService.addError(
                 new ErrorInfo({
                   message: error.message,

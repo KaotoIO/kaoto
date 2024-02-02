@@ -15,7 +15,6 @@
 */
 import {
   BezierCurveIcon,
-  CaretDownIcon,
   CodeIcon,
   ColumnsIcon,
   ExportIcon,
@@ -33,9 +32,9 @@ import {
 import {
   Button,
   Dropdown,
-  DropdownItem,
-  DropdownSeparator,
-  DropdownToggle,
+  DropdownItem, DropdownList,
+  Divider,
+  MenuToggle,
   ToolbarItem,
   Tooltip,
 } from '@patternfly/react-core';
@@ -89,7 +88,7 @@ export const AtlasmapToolbarItem: FunctionComponent<
       />
     ),
     (showImportAtlasFileToolbarItem || showImportJarFileToolbarItem) && (
-      <DropdownSeparator key="import-separator" />
+      <Divider key="import-separator" />
     ),
     showExportAtlasFileToolbarItem && (
       <ExportAtlasFileToolbarItem
@@ -98,7 +97,7 @@ export const AtlasmapToolbarItem: FunctionComponent<
       />
     ),
     showExportAtlasFileToolbarItem && (
-      <DropdownSeparator key="export-separator" />
+      <Divider key="export-separator" />
     ),
     showResetToolbarItem && (
       <ResetToolbarItem
@@ -110,20 +109,23 @@ export const AtlasmapToolbarItem: FunctionComponent<
   return (
     <ToolbarItem>
       <Dropdown
-        toggle={
-          <DropdownToggle
+        toggle={(toggleRef) => (
+          <MenuToggle
+            ref={toggleRef}
             id="atlasmap-toggle"
-            onToggle={onToggle}
-            toggleIndicator={CaretDownIcon}
             data-testid="atlasmap-menu-button"
+            onScroll={onToggle}
           >
             AtlasMap
-          </DropdownToggle>
-        }
+          </MenuToggle>
+        )}
         isOpen={isOpen}
-        dropdownItems={dropdownItems}
         isPlain={true}
-      />
+      >
+        <DropdownList data-testid={'atlasmap-menu-dropdownlist'}>
+          {dropdownItems}
+        </DropdownList>
+      </Dropdown>
     </ToolbarItem>
   );
 };

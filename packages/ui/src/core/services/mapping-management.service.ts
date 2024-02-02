@@ -38,7 +38,6 @@ import { MappingUtil } from '../utils/mapping-util';
 import { Multiplicity } from '../contracts/field-action';
 import { PaddingField } from '../models/document-definition.model';
 import { TransitionMode } from '../models/transition.model';
-import ky from 'ky';
 import log from 'loglevel';
 
 /**
@@ -58,8 +57,6 @@ export class MappingManagementService {
   mappingSelectionRequiredSource = new Subject<Field>();
   mappingSelectionRequired$ =
     this.mappingSelectionRequiredSource.asObservable();
-
-  constructor(private api: typeof ky) {}
 
   get cfg() {
     return this._cfg;
@@ -443,6 +440,7 @@ export class MappingManagementService {
       this.cfg.logger!.debug(
         `Validation Service Request: ${JSON.stringify(payload)}\n`
       );
+      /*
       this.api
         .put(url, { json: payload })
         .json<IValidationsContainer>()
@@ -456,6 +454,8 @@ export class MappingManagementService {
           this.cfg.logger!.warn('Unable to fetch validation data.');
           resolve(false);
         });
+
+       */
     });
   }
 

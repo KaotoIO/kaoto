@@ -15,7 +15,7 @@
 */
 import { ReactElement, useCallback, useState } from 'react';
 import { getCsvParameterOptions } from '../../core';
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 import { useParametersDialog } from './useParametersDialog';
 import { useSpecifyInstanceSchemaDialog } from './useSpecifyInstanceSchemaDialog';
@@ -24,7 +24,7 @@ export function useImportDocumentDialog(): [
   ReactElement,
   (selectedFile: File, isSource: boolean) => void,
 ] {
-  const { configModel, documentExists, importInstanceSchema } = useAtlasmap();
+  const { configModel, documentExists, importInstanceSchema } = useDataMapper();
   const [importDialog, openImportDialog] = useConfirmationDialog(
     'Confirm document import',
     'A document with the selected name has already been imported into the specified panel. It will appear in addition to the pre-existing document.',

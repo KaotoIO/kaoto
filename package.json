@@ -1,10 +1,10 @@
 {
-  "name": "kdm",
+  "name": "datamapper-poc",
   "version": "0.0.1",
-  "description": "kdm",
-  "repository": "https://github.com/igarashitm/kdm",
+  "description": "datamapper-poc",
+  "repository": "https://github.com/KaotoIO/datamapper-poc",
   "private": true,
-  "author": "kdm",
+  "author": "KaotoIO",
   "license": "Apache-2.0",
   "workspaces": [
     "packages/*"

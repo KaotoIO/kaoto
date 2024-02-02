@@ -15,14 +15,14 @@
 */
 import { ReactElement, useCallback } from 'react';
 
-import { useAtlasmap } from '../AtlasmapProvider';
+import { useDataMapper } from '../DataMapperProvider';
 import { useConfirmationDialog } from './useConfirmationDialog';
 
 export function useDeletePropertyDialog(): [
   ReactElement,
   (propName: string, propScope: string, isSource: boolean) => void,
 ] {
-  const { deleteProperty } = useAtlasmap();
+  const { deleteProperty } = useDataMapper();
   const [deletePropertyDialog, openDeletePropertyDialog] =
     useConfirmationDialog(
       'Delete property?',

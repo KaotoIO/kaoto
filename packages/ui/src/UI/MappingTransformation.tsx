@@ -19,16 +19,16 @@ import {
   FormGroup,
   FormSelect,
   FormSelectOption,
-  InputGroup,
+  InputGroup, MenuToggle, MenuToggleElement,
   Select,
   SelectOption,
-  SelectOptionObject,
-  SelectVariant,
   Split,
   SplitItem,
-  TextInput,
+  Text,
+  TextContent,
+  TextInput, TextVariants,
 } from '@patternfly/react-core';
-import React, { FunctionComponent, useState } from 'react';
+import React, {FunctionComponent, Ref, useCallback, useState} from 'react';
 
 import { FieldType } from '../core';
 import { TrashIcon } from '@patternfly/react-icons';
@@ -124,15 +124,23 @@ export const MappingTransformation: FunctionComponent<
     const [userDefinedValue, setUserDefinedValue] =
       useState<string>(initialUserDefined);
 
-    const onToggle = (isOpen: boolean) => {
-      setIsOpen(isOpen);
+    const onToggle = () => {
+      setIsOpen(!isOpen);
     };
+
+    const toggle = useCallback(
+      (toggleRef: Ref<MenuToggleElement>) => (
+        <MenuToggle ref={toggleRef} onClick={onToggle} isExpanded={isOpen} isDisabled={disableTransformation}>
+          {selected?.name || <TextContent><Text component={TextVariants.small}>'[None]'</Text></TextContent>}
+        </MenuToggle>
+      ),
+      [isOpen],
+    );
 
     const onSelect = (
       _event:
-        | React.MouseEvent<Element, MouseEvent>
-        | React.ChangeEvent<Element>,
-      selection: string | SelectOptionObject,
+        | React.MouseEvent<Element, MouseEvent> | undefined,
+      selection: string | number | undefined,
       _isPlaceholder?: boolean,
     ) => {
       setIsOpen(false);
@@ -147,11 +155,11 @@ export const MappingTransformation: FunctionComponent<
         ? userDefinedValue
           ? userDefinedValue
           : ''
-        : selection.toString();
+        : selection!.toString();
       onTransformationArgumentChange(arg.name, arg.value);
     };
 
-    const onChangeUserDefinedValue = (value: string) => {
+    const onChangeUserDefinedValue = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
       setUserDefinedValue(value);
       arg.value = value;
       onTransformationArgumentChange(arg.name, value);
@@ -161,15 +169,11 @@ export const MappingTransformation: FunctionComponent<
       <Split>
         <SplitItem>
           <Select
-            variant={SelectVariant.single}
             aria-label={arg.label}
             onSelect={onSelect}
-            selections={selected?.value}
-            onToggle={onToggle}
+            toggle={toggle}
             isOpen={isOpen}
-            placeholderText={'[None]'}
             id={argId}
-            isDisabled={disableTransformation}
             data-testid={arg.name}
             style={formTransStyle}
           >
@@ -211,7 +215,7 @@ export const MappingTransformation: FunctionComponent<
         name={a.name}
         isDisabled={disableTransformation}
         value={a.value}
-        onChange={(value) => onTransformationArgumentChange(a.name, value)}
+        onChange={(_event, value) => onTransformationArgumentChange(a.name, value)}
         data-testid={`insert-transformation-parameter-${a.name}-input-field`}
         style={formTransTextInputStyle}
       />
@@ -279,7 +283,7 @@ export const MappingTransformation: FunctionComponent<
             value={name}
             id={id}
             isDisabled={disableTransformation}
-            onChange={onTransformationChange}
+            onChange={(_event, value) => onTransformationChange(value)}
             data-testid={id}
             style={formTransStyle}
           >
