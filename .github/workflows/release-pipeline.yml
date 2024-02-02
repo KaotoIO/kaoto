@@ -80,12 +80,6 @@ jobs:
     steps:
       - name: "🛰️ Checkout source code"
         uses: actions/checkout@v4
-
-      - name: "🛰️ Download UI Dist"
-        uses: actions/download-artifact@v4
-        with:
-          name: kaoto-ui-${{ github.run_id }}
-          path: "${{ runner.temp }}"    
     
       - name: "🔧 Build packages"
         run: |
