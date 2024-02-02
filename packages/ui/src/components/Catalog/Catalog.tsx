@@ -74,7 +74,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
   }, []);
 
   return (
-    <>
+    <div className="catalog">
       <CatalogFilter
         className="catalog__filter"
         searchTerm={searchTerm}
@@ -95,6 +95,6 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         onTileClick={onTileClick}
         onTagClick={onTagClick}
       />
-    </>
+    </div>
   );
 };

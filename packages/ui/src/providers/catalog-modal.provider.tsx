@@ -14,6 +14,7 @@ import { CatalogKind, DefinedComponent } from '../models';
 import { isDefined } from '../utils';
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { CatalogContext } from './catalog.provider';
+import './catalog-modal.provider.scss';
 
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;
