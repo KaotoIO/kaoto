@@ -7,6 +7,12 @@ on:
         description: |
           The tag version we want to release without prefix (e.g. 2.0.0)
         required: true
+      stable:
+        type: boolean
+        description: |
+          Is this a stable release? If so we are going to tag also a stable container image to be used in the Kaoto Operator
+        required: false
+        default: false
 
 jobs:
   tag-and-release:
@@ -115,3 +121,15 @@ jobs:
         shell: bash
         run: |
           docker push quay.io/kaotoio/kaoto-app:${{ github.event.inputs.tag_version }}
+          
+      - name: "🔧 Build Container Image"
+        shell: bash
+        run: |
+          docker build -t "quay.io/kaotoio/kaoto-app:stable" .
+        if: ${{ github.event.inputs.stable }}
+
+      - name: "📤 Upload Container Image"
+        shell: bash
+        run: |
+          docker push quay.io/kaotoio/kaoto-app:stable
+        if: ${{ github.event.inputs.stable }}
