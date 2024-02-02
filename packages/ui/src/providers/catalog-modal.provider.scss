@@ -1,0 +1,8 @@
+// Prevent modal body scrolling
+.pf-v5-c-modal-box {
+  &__body {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
+}

@@ -1,4 +1,9 @@
 .catalog {
+  overflow: inherit;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+
   &__filter {
     margin-bottom: var(--pf-v5-global--spacer--xl);
   }
