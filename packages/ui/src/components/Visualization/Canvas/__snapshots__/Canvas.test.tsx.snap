@@ -245,14 +245,6 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                   </div>
                 </div>
               </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-4-expandable-content-9"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
-              </div>
             </div>
             <div
               class="pf-v5-c-toolbar__content pf-m-hidden"
@@ -581,14 +573,6 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-3-expandable-content-7"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
               </div>
             </div>
             <div
@@ -1100,14 +1084,6 @@ exports[`Canvas should render correctly 1`] = `
                   </div>
                 </div>
               </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-0-expandable-content-1"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
-              </div>
             </div>
             <div
               class="pf-v5-c-toolbar__content pf-m-hidden"
@@ -1617,14 +1593,6 @@ exports[`Canvas should render correctly with more routes  1`] = `
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-1-expandable-content-3"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
               </div>
             </div>
             <div
@@ -2239,14 +2207,6 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-topology-control-bar-2-expandable-content-5"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
               </div>
             </div>
             <div

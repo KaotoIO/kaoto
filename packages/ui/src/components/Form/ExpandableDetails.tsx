@@ -18,6 +18,8 @@ export const ExpandableDetails: FunctionComponent<PropsWithChildren<ExpandableDe
 
       <ExpandableSection
         toggleText={isExpanded ? 'Hide properties' : 'Show properties'}
+        toggleId="expandable-section-toggle"
+        contentId="expandable-section-content"
         onToggle={onToggle}
         isExpanded={isExpanded}
       >

@@ -157,6 +157,8 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
           <Badge isRead>{Object.keys(propertiesModel).length}</Badge>
         </>
       }
+      toggleId="expandable-section-toggle"
+      contentId="expandable-section-content"
       onToggle={(_event, isExpanded) => setFieldExpanded(isExpanded)}
       isExpanded={isFieldExpanded}
       data-testid={'expandable-section-' + props.name}

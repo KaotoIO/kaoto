@@ -5,6 +5,7 @@ import {
   Model,
   SELECTION_EVENT,
   TopologyControlBar,
+  TopologyControlButton,
   TopologyView,
   VisualizationProvider,
   VisualizationSurface,
@@ -59,7 +60,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   }, [props.entities.length, visibleFlows]);
 
   const controlButtons = useMemo(() => {
-    const customButtons = catalogModalContext
+    const customButtons: TopologyControlButton[] = catalogModalContext
       ? [
           {
             id: 'topology-control-bar-h_layout-button',

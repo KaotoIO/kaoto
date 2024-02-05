@@ -9,9 +9,9 @@ jest.mock('uniforms', () => {
 import { render } from '@testing-library/react';
 import { DisabledField } from './DisabledField';
 
-describe('DisabledStep', () => {
+describe('DisabledField', () => {
   it('should render', () => {
-    const { container } = render(<DisabledField name="test" label="Disabled field label" />);
+    const { container } = render(<DisabledField id="disabled-field-id" name="test" label="Disabled field label" />);
 
     expect(container).toMatchSnapshot();
   });
