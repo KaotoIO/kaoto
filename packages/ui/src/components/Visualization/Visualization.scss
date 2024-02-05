@@ -7,3 +7,15 @@
 .pf-v5-u-m-sm {
   margin: var(--pf-v5-global--spacer--sm);
 }
+
+// Provide a screen reader class to hide elements
+// This is a workaround since this class should be provided by the @patternfly/react-core package
+.pf-v5-u-screen-reader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

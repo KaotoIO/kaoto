@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DisabledStep should render 1`] = `
+exports[`DisabledField should render 1`] = `
 <div>
   <div
     class="pf-v5-c-card"
@@ -28,8 +28,10 @@ exports[`DisabledStep should render 1`] = `
         class="pf-v5-c-expandable-section"
       >
         <button
+          aria-controls="expandable-section-content"
           aria-expanded="false"
           class="pf-v5-c-expandable-section__toggle"
+          id="expandable-section-toggle"
           type="button"
         >
           <span
@@ -56,13 +58,16 @@ exports[`DisabledStep should render 1`] = `
           </span>
         </button>
         <div
+          aria-labelledby="expandable-section-toggle"
           class="pf-v5-c-expandable-section__content"
           hidden=""
-          id=""
+          id="expandable-section-content"
+          role="region"
         >
           <code>
             <pre>
               {
+  "id": "disabled-field-id",
   "name": "test",
   "label": "Disabled field label"
 }

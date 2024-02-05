@@ -200,7 +200,10 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
     });
 
-    expect(menu).not.toBeInTheDocument();
+    waitFor(() => {
+      /** The close panel is an async process */
+      expect(menu).not.toBeInTheDocument();
+    });
 
     waitFor(() => {
       const element = wrapper.queryByRole('option', { selected: true });

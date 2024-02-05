@@ -65,11 +65,7 @@ Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number)
 
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get(`[data-nodelabel="${nodeName}"]`)
-    .parent()
-    .eq(nodeIndex)
-    .find('g.pf-topology__node__action-icon > rect')
-    .click({ force: true });
+  cy.get(`[data-nodelabel="${nodeName}"]`).parent().eq(nodeIndex).rightclick({ force: true });
   cy.get(`[data-testid="context-menu-item-${action}"]`).click();
 });
 
