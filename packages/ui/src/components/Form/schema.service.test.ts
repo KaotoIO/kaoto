@@ -24,4 +24,29 @@ describe('SchemaService', () => {
 
     expect(schemaBridge).toBeUndefined();
   });
+
+  it('should catch and notify an exception from the validator', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        name: { $ref: 'invalid' },
+      },
+    };
+
+    expect(() => schemaService.getSchemaBridge(schema)).not.toThrow();
+  });
+
+  it('should return null when there is no valid validator', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        name: { $ref: 'invalid' },
+      },
+    };
+    const schemaBridge = schemaService.getSchemaBridge(schema);
+    const validator = schemaBridge?.validator;
+
+    expect(() => validator!({})).not.toThrow();
+    expect(validator!({})).toBeNull();
+  });
 });
