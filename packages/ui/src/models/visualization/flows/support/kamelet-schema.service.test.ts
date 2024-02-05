@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
-import { CatalogKind } from '../../..';
+import { CatalogKind } from '../../../catalog-kind';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { KameletSchemaService } from './kamelet-schema.service';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';

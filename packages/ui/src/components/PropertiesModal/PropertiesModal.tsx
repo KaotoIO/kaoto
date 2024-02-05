@@ -1,6 +1,6 @@
 import { Modal, ModalBoxBody, Tab, Tabs } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
-import { IPropertiesTab } from '.';
+import { IPropertiesTab } from './PropertiesModal.models';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,

@@ -1,5 +1,5 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { IKameletDefinition } from '../../../..';
+import { IKameletDefinition } from '../../../../kamelets-catalog';
 import { ICamelComponentDefinition } from '../../../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../../camel-processors-catalog';
 import { CatalogKind } from '../../../../catalog-kind';

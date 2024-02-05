@@ -2,7 +2,7 @@ import { AutoField } from '@kaoto-next/uniforms-patternfly';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { AutoForm } from 'uniforms';
-import { SchemaService } from '..';
+import { SchemaService } from '../schema.service';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { TypeaheadField } from './TypeaheadField';
 
