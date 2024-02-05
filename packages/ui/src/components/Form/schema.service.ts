@@ -1,4 +1,4 @@
-import Ajv, { JSONSchemaType } from 'ajv';
+import Ajv, { JSONSchemaType, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
@@ -30,11 +30,17 @@ export class SchemaService {
   }
 
   private createValidator<T>(schema: JSONSchemaType<T>) {
-    const validator = this.ajv.compile(schema);
+    let validator: ValidateFunction | undefined;
+
+    try {
+      validator = this.ajv.compile(schema);
+    } catch (error) {
+      console.error('Could not compile schema', error);
+    }
 
     return (model: Record<string, unknown>) => {
-      validator(model);
-      return validator.errors?.length ? { details: validator.errors } : null;
+      validator?.(model);
+      return validator?.errors?.length ? { details: validator.errors } : null;
     };
   }
 }

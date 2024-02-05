@@ -18,6 +18,7 @@ interface CanvasFormProps {
 }
 
 const omitFields = [
+  'from',
   'expression',
   'dataFormatType',
   'outputs',
