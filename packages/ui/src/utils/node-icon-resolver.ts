@@ -32,6 +32,7 @@ import remove_property from '../assets/eip/removeproperty.png';
 import resequence from '../assets/eip/resequence.png';
 import resumable from '../assets/eip/resumable.png';
 import rollback from '../assets/eip/rollback.png';
+import route from '../assets/eip/route.png';
 import sample from '../assets/eip/sample.png';
 import script from '../assets/eip/script.png';
 import set_body from '../assets/eip/setbody.png';
@@ -126,6 +127,11 @@ export class NodeIconResolver {
     }
 
     icon = this.getEIPIcon(elementName);
+    if (icon !== undefined) {
+      return icon;
+    }
+
+    icon = this.getVisualEntityIcon(elementName);
     if (icon !== undefined) {
       return icon;
     }
@@ -708,6 +714,15 @@ export class NodeIconResolver {
         return when;
       case 'wireTap':
         return wiretap;
+      default:
+        return undefined;
+    }
+  }
+
+  private static getVisualEntityIcon(elementName?: string): string | undefined {
+    switch (elementName) {
+      case 'route':
+        return route;
       default:
         return undefined;
     }
