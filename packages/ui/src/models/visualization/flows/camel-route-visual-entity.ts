@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import { FromDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined } from '../../../utils';

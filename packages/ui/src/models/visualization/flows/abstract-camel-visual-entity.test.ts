@@ -5,7 +5,7 @@ import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
-import { ICamelProcessorDefinition } from '../..';
+import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
