@@ -2624,7 +2624,7 @@ __metadata:
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
     "@kaoto-next/camel-catalog": "workspace:*"
-    "@kaoto-next/uniforms-patternfly": ^0.6.1
+    "@kaoto-next/uniforms-patternfly": ^0.6.3
     "@kie-tools-core/editor": 0.32.0
     "@kie-tools-core/notifications": 0.32.0
     "@patternfly/patternfly": ^5.0.0
@@ -2694,18 +2694,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kaoto-next/uniforms-patternfly@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.1"
+"@kaoto-next/uniforms-patternfly@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.3"
   dependencies:
-    "@types/invariant": ^2.2.35
     invariant: ^2.2.4
     lodash: ^4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
-    sass: ^1.70.0
     uniforms: 4.0.0-alpha.5
-  checksum: 11c13a7947395a6b2533061408f4d2fb38cb6f317117a7b8afce708044dca5d38d618c9a1da520e1d493e1226412d0f17fb56447f28a66e6d488c0d36f1cb9d6
+  checksum: 7222b7745d320112b6267bdb981755d716b456f75ee31daf25c1daea8c1ebef7883808ad2ae062ee67f165b6cde4db73058bcf880e04862012191e1341510c91
   languageName: node
   linkType: hard
 
@@ -6121,13 +6119,6 @@ __metadata:
   version: 2.0.1
   resolution: "@types/http-errors@npm:2.0.1"
   checksum: 3bb0c50b0a652e679a84c30cd0340d696c32ef6558518268c238840346c077f899315daaf1c26c09c57ddd5dc80510f2a7f46acd52bf949e339e35ed3ee9654f
-  languageName: node
-  linkType: hard
-
-"@types/invariant@npm:^2.2.35":
-  version: 2.2.35
-  resolution: "@types/invariant@npm:2.2.35"
-  checksum: af1b624057c89789ed0917838fea3d42bb0c101cc22b829a24d8777c678be3bc79d6ae05992a13bdf607b94731262467a2e62a809602ea1f7eea5e8c2242660d
   languageName: node
   linkType: hard
 
@@ -17327,19 +17318,6 @@ __metadata:
   bin:
     sass: sass.js
   checksum: 74fc11d0fcd5e16c5331b57dd59865705a299c64e89f2b99646869caeb011dc8d0b6144a6c74a90c264e9ef70654207dbf44fc9b7e3393f8bd14809b904c8a52
-  languageName: node
-  linkType: hard
-
-"sass@npm:^1.70.0":
-  version: 1.70.0
-  resolution: "sass@npm:1.70.0"
-  dependencies:
-    chokidar: ">=3.0.0 <4.0.0"
-    immutable: ^4.0.0
-    source-map-js: ">=0.6.2 <2.0.0"
-  bin:
-    sass: sass.js
-  checksum: fd1b622cf9b7fa699a03ec634611997552ece45eb98ac365fef22f42bdcb8ed63b326b64173379c966830c8551ae801e44e4a00d2de16fdadda2dc8f35400bbb
   languageName: node
   linkType: hard
 
