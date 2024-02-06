@@ -1,16 +1,16 @@
 import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
-import { CodeBlock, CodeBlockCode, Title } from '@patternfly/react-core';
+import { Title } from '@patternfly/react-core';
 import set from 'lodash.set';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { stringify } from 'yaml';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
-import './CanvasForm.scss';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
 import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
+import { UnknownNode } from '../Custom/UnknownNode';
+import './CanvasForm.scss';
 import { CanvasNode } from './canvas.models';
 
 interface CanvasFormProps {
@@ -75,9 +75,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       <Title headingLevel="h1">{componentName}</Title>
       <div className="canvas-form">
         {isUnknownComponent ? (
-          <CodeBlock>
-            <CodeBlockCode>{stringify(model)}</CodeBlockCode>
-          </CodeBlock>
+          <UnknownNode model={model} />
         ) : (
           <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
             {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
