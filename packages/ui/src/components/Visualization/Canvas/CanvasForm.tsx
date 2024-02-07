@@ -1,5 +1,6 @@
 import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { Title } from '@patternfly/react-core';
+import isEmpty from 'lodash.isempty';
 import set from 'lodash.set';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
@@ -42,7 +43,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!props.selectedNode.data?.vizNode) {
+      if (!props.selectedNode.data?.vizNode || (typeof value === 'object' && isEmpty(value))) {
         return;
       }
 
