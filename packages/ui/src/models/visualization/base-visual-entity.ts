@@ -68,9 +68,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This property is only set on the root node */
   getBaseEntity(): BaseVisualCamelEntity | undefined;
 
-  /** This method returns the root IVisualizationNode where the BaseEntity is defined */
-  getRootNode(): IVisualizationNode;
-
   /** This method returns the label to be used by the canvas nodes */
   getNodeLabel(): string;
 

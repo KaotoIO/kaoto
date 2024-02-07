@@ -31,35 +31,24 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   ) {}
 
   getBaseEntity(): BaseVisualCamelEntity | undefined {
-    return this.data.entity;
-  }
-
-  getRootNode(): IVisualizationNode {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let rootNode: IVisualizationNode | undefined = this;
-
-    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
-      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
-    }
-
-    return rootNode!;
+    return this.getRootNode().data.entity;
   }
 
   getNodeLabel(): string {
-    return this.getRootNode().getBaseEntity()?.getNodeLabel(this.data.path) ?? this.id;
+    return this.getBaseEntity()?.getNodeLabel(this.data.path) ?? this.id;
   }
 
   getTooltipContent(): string {
-    return this.getRootNode().getBaseEntity()?.getTooltipContent(this.data.path) ?? this.id;
+    return this.getBaseEntity()?.getTooltipContent(this.data.path) ?? this.id;
   }
 
   addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
-    this.getRootNode().getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
+    this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
   }
 
   getNodeInteraction(): NodeInteraction {
     return (
-      this.getRootNode().getBaseEntity()?.getNodeInteraction(this.data) ?? {
+      this.getBaseEntity()?.getNodeInteraction(this.data) ?? {
         canHavePreviousStep: false,
         canHaveNextStep: false,
         canHaveChildren: false,
@@ -69,11 +58,11 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
-    return this.getRootNode().getBaseEntity()?.getComponentSchema(this.data.path);
+    return this.getBaseEntity()?.getComponentSchema(this.data.path);
   }
 
   updateModel(value: unknown): void {
-    this.getRootNode().getBaseEntity()?.updateModel(this.data.path, value);
+    this.getBaseEntity()?.updateModel(this.data.path, value);
   }
 
   getParentNode(): IVisualizationNode | undefined {
@@ -112,7 +101,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   removeChild(): void {
-    this.getRootNode().getBaseEntity()?.removeStep(this.data.path);
+    this.getBaseEntity()?.removeStep(this.data.path);
     const parentChildren = this.getParentNode()?.getChildren() ?? [];
     const index = parentChildren.findIndex((node) => node.id === this.id);
 
@@ -134,6 +123,17 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeValidationText(): string | undefined {
-    return this.getRootNode().getBaseEntity()?.getNodeValidationText(this.data.path);
+    return this.getBaseEntity()?.getNodeValidationText(this.data.path);
+  }
+
+  private getRootNode(): IVisualizationNode {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let rootNode: IVisualizationNode | undefined = this;
+
+    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
+      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
+    }
+
+    return rootNode!;
   }
 }
