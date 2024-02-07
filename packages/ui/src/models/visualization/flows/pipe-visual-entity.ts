@@ -2,8 +2,7 @@ import { Pipe } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { getArrayProperty } from '../../../utils';
-import { NodeIconResolver } from '../../../utils/node-icon-resolver';
+import { getArrayProperty, NodeIconResolver } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeMetadata, PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
@@ -17,6 +16,7 @@ import {
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './support/kamelet-schema.service';
+import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -173,8 +173,11 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     };
   }
 
-  getNodeValidationText(_path?: string | undefined): string | undefined {
-    return undefined;
+  getNodeValidationText(path?: string | undefined): string | undefined {
+    const componentVisualSchema = this.getComponentSchema(path);
+    if (!componentVisualSchema) return undefined;
+
+    return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
   toVizNode(): IVisualizationNode {
