@@ -19,7 +19,7 @@
       "description": "Formal description of the kamelet",
       "type": "string"
     },
-    "camel.apache.org/kamelet.type": {
+    "type": {
       "type": "string",
       "description": "Select the Kamelet type from the available options",
       "enum": [
@@ -29,32 +29,32 @@
       ],
       "title": "Kamelet Type"
     },
-    "camel.apache.org/kamelet.icon": {
+    "icon": {
       "title": "Kamelet Icon",
       "description": "Choose icon for the kamelet",
       "type": "string"
     },
-    "camel.apache.org/kamelet.support.level": {
+    "supportLevel": {
       "title": "Support Level",
       "description": "Support Level of the kamelet",
       "type": "string"
     },
-    "camel.apache.org/catalog.version": {
+    "catalogVersion": {
       "title": "Catalog Version",
       "description": "Catalog Version of the kamelet",
       "type": "string"
     },
-    "camel.apache.org/provider'": {
+    "provider'": {
       "title": "Provider",
       "description": "Provider of the kamelet",
       "type": "string"
     },
-    "camel.apache.org/kamelet.group": {
+    "group": {
       "title": "Group",
       "description": "Group of the kamelet",
       "type": "string"
     },
-    "camel.apache.org/kamelet.namespace": {
+    "namespace": {
       "title": "Namespace",
       "description": "Namespace of the kamelet",
       "type": "string"
