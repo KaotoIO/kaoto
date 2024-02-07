@@ -44,7 +44,7 @@
       "description": "Catalog Version of the kamelet",
       "type": "string"
     },
-    "provider'": {
+    "provider": {
       "title": "Provider",
       "description": "Provider of the kamelet",
       "type": "string"
