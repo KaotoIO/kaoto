@@ -107,7 +107,8 @@ import whatsapp from '../assets/components/whatsapp.png';
 import workday from '../assets/components/workday.svg';
 import xslt from '../assets/components/xslt2.png';
 
-import { CatalogKind, IKameletDefinition } from '../models';
+import { CatalogKind } from '../models/catalog-kind';
+import { IKameletDefinition } from '../models/kamelets-catalog';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 
 export class NodeIconResolver {

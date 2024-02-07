@@ -1,18 +1,25 @@
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { Pipe } from '@kaoto-next/camel-catalog/types';
 import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
-import { PipeVisualEntity } from './';
+import { CatalogKind } from '../../catalog-kind';
+import { IKameletDefinition } from '../../kamelets-catalog';
+import { PipeVisualEntity } from './pipe-visual-entity';
+import { CamelCatalogService } from './camel-catalog.service';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
   let pipe: PipeVisualEntity;
+  let kameletCatalogMap: Record<string, unknown>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
     pipe = new PipeVisualEntity(pipeCR.spec!);
+    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap as Record<string, IKameletDefinition>);
   });
 
   describe('id', () => {
@@ -142,6 +149,30 @@ describe('Pipe', () => {
 
       expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
       expect(pipe.spec.steps).toEqual([]);
+    });
+  });
+
+  describe('getNodeValidationText', () => {
+    it('should return an `undefined` if the path is `undefined`', () => {
+      const result = pipe.getNodeValidationText(undefined);
+
+      expect(result).toEqual(undefined);
+    });
+
+    it('should return an `undefined` if the path is empty', () => {
+      const result = pipe.getNodeValidationText('');
+
+      expect(result).toEqual(undefined);
+    });
+
+    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+      const missingParametersModel = cloneDeep(pipeJson.spec);
+      missingParametersModel!.steps![0].properties = {};
+      pipe = new PipeVisualEntity(missingParametersModel);
+
+      const result = pipe.getNodeValidationText('steps.0');
+
+      expect(result).toEqual('1 required parameter is not yet configured: [ milliseconds ]');
     });
   });
 
