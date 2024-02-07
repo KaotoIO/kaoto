@@ -187,6 +187,7 @@
                      so we create a custom one and hold it here for now.
                 -->
                 <additionalSchema>${inputDirectory}/schema/PipeErrorHandler.json</additionalSchema>
+                <additionalSchema>${inputDirectory}/schema/KameletConfiguration.json</additionalSchema>
               </additionalSchemas>
             </configuration>
           </execution>
