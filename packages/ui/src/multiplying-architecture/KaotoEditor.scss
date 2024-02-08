@@ -19,3 +19,8 @@
     overflow: scroll;
   }
 }
+
+div[data-envelope-context='vscode'].shell .pf-v5-c-toolbar {
+  row-gap: 0;
+  padding-block: 0 0;
+}

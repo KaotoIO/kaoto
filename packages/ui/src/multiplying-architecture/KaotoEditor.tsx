@@ -39,7 +39,7 @@ export const KaotoEditor = () => {
   }
 
   return (
-    <div className="shell">
+    <div className="shell" data-envelope-context="vscode">
       <Tabs
         inset={{ default: 'insetSm' }}
         isBox
