@@ -8,18 +8,15 @@ metadata:
   name: eip-action
 spec:
   definition:
-    title: kamelet-2082
     description: Produces periodic events about random users!
-    type: object
     properties:
       period:
-        title: Period
-        description: The time interval between two events
-        type: integer
         default: 5000
-  types:
-    out:
-      mediaType: application/json
+        description: The time interval between two events
+        title: Period
+        type: integer
+    title: kamelet-2082
+    type: object
   dependencies:
     - camel:timer
     - camel:http
@@ -33,37 +30,38 @@ spec:
             copy: true
             steps:
               - delay:
+                  async-delayed: true
                   expression:
                     simple: ${body}
-                  async-delayed: true
+
         - choice:
+            otherwise:
+              steps:
+                - aggregate: {}
             when:
-              - simple: "{{?foo}}"
-                steps:
+              - steps:
                   - to:
                       uri: digitalocean:null
                   - setHeader:
                       name: bar
                       simple: foo
-              - simple: "{{?bar}}"
-                steps:
+                simple: "{{?foo}}"
+              - steps:
                   - delay: {}
                   - marshal:
                       json:
                         library: Gson
-              - simple: "{{?baz}}"
-                steps:
+                simple: "{{?bar}}"
+              - steps:
                   - choice:
                       when: []
                   - log:
-                      message: test
-                      logging-level: INFO
                       log-name: yaml
-            otherwise:
-              steps:
-                - aggregate: {}
+                      logging-level: INFO
+                      message: test
+                simple: "{{?baz}}"
         - filter:
             simple: "{{?foo}}"
         - to:
-            uri: kamelet:sink
             id: to-2621
+            uri: kamelet:sink
