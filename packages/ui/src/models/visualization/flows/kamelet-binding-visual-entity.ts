@@ -9,7 +9,7 @@ import { KameletBindingSpec } from '../../camel/entities/kamelet-binding-overrid
  */
 export class KameletBindingVisualEntity extends PipeVisualEntity implements BaseVisualCamelEntity {
   readonly id = uuidv4();
-  type = EntityType.KameletBinding;
+  type: EntityType = EntityType.KameletBinding;
 
   constructor(public spec: KameletBindingSpec) {
     super(spec);

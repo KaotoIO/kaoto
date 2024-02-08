@@ -20,6 +20,7 @@ import log from '../assets/eip/log.png';
 import loop from '../assets/eip/loop.png';
 import multicast from '../assets/eip/multicast.png';
 import otherwise from '../assets/eip/otherwise.png';
+import throwException from '../assets/eip/throw-exception.png';
 import pausable from '../assets/eip/pausable.png';
 import pipeline from '../assets/eip/pipeline.png';
 import poll_enrich from '../assets/eip/poll-enrich.png';
@@ -110,6 +111,7 @@ import xslt from '../assets/components/xslt2.png';
 import { CatalogKind } from '../models/catalog-kind';
 import { IKameletDefinition } from '../models/kamelets-catalog';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
+import { EntityType } from '../models/camel/entities';
 
 export class NodeIconResolver {
   static getIcon(elementName: string | undefined): string {
@@ -722,8 +724,10 @@ export class NodeIconResolver {
 
   private static getVisualEntityIcon(elementName?: string): string | undefined {
     switch (elementName) {
-      case 'route':
+      case EntityType.Route:
         return route;
+      case EntityType.OnException:
+        return throwException;
       default:
         return undefined;
     }

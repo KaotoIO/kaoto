@@ -1,6 +1,7 @@
 /** This is the enum with the registered Camel entities supported by Kaoto */
 export const enum EntityType {
   Route = 'route',
+  OnException = 'onException',
   Integration = 'integration',
   Kamelet = 'kamelet',
   KameletBinding = 'kameletBinding',

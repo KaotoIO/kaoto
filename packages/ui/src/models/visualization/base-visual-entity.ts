@@ -29,9 +29,6 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
 
-  /** Retrieve the steps from the underlying Camel entity */
-  getSteps: () => unknown[];
-
   /** Add a step to the underlying Camel entity */
   addStep: (options: {
     definedComponent: DefinedComponent;

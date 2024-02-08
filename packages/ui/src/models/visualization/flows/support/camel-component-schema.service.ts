@@ -10,7 +10,7 @@ import { IKameletDefinition } from '../../../kamelets-catalog';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 
 export class CamelComponentSchemaService {
-  static DISABLED_SIBLING_STEPS = ['from', 'when', 'otherwise', 'doCatch', 'doFinally'];
+  static DISABLED_SIBLING_STEPS = ['from', 'onWhen', 'when', 'otherwise', 'doCatch', 'doFinally'];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
@@ -66,6 +66,7 @@ export class CamelComponentSchemaService {
     const uriString = CamelUriHelper.getUriString(definition);
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
+      case 'onException' as keyof ProcessorDefinition:
         return definition?.id ?? '';
 
       case 'from' as keyof ProcessorDefinition:
@@ -130,6 +131,7 @@ export class CamelComponentSchemaService {
       case 'step':
       case 'whenSkipSendToEndpoint':
       case 'from' as keyof ProcessorDefinition:
+      case 'onException' as keyof ProcessorDefinition:
         return [{ name: 'steps', type: 'branch' }];
 
       case 'choice':
@@ -232,6 +234,7 @@ export class CamelComponentSchemaService {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
+      case 'onException' as keyof ProcessorDefinition:
         catalogKind = CatalogKind.Entity;
         break;
       case 'from' as keyof ProcessorDefinition:

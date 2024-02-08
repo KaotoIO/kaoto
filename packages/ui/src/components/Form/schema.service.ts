@@ -11,6 +11,7 @@ export class SchemaService {
     'dataFormatType',
     'outputs',
     'steps',
+    'onWhen',
     'when',
     'otherwise',
     'doCatch',
