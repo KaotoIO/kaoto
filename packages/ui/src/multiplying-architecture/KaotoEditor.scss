@@ -4,7 +4,6 @@
   display: flex;
   flex-flow: column nowrap;
   position: relative;
-  padding-top: 15px;
 
   // Tab header shouldn't grow or shrink
   > div[role='region'] {
@@ -17,7 +16,6 @@
     flex-grow: 1;
     flex-shrink: 1;
     position: relative;
-    padding: 0 15px 15px;
     overflow: scroll;
   }
 }
