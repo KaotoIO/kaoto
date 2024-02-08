@@ -4,6 +4,8 @@ import { ITransformationArgument, ITransformationSelectOption } from '../_bk_atl
 
 export type CanvasView = 'SourceTarget' | 'MappingTable' | 'NamespaceTable';
 
+export type SourceOrTarget = 'source' | 'target';
+
 export interface INotification {
   id: string;
   variant: AlertProps['variant'];

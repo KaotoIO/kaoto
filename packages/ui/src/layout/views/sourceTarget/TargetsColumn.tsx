@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { AtlasmapDocumentType, GroupId } from '../../../_bk_atlasmap/Views/models';
-import { ImportButton } from '../../../_bk_atlasmap/Views/ColumnMapperView/Actions';
+import { ImportDocumentButton } from '../../../_bk_atlasmap/Views/ColumnMapperView/Actions';
 import { NodeRef, SearchableColumnHeader } from '../../../_bk_atlasmap/UI';
 import { IPropertiesTreeCallbacks } from '../../../components/documents/PropertiesTree';
 import { FunctionComponent, useCallback, useContext } from 'react';
@@ -76,7 +76,7 @@ export const TargetsColumn: FunctionComponent = () => {
       <SearchableColumnHeader
         title={'Target'}
         onSearch={onSearch}
-        actions={[onImportDocument && <ImportButton id="Target" onImport={onImportDocument} key={'import'} />]}
+        actions={[onImportDocument && <ImportDocumentButton id="Target" onImport={onImportDocument} key={'import'} />]}
       />
       <NodeRef id={TARGETS_HEIGHT_BOUNDARY_ID}>
         <ColumnBody>

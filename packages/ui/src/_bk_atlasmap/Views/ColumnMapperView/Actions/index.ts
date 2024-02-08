@@ -20,4 +20,4 @@ export * from './DeleteMappingAction';
 export * from './EditCSVParamsAction';
 export * from './EditMappingAction';
 export * from './EnableJavaClassAction';
-export * from './ImportButton';
+export * from '../../../../layout/views/sourceTarget/actions/ImportDocumentButton';

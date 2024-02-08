@@ -14,20 +14,27 @@
     limitations under the License.
 */
 import { Button, Tooltip } from '@patternfly/react-core';
-import React, { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
+import { SourceOrTarget } from '../../../../models';
+import { readFileAsString } from '../../../../util';
 
 export interface IImportActionProps {
-  id: string;
-  onImport: (selectedFile: File) => void;
+  sourceOrTarget: SourceOrTarget;
 }
-export const ImportButton: FunctionComponent<IImportActionProps> = ({ id, onImport }) => {
+export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ sourceOrTarget }) => {
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
   const previouslyUploadedFiles = useRef<File[] | null>(null);
+
+  const onImport = useCallback((file: File) => {
+    readFileAsString(file).then((content) => {
+      alert('Uploaded:' + content);
+    });
+  }, []);
 
   useEffect(() => {
     if (previouslyUploadedFiles.current !== files) {
@@ -43,11 +50,11 @@ export const ImportButton: FunctionComponent<IImportActionProps> = ({ id, onImpo
       <Button
         variant="plain"
         aria-label="Import instance or schema file"
-        data-testid={`import-instance-or-schema-file-${id}-button`}
+        data-testid={`import-instance-or-schema-file-${sourceOrTarget}-button`}
         onClick={onClick}
       >
         <ImportIcon />
-        <HiddenFileInput accept={'.json, .xml, .xsd, .csv'} />
+        <HiddenFileInput accept={'.xml, .xsd'} />
       </Button>
     </Tooltip>
   );
