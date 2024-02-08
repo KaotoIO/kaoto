@@ -56,7 +56,7 @@ describe('Test source code editor', () => {
   it('User Deletes branch in the YAML', () => {
     cy.uploadFixture('flows/ComplexKamelet.yaml');
 
-    cy.editorDeleteLine(40, 7);
+    cy.editorDeleteLine(41, 7);
     cy.openDesignPage();
 
     // CHECK branch with digitalocean and set header step was deleted
@@ -71,7 +71,7 @@ describe('Test source code editor', () => {
                 steps:
                   - to:
                       uri: atlasmap:null`;
-    const insertLine = 39;
+    const insertLine = 40;
     cy.editorAddText(insertLine, stepToInsert);
     cy.openDesignPage();
 
