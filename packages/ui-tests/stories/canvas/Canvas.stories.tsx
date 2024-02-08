@@ -5,6 +5,7 @@ import {
   CatalogSchemaLoader,
   CatalogTilesProvider,
   EntitiesProvider,
+  KameletVisualEntity,
   PipeVisualEntity,
   SchemasLoaderProvider,
   SourceCodeProvider,
@@ -41,7 +42,7 @@ const emptyCamelRouteJson = {
 const camelRouteEntity = new CamelRouteVisualEntity(complexRouteMock.route);
 const emptyCamelRouteEntity = new CamelRouteVisualEntity(emptyCamelRouteJson.route);
 const pipeEntity = new PipeVisualEntity(pipeJson.spec!);
-const kameletEntity = new CamelRouteVisualEntity(kameletJson.spec.template);
+const kameletEntity = new KameletVisualEntity(kameletJson);
 const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson.spec!);
 
 const ContextDecorator = (Story: StoryFn) => (
