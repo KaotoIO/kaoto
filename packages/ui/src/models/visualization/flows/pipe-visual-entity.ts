@@ -5,7 +5,7 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty, NodeIconResolver } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
-import { PipeMetadata, PipeSpec, PipeStep, PipeSteps } from '../../camel/entities/pipe-overrides';
+import { PipeMetadata, PipeSpec, PipeStep } from '../../camel/entities/pipe-overrides';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -20,7 +20,7 @@ import { ModelValidationService } from './support/validators/model-validation.se
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
-  type = EntityType.Pipe;
+  readonly type: EntityType = EntityType.Pipe;
   spec: PipeSpec;
   metadata: PipeMetadata;
 
@@ -73,18 +73,6 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
     const stepModel = get(this.spec, path) as PipeStep;
     if (stepModel) set(stepModel, 'properties', value);
-  }
-
-  getSteps() {
-    const steps: PipeSteps = this.spec?.steps;
-    const sink: PipeStep = this.spec?.sink;
-    let allSteps: Array<PipeStep> = [];
-    if (steps !== undefined) {
-      allSteps = allSteps.concat(steps);
-    }
-    !sink || Object.keys(sink).length === 0 || allSteps.push(sink);
-
-    return allSteps;
   }
 
   /**

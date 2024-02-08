@@ -4,15 +4,17 @@ import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
 import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
+import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
+import { CamelOnExceptionVisualEntity } from '../visualization/flows/camel-on-exception-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
+  static readonly SUPPORTED_ENTITIES = [CamelOnExceptionVisualEntity];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
@@ -50,7 +52,9 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   getVisualEntities(): CamelRouteVisualEntity[] {
-    return this.entities.filter((entity) => entity instanceof CamelRouteVisualEntity) as CamelRouteVisualEntity[];
+    return this.entities.filter(
+      (entity) => entity instanceof CamelRouteVisualEntity || entity instanceof CamelOnExceptionVisualEntity,
+    ) as CamelRouteVisualEntity[];
   }
 
   getEntities(): BaseCamelEntity[] {
@@ -110,6 +114,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     } else if (isBeans(rawItem)) {
       return new BeansEntity(rawItem);
     }
+
+    for (const Entity of CamelRouteResource.SUPPORTED_ENTITIES) {
+      if (Entity.isApplicable(rawItem)) {
+        return new Entity(rawItem);
+      }
+    }
+
     return new NonVisualEntity(rawItem as string);
   }
 }

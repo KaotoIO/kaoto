@@ -96,33 +96,6 @@ describe('Pipe', () => {
     });
   });
 
-  describe('getSteps', () => {
-    it('should return an empty array if there is no steps', () => {
-      const route = new PipeVisualEntity({});
-
-      expect(route.getSteps()).toEqual([]);
-    });
-
-    it('should return the steps', () => {
-      expect(pipe.getSteps()).toEqual([
-        {
-          ref: {
-            apiVersion: 'camel.apache.org/v1',
-            kind: 'Kamelet',
-            name: 'delay-action',
-          },
-        },
-        {
-          ref: {
-            apiVersion: 'camel.apache.org/v1',
-            kind: 'Kamelet',
-            name: 'log-sink',
-          },
-        },
-      ]);
-    });
-  });
-
   describe('removeStep', () => {
     it('should not remove the step if no path is provided', () => {
       pipe.removeStep();
