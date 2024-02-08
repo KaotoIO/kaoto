@@ -13,366 +13,32 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {
-  CanvasProvider,
-  ConditionalExpressionInput,
-  FieldDragLayer,
-  FieldsDndProvider,
-  TimedToast,
-} from '../atlasmap/UI';
-import { ExpressionToolbar, MainLayout } from '../atlasmap/Layout';
-import {
-  IAtlasmapField,
-  IAtlasmapMapping,
-  ISourceColumnCallbacks,
-  ITargetsColumnCallbacks,
-  MappingTableView,
-  NamespaceTableView,
-  SourceTargetView,
-} from '../atlasmap/Views';
-import { IUseContextToolbarData, useContextToolbar } from '../atlasmap/impl/useContextToolbar';
-import { FunctionComponent, useCallback, useMemo } from 'react';
-import { getConstantType, getPropertyType } from '../atlasmap/impl/utils';
+import { CanvasProvider, FieldDragLayer, FieldsDndProvider, TimedToast } from '../_bk_atlasmap/UI';
+import { MainLayout } from '../layout';
+import { FunctionComponent, useContext } from 'react';
 
 import { AlertGroup } from '@patternfly/react-core';
-import { useDataMapperDialogs } from '../atlasmap/impl/useDataMapperDialogs';
-import { useSidebar } from '../atlasmap/impl/useSidebar';
-import { useDataMapper } from '../providers/useDataMapper';
+import { useDataMapperDialogs } from '../_bk_atlasmap/impl/useDataMapperDialogs';
+import { useSidebar } from '../_bk_atlasmap/impl/useSidebar';
+import { DataMapperContext } from '../providers';
 
 export interface IDataMapperProps {
-  allowImport?: boolean;
-  allowExport?: boolean;
-  allowReset?: boolean;
-  allowDelete?: boolean;
-  allowCustomJavaClasses?: boolean;
   modalsContainerId?: string;
-  toolbarOptions?: IUseContextToolbarData;
 }
 
-export const DataMapper: FunctionComponent<IDataMapperProps> = ({
-  allowImport = true,
-  allowExport = true,
-  allowReset = true,
-  allowDelete = true,
-  allowCustomJavaClasses = true,
-  modalsContainerId = 'modals',
-  toolbarOptions,
-}) => {
+export const DataMapper: FunctionComponent<IDataMapperProps> = ({ modalsContainerId = 'modals' }) => {
   const {
     // error,
     notifications,
     sourceProperties,
     targetProperties,
     constants,
-    sources,
-    targets,
-    mappings,
     selectedMapping,
-    selectMapping,
-    onFieldPreviewChange,
-    searchSources,
-    searchTargets,
-    importJarFile,
-    // expression
-    currentMappingExpression,
-    executeFieldSearch,
-    getFieldEnums,
-    setSelectedEnumValue,
-    mappingExpressionAddField,
-    mappingExpressionClearText,
-    mappingExpressionInit,
-    mappingExpressionInsertText,
-    mappingExpressionObservable,
-    mappingExpressionRemoveField,
-    mappingExpressionEnabled,
-    isMappingExpressionEmpty,
-    trailerId,
-    canAddToSelectedMapping,
-    isFieldAddableToSelection,
-    isFieldRemovableFromSelection,
-    onAddToMapping,
-    onRemoveFromMapping,
-    onCreateMapping,
     isEnumerationMapping,
-  } = useDataMapper();
-
+  } = useContext(DataMapperContext)!;
   const { handlers, dialogs } = useDataMapperDialogs({
     modalContainer: document.getElementById(modalsContainerId)!,
   });
-  const { activeView, showMappingPreview, showTypes, contextToolbar } = useContextToolbar({
-    showImportAtlasFileToolbarItem: allowImport,
-    showImportJarFileToolbarItem: allowImport,
-    showExportAtlasFileToolbarItem: allowExport,
-    showResetToolbarItem: allowReset,
-    ...toolbarOptions,
-    onImportADMArchiveFile: handlers.onImportADMArchive,
-    onImportJarFile: (file) => importJarFile(file),
-    onExportAtlasFile: handlers.onExportADMArchive,
-    onResetAtlasmap: handlers.onResetAtlasmap,
-    onAbout: handlers.onAbout,
-  });
-
-  const shouldShowMappingPreviewForField = useCallback(
-    (field: IAtlasmapField) =>
-      showMappingPreview &&
-      !!selectedMapping &&
-      field.isConnected &&
-      !!field.mappings.find((m) => m.id === selectedMapping.id),
-    [selectedMapping, showMappingPreview],
-  );
-
-  const shouldShowMappingPreview = useCallback(
-    (mapping: IAtlasmapMapping) => showMappingPreview && !!selectedMapping && mapping.id === selectedMapping.id,
-    [selectedMapping, showMappingPreview],
-  );
-
-  const expressionToolbar = (
-    <ExpressionToolbar>
-      <ConditionalExpressionInput
-        mappingExpression={mappingExpressionEnabled ? currentMappingExpression : undefined}
-        executeFieldSearch={executeFieldSearch}
-        getFieldEnums={getFieldEnums}
-        mappingExpressionAddField={mappingExpressionAddField}
-        mappingExpressionClearText={mappingExpressionClearText}
-        isMappingExpressionEmpty={isMappingExpressionEmpty}
-        mappingExpressionInit={mappingExpressionInit}
-        mappingExpressionInsertText={mappingExpressionInsertText}
-        mappingExpressionObservable={mappingExpressionObservable}
-        mappingExpressionRemoveField={mappingExpressionRemoveField}
-        trailerId={trailerId}
-        disabled={!selectedMapping}
-        onToggle={handlers.onToggleExpressionMode}
-        setSelectedEnumValue={setSelectedEnumValue}
-      />
-    </ExpressionToolbar>
-  );
-
-  const sourceEvents = useMemo<ISourceColumnCallbacks>(
-    () => ({
-      isSource: true,
-      acceptDropType: 'target',
-      draggableType: 'source',
-      canDrop: (dt, i) => {
-        return isFieldAddableToSelection('target', i.payload as IAtlasmapField, dt);
-      },
-      onDrop: (s, t) => onCreateMapping(s, t?.payload as IAtlasmapField),
-      onShowMappingDetails: selectMapping,
-      onAddToSelectedMapping: onAddToMapping,
-      canAddToSelectedMapping: canAddToSelectedMapping,
-      canAddFieldToSelectedMapping: (f) => isFieldAddableToSelection('source', f),
-      onAddFieldToSelectedMapping: onAddToMapping,
-      canRemoveFromSelectedMapping: (f) => isFieldRemovableFromSelection('source', f),
-      onRemoveFromSelectedMapping: onRemoveFromMapping,
-      onCreateConstant: () => handlers.onCreateConstant(constants),
-      onEditConstant: (constName, constValue) => {
-        const name = constName;
-        const value = constValue;
-        const valueType = getConstantType(name);
-
-        handlers.onEditConstant({ name, value, valueType }, constants);
-      },
-      onDeleteConstant: handlers.onDeleteConstant,
-      onCreateProperty: (isSource: boolean) => {
-        handlers.onCreateProperty(isSource, sourceProperties);
-      },
-      onEditProperty: (property, scope, isSource) => {
-        const [leftPart] = property.split(' ');
-        const valueType = getPropertyType(leftPart, scope, isSource);
-        handlers.onEditProperty(
-          {
-            name: leftPart,
-            valueType,
-            scope,
-          },
-          true,
-          sourceProperties,
-        );
-      },
-      onDeleteProperty: handlers.onDeleteProperty,
-      onDeleteDocument: allowDelete ? (id) => handlers.onDeleteDocument(id, true) : undefined,
-      onCaptureDocumentID: (id) => handlers.onCaptureDocumentID(id),
-      onChangeDocumentName: (id, name) =>
-        handlers.onChangeDocumentName({
-          id: id,
-          name: name,
-          isSource: true,
-        }),
-      onCustomClassSearch: allowCustomJavaClasses
-        ? (isSource: boolean) => handlers.onEnableCustomClass(isSource)
-        : undefined,
-      onImportDocument: allowImport ? (id) => handlers.onImportDocument(id, true) : undefined,
-      onSearch: searchSources,
-      shouldShowMappingPreviewForField,
-      onFieldPreviewChange,
-      canStartMapping: () => true, // TODO: check that there is at least one target field unmapped and compatible
-      onStartMapping: (field) => onCreateMapping(field, undefined),
-      onEditCSVParams: (docId, isSource) => {
-        handlers.onEditCSVParams(docId, isSource);
-      },
-    }),
-    [
-      selectMapping,
-      onAddToMapping,
-      onRemoveFromMapping,
-      handlers,
-      constants,
-      allowDelete,
-      allowCustomJavaClasses,
-      allowImport,
-      searchSources,
-      shouldShowMappingPreviewForField,
-      onFieldPreviewChange,
-      onCreateMapping,
-      canAddToSelectedMapping,
-      isFieldAddableToSelection,
-      isFieldRemovableFromSelection,
-      sourceProperties,
-    ],
-  );
-
-  const targetEvents = useMemo<ITargetsColumnCallbacks>(
-    () => ({
-      isSource: false,
-      acceptDropType: 'source',
-      draggableType: 'target',
-      canDrop: (dt, i) => {
-        return isFieldAddableToSelection('source', i.payload as IAtlasmapField, dt);
-      },
-      onDrop: (s, t) => onCreateMapping(t?.payload as IAtlasmapField, s),
-      canAddToSelectedMapping: canAddToSelectedMapping,
-      canAddFieldToSelectedMapping: (f) => isFieldAddableToSelection('target', f),
-      onShowMappingDetails: selectMapping,
-      onAddToSelectedMapping: onAddToMapping,
-      canRemoveFromSelectedMapping: (f) => isFieldRemovableFromSelection('target', f),
-      onRemoveFromSelectedMapping: onRemoveFromMapping,
-      onCreateProperty: (isSource: boolean) => {
-        handlers.onCreateProperty(isSource, targetProperties);
-      },
-      onEditProperty: (property, scope, isSource) => {
-        const [leftPart] = property.split(' ');
-        const valueType = getPropertyType(leftPart, scope, isSource);
-        handlers.onEditProperty(
-          {
-            name: leftPart,
-            valueType,
-            scope,
-          },
-          false,
-          targetProperties,
-        );
-      },
-      onDeleteProperty: handlers.onDeleteProperty,
-      onDeleteDocument: allowDelete ? (id) => handlers.onDeleteDocument(id, false) : undefined,
-      onCaptureDocumentID: (id) => handlers.onCaptureDocumentID(id),
-      onChangeDocumentName: (id, name) =>
-        handlers.onChangeDocumentName({
-          id: id,
-          name: name,
-          isSource: false,
-        }),
-      onCustomClassSearch: allowCustomJavaClasses
-        ? (isSource: boolean) => handlers.onEnableCustomClass(isSource)
-        : undefined,
-      onImportDocument: allowImport ? (id) => handlers.onImportDocument(id, false) : undefined,
-      onSearch: searchTargets,
-      shouldShowMappingPreviewForField,
-      onFieldPreviewChange,
-      canStartMapping: (field) => !field.isConnected,
-      onStartMapping: (field) => onCreateMapping(undefined, field),
-      onEditCSVParams: (docId, isSource) => {
-        handlers.onEditCSVParams(docId, isSource);
-      },
-    }),
-    [
-      selectMapping,
-      onAddToMapping,
-      onRemoveFromMapping,
-      handlers,
-      allowDelete,
-      allowCustomJavaClasses,
-      allowImport,
-      searchTargets,
-      shouldShowMappingPreviewForField,
-      onFieldPreviewChange,
-      onCreateMapping,
-      canAddToSelectedMapping,
-      isFieldAddableToSelection,
-      isFieldRemovableFromSelection,
-      targetProperties,
-    ],
-  );
-
-  const currentView = useMemo(() => {
-    switch (activeView) {
-      case 'ColumnMapper':
-        return (
-          <SourceTargetView
-            sourceProperties={sourceProperties}
-            targetProperties={targetProperties}
-            constants={constants}
-            sources={sources}
-            mappings={mappings}
-            targets={targets}
-            selectedMappingId={selectedMapping?.id}
-            onSelectMapping={selectMapping}
-            showMappingPreview={showMappingPreview}
-            showTypes={showTypes}
-            sourceEvents={sourceEvents}
-            targetEvents={targetEvents}
-          />
-        );
-      case 'MappingTable':
-        return (
-          <MappingTableView
-            mappings={mappings}
-            onSelectMapping={selectMapping}
-            shouldShowMappingPreview={shouldShowMappingPreview}
-            onFieldPreviewChange={onFieldPreviewChange}
-          />
-        );
-      case 'NamespaceTable':
-        return (
-          <NamespaceTableView
-            sources={sources}
-            onCreateNamespace={handlers.onCreateNamespace}
-            onEditNamespace={(
-              docName: string,
-              alias: string,
-              uri: string,
-              locationUri: string,
-              targetNamespace: boolean,
-            ) =>
-              handlers.onEditNamespace(docName, {
-                alias,
-                uri,
-                locationUri,
-                targetNamespace,
-              })
-            }
-            onDeleteNamespace={handlers.deleteNamespace}
-          />
-        );
-      default:
-        return <>TODO</>;
-    }
-  }, [
-    activeView,
-    constants,
-    handlers,
-    mappings,
-    onFieldPreviewChange,
-    sourceProperties,
-    targetProperties,
-    selectMapping,
-    selectedMapping,
-    shouldShowMappingPreview,
-    showMappingPreview,
-    showTypes,
-    sourceEvents,
-    sources,
-    targetEvents,
-    targets,
-  ]);
 
   const renderSidebar = useSidebar({
     onCreateConstant: () => {
@@ -393,14 +59,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({
   return (
     <FieldsDndProvider>
       <CanvasProvider>
-        <MainLayout
-          contextToolbar={contextToolbar}
-          expressionToolbar={activeView !== 'NamespaceTable' && expressionToolbar}
-          showSidebar={!!selectedMapping}
-          renderSidebar={renderSidebar}
-        >
-          {currentView}
-        </MainLayout>
+        <MainLayout showSidebar={!!selectedMapping} renderSidebar={renderSidebar} />
         <FieldDragLayer />
         <AlertGroup isToast>
           {notifications

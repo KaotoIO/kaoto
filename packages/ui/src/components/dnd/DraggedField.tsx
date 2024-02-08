@@ -16,7 +16,7 @@
 import { FunctionComponent, ReactElement, useContext } from 'react';
 import { XYCoord, useDragLayer } from 'react-dnd';
 
-import { IDragAndDropField } from '../../atlasmap/UI/dnd/models';
+import { IDragAndDropField } from '../../_bk_atlasmap/UI/dnd/models';
 import { FieldsDndContext } from '../../providers/FieldsDndProvider';
 
 export interface IIDraggedFieldChildrenProps {

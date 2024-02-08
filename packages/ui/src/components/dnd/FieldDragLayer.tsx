@@ -17,7 +17,7 @@ import { FunctionComponent, useEffect } from 'react';
 
 import { DraggedField } from './DraggedField';
 import { Label } from '@patternfly/react-core';
-import './FieldDragLayer.scss';
+import './FieldDragLayer.css';
 import { useDimensions } from '../../hooks/useDimensions';
 
 export const FieldDragLayer: FunctionComponent = () => {

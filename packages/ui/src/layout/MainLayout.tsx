@@ -13,16 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, ReactElement, ReactNode, memo, PropsWithChildren } from 'react';
+import { FunctionComponent, ReactElement, ReactNode, memo, useMemo, useContext } from 'react';
 import { Stack, StackItem } from '@patternfly/react-core';
+import { Sidebar } from '../_bk_atlasmap/Layout/Sidebar';
+import './MainLayout.css';
+import { ContextToolbar, ExpressionToolbar } from '.';
+import { MappingTableView, NamespaceTableView } from '../_bk_atlasmap/Views';
+import { SourceTargetView } from './views';
+import { DataMapperContext } from '../providers';
 
-import { Sidebar } from '../atlasmap/Layout/Sidebar';
-import './MainLayout.scss';
-
-export interface IMainLayoutProps extends PropsWithChildren {
+export interface IMainLayoutProps {
   showSidebar: boolean;
-  contextToolbar?: ReactNode;
-  expressionToolbar?: ReactNode;
   controlBar?: ReactNode;
   renderSidebar: () => ReactElement;
 }
@@ -30,24 +31,65 @@ export interface IMainLayoutProps extends PropsWithChildren {
 export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout({
   showSidebar,
   renderSidebar,
-  contextToolbar,
-  expressionToolbar,
   controlBar,
-  children,
 }) {
   const sideBar = <Sidebar show={showSidebar}>{renderSidebar}</Sidebar>;
   const containerClasses =
     'pf-topology-container' +
     `${sideBar ? ' pf-topology-container__with-sidebar' : ''}` +
     `${showSidebar ? ' pf-topology-container__with-sidebar--open' : ''}`;
+  const { activeView } = useContext(DataMapperContext)!;
+  const currentView = useMemo(() => {
+    switch (activeView) {
+      case 'SourceTarget':
+        return <SourceTargetView />;
+      case 'MappingTable':
+        return (
+          <MappingTableView
+            mappings={mappings}
+            onSelectMapping={selectMapping}
+            shouldShowMappingPreview={shouldShowMappingPreview}
+            onFieldPreviewChange={onFieldPreviewChange}
+          />
+        );
+      case 'NamespaceTable':
+        return (
+          <NamespaceTableView
+            sources={sources}
+            onCreateNamespace={handlers.onCreateNamespace}
+            onEditNamespace={(
+              docName: string,
+              alias: string,
+              uri: string,
+              locationUri: string,
+              targetNamespace: boolean,
+            ) =>
+              handlers.onEditNamespace(docName, {
+                alias,
+                uri,
+                locationUri,
+                targetNamespace,
+              })
+            }
+            onDeleteNamespace={handlers.deleteNamespace}
+          />
+        );
+      default:
+        return <>View {activeView} is not supported</>;
+    }
+  }, [activeView]);
 
   return (
     <Stack className="view">
-      {contextToolbar && <StackItem isFilled={false}>{contextToolbar}</StackItem>}
-      {expressionToolbar && <StackItem isFilled={false}>{expressionToolbar}</StackItem>}
+      <StackItem isFilled={false}>
+        <ContextToolbar />
+      </StackItem>
+      <StackItem isFilled={false}>
+        <ExpressionToolbar />
+      </StackItem>
       <StackItem isFilled className={containerClasses}>
         <div className="pf-topology-content">
-          {children}
+          {currentView}
           {controlBar && <span className="pf-topology-control-bar">{controlBar}</span>}
         </div>
         {sideBar}

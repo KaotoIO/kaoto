@@ -59,11 +59,10 @@ import {
   toggleShowMappedFields,
   toggleShowUnmappedFields,
   trailerId,
-} from '../atlasmap/impl';
-import { IAtlasmapField } from '../atlasmap/Views';
-import { TransitionMode } from '../atlasmap/core';
+} from '../_bk_atlasmap/impl';
+import { TransitionMode } from '../_bk_atlasmap/core';
 import { DataMapperContext } from './DataMapperProvider';
-
+import { IField } from '../models';
 export function useDataMapper() {
   const context = useContext(DataMapperContext);
 
@@ -102,17 +101,17 @@ export function useDataMapper() {
     resetAtlasmap();
   }, []);
 
-  const onAddToMapping = useCallback((node: IAtlasmapField) => {
+  const onAddToMapping = useCallback((node: IField) => {
     const field = node.amField;
     addToCurrentMapping(field);
   }, []);
 
-  const onRemoveFromMapping = useCallback((node: IAtlasmapField) => {
+  const onRemoveFromMapping = useCallback((node: IField) => {
     const field = node.amField;
     removeFromCurrentMapping(field);
   }, []);
 
-  const onCreateMapping = useCallback((source: IAtlasmapField | undefined, target: IAtlasmapField | undefined) => {
+  const onCreateMapping = useCallback((source: IField | undefined, target: IField | undefined) => {
     const sourceField = source?.amField;
     const targetField = target?.amField;
     createMapping(sourceField, targetField);
@@ -156,7 +155,7 @@ export function useDataMapper() {
    * from the specified panel, false otherwise.
    */
   const isFieldAddableToSelection = useCallback(
-    (documentType: 'source' | 'target', field: IAtlasmapField, dropTarget?: IAtlasmapField): boolean => {
+    (documentType: 'source' | 'target', field: IField, dropTarget?: IField): boolean => {
       const { selectedMapping } = context;
       const isSource = documentType === 'source';
       if (
@@ -205,7 +204,7 @@ export function useDataMapper() {
   );
 
   const isFieldRemovableFromSelection = useCallback(
-    (documentType: 'source' | 'target', field: IAtlasmapField): boolean =>
+    (documentType: 'source' | 'target', field: IField): boolean =>
       !!context.selectedMapping &&
       !!context.selectedMapping[documentType === 'source' ? 'sourceFields' : 'targetFields'].find(
         (f) => f.id === field.id,

@@ -16,14 +16,11 @@
 import {
   DataActionPayload,
   dataReducer,
-  IDataState,
   initDataState,
   initNotificationsState,
-  INotificationsState,
   notificationsReducer,
-} from '../atlasmap/impl/reducers';
-import { MappingSerializer } from '../atlasmap/core';
-import { IAtlasmapDocument, IAtlasmapField } from '../atlasmap/Views';
+} from '../_bk_atlasmap/impl/reducers';
+import { MappingSerializer } from '../_bk_atlasmap/core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useReducer } from 'react';
 import {
   errorInfoToNotification,
@@ -32,15 +29,13 @@ import {
   fromMappingDefinitionToIMappings,
   fromMappingModelToImapping,
   initializationService,
-} from '../atlasmap/impl/utils';
+} from '../_bk_atlasmap/impl/utils';
 
 import { debounceTime } from 'rxjs/operators';
-import { Loading } from '../atlasmap/UI';
+import { Loading } from '../components';
+import { useDataMapperContext } from '../hooks/useDataMapperContext';
+import { IDocument, IDataMapperContext, IField } from '../models';
 
-interface IDataMapperContext extends IDataState, INotificationsState {
-  onLoading: () => void;
-  onReset: () => void;
-}
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
 export interface IDataMapperProviderProps extends PropsWithChildren {
@@ -49,6 +44,7 @@ export interface IDataMapperProviderProps extends PropsWithChildren {
 export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = ({ onMappingChange, children }) => {
   const [data, dispatchData] = useReducer(dataReducer, {}, initDataState);
   const [notifications, dispatchNotifications] = useReducer(notificationsReducer, {}, initNotificationsState);
+  const value = useDataMapperContext();
 
   const onReset = () => {
     dispatchData({ type: 'reset' });
@@ -83,7 +79,7 @@ export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = (
         configModel.sourceDocs
           .map(fromDocumentDefinitionToFieldGroup)
           /* eslint-disable  @typescript-eslint/no-explicit-any */
-          .filter((d: any) => d) as IAtlasmapDocument[]
+          .filter((d: any) => d) as IDocument[]
       );
     },
     [configModel],
@@ -112,7 +108,7 @@ export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = (
 
   const convertTargets = useCallback(
     function convertTargetsCb() {
-      return configModel.targetDocs.map(fromDocumentDefinitionToFieldGroup).filter((d) => d) as IAtlasmapDocument[];
+      return configModel.targetDocs.map(fromDocumentDefinitionToFieldGroup).filter((d) => d) as IDocument[];
     },
     [configModel],
   );
@@ -132,7 +128,7 @@ export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = (
   );
 
   const convertSourcesToFlatArray = useCallback(
-    function convertSourcesToFlatArrayCb(): IAtlasmapField[] {
+    function convertSourcesToFlatArrayCb(): IField[] {
       return configModel.sourceDocs.flatMap((s) =>
         s.getAllFields().flatMap((f) => {
           const af = fromFieldToIFieldsNode(f);
@@ -235,15 +231,6 @@ export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = (
   );
 
   return (
-    <DataMapperContext.Provider
-      value={{
-        ...data,
-        ...notifications,
-        onLoading,
-        onReset,
-      }}
-    >
-      {data.pending ? <Loading /> : children}
-    </DataMapperContext.Provider>
+    <DataMapperContext.Provider value={value}>{value.loading ? <Loading /> : children}</DataMapperContext.Provider>
   );
 };
