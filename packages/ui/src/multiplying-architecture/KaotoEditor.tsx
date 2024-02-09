@@ -52,7 +52,7 @@ export const KaotoEditor = () => {
         <Tab
           isHidden={SCHEMA_TABS[resource.getType()].indexOf(TabList.Design) === -1}
           eventKey={TabList.Design}
-          className="shell__tab-content"
+          className="shell__tab-content_design-canvas"
           title={
             <>
               <TabTitleIcon>
