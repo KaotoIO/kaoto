@@ -1,9 +1,10 @@
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { AutoForm } from 'uniforms';
-import { SchemaService } from '../schema.service';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
+import { SchemaService } from '../schema.service';
 import { TypeaheadField } from './TypeaheadField';
 
 describe('TypeaheadField', () => {
@@ -41,7 +42,7 @@ describe('TypeaheadField', () => {
     expect(inputElement).toBeInTheDocument();
   });
 
-  it('should display the options when the input is clicked', () => {
+  it('should display the options when the input is clicked', async () => {
     render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!}>
@@ -50,12 +51,14 @@ describe('TypeaheadField', () => {
       </AutoField.componentDetectorContext.Provider>,
     );
     const inputElement = screen.getByRole('combobox');
-    fireEvent.click(inputElement);
+    await act(async () => {
+      fireEvent.click(inputElement);
+    });
     const optionElements = screen.getAllByRole('option');
     expect(optionElements).toHaveLength(3);
   });
 
-  it('should select an option when clicked', () => {
+  it('should select an option when clicked', async () => {
     render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!}>
@@ -64,31 +67,33 @@ describe('TypeaheadField', () => {
       </AutoField.componentDetectorContext.Provider>,
     );
     const inputElement = screen.getByRole('combobox');
-    fireEvent.click(inputElement);
+    await act(async () => {
+      fireEvent.click(inputElement);
+    });
     const optionElement = screen.getByText('option1');
-    act(() => {
+    await act(() => {
       fireEvent.click(optionElement);
     });
     expect(mockOnChange).toHaveBeenCalledWith('option1');
   });
 
-  it('should create a new option when a custom value is entered', () => {
-    const wrapper = render(
+  it('should create a new option when a custom value is entered', async () => {
+    render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!}>
           <TypeaheadField name="rejectedPolicy" onChange={mockOnChange} />
         </AutoForm>
       </AutoField.componentDetectorContext.Provider>,
     );
-    const inputElement = wrapper.getByRole('combobox');
-    act(() => {
+    const inputElement = screen.getByRole('combobox');
+    await act(async () => {
       fireEvent.change(inputElement, { target: { value: 'customValue' } });
       fireEvent.keyDown(inputElement, { key: 'Enter' });
     });
     expect(inputElement).toHaveValue('customValue');
   });
 
-  it('should clear the input value when the clear button is clicked', () => {
+  it('should clear the input value when the clear button is clicked', async () => {
     render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!}>
@@ -97,11 +102,11 @@ describe('TypeaheadField', () => {
       </AutoField.componentDetectorContext.Provider>,
     );
     const inputElement = screen.getByRole('combobox');
-    act(() => {
+    await act(async () => {
       fireEvent.change(inputElement, { target: { value: 'customValue' } });
     });
     const clearButton = screen.getByLabelText('Clear input value');
-    act(() => {
+    await act(async () => {
       fireEvent.click(clearButton);
     });
     expect(inputElement).toHaveValue('');

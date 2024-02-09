@@ -8,6 +8,7 @@ import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { MetadataEditor } from '../../MetadataEditor';
 import { SchemaService } from '../schema.service';
+import { act } from 'react-dom/test-utils';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -48,14 +49,18 @@ describe('StepExpressionEditor', () => {
     };
   });
 
-  it('should render', () => {
+  it('should render', async () => {
     render(<StepExpressionEditor selectedNode={mockNode} />);
     const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
-    fireEvent.click(launcherButton[0]);
+    await act(async () => {
+      fireEvent.click(launcherButton[0]);
+    });
     const dropdownButton = screen
       .getAllByRole('button')
       .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-    fireEvent.click(dropdownButton[0]);
+    await act(async () => {
+      fireEvent.click(dropdownButton[0]);
+    });
     const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-expression');
