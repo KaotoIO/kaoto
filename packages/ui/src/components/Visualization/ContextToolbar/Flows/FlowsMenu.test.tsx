@@ -1,11 +1,11 @@
-import { FlowsMenu } from './FlowsMenu';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
+import { EntitiesContextResult } from '../../../../hooks';
 import { SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { EntitiesContextResult } from '../../../../hooks';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { VisibleFlowsContext, VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
 import { IVisibleFlows } from '../../../../models/visualization/flows/flows-visibility';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { VisibleFLowsContextResult, VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { FlowsMenu } from './FlowsMenu';
 
 const FlowsMenuWithContext: React.FunctionComponent<{
   visibleFlows?: IVisibleFlows;
@@ -29,7 +29,7 @@ const FlowsMenuWithContext: React.FunctionComponent<{
 };
 
 describe('FlowsMenu.tsx', () => {
-  test('should open the flows list when clicking the dropdown', async () => {
+  it('should open the flows list when clicking the dropdown', async () => {
     const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
@@ -39,13 +39,13 @@ describe('FlowsMenu.tsx', () => {
     });
 
     /** Wait for the List to appear */
-    waitFor(() => {
+    await act(async () => {
       const flowsList = wrapper.queryByTestId('flows-list-table');
       expect(flowsList).toBeInTheDocument();
     });
   });
 
-  test('should open the flows list when clicking the action button', async () => {
+  it('should open the flows list when clicking the action button', async () => {
     const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-btn');
 
@@ -55,13 +55,13 @@ describe('FlowsMenu.tsx', () => {
     });
 
     /** Wait for the List to appear */
-    waitFor(() => {
+    await act(async () => {
       const flowsList = wrapper.queryByTestId('flows-list-table');
       expect(flowsList).toBeInTheDocument();
     });
   });
 
-  test('should close the flows list when pressing ESC', async () => {
+  it('should close the flows list when pressing ESC', async () => {
     const wrapper = render(<FlowsMenuWithContext />);
     const dropdown = await wrapper.findByTestId('flows-list-btn');
 
@@ -78,33 +78,33 @@ describe('FlowsMenu.tsx', () => {
     });
 
     /** Wait for the List to appear */
-    waitFor(() => {
+    await act(async () => {
       expect(flowsList).not.toBeInTheDocument();
     });
   });
 
-  test('should render the route id when a single route is visible', async () => {
+  it('should render the route id when a single route is visible', async () => {
     const wrapper = render(<FlowsMenuWithContext />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('entity1');
   });
 
-  test('should NOT render the route id but "Routes" when there is no flow visible', async () => {
+  it('should NOT render the route id but "Routes" when there is no flow visible', async () => {
     const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: false, ['entity2']: false }} />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('Routes');
   });
 
-  test('should NOT render the route id but "Routes" when there is more than 1 flow visible', async () => {
+  it('should NOT render the route id but "Routes" when there is more than 1 flow visible', async () => {
     const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: true, ['entity2']: true }} />);
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
     expect(routeId).toHaveTextContent('Routes');
   });
 
-  test('should render the visible routes count', async () => {
+  it('should render the visible routes count', async () => {
     const wrapper = render(<FlowsMenuWithContext visibleFlows={{ ['entity1']: true, ['entity2']: true }} />);
     const routeCount = await wrapper.findByTestId('flows-list-route-count');
     expect(routeCount).toHaveTextContent('2/2');

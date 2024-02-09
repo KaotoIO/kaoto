@@ -1,12 +1,13 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { CamelCatalogService } from '../../../models/visualization/flows';
-import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
-import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { JSONSchemaType } from 'ajv';
+import { act } from 'react-dom/test-utils';
+import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { LoadBalancerEditor } from './LoadBalancerEditor';
+import { CamelCatalogService } from '../../../models/visualization/flows';
 import { MetadataEditor } from '../../MetadataEditor';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
+import { LoadBalancerEditor } from './LoadBalancerEditor';
 
 describe('LoadBalancerEditor', () => {
   let mockNode: CanvasNode;
@@ -47,11 +48,12 @@ describe('LoadBalancerEditor', () => {
     };
   });
 
-  it('should render', () => {
+  it('should render', async () => {
     render(<LoadBalancerEditor selectedNode={mockNode} />);
     const launchExpressionModalBtn = screen.getAllByRole('button')[1];
-
-    fireEvent.click(launchExpressionModalBtn);
+    await act(async () => {
+      fireEvent.click(launchExpressionModalBtn);
+    });
     expect(screen.getByTestId('loadbalancer-dropdown')).toBeTruthy();
   });
 

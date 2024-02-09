@@ -7,6 +7,7 @@ import { JSONSchemaType } from 'ajv';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { DataFormatEditor } from './DataFormatEditor';
 import { MetadataEditor } from '../../MetadataEditor';
+import { act } from 'react-dom/test-utils';
 
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
@@ -47,10 +48,12 @@ describe('DataFormatEditor', () => {
     };
   });
 
-  it('should render', () => {
+  it('should render', async () => {
     render(<DataFormatEditor selectedNode={mockNode} />);
     const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
+    await act(async () => {
+      fireEvent.click(buttons[1]);
+    });
     const json = screen.getByTestId('dataformat-dropdownitem-json');
     fireEvent.click(json.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-dataformat');

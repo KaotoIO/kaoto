@@ -2,6 +2,7 @@ import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
 import { within } from '@testing-library/dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import { act } from 'react-dom/test-utils';
 
 describe('PipeErrorHandlerEditor', () => {
   let pipeErrorHandlerSchema: Record<string, unknown>;
@@ -32,7 +33,7 @@ describe('PipeErrorHandlerEditor', () => {
     expect(element).toBeFalsy();
   });
 
-  it('should render a form if sink ErrorHandler is selected', () => {
+  it('should render a form if sink ErrorHandler is selected', async () => {
     let model: Record<string, unknown> = {};
     render(
       <PipeErrorHandlerEditor
@@ -44,7 +45,9 @@ describe('PipeErrorHandlerEditor', () => {
       />,
     );
     const button = screen.getByRole('button');
-    fireEvent(button!, new MouseEvent('click', { bubbles: true }));
+    await act(async () => {
+      fireEvent(button!, new MouseEvent('click', { bubbles: true }));
+    });
     const options = screen.getAllByTestId(/pipe-error-handler-select-option.*/);
     options.forEach((option) => {
       if (option.innerHTML.includes('Log Pipe ErrorHandler')) {

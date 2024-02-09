@@ -324,18 +324,18 @@ describe('CanvasForm', () => {
       const button = screen
         .getAllByRole('button')
         .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
+      await act(async () => {
         fireEvent.click(button[0]);
       });
       const avro = screen.getByTestId('dataformat-dropdownitem-avro');
-      act(() => {
+      await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
       expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('ms');
 
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      act(() => {
+      await act(async () => {
         fireEvent.input(idInput[1], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
@@ -372,7 +372,7 @@ describe('CanvasForm', () => {
         </EntitiesContext.Provider>,
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      act(() => {
+      await act(async () => {
         fireEvent.input(idInput[0], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].marshal!.avro).toBeUndefined();
@@ -381,11 +381,11 @@ describe('CanvasForm', () => {
       const button = screen
         .getAllByRole('button')
         .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
+      await act(async () => {
         fireEvent.click(button[0]);
       });
       const avro = screen.getByTestId('dataformat-dropdownitem-avro');
-      act(() => {
+      await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
       expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
@@ -426,18 +426,18 @@ describe('CanvasForm', () => {
       const button = screen
         .getAllByRole('button')
         .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
+      await act(async () => {
         fireEvent.click(button[0]);
       });
       const avro = screen.getByTestId('loadbalancer-dropdownitem-weighted');
-      act(() => {
+      await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('lb');
 
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      act(() => {
+      await act(async () => {
         fireEvent.input(idInput[1], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
@@ -474,21 +474,20 @@ describe('CanvasForm', () => {
         </EntitiesContext.Provider>,
       );
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      act(() => {
+      await act(async () => {
         fireEvent.input(idInput[0], { target: { value: 'modified' } });
       });
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeUndefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
-      screen.debug(screen.getAllByRole('button'));
       const button = screen
         .getAllByRole('button')
         .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
+      await act(async () => {
         fireEvent.click(button[0]);
       });
       const avro = screen.getByTestId('loadbalancer-dropdownitem-weighted');
-      act(() => {
+      await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
