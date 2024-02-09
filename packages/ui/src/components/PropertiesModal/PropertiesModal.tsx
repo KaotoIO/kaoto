@@ -35,7 +35,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     }
   }, [props.tile]);
   const [activeTabKey, setActiveTabKey] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<IPropertiesTab>();
+  const [activeTab, setActiveTab] = useState<IPropertiesTab>(tabs[0]);
 
   useEffect(() => {
     setActiveTabKey(0);
