@@ -18,6 +18,13 @@
     position: relative;
     overflow: scroll;
   }
+
+  // Tab content for Design canvas is not scrollable
+  section#{&}__tab-content_design-canvas {
+    flex-grow: 1;
+    flex-shrink: 1;
+    position: relative;
+  }
 }
 
 div[data-envelope-context='vscode'].shell .pf-v5-c-toolbar {
