@@ -1,18 +1,17 @@
-import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { Title } from '@patternfly/react-core';
 import isEmpty from 'lodash.isempty';
-import set from 'lodash.set';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
-import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
 import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
 import { UnknownNode } from '../Custom/UnknownNode';
 import './CanvasForm.scss';
 import { CanvasNode } from './canvas.models';
+import { setValue } from '../../../utils';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -20,7 +19,7 @@ interface CanvasFormProps {
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const formRef = useRef<typeof AutoForm>();
+  const formRef = useRef<CustomAutoFormRef>(null);
   const schemaServiceRef = useRef(new SchemaService());
 
   const visualComponentSchema = useMemo(() => {
@@ -38,7 +37,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const componentName = visualComponentSchema?.title;
 
   useEffect(() => {
-    formRef.current?.reset();
+    formRef.current?.form.reset();
   }, [props.selectedNode.data?.vizNode]);
 
   const handleOnChangeIndividualProp = useCallback(
@@ -48,7 +47,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       }
 
       const newModel = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
-      set(newModel, path, value);
+      setValue(newModel, path, value);
       props.selectedNode.data.vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
@@ -78,21 +77,20 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         {isUnknownComponent ? (
           <UnknownNode model={model} />
         ) : (
-          <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
+          <>
             {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
             {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
             {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-            <AutoForm
+            <CustomAutoForm
               ref={formRef}
-              schema={schema}
+              schemaBridge={schema}
               model={model}
               onChange={handleOnChangeIndividualProp}
+              sortFields={false}
+              omitFields={SchemaService.OMIT_FORM_FIELDS}
               data-testid="autoform"
-            >
-              <AutoFields omitFields={SchemaService.OMIT_FORM_FIELDS} />
-              <ErrorsField />
-            </AutoForm>
-          </AutoField.componentDetectorContext.Provider>
+            />
+          </>
         )}
       </div>
     </ErrorBoundary>

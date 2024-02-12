@@ -3,9 +3,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { SchemaService } from '../Form';
-import { CustomAutoForm } from '../Form/CustomAutoForm';
-import { TopmostArrayTable } from './TopmostArrayTable';
+import { CustomAutoForm, CustomAutoFormRef } from '../Form/CustomAutoForm';
 import './MetadataEditor.scss';
+import { TopmostArrayTable } from './TopmostArrayTable';
 
 interface MetadataEditorProps {
   name: string;
@@ -22,7 +22,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
     schemaServiceRef.current.getSchemaBridge(getFormSchema()),
   );
-  const fieldsRefs = useRef<{ fields: HTMLElement[] }>(null);
+  const fieldsRefs = useRef<CustomAutoFormRef>(null);
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
@@ -119,6 +119,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
                   onChangeModel={onChangeFormModel}
                   data-testid={`metadata-editor-form-${props.name}`}
                   disabled={isFormDisabled()}
+                  sortFields={true}
                   ref={fieldsRefs}
                 />
               </StackItem>
@@ -132,6 +133,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
           onChangeModel={onChangeFormModel}
           data-testid={`metadata-editor-form-${props.name}`}
           disabled={isFormDisabled()}
+          sortFields={true}
           ref={fieldsRefs}
         />
       )}
