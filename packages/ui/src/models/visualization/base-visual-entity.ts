@@ -150,4 +150,6 @@ export interface NodeInteraction {
   canHaveNextStep: boolean;
   canHaveChildren: boolean;
   canHaveSpecialChildren: boolean;
+  canReplaceStep: boolean;
+  canRemoveStep: boolean;
 }

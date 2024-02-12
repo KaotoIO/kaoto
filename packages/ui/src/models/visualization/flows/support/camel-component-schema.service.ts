@@ -10,7 +10,7 @@ import { IKameletDefinition } from '../../../kamelets-catalog';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 
 export class CamelComponentSchemaService {
-  static DISABLED_SIBLING_STEPS = ['from', 'onWhen', 'when', 'otherwise', 'doCatch', 'doFinally'];
+  static DISABLED_SIBLING_STEPS = ['from', 'onWhen', 'when', 'otherwise', 'doCatch', 'doFinally', 'onException'];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {

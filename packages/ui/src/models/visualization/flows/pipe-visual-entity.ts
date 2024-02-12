@@ -158,6 +158,8 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       canHaveNextStep: data.path !== 'sink',
       canHaveChildren: false,
       canHaveSpecialChildren: false,
+      canReplaceStep: true,
+      canRemoveStep: true,
     };
   }
 
