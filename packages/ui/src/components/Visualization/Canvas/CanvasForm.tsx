@@ -22,6 +22,7 @@ interface CanvasFormProps {
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const formRef = useRef<CustomAutoFormRef>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -75,25 +76,26 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
             nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
           />
         </CardHeader>
+
         <CardBody className="canvas-form__body">
           {stepFeatures.isUnknownComponent ? (
             <UnknownNode model={model} />
           ) : (
-            <>
+            <SchemaBridgeProvider schema={visualComponentSchema?.schema} parentRef={divRef}>
               {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
               {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
               {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-              <SchemaBridgeProvider schema={visualComponentSchema?.schema}>
-                <CustomAutoForm
-                  ref={formRef}
-                  model={model}
-                  onChange={handleOnChangeIndividualProp}
-                  sortFields={false}
-                  omitFields={SchemaService.OMIT_FORM_FIELDS}
-                  data-testid="autoform"
-                />
-              </SchemaBridgeProvider>
-            </>
+              <CustomAutoForm
+                key={props.selectedNode.id}
+                ref={formRef}
+                model={model}
+                onChange={handleOnChangeIndividualProp}
+                sortFields={false}
+                omitFields={SchemaService.OMIT_FORM_FIELDS}
+                data-testid="autoform"
+              />
+              <div data-testid="root-form-placeholder" ref={divRef} />
+            </SchemaBridgeProvider>
           )}
         </CardBody>
       </Card>

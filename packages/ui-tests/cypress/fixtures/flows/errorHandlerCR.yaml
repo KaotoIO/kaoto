@@ -1,0 +1,11 @@
+- errorHandler:
+    defaultErrorHandler:
+      level: ERROR
+      redeliveryPolicy:
+        backOffMultiplier: "2.0"
+        collisionAvoidanceFactor: "0.15"
+        maximumRedeliveryDelay: "60000"
+        redeliveryDelay: "1000"
+        retriesExhaustedLogLevel: ERROR
+        retryAttemptedLogInterval: "1"
+        retryAttemptedLogLevel: DEBUG
