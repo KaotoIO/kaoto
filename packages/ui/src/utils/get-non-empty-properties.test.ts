@@ -1,9 +1,9 @@
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 import { getNonDefaultProperties } from './get-non-default-properties';
 import { getNonEmptyProperties } from './get-non-empty-properties';
 
 describe('CanvasForm getNonEmptyProperties()', () => {
-  const schema = {
+  const schema: KaotoSchemaDefinition['schema'] = {
     type: 'object',
     properties: {
       parameters: {
@@ -30,7 +30,7 @@ describe('CanvasForm getNonEmptyProperties()', () => {
         },
       },
     },
-  } as unknown as JSONSchemaType<unknown>;
+  };
 
   const newModel: Record<string, unknown> = {
     id: 'from-7126',
@@ -68,7 +68,7 @@ describe('CanvasForm getNonEmptyProperties()', () => {
   };
 
   it('should return only the properties which are different from default', () => {
-    const newModelClean = getNonDefaultProperties(schema?.properties.parameters.properties, newModel);
+    const newModelClean = getNonDefaultProperties(schema.properties!.parameters.properties!, newModel);
     expect(newModelClean).toMatchObject(newModelIntermediate);
   });
 

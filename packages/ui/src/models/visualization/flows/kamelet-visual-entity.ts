@@ -1,8 +1,8 @@
-import { JSONSchemaType } from 'ajv';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities';
 import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 
@@ -31,7 +31,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
       /** A better schema will be provided at a later stage */
       return {
         title: 'Kamelet',
-        schema: {} as JSONSchemaType<unknown>,
+        schema: {} as KaotoSchemaDefinition['schema'],
         definition: this.route,
       };
     }

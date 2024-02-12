@@ -1,21 +1,24 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { EntitiesContextResult } from '../../../../hooks';
-import { Schema } from '../../../../models';
+import { KaotoSchemaDefinition } from '../../../../models';
 import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Pipe].schema = { name: 'Pipe', schema: { name: 'Pipe', description: 'desc' } } as Schema;
+config.config[SourceSchemaType.Pipe].schema = {
+  name: 'Pipe',
+  schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
 config.config[SourceSchemaType.Kamelet].schema = {
   name: 'Kamelet',
-  schema: { name: 'Kamelet', description: 'desc' },
-} as Schema;
+  schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
 config.config[SourceSchemaType.Route].schema = {
   name: 'route',
-  schema: { name: 'route', description: 'desc' },
-} as Schema;
+  schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
 
 const onSelect = jest.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?: SourceSchemaType }> = ({

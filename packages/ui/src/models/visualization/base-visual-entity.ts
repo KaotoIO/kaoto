@@ -1,6 +1,6 @@
-import type { JSONSchemaType } from 'ajv';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 
 /**
  * BaseVisualCamelEntity
@@ -120,7 +120,7 @@ export interface IVisualizationNodeData {
  */
 export interface VisualComponentSchema {
   title: string;
-  schema: JSONSchemaType<unknown>;
+  schema: KaotoSchemaDefinition['schema'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: any;
 }

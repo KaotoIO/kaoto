@@ -1,11 +1,11 @@
-import { MetadataEditor } from '../../MetadataEditor';
+import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { Button, Modal } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from '../../../models';
+import { MetadataEditor } from '../../MetadataEditor';
 
 export type NewBeanModalProps = {
-  beanSchema: JSONSchemaType<unknown>;
+  beanSchema: KaotoSchemaDefinition['schema'];
   beanName?: string;
   propertyTitle: string;
   javaType?: string;

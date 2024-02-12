@@ -1,9 +1,9 @@
 import { KameletBindingStep, PipeStep } from '../../../camel/entities';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
+import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
-import { JSONSchemaType } from 'ajv';
 
 export class KameletSchemaService {
   static getVisualComponentSchema(stepModel?: PipeStep): VisualComponentSchema | undefined {
@@ -15,7 +15,7 @@ export class KameletSchemaService {
 
     return {
       title: definition?.metadata.name || '',
-      schema: definition?.propertiesSchema || ({} as JSONSchemaType<unknown>),
+      schema: definition?.propertiesSchema || ({} as KaotoSchemaDefinition['schema']),
       definition: stepModel?.properties || {},
     };
   }

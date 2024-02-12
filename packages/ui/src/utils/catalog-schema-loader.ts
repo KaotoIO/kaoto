@@ -1,4 +1,4 @@
-import { Schema, SchemaEntry } from '../models';
+import { KaotoSchemaDefinition, SchemaEntry } from '../models';
 
 export class CatalogSchemaLoader {
   /** The `.` is required to support relative routes in GitHub pages */
@@ -12,7 +12,7 @@ export class CatalogSchemaLoader {
     return { body, uri: response.url };
   }
 
-  static getSchemasFiles(basePath: string, schemaFiles: Record<string, SchemaEntry>): Promise<Schema>[] {
+  static getSchemasFiles(basePath: string, schemaFiles: Record<string, SchemaEntry>): Promise<KaotoSchemaDefinition>[] {
     return Object.entries(schemaFiles).map(async ([name, schemaDef]) => {
       const fetchedSchema = await this.fetchFile(`${basePath}/${schemaDef.file}`);
       const tags = [];
@@ -26,7 +26,7 @@ export class CatalogSchemaLoader {
         tags,
         version: schemaDef.version,
         uri: fetchedSchema.uri,
-        schema: fetchedSchema.body,
+        schema: fetchedSchema.body as KaotoSchemaDefinition['schema'],
       };
     });
   }

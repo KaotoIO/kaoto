@@ -1,12 +1,13 @@
-import { BeansEntityHandler } from './beans-entity-handler';
-import { CamelRouteResource, KameletResource, PipeResource } from '../../camel';
-import * as kameletStub from '../../../stubs/kamelet-route';
-import * as routeStub from '../../../stubs/camel-route';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { CamelCatalogService } from '../flows';
-import { CatalogKind } from '../../catalog-kind';
-import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import cloneDeep from 'lodash/cloneDeep';
+import * as routeStub from '../../../stubs/camel-route';
+import * as kameletStub from '../../../stubs/kamelet-route';
+import { CamelRouteResource, KameletResource, PipeResource } from '../../camel';
+import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { CamelCatalogService } from '../flows';
+import { BeansEntityHandler } from './beans-entity-handler';
 
 describe('BeansEntityHandler', () => {
   beforeAll(async () => {
@@ -32,10 +33,10 @@ describe('BeansEntityHandler', () => {
       expect(model.beans).toBeUndefined();
       expect(beansHandler.isSupported()).toBeTruthy();
       const beanSchema = beansHandler.getBeanSchema();
-      expect(beanSchema?.properties.builderClass.title).toEqual('Builder Class');
-      expect(beanSchema?.properties.script.title).toEqual('Script');
+      expect(beanSchema!.properties!.builderClass.title).toEqual('Builder Class');
+      expect(beanSchema!.properties!.script.title).toEqual('Script');
       const beansSchema = beansHandler.getBeansSchema();
-      expect(beansSchema?.items['$ref']).toContain('RegistryBeanDefinition');
+      expect((beansSchema!.items as KaotoSchemaDefinition['schema'])['$ref']).toContain('RegistryBeanDefinition');
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });
@@ -84,11 +85,13 @@ describe('BeansEntityHandler', () => {
       expect(model.spec.template.beans).toBeUndefined();
       expect(beansHandler.isSupported()).toBeTruthy();
       const beanSchema = beansHandler.getBeanSchema();
-      expect(beanSchema?.properties.builderClass).toBeUndefined();
-      expect(beanSchema?.properties.script.title).toEqual('Script');
+      expect(beanSchema?.properties!.builderClass).toBeUndefined();
+      expect(beanSchema?.properties!.script.title).toEqual('Script');
       const beansSchema = beansHandler.getBeansSchema();
-      expect(beansSchema?.items.properties.scriptLanguage.title).toEqual('Script Language');
-      expect(beansSchema?.items.properties.builderClass).toBeUndefined();
+      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.scriptLanguage.title).toEqual(
+        'Script Language',
+      );
+      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.builderClass).toBeUndefined();
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });

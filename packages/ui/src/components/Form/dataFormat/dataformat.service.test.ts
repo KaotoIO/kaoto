@@ -28,9 +28,9 @@ describe('DataFormatService', () => {
     it('should return DataFormat schema', () => {
       const dataFormatMap = DataFormatService.getDataFormatMap();
       const jsonSchema = DataFormatService.getDataFormatSchema(dataFormatMap.json);
-      expect(jsonSchema!.properties.unmarshalType.type).toBe('string');
+      expect(jsonSchema!.properties!.unmarshalType.type).toBe('string');
       const customSchema = DataFormatService.getDataFormatSchema(dataFormatMap.custom);
-      expect(customSchema!.properties.ref.type).toBe('string');
+      expect(customSchema!.properties!.ref.type).toBe('string');
     });
   });
 

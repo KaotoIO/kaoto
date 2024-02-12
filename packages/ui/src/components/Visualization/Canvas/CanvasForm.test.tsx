@@ -1,14 +1,9 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { AutoField, AutoFields } from '@kaoto-next/uniforms-patternfly';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { JSONSchemaType } from 'ajv';
+import { act } from 'react-dom/test-utils';
 import { AutoForm } from 'uniforms';
-import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { SchemaService } from '../../Form';
-import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
-import { CanvasForm } from './CanvasForm';
-import { CanvasNode } from './canvas.models';
 import {
   CamelCatalogService,
   CamelRouteVisualEntity,
@@ -17,9 +12,14 @@ import {
   ICamelLanguageDefinition,
   ICamelLoadBalancerDefinition,
   ICamelProcessorDefinition,
+  KaotoSchemaDefinition,
 } from '../../../models';
-import { act } from 'react-dom/test-utils';
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
+import { EntitiesContext } from '../../../providers/entities.provider';
+import { SchemaService } from '../../Form';
+import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CanvasForm } from './CanvasForm';
+import { CanvasNode } from './canvas.models';
 
 describe('CanvasForm', () => {
   const schemaService = new SchemaService();
@@ -31,7 +31,7 @@ describe('CanvasForm', () => {
         type: 'string',
       },
     },
-  } as unknown as JSONSchemaType<unknown>;
+  } as unknown as KaotoSchemaDefinition['schema'];
 
   beforeAll(async () => {
     const patternCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
@@ -111,7 +111,7 @@ describe('CanvasForm', () => {
   it('should render nothing if no schema and no definition is available', () => {
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',
-      schema: null as unknown as JSONSchemaType<unknown>,
+      schema: null as unknown as KaotoSchemaDefinition['schema'],
       definition: null,
     };
 
@@ -137,7 +137,7 @@ describe('CanvasForm', () => {
   it('should update the parameters object if null', () => {
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',
-      schema: null as unknown as JSONSchemaType<unknown>,
+      schema: null as unknown as KaotoSchemaDefinition['schema'],
       definition: {
         parameters: null,
       },

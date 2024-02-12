@@ -29,9 +29,9 @@ describe('ExpressionService', () => {
     it('should return language schema', () => {
       const languageMap = ExpressionService.getLanguageMap();
       const jsonpathSchema = ExpressionService.getLanguageSchema(languageMap.jsonpath);
-      expect(jsonpathSchema.properties.suppressExceptions.type).toBe('boolean');
+      expect(jsonpathSchema.properties!.suppressExceptions.type).toBe('boolean');
       const customSchema = ExpressionService.getLanguageSchema(languageMap.language);
-      expect(customSchema.properties.language.type).toBe('string');
+      expect(customSchema.properties!.language.type).toBe('string');
     });
   });
 

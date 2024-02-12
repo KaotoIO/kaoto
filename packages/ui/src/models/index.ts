@@ -9,6 +9,6 @@ export * from './catalog-kind';
 export * from './kamelets-catalog';
 export * from './local-storage-keys';
 export * from './react-component';
-export * from './schema';
+export * from './kaoto-schema';
 export * from './validation';
 export * from './visualization';
