@@ -1,10 +1,10 @@
-import { JSONSchemaType } from 'ajv';
 import { ICamelProcessorModel, ICamelProcessorProperty } from './camel-processors-catalog';
+import { KaotoSchemaDefinition } from './kaoto-schema';
 
 export interface ICamelLanguageDefinition {
   model: ICamelLanguageModel;
   properties: Record<string, ICamelLanguageProperty>;
-  propertiesSchema: JSONSchemaType<unknown>;
+  propertiesSchema: KaotoSchemaDefinition['schema'];
 }
 
 export interface ICamelLanguageModel extends ICamelProcessorModel {}

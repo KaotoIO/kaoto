@@ -1,13 +1,13 @@
-import { StepExpressionEditor, MetadataEditor } from '@kaoto-next/ui';
+import { MetadataEditor, StepExpressionEditor } from '@kaoto-next/ui';
 import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   IVisualizationNode,
+  KaotoSchemaDefinition,
   SchemasLoaderProvider,
   VisualComponentSchema,
 } from '@kaoto-next/ui/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { JSONSchemaType } from 'ajv';
 import { CanvasNode } from './../canvas.models';
 
 const visualComponentSchema: VisualComponentSchema = {
@@ -19,7 +19,7 @@ const visualComponentSchema: VisualComponentSchema = {
         type: 'string',
       },
     },
-  } as unknown as JSONSchemaType<unknown>,
+  } as unknown as KaotoSchemaDefinition['schema'],
   definition: {
     name: 'my node',
   },

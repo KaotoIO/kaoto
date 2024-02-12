@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { EntitiesContextResult } from '../../../../hooks';
-import { Schema } from '../../../../models';
+import { KaotoSchemaDefinition } from '../../../../models';
 import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
@@ -11,15 +11,21 @@ import { NewFlow } from './NewFlow';
 describe('NewFlow.tsx', () => {
   const config = sourceSchemaConfig;
   config.config[SourceSchemaType.Integration].schema = {
-    schema: { name: 'Integration', description: 'desc' },
-  } as Schema;
-  config.config[SourceSchemaType.Pipe].schema = { schema: { name: 'Pipe', description: 'desc' } } as Schema;
-  config.config[SourceSchemaType.Kamelet].schema = { schema: { name: 'Kamelet', description: 'desc' } } as Schema;
+    schema: { name: 'Integration', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Pipe].schema = {
+    schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Kamelet].schema = {
+    schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
   config.config[SourceSchemaType.KameletBinding].schema = {
     name: 'kameletBinding',
     schema: { description: 'desc' },
-  } as Schema;
-  config.config[SourceSchemaType.Route].schema = { schema: { name: 'route', description: 'desc' } } as Schema;
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Route].schema = {
+    schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
 
   const renderWithContext = () => {
     return render(

@@ -1,11 +1,11 @@
 import { CamelPropertyCommon } from './camel-properties-common';
 import { CatalogKind } from './catalog-kind';
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from './kaoto-schema';
 
 export interface ICamelProcessorDefinition {
   model: ICamelProcessorModel;
   properties: Record<string, ICamelProcessorProperty>;
-  propertiesSchema?: JSONSchemaType<unknown>;
+  propertiesSchema?: KaotoSchemaDefinition['schema'];
 }
 
 export interface ICamelProcessorModel {

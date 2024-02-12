@@ -1,14 +1,13 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { StepExpressionEditor } from './StepExpressionEditor';
-import { CamelCatalogService } from '../../../models/visualization/flows';
-import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
-import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
-import { JSONSchemaType } from 'ajv';
-import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { MetadataEditor } from '../../MetadataEditor';
-import { SchemaService } from '../schema.service';
 import { act } from 'react-dom/test-utils';
+import { CatalogKind, ICamelLanguageDefinition, KaotoSchemaDefinition } from '../../../models';
+import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
+import { CamelCatalogService } from '../../../models/visualization/flows';
+import { MetadataEditor } from '../../MetadataEditor';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
+import { SchemaService } from '../schema.service';
+import { StepExpressionEditor } from './StepExpressionEditor';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -31,7 +30,7 @@ describe('StepExpressionEditor', () => {
             type: 'string',
           },
         },
-      } as unknown as JSONSchemaType<unknown>,
+      } as unknown as KaotoSchemaDefinition['schema'],
       definition: {
         name: 'my node',
       },

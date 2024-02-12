@@ -1,10 +1,10 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
-import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash.clonedeep';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { IVisualizationNode } from '../base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -115,7 +115,7 @@ describe('Camel Route', () => {
       const spy = jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema');
       spy.mockReturnValueOnce({
         title: 'test',
-        schema: {} as JSONSchemaType<unknown>,
+        schema: {} as KaotoSchemaDefinition['schema'],
         definition: {},
       });
 

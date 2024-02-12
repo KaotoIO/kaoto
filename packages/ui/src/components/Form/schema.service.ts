@@ -1,7 +1,8 @@
-import Ajv, { JSONSchemaType, ValidateFunction } from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 
 export class SchemaService {
   static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
@@ -31,18 +32,18 @@ export class SchemaService {
     addFormats(this.ajv);
   }
 
-  getSchemaBridge(schema?: Record<string, unknown>): JSONSchemaBridge | undefined {
+  getSchemaBridge(schema?: unknown): JSONSchemaBridge | undefined {
     if (!schema) return undefined;
 
     // uniforms passes it down to the React elements as an attribute, causes a warning
     this.FILTER_DOM_PROPS.forEach((prop) => filterDOMProps.register(prop as FilterDOMPropsKeys));
 
-    const schemaValidator = this.createValidator(schema as JSONSchemaType<unknown>);
+    const schemaValidator = this.createValidator(schema);
 
     return new JSONSchemaBridge({ schema, validator: schemaValidator });
   }
 
-  private createValidator<T>(schema: JSONSchemaType<T>) {
+  private createValidator(schema: KaotoSchemaDefinition['schema']) {
     let validator: ValidateFunction | undefined;
 
     try {

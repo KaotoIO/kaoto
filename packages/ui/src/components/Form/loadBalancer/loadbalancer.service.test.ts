@@ -18,11 +18,11 @@ describe('LoadBalancerService', () => {
     it('should return LoadBalancer map', () => {
       const loadBalancerMap = LoadBalancerService.getLoadBalancerMap();
       expect(loadBalancerMap.failover.model.title).toEqual('Failover');
-      expect(loadBalancerMap.sticky.propertiesSchema.properties.correlationExpression[`$comment`]).toEqual(
+      expect(loadBalancerMap.sticky.propertiesSchema.properties!.correlationExpression[`$comment`]).toEqual(
         'expression',
       );
       expect(loadBalancerMap.customLoadBalancer.model.description).toContain('custom load balancer');
-      expect(loadBalancerMap.customLoadBalancer.propertiesSchema.properties.ref.title).toEqual('Ref');
+      expect(loadBalancerMap.customLoadBalancer.propertiesSchema.properties!.ref.title).toEqual('Ref');
     });
   });
 
@@ -30,9 +30,9 @@ describe('LoadBalancerService', () => {
     it('should return LoadBalancer schema', () => {
       const loadBalancerMap = LoadBalancerService.getLoadBalancerMap();
       const jsonSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.roundRobin);
-      expect(jsonSchema!.properties.id.type).toBe('string');
+      expect(jsonSchema!.properties!.id.type).toBe('string');
       const customSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.customLoadBalancer);
-      expect(customSchema!.properties.ref.type).toBe('string');
+      expect(customSchema!.properties!.ref.type).toBe('string');
     });
   });
 

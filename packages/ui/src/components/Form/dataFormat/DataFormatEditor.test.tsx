@@ -1,13 +1,12 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { CamelCatalogService } from '../../../models/visualization/flows';
-import { CatalogKind, ICamelDataformatDefinition } from '../../../models';
-import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
-import { JSONSchemaType } from 'ajv';
-import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { DataFormatEditor } from './DataFormatEditor';
-import { MetadataEditor } from '../../MetadataEditor';
 import { act } from 'react-dom/test-utils';
+import { CatalogKind, ICamelDataformatDefinition, KaotoSchemaDefinition } from '../../../models';
+import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
+import { CamelCatalogService } from '../../../models/visualization/flows';
+import { MetadataEditor } from '../../MetadataEditor';
+import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
+import { DataFormatEditor } from './DataFormatEditor';
 
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
@@ -30,7 +29,7 @@ describe('DataFormatEditor', () => {
             type: 'string',
           },
         },
-      } as unknown as JSONSchemaType<unknown>,
+      } as unknown as KaotoSchemaDefinition['schema'],
       definition: {
         name: 'my node',
       },

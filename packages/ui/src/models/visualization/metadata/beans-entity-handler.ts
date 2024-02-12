@@ -1,14 +1,15 @@
-import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
-import { CamelCatalogService, CatalogKind } from '../../index';
-import { EntityType } from '../../camel/entities';
-import { BeansEntity } from './index';
-import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
 import {
   BeansDeserializer,
   RegistryBeanDefinition,
   RouteTemplateBeanDefinition,
 } from '@kaoto-next/camel-catalog/types';
-import { JSONSchemaType } from 'ajv';
+import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
+import { EntityType } from '../../camel/entities';
+import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { CamelCatalogService } from '../flows/camel-catalog.service';
+import { BeansEntity } from './beansEntity';
+import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
 
 /**
  * This class is to absorb a little bit of difference between beans such as {@link RegistryBeanDefinition} and {@link RouteTemplateBeanDefinition}.
@@ -34,7 +35,7 @@ export class BeansEntityHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getBeanSchema(): JSONSchemaType<any> | undefined {
+  getBeanSchema(): KaotoSchemaDefinition['schema'] | undefined {
     switch (this.type) {
       case 'beans':
         return CamelCatalogService.getComponent(CatalogKind.Entity, 'bean')?.propertiesSchema;
@@ -46,7 +47,7 @@ export class BeansEntityHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getBeansSchema(): JSONSchemaType<any> | undefined {
+  getBeansSchema(): KaotoSchemaDefinition['schema'] | undefined {
     switch (this.type) {
       case 'beans': {
         const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans');

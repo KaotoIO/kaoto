@@ -1,12 +1,12 @@
 import { Text, TextVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { Loading } from '../components/Loading';
-import { CamelCatalogIndex, Schema } from '../models';
+import { CamelCatalogIndex, KaotoSchemaDefinition } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
 import { CatalogSchemaLoader } from '../utils';
 
-export const SchemasContext = createContext<Record<string, Schema>>({});
+export const SchemasContext = createContext<Record<string, KaotoSchemaDefinition>>({});
 
 /**
  * Loader for the components schemas.
@@ -14,7 +14,7 @@ export const SchemasContext = createContext<Record<string, Schema>>({});
 export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
   const setSchema = useSchemasStore((state) => state.setSchema);
   const [isLoading, setIsLoading] = useState(true);
-  const [schemas, setSchemas] = useState<Record<string, Schema>>({});
+  const [schemas, setSchemas] = useState<Record<string, KaotoSchemaDefinition>>({});
 
   useEffect(() => {
     fetch(`${props.catalogUrl}/index.json`)
@@ -31,7 +31,7 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
 
             return acc;
           },
-          {} as Record<string, Schema>,
+          {} as Record<string, KaotoSchemaDefinition>,
         );
 
         setSchemas(combinedSchemas);

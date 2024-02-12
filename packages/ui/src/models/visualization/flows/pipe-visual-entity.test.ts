@@ -1,13 +1,13 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { Pipe } from '@kaoto-next/camel-catalog/types';
-import { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
-import { PipeVisualEntity } from './pipe-visual-entity';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from './camel-catalog.service';
+import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {
@@ -57,7 +57,7 @@ describe('Pipe', () => {
       const spy = jest.spyOn(KameletSchemaService, 'getVisualComponentSchema');
       spy.mockReturnValueOnce({
         title: 'test',
-        schema: {} as JSONSchemaType<unknown>,
+        schema: {} as KaotoSchemaDefinition['schema'],
         definition: {},
       });
 

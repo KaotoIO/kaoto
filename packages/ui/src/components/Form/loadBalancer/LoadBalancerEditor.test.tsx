@@ -1,8 +1,7 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { JSONSchemaType } from 'ajv';
 import { act } from 'react-dom/test-utils';
-import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
+import { CatalogKind, ICamelLoadBalancerDefinition, KaotoSchemaDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { MetadataEditor } from '../../MetadataEditor';
@@ -30,7 +29,7 @@ describe('LoadBalancerEditor', () => {
             type: 'string',
           },
         },
-      } as unknown as JSONSchemaType<unknown>,
+      } as unknown as KaotoSchemaDefinition['schema'],
       definition: {
         name: 'my node',
       },

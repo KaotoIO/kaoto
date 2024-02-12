@@ -1,13 +1,13 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
-import type { JSONSchemaType } from 'ajv';
 import cloneDeep from 'lodash/cloneDeep';
 import { CamelUriHelper, ROOT_PATH, isDefined } from '../../../../utils';
+import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
+import { IKameletDefinition } from '../../../kamelets-catalog';
+import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
-import { IKameletDefinition } from '../../../kamelets-catalog';
-import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = ['from', 'onWhen', 'when', 'otherwise', 'doCatch', 'doFinally', 'onException'];
@@ -230,7 +230,7 @@ export class CamelComponentSchemaService {
     return uriParts[0];
   }
 
-  private static getSchema(camelElementLookup: ICamelElementLookupResult): JSONSchemaType<unknown> {
+  private static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
@@ -251,20 +251,20 @@ export class CamelComponentSchemaService {
 
     const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
 
-    if (processorDefinition === undefined) return {} as unknown as JSONSchemaType<unknown>;
+    if (processorDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
 
-    let schema = {} as unknown as JSONSchemaType<unknown>;
+    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
     if (processorDefinition.propertiesSchema !== undefined) {
       schema = cloneDeep(processorDefinition.propertiesSchema);
     }
 
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: JSONSchemaType<unknown> =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as JSONSchemaType<unknown>);
+      const componentSchema: KaotoSchemaDefinition['schema'] =
+        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
       if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        schema.properties.parameters = {
+        schema.properties!.parameters = {
           type: 'object',
           title: 'Endpoint Properties',
           description: 'Endpoint properties description',

@@ -1,4 +1,4 @@
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { VisualComponentSchema } from '../../../base-visual-entity';
 
 interface IValidationResult {
@@ -45,7 +45,7 @@ export class ModelValidationService {
   }
 
   private static validateRequiredProperties(
-    schema: JSONSchemaType<unknown>,
+    schema: KaotoSchemaDefinition['schema'],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model: any,
     parentPath: string,
@@ -54,7 +54,7 @@ export class ModelValidationService {
 
     if (schema.properties) {
       Object.entries(schema.properties).forEach(([propertyName, propertyValue]) => {
-        const propertySchema = propertyValue as JSONSchemaType<unknown>;
+        const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
         // TODO
         if (propertySchema.type === 'array') return;
         if (propertySchema.type === 'object') {
@@ -66,7 +66,8 @@ export class ModelValidationService {
         }
         // check missing required parameter
         if (
-          schema.required?.includes(propertyName) &&
+          Array.isArray(schema.required) &&
+          schema.required.includes(propertyName) &&
           propertySchema.default === undefined &&
           (!model || !model[propertyName])
         ) {

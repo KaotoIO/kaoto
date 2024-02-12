@@ -1,9 +1,9 @@
-import { Schema } from '../schema';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { SourceSchemaType } from './source-schema-type';
 import { isEnumType } from '../../utils';
 
 export interface ISourceSchema {
-  schema: Schema | undefined;
+  schema: KaotoSchemaDefinition | undefined;
   name: string;
   multipleRoute: boolean;
 }
@@ -45,7 +45,7 @@ class SourceSchemaConfig {
     },
   };
 
-  setSchema(name: string, schema: Schema) {
+  setSchema(name: string, schema: KaotoSchemaDefinition) {
     if (name === 'camelYamlDsl') {
       this.config[SourceSchemaType.Route].schema = schema;
     }

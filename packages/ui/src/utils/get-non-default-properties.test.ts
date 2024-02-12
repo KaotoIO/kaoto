@@ -1,4 +1,4 @@
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 import { getNonDefaultProperties } from './get-non-default-properties';
 
 describe('getNonDefaultProperties()', () => {
@@ -25,7 +25,7 @@ describe('getNonDefaultProperties()', () => {
         },
       },
     },
-  } as unknown as JSONSchemaType<unknown>;
+  } as unknown as KaotoSchemaDefinition['schema'];
 
   const newModel: Record<string, unknown> = {
     id: 'from-7126',
@@ -50,7 +50,7 @@ describe('getNonDefaultProperties()', () => {
   };
 
   it('should return only the properties which are different from default', () => {
-    const newModelClean = getNonDefaultProperties(schema?.properties.parameters.properties, newModel);
+    const newModelClean = getNonDefaultProperties(schema.properties!.parameters.properties!, newModel);
     expect(newModelClean).toMatchObject(newModelExpected);
   });
 });

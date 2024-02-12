@@ -1,12 +1,12 @@
 import { FromDefinition, Kamelet, ObjectMeta, RouteTemplateBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { SourceSchemaType } from './camel/source-schema-type';
-import { JSONSchemaType } from 'ajv';
+import { KaotoSchemaDefinition } from './kaoto-schema';
 
 export interface IKameletDefinition extends Omit<Kamelet, 'kind' | 'metadata' | 'spec'> {
   kind: SourceSchemaType.Kamelet;
   metadata: IKameletMetadata;
   spec: IKameletSpec;
-  propertiesSchema?: JSONSchemaType<unknown>;
+  propertiesSchema?: KaotoSchemaDefinition['schema'];
 }
 
 export interface IKameletMetadata extends ObjectMeta {
