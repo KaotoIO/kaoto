@@ -207,6 +207,8 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       canHaveNextStep: canHavePreviousStep,
       canHaveChildren,
       canHaveSpecialChildren,
+      canReplaceStep: true,
+      canRemoveStep: true,
     };
   }
 

@@ -21,9 +21,10 @@ import { CamelComponentDefaultService } from './support/camel-component-default.
 export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.ErrorHandler;
+  private static readonly ROOT_PATH = 'onException';
 
   constructor(public onExceptionDef: { onException: OnException }) {
-    const id = onExceptionDef.onException.id ?? getCamelRandomId('onException');
+    const id = onExceptionDef.onException.id ?? getCamelRandomId(CamelOnExceptionVisualEntity.ROOT_PATH);
     this.id = id;
     onExceptionDef.onException.id = id;
   }
@@ -36,7 +37,7 @@ export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
     const objectKeys = Object.keys(onExceptionDef!);
 
     return (
-      objectKeys.length === 1 && 'onException' in onExceptionDef! && typeof onExceptionDef.onException === 'object'
+      objectKeys.length === 1 && this.ROOT_PATH in onExceptionDef! && typeof onExceptionDef.onException === 'object'
     );
   }
 
@@ -209,12 +210,16 @@ export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
+    const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
+    const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
 
     return {
       canHavePreviousStep,
       canHaveNextStep: canHavePreviousStep,
       canHaveChildren,
       canHaveSpecialChildren,
+      canReplaceStep,
+      canRemoveStep,
     };
   }
 
@@ -227,8 +232,8 @@ export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const onExceptionGroupNode = CamelStepsService.getVizNodeFromProcessor(
-      'onException',
-      { processorName: 'onException' as keyof ProcessorDefinition },
+      CamelOnExceptionVisualEntity.ROOT_PATH,
+      { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onExceptionDef,
     );
     onExceptionGroupNode.data.entity = this;

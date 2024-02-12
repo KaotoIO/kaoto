@@ -53,6 +53,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
         canHaveNextStep: false,
         canHaveChildren: false,
         canHaveSpecialChildren: false,
+        canReplaceStep: false,
+        canRemoveStep: false,
       }
     );
   }

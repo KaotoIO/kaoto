@@ -1,6 +1,6 @@
 import { AngleRightIcon } from '@patternfly/react-icons';
 import { ContextMenuItem, ElementContext, ElementModel, GraphElement } from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { IDataTestID } from '../../../models';
 import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
@@ -12,6 +12,7 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
   const catalogModalContext = useContext(CatalogModalContext);
   const element: GraphElement<ElementModel, CanvasNode['data']> = useContext(ElementContext);
   const vizNode = element.getData()?.vizNode;
+  const shouldRender = useMemo(() => vizNode?.getNodeInteraction()?.canReplaceStep ?? false, [vizNode]);
 
   const onReplaceNode = useCallback(async () => {
     if (!vizNode || !entitiesContext) return;
@@ -30,9 +31,9 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
     entitiesContext.updateEntitiesFromCamelResource();
   }, [catalogModalContext, entitiesContext, vizNode]);
 
-  return (
+  return shouldRender ? (
     <ContextMenuItem onClick={onReplaceNode} data-testid={props['data-testid']}>
       <AngleRightIcon /> Replace {vizNode?.id} node
     </ContextMenuItem>
-  );
+  ) : null;
 };
