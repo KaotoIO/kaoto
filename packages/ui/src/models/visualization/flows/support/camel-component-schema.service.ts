@@ -235,6 +235,7 @@ export class CamelComponentSchemaService {
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
       case 'onException' as keyof ProcessorDefinition:
+      case 'errorHandler' as keyof ProcessorDefinition:
         catalogKind = CatalogKind.Entity;
         break;
       case 'from' as keyof ProcessorDefinition:

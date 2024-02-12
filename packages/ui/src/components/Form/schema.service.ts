@@ -1,8 +1,8 @@
 import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
-import { JSONSchemaBridge as SchemaBridge } from 'uniforms-bridge-json-schema';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
+import { SchemaBridge } from './schema-bridge';
 
 export class SchemaService {
   static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';

@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useSchemaBridgeContext } from '../../hooks';
 import { IDataTestID } from '../../models';
 import { CustomAutoFieldDetector } from './CustomAutoField';
+import { CustomAutoFields } from './CustomAutoFields';
 
 interface CustomAutoFormProps extends IDataTestID {
   model: unknown;
@@ -70,7 +71,7 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
             />
           ))
         ) : (
-          <AutoFields omitFields={props.omitFields} />
+          <CustomAutoFields omitFields={props.omitFields} />
         )}
         <ErrorsField />
       </AutoForm>

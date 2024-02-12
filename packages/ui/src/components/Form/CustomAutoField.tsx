@@ -1,8 +1,9 @@
-import { DateField, ListField, NestField, RadioField, TextField, BoolField } from '@kaoto-next/uniforms-patternfly';
+import { BoolField, DateField, ListField, NestField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
-import { TypeaheadField } from './customField/TypeaheadField';
-import { DisabledField } from './customField/DisabledField';
+import { OneOfField } from './OneOfField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
+import { DisabledField } from './customField/DisabledField';
+import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
@@ -12,6 +13,10 @@ import { PropertiesField } from './properties/PropertiesField';
  * In case a field is not supported, it will render a DisabledField
  */
 export const CustomAutoField = createAutoField((props) => {
+  if (Array.isArray(props.oneOf) && props.oneOf.length > 0) {
+    return OneOfField;
+  }
+
   if (props.options) {
     return props.checkboxes && props.fieldType !== Array ? RadioField : TypeaheadField;
   }

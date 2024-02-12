@@ -3,9 +3,10 @@ import { TileFilter } from '../../components/Catalog';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
+import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
+import { CamelOnExceptionVisualEntity } from '../visualization/flows/camel-on-exception-visual-entity';
 import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
-import { CamelOnExceptionVisualEntity } from '../visualization/flows/camel-on-exception-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { BeansEntity, isBeans } from '../visualization/metadata';
@@ -14,7 +15,7 @@ import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
-  static readonly SUPPORTED_ENTITIES = [CamelOnExceptionVisualEntity];
+  static readonly SUPPORTED_ENTITIES = [CamelOnExceptionVisualEntity, CamelErrorHandlerVisualEntity];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
@@ -53,7 +54,9 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
 
   getVisualEntities(): CamelRouteVisualEntity[] {
     return this.entities.filter(
-      (entity) => entity instanceof CamelRouteVisualEntity || entity instanceof CamelOnExceptionVisualEntity,
+      (entity) =>
+        entity instanceof CamelRouteVisualEntity ||
+        CamelRouteResource.SUPPORTED_ENTITIES.some((SupportedEntity) => entity instanceof SupportedEntity),
     ) as CamelRouteVisualEntity[];
   }
 
