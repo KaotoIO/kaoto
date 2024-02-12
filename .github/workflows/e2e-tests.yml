@@ -33,11 +33,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-          
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       # Install dependencies
       - run: yarn install --immutable
@@ -79,6 +80,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4
@@ -137,6 +139,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4
@@ -195,6 +198,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4

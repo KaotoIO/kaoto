@@ -59,6 +59,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: 🔧 Install dependencies
         run: yarn
@@ -97,6 +98,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: 🔧 Install dependencies
         run: yarn
@@ -121,7 +123,7 @@ jobs:
         shell: bash
         run: |
           docker push quay.io/kaotoio/kaoto-app:${{ github.event.inputs.tag_version }}
-          
+
       - name: "🔧 Build Container Image"
         shell: bash
         run: |

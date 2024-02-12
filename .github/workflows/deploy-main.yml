@@ -36,6 +36,7 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
+          cache: 'maven'
 
       - name: "🔧 Install dependencies"
         run: yarn
