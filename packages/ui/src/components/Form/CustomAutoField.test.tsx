@@ -13,8 +13,42 @@ import { AutoFieldProps } from 'uniforms';
 import { CustomAutoField } from './CustomAutoField';
 import { DisabledField } from './customField/DisabledField';
 import { TypeaheadField } from './customField/TypeaheadField';
+import { OneOfField } from './OneOf/OneOfField';
 
 describe('CustomAutoField', () => {
+  it('should return `OneOfField` if `props.oneOf` is an array with a length > 0', () => {
+    const props: AutoFieldProps = {
+      oneOf: [{ type: 'string' }],
+      name: 'test',
+    };
+
+    const result = CustomAutoField(props);
+
+    expect(result).toBe(OneOfField);
+  });
+
+  it('should NOT return `OneOfField` if `props.oneOf` is an empty array', () => {
+    const props: AutoFieldProps = {
+      oneOf: [],
+      name: 'test',
+    };
+
+    const result = CustomAutoField(props);
+
+    expect(result).not.toBe(OneOfField);
+  });
+
+  it('should NOT return `OneOfField` if `props.oneOf` is not an array', () => {
+    const props: AutoFieldProps = {
+      oneOf: undefined,
+      name: 'test',
+    };
+
+    const result = CustomAutoField(props);
+
+    expect(result).not.toBe(OneOfField);
+  });
+
   it('should return `RadioField` if `props.options` & `props.checkboxes` are defined and `props.fieldType` is not `Array`', () => {
     const props: AutoFieldProps = {
       options: [],

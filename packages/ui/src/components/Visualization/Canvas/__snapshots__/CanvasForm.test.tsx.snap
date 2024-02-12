@@ -132,6 +132,9 @@ exports[`CanvasForm should render 1`] = `
           </div>
         </div>
       </form>
+      <div
+        data-testid="root-form-placeholder"
+      />
     </div>
   </div>
 </div>
