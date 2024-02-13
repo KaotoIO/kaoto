@@ -2,6 +2,7 @@ import { NewBeanModal } from './NewBeanModal';
 import { fireEvent, render } from '@testing-library/react';
 import { screen } from '@testing-library/dom';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import { act } from 'react-dom/test-utils';
 
 describe('NewBeanModal', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,7 +12,7 @@ describe('NewBeanModal', () => {
     beanSchema = entitiesCatalog.bean.propertiesSchema;
   });
 
-  it('should render', () => {
+  it('should render', async () => {
     const mockOnCreate = jest.fn();
     const mockOnCancel = jest.fn();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,12 +27,14 @@ describe('NewBeanModal', () => {
     );
     const nameTeextbox = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Name');
     fireEvent.input(nameTeextbox[0], { target: { value: 'foo' } });
+    const labelTeextbox = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Type');
+    fireEvent.input(labelTeextbox[0], { target: { value: 'bar' } });
     const createButton = screen
       .getAllByRole('button')
       .filter((button) => button.textContent && button.textContent === 'Create');
     expect(createButton).toHaveLength(1);
     expect(mockOnCreate.mock.calls).toHaveLength(0);
-    fireEvent.click(createButton[0]);
+    await act(async () => fireEvent.click(createButton[0]));
     expect(mockOnCreate.mock.calls).toHaveLength(1);
     expect(mockOnCreate.mock.calls[0][0].name).toEqual('foo');
 

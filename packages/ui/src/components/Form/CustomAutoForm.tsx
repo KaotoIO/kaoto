@@ -12,6 +12,7 @@ interface CustomAutoFormProps extends IDataTestID {
   omitFields?: string[];
   onChangeModel?: (model: unknown) => void;
   onChange?: (path: string, value: unknown) => void;
+  handleConfirm?: () => void;
 }
 
 export type CustomAutoFormRef = { fields: HTMLElement[]; form: typeof AutoForm };
@@ -45,7 +46,6 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
     fields: fieldsRefs.current,
     form: formRef.current,
   }));
-
   return (
     <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
       <AutoForm
@@ -56,6 +56,7 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
         onChange={props.onChange}
         data-testid={props['data-testid']}
         disabled={props.disabled}
+        onSubmit={props.handleConfirm}
       >
         {props.sortFields ? (
           // For some forms, sorting its fields might be beneficial
