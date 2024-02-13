@@ -1,8 +1,11 @@
 import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { Button, Modal } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../models';
 import { MetadataEditor } from '../../MetadataEditor';
+import { CustomAutoFormRef } from '../CustomAutoForm';
+import cloneDeep from 'lodash.clonedeep';
+import { isDefined } from '../../../utils';
 
 export type NewBeanModalProps = {
   beanSchema: KaotoSchemaDefinition['schema'];
@@ -17,13 +20,19 @@ export type NewBeanModalProps = {
 export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBeanModalProps) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [beanModel, setBeanModel] = useState<any>();
+  const submitRef = useRef<CustomAutoFormRef>(null);
 
   useEffect(() => {
     setBeanModel(props.beanName ? { name: props.beanName } : {});
   }, [props.beanName]);
 
-  const handleConfirm = useCallback(() => {
-    props.onCreateBean(beanModel as RegistryBeanDefinition);
+  const handleConfirm = useCallback(async () => {
+    // validation updates the bean model, so we need to clone it to avoid creating the bean with default values
+    const beanModelTmp = cloneDeep(beanModel);
+    const valid = await submitRef.current?.form.validate();
+    if (!isDefined(valid)) {
+      props.onCreateBean(beanModelTmp as RegistryBeanDefinition);
+    }
   }, [beanModel, props]);
 
   const handleCancel = useCallback(() => {
@@ -53,6 +62,8 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
           schema={props.beanSchema}
           metadata={beanModel}
           onChangeModel={setBeanModel}
+          handleConfirm={handleConfirm}
+          ref={submitRef}
         />
       </Modal>
     )

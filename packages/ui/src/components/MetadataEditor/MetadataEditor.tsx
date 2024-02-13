@@ -1,6 +1,6 @@
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import cloneDeep from 'lodash/cloneDeep';
-import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { SchemaService } from '../Form';
 import { CustomAutoForm, CustomAutoFormRef } from '../Form/CustomAutoForm';
@@ -15,9 +15,10 @@ interface MetadataEditorProps {
   metadata: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeModel: (model: any) => void;
+  handleConfirm?: () => void;
 }
 
-export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorProps>> = (props) => {
+export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>((props, forwardedRef) => {
   const schemaServiceRef = useRef(new SchemaService());
   const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
     schemaServiceRef.current.getSchemaBridge(getFormSchema()),
@@ -26,6 +27,11 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
+
+  useImperativeHandle(forwardedRef, () => ({
+    fields: fieldsRefs.current?.fields ?? [],
+    form: fieldsRefs.current?.form,
+  }));
 
   useEffect(() => {
     setSchemaBridge(schemaServiceRef.current.getSchemaBridge(getFormSchema()));
@@ -121,6 +127,7 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
                   disabled={isFormDisabled()}
                   sortFields={true}
                   ref={fieldsRefs}
+                  handleConfirm={props.handleConfirm}
                 />
               </StackItem>
             </Stack>
@@ -135,8 +142,9 @@ export const MetadataEditor: FunctionComponent<PropsWithChildren<MetadataEditorP
           disabled={isFormDisabled()}
           sortFields={true}
           ref={fieldsRefs}
+          handleConfirm={props.handleConfirm}
         />
       )}
     </>
   );
-};
+});
