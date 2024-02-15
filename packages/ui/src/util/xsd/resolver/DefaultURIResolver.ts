@@ -1,5 +1,5 @@
 export interface URIResolver {
-  resolveEntity(targetNamespace: string, schemaLocation: string, baseUri: string): File;
+  resolveEntity(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): string;
 }
 export interface CollectionURIResolver extends URIResolver {
   setCollectionBaseURI(uri: string): void;
@@ -13,7 +13,7 @@ export class DefaultURIResolver implements CollectionURIResolver {
     return this.collectionBaseUri;
   }
 
-  resolveEntity(targetNamespace: string, schemaLocation: string, baseUri: string): File {
+  resolveEntity(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): string {
     throw new Error(
       `XML schema External entity resolution is not yet supported: [namespace:${targetNamespace}, schemaLocation:${schemaLocation}, baseUri:${baseUri}]`,
     );

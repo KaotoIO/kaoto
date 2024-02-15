@@ -1,16 +1,27 @@
-import { XmlSchema, XmlSchemaDerivationMethod, XmlSchemaParticle, XmlSchemaType } from '.';
+import {
+  XmlSchema,
+  XmlSchemaAnyAttribute,
+  XmlSchemaAttributeOrGroupRef,
+  XmlSchemaComplexContentExtension,
+  XmlSchemaComplexContentRestriction,
+  XmlSchemaContentModel,
+  XmlSchemaContentType,
+  XmlSchemaDerivationMethod,
+  XmlSchemaParticle,
+  XmlSchemaType,
+} from '.';
 
 export class XmlSchemaComplexType extends XmlSchemaType {
-  private anyAttribute: XmlSchemaAnyAttribute;
-  private attributeWildcard: XmlSchemaAnyAttribute;
+  private anyAttribute: XmlSchemaAnyAttribute | null = null;
+  private attributeWildcard: XmlSchemaAnyAttribute | null = null;
   private attributes: XmlSchemaAttributeOrGroupRef[] = [];
   private block: XmlSchemaDerivationMethod = XmlSchemaDerivationMethod.NONE;
-  private blockResolved: XmlSchemaDerivationMethod;
-  private contentModel: XmlSchemaContentModel;
-  private contentType: XmlSchemaContentType;
-  private particleType: XmlSchemaParticle;
-  private particle: XmlSchemaParticle;
-  private isAbstract: boolean = false;
+  private blockResolved: XmlSchemaDerivationMethod | null = null;
+  private contentModel: XmlSchemaContentModel | null = null;
+  private contentType: XmlSchemaContentType | null = null;
+  private particleType: XmlSchemaParticle | null = null;
+  private particle: XmlSchemaParticle | null = null;
+  private _isAbstract: boolean = false;
 
   /**
    * Creates new XmlSchemaComplexType
@@ -68,18 +79,18 @@ export class XmlSchemaComplexType extends XmlSchemaType {
   }
 
   isAbstract() {
-    return this.isAbstract;
+    return this._isAbstract;
   }
 
   setAbstract(b: boolean) {
-    this.isAbstract = b;
+    this._isAbstract = b;
   }
 
   getParticle() {
     return this.particle;
   }
 
-  setParticle(particle: XmlSchemaParticle) {
+  setParticle(particle: XmlSchemaParticle | null) {
     this.particle = particle;
   }
 

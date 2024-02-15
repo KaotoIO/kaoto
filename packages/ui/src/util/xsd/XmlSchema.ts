@@ -24,7 +24,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
   static readonly UTF_8_ENCODING = 'UTF-8';
 
   private items: XmlSchemaObject[] = [];
-  private parent?: XmlSchemaCollection;
+  private parent: XmlSchemaCollection | null = null;
   private blockDefault = XmlSchemaDerivationMethod.NONE;
   private finalDefault = XmlSchemaDerivationMethod.NONE;
   private elementFormDefault = XmlSchemaForm.UNQUALIFIED;
@@ -47,7 +47,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
     super();
     if (namespace == null) return;
     const systemIdToUse = systemId ? systemId : namespace;
-    this.parent = parent;
+    this.parent = parent || null;
     this.logicalTargetNamespace = namespace;
     this.syntacticalTargetNamespace = namespace;
     const schemaKey = new SchemaKey(this.logicalTargetNamespace, systemIdToUse);
@@ -282,7 +282,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    *
    * @return the map of elements.
    */
-  getElements(): Map<QName, XmlSchemaElement> | undefined {
+  getElements(): Map<QName, XmlSchemaElement> {
     return this.elements;
   }
 
@@ -702,7 +702,7 @@ public void write(Writer writer, Map<String, String> options) {
     return this.syntacticalTargetNamespace;
   }
 
-  setLogicalTargetNamespace(logicalTargetNamespace: string) {
+  setLogicalTargetNamespace(logicalTargetNamespace: string | null) {
     this.logicalTargetNamespace = logicalTargetNamespace;
   }
 
@@ -720,8 +720,8 @@ public void write(Writer writer, Map<String, String> options) {
    * @param includeOrImport
    * @return return the schema object.
    */
-  private getSchema(includeOrImport: object): XmlSchema | undefined {
-    let schema: XmlSchema | undefined = undefined;
+  private getSchema(includeOrImport: object): XmlSchema | null {
+    let schema: XmlSchema | null = null;
     if (includeOrImport instanceof XmlSchemaImport) {
       schema = (includeOrImport as XmlSchemaImport).getSchema();
     } else if (includeOrImport instanceof XmlSchemaInclude) {

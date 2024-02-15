@@ -4,7 +4,7 @@ import { XmlSchema, XmlSchemaCollection } from '../util/xsd';
 export class DocumentService {
   static parseXmlSchema(content: string): IDocument {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(content);
+    const xmlSchema = collection.read(content, () => {});
     return DocumentService.fromXmlSchema(xmlSchema);
   }
 

@@ -10,7 +10,7 @@ export interface XmlSchemaItemWithRefBase {
   /**
    * @return the Qualified Name of the target of the ref.
    */
-  getTargetQName(): QName;
+  getTargetQName(): QName | null;
 
   /**
    * @return the non-generic reference object.

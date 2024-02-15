@@ -5,9 +5,9 @@ export abstract class XmlSchemaObject implements XmlSchemaObjectBase {
   linePosition?: number;
   sourceURI: string | null = null;
 
-  private metaInfoMap = new Map<object, object>();
+  private metaInfoMap = new Map<string, object>();
 
-  addMetaInfo(key: object, value: object) {
+  addMetaInfo(key: string, value: object) {
     this.metaInfoMap.set(key, value);
   }
 
@@ -35,7 +35,7 @@ export abstract class XmlSchemaObject implements XmlSchemaObjectBase {
     this.linePosition = linePosition;
   }
 
-  setMetaInfoMap(metaInfoMap: Map<object, object>) {
+  setMetaInfoMap(metaInfoMap: Map<string, object>) {
     this.metaInfoMap = metaInfoMap;
   }
 

@@ -1,18 +1,17 @@
 import { XmlSchemaAnnotated } from '.';
-import { XmlElement } from '../xml';
 
 export abstract class XmlSchemaFacet extends XmlSchemaAnnotated {
   fixed: boolean | undefined;
-  value: object | string | number | bigint | undefined;
+  value: object | string | number | bigint | null;
 
-  constructor(value?: object | string | number | bigint, fixed?: boolean) {
+  constructor(value?: object | string | number | bigint | null, fixed?: boolean) {
     super();
-    this.value = value;
+    this.value = value || null;
     this.fixed = fixed;
   }
 
-  static construct(el: XmlElement) {
-    const name = el.getLocalName();
+  static construct(el: Element) {
+    const name = el.localName;
     let fixed = false;
     if (el.getAttribute('fixed') === 'true') {
       fixed = true;
@@ -53,7 +52,7 @@ export abstract class XmlSchemaFacet extends XmlSchemaAnnotated {
     return facet;
   }
 
-  getValue(): object | string | undefined {
+  getValue(): object | string | number | bigint | null {
     return this.value;
   }
   isFixed(): boolean {
@@ -62,7 +61,7 @@ export abstract class XmlSchemaFacet extends XmlSchemaAnnotated {
   setFixed(fixed: boolean) {
     this.fixed = fixed;
   }
-  setValue(value: object) {
+  setValue(value: object | string | number | bigint | null) {
     this.value = value;
   }
 }

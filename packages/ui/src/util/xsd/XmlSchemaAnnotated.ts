@@ -20,7 +20,7 @@ export class XmlSchemaAnnotated extends XmlSchemaObject {
   getUnhandledAttributes() {
     return this.unhandledAttributes;
   }
-  setUnhanledAttributes(unhandledAttributes: Attr[]) {
+  setUnhandledAttributes(unhandledAttributes: Attr[]) {
     this.unhandledAttributes = unhandledAttributes;
   }
   toString() {

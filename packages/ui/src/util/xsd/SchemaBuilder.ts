@@ -3,25 +3,66 @@ import {
   QName,
   SchemaKey,
   XmlSchema,
-  XmlSchemaAnnotation, XmlSchemaAppInfo,
+  XmlSchemaAnnotation,
+  XmlSchemaAppInfo,
   XmlSchemaAttribute,
-  XmlSchemaCollection, XmlSchemaComplexType,
-  XmlSchemaDerivationMethod, XmlSchemaDocumentation,
-  XmlSchemaElement, XmlSchemaFacet,
+  XmlSchemaCollection,
+  XmlSchemaComplexType,
+  XmlSchemaDerivationMethod,
+  XmlSchemaDocumentation,
+  XmlSchemaElement,
+  XmlSchemaFacet,
   XmlSchemaForm,
-  xmlSchemaFormValueOf, XmlSchemaNotation,
+  xmlSchemaFormValueOf,
+  XmlSchemaNotation,
   XmlSchemaKey,
   XmlSchemaObject,
-  XmlSchemaSimpleType, XmlSchemaKeyref, XmlSchemaUnique, XmlSchemaImport, XmlSchemaInclude
+  XmlSchemaSimpleType,
+  XmlSchemaKeyref,
+  XmlSchemaUnique,
+  XmlSchemaImport,
+  XmlSchemaInclude,
+  XmlSchemaAll,
+  XmlSchemaAny,
+  xmlSchemaContentProcessingValueOf,
+  XmlSchemaContentProcessing,
+  XmlSchemaAnyAttribute,
+  xmlSchemaUseValueOf,
+  XmlSchemaAttributeGroup,
+  XmlSchemaAttributeGroupRef,
+  XmlSchemaChoice,
+  XmlSchemaComplexContent,
+  XmlSchemaComplexContentExtension,
+  XmlSchemaComplexContentRestriction,
+  XmlSchemaIdentityConstraint,
+  XmlSchemaXPath,
+  XmlSchemaGroup,
+  XmlSchemaGroupRef,
+  XmlSchemaRedefine,
+  XmlSchemaSequence,
+  XmlSchemaSimpleContent,
+  XmlSchemaSimpleContentExtension,
+  XmlSchemaSimpleContentRestriction,
+  XmlSchemaSimpleTypeList,
+  XmlSchemaSimpleTypeRestriction,
+  XmlSchemaSimpleTypeUnion,
 } from '.';
 import { NamespaceContext, NodeNamespaceContext, XDOMUtil } from './utils';
-import {ExtensionRegistry} from './extensions';
-import * as Constants from "./constants";
-import {} from "./DocumentFragmentNodeList";
+import { ExtensionRegistry } from './extensions';
+import * as Constants from './constants';
 
 export class SchemaBuilder {
   private resolvedSchemas = new Map<string, XmlSchema>();
-  private static readonly RESERVED_ATTRIBUTES = new Set<string>(['name', 'type', 'default', 'fixed', 'form', 'id', 'use', 'ref']);
+  private static readonly RESERVED_ATTRIBUTES = new Set<string>([
+    'name',
+    'type',
+    'default',
+    'fixed',
+    'form',
+    'id',
+    'use',
+    'ref',
+  ]);
   private currentSchema = new XmlSchema();
   private extReg?: ExtensionRegistry;
 
@@ -48,7 +89,7 @@ export class SchemaBuilder {
   }
 
   getDerivation(el: Element, attrName: string) {
-    if (el.hasAttribute(attrName) && !(el.getAttribute(attrName) === "")) {
+    if (el.hasAttribute(attrName) && !(el.getAttribute(attrName) === '')) {
       // #all | List of (extension | restriction | substitution)
       const derivationMethod = el.getAttribute(attrName)!.trim();
       return XmlSchemaDerivationMethod.schemaValueOf(derivationMethod);
@@ -60,7 +101,7 @@ export class SchemaBuilder {
     if (el.hasAttribute(attrName)) {
       return el.getAttribute(attrName)?.trim();
     }
-    return "none"; // local convention for empty value.
+    return 'none'; // local convention for empty value.
   }
 
   getFormDefault(el: Element, attrName: string) {
@@ -73,21 +114,21 @@ export class SchemaBuilder {
   }
 
   getMaxOccurs(el: Element) {
-    if (el.getAttributeNode("maxOccurs") != null) {
-      const value = el.getAttribute("maxOccurs")!;
-        if ("unbounded" === value) {
-          return Number.MAX_SAFE_INTEGER;
-        } else {
-          return parseInt(value);
-        }
+    if (el.getAttributeNode('maxOccurs') != null) {
+      const value = el.getAttribute('maxOccurs')!;
+      if ('unbounded' === value) {
+        return Number.MAX_SAFE_INTEGER;
+      } else {
+        return parseInt(value);
+      }
     }
     return 1;
   }
 
   getMinOccurs(el: Element) {
-    if (el.getAttributeNode("minOccurs") != null) {
-      const value = el.getAttribute("minOccurs")!;
-      if ("unbounded" === value) {
+    if (el.getAttributeNode('minOccurs') != null) {
+      const value = el.getAttribute('minOccurs')!;
+      if ('unbounded' === value) {
         return Number.MAX_SAFE_INTEGER;
       } else {
         return parseInt(value);
@@ -104,22 +145,22 @@ export class SchemaBuilder {
     const content = annotation.getItems();
     let appInfoObj: XmlSchemaAppInfo | null;
 
-    for (let appinfo = XDOMUtil.getFirstChildElementNS(annotEl, XmlSchema.SCHEMA_NS, 'appinfo');
-         appinfo != null;
-         appinfo = XDOMUtil.getNextSiblingElementNS(appinfo, XmlSchema.SCHEMA_NS, 'appinfo')) {
-
+    for (
+      let appinfo = XDOMUtil.getFirstChildElementNS(annotEl, XmlSchema.SCHEMA_NS, 'appinfo');
+      appinfo != null;
+      appinfo = XDOMUtil.getNextSiblingElementNS(appinfo, XmlSchema.SCHEMA_NS, 'appinfo')
+    ) {
       appInfoObj = this.handleAppInfo(appinfo);
       if (appInfoObj != null) {
         content.push(appInfoObj);
       }
     }
 
-    for (let documentation = XDOMUtil.getFirstChildElementNS(annotEl,
-      XmlSchema.SCHEMA_NS, 'documentation');
-         documentation != null;
-         documentation = XDOMUtil.getNextSiblingElementNS(documentation, XmlSchema.SCHEMA_NS,
-           'documentation')) {
-
+    for (
+      let documentation = XDOMUtil.getFirstChildElementNS(annotEl, XmlSchema.SCHEMA_NS, 'documentation');
+      documentation != null;
+      documentation = XDOMUtil.getNextSiblingElementNS(documentation, XmlSchema.SCHEMA_NS, 'documentation')
+    ) {
       const docsObj = this.handleDocumentation(documentation);
       if (docsObj != null) {
         content.push(docsObj);
@@ -141,10 +182,10 @@ export class SchemaBuilder {
     const markup = new DocumentFragmentNodeList(content);
 
     if (!content.hasAttribute('source') && markup.length == 0) {
-    return null;
-  }
+      return null;
+    }
 
-    appInfo.setSource(this.getAttribute(content, "source"));
+    appInfo.setSource(this.getAttribute(content, 'source'));
     appInfo.setMarkup(markup);
     return appInfo;
   }
@@ -157,22 +198,20 @@ export class SchemaBuilder {
    * @param schemaEl
    * @param topLevel
    */
-  handleComplexType(schema: XmlSchema, complexEl: Element, schemaEl: Element,
-  topLevel: boolean) {
-
-    const  ct = new XmlSchemaComplexType(schema, topLevel);
+  handleComplexType(schema: XmlSchema, complexEl: Element, schemaEl: Element, topLevel: boolean) {
+    const ct = new XmlSchemaComplexType(schema, topLevel);
 
     if (complexEl.hasAttribute('name')) {
-
       // String namespace = (schema.targetNamespace==null)?
       // "":schema.targetNamespace;
 
       ct.setName(complexEl.getAttribute('name'));
     }
-    for (let el = XDOMUtil.getFirstChildElementNS(complexEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(complexEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       // String elPrefix = el.getPrefix() == null ? "" :
       // el.getPrefix();
       // if(elPrefix.equals(schema.schema_ns_prefix)) {
@@ -219,9 +258,9 @@ export class SchemaBuilder {
         ct.setAbstract(false);
       }
     }
-    if (complexEl.hasAttribute("mixed")) {
-      const mixed = complexEl.getAttribute("mixed")!;
-      if (mixed.toLowerCase() === "true") {
+    if (complexEl.hasAttribute('mixed')) {
+      const mixed = complexEl.getAttribute('mixed')!;
+      if (mixed.toLowerCase() === 'true') {
         ct.setMixed(true);
       } else {
         ct.setMixed(false);
@@ -242,12 +281,12 @@ export class SchemaBuilder {
     const documentation = new XmlSchemaDocumentation();
     const markup = this.getChildren(content);
 
-    if (!content.hasAttribute("source") && !content.hasAttribute("xml:lang") && markup == null) {
+    if (!content.hasAttribute('source') && !content.hasAttribute('xml:lang') && markup == null) {
       return null;
     }
 
-    documentation.setSource(this.getAttribute(content, "source"));
-    documentation.setLanguage(this.getAttribute(content, "xml:lang"));
+    documentation.setSource(this.getAttribute(content, 'source'));
+    documentation.setLanguage(this.getAttribute(content, 'xml:lang'));
     documentation.setMarkup(new DocumentFragmentNodeList(content));
 
     return documentation;
@@ -265,11 +304,10 @@ export class SchemaBuilder {
    * @param isGlobal
    */
   handleElement(schema: XmlSchema, el: Element, schemaEl: Element, isGlobal: boolean) {
-
     const element = new XmlSchemaElement(schema, isGlobal);
 
-    if (el.getAttributeNode("name") != null) {
-      element.setName(el.getAttribute("name"));
+    if (el.getAttributeNode('name') != null) {
+      element.setName(el.getAttribute('name'));
     }
 
     // String namespace = (schema.targetNamespace==null)?
@@ -282,14 +320,12 @@ export class SchemaBuilder {
     this.handleElementAnnotation(el, element);
     this.handleElementGlobalType(el, element);
 
-    let simpleTypeEl: Element | null;
     let complexTypeEl: Element | null;
     let keyEl: Element | null;
     let keyrefEl: Element | null;
     let uniqueEl: Element | null;
-    simpleTypeEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'simpleType');
+    const simpleTypeEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'simpleType');
     if (simpleTypeEl != null) {
-
       const simpleType = this.handleSimpleType(schema, simpleTypeEl, schemaEl, false);
       element.setSchemaType(simpleType);
       element.setSchemaTypeName(simpleType.getQName());
@@ -304,11 +340,11 @@ export class SchemaBuilder {
     if (keyEl != null) {
       while (keyEl != null) {
         element.getConstraints().push(this.handleConstraint(keyEl, new XmlSchemaKey()));
-        keyEl = XDOMUtil.getNextSiblingElementNS(keyEl, XmlSchema.SCHEMA_NS,  "key");
+        keyEl = XDOMUtil.getNextSiblingElementNS(keyEl, XmlSchema.SCHEMA_NS, 'key');
       }
     }
 
-    keyrefEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, "keyref");
+    keyrefEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'keyref');
     if (keyrefEl != null) {
       while (keyrefEl != null) {
         const keyRef = this.handleConstraint(keyrefEl, new XmlSchemaKeyref()) as XmlSchemaKeyref;
@@ -330,7 +366,7 @@ export class SchemaBuilder {
     }
 
     if (el.hasAttribute('abstract')) {
-      element.setAbstractElement((/true/i).test(el.getAttribute('abstract')!));
+      element.setAbstractElement(/true/i.test(el.getAttribute('abstract')!));
     }
 
     if (el.hasAttribute('block')) {
@@ -354,7 +390,7 @@ export class SchemaBuilder {
     }
 
     if (el.hasAttribute('nillable')) {
-      element.setNillable((/true/i).test(el.getAttribute('nillable')!));
+      element.setNillable(/true/i.test(el.getAttribute('nillable')!));
     }
 
     if (el.hasAttribute('substitutionGroup')) {
@@ -380,7 +416,6 @@ export class SchemaBuilder {
    * @return XmlSchemaObject
    */
   handleImport(schema: XmlSchema, importEl: Element, _schemaEl: Element) {
-
     const schemaImport = new XmlSchemaImport(schema);
 
     const annotationEl = XDOMUtil.getFirstChildElementNS(importEl, XmlSchema.SCHEMA_NS, 'annotation');
@@ -397,7 +432,7 @@ export class SchemaBuilder {
     const validator = (pSchema: XmlSchema) => {
       const isEmpty = (pValue: string | null) => {
         return pValue == null || Constants.NULL_NS_URI === pValue;
-      }
+      };
 
       let valid: boolean;
       if (isEmpty(uri)) {
@@ -406,13 +441,15 @@ export class SchemaBuilder {
         valid = pSchema.getSyntacticalTargetNamespace() === uri;
       }
       if (!valid) {
-        throw new Error("An imported schema was announced to have the namespace "
-          + uri + ", but has the namespace "
-          + pSchema.getSyntacticalTargetNamespace());
+        throw new Error(
+          'An imported schema was announced to have the namespace ' +
+            uri +
+            ', but has the namespace ' +
+            pSchema.getSyntacticalTargetNamespace(),
+        );
       }
     };
-    schemaImport.schema =
-      this.resolveXmlSchema(uri, schemaImport.schemaLocation, schema.getSourceURI(), validator);
+    schemaImport.schema = this.resolveXmlSchema(uri, schemaImport.schemaLocation, schema.getSourceURI(), validator);
     return schemaImport;
   }
 
@@ -424,7 +461,6 @@ export class SchemaBuilder {
    * @param _schemaEl
    */
   handleInclude(schema: XmlSchema, includeEl: Element, _schemaEl: Element) {
-
     const include = new XmlSchemaInclude(schema);
 
     const annotationEl = XDOMUtil.getFirstChildElementNS(includeEl, XmlSchema.SCHEMA_NS, 'annotation');
@@ -434,16 +470,19 @@ export class SchemaBuilder {
       include.setAnnotation(includeAnnotation);
     }
 
-    include.schemaLocation = includeEl.getAttribute("schemaLocation");
+    include.schemaLocation = includeEl.getAttribute('schemaLocation');
 
     // includes are not supposed to have a target namespace
     // we should be passing in a null in place of the target
     // namespace
 
     const validator = this.newIncludeValidator(schema);
-    include.schema =
-      this.resolveXmlSchema(schema.getLogicalTargetNamespace(), include.schemaLocation,
-        schema.getSourceURI(), validator);
+    include.schema = this.resolveXmlSchema(
+      schema.getLogicalTargetNamespace(),
+      include.schemaLocation,
+      schema.getSourceURI(),
+      validator,
+    );
 
     // process extra attributes and elements
     this.processExtensibilityComponents(include, includeEl, true);
@@ -458,8 +497,7 @@ export class SchemaBuilder {
    * @param schemaEl
    * @param topLevel
    */
-  handleSimpleType(schema: XmlSchema, simpleEl: Element, schemaEl: Element,
-                   topLevel: boolean) {
+  handleSimpleType(schema: XmlSchema, simpleEl: Element, schemaEl: Element, topLevel: boolean) {
     const simpleType = new XmlSchemaSimpleType(schema, topLevel);
     if (simpleEl.hasAttribute('name')) {
       simpleType.setName(simpleEl.getAttribute('name'));
@@ -467,8 +505,7 @@ export class SchemaBuilder {
 
     this.handleSimpleTypeFinal(simpleEl, simpleType);
 
-    const simpleTypeAnnotationEl =
-      XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS, 'annotation');
+    const simpleTypeAnnotationEl = XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS, 'annotation');
 
     if (simpleTypeAnnotationEl != null) {
       const simpleTypeAnnotation = this.handleAnnotation(simpleTypeAnnotationEl);
@@ -480,15 +517,10 @@ export class SchemaBuilder {
     const listEl = XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS, 'list');
     const restrictionEl = XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS, 'restriction');
     if (restrictionEl != null) {
-
       this.handleSimpleTypeRestriction(schema, schemaEl, simpleType, restrictionEl);
-
     } else if (listEl != null) {
-
       this.handleSimpleTypeList(schema, schemaEl, simpleType, listEl);
-
     } else if (unionEl != null) {
-
       this.handleSimpleTypeUnion(schema, schemaEl, simpleType, unionEl);
     }
 
@@ -522,21 +554,32 @@ export class SchemaBuilder {
    * @param baseUri
    * @param validator
    */
-  resolveXmlSchema(targetNamespace: string | null, schemaLocation: string | null, baseUri: string | null,
-                   validator: (s: XmlSchema) => void) {
+  resolveXmlSchema(
+    targetNamespace: string | null,
+    schemaLocation: string | null,
+    baseUri: string | null,
+    validator: (s: XmlSchema) => void,
+  ) {
     if (baseUri == null) {
       baseUri = this.collection.baseUri;
     }
+    if (targetNamespace == null) {
+      targetNamespace = Constants.NULL_NS_URI;
+    }
 
-    if (targetNamespace != null && schemaLocation != null && baseUri != null && this.getCachedSchema(targetNamespace, schemaLocation, baseUri) != null) {
+    if (
+      targetNamespace != null &&
+      schemaLocation != null &&
+      baseUri != null &&
+      this.getCachedSchema(targetNamespace, schemaLocation, baseUri) != null
+    ) {
       return this.getCachedSchema(targetNamespace, schemaLocation, baseUri);
     }
 
     // use the entity resolver provided if the schema location is present
     // null
     if (schemaLocation != null && !('' === schemaLocation)) {
-      const source =
-        this.collection.getSchemaResolver().resolveEntity(targetNamespace, schemaLocation, baseUri);
+      const source = this.collection.getSchemaResolver().resolveEntity(targetNamespace, schemaLocation, baseUri);
 
       // the entity resolver was unable to resolve this!!
       if (source == null) {
@@ -544,11 +587,12 @@ export class SchemaBuilder {
         // known namespace map
         return this.collection.getKnownSchema(targetNamespace);
       }
-      const systemId = source.getSystemId() == null ? schemaLocation : source.getSystemId();
+      //const systemId = source.getSystemId() == null ? schemaLocation : source.getSystemId();
+      const systemId = schemaLocation;
       // Push repaired system id back into source where read sees it.
       // It is perhaps a bad thing to patch the source, but this fixes
       // a problem.
-      source.setSystemId(systemId);
+      //source.setSystemId(systemId);
       const key = new SchemaKey(targetNamespace, systemId);
       const schema = this.collection.getSchema(key);
       if (schema != null) {
@@ -558,7 +602,7 @@ export class SchemaBuilder {
         this.collection.push(key);
         try {
           const readSchema = this.collection.read(source, validator);
-          this.putCachedSchema(targetNamespace, schemaLocation, baseUri, readSchema);
+          this.putCachedSchema(targetNamespace, schemaLocation, baseUri || '', readSchema);
           return readSchema;
         } finally {
           this.collection.pop();
@@ -576,7 +620,7 @@ export class SchemaBuilder {
   setNamespaceAttributes(schema: XmlSchema, schemaEl: Element) {
     // no targetnamespace found !
     if (schemaEl.getAttributeNode('targetNamespace') != null) {
-      const contain = schemaEl.getAttribute("targetNamespace")!;
+      const contain = schemaEl.getAttribute('targetNamespace')!;
       schema.setTargetNamespace(contain);
     }
     if (this.currentValidator != null) {
@@ -602,10 +646,10 @@ export class SchemaBuilder {
    * @return The cached schema if one exists for this thread or null.
    */
   private getCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string) {
-
     let resolvedSchema = null;
 
-    if (this.resolvedSchemas != null) { // cache is initialized, use it
+    if (this.resolvedSchemas != null) {
+      // cache is initialized, use it
       const schemaKey = targetNamespace + schemaLocation + baseUri;
       resolvedSchema = this.resolvedSchemas.get(schemaKey) || null;
     }
@@ -616,7 +660,7 @@ export class SchemaBuilder {
     const result: Node[] = [];
     for (let n = content.firstChild; n != null; n = n.nextSibling) {
       result.push(n);
-  }
+    }
     if (result.length == 0) {
       return null;
     } else {
@@ -626,7 +670,7 @@ export class SchemaBuilder {
 
   private getRefQName(pName: string, pNode?: Node, pContext?: NamespaceContext) {
     if (pNode) {
-      pContext = NodeNamespaceContext.getNamespaceContext(pNode)
+      pContext = NodeNamespaceContext.getNamespaceContext(pNode);
     }
     if (!pContext) {
       throw new Error('Either Node or NamespaceContext must be specified');
@@ -639,8 +683,10 @@ export class SchemaBuilder {
     if (offset == -1) {
       uri = pContext.getNamespaceURI(Constants.DEFAULT_NS_PREFIX);
       if (Constants.NULL_NS_URI === uri) {
-        if (this.currentSchema.getTargetNamespace() == null
-        && !(this.currentSchema.getLogicalTargetNamespace() === '')) {
+        if (
+          this.currentSchema.getTargetNamespace() == null &&
+          !(this.currentSchema.getLogicalTargetNamespace() === '')
+        ) {
           // If object is unqualified in a schema without a target namespace then it could
           // be that this schema is included in another one. The including namespace
           // should then be used for this reference
@@ -653,13 +699,16 @@ export class SchemaBuilder {
     } else {
       prefix = pName.substring(0, offset);
       uri = pContext.getNamespaceURI(prefix);
-      if (uri == null || Constants.NULL_NS_URI === uri && this.currentSchema.getParent() != null
-        && this.currentSchema.getParent().getNamespaceContext() != null) {
-        uri = this.currentSchema.getParent().getNamespaceContext().getNamespaceURI(prefix);
+      const parentSchema = this.currentSchema.getParent();
+      if (
+        uri == null ||
+        (Constants.NULL_NS_URI === uri && parentSchema != null && parentSchema.getNamespaceContext() != null)
+      ) {
+        uri = parentSchema!.getNamespaceContext()!.getNamespaceURI(prefix);
       }
 
       if (uri == null || Constants.NULL_NS_URI === uri) {
-        throw new Error("The prefix " + prefix + " is not bound.");
+        throw new Error('The prefix ' + prefix + ' is not bound.');
       }
       localName = pName.substring(offset + 1);
     }
@@ -667,20 +716,20 @@ export class SchemaBuilder {
   }
 
   private handleAll(schema: XmlSchema, allEl: Element, schemaEl: Element) {
-
     const all = new XmlSchemaAll();
 
     // handle min and max occurences
     all.setMinOccurs(this.getMinOccurs(allEl));
     all.setMaxOccurs(this.getMaxOccurs(allEl));
 
-    for (let el = XDOMUtil.getFirstChildElementNS(allEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(allEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'element') {
         const element = this.handleElement(schema, el, schemaEl, false);
-        all.getItems().add(element);
+        all.getItems().push(element);
       } else if (el.localName === 'annotation') {
         const annotation = this.handleAnnotation(el);
         all.setAnnotation(annotation);
@@ -689,8 +738,7 @@ export class SchemaBuilder {
     return all;
   }
 
-  private handleAny(schema: XmlSchema, anyEl: Element, schemaEl: Element) {
-
+  private handleAny(schema: XmlSchema, anyEl: Element, _schemaEl: Element) {
     const any = new XmlSchemaAny();
 
     any.setTargetNamespace(schema.getLogicalTargetNamespace());
@@ -702,8 +750,8 @@ export class SchemaBuilder {
     if (anyEl.hasAttribute('processContents')) {
       const processContent = this.getEnumString(anyEl, 'processContents');
 
-      any.setProcessContent(XmlSchemaContentProcessing.schemaValueOf(processContent));
-  }
+      processContent != null && any.setProcessContent(xmlSchemaContentProcessingValueOf(processContent));
+    }
 
     const annotationEl = XDOMUtil.getFirstChildElementNS(anyEl, XmlSchema.SCHEMA_NS, 'annotation');
 
@@ -717,8 +765,7 @@ export class SchemaBuilder {
     return any;
   }
 
-  private handleAnyAttribute(schema: XmlSchema, anyAttrEl: Element, schemaEl: Element) {
-
+  private handleAnyAttribute(_schema: XmlSchema, anyAttrEl: Element, _schemaEl: Element) {
     const anyAttr = new XmlSchemaAnyAttribute();
 
     if (anyAttrEl.hasAttribute('namespace')) {
@@ -726,10 +773,12 @@ export class SchemaBuilder {
     }
 
     if (anyAttrEl.hasAttribute('processContents')) {
-
       const contentProcessing = this.getEnumString(anyAttrEl, 'processContents');
 
-      anyAttr.processContent = XmlSchemaContentProcessing.schemaValueOf(contentProcessing);
+      anyAttr.processContent =
+        contentProcessing != null
+          ? xmlSchemaContentProcessingValueOf(contentProcessing)
+          : XmlSchemaContentProcessing.NONE;
     }
     if (anyAttrEl.hasAttribute('id')) {
       anyAttr.setId(anyAttrEl.getAttribute('id'));
@@ -754,8 +803,7 @@ export class SchemaBuilder {
    * @param topLevel
    * @return
    */
-  private handleAttribute(schema: XmlSchema, attrEl: Element, schemaEl: Element,
-  topLevel: boolean = false) {
+  private handleAttribute(schema: XmlSchema, attrEl: Element, schemaEl: Element, topLevel: boolean = false) {
     const attr = new XmlSchemaAttribute(schema, topLevel);
 
     if (attrEl.hasAttribute('name')) {
@@ -786,11 +834,11 @@ export class SchemaBuilder {
     }
 
     if (attrEl.hasAttribute('use')) {
-      const useType = this.getEnumString(attrEl, 'use');
-      attr.setUse(XmlSchemaUse.schemaValueOf(useType));
+      const useType = this.getEnumString(attrEl, 'use')!;
+      attr.setUse(xmlSchemaUseValueOf(useType));
     }
     if (attrEl.hasAttribute('ref')) {
-      const name = attrEl.getAttribute("ref");
+      const name = attrEl.getAttribute('ref')!;
       attr.getRef().setTargetQName(this.getRefQName(name, attrEl));
     }
 
@@ -808,64 +856,62 @@ export class SchemaBuilder {
       attr.setAnnotation(annotation);
     }
 
-    const attrNodes = attrEl.getAttributes();
+    const attrNodes = attrEl.attributes;
     const attrs: Attr[] = [];
-    let ctx?: NodeNamespaceContext;
-    for (let i = 0; i < attrNodes.getLength(); i++) {
+    let ctx: NodeNamespaceContext | null = null;
+    for (let i = 0; i < attrNodes.length; i++) {
       const att = attrNodes.item(i) as Attr;
-      const attName = att.getName();
+      const attName = att.name;
       if (!SchemaBuilder.RESERVED_ATTRIBUTES.has(attName)) {
-
         attrs.push(att);
-        const value = att.getValue();
+        const value = att.value;
 
-        if (value.indexOf(":") > -1) {
+        if (value.indexOf(':') > -1) {
           // there is a possibility of some namespace mapping
-          const prefix = value.substring(0, value.indexOf(":"));
+          const prefix = value.substring(0, value.indexOf(':'));
           if (ctx == null) {
             ctx = NodeNamespaceContext.getNamespaceContext(attrEl);
           }
           const namespace = ctx.getNamespaceURI(prefix);
           if (Constants.NULL_NS_URI !== namespace) {
-            const nsAttr = attrEl.ownerDocument.createAttributeNS(Constants.XMLNS_ATTRIBUTE_NS_URI,
-              "xmlns:" + prefix);
-            nsAttr.setValue(namespace);
+            const nsAttr = attrEl.ownerDocument.createAttributeNS(Constants.XMLNS_ATTRIBUTE_NS_URI, 'xmlns:' + prefix);
+            nsAttr.value = namespace;
             attrs.push(nsAttr);
+          }
         }
       }
     }
-  }
 
-  if (attrs.length > 0) {
-    attr.setUnhandledAttributes(attrs);
-  }
+    if (attrs.length > 0) {
+      attr.setUnhandledAttributes(attrs);
+    }
 
     // process extra attributes and elements
     this.processExtensibilityComponents(attr, attrEl, true);
     return attr;
   }
 
-  private handleAttributeGroup(schema: XmlSchema,
-  groupEl: Element, schemaEl: Element) {
-  const attrGroup = new XmlSchemaAttributeGroup(schema);
+  private handleAttributeGroup(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
+    const attrGroup = new XmlSchemaAttributeGroup(schema);
 
     if (groupEl.hasAttribute('name')) {
-      attrGroup.setName(groupEl.getAttribute('name'));
+      attrGroup.setName(groupEl.getAttribute('name')!);
     }
     if (groupEl.hasAttribute('id')) {
       attrGroup.setId(groupEl.getAttribute('id'));
     }
 
-    for (let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'attribute') {
         const attr = this.handleAttribute(schema, el, schemaEl);
-        attrGroup.getAttributes().add(attr);
+        attrGroup.getAttributes().push(attr);
       } else if (el.localName === 'attributeGroup') {
         const attrGroupRef = this.handleAttributeGroupRef(schema, el);
-        attrGroup.getAttributes().add(attrGroupRef);
+        attrGroup.getAttributes().push(attrGroupRef);
       } else if (el.localName === 'anyAttribute') {
         attrGroup.setAnyAttribute(this.handleAnyAttribute(schema, el, schemaEl));
       } else if (el.localName === 'annotation') {
@@ -877,11 +923,10 @@ export class SchemaBuilder {
   }
 
   private handleAttributeGroupRef(schema: XmlSchema, attrGroupEl: Element) {
-
     const attrGroup = new XmlSchemaAttributeGroupRef(schema);
 
     if (attrGroupEl.hasAttribute('ref')) {
-      const ref = attrGroupEl.getAttribute('ref');
+      const ref = attrGroupEl.getAttribute('ref')!;
       attrGroup.getRef().setTargetQName(this.getRefQName(ref, attrGroupEl));
     }
 
@@ -889,8 +934,7 @@ export class SchemaBuilder {
       attrGroup.setId(attrGroupEl.getAttribute('id'));
     }
 
-    const annotationEl =
-    XDOMUtil.getFirstChildElementNS(attrGroupEl, XmlSchema.SCHEMA_NS, "annotation");
+    const annotationEl = XDOMUtil.getFirstChildElementNS(attrGroupEl, XmlSchema.SCHEMA_NS, 'annotation');
 
     if (annotationEl != null) {
       const annotation = this.handleAnnotation(annotationEl);
@@ -909,25 +953,26 @@ export class SchemaBuilder {
     choice.setMinOccurs(this.getMinOccurs(choiceEl));
     choice.setMaxOccurs(this.getMaxOccurs(choiceEl));
 
-    for (let el = XDOMUtil.getFirstChildElementNS(choiceEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(choiceEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'sequence') {
         const seq = this.handleSequence(schema, el, schemaEl);
-        choice.getItems().add(seq);
+        choice.getItems().push(seq);
       } else if (el.localName === 'element') {
         const element = this.handleElement(schema, el, schemaEl, false);
-        choice.getItems().add(element);
+        choice.getItems().push(element);
       } else if (el.localName === 'group') {
         const group = this.handleGroupRef(schema, el, schemaEl);
-        choice.getItems().add(group);
+        choice.getItems().push(group);
       } else if (el.localName === 'choice') {
         const choiceItem = this.handleChoice(schema, el, schemaEl);
-        choice.getItems().add(choiceItem);
+        choice.getItems().push(choiceItem);
       } else if (el.localName === 'any') {
         const any = this.handleAny(schema, el, schemaEl);
-        choice.getItems().add(any);
+        choice.getItems().push(any);
       } else if (el.localName === 'annotation') {
         const annotation = this.handleAnnotation(el);
         choice.setAnnotation(annotation);
@@ -937,25 +982,25 @@ export class SchemaBuilder {
   }
 
   private handleComplexContent(schema: XmlSchema, complexEl: Element, schemaEl: Element) {
+    const complexContent = new XmlSchemaComplexContent();
 
-  const complexContent = new XmlSchemaComplexContent();
-
-    for (let el = XDOMUtil.getFirstChildElementNS(complexEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(complexEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'restriction') {
         complexContent.content = this.handleComplexContentRestriction(schema, el, schemaEl);
-      } else if (el.localName === 'extension')) {
+      } else if (el.localName === 'extension') {
         complexContent.content = this.handleComplexContentExtension(schema, el, schemaEl);
-      } else if (el.localName === 'annotation')) {
+      } else if (el.localName === 'annotation') {
         complexContent.setAnnotation(this.handleAnnotation(el));
       }
     }
 
     if (complexEl.hasAttribute('mixed')) {
-      const mixed = complexEl.getAttribute("mixed")!;
-      if (mixed.toLowerCase() === "true") {
+      const mixed = complexEl.getAttribute('mixed')!;
+      if (mixed.toLowerCase() === 'true') {
         complexContent.setMixed(true);
       } else {
         complexContent.setMixed(false);
@@ -966,18 +1011,18 @@ export class SchemaBuilder {
   }
 
   private handleComplexContentExtension(schema: XmlSchema, extEl: Element, schemaEl: Element) {
-
     const ext = new XmlSchemaComplexContentExtension();
 
     if (extEl.hasAttribute('base')) {
-      const name = extEl.getAttribute("base")!;
+      const name = extEl.getAttribute('base')!;
       ext.setBaseTypeName(this.getRefQName(name, extEl));
     }
 
-    for (let el = XDOMUtil.getFirstChildElementNS(extEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(extEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'sequence') {
         ext.setParticle(this.handleSequence(schema, el, schemaEl));
       } else if (el.localName === 'choice') {
@@ -985,9 +1030,9 @@ export class SchemaBuilder {
       } else if (el.localName === 'all') {
         ext.setParticle(this.handleAll(schema, el, schemaEl));
       } else if (el.localName === 'attribute') {
-        ext.getAttributes().add(this.handleAttribute(schema, el, schemaEl));
+        ext.getAttributes().push(this.handleAttribute(schema, el, schemaEl));
       } else if (el.localName === 'attributeGroup') {
-        ext.getAttributes().add(this.handleAttributeGroupRef(schema, el));
+        ext.getAttributes().push(this.handleAttributeGroupRef(schema, el));
       } else if (el.localName === 'group') {
         ext.setParticle(this.handleGroupRef(schema, el, schemaEl));
       } else if (el.localName === 'anyAttribute') {
@@ -1000,17 +1045,17 @@ export class SchemaBuilder {
   }
 
   private handleComplexContentRestriction(schema: XmlSchema, restrictionEl: Element, schemaEl: Element) {
-
     const restriction = new XmlSchemaComplexContentRestriction();
 
-    if (restrictionEl.hasAttribute("base")) {
-      const name = restrictionEl.getAttribute("base")!;
+    if (restrictionEl.hasAttribute('base')) {
+      const name = restrictionEl.getAttribute('base')!;
       restriction.setBaseTypeName(this.getRefQName(name, restrictionEl));
     }
-    for (let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'sequence') {
         restriction.setParticle(this.handleSequence(schema, el, schemaEl));
       } else if (el.localName === 'choice') {
@@ -1018,9 +1063,9 @@ export class SchemaBuilder {
       } else if (el.localName === 'all') {
         restriction.setParticle(this.handleAll(schema, el, schemaEl));
       } else if (el.localName === 'attribute') {
-        restriction.getAttributes().add(this.handleAttribute(schema, el, schemaEl));
+        restriction.getAttributes().push(this.handleAttribute(schema, el, schemaEl));
       } else if (el.localName === 'attributeGroup') {
-        restriction.getAttributes().add(this.handleAttributeGroupRef(schema, el));
+        restriction.getAttributes().push(this.handleAttributeGroupRef(schema, el));
       } else if (el.localName === 'group') {
         restriction.setParticle(this.handleGroupRef(schema, el, schemaEl));
       } else if (el.localName === 'anyAttribute') {
@@ -1033,19 +1078,19 @@ export class SchemaBuilder {
   }
 
   private handleConstraint(constraintEl: Element, constraint: XmlSchemaIdentityConstraint) {
-
     if (constraintEl.hasAttribute('name')) {
       constraint.setName(constraintEl.getAttribute('name')!);
     }
 
     if (constraintEl.hasAttribute('refer')) {
-      const name = constraintEl.getAttribute("refer")!;
+      const name = constraintEl.getAttribute('refer')!;
       (constraint as XmlSchemaKeyref).refer = this.getRefQName(name, constraintEl);
     }
-    for (let el = XDOMUtil.getFirstChildElementNS(constraintEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(constraintEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       // String elPrefix = el.getPrefix() == null ? ""
       // : el.getPrefix();
       // if(elPrefix.equals(schema.schema_ns_prefix)) {
@@ -1053,8 +1098,7 @@ export class SchemaBuilder {
         const selectorXPath = new XmlSchemaXPath();
         selectorXPath.xpath = el.getAttribute('xpath');
 
-        const annotationEl =
-          XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
+        const annotationEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
         if (annotationEl != null) {
           const annotation = this.handleAnnotation(annotationEl);
 
@@ -1063,18 +1107,17 @@ export class SchemaBuilder {
         constraint.setSelector(selectorXPath);
       } else if (el.localName === 'field') {
         const fieldXPath = new XmlSchemaXPath();
-        fieldXPath.xpath = el.getAttribute("xpath");
-        constraint.getFields().add(fieldXPath);
+        fieldXPath.xpath = el.getAttribute('xpath');
+        constraint.getFields().push(fieldXPath);
 
-        const annotationEl =
-          XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
+        const annotationEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
 
         if (annotationEl != null) {
           const annotation = this.handleAnnotation(annotationEl);
 
           fieldXPath.setAnnotation(annotation);
         }
-      } else if (el.localName ==='annotation') {
+      } else if (el.localName === 'annotation') {
         const constraintAnnotation = this.handleAnnotation(el);
         constraint.setAnnotation(constraintAnnotation);
       }
@@ -1094,7 +1137,7 @@ export class SchemaBuilder {
 
   private handleElementForm(el: Element, element: XmlSchemaElement, isQualified: boolean) {
     if (el.hasAttribute('form')) {
-      const formDef = el.getAttribute("form")!;
+      const formDef = el.getAttribute('form')!;
       element.setForm(xmlSchemaFormValueOf(formDef));
     }
     isQualified = element.getForm() == XmlSchemaForm.QUALIFIED;
@@ -1104,25 +1147,24 @@ export class SchemaBuilder {
 
   private handleElementGlobalType(el: Element, element: XmlSchemaElement) {
     if (el.getAttributeNode('type') != null) {
-      const typeName = el.getAttribute("type");
+      const typeName = el.getAttribute('type')!;
       element.setSchemaTypeName(this.getRefQName(typeName, el));
-      const typeQName = element.getSchemaTypeName();
+      const typeQName = element.getSchemaTypeName()!;
 
       const type = this.collection.getTypeByQName(typeQName);
       if (type == null) {
         // Could be a forward reference...
         this.collection.addUnresolvedType(typeQName, element);
-    }
+      }
       element.setSchemaType(type);
     } else if (el.getAttributeNode('ref') != null) {
-      const refName = el.getAttribute("ref")!;
+      const refName = el.getAttribute('ref')!;
       const refQName = this.getRefQName(refName, el);
       element.getRef().setTargetQName(refQName);
     }
   }
 
-  private handleElementName(_isGlobal: boolean, _element: XmlSchemaElement, _isQualified: boolean) {
-  }
+  private handleElementName(_isGlobal: boolean, _element: XmlSchemaElement, _isQualified: boolean) {}
 
   /*
    * handle_simple_content_restriction if( restriction has base attribute ) set the baseType else if(
@@ -1136,21 +1178,21 @@ export class SchemaBuilder {
    */
 
   private handleGroup(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
-
     const group = new XmlSchemaGroup(schema);
-    group.setName(groupEl.getAttribute("name"));
+    group.setName(groupEl.getAttribute('name'));
 
-    for (let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'all') {
         group.setParticle(this.handleAll(schema, el, schemaEl));
       } else if (el.localName === 'sequence') {
         group.setParticle(this.handleSequence(schema, el, schemaEl));
       } else if (el.localName === 'choice') {
         group.setParticle(this.handleChoice(schema, el, schemaEl));
-      } else if (el.localName === 'annotation')) {
+      } else if (el.localName === 'annotation') {
         const groupAnnotation = this.handleAnnotation(el);
         group.setAnnotation(groupAnnotation);
       }
@@ -1159,7 +1201,6 @@ export class SchemaBuilder {
   }
 
   private handleGroupRef(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
-
     const group = new XmlSchemaGroupRef();
 
     group.setMaxOccurs(this.getMaxOccurs(groupEl));
@@ -1178,40 +1219,40 @@ export class SchemaBuilder {
       group.setRefName(this.getRefQName(ref, groupEl));
       return group;
     }
-    for (let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElement(el)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElement(el)
+    ) {
       if (el.localName === 'sequence') {
         group.setParticle(this.handleSequence(schema, el, schemaEl));
       } else if (el.localName === 'all') {
         group.setParticle(this.handleAll(schema, el, schemaEl));
       } else if (el.localName === 'choice') {
         group.setParticle(this.handleChoice(schema, el, schemaEl));
-    }
+      }
     }
     return group;
   }
 
   private handleNotation(schema: XmlSchema, notationEl: Element) {
-
     const notation = new XmlSchemaNotation(schema);
 
-  if (notationEl.hasAttribute('id')) {
-    notation.setId(notationEl.getAttribute('id')!);
-  }
+    if (notationEl.hasAttribute('id')) {
+      notation.setId(notationEl.getAttribute('id')!);
+    }
 
-  if (notationEl.hasAttribute('name')) {
-    notation.setName(notationEl.getAttribute('name')!);
-  }
+    if (notationEl.hasAttribute('name')) {
+      notation.setName(notationEl.getAttribute('name')!);
+    }
 
     if (notationEl.hasAttribute('public')) {
-    notation.setPublicNotation(notationEl.getAttribute('public')!);
-  }
+      notation.setPublicNotation(notationEl.getAttribute('public')!);
+    }
 
-  if (notationEl.hasAttribute('system')) {
-    notation.setSystem(notationEl.getAttribute('system')!);
-  }
+    if (notationEl.hasAttribute('system')) {
+      notation.setSystem(notationEl.getAttribute('system')!);
+    }
 
     const annotationEl = XDOMUtil.getFirstChildElementNS(notationEl, XmlSchema.SCHEMA_NS, 'annotation');
 
@@ -1232,53 +1273,50 @@ export class SchemaBuilder {
    * @return
    */
   private handleRedefine(schema: XmlSchema, redefineEl: Element, schemaEl: Element) {
-
     const redefine = new XmlSchemaRedefine(schema);
     redefine.schemaLocation = redefineEl.getAttribute('schemaLocation');
     const validator = this.newIncludeValidator(schema);
 
-    if (schema.getSourceURI() != null) {
-      redefine.schema =
-        this.resolveXmlSchema(schema.getLogicalTargetNamespace(), redefine.schemaLocation,
-          schema.getSourceURI(), validator);
-    } else {
-      redefine.schema =
-        this.resolveXmlSchema(schema.getLogicalTargetNamespace(), redefine.schemaLocation, validator);
-    }
+    redefine.schema = this.resolveXmlSchema(
+      schema.getLogicalTargetNamespace(),
+      redefine.schemaLocation,
+      schema.getSourceURI(),
+      validator,
+    );
 
     /*
-   * FIXME - This seems not right. Since the redefine should take into account the attributes of the
-   * original element we cannot just build the type defined in the redefine section - what we need to do
-   * is to get the original type object and modify it. However one may argue (quite reasonably) that the
-   * purpose of this object model is to provide just the representation and not the validation (as it
-   * has been always the case)
-   */
+     * FIXME - This seems not right. Since the redefine should take into account the attributes of the
+     * original element we cannot just build the type defined in the redefine section - what we need to do
+     * is to get the original type object and modify it. However one may argue (quite reasonably) that the
+     * purpose of this object model is to provide just the representation and not the validation (as it
+     * has been always the case)
+     */
 
-    for (let el = XDOMUtil.getFirstChildElementNS(redefineEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(redefineEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'simpleType') {
         const type = this.handleSimpleType(schema, el, schemaEl, false);
 
-        redefine.getSchemaTypes().put(type.getQName(), type);
-        redefine.getItems().add(type);
+        redefine.getSchemaTypes().set(type.getQName()!, type);
+        redefine.getItems().push(type);
       } else if (el.localName === 'complexType') {
-
         const type = this.handleComplexType(schema, el, schemaEl, true);
 
-        redefine.getSchemaTypes().put(type.getQName(), type);
-        redefine.getItems().add(type);
+        redefine.getSchemaTypes().set(type.getQName()!, type);
+        redefine.getItems().push(type);
       } else if (el.localName === 'group') {
         const group = this.handleGroup(schema, el, schemaEl);
-        redefine.getGroups().put(group.getQName(), group);
-        redefine.getItems().add(group);
+        redefine.getGroups().set(group.getQName()!, group);
+        redefine.getItems().push(group);
       } else if (el.localName === 'attributeGroup') {
         const group = this.handleAttributeGroup(schema, el, schemaEl);
 
-        redefine.getAttributeGroups().put(group.getQName(), group);
-        redefine.getItems().add(group);
-      } else if (el.localName === 'annotation')) {
+        redefine.getAttributeGroups().set(group.getQName()!, group);
+        redefine.getItems().push(group);
+      } else if (el.localName === 'annotation') {
         const annotation = this.handleAnnotation(el);
         redefine.setAnnotation(annotation);
       }
@@ -1286,11 +1324,7 @@ export class SchemaBuilder {
     return redefine;
   }
 
-  private handleSchemaElementBasics(
-    schemaEl: Element,
-    systemId?: string,
-    schemaKey: SchemaKey,
-  ): void {
+  private handleSchemaElementBasics(schemaEl: Element, systemId: string | null = null, schemaKey: SchemaKey): void {
     if (!this.collection.containsSchema(schemaKey)) {
       this.collection.addSchema(schemaKey, this.currentSchema);
       this.currentSchema.setParent(this.collection); // establish parentage now.
@@ -1319,10 +1353,10 @@ export class SchemaBuilder {
   private handleSchemaElementChild(schemaEl: Element, el: Element): void {
     if (el.localName === 'simpleType') {
       const type = this.handleSimpleType(this.currentSchema, el, schemaEl, true);
-      this.collection.resolveType(type.getQName(), type);
+      this.collection.resolveType(type.getQName()!, type);
     } else if (el.localName === 'complexType') {
       const type = this.handleComplexType(this.currentSchema, el, schemaEl, true);
-      this.collection.resolveType(type.getQName(), type);
+      this.collection.resolveType(type.getQName()!, type);
     } else if (el.localName === 'element') {
       this.handleElement(this.currentSchema, el, schemaEl, true);
     } else if (el.localName === 'include') {
@@ -1346,33 +1380,33 @@ export class SchemaBuilder {
   }
 
   private handleSequence(schema: XmlSchema, sequenceEl: Element, schemaEl: Element) {
-
     const sequence = new XmlSchemaSequence();
 
     // handle min and max occurences
     sequence.setMinOccurs(this.getMinOccurs(sequenceEl));
     sequence.setMaxOccurs(this.getMaxOccurs(sequenceEl));
 
-    for (let el = XDOMUtil.getFirstChildElementNS(sequenceEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(sequenceEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'sequence') {
         const seq = this.handleSequence(schema, el, schemaEl);
-        sequence.getItems().add(seq);
+        sequence.getItems().push(seq);
       } else if (el.localName === 'element') {
         const element = this.handleElement(schema, el, schemaEl, false);
-        sequence.getItems().add(element);
+        sequence.getItems().push(element);
       } else if (el.localName === 'group') {
         const group = this.handleGroupRef(schema, el, schemaEl);
-        sequence.getItems().add(group);
+        sequence.getItems().push(group);
       } else if (el.localName === 'choice') {
         const choice = this.handleChoice(schema, el, schemaEl);
-        sequence.getItems().add(choice);
+        sequence.getItems().push(choice);
       } else if (el.localName === 'any') {
         const any = this.handleAny(schema, el, schemaEl);
-        sequence.getItems().add(any);
-      } else if (el.localName ==='annotation') {
+        sequence.getItems().push(any);
+      } else if (el.localName === 'annotation') {
         const annotation = this.handleAnnotation(el);
         sequence.setAnnotation(annotation);
       }
@@ -1381,18 +1415,18 @@ export class SchemaBuilder {
   }
 
   private handleSimpleContent(schema: XmlSchema, simpleEl: Element, schemaEl: Element) {
-
     const simpleContent = new XmlSchemaSimpleContent();
 
-    for (let el = XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(simpleEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'restriction') {
         simpleContent.content = this.handleSimpleContentRestriction(schema, el, schemaEl);
       } else if (el.localName === 'extension') {
         simpleContent.content = this.handleSimpleContentExtension(schema, el, schemaEl);
-      } else if (el.localName === 'annotation')) {
+      } else if (el.localName === 'annotation') {
         simpleContent.setAnnotation(this.handleAnnotation(el));
       }
     }
@@ -1400,27 +1434,27 @@ export class SchemaBuilder {
   }
 
   private handleSimpleContentExtension(schema: XmlSchema, extEl: Element, schemaEl: Element) {
-
     const ext = new XmlSchemaSimpleContentExtension();
 
     if (extEl.hasAttribute('base')) {
-      const name = extEl.getAttribute("base")!;
+      const name = extEl.getAttribute('base')!;
       ext.setBaseTypeName(this.getRefQName(name, extEl));
     }
 
-    for (let el = XDOMUtil.getFirstChildElementNS(extEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(extEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName === 'attribute') {
         const attr = this.handleAttribute(schema, el, schemaEl);
-        ext.getAttributes().add(attr);
+        ext.getAttributes().push(attr);
       } else if (el.localName === 'attributeGroup') {
         const attrGroup = this.handleAttributeGroupRef(schema, el);
-        ext.getAttributes().add(attrGroup);
+        ext.getAttributes().push(attrGroup);
       } else if (el.localName === 'anyAttribute') {
         ext.setAnyAttribute(this.handleAnyAttribute(schema, el, schemaEl));
-      } else if (el.localName === 'annotation')) {
+      } else if (el.localName === 'annotation') {
         const ann = this.handleAnnotation(el);
         ext.setAnnotation(ann);
       }
@@ -1429,7 +1463,6 @@ export class SchemaBuilder {
   }
 
   private handleSimpleContentRestriction(schema: XmlSchema, restrictionEl: Element, schemaEl: Element) {
-
     const restriction = new XmlSchemaSimpleContentRestriction();
 
     if (restrictionEl.hasAttribute('base')) {
@@ -1438,26 +1471,27 @@ export class SchemaBuilder {
     }
 
     if (restrictionEl.hasAttribute('id')) {
-      restriction.setId(restrictionEl.getAttribute("id"));
+      restriction.setId(restrictionEl.getAttribute('id'));
     }
 
     // check back simpleContent tag children to add attributes and
     // simpleType if any occur
-    for (let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
-      if (el.localName ==='attribute') {
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
+      if (el.localName === 'attribute') {
         const attr = this.handleAttribute(schema, el, schemaEl);
-        restriction.getAttributes().add(attr);
-      } else if (el.localName === 'attributeGroup')) {
+        restriction.getAttributes().push(attr);
+      } else if (el.localName === 'attributeGroup') {
         const attrGroup = this.handleAttributeGroupRef(schema, el);
-        restriction.getAttributes().add(attrGroup);
+        restriction.getAttributes().push(attrGroup);
       } else if (el.localName === 'simpleType') {
         restriction.setBaseType(this.handleSimpleType(schema, el, schemaEl, false));
       } else if (el.localName === 'anyAttribute') {
         restriction.anyAttribute = this.handleAnyAttribute(schema, el, schemaEl);
-      } else if (el.localName ==== 'annotation') {
+      } else if (el.localName === 'annotation') {
         restriction.setAnnotation(this.handleAnnotation(el));
       } else {
         const facet = XmlSchemaFacet.construct(el);
@@ -1467,7 +1501,7 @@ export class SchemaBuilder {
           const facetAnnotation = this.handleAnnotation(annotation);
           facet.setAnnotation(facetAnnotation);
         }
-        restriction.getFacets().add(facet);
+        restriction.getFacets().push(facet);
         // process extra attributes and elements
         this.processExtensibilityComponents(facet, el, true);
       }
@@ -1495,24 +1529,26 @@ export class SchemaBuilder {
       const name = listEl.getAttribute('itemType')!;
       list.itemTypeName = this.getRefQName(name, listEl);
     } else if (inlineListType != null) {
-
       list.itemType = this.handleSimpleType(schema, inlineListType, schemaEl, false);
     }
 
     const listAnnotationEl = XDOMUtil.getFirstChildElementNS(listEl, XmlSchema.SCHEMA_NS, 'annotation');
     if (listAnnotationEl != null) {
-
       const listAnnotation = this.handleAnnotation(listAnnotationEl);
       list.setAnnotation(listAnnotation);
     }
     simpleType.content = list;
   }
 
-  private handleSimpleTypeRestriction(schema: XmlSchema, schemaEl: Element, simpleType: XmlSchemaSimpleType, restrictionEl: Element) {
+  private handleSimpleTypeRestriction(
+    schema: XmlSchema,
+    schemaEl: Element,
+    simpleType: XmlSchemaSimpleType,
+    restrictionEl: Element,
+  ) {
     const restriction = new XmlSchemaSimpleTypeRestriction();
 
-    const restAnnotationEl =
-      XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS, 'annotation');
+    const restAnnotationEl = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS, 'annotation');
 
     if (restAnnotationEl != null) {
       const restAnnotation = this.handleAnnotation(restAnnotationEl);
@@ -1525,22 +1561,20 @@ export class SchemaBuilder {
      * restriction has the content of the simpleType
      **/
 
-    const inlineSimpleType =
-      XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS, 'simpleType');
+    const inlineSimpleType = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS, 'simpleType');
 
     if (restrictionEl.hasAttribute('base')) {
       const ctx = NodeNamespaceContext.getNamespaceContext(restrictionEl);
-      restriction.setBaseTypeName(this.getRefQName(restrictionEl.getAttribute("base"), ctx));
+      restriction.setBaseTypeName(this.getRefQName(restrictionEl.getAttribute('base')!, undefined, ctx));
     } else if (inlineSimpleType != null) {
-
       restriction.setBaseType(this.handleSimpleType(schema, inlineSimpleType, schemaEl, false));
     }
-    for (let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
-         el != null;
-         el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
-
+    for (
+      let el = XDOMUtil.getFirstChildElementNS(restrictionEl, XmlSchema.SCHEMA_NS);
+      el != null;
+      el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
+    ) {
       if (el.localName !== 'annotation' && el.localName !== 'simpleType') {
-
         const facet = XmlSchemaFacet.construct(el);
         const annotation = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
 
@@ -1550,13 +1584,18 @@ export class SchemaBuilder {
         }
         // process extra attributes and elements
         this.processExtensibilityComponents(facet, el, true);
-        restriction.getFacets().add(facet);
+        restriction.getFacets().push(facet);
       }
     }
     simpleType.content = restriction;
   }
 
-  private handleSimpleTypeUnion(schema: XmlSchema, schemaEl: Element, simpleType: XmlSchemaSimpleType, unionEl: Element) {
+  private handleSimpleTypeUnion(
+    schema: XmlSchema,
+    schemaEl: Element,
+    simpleType: XmlSchemaSimpleType,
+    unionEl: Element,
+  ) {
     const union = new XmlSchemaSimpleTypeUnion();
 
     /******
@@ -1568,31 +1607,28 @@ export class SchemaBuilder {
       const memberTypes = unionEl.getAttribute('memberTypes')!;
       union.setMemberTypesSource(memberTypes);
       const v: QName[] = [];
-      for (let member of memberTypes.split(' ')) {
+      for (const member of memberTypes.split(' ')) {
         v.push(this.getRefQName(member, unionEl));
       }
       union.setMemberTypesQNames(v);
     }
 
-    const inlineUnionType = XDOMUtil.getFirstChildElementNS(unionEl, XmlSchema.SCHEMA_NS, 'simpleType');
+    let inlineUnionType = XDOMUtil.getFirstChildElementNS(unionEl, XmlSchema.SCHEMA_NS, 'simpleType');
     while (inlineUnionType != null) {
-
       const unionSimpleType = this.handleSimpleType(schema, inlineUnionType, schemaEl, false);
 
-      union.getBaseTypes().add(unionSimpleType);
+      union.getBaseTypes().push(unionSimpleType);
 
       if (!unionSimpleType.isAnonymous()) {
-        union.setMemberTypesSource(union.getMemberTypesSource() + " " + unionSimpleType.getName());
+        union.setMemberTypesSource(union.getMemberTypesSource() + ' ' + unionSimpleType.getName());
       }
 
-      inlineUnionType =
-        XDOMUtil.getNextSiblingElementNS(inlineUnionType, XmlSchema.SCHEMA_NS, 'simpleType');
+      inlineUnionType = XDOMUtil.getNextSiblingElementNS(inlineUnionType, XmlSchema.SCHEMA_NS, 'simpleType');
     }
 
     // NodeList annotations = unionEl.getElementsByTagNameNS(
     // XmlSchema.SCHEMA_NS, "annotation");
-    const unionAnnotationEl =
-      XDOMUtil.getFirstChildElementNS(unionEl, XmlSchema.SCHEMA_NS, 'annotation');
+    const unionAnnotationEl = XDOMUtil.getFirstChildElementNS(unionEl, XmlSchema.SCHEMA_NS, 'annotation');
 
     if (unionAnnotationEl != null) {
       const unionAnnotation = this.handleAnnotation(unionAnnotationEl);
@@ -1604,43 +1640,45 @@ export class SchemaBuilder {
 
   private newIncludeValidator(schema: XmlSchema) {
     return (pSchema: XmlSchema) => {
-      const isEmpty = (pValue?: string) => {
+      const isEmpty = (pValue?: string | null) => {
         return pValue == null || Constants.NULL_NS_URI === pValue;
-      }
+      };
       if (isEmpty(pSchema.getSyntacticalTargetNamespace())) {
         pSchema.setLogicalTargetNamespace(schema.getLogicalTargetNamespace());
       } else {
-        if (!pSchema.getSyntacticalTargetNamespace().equals(schema.getLogicalTargetNamespace())) {
-          let msg = "An included schema was announced to have the default target namespace";
+        if (pSchema.getSyntacticalTargetNamespace() !== schema.getLogicalTargetNamespace()) {
+          let msg = 'An included schema was announced to have the default target namespace';
           if (!isEmpty(schema.getLogicalTargetNamespace())) {
-            msg += " or the target namespace " + schema.getLogicalTargetNamespace();
+            msg += ' or the target namespace ' + schema.getLogicalTargetNamespace();
           }
-          throw new Error(msg + ", but has the target namespace "
-            + pSchema.getLogicalTargetNamespace());
+          throw new Error(msg + ', but has the target namespace ' + pSchema.getLogicalTargetNamespace());
         }
       }
-    }
+    };
   }
 
   private processExtensibilityComponents(
     schemaObject: XmlSchemaObject,
     parentElement: Element,
-    namespacees: boolean,
+    namespaces: boolean,
   ): void {
     if (this.extReg != null) {
       // process attributes
-      const attributes = parentElement.getAttributes();
-      for (let i = 0; i < attributes.getLength(); i++) {
+      const attributes = parentElement.attributes;
+      for (let i = 0; i < attributes.length; i++) {
         const attribute = attributes.item(i) as Attr;
 
         const namespaceURI = attribute.namespaceURI;
         const name = attribute.localName;
 
-        if (namespaceURI != null && "" !== namespaceURI // ignore unqualified attributes
+        if (
+          namespaceURI != null &&
+          '' !== namespaceURI && // ignore unqualified attributes
           // ignore namespaces
-          && (namespaces || !namespaceURI.startsWith(Constants.XMLNS_ATTRIBUTE_NS_URI))
+          (namespaces || !namespaceURI.startsWith(Constants.XMLNS_ATTRIBUTE_NS_URI)) &&
           // does not belong to the schema namespace by any chance!
-          && Constants.URI_2001_SCHEMA_XSD !== namespaceURI) {
+          Constants.URI_2001_SCHEMA_XSD !== namespaceURI
+        ) {
           const qName = new QName(namespaceURI, name);
           this.extReg.deserializeExtension(schemaObject, qName, attribute);
         }
@@ -1674,9 +1712,7 @@ export class SchemaBuilder {
    * @param baseUri This parameter is the value put under the key (if the cache is enabled)
    * @param readSchema
    */
-  private putCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string,
-                          readSchema: XmlSchema) {
-
+  private putCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string, readSchema: XmlSchema) {
     if (this.resolvedSchemas != null) {
       const schemaKey = targetNamespace + schemaLocation + baseUri;
       this.resolvedSchemas.set(schemaKey, readSchema);

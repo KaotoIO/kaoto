@@ -42,7 +42,7 @@ export class XmlSchemaNamedImpl implements XmlSchemaNamed {
     return this.qname == null;
   }
 
-  setName(name: string) {
+  setName(name: string | null) {
     if (name == null) {
       this.qname = null;
     } else if ('' === name) {

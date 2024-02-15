@@ -3,7 +3,7 @@ export class QName {
 
   constructor(
     namespaceURI: string | null,
-    private localPart: string,
+    private localPart: string | null,
     private prefix?: string,
   ) {
     this.namespaceURI = namespaceURI != null ? namespaceURI : '';
@@ -13,16 +13,12 @@ export class QName {
     return this.namespaceURI;
   }
 
-  getLocalPart(): string {
+  getLocalPart(): string | null {
     return this.localPart;
   }
 
   getPrefix(): string | undefined {
     return this.prefix;
-  }
-
-  toString(): string {
-    return this.namespaceURI === '' ? this.localPart : `{${this.namespaceURI}}${this.localPart}`;
   }
 
   valueOf(qNameAsString: string): QName {

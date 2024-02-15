@@ -75,3 +75,8 @@ export const XSD_UNSIGNEDSHORT = new QName(URI_2001_SCHEMA_XSD, 'unsignedShort')
 export const XSD_YEAR = new QName(URI_2001_SCHEMA_XSD, 'gYear');
 
 export const XSD_YEARMONTH = new QName(URI_2001_SCHEMA_XSD, 'gYearMonth');
+
+export class MetaDataConstants {
+  static readonly EXTERNAL_ATTRIBUTES = 'EXTERNAL_ATTRIBUTES';
+  static readonly EXTERNAL_ELEMENTS = 'EXTERNAL_ELEMENTS';
+}

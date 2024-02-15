@@ -146,33 +146,33 @@ export class XmlSchemaCollection {
     /*
      * Defined in section 4.
      */
-    this.addSimpleType(this.xsd, Constants.XSD_ANYSIMPLETYPE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_ANYTYPE.getLocalPart());
+    this.addSimpleType(this.xsd, Constants.XSD_ANYSIMPLETYPE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_ANYTYPE.getLocalPart()!);
 
     /*
      * Primitive types 3.2.1 string 3.2.2 boolean 3.2.3 decimal 3.2.4 float 3.2.5 double 3.2.6 duration
      * 3.2.7 dateTime 3.2.8 time 3.2.9 date 3.2.10 gYearMonth 3.2.11 gYear 3.2.12 gMonthDay 3.2.13 gDay
      * 3.2.14 gMonth 3.2.15 hexBinary 3.2.16 base64Binary 3.2.17 anyURI 3.2.18 QName 3.2.19 NOTATION
      */
-    this.addSimpleType(this.xsd, Constants.XSD_STRING.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_BOOLEAN.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_FLOAT.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DOUBLE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_QNAME.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DECIMAL.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DURATION.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DATE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_TIME.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DATETIME.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_DAY.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_MONTH.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_MONTHDAY.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_YEAR.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_YEARMONTH.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NOTATION.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_HEXBIN.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_BASE64.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_ANYURI.getLocalPart());
+    this.addSimpleType(this.xsd, Constants.XSD_STRING.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_BOOLEAN.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_FLOAT.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DOUBLE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_QNAME.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DECIMAL.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DURATION.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DATE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_TIME.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DATETIME.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_DAY.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_MONTH.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_MONTHDAY.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_YEAR.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_YEARMONTH.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NOTATION.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_HEXBIN.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_BASE64.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_ANYURI.getLocalPart()!);
 
     /*
      * 3.3.1 normalizedString 3.3.2 token 3.3.3 language 3.3.4 NMTOKEN 3.3.5 NMTOKENS 3.3.6 Name 3.3.7
@@ -183,33 +183,33 @@ export class XmlSchemaCollection {
      */
 
     // derived types from decimal
-    this.addSimpleType(this.xsd, Constants.XSD_LONG.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_SHORT.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_BYTE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_INTEGER.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_INT.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_POSITIVEINTEGER.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NEGATIVEINTEGER.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NONPOSITIVEINTEGER.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NONNEGATIVEINTEGER.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDBYTE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDINT.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDLONG.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDSHORT.getLocalPart());
+    this.addSimpleType(this.xsd, Constants.XSD_LONG.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_SHORT.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_BYTE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_INTEGER.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_INT.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_POSITIVEINTEGER.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NEGATIVEINTEGER.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NONPOSITIVEINTEGER.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NONNEGATIVEINTEGER.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDBYTE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDINT.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDLONG.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_UNSIGNEDSHORT.getLocalPart()!);
 
     // derived types from string
-    this.addSimpleType(this.xsd, Constants.XSD_NAME.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NORMALIZEDSTRING.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NCNAME.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NMTOKEN.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_NMTOKENS.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_ENTITY.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_ENTITIES.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_ID.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_IDREF.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_IDREFS.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_LANGUAGE.getLocalPart());
-    this.addSimpleType(this.xsd, Constants.XSD_TOKEN.getLocalPart());
+    this.addSimpleType(this.xsd, Constants.XSD_NAME.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NORMALIZEDSTRING.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NCNAME.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NMTOKEN.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_NMTOKENS.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_ENTITY.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_ENTITIES.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_ID.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_IDREF.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_IDREFS.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_LANGUAGE.getLocalPart()!);
+    this.addSimpleType(this.xsd, Constants.XSD_TOKEN.getLocalPart()!);
 
     // 2.5.3 setup built-in datatype hierarchy
     this.setupBuiltinDatatypeHierarchy(this.xsd);
@@ -388,10 +388,10 @@ export class XmlSchemaCollection {
     this.stack.push(pKey);
   }
 
-  read(content: string): XmlSchema {
+  read(content: string, validator: (schema: XmlSchema) => void): XmlSchema {
     const parser = new DOMParser();
     const document = parser.parseFromString(content, 'text/xml');
-    const builder = new SchemaBuilder(this);
+    const builder = new SchemaBuilder(this, validator);
     return builder.build(document);
   }
 
@@ -481,8 +481,8 @@ export class XmlSchemaCollection {
    * @param namespace
    * @return
    */
-  getKnownSchema(namespace: string) {
-    return this.knownNamespaceMap[namespace];
+  getKnownSchema(namespace: string | null) {
+    return namespace == null ? null : this.knownNamespaceMap[namespace];
   }
 
   /**

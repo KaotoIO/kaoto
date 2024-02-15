@@ -1,4 +1,4 @@
-import { XmlSchemaNamedWithForm, XmlSchemaRef } from './utils';
+import { XmlSchemaNamedType, XmlSchemaNamedWithForm, XmlSchemaNamedWithFormImpl, XmlSchemaRef } from './utils';
 import {
   QName,
   TypeReceiver,
@@ -47,7 +47,7 @@ export class XmlSchemaElement
   /**
    * Returns the type of the element. This can either be a complex type or a simple type.
    */
-  private schemaType: XmlSchemaType;
+  private schemaType: XmlSchemaType | null = null;
 
   /**
    * QName of a built-in data type defined in this schema or another schema indicated by the specified
@@ -58,7 +58,7 @@ export class XmlSchemaElement
   /**
    * QName of an element that can be a substitute for this element.
    */
-  private substitutionGroup: QName;
+  private substitutionGroup: QName | null = null;
 
   private namedDelegate: XmlSchemaNamedWithFormImpl;
 
@@ -68,7 +68,7 @@ export class XmlSchemaElement
   constructor(parentSchema: XmlSchema, topLevel: boolean) {
     super();
     this.namedDelegate = new XmlSchemaNamedWithFormImpl(parentSchema, topLevel, true);
-    this.ref = new XmlSchemaRef<XmlSchemaElement>(parentSchema, XmlSchemaElement.class);
+    this.ref = new XmlSchemaRef<XmlSchemaElement>(parentSchema, XmlSchemaNamedType.XmlSchemaElement);
     this.namedDelegate.setRefObject(this.ref);
     this.ref.setNamedObject(this.namedDelegate);
 
@@ -145,7 +145,7 @@ export class XmlSchemaElement
     return this.schemaType;
   }
 
-  setSchemaType(schemaType: XmlSchemaType) {
+  setSchemaType(schemaType: XmlSchemaType | null) {
     this.schemaType = schemaType;
   }
 
@@ -191,12 +191,12 @@ export class XmlSchemaElement
 
   setName(name: string | null) {
     const fName = name;
-    if (this.namedDelegate.isTopLevel() && this.namedDelegate.getName() != null) {
-      this.namedDelegate.getParent().getElements().remove(this.getQName());
+    if (this.isTopLevel() && this.getName() != null) {
+      this.getParent().getElements().delete(this.getQName()!);
     }
     this.namedDelegate.setName(fName);
     if (this.namedDelegate.isTopLevel()) {
-      this.namedDelegate.getParent().getElements().put(this.getQName(), this);
+      this.getParent().getElements().set(this.getQName()!, this);
     }
   }
 

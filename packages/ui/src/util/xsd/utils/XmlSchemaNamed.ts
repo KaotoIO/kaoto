@@ -45,3 +45,12 @@ export interface XmlSchemaNamed extends XmlSchemaObjectBase {
 }
 
 export interface XmlSchemaNamedWithForm extends XmlSchemaNamed {}
+
+export enum XmlSchemaNamedType {
+  XmlSchemaElement,
+  XmlSchemaAttribute,
+  XmlSchemaType,
+  XmlSchemaAttributeGroup,
+  XmlSchemaGroup,
+  XmlSchemaNotation,
+}

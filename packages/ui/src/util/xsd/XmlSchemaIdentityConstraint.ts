@@ -1,7 +1,7 @@
-import { QName, XmlSchemaAnnotated } from '.';
+import { QName, XmlSchemaAnnotated, XmlSchemaXPath } from '.';
 
 export class XmlSchemaIdentityConstraint extends XmlSchemaAnnotated {
-  private fields: XmlSchemaXPath = [];
+  private fields: XmlSchemaXPath[] = [];
 
   private name: string | null = null;
 
@@ -27,7 +27,7 @@ export class XmlSchemaIdentityConstraint extends XmlSchemaAnnotated {
     this.selector = selector;
   }
 
-  setFields(fields: XmlSchemaXPath) {
+  setFields(fields: XmlSchemaXPath[]) {
     this.fields = fields;
   }
 }
