@@ -1,0 +1,21 @@
+name: 🏗️ VS Code Kaoto Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-vscode-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger vscode-kaoto tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: KaotoIO
+          repo: vscode-kaoto
+          ref: main
+          github_token: ${{ secrets.KAOTO_CI_TOKEN }}
+          workflow_file_name: main-kaoto.yaml
+          propagate_failure: false # do not fail this pipeline when vscode-kaoto tests fails
+          wait_workflow: false # do not wait for vscode-kaoto tests finish
