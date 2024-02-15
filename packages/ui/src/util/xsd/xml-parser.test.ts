@@ -1,12 +1,11 @@
 import { XMLParser } from 'fast-xml-parser';
-import { ATTRIBUTE_PREFIX } from './Constants';
 import * as fs from 'fs';
 
 describe('XML parser', () => {
   describe('fast-xml-parser', () => {
     const parser = new XMLParser({
       ignoreAttributes: false,
-      attributeNamePrefix: ATTRIBUTE_PREFIX,
+      attributeNamePrefix: '_attr_',
       preserveOrder: true,
     });
 

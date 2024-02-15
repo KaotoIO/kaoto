@@ -1,7 +1,7 @@
 import { XmlSchema, XmlSchemaAnnotated } from '.';
 
 export abstract class XmlSchemaExternal extends XmlSchemaAnnotated {
-  schema?: XmlSchema;
+  schema: XmlSchema | null = null;
   schemaLocation: string | null = null;
 
   /**

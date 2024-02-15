@@ -603,11 +603,11 @@ export class SchemaBuilder {
    */
   private getCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string) {
 
-    let resolvedSchema = undefined;
+    let resolvedSchema = null;
 
     if (this.resolvedSchemas != null) { // cache is initialized, use it
       const schemaKey = targetNamespace + schemaLocation + baseUri;
-      resolvedSchema = this.resolvedSchemas.get(schemaKey);
+      resolvedSchema = this.resolvedSchemas.get(schemaKey) || null;
     }
     return resolvedSchema;
   }
