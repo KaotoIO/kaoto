@@ -1,8 +1,5 @@
 import '@testing-library/jest-dom';
-import { FilterDOMPropsKeys, filterDOMProps } from 'uniforms';
 // import '@testing-library/jest-dom/extend-expect'
-
-filterDOMProps.register('inputRef' as FilterDOMPropsKeys, 'placeholder' as FilterDOMPropsKeys);
 
 Object.defineProperty(window, 'fetch', {
   writable: true,

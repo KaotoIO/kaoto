@@ -20,6 +20,7 @@ import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
 import { SourceOrTarget } from '../../../../models';
 import { readFileAsString } from '../../../../util';
+import { DocumentService } from '../../../../services';
 
 export interface IImportActionProps {
   sourceOrTarget: SourceOrTarget;
@@ -32,7 +33,8 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ so
 
   const onImport = useCallback((file: File) => {
     readFileAsString(file).then((content) => {
-      alert('Uploaded:' + content);
+      const document = DocumentService.parseXmlSchema(content);
+      alert('Uploaded:' + JSON.stringify(document));
     });
   }, []);
 

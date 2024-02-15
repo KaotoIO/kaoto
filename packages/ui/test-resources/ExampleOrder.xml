@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<o:ShipOrder xmlns:o="io.kaoto.datamapper.poc.test" OrderId="2">
+    <OrderPerson>
+        Jon Doh
+    </OrderPerson>
+    sometext
+    <ShipTo>
+        <Name>Jon Doh</Name>
+        <Address>123 Jon Rd</Address>
+        <City>Doh</City>
+        <Country>MA</Country>
+    </ShipTo>
+    <Item>
+        <Title>Apple</Title>
+        <Quantity>1</Quantity>
+        <Price>3</Price>
+    </Item>
+    <Item>
+        <Title>Lemon</Title>
+        <Quantity>1</Quantity>
+        <Price>3</Price>
+    </Item>
+</o:ShipOrder>
