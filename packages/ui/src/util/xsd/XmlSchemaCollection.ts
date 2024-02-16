@@ -1,23 +1,21 @@
 import {
-  QName,
-  SchemaBuilder,
-  TypeReceiver,
   XmlSchema,
-  XmlSchemaFacet,
   XmlSchemaFractionDigitsFacet,
   XmlSchemaMaxInclusiveFacet,
   XmlSchemaMinInclusiveFacet,
   XmlSchemaPatternFacet,
-  XmlSchemaSimpleType,
-  XmlSchemaSimpleTypeList,
-  XmlSchemaSimpleTypeRestriction,
-  XmlSchemaType,
   XmlSchemaWhiteSpaceFacet,
+  XmlSchemaSimpleTypeRestriction,
+  XmlSchemaSimpleTypeList,
+  SchemaBuilder,
+  XmlSchemaSimpleType,
 } from '.';
+import type { QName, TypeReceiver, XmlSchemaFacet, XmlSchemaType } from '.';
 import { ExtensionRegistry } from './extensions';
 import * as Constants from './constants';
-import { CollectionURIResolver, DefaultURIResolver, URIResolver } from './resolver';
-import { NamespacePrefixList } from './utils';
+import { DefaultURIResolver } from './resolver';
+import type { CollectionURIResolver, URIResolver } from './resolver';
+import type { NamespacePrefixList } from './utils';
 
 export class SchemaKey {
   private namespace: string;

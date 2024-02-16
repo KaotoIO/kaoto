@@ -1,5 +1,5 @@
-import { XmlSchema, XmlSchemaExternal } from '.';
-
+import { XmlSchemaExternal } from '.';
+import type { XmlSchema } from '.';
 export class XmlSchemaImport extends XmlSchemaExternal {
   namespace: string | null = null;
 

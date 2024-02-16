@@ -1,22 +1,24 @@
 import {
-  QName,
-  SchemaKey,
   URI_2001_SCHEMA_XSD,
   XmlSchemaAnnotated,
+  XmlSchemaDerivationMethod,
+  SchemaKey,
+  QName,
+  XmlSchemaImport,
+  XmlSchemaInclude,
+} from '.';
+import type {
   XmlSchemaAttribute,
   XmlSchemaAttributeGroup,
   XmlSchemaCollection,
-  XmlSchemaDerivationMethod,
   XmlSchemaElement,
   XmlSchemaExternal,
   XmlSchemaGroup,
-  XmlSchemaImport,
-  XmlSchemaInclude,
   XmlSchemaNotation,
   XmlSchemaObject,
   XmlSchemaType,
 } from '.';
-import { NamespaceContextOwner, NamespacePrefixList } from './utils';
+import type { NamespaceContextOwner, NamespacePrefixList } from './utils';
 import { XmlSchemaForm } from './XmlSchemaForm';
 
 export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwner {

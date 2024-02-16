@@ -1,4 +1,5 @@
-import { XmlSchema, XmlSchemaAnnotated } from '.';
+import { XmlSchemaAnnotated } from '.';
+import type { XmlSchema } from '.';
 
 export abstract class XmlSchemaExternal extends XmlSchemaAnnotated {
   schema: XmlSchema | null = null;

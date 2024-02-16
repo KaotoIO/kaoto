@@ -140,3 +140,5 @@ lib
 
 # storybook
 storybook-static
+
+**/circleDep

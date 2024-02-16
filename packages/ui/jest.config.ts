@@ -35,6 +35,7 @@ export default {
     '!src/**/stubs/*.ts',
     // Ignore icon resolver
     '!src/**/node-icon-resolver.ts',
+    '!src/_bk_atlasmap/**/*',
   ],
 
   // The directory where Jest should output its coverage files
@@ -174,9 +175,7 @@ export default {
   testMatch: ['**/?(*.)+(test).[tj]s?(x)'],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   '\\\\node_modules\\\\'
-  // ],
+  testPathIgnorePatterns: ['\\\\node_modules\\\\', '<rootDir>/src/_bk_atlasmap/'],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

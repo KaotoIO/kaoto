@@ -1,5 +1,5 @@
 import { XmlSchemaExternal } from './XmlSchemaExternal';
-import { XmlSchema } from './XmlSchema';
+import type { XmlSchema } from './XmlSchema';
 
 export class XmlSchemaInclude extends XmlSchemaExternal {
   /**

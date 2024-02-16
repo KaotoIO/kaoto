@@ -1,4 +1,4 @@
-import { QName, XmlSchema } from '..';
+import type { QName, XmlSchema } from '..';
 
 export interface XmlSchemaObjectBase {}
 export interface XmlSchemaNamed extends XmlSchemaObjectBase {

@@ -26,6 +26,7 @@
       "@types/node",
     ]
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
+  "exclude": ["**/_bk_atlasmap/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

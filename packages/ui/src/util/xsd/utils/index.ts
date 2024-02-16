@@ -9,4 +9,4 @@ export * from './XmlSchemaNamed';
 export * from './XmlSchemaNamedImpl';
 export * from './XmlSchemaNamedWithFormImpl';
 export * from './XmlSchemaRef';
-export * from './XmlSchemaRefBase';
+export { XmlSchemaRefBase } from './XmlSchemaRefBase';
