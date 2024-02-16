@@ -1,15 +1,7 @@
-import { XmlSchemaNamedWithFormImpl, XmlSchemaNamedType, XmlSchemaNamedWithForm, XmlSchemaRef } from './utils';
-import {
-  QName,
-  XmlSchema,
-  XmlSchemaAttributeGroupMember,
-  XmlSchemaAttributeOrGroupRef,
-  XmlSchemaForm,
-  XmlSchemaItemWithRef,
-  XmlSchemaSimpleType,
-  XmlSchemaUse,
-} from '.';
-import {} from './utils/XmlSchemaNamedWithFormImpl';
+import { XmlSchemaNamedWithFormImpl, XmlSchemaNamedType, XmlSchemaRef } from './utils';
+import type { XmlSchemaNamedWithForm } from './utils';
+import { XmlSchemaAttributeOrGroupRef, XmlSchemaForm, XmlSchemaUse } from '.';
+import type { QName, XmlSchema, XmlSchemaAttributeGroupMember, XmlSchemaItemWithRef, XmlSchemaSimpleType } from '.';
 
 export class XmlSchemaAttribute
   extends XmlSchemaAttributeOrGroupRef

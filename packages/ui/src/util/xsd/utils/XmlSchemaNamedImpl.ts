@@ -1,5 +1,6 @@
-import { QName, XmlSchema } from '..';
-import { XmlSchemaNamed, XmlSchemaRefBase } from '.';
+import { QName } from '..';
+import type { XmlSchema } from '..';
+import type { XmlSchemaNamed, XmlSchemaRefBase } from '.';
 
 export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   protected parentSchema: XmlSchema;
@@ -15,6 +16,7 @@ export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   /**
    * Create a new named object.
    * @param parent the parent schema.
+   * @param topLevel
    */
   constructor(parent: XmlSchema, topLevel: boolean) {
     this.parentSchema = parent;

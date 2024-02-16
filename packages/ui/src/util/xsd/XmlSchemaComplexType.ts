@@ -1,14 +1,16 @@
 import {
+  XmlSchemaType,
+  XmlSchemaDerivationMethod,
+  XmlSchemaComplexContentExtension,
+  XmlSchemaComplexContentRestriction,
+} from '.';
+import type {
   XmlSchema,
   XmlSchemaAnyAttribute,
   XmlSchemaAttributeOrGroupRef,
-  XmlSchemaComplexContentExtension,
-  XmlSchemaComplexContentRestriction,
   XmlSchemaContentModel,
   XmlSchemaContentType,
-  XmlSchemaDerivationMethod,
   XmlSchemaParticle,
-  XmlSchemaType,
 } from '.';
 
 export class XmlSchemaComplexType extends XmlSchemaType {

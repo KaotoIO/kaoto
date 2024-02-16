@@ -1,10 +1,5 @@
-import {
-  XmlSchema,
-  XmlSchemaAttributeGroup,
-  XmlSchemaAttributeGroupMember,
-  XmlSchemaAttributeOrGroupRef,
-  XmlSchemaItemWithRef,
-} from '.';
+import { XmlSchemaAttributeOrGroupRef } from '.';
+import type { XmlSchema, XmlSchemaAttributeGroup, XmlSchemaAttributeGroupMember, XmlSchemaItemWithRef } from '.';
 import { XmlSchemaNamedType, XmlSchemaRef } from './utils';
 
 /**

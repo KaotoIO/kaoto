@@ -1,5 +1,7 @@
-import { XmlSchema, XmlSchemaAnnotated, XmlSchemaAnyAttribute, XmlSchemaAttributeGroupMember } from '.';
-import { XmlSchemaNamed, XmlSchemaNamedImpl } from './utils';
+import { XmlSchemaAnnotated } from '.';
+import type { XmlSchema, XmlSchemaAnyAttribute, XmlSchemaAttributeGroupMember } from '.';
+import { XmlSchemaNamedImpl } from './utils';
+import type { XmlSchemaNamed } from './utils';
 
 export class XmlSchemaAttributeGroup
   extends XmlSchemaAnnotated

@@ -3,15 +3,8 @@
  * the current schema. This class provides versioning for the schema elements. Represents the World Wide Web
  * Consortium (W3C) redefine element.
  */
-import {
-  QName,
-  XmlSchema,
-  XmlSchemaAttributeGroup,
-  XmlSchemaExternal,
-  XmlSchemaGroup,
-  XmlSchemaObject,
-  XmlSchemaType,
-} from '.';
+import { XmlSchemaExternal } from '.';
+import type { QName, XmlSchema, XmlSchemaAttributeGroup, XmlSchemaGroup, XmlSchemaObject, XmlSchemaType } from '.';
 
 export class XmlSchemaRedefine extends XmlSchemaExternal {
   private attributeGroups = new Map<QName, XmlSchemaAttributeGroup>();

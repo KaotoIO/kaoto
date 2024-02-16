@@ -1,15 +1,15 @@
-import { XmlSchemaNamedType, XmlSchemaNamedWithForm, XmlSchemaNamedWithFormImpl, XmlSchemaRef } from './utils';
-import {
+import { XmlSchemaNamedWithFormImpl, XmlSchemaRef, XmlSchemaNamedType } from './utils';
+import type { XmlSchemaNamedWithForm } from './utils';
+import { XmlSchemaParticle, XmlSchemaDerivationMethod } from '.';
+import type {
   QName,
   TypeReceiver,
   XmlSchema,
   XmlSchemaAllMember,
   XmlSchemaChoiceMember,
-  XmlSchemaDerivationMethod,
   XmlSchemaForm,
   XmlSchemaIdentityConstraint,
   XmlSchemaItemWithRef,
-  XmlSchemaParticle,
   XmlSchemaSequenceMember,
   XmlSchemaType,
 } from '.';
