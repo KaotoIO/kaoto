@@ -2,7 +2,6 @@ import {
   URI_2001_SCHEMA_XSD,
   XmlSchemaAnnotated,
   XmlSchemaDerivationMethod,
-  SchemaKey,
   QName,
   XmlSchemaImport,
   XmlSchemaInclude,
@@ -20,6 +19,27 @@ import type {
 } from '.';
 import type { NamespaceContextOwner, NamespacePrefixList } from './utils';
 import { XmlSchemaForm } from './XmlSchemaForm';
+
+export class SchemaKey {
+  private namespace: string;
+  private systemId: string;
+
+  constructor(namespace?: string | null, systemId?: string | null) {
+    this.namespace = namespace != null ? namespace : '';
+    this.systemId = systemId != null ? systemId : '';
+  }
+
+  toString() {
+    return this.namespace === '' ? this.systemId : `{${this.namespace}}${this.systemId}`;
+  }
+
+  getNamespace() {
+    return this.namespace;
+  }
+  getSystemId() {
+    return this.systemId;
+  }
+}
 
 export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwner {
   static readonly SCHEMA_NS = URI_2001_SCHEMA_XSD;
