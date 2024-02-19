@@ -1,7 +1,7 @@
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
-import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import { JSONSchemaBridge as SchemaBridge } from 'uniforms-bridge-json-schema';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 
 export class SchemaService {
@@ -24,15 +24,16 @@ export class SchemaService {
 
   constructor() {
     this.ajv = new Ajv({
+      strict: false,
       allErrors: true,
       useDefaults: true,
-      keywords: ['uniforms'],
+      keywords: ['uniforms', 'isRequired'],
     });
 
     addFormats(this.ajv);
   }
 
-  getSchemaBridge(schema?: unknown): JSONSchemaBridge | undefined {
+  getSchemaBridge(schema?: unknown): SchemaBridge | undefined {
     if (!schema) return undefined;
 
     // uniforms passes it down to the React elements as an attribute, causes a warning
@@ -40,7 +41,7 @@ export class SchemaService {
 
     const schemaValidator = this.createValidator(schema);
 
-    return new JSONSchemaBridge({ schema, validator: schemaValidator });
+    return new SchemaBridge({ schema, validator: schemaValidator });
   }
 
   private createValidator(schema: KaotoSchemaDefinition['schema']) {

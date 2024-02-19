@@ -1,8 +1,7 @@
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import cloneDeep from 'lodash/cloneDeep';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
-import { SchemaService } from '../Form';
+import { SchemaBridgeProvider } from '../../providers/schema-bridge.provider';
 import { CustomAutoForm, CustomAutoFormRef } from '../Form/CustomAutoForm';
 import './MetadataEditor.scss';
 import { TopmostArrayTable } from './TopmostArrayTable';
@@ -19,10 +18,6 @@ interface MetadataEditorProps {
 }
 
 export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>((props, forwardedRef) => {
-  const schemaServiceRef = useRef(new SchemaService());
-  const [schemaBridge, setSchemaBridge] = useState<JSONSchemaBridge | undefined>(
-    schemaServiceRef.current.getSchemaBridge(getFormSchema()),
-  );
   const fieldsRefs = useRef<CustomAutoFormRef>(null);
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,10 +27,6 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
     fields: fieldsRefs.current?.fields ?? [],
     form: fieldsRefs.current?.form,
   }));
-
-  useEffect(() => {
-    setSchemaBridge(schemaServiceRef.current.getSchemaBridge(getFormSchema()));
-  }, [props.schema]);
 
   useEffect(() => {
     // The input like checkbox doesn't have focus() method
@@ -99,7 +90,7 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
   }
 
   return (
-    <>
+    <SchemaBridgeProvider schema={getFormSchema()}>
       {isTopmostArray() ? (
         <Split hasGutter>
           <SplitItem className="metadata-editor-modal-list-view">
@@ -120,7 +111,6 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
               </StackItem>
               <StackItem isFilled>
                 <CustomAutoForm
-                  schemaBridge={schemaBridge}
                   model={getFormModel()}
                   onChangeModel={onChangeFormModel}
                   data-testid={`metadata-editor-form-${props.name}`}
@@ -135,7 +125,6 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
         </Split>
       ) : (
         <CustomAutoForm
-          schemaBridge={schemaBridge}
           model={getFormModel()}
           onChangeModel={onChangeFormModel}
           data-testid={`metadata-editor-form-${props.name}`}
@@ -145,6 +134,6 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
           handleConfirm={props.handleConfirm}
         />
       )}
-    </>
+    </SchemaBridgeProvider>
   );
 });

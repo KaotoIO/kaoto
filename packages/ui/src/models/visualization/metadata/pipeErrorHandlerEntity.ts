@@ -4,7 +4,7 @@ import { PipeSpecErrorHandler } from '../../camel/entities/pipe-overrides';
 
 export class PipeErrorHandlerEntity implements BaseCamelEntity {
   readonly id = uuidv4();
-  readonly type = EntityType.ErrorHandler;
+  readonly type = EntityType.PipeErrorHandler;
 
   constructor(public parent: PipeSpecErrorHandler) {}
 
