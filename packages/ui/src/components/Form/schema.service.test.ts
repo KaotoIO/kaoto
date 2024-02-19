@@ -32,7 +32,7 @@ describe('SchemaService', () => {
         name: { $ref: 'invalid' },
       },
     };
-
+    jest.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => schemaService.getSchemaBridge(schema)).not.toThrow();
   });
 
@@ -45,7 +45,7 @@ describe('SchemaService', () => {
     };
     const schemaBridge = schemaService.getSchemaBridge(schema);
     const validator = schemaBridge?.validator;
-
+    jest.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => validator!({})).not.toThrow();
     expect(validator!({})).toBeNull();
   });
