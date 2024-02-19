@@ -20,7 +20,7 @@ import { CamelComponentDefaultService } from './support/camel-component-default.
 
 export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
   id: string;
-  readonly type = EntityType.ErrorHandler;
+  readonly type = EntityType.OnException;
   private static readonly ROOT_PATH = 'onException';
 
   constructor(public onExceptionDef: { onException: OnException }) {

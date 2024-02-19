@@ -85,7 +85,6 @@ export default {
 } as Meta<typeof CanvasSideBar>;
 
 const Template: StoryFn<typeof CanvasSideBar> = (args) => {
-  console.log(args);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleClose = () => setIsModalOpen(!isModalOpen);
   return <CanvasSideBar {...args} onClose={handleClose} />;

@@ -1,11 +1,10 @@
 import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
-import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
+import { useSchemaBridgeContext } from '../../hooks';
 import { IDataTestID } from '../../models';
 import { CustomAutoFieldDetector } from './CustomAutoField';
 
 interface CustomAutoFormProps extends IDataTestID {
-  schemaBridge?: JSONSchemaBridge;
   model: unknown;
   disabled?: boolean;
   sortFields?: boolean;
@@ -18,13 +17,14 @@ interface CustomAutoFormProps extends IDataTestID {
 export type CustomAutoFormRef = { fields: HTMLElement[]; form: typeof AutoForm };
 
 export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>((props, forwardedRef) => {
+  const schemaBridge = useSchemaBridgeContext();
   const formRef = useRef<typeof AutoForm>();
   const fieldsRefs = useRef<HTMLElement[]>([]);
   const sortedFieldsNames = useMemo(() => {
-    if (props.schemaBridge === undefined || !props.sortFields) {
+    if (schemaBridge === undefined || !props.sortFields) {
       return [];
     }
-    return props.schemaBridge
+    return schemaBridge
       .getSubfields()
       .slice()
       .filter((field) => {
@@ -33,14 +33,14 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
         return !props.omitFields.includes(field);
       })
       .sort((a, b) => {
-        const propsA = props.schemaBridge?.getProps(a);
-        const propsB = props.schemaBridge?.getProps(b);
+        const propsA = schemaBridge.getProps(a);
+        const propsB = schemaBridge.getProps(b);
         if (propsA.required) {
           return propsB.required ? 0 : -1;
         }
         return propsB.required ? 1 : 0;
       });
-  }, [props.schemaBridge]);
+  }, [props.omitFields, props.sortFields, schemaBridge]);
 
   useImperativeHandle(forwardedRef, () => ({
     fields: fieldsRefs.current,
@@ -50,7 +50,7 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
     <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
       <AutoForm
         ref={formRef}
-        schema={props.schemaBridge}
+        schema={schemaBridge}
         model={props.model}
         onChangeModel={props.onChangeModel}
         onChange={props.onChange}

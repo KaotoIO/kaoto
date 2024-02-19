@@ -2,6 +2,7 @@
 export const enum EntityType {
   Route = 'route',
   OnException = 'onException',
+  ErrorHandler = 'errorHandler',
   Integration = 'integration',
   Kamelet = 'kamelet',
   KameletBinding = 'kameletBinding',
@@ -10,7 +11,7 @@ export const enum EntityType {
   RestConfiguration = 'restConfiguration',
   Beans = 'beans',
   Metadata = 'metadata',
-  ErrorHandler = 'errorHandler',
+  PipeErrorHandler = 'pipeErrorHandler',
   NonVisualEntity = 'nonVisualEntity',
 }
 

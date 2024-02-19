@@ -9,6 +9,7 @@ describe('useEntityContext', () => {
   it('should be throw when use hook without provider', () => {
     jest.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => renderHook(() => useEntityContext())).toThrow(errorMessage);
+    (console.error as jest.Mock).mockRestore();
   });
 
   it('should be return EntityContext', () => {

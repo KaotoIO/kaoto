@@ -2480,6 +2480,7 @@ __metadata:
     "@typescript-eslint/parser": ^7.0.0
     "@vitejs/plugin-react": ^4.0.3
     ajv: ^8.12.0
+    ajv-draft-04: ^1.0.0
     ajv-formats: ^2.1.1
     babel-jest: ^29.4.2
     clsx: ^2.1.0
@@ -6834,6 +6835,18 @@ __metadata:
     clean-stack: ^2.0.0
     indent-string: ^4.0.0
   checksum: 1101a33f21baa27a2fa8e04b698271e64616b886795fd43c31068c07533c7b3facfcaf4e9e0cab3624bd88f729a592f1c901a1a229c9e490eafce411a8644b79
+  languageName: node
+  linkType: hard
+
+"ajv-draft-04@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "ajv-draft-04@npm:1.0.0"
+  peerDependencies:
+    ajv: ^8.5.0
+  peerDependenciesMeta:
+    ajv:
+      optional: true
+  checksum: 3f11fa0e7f7359bef6608657f02ab78e9cc62b1fb7bdd860db0d00351b3863a1189c1a23b72466d2d82726cab4eb20725c76f5e7c134a89865e2bfd0e6828137
   languageName: node
   linkType: hard
 

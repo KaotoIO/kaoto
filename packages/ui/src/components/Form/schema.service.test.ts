@@ -48,5 +48,6 @@ describe('SchemaService', () => {
     jest.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => validator!({})).not.toThrow();
     expect(validator!({})).toBeNull();
+    (console.error as jest.Mock).mockRestore();
   });
 });
