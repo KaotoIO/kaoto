@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,19 +53,19 @@ public class CamelCatalogProcessorTest {
         this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
         this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
         this.processorCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getPatternCatalog());
-        this.entityCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getEntityCatalog());
+        this.entityCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getEntityCatalog(Paths.get("../assembly/target/camel")));
         this.loadBalancerCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLoadBalancerCatalog());
     }
 
     @Test
     public void testProcessCatalog() throws Exception {
-        var catalogMap = processor.processCatalog();
+        var catalogMap = processor.processCatalog(Paths.get("../assembly/target/camel"));
         assertEquals(processor.getComponentCatalog(), catalogMap.get("components"));
         assertEquals(processor.getDataFormatCatalog(), catalogMap.get("dataformats"));
         assertEquals(processor.getLanguageCatalog(), catalogMap.get("languages"));
         assertEquals(processor.getModelCatalog(), catalogMap.get("models"));
         assertEquals(processor.getPatternCatalog(), catalogMap.get("patterns"));
-        assertEquals(processor.getEntityCatalog(), catalogMap.get("entities"));
+        assertEquals(processor.getEntityCatalog(Paths.get("../assembly/target/camel")), catalogMap.get("entities"));
         assertEquals(processor.getLoadBalancerCatalog(), catalogMap.get("loadbalancers"));
     }
 

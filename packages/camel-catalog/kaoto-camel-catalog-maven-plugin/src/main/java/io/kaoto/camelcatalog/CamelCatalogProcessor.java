@@ -16,6 +16,7 @@
 package io.kaoto.camelcatalog;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.DefaultCamelCatalog;
@@ -24,12 +25,15 @@ import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.JsonMapper;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Customize Camel Catalog for Kaoto.
@@ -51,14 +55,14 @@ public class CamelCatalogProcessor {
      * Create Camel catalogs customized for Kaoto usage.
      * @return
      */
-    public Map<String, String> processCatalog() throws Exception {
+    public Map<String, String> processCatalog(Path inputDir) throws Exception {
         var answer = new LinkedHashMap<String, String>();
         var componentCatalog = getComponentCatalog();
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
         var patternCatalog = getPatternCatalog();
-        var entityCatalog = getEntityCatalog();
+        var entityCatalog = getEntityCatalog(inputDir);
         var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);
         answer.put("dataformats", dataFormatCatalog);
@@ -285,7 +289,7 @@ public class CamelCatalogProcessor {
      * @return
      * @throws Exception
      */
-    public String getEntityCatalog() throws Exception {
+    public String getEntityCatalog(Path inputDir) throws Exception {
         var answer = jsonMapper.createObjectNode();
         var entities = schemaProcessor.getEntities();
         var catalogMap = new LinkedHashMap<String, EipModel>();
@@ -324,6 +328,13 @@ public class CamelCatalogProcessor {
             answer.set(entityName, catalogTree);
         }
         addMoreBeans(answer, catalogMap);
+
+        // Adding Kamelet configuration schema to the entities catalog
+        var schema = inputDir.resolve("schema").resolve("KameletConfiguration.json");
+        ObjectNode addedNode = ((ObjectNode) answer).putObject("KameletConfiguration");
+        addedNode.putObject("propertiesSchema");
+        JsonNode locatedNode = answer.path("KameletConfiguration").path("propertiesSchema");
+        ((ObjectNode) locatedNode).setAll((ObjectNode) jsonMapper.readTree(schema.toFile()));
 
         StringWriter writer = new StringWriter();
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();

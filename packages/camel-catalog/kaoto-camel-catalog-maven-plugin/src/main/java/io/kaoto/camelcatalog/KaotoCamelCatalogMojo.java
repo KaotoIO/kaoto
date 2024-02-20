@@ -111,7 +111,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         var index = new Index();
         var yamlDslSchemaProcessor = processCamelSchema(path, index);
         processK8sSchema(path, index);
-        processCatalog(yamlDslSchemaProcessor, index);
+        processCatalog(yamlDslSchemaProcessor, index, path);
         processCRDs(path, index);
         processKamelets(path, index);
         processAdditionalSchemas(path, index);
@@ -213,10 +213,10 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
     }
 
-    private void processCatalog(CamelYamlDslSchemaProcessor schemaProcessor, Index index) {
+    private void processCatalog(CamelYamlDslSchemaProcessor schemaProcessor, Index index, Path inputDir) {
         var catalogProcessor = new CamelCatalogProcessor(jsonMapper, schemaProcessor);
         try {
-            var catalogMap = catalogProcessor.processCatalog();
+            var catalogMap = catalogProcessor.processCatalog(inputDir);
             catalogMap.forEach((name, catalog) -> {
                 try {
                     var outputFileName = String.format(
