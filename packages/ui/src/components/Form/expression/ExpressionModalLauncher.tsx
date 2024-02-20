@@ -1,5 +1,4 @@
-import { FieldHintPopover } from '@kaoto-next/uniforms-patternfly';
-import { Button, FormGroup, InputGroup, InputGroupItem, Modal, TextInput } from '@patternfly/react-core';
+import { Button, InputGroup, InputGroupItem, Modal, TextInput } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
 import { useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
@@ -12,6 +11,7 @@ export type ExpressionModalLauncherProps = {
   language?: ICamelLanguageDefinition;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   model: any;
+  description?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (languageName: string, model: any) => void;
   onConfirm: () => void;
@@ -23,6 +23,7 @@ export const ExpressionModalLauncher = ({
   title,
   language,
   model,
+  description,
   onChange,
   onConfirm,
   onCancel,
@@ -39,32 +40,29 @@ export const ExpressionModalLauncher = ({
     onCancel();
   };
 
-  const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
   const expressionLabel = language && model?.expression ? language.model.name + ': ' + model.expression : '';
 
   return (
-    <div className="expression-field pf-v5-c-form">
-      <FormGroup label="Expression" labelIcon={<FieldHintPopover description={description} />}>
-        <InputGroup>
-          <InputGroupItem isFill>
-            <TextInput
-              id={'expression-preview-' + name}
-              placeholder="Not configured"
-              readOnlyVariant="default"
-              value={expressionLabel}
-            />
-          </InputGroupItem>
-          <InputGroupItem>
-            <Button
-              data-testid="launch-expression-modal-btn"
-              variant="control"
-              aria-label="Configure Expression"
-              icon={<PencilAltIcon />}
-              onClick={() => setIsModalOpen(true)}
-            />
-          </InputGroupItem>
-        </InputGroup>
-      </FormGroup>
+    <>
+      <InputGroup>
+        <InputGroupItem isFill>
+          <TextInput
+            id={'expression-preview-' + name}
+            placeholder="Not configured"
+            readOnlyVariant="default"
+            value={expressionLabel}
+          />
+        </InputGroupItem>
+        <InputGroupItem>
+          <Button
+            data-testid="launch-expression-modal-btn"
+            variant="control"
+            aria-label="Configure Expression"
+            icon={<PencilAltIcon />}
+            onClick={() => setIsModalOpen(true)}
+          />
+        </InputGroupItem>
+      </InputGroup>
       <Modal
         isOpen={isModalOpen}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,6 +88,6 @@ export const ExpressionModalLauncher = ({
           onChangeExpressionModel={onChange}
         ></ExpressionEditor>
       </Modal>
-    </div>
+    </>
   );
 };
