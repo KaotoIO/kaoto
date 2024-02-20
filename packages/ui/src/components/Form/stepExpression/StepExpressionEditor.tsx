@@ -1,8 +1,9 @@
+import { wrapField } from '@kaoto-next/uniforms-patternfly';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ICamelLanguageDefinition } from '../../../models';
 import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { ExpressionService } from '..//expression/expression.service';
-import { ICamelLanguageDefinition } from '../../../models';
 import { ExpressionModalLauncher } from '../expression/ExpressionModalLauncher';
 
 interface StepExpressionEditorProps {
@@ -58,18 +59,26 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   const handleCancel = useCallback(() => {
     resetModel();
   }, [resetModel]);
+  const title = props.selectedNode.label;
+  const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
 
   return (
     languageCatalogMap && (
-      <ExpressionModalLauncher
-        name={props.selectedNode.id}
-        title={props.selectedNode.label}
-        language={preparedLanguage}
-        model={preparedModel}
-        onChange={handleOnChange}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
+      <div className="expression-field pf-v5-c-form">
+        {wrapField(
+          { ...props, label: 'Expression', id: 'expression-wrapper', description: description },
+          <ExpressionModalLauncher
+            name={props.selectedNode.id}
+            title={title}
+            description={description}
+            language={preparedLanguage}
+            model={preparedModel}
+            onChange={handleOnChange}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />,
+        )}
+      </div>
     )
   );
 };

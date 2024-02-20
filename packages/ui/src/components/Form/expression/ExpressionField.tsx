@@ -1,9 +1,9 @@
-import { connectField, HTMLFieldProps } from 'uniforms';
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ExpressionService } from './expression.service';
+import { HTMLFieldProps, connectField } from 'uniforms';
 import { ICamelLanguageDefinition } from '../../../models';
 import { ExpressionModalLauncher } from './ExpressionModalLauncher';
+import { ExpressionService } from './expression.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExpressionFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -53,13 +53,17 @@ const ExpressionFieldComponent = (props: ExpressionFieldProps) => {
     resetModel();
   }, [resetModel]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const title = (props.field as any).title;
+  const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
+
   return wrapField(
-    props,
+    { ...props, description: description },
     <ExpressionModalLauncher
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       name={(props.field as any).name}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      title={(props.field as any).title}
+      title={title}
+      description={description}
       language={preparedLanguage}
       onCancel={handleCancel}
       onConfirm={handleConfirm}
