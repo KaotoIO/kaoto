@@ -16,8 +16,8 @@
         username: dbuser
         password: dbpass
         driver-class-name: com.mysql.jdbc.Driver
-    - name: mysqlPostgreSqlSource
-      type: io.kaoto.MysqlPostgreSqlSource
+    - name: postgreSqlSource
+      type: io.kaoto.PostgreSqlSource
       properties:
         port: "5432"
         url: jdbc:postgresql://localhost/test

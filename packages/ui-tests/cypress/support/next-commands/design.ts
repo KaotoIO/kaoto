@@ -132,7 +132,7 @@ Cypress.Commands.add('configureBeanReference', (inputName: string, value?: strin
   cy.get(`[data-fieldname="${inputName}"]`).scrollIntoView();
   cy.get(`[data-fieldname="${inputName}"] input`).click();
   cy.get(`[id$="${value}"]`).click();
-  cy.get(`div[data-fieldname="${inputName}"] input[value="#${value}"]`).should('exist');
+  cy.get(`div[data-fieldname="${inputName}"] input[value="${value}"]`).should('exist');
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
