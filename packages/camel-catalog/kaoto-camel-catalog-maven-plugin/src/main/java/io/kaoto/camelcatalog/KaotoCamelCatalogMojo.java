@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,7 +112,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         var index = new Index();
         var yamlDslSchemaProcessor = processCamelSchema(path, index);
         processK8sSchema(path, index);
-        processCatalog(yamlDslSchemaProcessor, index);
+        processCatalog(yamlDslSchemaProcessor, index, path);
         processCRDs(path, index);
         processKamelets(path, index);
         processAdditionalSchemas(path, index);
@@ -213,12 +214,25 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
         }
     }
 
-    private void processCatalog(CamelYamlDslSchemaProcessor schemaProcessor, Index index) {
+    private void processCatalog(CamelYamlDslSchemaProcessor schemaProcessor, Index index, Path inputDir) {
         var catalogProcessor = new CamelCatalogProcessor(jsonMapper, schemaProcessor);
         try {
             var catalogMap = catalogProcessor.processCatalog();
             catalogMap.forEach((name, catalog) -> {
                 try {
+                    if (name == "entities") {
+                        var catalogNode = jsonMapper.readTree(catalog);
+                        var schema = inputDir.resolve("schema").resolve("KameletConfiguration.json");
+                        ((ObjectNode) catalogNode).putObject("KameletConfiguration").putObject("propertiesSchema");
+                        ((ObjectNode) catalogNode.path("KameletConfiguration").path("propertiesSchema"))
+                                .setAll((ObjectNode) jsonMapper.readTree(schema.toFile()));
+
+                        StringWriter writer = new StringWriter();
+                        var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
+                        jsonMapper.writeTree(jsonGenerator, catalogNode);
+                        catalog = writer.toString();
+                    }
+
                     var outputFileName = String.format(
                             "%s-%s-%s.json", CAMEL_CATALOG_AGGREGATE, name, Util.generateHash(catalog));
                     var output = outputDirectory.toPath().resolve(outputFileName);
