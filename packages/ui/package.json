@@ -46,7 +46,7 @@
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@patternfly/patternfly": "5.2.0",
-    "@patternfly/react-code-editor": "5.1.0",
+    "@patternfly/react-code-editor": "5.2.0",
     "@patternfly/react-core": "5.2.0",
     "@patternfly/react-icons": "5.2.0",
     "@patternfly/react-table": "5.2.0",
