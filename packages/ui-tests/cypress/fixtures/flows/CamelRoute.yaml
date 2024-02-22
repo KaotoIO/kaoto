@@ -1,5 +1,5 @@
 - route:
-    id: Camel Route
+    id: camel-route
     from:
       uri: timer:test
       steps:
