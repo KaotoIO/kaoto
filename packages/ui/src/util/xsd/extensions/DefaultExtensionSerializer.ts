@@ -1,5 +1,6 @@
-import { ExtensionSerializer } from '.';
-import { MetaDataConstants, XmlSchemaObject } from '..';
+import type { ExtensionSerializer } from './ExtensionSerializer';
+import type { XmlSchemaObject } from '../XmlSchemaObject';
+import { MetaDataConstants } from '../constants';
 
 /**
 

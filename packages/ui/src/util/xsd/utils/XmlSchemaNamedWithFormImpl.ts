@@ -1,7 +1,8 @@
-import { XmlSchemaNamedImpl } from '.';
-import type { XmlSchemaNamedWithForm } from '.';
-import { QName, XmlSchemaForm } from '..';
-import type { XmlSchema } from '..';
+import type { XmlSchemaNamedWithForm } from './XmlSchemaNamedWithForm';
+import type { XmlSchema } from '../XmlSchema';
+import { XmlSchemaNamedImpl } from './XmlSchemaNamedImpl';
+import { QName } from '../QName';
+import { XmlSchemaForm } from '../XmlSchemaForm';
 
 /**
  *

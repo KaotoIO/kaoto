@@ -1,6 +1,6 @@
 import type { QName, XmlSchema } from '..';
+import { XmlSchemaObjectBase } from '.';
 
-export interface XmlSchemaObjectBase {}
 export interface XmlSchemaNamed extends XmlSchemaObjectBase {
   /**
    * Retrieve the name.
@@ -42,15 +42,4 @@ export interface XmlSchemaNamed extends XmlSchemaObjectBase {
    * is nested inside of some other schema object.
    */
   isTopLevel(): boolean;
-}
-
-export interface XmlSchemaNamedWithForm extends XmlSchemaNamed {}
-
-export enum XmlSchemaNamedType {
-  XmlSchemaElement,
-  XmlSchemaAttribute,
-  XmlSchemaType,
-  XmlSchemaAttributeGroup,
-  XmlSchemaGroup,
-  XmlSchemaNotation,
 }

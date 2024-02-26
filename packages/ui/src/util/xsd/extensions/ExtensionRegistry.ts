@@ -1,10 +1,9 @@
-import { QName, XmlSchemaObject } from '..';
-import {
-  DefaultExtensionDeserializer,
-  DefaultExtensionSerializer,
-  ExtensionDeserializer,
-  ExtensionSerializer,
-} from '.';
+import { QName } from '../QName';
+import { XmlSchemaObject } from '../XmlSchemaObject';
+import { DefaultExtensionDeserializer } from './DefaultExtensionDeserializer';
+import { DefaultExtensionSerializer } from './DefaultExtensionSerializer';
+import { ExtensionDeserializer } from './ExtensionDeserializer';
+import { ExtensionSerializer } from './ExtensionSerializer';
 
 export class ExtensionRegistry {
   /**

@@ -1,4 +1,4 @@
-import { XmlSchemaObject } from '..';
+import { XmlSchemaObject } from '../XmlSchemaObject';
 
 /**
  * Interface for the extension serializer. The purpose of an instance of this is to serialize the relevant

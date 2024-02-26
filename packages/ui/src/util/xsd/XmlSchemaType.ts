@@ -1,7 +1,8 @@
-import { XmlSchemaAnnotated, XmlSchemaDerivationMethod } from '.';
-import type { XmlSchema } from '.';
-import { XmlSchemaNamedImpl } from './utils';
-import type { XmlSchemaNamed } from './utils';
+import type { XmlSchema } from './XmlSchema';
+import type { XmlSchemaNamed } from './utils/XmlSchemaNamed';
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
+import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
+import { XmlSchemaNamedImpl } from './utils/XmlSchemaNamedImpl';
 
 export class XmlSchemaType extends XmlSchemaAnnotated implements XmlSchemaNamed {
   private deriveBy: XmlSchemaDerivationMethod | null = null;

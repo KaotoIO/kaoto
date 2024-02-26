@@ -1,7 +1,7 @@
+import type { XmlSchema } from '../XmlSchema';
+import type { XmlSchemaNamed } from './XmlSchemaNamed';
 import { XmlSchemaRefBase } from './XmlSchemaRefBase';
-import type { XmlSchemaNamed } from '.';
-import { XmlSchemaNamedType } from '.';
-import type { XmlSchema } from '..';
+import { XmlSchemaNamedType } from './XmlSchemaNamedType';
 
 export class XmlSchemaRef<T extends XmlSchemaNamed> extends XmlSchemaRefBase {
   private targetObject: XmlSchemaNamed | null = null;

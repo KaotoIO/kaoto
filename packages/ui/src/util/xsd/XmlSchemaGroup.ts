@@ -1,13 +1,12 @@
-import { XmlSchemaAnnotated } from '.';
-import type {
-  XmlSchema,
-  XmlSchemaAllMember,
-  XmlSchemaChoiceMember,
-  XmlSchemaGroupParticle,
-  XmlSchemaSequenceMember,
-} from '.';
-import { XmlSchemaNamedImpl } from './utils';
-import type { XmlSchemaNamed } from './utils';
+import type { XmlSchema } from './XmlSchema';
+import type { XmlSchemaAllMember } from './particle/XmlSchemaAllMember';
+import type { XmlSchemaChoiceMember } from './particle/XmlSchemaChoiceMember';
+import type { XmlSchemaGroupParticle } from './particle/XmlSchemaGroupParticle';
+import type { XmlSchemaSequenceMember } from './particle/XmlSchemaSequenceMember';
+import type { XmlSchemaNamed } from './utils/XmlSchemaNamed';
+
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
+import { XmlSchemaNamedImpl } from './utils/XmlSchemaNamedImpl';
 
 export class XmlSchemaGroup
   extends XmlSchemaAnnotated

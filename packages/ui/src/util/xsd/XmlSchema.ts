@@ -1,45 +1,23 @@
-import {
-  URI_2001_SCHEMA_XSD,
-  XmlSchemaAnnotated,
-  XmlSchemaDerivationMethod,
-  QName,
-  XmlSchemaImport,
-  XmlSchemaInclude,
-} from '.';
-import type {
-  XmlSchemaAttribute,
-  XmlSchemaAttributeGroup,
-  XmlSchemaCollection,
-  XmlSchemaElement,
-  XmlSchemaExternal,
-  XmlSchemaGroup,
-  XmlSchemaNotation,
-  XmlSchemaObject,
-  XmlSchemaType,
-} from '.';
-import type { NamespaceContextOwner, NamespacePrefixList } from './utils';
+import type { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import type { XmlSchemaAttributeGroup } from './attribute/XmlSchemaAttributeGroup';
+import type { XmlSchemaCollection } from './XmlSchemaCollection';
+import type { XmlSchemaElement } from './particle/XmlSchemaElement';
+import type { XmlSchemaExternal } from './external/XmlSchemaExternal';
+import type { XmlSchemaGroup } from './XmlSchemaGroup';
+import type { XmlSchemaNotation } from './XmlSchemaNotation';
+import type { XmlSchemaObject } from './XmlSchemaObject';
+import type { XmlSchemaType } from './XmlSchemaType';
+import type { NamespaceContextOwner } from './utils/NamespaceContextOwner';
+import type { NamespacePrefixList } from './utils/NamespacePrefixList';
+
+import { QName } from './QName';
+import { SchemaKey } from './SchemaKey';
+import { URI_2001_SCHEMA_XSD } from './constants';
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
+import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
 import { XmlSchemaForm } from './XmlSchemaForm';
-
-export class SchemaKey {
-  private namespace: string;
-  private systemId: string;
-
-  constructor(namespace?: string | null, systemId?: string | null) {
-    this.namespace = namespace != null ? namespace : '';
-    this.systemId = systemId != null ? systemId : '';
-  }
-
-  toString() {
-    return this.namespace === '' ? this.systemId : `{${this.namespace}}${this.systemId}`;
-  }
-
-  getNamespace() {
-    return this.namespace;
-  }
-  getSystemId() {
-    return this.systemId;
-  }
-}
+import { XmlSchemaImport } from './external/XmlSchemaImport';
+import { XmlSchemaInclude } from './external/XmlSchemaInclude';
 
 export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwner {
   static readonly SCHEMA_NS = URI_2001_SCHEMA_XSD;

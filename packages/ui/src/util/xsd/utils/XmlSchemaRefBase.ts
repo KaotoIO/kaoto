@@ -1,6 +1,6 @@
 import type { XmlSchema } from '../XmlSchema';
-import { QName } from '../QName';
 import type { XmlSchemaNamed } from './XmlSchemaNamed';
+import { QName } from '../QName';
 
 export abstract class XmlSchemaRefBase {
   protected parent: XmlSchema | null = null;

@@ -1,4 +1,4 @@
-import { DEFAULT_NS_PREFIX, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '..';
+import { DEFAULT_NS_PREFIX, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '../constants';
 
 export class PrefixCollector {
   static searchLocalPrefixDeclarations(

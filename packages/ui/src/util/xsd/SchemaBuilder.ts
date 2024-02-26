@@ -1,54 +1,54 @@
-import {
-  DocumentFragmentNodeList,
-  QName,
-  SchemaKey,
-  XmlSchema,
-  XmlSchemaAll,
-  XmlSchemaAny,
-  XmlSchemaAnnotation,
-  XmlSchemaAnyAttribute,
-  XmlSchemaAppInfo,
-  XmlSchemaAttribute,
-  XmlSchemaAttributeGroup,
-  XmlSchemaAttributeGroupRef,
-  XmlSchemaChoice,
-  XmlSchemaComplexContent,
-  XmlSchemaComplexContentExtension,
-  XmlSchemaComplexContentRestriction,
-  XmlSchemaComplexType,
-  XmlSchemaContentProcessing,
-  XmlSchemaDerivationMethod,
-  XmlSchemaDocumentation,
-  XmlSchemaElement,
-  XmlSchemaFacet,
-  XmlSchemaForm,
-  XmlSchemaGroup,
-  XmlSchemaGroupRef,
-  XmlSchemaImport,
-  XmlSchemaInclude,
-  XmlSchemaKey,
-  XmlSchemaKeyref,
-  XmlSchemaNotation,
-  XmlSchemaRedefine,
-  XmlSchemaSequence,
-  XmlSchemaSimpleContent,
-  XmlSchemaSimpleContentExtension,
-  XmlSchemaSimpleContentRestriction,
-  XmlSchemaSimpleType,
-  XmlSchemaSimpleTypeList,
-  XmlSchemaSimpleTypeRestriction,
-  XmlSchemaSimpleTypeUnion,
-  XmlSchemaUnique,
-  XmlSchemaXPath,
-  xmlSchemaFormValueOf,
-  xmlSchemaContentProcessingValueOf,
-  xmlSchemaUseValueOf,
-} from '.';
-import type { XmlSchemaCollection, XmlSchemaObject, XmlSchemaIdentityConstraint } from '.';
-import { NodeNamespaceContext, XDOMUtil } from './utils';
-import type { NamespaceContext } from './utils';
-import type { ExtensionRegistry } from './extensions';
+import type { XmlSchemaCollection } from './XmlSchemaCollection';
+import type { XmlSchemaObject } from './XmlSchemaObject';
+import type { XmlSchemaIdentityConstraint } from './constraint/XmlSchemaIdentityConstraint';
+import type { NamespaceContext } from './utils/NamespaceContext';
+import type { ExtensionRegistry } from './extensions/ExtensionRegistry';
+
+import { DocumentFragmentNodeList } from './DocumentFragmentNodeList';
+import { QName } from './QName';
+import { SchemaKey } from './SchemaKey';
+import { XmlSchema } from './XmlSchema';
+import { XmlSchemaAll } from './particle/XmlSchemaAll';
+import { XmlSchemaAny } from './particle/XmlSchemaAny';
+import { XmlSchemaAnnotation } from './annotation/XmlSchemaAnnotation';
+import { XmlSchemaAnyAttribute } from './XmlSchemaAnyAttribute';
+import { XmlSchemaAppInfo } from './annotation/XmlSchemaAppInfo';
+import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import { XmlSchemaAttributeGroup } from './attribute/XmlSchemaAttributeGroup';
+import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
+import { XmlSchemaChoice } from './particle/XmlSchemaChoice';
+import { XmlSchemaComplexContent } from './complex/XmlSchemaComplexContent';
+import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
+import { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
+import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+import { XmlSchemaContentProcessing, xmlSchemaContentProcessingValueOf } from './XmlSchemaContentProcessing';
+import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
+import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaForm, xmlSchemaFormValueOf } from './XmlSchemaForm';
+import { XmlSchemaGroup } from './XmlSchemaGroup';
+import { XmlSchemaGroupRef } from './particle/XmlSchemaGroupRef';
+import { XmlSchemaImport } from './external/XmlSchemaImport';
+import { XmlSchemaInclude } from './external/XmlSchemaInclude';
+import { XmlSchemaKeyref } from './constraint/XmlSchemaKeyref';
+import { XmlSchemaNotation } from './XmlSchemaNotation';
+import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
+import { XmlSchemaSimpleContent } from './simple/XmlSchemaSimpleContent';
+import { XmlSchemaSimpleContentExtension } from './simple/XmlSchemaSimpleContentExtension';
+import { XmlSchemaSimpleContentRestriction } from './simple/XmlSchemaSimpleContentRestriction';
+import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import { XmlSchemaSimpleTypeList } from './simple/XmlSchemaSimpleTypeList';
+import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
+import { XmlSchemaSimpleTypeUnion } from './simple/XmlSchemaSimpleTypeUnion';
+import { XmlSchemaUnique } from './constraint/XmlSchemaUnique';
+import { XmlSchemaXPath } from './XmlSchemaXPath';
+import { xmlSchemaUseValueOf } from './XmlSchemaUse';
+import { NodeNamespaceContext } from './utils/NodeNamespaceContext';
+import { XDOMUtil } from './utils/XDOMUtil';
 import * as Constants from './constants';
+import { XmlSchemaKey } from './constraint/XmlSchemaKey';
+import { XmlSchemaDocumentation } from './annotation/XmlSchemaDocumentation';
+import { XmlSchemaRedefine } from './external/XmlSchemaRedefine';
+import { XmlSchemaFacetConstructor } from './facet/XmlSchemaFacetConstructor';
 
 export class SchemaBuilder {
   private resolvedSchemas = new Map<string, XmlSchema>();
@@ -1493,7 +1493,7 @@ export class SchemaBuilder {
       } else if (el.localName === 'annotation') {
         restriction.setAnnotation(this.handleAnnotation(el));
       } else {
-        const facet = XmlSchemaFacet.construct(el);
+        const facet = XmlSchemaFacetConstructor.construct(el);
         const annotation = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
 
         if (annotation != null) {
@@ -1574,7 +1574,7 @@ export class SchemaBuilder {
       el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)
     ) {
       if (el.localName !== 'annotation' && el.localName !== 'simpleType') {
-        const facet = XmlSchemaFacet.construct(el);
+        const facet = XmlSchemaFacetConstructor.construct(el);
         const annotation = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'annotation');
 
         if (annotation != null) {

@@ -1,6 +1,6 @@
 import { IDocument, Document } from '../models';
-import { XmlSchemaCollection } from '../util/xsd';
-import type { XmlSchema } from '../util/xsd';
+import type { XmlSchema } from '../util/xsd/XmlSchema';
+import { XmlSchemaCollection } from '../util/xsd/XmlSchemaCollection';
 
 export class DocumentService {
   static parseXmlSchema(content: string): IDocument {

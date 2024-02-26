@@ -1,10 +1,4 @@
-export interface URIResolver {
-  resolveEntity(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): string;
-}
-export interface CollectionURIResolver extends URIResolver {
-  setCollectionBaseURI(uri: string): void;
-  getCollectionBaseURI(): string | undefined;
-}
+import { CollectionURIResolver } from './CollectionURIResolver';
 
 export class DefaultURIResolver implements CollectionURIResolver {
   private collectionBaseUri?: string;

@@ -1,5 +1,5 @@
-import { XmlSchemaObject } from '.';
-import type { XmlSchemaAnnotation } from '.';
+import type { XmlSchemaAnnotation } from './annotation/XmlSchemaAnnotation';
+import { XmlSchemaObject } from './XmlSchemaObject';
 
 export class XmlSchemaAnnotated extends XmlSchemaObject {
   private annotation?: XmlSchemaAnnotation;

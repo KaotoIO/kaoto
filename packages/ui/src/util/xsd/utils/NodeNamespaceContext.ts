@@ -1,5 +1,6 @@
-import { NULL_NS_URI, XML_NS_PREFIX, XML_NS_URI, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '..';
-import { NamespacePrefixList, PrefixCollector } from '.';
+import type { NamespacePrefixList } from './NamespacePrefixList';
+import { NULL_NS_URI, XML_NS_PREFIX, XML_NS_URI, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '../constants';
+import { PrefixCollector } from './PrefixCollector';
 
 export class NodeNamespaceContext implements NamespacePrefixList {
   private prefixes?: string[];
