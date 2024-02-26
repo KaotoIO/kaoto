@@ -4,6 +4,10 @@ import { SourceSchemaType } from '../../camel';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../kamelets-catalog';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { KameletVisualEntity } from './kamelet-visual-entity';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CatalogKind } from '../../catalog-kind';
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 
 describe('KameletVisualEntity', () => {
   let kameletDef: IKameletDefinition;
@@ -78,24 +82,38 @@ describe('KameletVisualEntity', () => {
     expect(kamelet.metadata.name).toEqual('new-id');
   });
 
-  describe('getComponentSchema', () => {
+  describe('getComponentSchema when querying the ROOT_PATH', () => {
+    let entityCatalogMap: Record<string, unknown>;
+    beforeEach(async () => {
+      entityCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+      CamelCatalogService.setCatalogKey(
+        CatalogKind.Entity,
+        entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
+      );
+    });
+
+    afterEach(() => {
+      CamelCatalogService.clearCatalogs();
+    });
+
     it('should return the kamelet root schema when querying the ROOT_PATH', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
       expect(kamelet.getComponentSchema(ROOT_PATH)).toEqual({
         title: 'Kamelet',
-        schema: {},
+        schema: ((entityCatalogMap as Record<string, unknown>).KameletConfiguration as Record<string, unknown>)
+          .propertiesSchema,
         definition: kamelet.route,
       });
     });
+  });
 
-    it('should return the component schema from the underlying AbstractCamelVisualEntity', () => {
-      const getComponentSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getComponentSchema');
+  it('getComponentSchema should return the component schema from the underlying AbstractCamelVisualEntity', () => {
+    const getComponentSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getComponentSchema');
 
-      const kamelet = new KameletVisualEntity(kameletDef);
-      kamelet.getComponentSchema('test-path');
+    const kamelet = new KameletVisualEntity(kameletDef);
+    kamelet.getComponentSchema('test-path');
 
-      expect(getComponentSchemaSpy).toHaveBeenCalledWith('test-path');
-    });
+    expect(getComponentSchemaSpy).toHaveBeenCalledWith('test-path');
   });
 
   it('should return the root uri', () => {

@@ -1,9 +1,7 @@
-import cloneDeep from 'lodash/cloneDeep';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities';
 import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
-import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -41,14 +39,14 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     return super.getComponentSchema(path);
   }
 
-  private getRootKameletSchema(): KaotoSchemaDefinition['schema'] {
-    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, 'KameletConfiguration');
+  private getRootKameletSchema(): Record<string, unknown> {
+    const rootKameletDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, 'KameletConfiguration');
 
-    if (processorDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
+    if (rootKameletDefinition === undefined) return {} as Record<string, unknown>;
 
-    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
-    if (processorDefinition.propertiesSchema !== undefined) {
-      schema = cloneDeep(processorDefinition.propertiesSchema);
+    let schema = {} as Record<string, unknown>;
+    if (rootKameletDefinition.propertiesSchema !== undefined) {
+      schema = rootKameletDefinition.propertiesSchema;
     }
 
     return schema;
