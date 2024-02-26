@@ -10,15 +10,19 @@ describe('Catalog related tests', () => {
     cy.get('.pf-v5-c-text-input-group__text-input').type('timer');
     cy.get('div[id="timer"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').should('have.value', '');
 
     cy.get('[data-testid="processor-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('choice');
     cy.get('div[id="choice"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').should('have.value', '');
 
     cy.get('[data-testid="kamelet-catalog-tab"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').type('google');
     cy.get('div[id="google-storage-source"]').should('be.visible');
+    cy.get('button[aria-label="Reset"]').click();
+    cy.get('.pf-v5-c-text-input-group__text-input').should('have.value', '');
   });
 
   it('Catalog filtering using tags', () => {

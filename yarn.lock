@@ -2517,6 +2517,7 @@ __metadata:
     typescript: ^5.0.2
     uniforms: 4.0.0-alpha.5
     uniforms-bridge-json-schema: 4.0.0-alpha.5
+    usehooks-ts: ^2.15.1
     uuid: ^9.0.0
     vite: ^4.4.5
     vite-plugin-dts: ^3.5.1
@@ -18946,6 +18947,17 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: 5c639e0f8da3521d605f59ce5be9e094ca772bd44a4ce7322b055a6f58eeed8dda3c94cabd90c7a41fb6fa852210092008afe48f7038792fd47501f33299116a
+  languageName: node
+  linkType: hard
+
+"usehooks-ts@npm:^2.15.1":
+  version: 2.15.1
+  resolution: "usehooks-ts@npm:2.15.1"
+  dependencies:
+    lodash.debounce: ^4.0.8
+  peerDependencies:
+    react: ^16.8.0  || ^17 || ^18
+  checksum: fe5f88780ec37cb9c00b5b456831e550e5e0d420031b88aab5e536cc42d927cfeaf39fa209d0829e45e1f8342446c149377ccbf11f0e922ef185b16986de7860
   languageName: node
   linkType: hard
 

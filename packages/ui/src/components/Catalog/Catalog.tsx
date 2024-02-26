@@ -1,10 +1,12 @@
 import { FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 import { useLocalStorage } from '../../hooks';
 import { LocalStorageKeys } from '../../models';
 import { BaseCatalog } from './BaseCatalog';
 import { CatalogLayout, ITile } from './Catalog.models';
 import './Catalog.scss';
 import { CatalogFilter } from './CatalogFilter';
+import { filterTiles } from './filter-tiles';
 
 interface CatalogProps {
   /** Tiles list */
@@ -14,51 +16,31 @@ interface CatalogProps {
   onTileClick?: (tile: ITile) => void;
 }
 
-const checkThatArrayContainsAllTags = (arr: string[], tags: string[]) => tags.every((v) => arr.includes(v));
-
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
-  /** Set the tiles groups */
-  const tilesGroups = useMemo(() => {
-    return Array.from(new Set(props.tiles.map((tile) => tile.type)));
-  }, [props.tiles]);
-
   /** Selected Group */
-  const [activeGroup, setActiveGroup] = useState<string>(tilesGroups[0]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+  const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
   const [filterTags, setFilterTags] = useState<string[]>([]);
 
   /** Filter by selected group */
-  const tilesFromGroup = useMemo(() => {
-    return !activeGroup ? props.tiles : props.tiles.filter((tile) => activeGroup === tile.type);
-  }, [activeGroup, props.tiles]);
+  const filteredTilesByGroup = useMemo(() => {
+    return filterTiles(props.tiles, { searchTerm, searchTags: filterTags });
+  }, [filterTags, props.tiles, searchTerm]);
 
-  const filteredTiles = useMemo(() => {
-    let toBeFiltered: ITile[] = [];
-    // filter by selected tags
-    toBeFiltered = filterTags
-      ? tilesFromGroup.filter((tile) => {
-          return checkThatArrayContainsAllTags(tile.tags, filterTags);
-        })
-      : tilesFromGroup;
-    // filter by search term ( name, description, tag )
-    toBeFiltered = searchTerm
-      ? toBeFiltered?.filter((tile) => {
-          return (
-            tile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tile.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tile.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tile.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-          );
-        })
-      : toBeFiltered;
+  /** Set the tiles groups */
+  const tilesGroups = useMemo(() => {
+    return Object.entries(filteredTilesByGroup).map(([group, tiles]) => ({ name: group, count: tiles.length }));
+  }, [filteredTilesByGroup]);
 
-    return toBeFiltered;
-  }, [filterTags, searchTerm, tilesFromGroup]);
+  const [activeGroup, setActiveGroup] = useState<string>(tilesGroups[0].name);
+  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+  const filteredTiles = useMemo(() => filteredTilesByGroup[activeGroup] ?? [], [activeGroup, filteredTilesByGroup]);
 
-  const onFilterChange = useCallback((_event: unknown, value = '') => {
-    setSearchTerm(value);
-  }, []);
+  const onFilterChange = useCallback(
+    (_event: unknown, value = '') => {
+      setSearchTerm(value);
+    },
+    [setSearchTerm],
+  );
 
   const onTileClick = useCallback(
     (tile: ITile) => {

@@ -1,4 +1,5 @@
 import {
+  Badge,
   Form,
   FormGroup,
   Grid,
@@ -17,7 +18,7 @@ import { CatalogLayoutIcon } from './CatalogLayoutIcon';
 interface CatalogFilterProps {
   className?: string;
   searchTerm: string;
-  groups: string[];
+  groups: { name: string; count: number }[];
   layouts: CatalogLayout[];
   activeGroup: string;
   activeLayout: CatalogLayout;
@@ -58,15 +59,19 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
         <GridItem className="pf-v5-u-text-align-right" md={5}>
           <FormGroup label="Type" fieldId="element-type">
             <ToggleGroup aria-label="Select element type">
-              {props.groups.map((key) => (
+              {props.groups.map((tileGroup) => (
                 <ToggleGroupItem
-                  text={capitalize(key)}
-                  key={key}
-                  data-testid={`${key}-catalog-tab`}
-                  buttonId={`toggle-group-button-${key}`}
-                  isSelected={props.activeGroup === key}
+                  text={
+                    <>
+                      <span>{capitalize(tileGroup.name)}</span> <Badge isRead>{tileGroup.count}</Badge>
+                    </>
+                  }
+                  key={tileGroup.name}
+                  data-testid={`${tileGroup.name}-catalog-tab`}
+                  buttonId={`toggle-group-button-${tileGroup.name}`}
+                  isSelected={props.activeGroup === tileGroup.name}
                   onChange={() => {
-                    props.setActiveGroup(key);
+                    props.setActiveGroup(tileGroup.name);
                     inputRef.current?.focus();
                   }}
                 />
