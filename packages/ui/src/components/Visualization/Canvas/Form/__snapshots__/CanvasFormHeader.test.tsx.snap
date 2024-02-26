@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CanvasFormHeader renders correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="pf-v5-l-grid pf-m-gutter"
+  >
+    <div
+      class="pf-v5-l-grid__item pf-m-11-col form-header"
+    >
+      <img
+        alt="icon"
+        class="form-header__icon-nodeId"
+        src="nodeIcon"
+      />
+      <h2
+        class="pf-v5-c-title pf-m-xl form-header__title"
+        data-ouia-component-id="OUIA-Generated-Title-1"
+        data-ouia-component-type="PF5/Title"
+        data-ouia-safe="true"
+      >
+        title
+      </h2>
+    </div>
+    <div
+      class="pf-v5-l-grid__item pf-m-1-col"
+    >
+      <button
+        aria-disabled="false"
+        class="pf-v5-c-button pf-m-plain"
+        data-ouia-component-id="OUIA-Generated-Button-plain-1"
+        data-ouia-component-type="PF5/Button"
+        data-ouia-safe="true"
+        data-testid="close-side-bar"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="pf-v5-svg"
+          fill="currentColor"
+          height="1em"
+          role="img"
+          viewBox="0 0 352 512"
+          width="1em"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;

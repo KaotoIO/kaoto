@@ -1,0 +1,14 @@
+.form-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  img[class^='form-header__icon-'] {
+    height: 40px;
+    margin-right: 10px;
+  }
+
+  &__title {
+    text-transform: capitalize;
+  }
+}

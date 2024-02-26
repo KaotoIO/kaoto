@@ -18,7 +18,7 @@ export class CamelComponentSchemaService {
     const updatedDefinition = this.getUpdatedDefinition(camelElementLookup, definition);
 
     return {
-      title: camelElementLookup.processorName,
+      title: camelElementLookup.componentName ?? camelElementLookup.processorName,
       schema: this.getSchema(camelElementLookup),
       definition: updatedDefinition,
     };

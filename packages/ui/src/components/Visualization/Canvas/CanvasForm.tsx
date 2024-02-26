@@ -1,7 +1,8 @@
-import { Title } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import isEmpty from 'lodash.isempty';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
+import { setValue } from '../../../utils';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { SchemaService } from '../../Form';
 import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
@@ -10,11 +11,12 @@ import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
 import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
 import { UnknownNode } from '../Custom/UnknownNode';
 import './CanvasForm.scss';
+import { CanvasFormHeader } from './Form/CanvasFormHeader';
 import { CanvasNode } from './canvas.models';
-import { setValue } from '../../../utils';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
+  onClose?: () => void;
 }
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
@@ -34,7 +36,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     return schemaServiceRef.current.getSchemaBridge(visualComponentSchema?.schema);
   }, [visualComponentSchema?.schema]);
   const model = visualComponentSchema?.definition;
-  const componentName = visualComponentSchema?.title;
+  const title = visualComponentSchema?.title;
 
   useEffect(() => {
     formRef.current?.form.reset();
@@ -54,45 +56,46 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     [entitiesContext, props.selectedNode.data?.vizNode],
   );
 
-  const isExpressionAwareStep = useMemo(() => {
-    return schema?.schema && schema.schema['$comment']?.includes('expression');
-  }, [schema]);
-
-  const isDataFormatAwareStep = useMemo(() => {
-    return schema?.schema && schema.schema['$comment']?.includes('dataformat');
-  }, [schema]);
-
-  const isLoadBalanceAwareStep = useMemo(() => {
-    return schema?.schema && schema.schema['$comment']?.includes('loadbalance');
-  }, [schema]);
-
-  const isUnknownComponent = useMemo(() => {
-    return schema?.schema === undefined || Object.keys(schema?.schema).length === 0;
+  const stepFeatures = useMemo(() => {
+    const isExpressionAwareStep = schema?.schema && schema.schema['$comment']?.includes('expression');
+    const isDataFormatAwareStep = schema?.schema && schema.schema['$comment']?.includes('dataformat');
+    const isLoadBalanceAwareStep = schema?.schema && schema.schema['$comment']?.includes('loadbalance');
+    const isUnknownComponent = schema?.schema === undefined || Object.keys(schema?.schema).length === 0;
+    return { isExpressionAwareStep, isDataFormatAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
   }, [schema]);
 
   return (
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
-      <Title headingLevel="h1">{componentName}</Title>
-      <div className="canvas-form">
-        {isUnknownComponent ? (
-          <UnknownNode model={model} />
-        ) : (
-          <>
-            {isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-            {isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-            {isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-            <CustomAutoForm
-              ref={formRef}
-              schemaBridge={schema}
-              model={model}
-              onChange={handleOnChangeIndividualProp}
-              sortFields={false}
-              omitFields={SchemaService.OMIT_FORM_FIELDS}
-              data-testid="autoform"
-            />
-          </>
-        )}
-      </div>
+      <Card className="canvas-form">
+        <CardHeader>
+          <CanvasFormHeader
+            nodeId={props.selectedNode.id}
+            title={title}
+            onClose={props.onClose}
+            nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
+          />
+        </CardHeader>
+        <CardBody className="canvas-form__body">
+          {stepFeatures.isUnknownComponent ? (
+            <UnknownNode model={model} />
+          ) : (
+            <>
+              {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
+              {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+              {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+              <CustomAutoForm
+                ref={formRef}
+                schemaBridge={schema}
+                model={model}
+                onChange={handleOnChangeIndividualProp}
+                sortFields={false}
+                omitFields={SchemaService.OMIT_FORM_FIELDS}
+                data-testid="autoform"
+              />
+            </>
+          )}
+        </CardBody>
+      </Card>
     </ErrorBoundary>
   );
 };
