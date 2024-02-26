@@ -25,4 +25,20 @@
   span[data-label='group'] {
     font-weight: normal;
   }
+
+  &__body {
+    height: 75vh;
+
+    @media screen and (height <= 720px) {
+      height: 100vh;
+    }
+
+    @media screen and (height <= 1080px) {
+      height: 75vh;
+    }
+
+    @media screen and (height <= 1440px) {
+      height: 60vh;
+    }
+  }
 }

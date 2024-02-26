@@ -67,8 +67,9 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       onClose={props.onClose}
       ouiaId="BasicModal"
       description={description}
+      variant="large"
     >
-      <ModalBoxBody>
+      <ModalBoxBody className="properties-modal__body">
         {tabs.length === 0 ? (
           <EmptyTableState name={props.tile.name} />
         ) : (
