@@ -55,6 +55,10 @@ Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex?: number) 
   cy.performNodeAction(nodeName, 'append', nodeIndex);
 });
 
+Cypress.Commands.add('selectInsertNode', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'insert', nodeIndex);
+});
+
 Cypress.Commands.add('selectInsertSpecialNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'insert-special', nodeIndex);
 });
