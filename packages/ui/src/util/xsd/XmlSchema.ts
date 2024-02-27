@@ -18,6 +18,7 @@ import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
 import { XmlSchemaForm } from './XmlSchemaForm';
 import { XmlSchemaImport } from './external/XmlSchemaImport';
 import { XmlSchemaInclude } from './external/XmlSchemaInclude';
+import { QNameMap } from './utils/ObjectMap';
 
 export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwner {
   static readonly SCHEMA_NS = URI_2001_SCHEMA_XSD;
@@ -30,12 +31,12 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
   private elementFormDefault = XmlSchemaForm.UNQUALIFIED;
   private attributeFormDefault = XmlSchemaForm.UNQUALIFIED;
   private externals: XmlSchemaExternal[] = [];
-  private attributeGroups = new Map<QName, XmlSchemaAttributeGroup>();
-  private attributes = new Map<QName, XmlSchemaAttribute>();
-  private elements = new Map<QName, XmlSchemaElement>();
-  private groups = new Map<QName, XmlSchemaGroup>();
-  private notations = new Map<QName, XmlSchemaNotation>();
-  private schemaTypes = new Map<QName, XmlSchemaType>();
+  private attributeGroups = new QNameMap<XmlSchemaAttributeGroup>();
+  private attributes = new QNameMap<XmlSchemaAttribute>();
+  private elements = new QNameMap<XmlSchemaElement>();
+  private groups = new QNameMap<XmlSchemaGroup>();
+  private notations = new QNameMap<XmlSchemaNotation>();
+  private schemaTypes = new QNameMap<XmlSchemaType>();
   private syntacticalTargetNamespace: string | null = null;
   private schemaNamespacePrefix: string | null = null;
   private logicalTargetNamespace: string | null = null;
@@ -282,7 +283,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    *
    * @return the map of elements.
    */
-  getElements(): Map<QName, XmlSchemaElement> {
+  getElements(): QNameMap<XmlSchemaElement> {
     return this.elements;
   }
 

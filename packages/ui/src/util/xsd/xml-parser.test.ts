@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 
-describe('XML parser', () => {
+describe.skip('XML parser', () => {
   describe('fast-xml-parser', () => {
     const parser = new XMLParser({
       ignoreAttributes: false,

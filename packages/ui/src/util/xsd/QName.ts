@@ -43,4 +43,13 @@ export class QName {
       }
     }
   }
+
+  equals(other: QName): boolean {
+    return (
+      other != null &&
+      this.namespaceURI == other.namespaceURI &&
+      this.localPart == other.localPart &&
+      this.prefix == other.prefix
+    );
+  }
 }

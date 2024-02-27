@@ -20,19 +20,29 @@ import { ExtensionRegistry } from './extensions/ExtensionRegistry';
 import * as Constants from './constants';
 import { DefaultURIResolver } from './resolver/DefaultURIResolver';
 import { XmlSchemaFractionDigitsFacet } from './facet/XmlSchemaFractionDigitsFacet';
+import { QNameMap, SchemaKeyMap } from './utils/ObjectMap';
 
 export class XmlSchemaCollection {
-  baseUri: string | null = null;
-  private stack: SchemaKey[] = [];
-  private unresolvedTypes = new Map<QName, TypeReceiver[]>();
-  private xsd = new XmlSchema(XmlSchema.SCHEMA_NS, undefined, this);
-  private extReg: ExtensionRegistry = new ExtensionRegistry();
+  baseUri: string | null;
+  private stack: SchemaKey[];
+  private unresolvedTypes: QNameMap<TypeReceiver[]>;
+  private xsd: XmlSchema;
+  private extReg: ExtensionRegistry;
 
-  private knownNamespaceMap: Record<string, XmlSchema> = {};
-  private namespaceContext: NamespacePrefixList | null = null;
-  private schemaResolver: URIResolver = new DefaultURIResolver();
-  private schemas = new Map<SchemaKey, XmlSchema>();
+  private knownNamespaceMap: Record<string, XmlSchema>;
+  private namespaceContext: NamespacePrefixList | null;
+  private schemaResolver: URIResolver;
+  private schemas: SchemaKeyMap<XmlSchema>;
   constructor() {
+    this.baseUri = null;
+    this.stack = [];
+    this.unresolvedTypes = new QNameMap();
+    this.extReg = new ExtensionRegistry();
+    this.knownNamespaceMap = {};
+    this.namespaceContext = null;
+    this.schemaResolver = new DefaultURIResolver();
+    this.schemas = new SchemaKeyMap();
+    this.xsd = new XmlSchema(XmlSchema.SCHEMA_NS, undefined, this);
     this.init();
   }
 
