@@ -26,10 +26,7 @@ import org.apache.camel.tooling.model.JsonMapper;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Customize Camel Catalog for Kaoto.
@@ -113,11 +110,14 @@ public class CamelCatalogProcessor {
                 propertyType = property.get("type").asText();
                 if ("duration".equals(propertyType)) {
                     propertyType = "string";
-                    propertySchema.put("$comment", "duration");
+                    propertySchema.put("format", "duration");
                 }
                 propertySchema.put("type", propertyType);
             }
             if (property.has("deprecated")) propertySchema.put("deprecated", property.get("deprecated").asBoolean());
+            if (property.has("secret") && property.get("secret").asBoolean()) {
+                propertySchema.put("format", "password");
+            }
             if (property.has("required") && property.get("required").asBoolean()) {
                 required.add(propertyName);
             }
@@ -235,24 +235,33 @@ public class CamelCatalogProcessor {
             var modelCatalog = (EipModel) api.model(Kind.eip, name);
             catalogMap.put(modelCatalog.getJavaType(), modelCatalog);
         }
+
         for (var entry : processors.entrySet()) {
+            var sortedSchemaProperties = jsonMapper.createObjectNode();
             var processorFQCN = entry.getKey();
             var processorSchema = entry.getValue();
             var processorCatalog = catalogMap.get(processorFQCN);
-            for (var property : processorSchema.withObject("/properties").properties()) {
-                var propertyName = property.getKey();
-                var propertySchema = (ObjectNode) property.getValue();
+
+            var camelYamlDslProperties = processorSchema.withObject("/properties").properties().stream().map(Map.Entry::getKey).sorted(
+                    new CamelYamlDSLKeysComparator(processorCatalog.getOptions())
+            ).toList();
+
+            for (var propertyName : camelYamlDslProperties) {
+                var propertySchema = processorSchema.withObject("/properties").withObject("/" + propertyName);
                 if (TO_DYNAMIC_DEFINITION.equals(processorFQCN) && "parameters".equals(propertyName)) {
                     // "parameters" as a common property is omitted in the catalog, but we need this for "toD"
                     propertySchema.put("title", "Parameters");
                     propertySchema.put("description", "URI parameters");
+                    sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
                 }
                 if (SET_HEADERS_DEFINITION.equals((processorFQCN)) && "headers".equals(propertyName)) {
                     propertySchema.put("title", "Headers");
                     propertySchema.put("description", "Headers to set");
+                    sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
                 }
+
                 var catalogOpOptional = processorCatalog.getOptions().stream().filter(op -> op.getName().equals(propertyName)).findFirst();
                 if (catalogOpOptional.isEmpty()) {
                     throw new Exception(String.format("Option '%s' not found for processor '%s'", propertyName, processorFQCN));
@@ -262,12 +271,17 @@ public class CamelCatalogProcessor {
                         && !propertySchema.has("$comment")) {
                     propertySchema.put("$comment", "class:" + catalogOp.getJavaType());
                 }
+
+                sortedSchemaProperties.set(propertyName, propertySchema);
             }
+
             var json = JsonMapper.asJsonObject(processorCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", processorSchema);
+            processorSchema.set("properties", sortedSchemaProperties);
             answer.set(processorCatalog.getName(), catalogTree);
         }
+
         StringWriter writer = new StringWriter();
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
         jsonMapper.writeTree(jsonGenerator, answer);
@@ -522,7 +536,7 @@ public class CamelCatalogProcessor {
         json = JsonMapper.asJsonObject(templatedRouteBeanCatalog).toJson();
         catalogTree = (ObjectNode) jsonMapper.readTree(json);
         propertiesSchema = schemaProcessor.getTemplatedRouteBean();
-        processEntityParameters( "templatedRouteBean", propertiesSchema, templatedRouteBeanCatalog);
+        processEntityParameters("templatedRouteBean", propertiesSchema, templatedRouteBeanCatalog);
         catalogTree.set("propertiesSchema", propertiesSchema);
         answer.set("templatedRouteBean", catalogTree);
     }
