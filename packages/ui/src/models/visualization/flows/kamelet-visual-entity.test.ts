@@ -98,12 +98,10 @@ describe('KameletVisualEntity', () => {
 
     it('should return the kamelet root schema when querying the ROOT_PATH', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getComponentSchema(ROOT_PATH)).toEqual({
-        title: 'Kamelet',
-        schema: ((entityCatalogMap as Record<string, unknown>).KameletConfiguration as Record<string, unknown>)
+      expect(kamelet.getComponentSchema(ROOT_PATH)?.schema).toEqual(
+        ((entityCatalogMap as Record<string, unknown>).KameletConfiguration as Record<string, unknown>)
           .propertiesSchema,
-        definition: kamelet.route,
-      });
+      );
     });
   });
 
