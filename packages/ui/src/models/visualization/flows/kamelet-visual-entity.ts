@@ -105,8 +105,8 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
         'camel.apache.org/kamelet.namespace': value.namespace,
       };
 
-      setValue(this.metadata, 'labels', { ...value.labels, 'camel.apache.org/kamelet.type': value.type });
-      setValue(this.metadata, 'annotations', { ...value.annotations, ...customAnnotations });
+      setValue(this.metadata, 'labels', { ...(value.labels as object), 'camel.apache.org/kamelet.type': value.type });
+      setValue(this.metadata, 'annotations', { ...(value.annotations as object), ...customAnnotations });
 
       return;
     }
