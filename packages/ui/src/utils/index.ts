@@ -8,3 +8,5 @@ export * from './is-defined';
 export * from './is-enum-type';
 export * from './node-icon-resolver';
 export * from './set-value';
+export * from './get-custom-schema-from-actual-kamelet-schema';
+export * from './get-actual-kamelet-schema-from-custom-schema';

@@ -1,5 +1,9 @@
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { ROOT_PATH, setValue } from '../../../utils';
+import {
+  ROOT_PATH,
+  getCustomSchemaFromActualKameletSchema,
+  getActualKameletSchemaFromCustomSchema,
+} from '../../../utils';
 import { EntityType } from '../../camel/entities';
 import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -14,7 +18,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
   spec: IKameletSpec;
   metadata: IKameletMetadata;
 
-  constructor(kamelet: IKameletDefinition) {
+  constructor(public kamelet: IKameletDefinition) {
     super({ id: kamelet.metadata?.name, from: kamelet?.spec.template.from });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
     this.metadata = kamelet?.metadata ?? { name: this.id };
@@ -34,54 +38,10 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
 
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
     if (path === ROOT_PATH) {
-      const customSchema = {
-        name: this.metadata.name,
-        title: this.spec.definition.title,
-        description: this.spec.definition.description,
-        type: this.metadata.labels['camel.apache.org/kamelet.type'],
-        icon: this.metadata.annotations['camel.apache.org/kamelet.icon'],
-        supportLevel: this.metadata.annotations['camel.apache.org/kamelet.support.level'],
-        catalogVersion: this.metadata.annotations['camel.apache.org/catalog.version'],
-        provider: this.metadata.annotations['camel.apache.org/provider'],
-        group: this.metadata.annotations['camel.apache.org/kamelet.group'],
-        namespace: this.metadata.annotations['camel.apache.org/kamelet.namespace'],
-      };
-
-      const labels: { [key: string]: string } = {};
-      if (this.metadata.labels && Object.keys(this.metadata.labels).length > 0) {
-        for (const [labelKey, labelValue] of Object.entries(this.metadata.labels)) {
-          switch (labelKey) {
-            case 'camel.apache.org/kamelet.type':
-              break;
-            default:
-              labels[labelKey] = labelValue;
-          }
-        }
-      }
-      setValue(customSchema, 'labels', labels);
-
-      const annotations: { [key: string]: string } = {};
-      if (this.metadata.annotations && Object.keys(this.metadata.annotations).length > 0) {
-        for (const [annotationKey, annotationValue] of Object.entries(this.metadata.annotations)) {
-          switch (annotationKey) {
-            case 'camel.apache.org/kamelet.icon':
-            case 'camel.apache.org/kamelet.support.level':
-            case 'camel.apache.org/catalog.version':
-            case 'camel.apache.org/provider':
-            case 'camel.apache.org/kamelet.group':
-            case 'camel.apache.org/kamelet.namespace':
-              break;
-            default:
-              annotations[annotationKey] = annotationValue;
-          }
-        }
-      }
-      setValue(customSchema, 'annotations', annotations);
-
       return {
         title: 'Kamelet',
         schema: this.getRootKameletSchema(),
-        definition: customSchema,
+        definition: getCustomSchemaFromActualKameletSchema(this.kamelet),
       };
     }
 
@@ -92,22 +52,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     if (!path) return;
 
     if (path === ROOT_PATH) {
-      this.metadata.name = value.name as string;
-      this.spec.definition.title = value.title as string;
-      this.spec.definition.description = value.description as string;
-
-      const customAnnotations = {
-        'camel.apache.org/kamelet.icon': value.icon,
-        'camel.apache.org/kamelet.support.level': value.supportLevel,
-        'camel.apache.org/catalog.version': value.catalogVersion,
-        'camel.apache.org/provider': value.provider,
-        'camel.apache.org/kamelet.group': value.group,
-        'camel.apache.org/kamelet.namespace': value.namespace,
-      };
-
-      setValue(this.metadata, 'labels', { ...(value.labels as object), 'camel.apache.org/kamelet.type': value.type });
-      setValue(this.metadata, 'annotations', { ...(value.annotations as object), ...customAnnotations });
-
+      getActualKameletSchemaFromCustomSchema(this.kamelet, value);
       return;
     }
 
