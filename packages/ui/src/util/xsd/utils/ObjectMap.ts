@@ -23,12 +23,24 @@ abstract class ObjectMap<K, V> {
     this.delegate.delete(JSON.stringify(key));
   }
 
-  abstract createEntriesBridge(delegateEntries: IterableIterator<[string, V]>): IterableIterator<[K, V]>;
+  get size() {
+    return this.delegate.size;
+  }
+
+  clear() {
+    this.delegate.clear();
+  }
+
+  abstract newKeyInstance(stringified: string): K;
+
+  keys() {
+    const delegateKeys = this.delegate.keys();
+    return new KeysBridge<K>(delegateKeys, this.newKeyInstance);
+  }
 
   entries(): IterableIterator<[K, V]> {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
     const delegateEntries = this.delegate.entries();
-    return this.createEntriesBridge(delegateEntries);
+    return new EntriesBridge<K, V>(delegateEntries, this.newKeyInstance);
   }
 
   values() {
@@ -36,37 +48,56 @@ abstract class ObjectMap<K, V> {
   }
 }
 
-abstract class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
-  constructor(private delegateEntries: IterableIterator<[string, V]>) {}
+class KeysBridge<K> implements IterableIterator<K> {
+  constructor(
+    private delegateKeys: IterableIterator<string>,
+    private newKeyInstance: (stringifiedKey: string) => K,
+  ) {}
+
+  [Symbol.iterator](): IterableIterator<K> {
+    return this;
+  }
+
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  next(): IteratorResult<K, any> {
+    const next = this.delegateKeys.next();
+    if (!next.value) {
+      return next as any;
+    }
+    const key: K = this.newKeyInstance(next.value);
+    return { value: key, done: true };
+  }
+}
+
+class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
+  constructor(
+    private delegateEntries: IterableIterator<[string, V]>,
+    private newKeyInstance: (stringifiedKey: string) => K,
+  ) {}
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
     return this;
   }
 
-  abstract newKeyInstance(stringified: string): K;
-
-  next(): IteratorResult<[K, V], any> {
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  next(): IteratorResult<[K, V], [K, V] | undefined> {
     const next = this.delegateEntries.next();
-    return Array.isArray(next) ? [this.newKeyInstance(next[0]), next[1]] : (next as any);
+    if (!next.value) {
+      return next as any;
+    }
+    const key: K = this.newKeyInstance(next.value[0]);
+    return { value: [key, next.value[1]], done: true };
   }
 }
 
 export class QNameMap<V> extends ObjectMap<QName, V> {
-  createEntriesBridge(delegateEntries: IterableIterator<[string, V]>): IterableIterator<[QName, V]> {
-    return new (class extends EntriesBridge<QName, V> {
-      newKeyInstance(stringified: string): QName {
-        return Object.assign(new QName(null, null), JSON.parse(stringified));
-      }
-    })(delegateEntries);
+  newKeyInstance(stringified: string): QName {
+    return Object.assign(new QName(null, null), JSON.parse(stringified));
   }
 }
 
 export class SchemaKeyMap<V> extends ObjectMap<SchemaKey, V> {
-  createEntriesBridge(delegateEntries: IterableIterator<[string, V]>): IterableIterator<[SchemaKey, V]> {
-    return new (class extends EntriesBridge<SchemaKey, V> {
-      newKeyInstance(stringified: string): SchemaKey {
-        return Object.assign(new SchemaKey(), JSON.parse(stringified));
-      }
-    })(delegateEntries);
+  newKeyInstance(stringified: string): SchemaKey {
+    return Object.assign(new SchemaKey(), JSON.parse(stringified));
   }
 }

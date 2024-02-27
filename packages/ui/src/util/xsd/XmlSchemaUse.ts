@@ -9,5 +9,5 @@ export enum XmlSchemaUse {
 }
 
 export function xmlSchemaUseValueOf(name: string) {
-  return XmlSchemaUse[name as keyof typeof XmlSchemaUse];
+  return XmlSchemaUse[name.toUpperCase() as keyof typeof XmlSchemaUse];
 }
