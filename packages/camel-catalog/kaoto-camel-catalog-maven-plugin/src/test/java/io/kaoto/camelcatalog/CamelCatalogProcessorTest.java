@@ -103,6 +103,20 @@ public class CamelCatalogProcessorTest {
                 .withObject("/propertiesSchema");
         var etcdEProperty = etcdSchema.withObject("/properties").withObject("/endpoints");
         assertEquals("Etcd3Constants.ETCD_DEFAULT_ENDPOINTS", etcdEProperty.withArray("/default").get(0).asText());
+
+        var smbSchema = componentCatalog
+                .withObject("/smb")
+                .withObject("/propertiesSchema");
+        var smbUsernameProperty = smbSchema.withObject("/properties").withObject("/username");
+        assertEquals("password", smbUsernameProperty.get("format").asText());
+        var smbPasswordProperty = smbSchema.withObject("/properties").withObject("/password");
+        assertEquals("password", smbPasswordProperty.get("format").asText());
+
+        var cxfSchema = componentCatalog
+                .withObject("/cxf")
+                .withObject("/propertiesSchema");
+        var cxfContinuationTimeout = cxfSchema.withObject("/properties").withObject("/continuationTimeout");
+        assertEquals("duration", cxfContinuationTimeout.get("format").asText());
     }
 
     @Test
