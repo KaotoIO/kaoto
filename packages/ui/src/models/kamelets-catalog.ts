@@ -2,6 +2,19 @@ import { FromDefinition, Kamelet, ObjectMeta, RouteTemplateBeanDefinition } from
 import { SourceSchemaType } from './camel/source-schema-type';
 import { KaotoSchemaDefinition } from './kaoto-schema';
 
+export const enum KameletKnownAnnotations {
+  Icon = 'camel.apache.org/kamelet.icon',
+  SupportLevel = 'camel.apache.org/kamelet.support.level',
+  CatalogVersion = 'camel.apache.org/catalog.version',
+  Provider = 'camel.apache.org/provider',
+  Group = 'camel.apache.org/kamelet.group',
+  Namespace = 'camel.apache.org/kamelet.namespace',
+}
+
+export const enum KameletKnownLabels {
+  Type = 'camel.apache.org/kamelet.type',
+}
+
 export interface IKameletDefinition extends Omit<Kamelet, 'kind' | 'metadata' | 'spec'> {
   kind: SourceSchemaType.Kamelet;
   metadata: IKameletMetadata;
@@ -16,17 +29,17 @@ export interface IKameletMetadata extends ObjectMeta {
 }
 
 export interface IKameletMetadataAnnotations {
-  'camel.apache.org/kamelet.support.level': string;
-  'camel.apache.org/catalog.version': string;
-  'camel.apache.org/kamelet.icon': string;
-  'camel.apache.org/provider': string;
-  'camel.apache.org/kamelet.group': string;
-  'camel.apache.org/kamelet.namespace': string;
+  [KameletKnownAnnotations.SupportLevel]: string;
+  [KameletKnownAnnotations.CatalogVersion]: string;
+  [KameletKnownAnnotations.Icon]: string;
+  [KameletKnownAnnotations.Provider]: string;
+  [KameletKnownAnnotations.Group]: string;
+  [KameletKnownAnnotations.Namespace]: string;
   [k: string]: string;
 }
 
 export interface IKameletMetadataLabels {
-  'camel.apache.org/kamelet.type': string;
+  [KameletKnownLabels.Type]: string;
   [k: string]: string;
 }
 
@@ -36,6 +49,14 @@ export interface IKameletSpec {
   template: {
     beans?: RouteTemplateBeanDefinition[];
     from: FromDefinition;
+  };
+  types?: {
+    in?: {
+      mediaType: string;
+    };
+    out?: {
+      mediaType: string;
+    };
   };
 }
 
@@ -56,4 +77,19 @@ export interface IKameletSpecProperty {
   type: string;
   default?: string | boolean | number;
   example?: string;
+}
+
+export interface IKameletCustomDefinition {
+  name: string;
+  title: string;
+  description: string;
+  type: string;
+  icon: string;
+  supportLevel: string;
+  catalogVersion: string;
+  provider: string;
+  group: string;
+  namespace: string;
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
 }
