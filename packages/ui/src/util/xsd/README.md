@@ -1,4 +1,4 @@
-XmlSchemaTS - XML Schema Parser written in TypeScript, parted from Apache XmlSchema 
+XmlSchemaTS - XML Schema Parser written in TypeScript, ported from Apache XmlSchema 
 ==============================================
 
 This is supposed to be a minimal porting from [Apache XmlSchema](https://ws.apache.org/xmlschema/)
