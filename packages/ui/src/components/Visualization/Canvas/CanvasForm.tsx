@@ -1,5 +1,4 @@
 import { Card, CardBody, CardHeader } from '@patternfly/react-core';
-import isEmpty from 'lodash.isempty';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { setValue } from '../../../utils';
@@ -44,7 +43,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!props.selectedNode.data?.vizNode || (typeof value === 'object' && isEmpty(value))) {
+      if (!props.selectedNode.data?.vizNode) {
         return;
       }
 
