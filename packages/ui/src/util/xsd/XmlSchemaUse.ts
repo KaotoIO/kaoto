@@ -2,10 +2,10 @@
  * use= values.
  */
 export enum XmlSchemaUse {
-  NONE,
-  OPTIONAL,
-  PROHIBITED,
-  REQUIRED,
+  NONE = 'NONE',
+  OPTIONAL = 'OPTIONAL',
+  PROHIBITED = 'PROHIBITED',
+  REQUIRED = 'REQUIRED',
 }
 
 export function xmlSchemaUseValueOf(name: string) {

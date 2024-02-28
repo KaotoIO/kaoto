@@ -3,6 +3,9 @@ import fs from 'fs';
 import { QName } from './QName';
 import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
 import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import { XmlSchemaUse } from './XmlSchemaUse';
+import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
+import { XmlSchemaElement } from './particle/XmlSchemaElement';
 
 describe('XmlSchemaCollection', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../../../test-resources/ShipOrder.xsd').toString();
@@ -15,16 +18,59 @@ describe('XmlSchemaCollection', () => {
     const elements = xmlSchema.getElements();
     expect(elements.size).toEqual(1);
     const shipOrderElement = elements.get(new QName('io.kaoto.datamapper.poc.test', 'ShipOrder'));
+    expect(shipOrderElement!.getName()).toEqual('ShipOrder');
+    expect(shipOrderElement!.getWireName()?.getNamespaceURI()).toEqual('io.kaoto.datamapper.poc.test');
+    expect(shipOrderElement!.getWireName()?.getLocalPart()).toEqual('ShipOrder');
+    expect(shipOrderElement!.getMinOccurs()).toEqual(1);
+    expect(shipOrderElement!.getMaxOccurs()).toEqual(1);
     const shipOrderComplexType = shipOrderElement!.getSchemaType() as XmlSchemaComplexType;
     const shipOrderAttributes = shipOrderComplexType.getAttributes();
     expect(shipOrderAttributes.length).toBe(1);
     const orderIdAttr = shipOrderAttributes[0] as XmlSchemaAttribute;
     expect(orderIdAttr.getName()).toEqual('OrderId');
+    expect(orderIdAttr.getWireName()?.getNamespaceURI()).toBe('');
+    expect(orderIdAttr.getWireName()?.getLocalPart()).toBe('OrderId');
     expect(orderIdAttr.getSchemaType()).toBeNull();
     expect(orderIdAttr.getSchemaTypeName()?.getLocalPart()).toEqual('string');
-    //expect(orderIdAttr.getUse()).toEqual('required');
+    expect(orderIdAttr.getUse()).toEqual(XmlSchemaUse.REQUIRED);
     expect(orderIdAttr.getFixedValue()).toEqual('2');
-    const shipOrderParticle = shipOrderComplexType.getParticle();
-    expect(shipOrderParticle).toBeDefined();
+
+    const shipOrderSequence = shipOrderComplexType.getParticle() as XmlSchemaSequence;
+    const shipOrderSequenceMembers = shipOrderSequence.getItems();
+    expect(shipOrderSequenceMembers.length).toBe(3);
+
+    const orderPerson = shipOrderSequenceMembers[0] as XmlSchemaElement;
+    expect(orderPerson.getSchemaType()).toBeNull();
+    expect(orderPerson.getSchemaTypeName()?.getLocalPart()).toEqual('string');
+    expect(orderPerson.getName()).toEqual('OrderPerson');
+    expect(orderPerson.getWireName()?.getNamespaceURI()).toEqual('io.kaoto.datamapper.poc.test');
+    expect(orderPerson.getWireName()?.getLocalPart()).toEqual('OrderPerson');
+    expect(orderPerson.getMinOccurs()).toEqual(1);
+    expect(orderPerson.getMaxOccurs()).toEqual(1);
+
+    const shipTo = shipOrderSequenceMembers[1] as XmlSchemaElement;
+    const shipToSchemaType = shipTo.getSchemaType() as XmlSchemaComplexType;
+    const shipToSequence = shipToSchemaType.getParticle() as XmlSchemaSequence;
+    const shipToSequenceMenbers = shipToSequence.getItems();
+    expect(shipToSequenceMenbers.length).toBe(4);
+    expect(shipTo.getSchemaTypeName()).toBeNull();
+    expect(shipTo.getName()).toEqual('ShipTo');
+    expect(shipTo.getWireName()?.getNamespaceURI()).toEqual('');
+    expect(shipTo.getWireName()?.getLocalPart()).toEqual('ShipTo');
+    expect(shipTo.getMinOccurs()).toEqual(1);
+    expect(shipTo.getMaxOccurs()).toEqual(1);
+
+    const item = shipOrderSequenceMembers[2] as XmlSchemaElement;
+    expect(item.getMaxOccurs()).toBe(Number.MAX_SAFE_INTEGER);
+    const itemSchemaType = item.getSchemaType() as XmlSchemaComplexType;
+    const itemSequence = itemSchemaType.getParticle() as XmlSchemaSequence;
+    const itemSequenceMembers = itemSequence.getItems();
+    expect(itemSequenceMembers.length).toEqual(4);
+    const itemNote = itemSequenceMembers[1] as XmlSchemaElement;
+    expect(itemNote.getMinOccurs()).toEqual(0);
+    const itemQuantity = itemSequenceMembers[2] as XmlSchemaElement;
+    expect(itemQuantity.getSchemaTypeName()?.getLocalPart()).toEqual('positiveInteger');
+    const itemPrice = itemSequenceMembers[3] as XmlSchemaElement;
+    expect(itemPrice.getSchemaTypeName()?.getLocalPart()).toEqual('decimal');
   });
 });

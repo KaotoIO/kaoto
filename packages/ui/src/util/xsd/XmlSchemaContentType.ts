@@ -4,12 +4,12 @@
  */
 
 export enum XmlSchemaContentType {
-  ELEMENT_ONLY,
-  EMPTY,
-  MIXED,
-  TEXT_ONLY,
+  ELEMENT_ONLY = 'ELEMENT_ONLY',
+  EMPTY = 'EMPTY',
+  MIXED = 'MIXED',
+  TEXT_ONLY = 'TEXT_ONLY',
 }
 
 export function xmlSchemaContentTypeValueOf(name: string) {
-  return XmlSchemaContentType[name as keyof typeof XmlSchemaContentType];
+  return XmlSchemaContentType[name.toUpperCase() as keyof typeof XmlSchemaContentType];
 }

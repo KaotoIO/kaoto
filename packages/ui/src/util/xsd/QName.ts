@@ -44,12 +44,8 @@ export class QName {
     }
   }
 
-  equals(other: QName): boolean {
-    return (
-      other != null &&
-      this.namespaceURI == other.namespaceURI &&
-      this.localPart == other.localPart &&
-      this.prefix == other.prefix
-    );
+  toString() {
+    const answer = this.namespaceURI ? `{${this.namespaceURI}}` : '';
+    return answer + this.localPart;
   }
 }

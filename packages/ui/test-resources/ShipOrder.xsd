@@ -3,7 +3,7 @@
   <xs:element name="ShipOrder">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="OrderPerson" type="xs:string" />
+        <xs:element name="OrderPerson" type="xs:string" form="qualified" />
         <xs:element name="ShipTo">
           <xs:complexType>
             <xs:sequence>

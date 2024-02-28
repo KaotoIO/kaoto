@@ -3,12 +3,12 @@
  */
 
 export enum XmlSchemaContentProcessing {
-  LAX,
-  NONE,
-  SKIP,
-  STRICT,
+  LAX = 'LAX',
+  NONE = 'NONE',
+  SKIP = 'SKIP',
+  STRICT = 'STRICT',
 }
 
 export function xmlSchemaContentProcessingValueOf(name: string) {
-  return XmlSchemaContentProcessing[name as keyof typeof XmlSchemaContentProcessing];
+  return XmlSchemaContentProcessing[name.toUpperCase() as keyof typeof XmlSchemaContentProcessing];
 }

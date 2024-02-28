@@ -36,9 +36,8 @@ export class XmlSchemaAttribute
     this.namedDelegate.setRefObject(this.ref);
     this.ref.setNamedObject(this.namedDelegate);
     this.use = XmlSchemaUse.NONE;
-    const fSchema = schema;
     if (topLevel) {
-      fSchema.getItems().push(this);
+      schema.getItems().push(this);
     }
   }
 

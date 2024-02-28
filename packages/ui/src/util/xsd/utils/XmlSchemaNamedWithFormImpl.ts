@@ -32,6 +32,8 @@ export class XmlSchemaNamedWithFormImpl extends XmlSchemaNamedImpl implements Xm
   getForm() {
     if (this.form != XmlSchemaForm.NONE) {
       return this.form;
+    } else if (this.isTopLevel()) {
+      return XmlSchemaForm.QUALIFIED;
     } else if (this.element) {
       return this.parentSchema.getElementFormDefault();
     } else {

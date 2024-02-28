@@ -5,5 +5,5 @@ export enum XmlSchemaForm {
 }
 
 export function xmlSchemaFormValueOf(value: string) {
-  return XmlSchemaForm[value as keyof typeof XmlSchemaForm];
+  return XmlSchemaForm[value.toUpperCase() as keyof typeof XmlSchemaForm];
 }
