@@ -8,7 +8,7 @@ import {
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
 
-export const getCustomSchemaFromActualKameletSchema = (kamelet: IKameletDefinition): IKameletCustomDefinition => {
+export const getCustomSchemaFromKamelet = (kamelet: IKameletDefinition): IKameletCustomDefinition => {
   const name = getValue(kamelet, 'metadata.name', '');
   const title = getValue(kamelet, 'spec.definition.title', '');
   const description = getValue(kamelet, 'spec.definition.description', '');
