@@ -23,9 +23,9 @@
       "type": "string",
       "description": "Select the Kamelet type from the available options",
       "enum": [
-        "Source",
-        "Action",
-        "Sink"
+        "source",
+        "action",
+        "sink"
       ],
       "title": "Kamelet Type"
     },

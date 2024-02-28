@@ -8,10 +8,7 @@ import {
 import { getValue } from './get-value';
 import { setValue } from './set-value';
 
-export const getActualKameletSchemaFromCustomSchema = (
-  kamelet: IKameletDefinition,
-  value: Record<string, unknown>,
-): void => {
+export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value: Record<string, unknown>): void => {
   const previousName = getValue(kamelet, 'metadata.name');
   const previousTitle = getValue(kamelet, 'spec.definition.title');
   const previousDescription = getValue(kamelet, 'spec.definition.description');
@@ -49,11 +46,11 @@ export const getActualKameletSchemaFromCustomSchema = (
   };
 
   const previousType = getValue(kamelet, 'metadata.labels', {} as IKameletMetadataLabels)[KameletKnownLabels.Type];
-  const newLabels = getValue(value, 'labels', {});
-  Object.assign(newLabels, {
+  const incomingLabels = getValue(value, 'labels', {});
+  const newLabels = Object.assign({}, incomingLabels, {
     [KameletKnownLabels.Type]: getValue(value, 'type', previousType),
   });
-  const newAnnotations = Object.assign(getValue(value, 'annotations', {}), customAnnotations);
+  const newAnnotations = Object.assign({}, getValue(value, 'annotations', {}), customAnnotations);
 
   setValue(kamelet, 'metadata.labels', newLabels);
   setValue(kamelet, 'metadata.annotations', newAnnotations);

@@ -1,16 +1,12 @@
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import {
-  ROOT_PATH,
-  getCustomSchemaFromActualKameletSchema,
-  getActualKameletSchemaFromCustomSchema,
-} from '../../../utils';
+import { ROOT_PATH, getCustomSchemaFromKamelet, updateKameletFromCustomSchema } from '../../../utils';
 import { EntityType } from '../../camel/entities';
+import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
-import { CatalogKind } from '../../catalog-kind';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity {
   id: string;
@@ -41,7 +37,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
       return {
         title: 'Kamelet',
         schema: this.getRootKameletSchema(),
-        definition: getCustomSchemaFromActualKameletSchema(this.kamelet),
+        definition: getCustomSchemaFromKamelet(this.kamelet),
       };
     }
 
@@ -52,7 +48,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     if (!path) return;
 
     if (path === ROOT_PATH) {
-      getActualKameletSchemaFromCustomSchema(this.kamelet, value);
+      updateKameletFromCustomSchema(this.kamelet, value);
       return;
     }
 
