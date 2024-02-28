@@ -1,11 +1,14 @@
-import { getCustomSchemaFromActualKameletSchema } from './get-custom-schema-from-actual-kamelet-schema';
+import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IKameletDefinition } from '../models/kamelets-catalog';
+import { getCustomSchemaFromActualKameletSchema } from './get-custom-schema-from-actual-kamelet-schema';
 
 describe('getCustomSchemaFromActualKameletSchema', () => {
-  it('should set the value at the given path', () => {
-    const inputKameletStruct = {
+  let inputKameletStruct: IKameletDefinition;
+
+  beforeEach(() => {
+    inputKameletStruct = {
       apiVersion: 'camel.apache.org/v1',
-      kind: 'Kamelet',
+      kind: SourceSchemaType.Kamelet,
       metadata: {
         annotations: {
           'camel.apache.org/catalog.version': 'main-SNAPSHOT',
@@ -63,7 +66,29 @@ describe('getCustomSchemaFromActualKameletSchema', () => {
         },
       },
     };
+  });
 
+  it('should get a custom kamelet definition from a empty kamelet', () => {
+    const expectedCustomSchema = {
+      name: '',
+      title: '',
+      description: '',
+      type: undefined,
+      icon: undefined,
+      supportLevel: undefined,
+      catalogVersion: undefined,
+      provider: undefined,
+      group: undefined,
+      namespace: undefined,
+      labels: {},
+      annotations: {},
+    };
+
+    const customSchema = getCustomSchemaFromActualKameletSchema({} as IKameletDefinition);
+    expect(customSchema).toEqual(expectedCustomSchema);
+  });
+
+  it('should get a custom kamelet definition from a kamelet official spec', () => {
     const expectedCustomSchema = {
       name: 'test',
       title: 'kamelet-35256',
