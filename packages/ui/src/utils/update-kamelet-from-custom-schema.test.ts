@@ -1,4 +1,4 @@
-import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash/cloneDeep';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IKameletDefinition } from '../models/kamelets-catalog';
 import { updateKameletFromCustomSchema } from './update-kamelet-from-custom-schema';

@@ -1,4 +1,4 @@
-import set from 'lodash.set';
+import set from 'lodash/set';
 import { ROOT_PATH } from './get-value';
 import isEmpty from 'lodash.isempty';
 

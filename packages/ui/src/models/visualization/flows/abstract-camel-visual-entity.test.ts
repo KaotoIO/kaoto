@@ -1,5 +1,5 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash/cloneDeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';

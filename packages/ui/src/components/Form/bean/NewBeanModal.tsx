@@ -4,7 +4,7 @@ import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'rea
 import { KaotoSchemaDefinition } from '../../../models';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CustomAutoFormRef } from '../CustomAutoForm';
-import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash/cloneDeep';
 import { isDefined } from '../../../utils';
 
 export type NewBeanModalProps = {
