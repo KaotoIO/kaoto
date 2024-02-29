@@ -18,25 +18,37 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
-import { SourceOrTarget } from '../../../../models';
-import { readFileAsString } from '../../../../util';
-import { DocumentService } from '../../../../services';
+import { readFileAsString } from '../../../util';
+import { DocumentService } from '../../../services';
+import { useDataMapperContext } from '../../../hooks';
 
 export interface IImportActionProps {
-  sourceOrTarget: SourceOrTarget;
+  isSource: boolean;
 }
-export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ sourceOrTarget }) => {
+export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ isSource }) => {
+  const { sourceDocuments, refreshSourceDocuments, targetDocuments, refreshTargetDocuments } = useDataMapperContext();
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
   const previouslyUploadedFiles = useRef<File[] | null>(null);
 
-  const onImport = useCallback((file: File) => {
-    readFileAsString(file).then((content) => {
-      const document = DocumentService.parseXmlSchema(content);
-      alert('Uploaded:' + JSON.stringify(document));
-    });
-  }, []);
+  const onImport = useCallback(
+    (file: File) => {
+      const fileName = file.name;
+      readFileAsString(file).then((content) => {
+        const document = DocumentService.parseXmlSchema(content);
+        document.name = fileName;
+        if (isSource) {
+          sourceDocuments.push(document);
+          refreshSourceDocuments();
+        } else {
+          targetDocuments.push(document);
+          refreshTargetDocuments();
+        }
+      });
+    },
+    [isSource, refreshSourceDocuments, refreshTargetDocuments, sourceDocuments, targetDocuments],
+  );
 
   useEffect(() => {
     if (previouslyUploadedFiles.current !== files) {
@@ -52,7 +64,7 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ so
       <Button
         variant="plain"
         aria-label="Import instance or schema file"
-        data-testid={`import-instance-or-schema-file-${sourceOrTarget}-button`}
+        data-testid={`import-instance-or-schema-file-${isSource}-button`}
         onClick={onClick}
       >
         <ImportIcon />

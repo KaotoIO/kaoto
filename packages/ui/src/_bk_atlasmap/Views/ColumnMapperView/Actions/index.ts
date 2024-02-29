@@ -15,9 +15,9 @@
 */
 export * from './CaptureDocumentIDAction';
 export * from './ChangeDocumentNameAction';
-export * from './DeleteDocumentAction';
+export * from '../../../../components/documents/DeleteDocumentButton';
 export * from './DeleteMappingAction';
 export * from './EditCSVParamsAction';
 export * from './EditMappingAction';
 export * from './EnableJavaClassAction';
-export * from '../../../../layout/views/sourceTarget/actions/ImportDocumentButton';
+export * from '../../../../layout/views/sourceTarget/ImportDocumentButton';

@@ -17,5 +17,5 @@ export * from '../../layout/ContextToolbar';
 export * from '../../layout/ExpressionToolbar';
 export * from './MainContent';
 export * from '../../layout/MainLayout';
-export * from './MappingDetailsSidebar';
+export * from '../../layout/MappingDetailsSidebar';
 export * from './Sidebar';

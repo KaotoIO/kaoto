@@ -24,15 +24,15 @@ import {
   Title,
   Tooltip,
 } from '@patternfly/react-core';
-import { DraggableField, FieldDropTarget } from './dnd';
-import React, { Children, FunctionComponent } from 'react';
+import { DraggableField, FieldDropTarget } from '../dnd';
+import { Children, FunctionComponent, PropsWithChildren } from 'react';
 
-import { IAtlasmapField } from '../../src/Views/models';
-import { NodeRef } from './Canvas/NodeRef';
+import { IAtlasmapField } from '../../models';
+import { NodeRef } from '../NodeRef';
 import { css } from '@patternfly/react-styles';
-import styles from './MappingField.module.css';
+import './MappingField.css';
 
-export interface IMappingFieldProps {
+export interface IMappingFieldProps extends PropsWithChildren {
   field: IAtlasmapField;
   name: string;
   info: string;
@@ -93,26 +93,11 @@ export const MappingField: FunctionComponent<IMappingFieldProps> = ({
           }}
         >
           {({ isDragging }) => (
-            <NodeRef
-              id={[
-                field.id,
-                isDragging ? 'dnd-start' : undefined,
-                isTarget ? 'dnd-target-field' : undefined,
-              ]}
-            >
-              <div
-                className={styles.field}
-                aria-labelledby={id}
-                data-testid={id}
-              >
+            <NodeRef id={[field.id, isDragging ? 'dnd-start' : undefined, isTarget ? 'dnd-target-field' : undefined]}>
+              <div className="field" aria-labelledby={id} data-testid={id}>
                 <Split>
                   <SplitItem isFilled>
-                    <Title
-                      headingLevel="h6"
-                      size="md"
-                      id={id}
-                      className={styles.title}
-                    >
+                    <Title headingLevel="h6" size="md" id={id} className="title">
                       {canShowIndex && (
                         <Tooltip
                           position={'auto'}
@@ -121,11 +106,9 @@ export const MappingField: FunctionComponent<IMappingFieldProps> = ({
                           exitDelay={100}
                           content={
                             <div>
-                              Edit the index for this element by selecting the
-                              arrows or by dragging and dropping the element to
-                              the desired position. Placeholders may be
-                              automatically inserted to account for any gaps in
-                              the indexing.
+                              Edit the index for this element by selecting the arrows or by dragging and dropping the
+                              element to the desired position. Placeholders may be automatically inserted to account for
+                              any gaps in the indexing.
                             </div>
                           }
                         >
@@ -199,17 +182,14 @@ export const MappingField: FunctionComponent<IMappingFieldProps> = ({
                   Show established field action transformations associated with this
                   field.
                   */}
-                {!mappingExpressionEnabled &&
-                  hasTransformations &&
-                  children &&
-                  Children.count(children) > 0 && (
-                    <div className={css(styles.transformationsWrapper)}>
-                      <Title headingLevel="h6" size="md">
-                        Transformations
-                      </Title>
-                      <div className={styles.transformations}>{children}</div>
-                    </div>
-                  )}
+                {!mappingExpressionEnabled && hasTransformations && children && Children.count(children) > 0 && (
+                  <div className={css(styles.transformationsWrapper)}>
+                    <Title headingLevel="h6" size="md">
+                      Transformations
+                    </Title>
+                    <div className={styles.transformations}>{children}</div>
+                  </div>
+                )}
               </div>
             </NodeRef>
           )}

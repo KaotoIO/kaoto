@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { ExportIcon } from '@patternfly/react-icons';
 import { ConfigModel } from '../../_bk_atlasmap/core';
 import { useToggle } from '../../hooks/useToggle';
-import { ExportMappingDialog } from '../../_bk_atlasmap/UI';
+import { ExportMappingDialog } from '../dialogs/ExportMappingDialog';
 
 export const ExportMappingFileDropdownItem: FunctionComponent<{
   onComplete: () => void;

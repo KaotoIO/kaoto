@@ -13,7 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { CanvasProvider, FieldDragLayer, FieldsDndProvider, TimedToast } from '../_bk_atlasmap/UI';
+import { CanvasProvider, TimedToast } from '../_bk_atlasmap/UI';
+import { FieldDragLayer } from '../components/dnd/FieldDragLayer';
+import { FieldsDndProvider } from '../providers/FieldsDndProvider';
 import { MainLayout } from '../layout';
 import { FunctionComponent, useContext } from 'react';
 

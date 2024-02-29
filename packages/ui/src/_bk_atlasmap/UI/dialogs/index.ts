@@ -13,12 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-export * from '../../../components/dialogs/AboutDialog';
-export * from '../../../components/dialogs/ConfirmationDialog';
 export * from './ConstantDialog';
 export * from './CustomClassDialog';
 export * from './ChangeDocumentNameDialog';
-export * from '../../../components/dialogs/ExportMappingDialog';
 export * from './LookupTableDialog';
 export * from './NamespaceDialog';
 export * from './PropertyDialog';

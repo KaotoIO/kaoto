@@ -13,66 +13,34 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AtlasmapDocumentType, GroupId } from '../../../_bk_atlasmap/Views';
-import { ImportDocumentButton } from '../../../_bk_atlasmap/Views';
-import { Column, ColumnBody, NodeRef, SearchableColumnHeader } from '../../../_bk_atlasmap/UI';
-import { IConstantsTreeCallbacks } from '../../../components/documents';
-import { IPropertiesTreeCallbacks } from '../../../components/documents';
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { ImportDocumentButton } from './ImportDocumentButton';
+import { Column, ColumnBody } from '.';
+import { NodeRef } from '../../../components/NodeRef';
+import { SearchableColumnHeader } from '../../../components/SearchableColumnHeader';
+import { FunctionComponent, useCallback } from 'react';
 import {
   SOURCES_CONSTANTS_ID,
   SOURCES_DOCUMENT_ID_PREFIX,
   SOURCES_HEIGHT_BOUNDARY_ID,
   SOURCES_PROPERTIES_ID,
   SOURCES_WIDTH_BOUNDARY_ID,
-} from '../../../_bk_atlasmap/Views';
+} from './constants';
 
-import { IMapping, IField, IDragAndDropField } from '../../../models';
-import { DataMapperContext } from '../../../providers';
 import { ConstantsDocument, SourceDocument, SourcePropertiesDocument } from '../../../components/documents';
-
-export interface ISourceColumnCallbacks extends IConstantsTreeCallbacks, IPropertiesTreeCallbacks {
-  acceptDropType: AtlasmapDocumentType;
-  draggableType: AtlasmapDocumentType;
-  isSource: boolean;
-  onCreateConstant: () => void;
-  onCreateProperty: (isSource: boolean) => void;
-  onCustomClassSearch?: (isSource: boolean) => void;
-  onCaptureDocumentID?: (id: string) => void;
-  onChangeDocumentName?: (id: string, name: string) => void;
-  onImportDocument?: (selectedFile: File) => void;
-  onDeleteDocument?: (id: GroupId) => void;
-  onSearch: (content: string) => void;
-  canDrop: (source: IField, target: IDragAndDropField) => boolean;
-  onDrop: (source: IField, target: IDragAndDropField | null) => void;
-  onShowMappingDetails: (mapping: IMapping) => void;
-  canAddFieldToSelectedMapping: (source: IField) => boolean;
-  onAddToSelectedMapping: (source: IField) => void;
-  canRemoveFromSelectedMapping: (source: IField) => boolean;
-  canStartMapping: (field: IField) => boolean;
-  onStartMapping: (field: IField) => void;
-  onRemoveFromSelectedMapping: (source: IField) => void;
-  shouldShowMappingPreviewForField: (field: IField) => boolean;
-  onFieldPreviewChange: (field: IField, value: string) => void;
-  canAddToSelectedMapping: (isSource: boolean) => boolean;
-  onEditCSVParams: (id: string, isSource: boolean) => void;
-}
+import { useDataMapperContext } from '../../../hooks';
 
 export const SourcesColumn: FunctionComponent = () => {
-  const { sources } = useContext(DataMapperContext)!;
+  const { sourceDocuments } = useDataMapperContext();
   const onSearch = useCallback(() => {
     alert('not yet implemented');
   }, []);
-  const onImportDocument = useCallback(() => {
-    alert('not yet implemented');
-  }, []);
-
+  console.log('rerender sources');
   return (
     <Column data-testid={'column-source-area'} totalColumns={2}>
       <SearchableColumnHeader
         title={'Source'}
         onSearch={onSearch}
-        actions={[<ImportDocumentButton sourceOrTarget="Source" key={'import'} />]}
+        actions={[<ImportDocumentButton isSource={true} key={'import'} />]}
       />
       <NodeRef id={SOURCES_HEIGHT_BOUNDARY_ID}>
         <ColumnBody>
@@ -92,7 +60,7 @@ export const SourcesColumn: FunctionComponent = () => {
               >
                 <ConstantsDocument />
               </NodeRef>
-              {sources.map((s) => {
+              {sourceDocuments.map((s) => {
                 const documentId = `${SOURCES_DOCUMENT_ID_PREFIX}${s.id}`;
                 return (
                   <NodeRef

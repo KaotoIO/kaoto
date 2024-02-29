@@ -34,11 +34,10 @@ import {
   TransitionMode,
   TransitionModel,
 } from '../../core';
-import { IAtlasmapGroup } from '../../Views';
 import { ITransformationArgument, ITransformationSelectOption } from '../../UI';
 
 import { Observable } from 'rxjs';
-import { INamespace, IDocument, INotification, IMapping, IField, IMappedField } from '../../../models';
+import { INamespace, IDocument, INotification, IMapping, IField, IMappedField, IAtlasmapGroup } from '../../../models';
 
 export function copyToClipboard(text: string) {
   const textArea = document.createElement('textarea');

@@ -15,17 +15,17 @@
 */
 import {
   AddFieldTypeahead,
-  Document,
   ITransformationArgument,
   MappingField,
   MappingFields,
   MappingTransformation,
-} from '../UI';
+} from '../../_bk_atlasmap/UI';
+import { Document } from '../../components/documents/Document';
 import { Alert, AlertActionCloseButton, Badge } from '@patternfly/react-core';
 import React, { FunctionComponent } from 'react';
 
-import { Field } from '@atlasmap/core/dist/models/field.model';
-import { MappingDetailsSidebar } from '../Layout';
+import { Field } from '../../_bk_atlasmap/core/models/field.model';
+import { MappingDetailsSidebar } from '../../_bk_atlasmap/Layout';
 import { IMappedField, IField, INotification } from '../../models';
 
 export interface IMappingDetailsViewProps {

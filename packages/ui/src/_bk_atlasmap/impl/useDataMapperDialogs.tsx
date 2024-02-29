@@ -18,7 +18,6 @@ import { IParameter, getCsvParameterOptions } from '../core';
 import { useCallback, useMemo, useState } from 'react';
 import { enableCustomClass, getDocCSVParams, getPropertyScopeOptions, setDocCSVParams } from './utils';
 import {
-  useAboutDialog,
   useCaptureDocumentIDToast,
   useChangeDocumentNameDialog,
   useConstantDialog,
@@ -27,8 +26,6 @@ import {
   useDeleteDocumentDialog,
   useDeleteMappingDialog,
   useDeletePropertyDialog,
-  useEditMappingEnumerationDialog,
-  useExportADMArchiveDialog,
   useImportADMArchiveDialog,
   useImportDocumentDialog,
   useNamespaceDialog,
@@ -119,9 +116,7 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
 
   //#region atlasmap catalog
   const [importADMArchiveDialog, onImportADMArchive] = useImportADMArchiveDialog();
-  const [exportADMArchiveDialog, onExportADMArchive] = useExportADMArchiveDialog();
   const [resetDialog, onResetAtlasmap] = useResetAtlasmapDialog();
-  const [aboutDialog, onAbout] = useAboutDialog();
   const [toggleExpressionModeDialog, onToggleExpressionMode] = useToggleExpressionModeDialog();
   //#endregion
 
@@ -172,7 +167,6 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
       onDeleteMapping(selectedMapping);
     }
   }, [onDeleteMapping, selectedMapping]);
-  const [editMappingEnumerationDialog, onEditMappingEnumeration] = useEditMappingEnumerationDialog();
   //#endregion
 
   //#region custom class dialogs
@@ -242,7 +236,6 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
       createPortal(
         <>
           {importADMArchiveDialog}
-          {exportADMArchiveDialog}
           {importDocumentDialog}
           {deleteDocumentDialog}
           {specifyInstanceSchemaDialog}
@@ -255,14 +248,12 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
           {deletePropertyDialog}
           {editPropertyDialog}
           {resetDialog}
-          {aboutDialog}
           {removeMappedFieldDialog}
           {deleteMappingDialog}
           {createEnableCustomClassDialog}
           {createNamespaceDialog}
           {editNamespaceDialog}
           {toggleExpressionModeDialog}
-          {editMappingEnumerationDialog}
           {editCSVParamsDialog}
         </>,
         modalContainer,
@@ -281,16 +272,13 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
       editConstantDialog,
       editNamespaceDialog,
       editPropertyDialog,
-      exportADMArchiveDialog,
       importADMArchiveDialog,
       importDocumentDialog,
       specifyInstanceSchemaDialog,
       modalContainer,
       removeMappedFieldDialog,
       resetDialog,
-      aboutDialog,
       toggleExpressionModeDialog,
-      editMappingEnumerationDialog,
       editCSVParamsDialog,
     ],
   );
@@ -298,7 +286,6 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
   return {
     handlers: {
       onImportADMArchive: onImportADMArchive,
-      onExportADMArchive: onExportADMArchive,
       onCreateConstant,
       onDeleteConstant,
       onEditConstant,
@@ -306,7 +293,6 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
       onDeleteProperty,
       onEditProperty,
       onResetAtlasmap,
-      onAbout,
       onImportDocument,
       onDeleteDocument,
       onSpecifyInstanceSchema,
@@ -320,7 +306,6 @@ export function useDataMapperDialogs({ modalContainer }: IUseAtlasmapDialogsProp
       onEditNamespace,
       deleteNamespace,
       onToggleExpressionMode,
-      onEditMappingEnumeration,
       onEditCSVParams,
     },
     dialogs: portal,

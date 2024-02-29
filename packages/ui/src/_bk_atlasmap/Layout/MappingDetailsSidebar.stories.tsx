@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { MappingDetailsSidebar } from './MappingDetailsSidebar';
+import { MappingDetailsSidebar } from '../../layout/MappingDetailsSidebar';
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 
@@ -31,9 +31,8 @@ export const example = () => (
       return false;
     }}
   >
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos
-    incidunt, fugiat sequi obcaecati sapiente debitis fuga perspiciatis possimus
-    minima recusandae dolor minus unde nesciunt in aspernatur accusantium
-    laborum sit cumque?
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos incidunt, fugiat sequi obcaecati sapiente
+    debitis fuga perspiciatis possimus minima recusandae dolor minus unde nesciunt in aspernatur accusantium laborum sit
+    cumque?
   </MappingDetailsSidebar>
 );

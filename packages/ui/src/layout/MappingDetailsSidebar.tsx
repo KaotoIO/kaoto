@@ -15,21 +15,26 @@
 */
 import { Button, Stack, StackItem, Tooltip } from '@patternfly/react-core';
 import { CloseIcon, EditIcon, TrashIcon } from '@patternfly/react-icons';
-import React, { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { ColumnHeader } from '../UI';
-import styles from './MappingDetailsSidebar.module.css';
+import { ColumnHeader } from '../components/ColumnHeader';
+import './MappingDetailsSidebar.css';
 
-export interface IMappingDetailsSidebarProps {
+export interface IMappingDetailsSidebarProps extends PropsWithChildren {
   onDelete: () => void;
   onClose: () => void;
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   onEditEnum: (cb: any) => void;
   isEnumMapping: () => boolean;
 }
 
-export const MappingDetailsSidebar: FunctionComponent<
-  IMappingDetailsSidebarProps
-> = ({ onDelete, onClose, onEditEnum, isEnumMapping, children }) => {
+export const MappingDetailsSidebar: FunctionComponent<IMappingDetailsSidebarProps> = ({
+  onDelete,
+  onClose,
+  onEditEnum,
+  isEnumMapping,
+  children,
+}) => {
   return (
     <Stack data-testid="column-mapping-details-area">
       <StackItem>
@@ -84,7 +89,7 @@ export const MappingDetailsSidebar: FunctionComponent<
           ]}
         />
       </StackItem>
-      <StackItem isFilled={true} className={styles.content}>
+      <StackItem isFilled={true} className="content">
         {children}
       </StackItem>
     </Stack>

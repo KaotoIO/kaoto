@@ -20,6 +20,5 @@ export * from './HTMLObject';
 export * from './Arc';
 export * from './ArcEdge';
 export * from './models';
-export * from './NodeRef';
 export * from './NodesArc';
 export * from './useBoundingCanvasRect';

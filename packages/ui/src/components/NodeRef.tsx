@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { Children, PropsWithChildren, cloneElement, forwardRef, isValidElement, useRef } from 'react';
-import { NodeRefPropsWithOptionalId, useNodeRef } from '../../../providers/NodeRefProvider';
+import { NodeRefPropsWithOptionalId, useNodeRef } from '../providers/NodeRefProvider';
 
 export const NodeRef = forwardRef<HTMLElement | SVGElement, PropsWithChildren<Omit<NodeRefPropsWithOptionalId, 'ref'>>>(
   function NodeRef({ children, ...props }, ref) {
@@ -25,7 +25,8 @@ export const NodeRef = forwardRef<HTMLElement | SVGElement, PropsWithChildren<Om
 
     const handleRef = (el: HTMLElement) => {
       if (ref) {
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         // by default forwardedRef.current is readonly. Let's ignore it
         ref.current = el;
       }

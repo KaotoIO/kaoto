@@ -14,22 +14,16 @@
     limitations under the License.
 */
 import { Button, Tooltip } from '@patternfly/react-core';
-import React, { FunctionComponent } from 'react';
+import { FunctionComponent } from 'react';
 
 import { TrashIcon } from '@patternfly/react-icons';
 
-export interface IDeleteDocumentActionProps {
+export type DeleteDocumentButtonProps = {
   id: string;
   onClick: () => void;
-}
-export const DeleteDocumentAction: FunctionComponent<
-  IDeleteDocumentActionProps
-> = ({ id, onClick }) => (
-  <Tooltip
-    position={'auto'}
-    enableFlip={true}
-    content={<div>Remove instance or schema file</div>}
-  >
+};
+export const DeleteDocumentButton: FunctionComponent<DeleteDocumentButtonProps> = ({ id, onClick }) => (
+  <Tooltip position={'auto'} enableFlip={true} content={<div>Remove instance or schema file</div>}>
     <Button
       variant="plain"
       onClick={onClick}

@@ -13,7 +13,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { IAtlasmapGroup } from '../../_bk_atlasmap/Views';
 import {
   ITreeGroupAndNodeRefsAndDnDProps,
   TreeGroupAndNodeRefsAndDnD,
@@ -22,8 +21,8 @@ import {
 } from '.';
 import { FunctionComponent } from 'react';
 
-import { NodeRef } from '../../_bk_atlasmap/UI';
-import { IField } from '../../models';
+import { NodeRef } from '../NodeRef';
+import { IAtlasmapGroup, IField } from '../../models';
 
 function getChildrenIds(fields: IField[], idPrefix: string): (string | undefined)[] {
   return fields.reduce<(string | undefined)[]>(

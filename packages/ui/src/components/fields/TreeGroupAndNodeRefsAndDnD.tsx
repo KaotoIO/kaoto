@@ -13,18 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AtlasmapDocumentType, IAtlasmapGroup } from '../../_bk_atlasmap/Views';
-import {
-  DelayedBoolean,
-  DocumentGroup,
-  FieldDropTarget,
-  ITreeGroupProps,
-  NodeRef,
-  TreeGroup,
-} from '../../_bk_atlasmap/UI';
+import { AtlasmapDocumentType } from '../../_bk_atlasmap/Views';
+import { DelayedBoolean, DocumentGroup, ITreeGroupProps, TreeGroup } from '../../_bk_atlasmap/UI';
+import { NodeRef } from '../NodeRef';
+import { FieldDropTarget } from '../dnd';
 import { FunctionComponent } from 'react';
 
 import { LayerGroupIcon } from '@patternfly/react-icons';
+import { IAtlasmapGroup } from '../../models';
 
 export interface ITreeGroupAndNodeRefsAndDnDProps {
   fieldId: string;

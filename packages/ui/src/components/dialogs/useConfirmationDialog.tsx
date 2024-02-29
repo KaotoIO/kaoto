@@ -15,9 +15,9 @@
 */
 import { ReactElement, useRef } from 'react';
 
-import { ConfirmationDialog } from '../../_bk_atlasmap/UI';
+import { ConfirmationDialog } from './ConfirmationDialog';
 import { TextContent } from '@patternfly/react-core';
-import { useToggle } from '../../_bk_atlasmap/impl/utils';
+import { useToggle } from '../../hooks';
 
 export function useConfirmationDialog(
   title: string,

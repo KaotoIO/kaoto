@@ -1,10 +1,8 @@
 import { AlertProps } from '@patternfly/react-core';
-import { ElementId } from '../_bk_atlasmap/Views';
 import { ITransformationArgument, ITransformationSelectOption } from '../_bk_atlasmap/UI';
+import { Field, MappingModel } from '../_bk_atlasmap/core';
 
 export type CanvasView = 'SourceTarget' | 'MappingTable' | 'NamespaceTable';
-
-export type SourceOrTarget = 'source' | 'target';
 
 export interface INotification {
   id: string;
@@ -13,30 +11,6 @@ export interface INotification {
   description: string;
   isRead?: boolean;
   mappingId?: string;
-}
-
-export interface IDataMapperContext {
-  loading: boolean;
-  activeView: CanvasView;
-  setActiveView(view: CanvasView): void;
-  notifications: INotification[];
-  constants: IDocument;
-  sourceProperties: IDocument;
-  targetProperties: IDocument;
-  sources: IDocument[];
-  targets: IDocument[];
-  mappings: IMapping[];
-  setMappings(mappings: IMapping[]): void;
-  selectedMapping: IMapping | null;
-  setSelectedMapping(mapping: IMapping | null): void;
-  isPreviewEnabled: boolean;
-  togglePreview(): void;
-  showTypes: boolean;
-  toggleShowTypes(): void;
-  showMappedFields: boolean;
-  toggleShowMappedFields(): void;
-  showUnmappedFields: boolean;
-  toggleShowUnmappedFields(): void;
 }
 
 export interface IDocument {
@@ -70,7 +44,7 @@ export interface IMapping {
 }
 
 export interface IField {
-  id: ElementId;
+  id: string;
   name: string;
   type: string;
   scope: string;
@@ -84,4 +58,49 @@ export interface IField {
   isInCollection: boolean;
   isDisabled: boolean;
   enumeration: boolean;
+}
+
+export interface IAtlasmapGroup {
+  id: string;
+  fields: (IField | IAtlasmapGroup)[];
+  name: string;
+  type: string;
+  isCollection: boolean;
+  isInCollection: boolean;
+}
+
+export interface IAtlasmapField {
+  id: string;
+  name: string;
+  type: string;
+  scope: string;
+  value: string;
+  path: string;
+  mappings: IAtlasmapMapping[];
+  hasTransformations: boolean;
+  isAttribute: boolean;
+  isCollection: boolean;
+  isConnected: boolean;
+  isInCollection: boolean;
+  isDisabled: boolean;
+  enumeration: boolean;
+
+  // TODO: find a way to remove this maybe?
+  amField: Field;
+}
+
+export interface IAtlasmapMappedField extends IAtlasmapField {
+  transformations: Array<{
+    name: string;
+    options: Array<ITransformationSelectOption>;
+    arguments: Array<ITransformationArgument>;
+  }>;
+}
+
+export interface IAtlasmapMapping {
+  id: string;
+  name: string;
+  sourceFields: Array<IAtlasmapMappedField>;
+  targetFields: Array<IAtlasmapMappedField>;
+  mapping: MappingModel;
 }

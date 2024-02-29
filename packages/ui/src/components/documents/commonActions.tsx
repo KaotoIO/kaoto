@@ -25,9 +25,9 @@ import {
 } from '@patternfly/react-core';
 import { ExchangeAltIcon, LinkIcon, ProjectDiagramIcon, UnlinkIcon } from '@patternfly/react-icons';
 
-import { AutoDropdown } from '../../../UI';
+import { AutoDropdown } from '../../_bk_atlasmap/UI';
 
-import { IMapping } from '../../../../models';
+import { IMapping } from '../../models';
 
 export interface ICommonActionsProps {
   connectedMappings: IMapping[];

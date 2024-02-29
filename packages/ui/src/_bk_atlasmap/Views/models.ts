@@ -13,18 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { IField } from '../../models';
 
 export type ElementId = string;
 export type GroupId = string;
 
 export type AtlasmapDocumentType = 'source' | 'target';
-
-export interface IAtlasmapGroup {
-  id: GroupId;
-  fields: (IField | IAtlasmapGroup)[];
-  name: string;
-  type: string;
-  isCollection: boolean;
-  isInCollection: boolean;
-}

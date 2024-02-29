@@ -14,7 +14,7 @@
     limitations under the License.
 */
 export * from './ColumnMapperView';
-export * from './MappingDetailsView';
+export * from '../../layout/views/MappingDetailsView';
 export * from './MappingTableView';
 export * from './NamespaceTableView';
 export * from './models';

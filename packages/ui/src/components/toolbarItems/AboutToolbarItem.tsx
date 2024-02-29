@@ -1,7 +1,7 @@
 import { FunctionComponent } from 'react';
 import { Button, ToolbarItem, Tooltip } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons';
-import { AboutDialog } from '../../_bk_atlasmap/UI';
+import { AboutDialog } from '../dialogs/AboutDialog';
 import { useToggle } from '../../hooks';
 
 export const AboutToolbarItem: FunctionComponent = () => {

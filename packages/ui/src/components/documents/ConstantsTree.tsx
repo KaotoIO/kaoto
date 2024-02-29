@@ -15,7 +15,7 @@
 */
 import { Button, Tooltip } from '@patternfly/react-core';
 import { EditIcon, TrashIcon } from '@patternfly/react-icons';
-import { Tree } from '../../_bk_atlasmap/UI';
+import { Tree } from './Tree';
 import { ITraverseFieldsProps, TraverseFields } from '../fields/TraverseFields';
 import { FunctionComponent } from 'react';
 import {
@@ -25,9 +25,9 @@ import {
   SOURCES_HEIGHT_BOUNDARY_ID,
   SOURCES_WIDTH_BOUNDARY_ID,
   TARGETS_DRAGGABLE_TYPE,
-} from '../../_bk_atlasmap/Views/ColumnMapperView/Columns/constants';
+} from '../../layout/views/sourceTarget/constants';
 
-import { commonActions } from '../../_bk_atlasmap/Views/ColumnMapperView/Columns/commonActions';
+import { commonActions } from './commonActions';
 import { IMapping, IDocument, IField, IDragAndDropField } from '../../models';
 
 export interface IConstantsTreeCallbacks {

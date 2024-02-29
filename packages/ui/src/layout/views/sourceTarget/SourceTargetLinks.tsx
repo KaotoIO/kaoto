@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { FunctionComponent, MouseEvent, ReactElement, useContext, useMemo } from 'react';
-import { SOURCES_FIELD_ID_PREFIX, TARGETS_FIELD_ID_PREFIX } from '../../../_bk_atlasmap/Views/ColumnMapperView/Columns';
+import { SOURCES_FIELD_ID_PREFIX, TARGETS_FIELD_ID_PREFIX } from '../../../layout/views/sourceTarget/constants';
 
 import { NodesArc } from '../../../_bk_atlasmap/UI';
 import './SourceTargetLinks.css';

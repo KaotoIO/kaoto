@@ -28,9 +28,9 @@ import {
   TARGETS_HEIGHT_BOUNDARY_ID,
   TARGETS_PROPERTIES_ID,
   TARGETS_WIDTH_BOUNDARY_ID,
-} from '../../_bk_atlasmap/Views/ColumnMapperView/Columns/constants';
+} from '../../layout/views/sourceTarget/constants';
 
-import { commonActions } from '../../_bk_atlasmap/Views/ColumnMapperView/Columns/commonActions';
+import { commonActions } from './commonActions';
 import { IMapping, IDocument, IField, IDragAndDropField } from '../../models';
 
 export interface IPropertiesTreeCallbacks {

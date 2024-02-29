@@ -13,224 +13,143 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {
-  DataActionPayload,
-  dataReducer,
-  initDataState,
-  initNotificationsState,
-  notificationsReducer,
-} from '../_bk_atlasmap/impl/reducers';
-import { MappingSerializer } from '../_bk_atlasmap/core';
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useReducer } from 'react';
-import {
-  errorInfoToNotification,
-  fromDocumentDefinitionToFieldGroup,
-  fromFieldToIFieldsNode,
-  fromMappingDefinitionToIMappings,
-  fromMappingModelToImapping,
-  initializationService,
-} from '../_bk_atlasmap/impl/utils';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import { useToggle } from '../hooks';
 
-import { debounceTime } from 'rxjs/operators';
 import { Loading } from '../components';
-import { useDataMapperContext } from '../hooks/useDataMapperContext';
-import { IDocument, IDataMapperContext, IField } from '../models';
+import { CanvasView, IDocument, IMapping, INotification } from '../models';
+
+export interface IDataMapperContext {
+  loading: boolean;
+  activeView: CanvasView;
+
+  setActiveView(view: CanvasView): void;
+
+  notifications: INotification[];
+  constants: IDocument;
+  sourceProperties: IDocument;
+  targetProperties: IDocument;
+  sourceDocuments: IDocument[];
+  refreshSourceDocuments: () => void;
+  targetDocuments: IDocument[];
+  refreshTargetDocuments: () => void;
+  mappings: IMapping[];
+
+  setMappings(mappings: IMapping[]): void;
+
+  selectedMapping: IMapping | null;
+
+  setSelectedMapping(mapping: IMapping | null): void;
+
+  isPreviewEnabled: boolean;
+
+  togglePreview(): void;
+
+  showTypes: boolean;
+
+  toggleShowTypes(): void;
+
+  showMappedFields: boolean;
+
+  toggleShowMappedFields(): void;
+
+  showUnmappedFields: boolean;
+
+  toggleShowUnmappedFields(): void;
+}
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
-export interface IDataMapperProviderProps extends PropsWithChildren {
-  onMappingChange?: (serializedMappings: string) => void;
-}
-export const DataMapperProvider: FunctionComponent<IDataMapperProviderProps> = ({ onMappingChange, children }) => {
-  const [data, dispatchData] = useReducer(dataReducer, {}, initDataState);
-  const [notifications, dispatchNotifications] = useReducer(notificationsReducer, {}, initNotificationsState);
-  const value = useDataMapperContext();
+export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<CanvasView>('SourceTarget');
+  const [notifications, setNotifications] = useState<INotification[]>([]);
+  const { state: isPreviewEnabled, toggle: togglePreview } = useToggle(false);
+  const { state: showTypes, toggle: toggleShowTypes } = useToggle(true);
+  const { state: showMappedFields, toggle: toggleShowMappedFields } = useToggle(true);
+  const { state: showUnmappedFields, toggle: toggleShowUnmappedFields } = useToggle(true);
+  const [constants, setConstants] = useState<IDocument>({
+    id: 'constants',
+    name: 'Constants',
+    type: 'constants',
+    fields: [],
+  } as IDocument);
+  const [sourceProperties, setSourceProperties] = useState<IDocument>({
+    id: 'sourceProperties',
+    name: 'Source Properties',
+    type: 'source',
+    fields: [],
+  });
+  const [targetProperties, setTargetProperties] = useState<IDocument>({
+    id: 'targetProperties',
+    name: 'Target Properties',
+    type: 'target',
+    fields: [],
+  });
+  const [sourceDocuments, setSourceDocuments] = useState<IDocument[]>([]);
+  const [targetDocuments, setTargetDocuments] = useState<IDocument[]>([]);
+  const [mappings, setMappings] = useState<IMapping[]>([]);
+  const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
 
-  const onReset = () => {
-    dispatchData({ type: 'reset' });
-    dispatchNotifications({
-      type: 'reset',
-    });
-  };
+  const refreshSourceDocuments = useCallback(() => {
+    setSourceDocuments([...sourceDocuments]);
+  }, [sourceDocuments]);
+  const refreshTargetDocuments = useCallback(() => {
+    setTargetDocuments([...targetDocuments]);
+  }, [targetDocuments]);
 
-  const onLoading = () => {
-    dispatchData({ type: 'loading' });
-  };
-
-  const onUpdates = (payload: DataActionPayload) => {
-    dispatchData({
-      type: 'update',
-      payload,
-    });
-  };
-
-  useEffect(function onInitializationCb() {
-    onReset();
-    initializationService.resetConfig();
-    //const cfg = initializationService.cfg;
-    initializationService.initialize();
-  }, []);
-
-  const configModel = initializationService.cfg;
-
-  const convertSources = useCallback(
-    function convertSourcesCb() {
-      return (
-        configModel.sourceDocs
-          .map(fromDocumentDefinitionToFieldGroup)
-          /* eslint-disable  @typescript-eslint/no-explicit-any */
-          .filter((d: any) => d) as IDocument[]
-      );
-    },
-    [configModel],
-  );
-
-  const convertConstants = useCallback(
-    function convertConstantsCb() {
-      return fromDocumentDefinitionToFieldGroup(configModel.constantDoc);
-    },
-    [configModel],
-  );
-
-  const convertSourceProperties = useCallback(
-    function convertPropertiesCb() {
-      return fromDocumentDefinitionToFieldGroup(configModel.sourcePropertyDoc);
-    },
-    [configModel],
-  );
-
-  const convertTargetProperties = useCallback(
-    function convertPropertiesCb() {
-      return fromDocumentDefinitionToFieldGroup(configModel.targetPropertyDoc);
-    },
-    [configModel],
-  );
-
-  const convertTargets = useCallback(
-    function convertTargetsCb() {
-      return configModel.targetDocs.map(fromDocumentDefinitionToFieldGroup).filter((d) => d) as IDocument[];
-    },
-    [configModel],
-  );
-
-  const convertMappings = useCallback(
-    function convertMappingsCb() {
-      return fromMappingDefinitionToIMappings(configModel.mappings);
-    },
-    [configModel],
-  );
-
-  const convertSelectedMapping = useCallback(
-    function convertSelectedMappingCb() {
-      return fromMappingModelToImapping(configModel.mappings?.activeMapping);
-    },
-    [configModel],
-  );
-
-  const convertSourcesToFlatArray = useCallback(
-    function convertSourcesToFlatArrayCb(): IField[] {
-      return configModel.sourceDocs.flatMap((s) =>
-        s.getAllFields().flatMap((f) => {
-          const af = fromFieldToIFieldsNode(f);
-          return af ? [af] : [];
-        }),
-      );
-    },
-    [configModel],
-  );
-  const convertTargetsToFlatArray = useCallback(
-    function convertTargetsToFlatArrayCb() {
-      return configModel.targetDocs.flatMap((t) =>
-        t.getAllFields().flatMap((f) => {
-          const af = fromFieldToIFieldsNode(f);
-          return af ? [af] : [];
-        }),
-      );
-    },
-    [configModel],
-  );
-
-  const onSubUpdate = useCallback(
-    function onSubUpdateCb(_caller: string) {
-      onUpdates({
-        pending: !configModel.initCfg.initialized,
-        error: configModel.initCfg.initializationErrorOccurred,
-        sources: convertSources(),
-        constants: convertConstants(),
-        sourceProperties: convertSourceProperties(),
-        targets: convertTargets(),
-        targetProperties: convertTargetProperties(),
-        mappings: convertMappings(),
-        selectedMapping: convertSelectedMapping(),
-        flatSources: convertSourcesToFlatArray(),
-        flatTargets: convertTargetsToFlatArray(),
-      });
-      dispatchNotifications({
-        type: 'update',
-        payload: {
-          notifications: configModel.errorService
-            .getErrors()
-            .reverse()
-            .filter((e) => e.level !== 'DEBUG')
-            .map(errorInfoToNotification),
-        },
-      });
-    },
-    [
-      configModel,
-      convertConstants,
-      convertMappings,
-      convertSelectedMapping,
-      convertSources,
-      convertSourceProperties,
-      convertSourcesToFlatArray,
-      convertTargets,
-      convertTargetProperties,
-      convertTargetsToFlatArray,
-    ],
-  );
-
-  useEffect(
-    function subscriptionListener() {
-      const debounceTimeWindow = data.pending ? 1000 : 50;
-      const initializationObservable = initializationService.systemInitializedSource.pipe(
-        debounceTime(debounceTimeWindow),
-      );
-      const lineRefreshObservable = configModel.mappingService.lineRefreshSource.pipe(debounceTime(debounceTimeWindow));
-      const mappingUpdatedSource = configModel.mappingService.mappingUpdatedSource.pipe(
-        debounceTime(debounceTimeWindow),
-      );
-      const mappingPreview = configModel.previewService.mappingPreviewOutput$.pipe(debounceTime(debounceTimeWindow));
-
-      const subscriptions = [
-        initializationObservable.subscribe(() => onSubUpdate('initializationObservable')),
-        mappingUpdatedSource.subscribe(() => onSubUpdate('mappingUpdatedSource')),
-        mappingPreview.subscribe(() => onSubUpdate('mappingPreviewOutput$')),
-        lineRefreshObservable.subscribe(() => onSubUpdate('lineRefreshObservable')),
-        configModel.errorService.subscribe(() => onSubUpdate('errorService')),
-      ];
-
-      return () => {
-        subscriptions.forEach((s) => s.unsubscribe());
-      };
-    },
-    [configModel, data.pending, data.selectedMapping, onSubUpdate],
-  );
-
-  useEffect(
-    function onMappingChangeListenerCb() {
-      if (onMappingChange) {
-        configModel.mappingService.mappingUpdatedSource.subscribe(function onMappingChangeListenerSubCb() {
-          if (configModel.initCfg.initialized) {
-            onMappingChange(JSON.stringify(MappingSerializer.serializeMappings(configModel)));
-          }
-        });
-      }
-    },
-    [configModel, onMappingChange],
-  );
+  const value = useMemo(() => {
+    return {
+      loading,
+      activeView,
+      setActiveView,
+      notifications,
+      constants,
+      sourceProperties,
+      targetProperties,
+      sourceDocuments,
+      refreshSourceDocuments,
+      targetDocuments,
+      refreshTargetDocuments,
+      mappings,
+      setMappings,
+      selectedMapping,
+      setSelectedMapping,
+      isPreviewEnabled,
+      togglePreview,
+      showTypes,
+      toggleShowTypes,
+      showMappedFields,
+      toggleShowMappedFields,
+      showUnmappedFields,
+      toggleShowUnmappedFields,
+    };
+  }, [
+    activeView,
+    refreshSourceDocuments,
+    refreshTargetDocuments,
+    constants,
+    isPreviewEnabled,
+    loading,
+    mappings,
+    notifications,
+    selectedMapping,
+    showMappedFields,
+    showTypes,
+    showUnmappedFields,
+    sourceDocuments,
+    sourceProperties,
+    targetDocuments,
+    targetProperties,
+    togglePreview,
+    toggleShowMappedFields,
+    toggleShowTypes,
+    toggleShowUnmappedFields,
+  ]);
 
   return (
-    <DataMapperContext.Provider value={value}>{value.loading ? <Loading /> : children}</DataMapperContext.Provider>
+    <DataMapperContext.Provider value={value}>
+      {value.loading ? <Loading /> : props.children}
+    </DataMapperContext.Provider>
   );
 };

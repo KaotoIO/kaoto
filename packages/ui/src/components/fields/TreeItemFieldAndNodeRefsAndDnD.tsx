@@ -16,16 +16,11 @@
 import { AtIcon, BoltIcon, BullseyeIcon, CircleIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import { AtlasmapDocumentType } from '../../_bk_atlasmap/Views';
 import { Button, Tooltip } from '@patternfly/react-core';
-import {
-  DocumentField,
-  DraggableField,
-  FieldDropTarget,
-  IDocumentFieldProps,
-  IDragAndDropField,
-  NodeRef,
-  TreeItem,
-} from '../../_bk_atlasmap/UI';
-import React, { FunctionComponent, ReactNode } from 'react';
+import { DocumentField, IDocumentFieldProps, TreeItem } from '../../_bk_atlasmap/UI';
+import { DraggableField, FieldDropTarget } from '../dnd';
+import { NodeRef } from '../NodeRef';
+import { IDragAndDropField } from '../../models/dnd';
+import { FunctionComponent, ReactNode } from 'react';
 import { IField } from '../../models';
 
 export interface ITreeItemFieldAndNodeRefsAndDnDProps {
