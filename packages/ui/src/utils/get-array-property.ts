@@ -1,5 +1,5 @@
-import get from 'lodash.get';
-import set from 'lodash.set';
+import get from 'lodash/get';
+import set from 'lodash/set';
 
 export const getArrayProperty = (model: object, path: string): unknown[] => {
   let stepsArray: unknown[] | undefined = get(model, path);

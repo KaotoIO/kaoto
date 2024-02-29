@@ -1,4 +1,4 @@
-import set from 'lodash.set';
+import set from 'lodash/set';
 import { TileFilter } from '../../public-api';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';

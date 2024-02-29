@@ -1,6 +1,6 @@
 import { Pipe } from '@kaoto-next/camel-catalog/types';
-import get from 'lodash.get';
-import set from 'lodash.set';
+import get from 'lodash/get';
+import set from 'lodash/set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty, NodeIconResolver } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';

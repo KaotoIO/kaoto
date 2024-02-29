@@ -1,4 +1,4 @@
-import get from 'lodash.get';
+import get from 'lodash/get';
 import { getParsedValue } from './get-parsed-value';
 
 type ParsedParameters = Record<string, string | boolean | number>;
