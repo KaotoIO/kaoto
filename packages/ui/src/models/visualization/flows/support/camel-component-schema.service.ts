@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
-import { CamelUriHelper, ROOT_PATH, isDefined } from '../../../../utils';
+import { CamelUriHelper, ParsedParameters, ROOT_PATH, isDefined } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
@@ -169,6 +169,43 @@ export class CamelComponentSchemaService {
     }
 
     return '';
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getUriSerializedDefinition(path: string, definition: any): ParsedParameters | undefined {
+    const camelElementLookup = this.getCamelComponentLookup(path, definition);
+    if (camelElementLookup.componentName === undefined) {
+      return definition;
+    }
+
+    const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+    if (
+      catalogLookup.catalogKind === CatalogKind.Component &&
+      catalogLookup.definition?.component.syntax !== undefined
+    ) {
+      const requiredParameters: string[] = [];
+      const defaultValues: ParsedParameters = {};
+      if (catalogLookup.definition?.properties !== undefined) {
+        Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
+          if (value.required) requiredParameters.push(key);
+          if (value.defaultValue) defaultValues[key] = value.defaultValue;
+        });
+      }
+
+      const result = CamelUriHelper.getUriStringFromParameters(
+        definition.uri,
+        catalogLookup.definition.component.syntax,
+        definition.parameters,
+        {
+          requiredParameters,
+          defaultValues,
+        },
+      );
+
+      return Object.assign({}, definition, { uri: result.uri, parameters: result.parameters });
+    }
+
+    return definition;
   }
 
   /**
