@@ -45,6 +45,8 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
 Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'remove', nodeIndex);
   cy.get(nodeName).should('not.exist');
+  // wait for the canvas rerender
+  cy.wait(1000);
 });
 
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
