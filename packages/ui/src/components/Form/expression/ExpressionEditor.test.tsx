@@ -49,16 +49,14 @@ describe('ExpressionEditor', () => {
       .filter((textbox) => textbox.getAttribute('label') === 'Result Type');
     expect(resultTypeInput).toHaveLength(1);
     expect(resultTypeInput[0].getAttribute('value')).toEqual('string');
-    const headerNameInput = screen
-      .getAllByRole('textbox')
-      .filter((textbox) => textbox.getAttribute('label') === 'Header Name');
-    expect(headerNameInput).toHaveLength(1);
-    expect(headerNameInput[0].getAttribute('value')).toEqual('');
+    const sourceInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Source');
+    expect(sourceInput).toHaveLength(1);
+    expect(sourceInput[0].getAttribute('value')).toEqual('');
     expect(onChangeMock.mock.calls).toHaveLength(0);
     act(() => {
-      fireEvent.input(headerNameInput[0], { target: { value: 'foo' } });
+      fireEvent.input(sourceInput[0], { target: { value: 'foo' } });
     });
     expect(onChangeMock.mock.calls).toHaveLength(1);
-    expect(onChangeMock.mock.calls[0][1]).toEqual({ expression: '.field3', resultType: 'string', headerName: 'foo' });
+    expect(onChangeMock.mock.calls[0][1]).toEqual({ expression: '.field3', resultType: 'string', source: 'foo' });
   });
 });
