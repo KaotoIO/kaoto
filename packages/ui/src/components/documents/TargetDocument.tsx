@@ -1,62 +1,35 @@
 import { IDocument } from '../../models';
 import { FunctionComponent } from 'react';
-import { Document } from '.';
+import { Document, Tree } from '.';
 import { DocumentFooter } from './DocumentFooter';
+import { useDataMapperContext } from '../../hooks';
+import { DeleteDocumentButton } from './DeleteDocumentButton';
+import { TraverseFields } from '../fields';
+import {
+  TARGETS_FIELD_ID_PREFIX,
+  TARGETS_HEIGHT_BOUNDARY_ID,
+  TARGETS_WIDTH_BOUNDARY_ID,
+} from '../../layout/views/sourceTarget/constants';
+
 export const TargetDocument: FunctionComponent<{ documentModel: IDocument }> = ({ documentModel }) => {
+  const { showTypes } = useDataMapperContext();
+  const onDeleteDocument = (_id: string) => {
+    alert('not yet implemented');
+  };
   return (
     <Document
       title={documentModel.name}
       startExpanded={true}
       footer={showTypes ? <DocumentFooter>Target document type: {documentModel.type}</DocumentFooter> : undefined}
-      actions={
-        documentModel.type === DocumentType.CSV
-          ? [
-              onCaptureDocumentID && (
-                <CaptureDocumentIDAction
-                  id={documentId}
-                  onClick={() => onCaptureDocumentID(documentModel.id)}
-                  key={'capture-tgt-csv-document-id'}
-                />
-              ),
-              onEditCSVParams && (
-                <EditCSVParamsAction
-                  id={documentId}
-                  onClick={() => onEditCSVParams(documentModel.id, false)}
-                  key={'on-edit-tgt-csv-params'}
-                />
-              ),
-              onDeleteDocument && (
-                <DeleteDocumentAction
-                  id={documentId}
-                  onClick={() => onDeleteDocument(documentModel.id)}
-                  key={'delete-tgt-csv-document'}
-                />
-              ),
-            ]
-          : [
-              onCaptureDocumentID && (
-                <CaptureDocumentIDAction
-                  id={documentId}
-                  onClick={() => onCaptureDocumentID(documentModel.id)}
-                  key={'capture-tgt-document-id'}
-                />
-              ),
-              onChangeDocumentName && (
-                <ChangeDocumentNameAction
-                  id={documentId}
-                  onClick={() => onChangeDocumentName(documentModel.id, documentModel.name)}
-                  key={'change-tgt-document-name'}
-                />
-              ),
-              onDeleteDocument && (
-                <DeleteDocumentAction
-                  id={documentId}
-                  onClick={() => onDeleteDocument(documentModel.id)}
-                  key={'delete-tgt-documents'}
-                />
-              ),
-            ]
-      }
+      actions={[
+        onDeleteDocument && (
+          <DeleteDocumentButton
+            id={documentModel.id}
+            onClick={() => onDeleteDocument(documentModel.id)}
+            key={'delete-tgt-documents'}
+          />
+        ),
+      ]}
       noPadding={true}
     >
       <Tree>

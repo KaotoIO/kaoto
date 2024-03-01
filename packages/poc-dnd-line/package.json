@@ -1,0 +1,16 @@
+{
+  "name": "@datamapper-poc/poc-dnd-line",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build --config vite.config.js"
+  },
+  "dependencies": {
+    "@patternfly/react-core": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.61",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4"
+  }
+}
