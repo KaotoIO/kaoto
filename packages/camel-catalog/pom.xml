@@ -40,7 +40,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.camel>4.3.0</version.camel>
+    <version.camel>4.4.0</version.camel>
     <version.camel-k-crds>2.2.0</version.camel-k-crds>
     <version.camel-kamelets>4.4.0</version.camel-kamelets>
     <version.jackson>2.16.1</version.jackson>
