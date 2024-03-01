@@ -88,7 +88,6 @@ describe('Tests for Design page', () => {
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
-    cy.interactWithConfigInputObject('headerName', 'id');
     cy.interactWithConfigInputObject('trim');
     cy.confirmExpressionModal();
 
@@ -107,7 +106,6 @@ describe('Tests for Design page', () => {
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
-    cy.interactWithConfigInputObject('headerName', 'name');
     cy.interactWithConfigInputObject('trim');
     cy.confirmExpressionModal();
 
@@ -116,7 +114,6 @@ describe('Tests for Design page', () => {
     // Check the configured fields didn't disappear from the first node
     cy.openExpressionModal();
     cy.checkConfigCheckboxObject('trim', true);
-    cy.checkConfigInputObject('headerName', 'id');
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.id');
     cy.cancelExpressionModal();
@@ -125,7 +122,6 @@ describe('Tests for Design page', () => {
     cy.openStepConfigurationTab('setHeader', 0);
     cy.openExpressionModal();
     cy.checkConfigCheckboxObject('trim', true);
-    cy.checkConfigInputObject('headerName', 'name');
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.name');
     cy.cancelExpressionModal();
@@ -133,8 +129,6 @@ describe('Tests for Design page', () => {
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
     cy.checkCodeSpanLine('expression: .id', 1);
-    cy.checkCodeSpanLine('headerName: id', 1);
     cy.checkCodeSpanLine('expression: .name', 1);
-    cy.checkCodeSpanLine('headerName: name', 1);
   });
 });
