@@ -6,7 +6,10 @@
     "build": "tsc && vite build --config vite.config.js"
   },
   "dependencies": {
-    "@patternfly/react-core": "^5.2.0"
+    "@dnd-kit/core": "^6.1.0",
+    "@patternfly/react-core": "^5.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.61",
