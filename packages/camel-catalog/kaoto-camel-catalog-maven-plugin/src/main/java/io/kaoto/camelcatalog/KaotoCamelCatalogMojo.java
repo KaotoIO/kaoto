@@ -221,7 +221,7 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             catalogMap.forEach((name, catalog) -> {
                 try {
                     // Adding Kamelet Configuration Schema to the Entities Catalog
-                    if (name == "entities") {
+                    if (name.equals("entities")) {
                         var catalogNode = jsonMapper.readTree(catalog);
                         var schema = inputDir.resolve("schema").resolve("KameletConfiguration.json");
                         ((ObjectNode) catalogNode).putObject("KameletConfiguration").putObject("propertiesSchema");
