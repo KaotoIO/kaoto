@@ -8,27 +8,28 @@ type DocumentFieldProps = {
 };
 export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field, initialExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(initialExpanded);
+  const fieldId = field.name + Math.random();
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: 'droppable',
+    id: 'droppable-' + fieldId,
   });
-  const droppableStyle = {
-    color: isOver ? 'green' : undefined,
-  };
   const {
     attributes,
     listeners,
     setNodeRef: setDraggableNodeRef,
     transform,
   } = useDraggable({
-    id: 'draggable',
+    id: 'draggable-' + fieldId,
   });
-  const draggableStyle = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
   const renderField = useCallback(
     (field: any) => {
+      const droppableStyle = {
+        color: isOver ? 'green' : undefined,
+      };
+      const draggableStyle = transform
+        ? {
+            transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          }
+        : undefined;
       return (
         <AccordionItem>
           {field.fields && field.fields.length !== 0 ? (
@@ -40,25 +41,29 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field, in
                   </div>
                 </div>
               </AccordionToggle>
-              <AccordionContent isHidden={!isExpanded} id={field.name}>
+              <AccordionContent isHidden={!isExpanded} id={fieldId}>
                 {field.fields.map((f: any) => (
-                  <DocumentField field={f} />
+                  <DocumentField key={f.name} field={f} />
                 ))}
               </AccordionContent>
             </>
           ) : (
-            <AccordionContent id={field.name}>
-              <div ref={setDroppableNodeRef} style={droppableStyle}>
-                <div ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
-                  {field.name}
-                </div>
+            <div ref={setDroppableNodeRef} style={droppableStyle}>
+              <div
+                id={'draggable-' + fieldId}
+                ref={setDraggableNodeRef}
+                style={draggableStyle}
+                {...listeners}
+                {...attributes}
+              >
+                <AccordionContent id={fieldId}>{field.name}</AccordionContent>
               </div>
-            </AccordionContent>
+            </div>
           )}
         </AccordionItem>
       );
     },
-    [isExpanded],
+    [attributes, fieldId, isExpanded, isOver, listeners, setDraggableNodeRef, setDroppableNodeRef, transform],
   );
 
   return renderField(field);
