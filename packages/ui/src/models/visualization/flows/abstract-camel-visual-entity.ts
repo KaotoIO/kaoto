@@ -69,8 +69,9 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
 
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
+    const updatedValue = CamelComponentSchemaService.getUriSerializedDefinition(path, value);
 
-    setValue(this.route, path, value);
+    setValue(this.route, path, updatedValue);
   }
 
   /**

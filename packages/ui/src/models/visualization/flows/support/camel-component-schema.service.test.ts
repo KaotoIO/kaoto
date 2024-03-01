@@ -6,7 +6,7 @@ import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { IKameletDefinition } from '../../../kamelets-catalog';
-import { ROOT_PATH } from '../../../../utils';
+import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
 
 describe('CamelComponentSchemaService', () => {
   let path: string;
@@ -460,6 +460,52 @@ describe('CamelComponentSchemaService', () => {
       });
 
       expect(iconName).toEqual('');
+    });
+  });
+
+  describe('getUriSerializedDefinition', () => {
+    it('should return the same parameters if the definition is not a component', () => {
+      const definition = { log: { message: 'Hello World' } };
+      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
+
+      expect(result).toEqual(definition);
+    });
+
+    it('should return the same parameters if the component is not found', () => {
+      const definition = { uri: 'unknown-component' };
+      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
+
+      expect(result).toEqual(definition);
+    });
+
+    it('should query the catalog service and generate the required parameters array', () => {
+      const definition = { uri: 'log', parameters: { message: 'Hello World' } };
+      const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getCatalogLookup');
+      const camelUriHelperSpy = jest.spyOn(CamelUriHelper, 'getUriStringFromParameters');
+
+      CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
+
+      expect(catalogServiceSpy).toHaveBeenCalledWith('log');
+      expect(camelUriHelperSpy).toHaveBeenCalledWith(definition.uri, 'log:loggerName', definition.parameters, {
+        requiredParameters: ['loggerName'],
+        defaultValues: {
+          groupActiveOnly: 'true',
+          level: 'INFO',
+          maxChars: 10000,
+          showBody: true,
+          showBodyType: true,
+          showCachedStreams: true,
+          skipBodyLineSeparator: true,
+          style: 'Default',
+        },
+      });
+    });
+
+    it('should return the serialized definition', () => {
+      const definition = { uri: 'timer', parameters: { timerName: 'MyTimer', delay: '1000', repeatCount: 10 } };
+      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
+
+      expect(result).toEqual({ uri: 'timer:MyTimer', parameters: { delay: '1000', repeatCount: 10 } });
     });
   });
 

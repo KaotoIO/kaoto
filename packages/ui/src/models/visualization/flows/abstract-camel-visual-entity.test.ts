@@ -6,6 +6,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -50,6 +51,23 @@ describe('AbstractCamelVisualEntity', () => {
       const result = abstractVisualEntity.getNodeValidationText('from');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ uri ]');
+    });
+  });
+
+  describe('updateModel', () => {
+    it('should update the model with the new value', () => {
+      const newUri = 'timer:MyTimer';
+      abstractVisualEntity.updateModel('from', { uri: newUri });
+
+      expect(abstractVisualEntity.route.from.uri).toEqual(newUri);
+    });
+
+    it('should delegate the serialization to the `CamelComponentSchemaService`', () => {
+      const newUri = 'timer:MyTimer';
+      const spy = jest.spyOn(CamelComponentSchemaService, 'getUriSerializedDefinition');
+      abstractVisualEntity.updateModel('from', { uri: newUri });
+
+      expect(spy).toHaveBeenCalledWith('from', { uri: newUri });
     });
   });
 });
