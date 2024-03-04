@@ -1,4 +1,4 @@
-import { Button, Modal, Split, SplitItem, TextInput } from '@patternfly/react-core';
+import { Button, Modal, Split, SplitItem, TextInput, ModalVariant } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
 import { ExpressionEditor } from './ExpressionEditor';
 import { useState } from 'react';
@@ -62,6 +62,7 @@ export const ExpressionModalLauncher = ({
         </SplitItem>
       </Split>
       <Modal
+        variant={ModalVariant.large}
         isOpen={isModalOpen}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data-testid={`expression-modal`}

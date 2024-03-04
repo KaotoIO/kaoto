@@ -1,5 +1,5 @@
 import { MetadataEditor } from '../../MetadataEditor';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
@@ -37,6 +37,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
   return (
     beanSchema && (
       <Modal
+        variant={ModalVariant.large}
         data-testid={`NewBeanModal-${props.beanName}`}
         title={`Create a new ${props.propertyTitle} bean`}
         description={props.javaType ? `Java Type: ${props.javaType}` : ''}
