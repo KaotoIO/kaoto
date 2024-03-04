@@ -30,6 +30,9 @@ jobs:
       #- name: 💅 Run stylelint
       #  run: yarn workspace @kaoto-next/ui run lint:style
 
+      - name: Build xml-schema-ts
+        run: yarn workspace @datamapper-poc/xml-schema-ts run build
+
       # Run tests
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
