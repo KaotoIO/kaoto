@@ -197,8 +197,8 @@ describe('CanvasForm', () => {
         fireEvent.click(launchExpression);
       });
       const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+        .getAllByTestId('typeahead-select-input')
+        .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });
@@ -268,8 +268,8 @@ describe('CanvasForm', () => {
         fireEvent.click(launchExpression);
       });
       const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+        .getAllByTestId('typeahead-select-input')
+        .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
       act(() => {
         fireEvent.click(button[0]);
       });

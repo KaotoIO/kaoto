@@ -1,10 +1,10 @@
-import { ExpressionEditor } from './ExpressionEditor';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { ExpressionService } from './expression.service';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { SchemaService } from '../schema.service';
+import { ExpressionEditor } from './ExpressionEditor';
+import { ExpressionService } from './expression.service';
 
 describe('ExpressionEditor', () => {
   const onChangeMock = jest.fn();
@@ -24,8 +24,8 @@ describe('ExpressionEditor', () => {
   it('render empty simple if language is not specified', () => {
     render(<ExpressionEditor expressionModel={{}} onChangeExpressionModel={onChangeMock}></ExpressionEditor>);
     const dropdown = screen
-      .getAllByRole('button')
-      .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      .getAllByTestId('typeahead-select-input')
+      .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
     expect(dropdown).toHaveLength(1);
   });
 
@@ -42,7 +42,7 @@ describe('ExpressionEditor', () => {
         onChangeExpressionModel={onChangeMock}
       ></ExpressionEditor>,
     );
-    const dropdown = screen.getAllByRole('button').filter((button) => button.textContent === 'JQ');
+    const dropdown = screen.getAllByTestId('typeahead-select-input').filter((input) => input.innerHTML.includes('JQ'));
     expect(dropdown).toHaveLength(1);
     const resultTypeInput = screen
       .getAllByRole('textbox')

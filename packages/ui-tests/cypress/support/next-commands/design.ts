@@ -13,7 +13,7 @@ Cypress.Commands.add('closeStepConfigurationTab', () => {
 });
 
 Cypress.Commands.add('interactWithExpressinInputObject', (inputName: string, value?: string) => {
-  cy.get('[data-testid="expression-modal"]').within(() => {
+  cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
     cy.interactWithConfigInputObject(inputName, value);
   });
 });
@@ -113,7 +113,9 @@ Cypress.Commands.add('cancelExpressionModal', () => {
 });
 
 Cypress.Commands.add('selectExpression', (expression: string) => {
-  cy.get('div[data-testid="expression-modal"] button.pf-v5-c-menu-toggle').should('be.visible').click();
+  cy.get('div[data-ouia-component-id="ExpressionModal"] button.pf-v5-c-menu-toggle__button')
+    .should('be.visible')
+    .click();
   const regex = new RegExp(`^${expression}$`);
   cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });
