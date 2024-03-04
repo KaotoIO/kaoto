@@ -54,11 +54,11 @@ describe('StepExpressionEditor', () => {
     await act(async () => {
       fireEvent.click(launcherButton[0]);
     });
-    const dropdownButton = screen
-      .getAllByRole('button')
-      .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+    const dropdown = screen
+      .getAllByTestId('typeahead-select-input')
+      .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
     await act(async () => {
-      fireEvent.click(dropdownButton[0]);
+      fireEvent.click(dropdown[0]);
     });
     const jsonpath = screen.getByTestId('expression-dropdownitem-jsonpath');
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);

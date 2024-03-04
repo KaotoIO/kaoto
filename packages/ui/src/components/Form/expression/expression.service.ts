@@ -138,6 +138,12 @@ export class ExpressionService {
     (parentModel.expression as Record<string, unknown>)[languageModelName] = newExpressionModel;
   }
 
+  static deleteStepExpressionModel(parentModel: Record<string, unknown>): void {
+    if (parentModel.expression) {
+      delete parentModel.expression;
+    }
+  }
+
   /**
    * Parse the property expression model from the parent parameter model object.
    * @param languageCatalogMap The language catalog map to use as a dictionary.

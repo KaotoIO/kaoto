@@ -51,9 +51,11 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
     const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
     if (preparedLanguage && preparedModel) {
       ExpressionService.setStepExpressionModel(languageCatalogMap, model, preparedLanguage.model.name, preparedModel);
-      props.selectedNode.data?.vizNode?.updateModel(model);
-      entitiesContext?.updateSourceCodeFromEntities();
+    } else {
+      ExpressionService.deleteStepExpressionModel(model);
     }
+    props.selectedNode.data?.vizNode?.updateModel(model);
+    entitiesContext?.updateSourceCodeFromEntities();
   }, [entitiesContext, languageCatalogMap, preparedLanguage, preparedModel, props.selectedNode.data?.vizNode]);
 
   const handleCancel = useCallback(() => {
