@@ -1,4 +1,4 @@
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -48,10 +48,10 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         <span className="pf-v5-u-m-sm">New</span>
       </FlowTypeSelector>
       <Modal
+        variant={ModalVariant.small}
         title="Warning"
         data-testid="confirmation-modal"
         titleIconVariant="warning"
-        variant="small"
         onClose={() => {
           setIsConfirmationModalOpen(false);
         }}

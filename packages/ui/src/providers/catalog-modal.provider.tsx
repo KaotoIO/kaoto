@@ -1,4 +1,4 @@
-import { Modal } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -102,7 +102,14 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
       {props.children}
 
       {isModalOpen && (
-        <Modal title="Catalog" position="top" isOpen onClose={handleCloseModal} ouiaId="CatalogModal">
+        <Modal
+          variant={ModalVariant.large}
+          title="Catalog"
+          position="top"
+          isOpen
+          onClose={handleCloseModal}
+          ouiaId="CatalogModal"
+        >
           <Catalog tiles={filteredTiles} onTileClick={handleSelectComponent} />
         </Modal>
       )}
