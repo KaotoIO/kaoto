@@ -1,4 +1,4 @@
-import { Button, InputGroup, InputGroupItem, Modal, TextInput } from '@patternfly/react-core';
+import { Button, InputGroup, InputGroupItem, Modal, TextInput, ModalVariant } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
 import { useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
@@ -64,6 +64,7 @@ export const ExpressionModalLauncher = ({
         </InputGroupItem>
       </InputGroup>
       <Modal
+        variant={ModalVariant.large}
         isOpen={isModalOpen}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data-testid={`expression-modal`}
