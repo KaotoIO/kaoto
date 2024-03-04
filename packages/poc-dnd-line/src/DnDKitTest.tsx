@@ -1,5 +1,6 @@
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
-import { DndContext, DragEndEvent, Over, UniqueIdentifier, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, UniqueIdentifier, useDraggable, useDroppable } from '@dnd-kit/core';
+import { Page } from '@patternfly/react-core';
 
 interface DroppableProps extends PropsWithChildren {
   id: string;
@@ -46,17 +47,19 @@ export const DnDKitTest: FunctionComponent = () => {
   const draggableMarkup = <Draggable id="draggable">Drag me</Draggable>;
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      {parent === null ? draggableMarkup : null}
+    <Page>
+      <DndContext onDragEnd={handleDragEnd}>
+        {parent === null ? draggableMarkup : null}
 
-      {containers.map((id) => (
-        // We updated the Droppable component so it would accept an `id`
-        // prop and pass it to `useDroppable`
-        <Droppable key={id} id={id}>
-          {parent === id ? draggableMarkup : 'Drop here'}
-        </Droppable>
-      ))}
-    </DndContext>
+        {containers.map((id) => (
+          // We updated the Droppable component so it would accept an `id`
+          // prop and pass it to `useDroppable`
+          <Droppable key={id} id={id}>
+            {parent === id ? draggableMarkup : 'Drop here'}
+          </Droppable>
+        ))}
+      </DndContext>
+    </Page>
   );
 
   function handleDragEnd(event: DragEndEvent) {

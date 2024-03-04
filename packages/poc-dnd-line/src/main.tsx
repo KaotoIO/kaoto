@@ -5,6 +5,8 @@ import { DndContext, useDndMonitor } from '@dnd-kit/core';
 import { FunctionComponent } from 'react';
 import { Link, Route, BrowserRouter, Routes } from 'react-router-dom';
 import { DnDKitTest } from './DnDKitTest';
+import { ReactTopologyTest } from './ReactTopologyTest';
+import { Page } from '@patternfly/react-core';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -30,16 +32,21 @@ const DnDMonitor: FunctionComponent = () => {
 };
 
 const Layout: FunctionComponent = () => (
-  <nav>
-    <ul>
-      <li>
-        <Link to="/SourceTarget">SourceTarget</Link>
-      </li>
-      <li>
-        <Link to="/dndkit">dndkit</Link>
-      </li>
-    </ul>
-  </nav>
+  <Page>
+    <nav>
+      <ul>
+        <li>
+          <Link to="/SourceTarget">SourceTarget</Link>
+        </li>
+        <li>
+          <Link to="/dndkit">dndkit</Link>
+        </li>
+        <li>
+          <Link to="/topology">React Topology</Link>
+        </li>
+      </ul>
+    </nav>
+  </Page>
 );
 
 root.render(
@@ -56,6 +63,7 @@ root.render(
         }
       />
       <Route path="/dndkit" element={<DnDKitTest></DnDKitTest>} />
+      <Route path="/topology" element={<ReactTopologyTest></ReactTopologyTest>} />
     </Routes>
   </BrowserRouter>,
 );
