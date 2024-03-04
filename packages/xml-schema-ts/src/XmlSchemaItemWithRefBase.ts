@@ -1,5 +1,5 @@
-import { QName } from '.';
-import { XmlSchemaRefBase } from './utils';
+import { QName } from './QName';
+import { XmlSchemaRefBase } from './utils/XmlSchemaRefBase';
 
 export interface XmlSchemaItemWithRefBase {
   /**

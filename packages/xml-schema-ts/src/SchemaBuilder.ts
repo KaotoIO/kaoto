@@ -645,7 +645,7 @@ export class SchemaBuilder {
    * @return The cached schema if one exists for this thread or null.
    */
   private getCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string) {
-    let resolvedSchema = null;
+    let resolvedSchema: XmlSchema | null = null;
 
     if (this.resolvedSchemas != null) {
       // cache is initialized, use it

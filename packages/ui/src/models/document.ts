@@ -1,7 +1,6 @@
 import { IDocument, IField } from './api';
 import { generateRandomId } from '../util';
-import { XmlSchema } from '../util/xsd/XmlSchema';
-import { XmlSchemaElement } from '../util/xsd/particle/XmlSchemaElement';
+import { XmlSchema, XmlSchemaElement } from '@datamapper-poc/xml-schema-ts';
 
 abstract class Document implements IDocument {
   fields: IField[] = [];

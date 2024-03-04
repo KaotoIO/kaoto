@@ -1,5 +1,5 @@
 import { IDocument, XmlSchemaDocument } from '../models';
-import { XmlSchemaCollection } from '../util/xsd/XmlSchemaCollection';
+import { XmlSchemaCollection } from '@datamapper-poc/xml-schema-ts';
 
 export class DocumentService {
   static parseXmlSchema(content: string): IDocument {

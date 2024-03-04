@@ -1,5 +1,6 @@
-import type { QName, XmlSchema } from '..';
-import { XmlSchemaObjectBase } from '.';
+import type { QName } from '../QName';
+import type { XmlSchema } from '../XmlSchema';
+import { XmlSchemaObjectBase } from './XmlSchemaObjectBase';
 
 export interface XmlSchemaNamed extends XmlSchemaObjectBase {
   /**

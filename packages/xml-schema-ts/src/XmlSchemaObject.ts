@@ -1,4 +1,4 @@
-import { XmlSchemaObjectBase } from './utils';
+import { XmlSchemaObjectBase } from './utils/XmlSchemaObjectBase';
 
 export abstract class XmlSchemaObject implements XmlSchemaObjectBase {
   lineNumber?: number;
