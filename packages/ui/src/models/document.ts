@@ -1,5 +1,4 @@
 import { generateRandomId } from '../util';
-import { XmlSchema, XmlSchemaElement } from '@datamapper-poc/xml-schema-ts';
 
 export interface INamespace {
   alias: string;
@@ -32,28 +31,14 @@ export interface IDocument {
   namespaces?: INamespace[];
 }
 
-abstract class BaseDocument implements IDocument {
+export abstract class BaseDocument implements IDocument {
   fields: IField[] = [];
   id: string = generateRandomId('document');
   name: string = '';
   type: string = '';
 }
 
-export class XmlSchemaDocument extends BaseDocument {
-  private rootElement: XmlSchemaElement;
-  fields: XmlSchemaField[] = [];
-  constructor(private xmlSchema: XmlSchema) {
-    super();
-    if (this.xmlSchema.getElements().size == 0) {
-      throw Error("There's no top level Element in the schema");
-    }
-    this.rootElement = this.xmlSchema.getElements().values().next().value;
-    this.fields.push(new XmlSchemaField(this.rootElement));
-    this.type = 'XML';
-  }
-}
-
-abstract class BaseField implements IField {
+export abstract class BaseField implements IField {
   enumeration: boolean = false;
   fields: IField[] = [];
   id: string = generateRandomId('field');
@@ -67,10 +52,4 @@ abstract class BaseField implements IField {
   scope: string = '';
   type: string = '';
   value: string = '';
-}
-
-export class XmlSchemaField extends BaseField {
-  constructor(_element: XmlSchemaElement) {
-    super();
-  }
 }

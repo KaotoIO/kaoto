@@ -19,7 +19,7 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
 import { readFileAsString } from '../../util';
-import { DocumentService } from '../../services';
+import { XmlSchemaDocumentService } from '../../services';
 import { useDataMapperContext } from '../../hooks';
 
 export interface IImportActionProps {
@@ -36,7 +36,7 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ is
     (file: File) => {
       const fileName = file.name;
       readFileAsString(file).then((content) => {
-        const document = DocumentService.parseXmlSchema(content);
+        const document = XmlSchemaDocumentService.parseXmlSchema(content);
         document.name = fileName;
         if (isSource) {
           sourceDocuments.push(document);

@@ -30,11 +30,19 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field }) 
     : undefined;
 
   return !field.fields || field.fields.length == 0 ? (
-    <div ref={setDroppableNodeRef} style={droppableStyle}>
-      <div id={'draggable-' + fieldId} ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
-        {field.name}
+    <AccordionContent>
+      <div ref={setDroppableNodeRef} style={droppableStyle}>
+        <div
+          id={'draggable-' + fieldId}
+          ref={setDraggableNodeRef}
+          style={draggableStyle}
+          {...listeners}
+          {...attributes}
+        >
+          {field.isAttribute ? '@' + field.name : field.name}
+        </div>
       </div>
-    </div>
+    </AccordionContent>
   ) : (
     <AccordionItem>
       <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>

@@ -4,7 +4,7 @@ export class QName {
   constructor(
     namespaceURI: string | null,
     private localPart: string | null,
-    private prefix?: string,
+    private prefix: string | null = null,
   ) {
     this.namespaceURI = namespaceURI != null ? namespaceURI : '';
   }
@@ -17,7 +17,7 @@ export class QName {
     return this.localPart;
   }
 
-  getPrefix(): string | undefined {
+  getPrefix(): string | null {
     return this.prefix;
   }
 

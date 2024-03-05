@@ -1,1 +1,1 @@
-export * from './document.service';
+export * from './xml-schema-document.service';
