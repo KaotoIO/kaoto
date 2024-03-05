@@ -20,7 +20,7 @@ import {
   VisualizationProvider,
   VisualizationSurface,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent, ReactNode, useCallback, useMemo, useState } from 'react';
 import { Page, ToolbarItem } from '@patternfly/react-core';
 import { doc } from './data';
 
@@ -31,20 +31,20 @@ const baselineLayoutFactory: LayoutFactory = (type: string, graph: Graph): Layou
   });
 };
 
-const baselineComponentFactory: ComponentFactory = (kind: ModelKind, type: string) => {
+const baselineComponentFactory: ComponentFactory = (kind: ModelKind, type: string): ReturnType<ComponentFactory> => {
   switch (type) {
     case 'group':
-      return CustomGroup;
+      return CustomGroup as ReturnType<ComponentFactory>;
     default:
       switch (kind) {
         case ModelKind.graph:
           return GraphComponent;
         case ModelKind.node:
-          return CustomNode;
+          return CustomNode as ReturnType<ComponentFactory>;
         case ModelKind.edge:
           return DefaultEdge;
         default:
-          return undefined;
+          throw Error(`Unsupported type/kind: ${type}/${kind}`);
       }
   }
 };

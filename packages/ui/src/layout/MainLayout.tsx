@@ -13,87 +13,70 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, ReactElement, ReactNode, memo, useMemo, useContext } from 'react';
-import { Stack, StackItem } from '@patternfly/react-core';
-import { Sidebar } from '../_bk_atlasmap/Layout/Sidebar';
-import './MainLayout.css';
-import { ContextToolbar, ExpressionToolbar } from '.';
-import { MappingTableView, NamespaceTableView } from '../_bk_atlasmap/Views';
-import { SourceTargetView } from './views';
+import { FunctionComponent, memo, useContext, useMemo, useState } from 'react';
+import {
+  Drawer,
+  DrawerActions,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerHead,
+  DrawerPanelContent,
+  Masthead,
+  MastheadContent,
+  Page,
+  PageSection,
+  PageSectionVariants,
+} from '@patternfly/react-core';
+import { MappingDetailsView, SourceTargetView } from './views';
 import { DataMapperContext } from '../providers';
+import { CanvasView } from '../models';
+import { ContextToolbar } from './ContextToolbar';
 
 export interface IMainLayoutProps {
   showSidebar: boolean;
-  controlBar?: ReactNode;
-  renderSidebar: () => ReactElement;
 }
 
-export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout({
-  showSidebar,
-  renderSidebar,
-  controlBar,
-}) {
-  const sideBar = <Sidebar show={showSidebar}>{renderSidebar}</Sidebar>;
-  const containerClasses =
-    'pf-topology-container' +
-    `${sideBar ? ' pf-topology-container__with-sidebar' : ''}` +
-    `${showSidebar ? ' pf-topology-container__with-sidebar--open' : ''}`;
+export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout() {
+  const [isDrawerExpanded, setDrawerExpanded] = useState<boolean>(false);
+
   const { activeView } = useContext(DataMapperContext)!;
   const currentView = useMemo(() => {
     switch (activeView) {
-      case 'SourceTarget':
+      case CanvasView.SOURCE_TARGET:
         return <SourceTargetView />;
-      case 'MappingTable':
-        return (
-          <MappingTableView
-            mappings={mappings}
-            onSelectMapping={selectMapping}
-            shouldShowMappingPreview={shouldShowMappingPreview}
-            onFieldPreviewChange={onFieldPreviewChange}
-          />
-        );
-      case 'NamespaceTable':
-        return (
-          <NamespaceTableView
-            sources={sources}
-            onCreateNamespace={handlers.onCreateNamespace}
-            onEditNamespace={(
-              docName: string,
-              alias: string,
-              uri: string,
-              locationUri: string,
-              targetNamespace: boolean,
-            ) =>
-              handlers.onEditNamespace(docName, {
-                alias,
-                uri,
-                locationUri,
-                targetNamespace,
-              })
-            }
-            onDeleteNamespace={handlers.deleteNamespace}
-          />
-        );
       default:
         return <>View {activeView} is not supported</>;
     }
   }, [activeView]);
 
-  return (
-    <Stack className="view">
-      <StackItem isFilled={false}>
+  const header = (
+    <Masthead>
+      <MastheadContent>
         <ContextToolbar />
-      </StackItem>
-      <StackItem isFilled={false}>
-        <ExpressionToolbar />
-      </StackItem>
-      <StackItem isFilled className={containerClasses}>
-        <div className="pf-topology-content">
-          {currentView}
-          {controlBar && <span className="pf-topology-control-bar">{controlBar}</span>}
-        </div>
-        {sideBar}
-      </StackItem>
-    </Stack>
+      </MastheadContent>
+    </Masthead>
+  );
+
+  const drawerPanelContent = (
+    <DrawerPanelContent>
+      <DrawerHead>Mapping Details</DrawerHead>
+      <DrawerActions>
+        <DrawerCloseButton onClick={() => setDrawerExpanded(false)} />
+      </DrawerActions>
+      <MappingDetailsView />
+    </DrawerPanelContent>
+  );
+
+  return (
+    <Page header={header}>
+      <PageSection variant={PageSectionVariants.default}>
+        <Drawer isExpanded={isDrawerExpanded} isInline>
+          <DrawerContent panelContent={drawerPanelContent}>
+            <DrawerContentBody>{currentView}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
+      </PageSection>
+    </Page>
   );
 });

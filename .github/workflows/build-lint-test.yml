@@ -23,24 +23,13 @@ jobs:
       - run: yarn
 
       # Lint files
-      #- name: 💅 Run eslint
-      #  run: yarn workspaces foreach --verbose --topological-dev run lint
+      - name: 💅 Run eslint
+        run: yarn workspaces foreach --verbose --topological-dev run lint
 
-      # Lint style files
-      #- name: 💅 Run stylelint
-      #  run: yarn workspace @kaoto-next/ui run lint:style
-
-      - name: Build xml-schema-ts
-        run: yarn workspace @datamapper-poc/xml-schema-ts run build
+      # Build packages
+      - name: Build packages
+        run: yarn workspaces foreach --verbose --topological-dev run build
 
       # Run tests
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
-
-      # Build packages excluding @kaoto-next/camel-catalog since it was build during installing dependencies
-      #- name: Build packages
-      #  run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
-
-      # Build lib
-      #- name: Build @kaoto-next/ui package in lib mode
-      #  run: yarn workspace @kaoto-next/ui run build:lib

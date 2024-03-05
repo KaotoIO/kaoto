@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2017 Red Hat, Inc.
+    Copyright (C) 2024 Red Hat, Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -13,20 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import { MainLayout } from './layout';
 import { FunctionComponent } from 'react';
-import { Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
-import { MainMenuToolbarItem } from '../components/toolbar';
 
-export const ContextToolbar: FunctionComponent = () => {
-  return (
-    <Toolbar id="data-toolbar" role={'complementary'}>
-      <ToolbarContent>
-        {
-          <ToolbarGroup variant="button-group" spacer={{ default: 'spacerMd' }}>
-            <MainMenuToolbarItem />
-          </ToolbarGroup>
-        }
-      </ToolbarContent>
-    </Toolbar>
-  );
+import { useDataMapperContext } from './hooks/useDataMapperContext';
+
+export interface IDataMapperProps {
+  modalsContainerId?: string;
+}
+
+export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
+  const { selectedMapping } = useDataMapperContext()!;
+
+  return <MainLayout showSidebar={!!selectedMapping} />;
 };

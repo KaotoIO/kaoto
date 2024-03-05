@@ -1,9 +1,0 @@
-.column {
-    flex-flow: column nowrap;
-    display: flex;
-    min-width: 400px;
-    padding: 1rem;
-}
-.hidden {
-    opacity: 0,
-}

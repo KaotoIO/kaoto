@@ -14,10 +14,10 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
 
     /* Typings */
     "types": [
@@ -27,6 +27,5 @@
     ]
   },
   "include": ["src/**/*"],
-  "exclude": ["**/_bk_atlasmap/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

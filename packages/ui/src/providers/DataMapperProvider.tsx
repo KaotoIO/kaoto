@@ -14,10 +14,9 @@
     limitations under the License.
 */
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
-import { useToggle } from '../hooks';
 
-import { Loading } from '../components';
-import { CanvasView, IDocument, IMapping, INotification } from '../models';
+import { Loading } from '../components/Loading';
+import { CanvasView, IDocument, IMapping } from '../models';
 
 export interface IDataMapperContext {
   loading: boolean;
@@ -25,7 +24,6 @@ export interface IDataMapperContext {
 
   setActiveView(view: CanvasView): void;
 
-  notifications: INotification[];
   constants: IDocument;
   sourceProperties: IDocument;
   targetProperties: IDocument;
@@ -40,47 +38,26 @@ export interface IDataMapperContext {
   selectedMapping: IMapping | null;
 
   setSelectedMapping(mapping: IMapping | null): void;
-
-  isPreviewEnabled: boolean;
-
-  togglePreview(): void;
-
-  showTypes: boolean;
-
-  toggleShowTypes(): void;
-
-  showMappedFields: boolean;
-
-  toggleShowMappedFields(): void;
-
-  showUnmappedFields: boolean;
-
-  toggleShowUnmappedFields(): void;
 }
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
 export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [activeView, setActiveView] = useState<CanvasView>('SourceTarget');
-  const [notifications, setNotifications] = useState<INotification[]>([]);
-  const { state: isPreviewEnabled, toggle: togglePreview } = useToggle(false);
-  const { state: showTypes, toggle: toggleShowTypes } = useToggle(true);
-  const { state: showMappedFields, toggle: toggleShowMappedFields } = useToggle(true);
-  const { state: showUnmappedFields, toggle: toggleShowUnmappedFields } = useToggle(true);
-  const [constants, setConstants] = useState<IDocument>({
+  const [loading, _setLoading] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
+  const [constants, _setConstants] = useState<IDocument>({
     id: 'constants',
     name: 'Constants',
     type: 'constants',
     fields: [],
   } as IDocument);
-  const [sourceProperties, setSourceProperties] = useState<IDocument>({
+  const [sourceProperties, _setSourceProperties] = useState<IDocument>({
     id: 'sourceProperties',
     name: 'Source Properties',
     type: 'source',
     fields: [],
   });
-  const [targetProperties, setTargetProperties] = useState<IDocument>({
+  const [targetProperties, _setTargetProperties] = useState<IDocument>({
     id: 'targetProperties',
     name: 'Target Properties',
     type: 'target',
@@ -103,7 +80,6 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       loading,
       activeView,
       setActiveView,
-      notifications,
       constants,
       sourceProperties,
       targetProperties,
@@ -115,36 +91,19 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       setMappings,
       selectedMapping,
       setSelectedMapping,
-      isPreviewEnabled,
-      togglePreview,
-      showTypes,
-      toggleShowTypes,
-      showMappedFields,
-      toggleShowMappedFields,
-      showUnmappedFields,
-      toggleShowUnmappedFields,
     };
   }, [
     activeView,
     refreshSourceDocuments,
     refreshTargetDocuments,
     constants,
-    isPreviewEnabled,
     loading,
     mappings,
-    notifications,
     selectedMapping,
-    showMappedFields,
-    showTypes,
-    showUnmappedFields,
     sourceDocuments,
     sourceProperties,
     targetDocuments,
     targetProperties,
-    togglePreview,
-    toggleShowMappedFields,
-    toggleShowTypes,
-    toggleShowUnmappedFields,
   ]);
 
   return (
