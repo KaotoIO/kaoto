@@ -59,6 +59,7 @@ export class XmlSchemaDocumentService {
   }
 
   static throwNotYetSupported(object: XmlSchemaObjectBase) {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     const cache: any[] = [];
     throw Error(
       `Not yet supported: ${JSON.stringify(object, (_key, value) => {
