@@ -58,6 +58,9 @@ export class XmlSchemaDocumentService {
     return xmlSchema.getElements().values().next().value;
   }
 
+  /**
+   * @deprecated
+   */
   static throwNotYetSupported(object: XmlSchemaObjectBase) {
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     const cache: any[] = [];

@@ -29,34 +29,38 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field }) 
       }
     : undefined;
 
-  return !field.fields || field.fields.length == 0 ? (
-    <AccordionContent>
-      <div ref={setDroppableNodeRef} style={droppableStyle}>
-        <div
-          id={'draggable-' + fieldId}
-          ref={setDraggableNodeRef}
-          style={draggableStyle}
-          {...listeners}
-          {...attributes}
-        >
-          {field.isAttribute ? '@' + field.name : field.name}
-        </div>
-      </div>
-    </AccordionContent>
-  ) : (
+  return (
     <AccordionItem>
-      <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
-        <div ref={setDroppableNodeRef} style={droppableStyle}>
-          <div ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
-            {field.name}
+      {!field.fields || field.fields.length == 0 ? (
+        <AccordionContent>
+          <div ref={setDroppableNodeRef} style={droppableStyle}>
+            <div
+              id={'draggable-' + fieldId}
+              ref={setDraggableNodeRef}
+              style={draggableStyle}
+              {...listeners}
+              {...attributes}
+            >
+              {field.isAttribute ? '@' + field.name : field.name}
+            </div>
           </div>
-        </div>
-      </AccordionToggle>
-      <AccordionContent isHidden={!isExpanded} id={fieldId}>
-        {field.fields.map((f: IField) => (
-          <DocumentField key={f.name} field={f} />
-        ))}
-      </AccordionContent>
+        </AccordionContent>
+      ) : (
+        <>
+          <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
+            <div ref={setDroppableNodeRef} style={droppableStyle}>
+              <div ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
+                {field.name}
+              </div>
+            </div>
+          </AccordionToggle>
+          <AccordionContent isHidden={!isExpanded} id={fieldId}>
+            {field.fields.map((f: IField) => (
+              <DocumentField key={f.name} field={f} />
+            ))}
+          </AccordionContent>
+        </>
+      )}
     </AccordionItem>
   );
 };
