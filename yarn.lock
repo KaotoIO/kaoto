@@ -1643,7 +1643,7 @@ __metadata:
     typescript: ^5.3.3
     use-debounce: ^10.0.0
     vite: ^5.0.12
-    vite-plugin-circular-dependency: ^0.3.1
+    vite-plugin-circular-dependency: ^0.4.0
   languageName: unknown
   linkType: soft
 
@@ -13116,13 +13116,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-circular-dependency@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "vite-plugin-circular-dependency@npm:0.3.1"
+"vite-plugin-circular-dependency@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "vite-plugin-circular-dependency@npm:0.4.0"
   dependencies:
     "@rollup/pluginutils": ^5.1.0
     chalk: ^4.1.2
-  checksum: e8364594b7b38c7f13ac01c03e837a7618a3097df6924b274cb2025909540d77155856530a31b45e6086117471ba45f2d1719e5689bd3d667345309f9474d457
+  checksum: 899d9cccf0f188f8111ef1739c8f21cd6eac65b657962f5cd55793c41f049148d9f7da922d7d2b3205d7fd3d4eb074be2edb5a21bc7728185b104d9e3a07cac6
   languageName: node
   linkType: hard
 
