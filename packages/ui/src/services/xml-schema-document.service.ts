@@ -81,7 +81,7 @@ export class XmlSchemaDocumentService {
 
     const schemaType = element.getSchemaType();
     if (schemaType == null) {
-      field.type = element.getSchemaTypeName();
+      field.type = element.getSchemaTypeName()?.getLocalPart() || 'string';
       return;
     }
     field.type = 'container';
