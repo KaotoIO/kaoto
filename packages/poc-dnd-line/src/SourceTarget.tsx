@@ -8,13 +8,13 @@ export const SourceTarget: React.FunctionComponent = () => {
       <Split hasGutter>
         <SplitItem isFilled>
           <Accordion isBordered={true} asDefinitionList={false}>
-            <DocumentField field={doc} initialExpanded={true}></DocumentField>
+            <DocumentField field={doc} initialExpanded={true} onToggle={() => {}}></DocumentField>
           </Accordion>
         </SplitItem>
         <SplitItem isFilled>draw lines here</SplitItem>
         <SplitItem isFilled>
           <Accordion isBordered={true} asDefinitionList={false}>
-            <DocumentField field={doc} initialExpanded={true}></DocumentField>
+            <DocumentField field={doc} initialExpanded={true} onToggle={() => {}}></DocumentField>
           </Accordion>
         </SplitItem>
       </Split>
