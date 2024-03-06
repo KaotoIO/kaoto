@@ -56,34 +56,46 @@ import wiretap from '../assets/eip/wiretap.png';
 // component icons
 import activemq from '../assets/components/amq.svg';
 import amqp from '../assets/components/amqp.svg';
+import aws from '../assets/components/aws.png';
 import aws2_ddb from '../assets/components/aws-ddb.svg';
 import aws2_s3 from '../assets/components/aws-s3.svg';
+import aws2_sns from '../assets/components/sns.svg';
+import aws2_sqs from '../assets/components/sqs.svg';
+import azure from '../assets/components/azure.png';
 import cxf from '../assets/components/cxf.png';
 import debezium from '../assets/components/debezium.png';
 import dropbox from '../assets/components/dropbox.svg';
 import facebook from '../assets/components/facebook.svg';
 import fhir from '../assets/components/fhir.svg';
 import file from '../assets/components/file.png';
+import flink from '../assets/components/flink.svg';
 import ftp from '../assets/components/ftp.png';
 import generic_component from '../assets/components/generic-component.png';
 import github from '../assets/components/github.svg';
+import google_generic from '../assets/components/google-generic.svg';
 import google_mail from '../assets/components/gmail.svg';
 import google_calendar from '../assets/components/googlecalendar.svg';
 import google_drive from '../assets/components/googledrive.svg';
 import google_sheets from '../assets/components/googlesheets.svg';
 import graphql from '../assets/components/graphql.png';
+import hazelcast from '../assets/components/hazelcast.png';
 import http from '../assets/components/http.svg';
 import https from '../assets/components/https.svg';
+import huawei from '../assets/components/huawei.svg';
+import ignite from '../assets/components/ignite.png';
 import irc from '../assets/components/irc.svg';
 import jdbc from '../assets/components/jdbc.png';
 import jira from '../assets/components/jira.svg';
 import jms from '../assets/components/jms.png';
 import kafka from '../assets/components/kafka.svg';
+import kubernetes from '../assets/components/kubernetes.svg';
 import log2 from '../assets/components/log.png';
 import mail from '../assets/components/mail.png';
 import mongodb from '../assets/components/mongodb.png';
 import mqtt from '../assets/components/mqtt3.png';
 import netty from '../assets/components/netty.png';
+import openshift from '../assets/components/openshift.png';
+import openstack from '../assets/components/openstack.png';
 import policy from '../assets/components/policy.png';
 import quartz from '../assets/components/quartz.png';
 import rss from '../assets/components/rss.png';
@@ -94,15 +106,15 @@ import servlet from '../assets/components/servlet.png';
 import sftp from '../assets/components/sftp.svg';
 import slack from '../assets/components/slack.svg';
 import snmp from '../assets/components/snmp.png';
-import aws2_sns from '../assets/components/sns.svg';
+import spring from '../assets/components/spring.svg';
 import splunk from '../assets/components/splunk.png';
 import sql from '../assets/components/sql_db.png';
 import sql_stored from '../assets/components/sql_db.png';
-import aws2_sqs from '../assets/components/sqs.svg';
 import telegram from '../assets/components/telegram.svg';
 import timer from '../assets/components/timer.svg';
 import twitter from '../assets/components/twitter.svg';
 import velocity from '../assets/components/velocity.png';
+import vertx from '../assets/components/vertx.png';
 import webhook from '../assets/components/webhooks.svg';
 import whatsapp from '../assets/components/whatsapp.png';
 import workday from '../assets/components/workday.svg';
@@ -170,13 +182,10 @@ export class NodeIconResolver {
       case 'atom':
       case 'avro':
       case 'aws-cloudtrail':
+      case 'aws-config':
       case 'aws-secrets-manager':
       case 'aws2-athena':
       case 'aws2-cw':
-        return generic_component;
-      case 'aws2-ddb':
-      case 'aws2-ddbstream':
-        return aws2_ddb;
       case 'aws2-ec2':
       case 'aws2-ecs':
       case 'aws2-eks':
@@ -189,19 +198,21 @@ export class NodeIconResolver {
       case 'aws2-mq':
       case 'aws2-msk':
       case 'aws2-redshift-data':
-        return generic_component;
-      case 'aws2-s3':
-        return aws2_s3;
       case 'aws2-ses':
-        return generic_component;
-      case 'aws2-sns':
-        return aws2_sns;
-      case 'aws2-sqs':
-        return aws2_sqs;
       case 'aws2-step-functions':
       case 'aws2-sts':
       case 'aws2-timestream':
       case 'aws2-translate':
+        return aws;
+      case 'aws2-ddb':
+      case 'aws2-ddbstream':
+        return aws2_ddb;
+      case 'aws2-s3':
+        return aws2_s3;
+      case 'aws2-sns':
+        return aws2_sns;
+      case 'aws2-sqs':
+        return aws2_sqs;
       case 'azure-cosmosdb':
       case 'azure-eventhubs':
       case 'azure-files':
@@ -210,7 +221,7 @@ export class NodeIconResolver {
       case 'azure-storage-blob':
       case 'azure-storage-datalake':
       case 'azure-storage-queue':
-        return generic_component;
+        return azure;
       case 'bean':
         return bean;
       case 'bean-validator':
@@ -277,8 +288,9 @@ export class NodeIconResolver {
       case 'file':
       case 'file-watch':
         return file;
-      case 'flatpack':
       case 'flink':
+        return flink;
+      case 'flatpack':
       case 'fop':
       case 'freemarker':
         return generic_component;
@@ -292,24 +304,22 @@ export class NodeIconResolver {
         return github;
       case 'google-bigquery':
       case 'google-bigquery-sql':
-        return generic_component;
+      case 'google-functions':
+      case 'google-pubsub':
+      case 'google-secret-manager':
+      case 'google-storage':
+        return google_generic;
       case 'google-calendar':
       case 'google-calendar-stream':
         return google_calendar;
       case 'google-drive':
         return google_drive;
-      case 'google-functions':
-        return generic_component;
       case 'google-mail':
       case 'google-mail-stream':
         return google_mail;
-      case 'google-pubsub':
-      case 'google-secret-manager':
-        return generic_component;
       case 'google-sheets':
       case 'google-sheets-stream':
         return google_sheets;
-      case 'google-storage':
       case 'grape':
         return generic_component;
       case 'graphql':
@@ -317,6 +327,7 @@ export class NodeIconResolver {
       case 'grpc':
       case 'guava-eventbus':
       case 'hashicorp-vault':
+        return generic_component;
       case 'hazelcast-atomicvalue':
       case 'hazelcast-instance':
       case 'hazelcast-list':
@@ -328,6 +339,7 @@ export class NodeIconResolver {
       case 'hazelcast-seda':
       case 'hazelcast-set':
       case 'hazelcast-topic':
+        return hazelcast;
       case 'hdfs':
         return generic_component;
       case 'http':
@@ -341,8 +353,10 @@ export class NodeIconResolver {
       case 'hwcloud-imagerecognition':
       case 'hwcloud-obs':
       case 'hwcloud-smn':
+        return huawei;
       case 'iec60870-client':
       case 'iec60870-server':
+        return generic_component;
       case 'ignite-cache':
       case 'ignite-compute':
       case 'ignite-events':
@@ -350,7 +364,7 @@ export class NodeIconResolver {
       case 'ignite-messaging':
       case 'ignite-queue':
       case 'ignite-set':
-        return generic_component;
+        return ignite;
       case 'imap':
       case 'imaps':
         return mail;
@@ -388,8 +402,8 @@ export class NodeIconResolver {
       case 'kafka':
         return kafka;
       //case 'kamelet': handled elsewhere
-      case 'knative':
       case 'kubernetes-config-maps':
+      case 'kubernetes-cronjob':
       case 'kubernetes-custom-resources':
       case 'kubernetes-deployments':
       case 'kubernetes-events':
@@ -405,6 +419,8 @@ export class NodeIconResolver {
       case 'kubernetes-secrets':
       case 'kubernetes-service-accounts':
       case 'kubernetes-services':
+        return kubernetes;
+      case 'knative':
       case 'kudu':
       case 'language':
         return generic_component;
@@ -447,15 +463,18 @@ export class NodeIconResolver {
       case 'olingo2':
       case 'olingo4':
       case 'opensearch':
+        return generic_component;
       case 'openshift-build-configs':
       case 'openshift-builds':
       case 'openshift-deploymentconfigs':
+        return openshift;
       case 'openstack-cinder':
       case 'openstack-glance':
       case 'openstack-keystone':
       case 'openstack-neutron':
       case 'openstack-nova':
       case 'openstack-swift':
+        return openstack;
       case 'optaplanner':
         return generic_component;
       case 'paho':
@@ -527,7 +546,7 @@ export class NodeIconResolver {
       case 'spring-rabbitmq':
       case 'spring-redis':
       case 'spring-ws':
-        return generic_component;
+        return spring;
       case 'sql':
         return sql;
       case 'sql-stored':
@@ -563,6 +582,7 @@ export class NodeIconResolver {
       case 'vertx':
       case 'vertx-http':
       case 'vertx-websocket':
+        return vertx;
       case 'weather':
       case 'web3j':
         return generic_component;
