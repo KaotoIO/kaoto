@@ -7,6 +7,7 @@ import { Link, Route, BrowserRouter, Routes } from 'react-router-dom';
 import { DnDKitTest } from './DnDKitTest';
 import { ReactTopologyTest } from './ReactTopologyTest';
 import { Page } from '@patternfly/react-core';
+import { DrawLines } from './DrawLines';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -42,6 +43,9 @@ const Layout: FunctionComponent = () => (
           <Link to="/dndkit">dndkit</Link>
         </li>
         <li>
+          <Link to="/line">line</Link>
+        </li>
+        <li>
           <Link to="/topology">React Topology</Link>
         </li>
       </ul>
@@ -63,6 +67,7 @@ root.render(
         }
       />
       <Route path="/dndkit" element={<DnDKitTest></DnDKitTest>} />
+      <Route path="/line" element={<DrawLines></DrawLines>} />
       <Route path="/topology" element={<ReactTopologyTest></ReactTopologyTest>} />
     </Routes>
   </BrowserRouter>,

@@ -31,7 +31,7 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field }) 
 
   return (
     <AccordionItem>
-      {!field.fields || field.fields.length == 0 ? (
+      {!field.fields || field.fields.length === 0 ? (
         <AccordionContent>
           <div ref={setDroppableNodeRef} style={droppableStyle}>
             <div
