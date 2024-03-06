@@ -22,7 +22,7 @@ import {
 } from '@patternfly/react-topology';
 import { FunctionComponent, ReactNode, useCallback, useMemo, useState } from 'react';
 import { Page, ToolbarItem } from '@patternfly/react-core';
-import { doc } from './data';
+import { sourceDoc } from './data';
 
 const baselineLayoutFactory: LayoutFactory = (type: string, graph: Graph): Layout | undefined => {
   return new GridLayout(graph, {
@@ -102,8 +102,8 @@ export const ReactTopologyTest: FunctionComponent = () => {
 
   const documentNodes: FieldNodeModel[] = useMemo(() => {
     const answer: FieldNodeModel[] = [];
-    const source = populateChildrenFromField(doc, answer, 'Source:/');
-    const target = populateChildrenFromField(doc, answer, 'Target:/');
+    const source = populateChildrenFromField(sourceDoc, answer, 'Source:/');
+    const target = populateChildrenFromField(sourceDoc, answer, 'Target:/');
     answer.push(source, target);
     return answer;
   }, [populateChildrenFromField]);
