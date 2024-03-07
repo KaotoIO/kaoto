@@ -22,8 +22,10 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   useEffect(() => {
     const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
     const currentSchema = sourceSchemaConfig.config[schemaType].schema;
+    let monacoYamlHandler: ReturnType<typeof configureMonacoYaml> | undefined;
+
     if (currentSchema) {
-      configureMonacoYaml(monaco, {
+      monacoYamlHandler = configureMonacoYaml(monaco, {
         enableSchemaRequest: true,
         hover: true,
         completion: true,
@@ -39,6 +41,10 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
         ],
       });
     }
+
+    return () => {
+      monacoYamlHandler?.dispose();
+    };
   }, [entityContext?.currentSchemaType]);
 
   const handleEditorDidMount: EditorDidMount = useCallback((editor) => {
