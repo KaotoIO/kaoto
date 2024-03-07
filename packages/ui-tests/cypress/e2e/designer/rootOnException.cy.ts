@@ -8,18 +8,10 @@ describe('Test for root containers', () => {
     cy.openDesignPage();
 
     cy.selectInsertNode('onException-1234');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('aws2-sqs');
-    cy.get('#aws2-sqs').should('be.visible').click();
-    // wait for the canvas rerender
-    cy.wait(1000);
+    cy.chooseFromCatalog('component', 'aws2-sqs');
 
     cy.selectAppendNode('aws2-sqs');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('log');
-    cy.get('#log').should('be.visible').click();
-    // wait for the canvas rerender
-    cy.wait(1000);
+    cy.chooseFromCatalog('component', 'log');
 
     cy.checkNodeExist('aws2-sqs', 1);
     cy.checkNodeExist('log', 1);

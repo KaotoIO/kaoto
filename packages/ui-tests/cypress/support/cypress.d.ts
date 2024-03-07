@@ -54,6 +54,8 @@ declare global {
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
       deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
+      configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
+      chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
@@ -67,6 +69,7 @@ declare global {
       uploadFixture(fixture: string): Chainable<JQuery<Element>>;
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string, linesCount?: number): Chainable<JQuery<Element>>;
+      checkMultiLineContent(text: string[]): Chainable<JQuery<Element>>;
       editorClickUndoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       compareFileWithMonacoEditor(filePath: string): Chainable<JQuery<Element>>;
     }

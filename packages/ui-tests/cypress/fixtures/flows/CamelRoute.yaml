@@ -3,8 +3,10 @@
     from:
       uri: timer:test
       steps:
-      - setHeader:
-          constant: test
-          name: test
-      - to:
-          uri: log:test
+        - setHeader:
+            constant: test
+            name: test
+        - marshal:
+            id: marshal-3801
+        - to:
+            uri: log:test

@@ -40,6 +40,19 @@ Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number
   });
 });
 
+Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
+  const modifiedTextContent: string[] = textContent.map((line) => {
+    return line.replace(/\s/g, '\u00a0');
+  });
+
+  cy.get('.monaco-editor')
+    .invoke('text')
+    .then(($value) => {
+      const linesArray = $value.split(/\s{4,}/).map((line) => line.trim());
+      expect(linesArray).to.deep.include.members(modifiedTextContent);
+    });
+});
+
 Cypress.Commands.add('editorScrollToTop', () => {
   cy.get('.pf-v5-c-code-editor').click().type('{ctrl}{home}', { release: false });
 });

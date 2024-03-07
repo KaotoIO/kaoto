@@ -56,25 +56,25 @@ describe('Test for Multi route actions from the canvas', () => {
   });
 
   // Blocked ATM by https://github.com/KaotoIO/kaoto-next/issues/301
-  // it('User deletes routes in the canvas till there are no routes', () => {
-  //   cy.openDesignPage();
-  //   cy.addNewRoute();
-  //   cy.addNewRoute();
-  //   cy.showAllRoutes();
+  it.skip('User deletes routes in the canvas till there are no routes', () => {
+    cy.openDesignPage();
+    cy.addNewRoute();
+    cy.addNewRoute();
+    cy.showAllRoutes();
 
-  //   cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
 
-  //   cy.deleteRoute(0);
-  //   cy.deleteRoute(0);
-  //   cy.deleteRoute(0);
-  //   cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
-  //   cy.get('[data-testid="flows-list-empty-state"]').should('have.length', 1);
-  //   cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
+    cy.deleteRoute(0);
+    cy.deleteRoute(0);
+    cy.deleteRoute(0);
+    cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
+    cy.get('[data-testid="flows-list-empty-state"]').should('have.length', 1);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
 
-  //   cy.get('[data-testid="flows-list-empty-state"]').within(() => {
-  //     cy.get('h4.pf-c-title').should('have.text', "There's no routes to show");
-  //   });
-  // });
+    cy.get('[data-testid="flows-list-empty-state"]').within(() => {
+      cy.get('h4.pf-c-title').should('have.text', "There's no routes to show");
+    });
+  });
 
   const testData = ['Pipe', 'Kamelet'];
   // Iterate over testData

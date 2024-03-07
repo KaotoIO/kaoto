@@ -69,6 +69,15 @@ Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number)
   cy.performNodeAction(nodeName, 'prepend', nodeIndex);
 });
 
+Cypress.Commands.add('chooseFromCatalog', (nodeType: string, name: string) => {
+  cy.get(`[data-testid="${nodeType}-catalog-tab"]`).click();
+  cy.get('.pf-v5-c-text-input-group__text-input').click();
+  cy.get('.pf-v5-c-text-input-group__text-input').type(name);
+  cy.get(`#${name}`).should('be.visible').click();
+  // wait for the canvas rerender
+  cy.wait(1000);
+});
+
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
   cy.get(`[data-nodelabel="${nodeName}"]`).parent().eq(nodeIndex).rightclick({ force: true });
@@ -141,6 +150,10 @@ Cypress.Commands.add('configureBeanReference', (inputName: string, value?: strin
   cy.get(`[data-fieldname="${inputName}"] input`).click();
   cy.get(`[id$="${value}"]`).click();
   cy.get(`div[data-fieldname="${inputName}"] input[value="${value}"]`).should('exist');
+});
+
+Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {
+  cy.configureBeanReference(inputName, value!);
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
