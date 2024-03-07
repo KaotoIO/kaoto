@@ -40,12 +40,8 @@ describe('Test for Branching actions from the canvas', () => {
     cy.openDesignPage();
 
     cy.selectAppendNode('marshal');
-    cy.get('[data-testid="processor-catalog-tab"]').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('choice');
-    cy.get('#choice').should('be.visible').click();
-    // wait for the canvas rerender
-    cy.wait(1000);
+    cy.chooseFromCatalog('processor', 'choice');
+
     cy.checkNodeExist('choice', 1);
     cy.checkNodeExist('when', 1);
     cy.checkNodeExist('otherwise', 1);
@@ -62,9 +58,7 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('setHeader', 1);
     cy.selectAppendNode('setHeader');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('activemq');
-    cy.get('#activemq').should('be.visible').click();
+    cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
     cy.checkEdgeExists('setHeader', 'activemq');
@@ -76,9 +70,7 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('digitalocean', 1);
     cy.selectPrependNode('digitalocean');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('activemq');
-    cy.get('#activemq').should('be.visible').click();
+    cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
     cy.checkEdgeExists('activemq', 'digitalocean');
@@ -90,9 +82,7 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('filter', 1);
     cy.selectPrependNode('filter');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('activemq');
-    cy.get('#activemq').should('be.visible').click();
+    cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
     cy.checkEdgeExists('activemq', 'filter');

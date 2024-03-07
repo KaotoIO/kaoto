@@ -32,9 +32,7 @@ describe('User completes normal actions on steps in a branch', () => {
     cy.openDesignPage();
 
     cy.selectReplaceNode('digitalocean');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('amqp');
-    cy.get('#amqp').should('be.visible').click();
+    cy.chooseFromCatalog('component', 'amqp');
 
     // CHECK that digitalocean step is deleted
     cy.checkNodeExist('digitalocean', 0);

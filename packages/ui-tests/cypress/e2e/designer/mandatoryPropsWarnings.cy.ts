@@ -7,11 +7,8 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.openDesignPage();
 
     cy.selectAppendNode('setHeader');
-    cy.get('.pf-v5-c-text-input-group__text-input').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('github');
-    cy.get('#github').should('be.visible').click();
-    // wait for the canvas rerender
-    cy.wait(1000);
+    cy.chooseFromCatalog('component', 'github');
+
     cy.checkNodeExist('github', 1);
 
     cy.get('[data-id^="github"] g').find('.pf-topology__node__decorator__bg').click();
