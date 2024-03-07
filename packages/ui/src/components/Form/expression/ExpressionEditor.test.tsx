@@ -59,4 +59,29 @@ describe('ExpressionEditor', () => {
     expect(onChangeMock.mock.calls).toHaveLength(1);
     expect(onChangeMock.mock.calls[0][1]).toEqual({ expression: '.field3', resultType: 'string', source: 'foo' });
   });
+
+  it('clear the input value in case the clear button is clicked', async () => {
+    const language = ExpressionService.getDefinitionFromModelName(
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+      'jq',
+    );
+    render(
+      <ExpressionEditor
+        language={language}
+        expressionModel={{}}
+        onChangeExpressionModel={onChangeMock}
+      ></ExpressionEditor>,
+    );
+    const inputElement = screen.getByRole('combobox');
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'JQ' } });
+    });
+    expect(inputElement).toHaveValue('JQ');
+
+    const clearButton = screen.getByLabelText('Clear input value');
+    await act(async () => {
+      fireEvent.click(clearButton);
+    });
+    expect(inputElement).toHaveValue('');
+  });
 });
