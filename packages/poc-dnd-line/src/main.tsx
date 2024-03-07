@@ -8,6 +8,7 @@ import { DnDKitTest } from './DnDKitTest';
 import { ReactTopologyTest } from './ReactTopologyTest';
 import { Page } from '@patternfly/react-core';
 import { DrawLines } from './DrawLines';
+import { CanvasProvider } from './canvas/CanvasProvider';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -67,7 +68,14 @@ root.render(
         }
       />
       <Route path="/dndkit" element={<DnDKitTest></DnDKitTest>} />
-      <Route path="/line" element={<DrawLines></DrawLines>} />
+      <Route
+        path="/line"
+        element={
+          <CanvasProvider>
+            <DrawLines />
+          </CanvasProvider>
+        }
+      />
       <Route path="/topology" element={<ReactTopologyTest></ReactTopologyTest>} />
     </Routes>
   </BrowserRouter>,

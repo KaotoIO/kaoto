@@ -2,45 +2,25 @@ import { FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, us
 import { Accordion, Page, PageSection, Split, SplitItem } from '@patternfly/react-core';
 import { DocumentField } from './DocumentField';
 import { sourceDoc, targetDoc } from './data';
+import { CanvasProvider } from './canvas/CanvasProvider';
+import { useCanvas } from './canvas/useCanvas';
+import { PageHeader } from '@patternfly/react-core/deprecated';
 
-type LinesProps = {
-  sourceRef: MutableRefObject<HTMLDivElement>;
-  targetRef: MutableRefObject<HTMLDivElement>;
-  token?: number;
-};
-
-type LineCoords = {
+type LineCoord = {
   x1: number;
   y1: number;
   x2: number;
   y2: number;
 };
 
-const Lines: FunctionComponent<LinesProps> = ({ sourceRef, targetRef }) => {
-  const [x1, setX1] = useState<number>(0);
-  const [y1, setY1] = useState<number>(0);
-  const [x2, setX2] = useState<number>(0);
-  const [y2, setY2] = useState<number>(0);
-  const [isOver, setIsOver] = useState<boolean>(false);
+type LineProps = LineCoord;
 
+const Line: FunctionComponent<LineProps> = ({ x1, y1, x2, y2 }) => {
+  const [isOver, setIsOver] = useState<boolean>(false);
   const lineStyle = {
     stroke: 'gray',
     strokeWidth: isOver ? 6 : 3,
   };
-
-  // sourceRef & targetRef doesn't change, while this side effect should happen on every render
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const sourceRect = sourceRef.current?.getBoundingClientRect();
-    const targetRect = targetRef.current?.getBoundingClientRect();
-
-    if (sourceRect && targetRect) {
-      setX1(sourceRect.right);
-      setY1(sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2);
-      setX2(targetRect.left);
-      setY2(targetRect.top + (targetRect.bottom - targetRect.top) / 2);
-    }
-  });
 
   const onMouseEnter = () => {
     setIsOver(true);
@@ -48,6 +28,56 @@ const Lines: FunctionComponent<LinesProps> = ({ sourceRef, targetRef }) => {
   const onMouseLeave = () => {
     setIsOver(false);
   };
+
+  const coord = `[ x1:${x1}, y1:${y1}, x2:${x2}, y2:${y2} ]`;
+  return (
+    <path
+      onClick={() => alert(coord)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      d={`M${x1},${y1},${x2},${y2}`}
+      style={lineStyle}
+    >
+      <title>{coord}</title>
+    </path>
+  );
+};
+
+type LineGroupProps = {
+  sourceRef: MutableRefObject<HTMLDivElement>;
+  targetRef: MutableRefObject<HTMLDivElement>;
+};
+
+const LineGroup: FunctionComponent<LineGroupProps> = ({ sourceRef, targetRef }) => {
+  const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
+  const { getFieldReference } = useCanvas();
+
+  const populateCoordFromRect = useCallback((coords: LineCoord[], sourceRect: DOMRect, targetRect: DOMRect) => {
+    if (sourceRect && targetRect) {
+      const coord = {
+        x1: sourceRect.right,
+        y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2,
+        x2: targetRect.left,
+        y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2,
+      };
+      coords.push(coord);
+    }
+  }, []);
+
+  // sourceRef & targetRef doesn't change, while this side effect should happen on every render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const answer: LineCoord[] = [];
+    const sourceDocumentRect = sourceRef.current?.getBoundingClientRect();
+    const targetDocumentRect = targetRef.current?.getBoundingClientRect();
+    populateCoordFromRect(answer, sourceDocumentRect, targetDocumentRect);
+    const sourceFieldRef = getFieldReference('SourceDocument1://field2/field1');
+    const sourceFieldRect = sourceFieldRef.current?.getBoundingClientRect();
+    const targetFieldRef = getFieldReference('TargetDocument1://field2/field3');
+    const targetFieldRect = targetFieldRef.current?.getBoundingClientRect();
+    populateCoordFromRect(answer, sourceFieldRect, targetFieldRect);
+    setLineCoords(answer);
+  }, [getFieldReference, populateCoordFromRect, sourceRef, targetRef]);
 
   return (
     <svg
@@ -60,15 +90,11 @@ const Lines: FunctionComponent<LinesProps> = ({ sourceRef, targetRef }) => {
       }}
     >
       <g>
-        {!!sourceRef.current && !!targetRef.current && (
-          <path
-            onClick={() => alert('boom')}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            d={`M${x1},${y1},${x2},${y2}`}
-            style={lineStyle}
-          />
-        )}
+        {!!sourceRef.current &&
+          !!targetRef.current &&
+          lineCoords.map((coord, index) => (
+            <Line key={index} x1={coord.x1} y1={coord.y1} x2={coord.x2} y2={coord.y2} />
+          ))}
       </g>
     </svg>
   );
@@ -78,8 +104,14 @@ export const DrawLines: FunctionComponent = () => {
   const sourceRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
   const [token, setToken] = useState<number>(0);
+  const { getAllFieldPaths, setFieldReference, reloadFieldReference } = useCanvas();
+  const sourcePath = sourceDoc.name + ':/';
+  const targetPath = targetDoc.name + ':/';
+  setFieldReference(sourcePath, sourceRef);
+  setFieldReference(targetPath, targetRef);
 
   const onRefresh = useCallback(() => {
+    reloadFieldReference();
     setToken(Math.random());
   }, []);
 
@@ -90,12 +122,25 @@ export const DrawLines: FunctionComponent = () => {
   return (
     <Page>
       <PageSection>
+        <Split>
+          <SplitItem>
+            Fields:
+            <ul>
+              {getAllFieldPaths().map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          </SplitItem>
+        </Split>
+      </PageSection>
+      <PageSection>
         <Split hasGutter>
-          <Lines token={token} sourceRef={sourceRef} targetRef={targetRef}></Lines>
+          <LineGroup sourceRef={sourceRef} targetRef={targetRef}></LineGroup>
           <SplitItem isFilled>
             <Accordion isBordered={true} asDefinitionList={false} onClick={onRefresh}>
               <DocumentField
                 ref={sourceRef}
+                path={sourcePath}
                 onToggle={onRefresh}
                 field={sourceDoc}
                 initialExpanded={true}
@@ -107,6 +152,7 @@ export const DrawLines: FunctionComponent = () => {
             <Accordion isBordered={true} asDefinitionList={false} onClick={onRefresh}>
               <DocumentField
                 ref={targetRef}
+                path={targetPath}
                 onToggle={onRefresh}
                 field={targetDoc}
                 initialExpanded={true}
