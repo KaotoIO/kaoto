@@ -17,8 +17,9 @@ import { FunctionComponent, Ref, useCallback, useContext, useEffect, useMemo, us
 import { EntitiesContext } from '../../../providers';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
-import { DataFormatService } from './dataformat.service';
 import { SchemaService } from '../schema.service';
+import './DataFormatEditor.scss';
+import { DataFormatService } from './dataformat.service';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
@@ -93,49 +94,51 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   return (
     dataFormatCatalogMap && (
-      <Card isCompact={true} isExpanded={isExpanded}>
-        <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
-          <CardTitle>Data Format</CardTitle>
-        </CardHeader>
-        <CardExpandableContent>
-          <CardBody data-testid={'dataformat-config-card'}>
-            <Dropdown
-              id="dataformat-select"
-              data-testid="expression-dropdown"
-              isOpen={isOpen}
-              selected={selected !== '' ? selected : undefined}
-              onSelect={onSelect}
-              onOpenChange={setIsOpen}
-              toggle={toggle}
-              isScrollable={true}
-            >
-              <DropdownList data-testid="dataformat-dropdownlist">
-                {Object.values(dataFormatCatalogMap).map((df) => {
-                  return (
-                    <DropdownItem
-                      data-testid={`dataformat-dropdownitem-${df.model.name}`}
-                      key={df.model.title}
-                      value={df.model.name}
-                      description={df.model.description}
-                    >
-                      {df.model.title}
-                    </DropdownItem>
-                  );
-                })}
-              </DropdownList>
-            </Dropdown>
-            {dataFormat && (
-              <MetadataEditor
-                data-testid="dataformat-editor"
-                name={'dataformat'}
-                schema={dataFormatSchema}
-                metadata={dataFormatModel}
-                onChangeModel={(model) => handleOnChange(dataFormat.model.name, model)}
-              />
-            )}
-          </CardBody>
-        </CardExpandableContent>
-      </Card>
+      <div className="dataformat-metadata-editor">
+        <Card isCompact={true} isExpanded={isExpanded}>
+          <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
+            <CardTitle>Data Format</CardTitle>
+          </CardHeader>
+          <CardExpandableContent>
+            <CardBody data-testid={'dataformat-config-card'}>
+              <Dropdown
+                id="dataformat-select"
+                data-testid="expression-dropdown"
+                isOpen={isOpen}
+                selected={selected !== '' ? selected : undefined}
+                onSelect={onSelect}
+                onOpenChange={setIsOpen}
+                toggle={toggle}
+                isScrollable={true}
+              >
+                <DropdownList data-testid="dataformat-dropdownlist">
+                  {Object.values(dataFormatCatalogMap).map((df) => {
+                    return (
+                      <DropdownItem
+                        data-testid={`dataformat-dropdownitem-${df.model.name}`}
+                        key={df.model.title}
+                        value={df.model.name}
+                        description={df.model.description}
+                      >
+                        {df.model.title}
+                      </DropdownItem>
+                    );
+                  })}
+                </DropdownList>
+              </Dropdown>
+              {dataFormat && (
+                <MetadataEditor
+                  data-testid="dataformat-editor"
+                  name={'dataformat'}
+                  schema={dataFormatSchema}
+                  metadata={dataFormatModel}
+                  onChangeModel={(model) => handleOnChange(dataFormat.model.name, model)}
+                />
+              )}
+            </CardBody>
+          </CardExpandableContent>
+        </Card>
+      </div>
     )
   );
 };
