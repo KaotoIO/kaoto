@@ -19,7 +19,7 @@ import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import { SchemaService } from '../schema.service';
-
+import './LoadBalancerEditor.scss';
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
 }
@@ -128,13 +128,15 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
               </DropdownList>
             </Dropdown>
             {loadBalancer && (
-              <MetadataEditor
-                data-testid="loadbalancer-editor"
-                name={'loadbalancer'}
-                schema={loadBalancerSchema}
-                metadata={loadBalancerModel}
-                onChangeModel={(model) => handleOnChange(loadBalancer.model.name, model)}
-              />
+              <div className="load-balancer-editor">
+                <MetadataEditor
+                  data-testid="loadbalancer-editor"
+                  name={'loadbalancer'}
+                  schema={loadBalancerSchema}
+                  metadata={loadBalancerModel}
+                  onChangeModel={(model) => handleOnChange(loadBalancer.model.name, model)}
+                />
+              </div>
             )}
           </CardBody>
         </CardExpandableContent>

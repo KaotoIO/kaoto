@@ -43,14 +43,12 @@ export const MetadataPage: FunctionComponent = () => {
   );
 
   return isSupported ? (
-    <>
-      <MetadataEditor
-        name="Metadata"
-        schema={metadataSchema}
-        metadata={getMetadataModel()}
-        onChangeModel={onChangeModel}
-      />
-    </>
+    <MetadataEditor
+      name="Metadata"
+      schema={metadataSchema}
+      metadata={getMetadataModel()}
+      onChangeModel={onChangeModel}
+    />
   ) : (
     <TextContent>Not applicable</TextContent>
   );
