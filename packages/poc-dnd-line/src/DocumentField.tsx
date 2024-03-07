@@ -28,7 +28,7 @@ type DocumentFieldProps = {
 };
 
 export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
-  ({ field, path, initialExpanded = false, onToggle }, forwardedRef) => {
+  ({ field, path, initialExpanded = true, onToggle }, forwardedRef) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(initialExpanded);
     const fieldId = field.name + Math.random();
     const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({

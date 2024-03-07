@@ -1577,6 +1577,7 @@ __metadata:
   dependencies:
     "@dnd-kit/core": ^6.1.0
     "@patternfly/react-core": ^5.2.0
+    "@patternfly/react-table": ^5.2.1
     "@types/react": ^18.2.61
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -2965,7 +2966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-table@npm:^5.1.2":
+"@patternfly/react-table@npm:^5.1.2, @patternfly/react-table@npm:^5.2.1":
   version: 5.2.1
   resolution: "@patternfly/react-table@npm:5.2.1"
   dependencies:
