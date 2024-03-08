@@ -128,8 +128,9 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
               </Dropdown>
               {dataFormat && (
                 <MetadataEditor
+                  key={dataFormat.model.name}
                   data-testid="dataformat-editor"
-                  name={'dataformat'}
+                  name="dataformat"
                   schema={dataFormatSchema}
                   metadata={dataFormatModel}
                   onChangeModel={(model) => handleOnChange(dataFormat.model.name, model)}
