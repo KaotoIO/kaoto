@@ -79,29 +79,26 @@ describe('Test source code editor', () => {
     cy.get('[data-type="node"][data-id^="atlasmap"]').should('have.length', 1);
   });
 
-  // Blocked by https://github.com/patternfly/patternfly-react/issues/9838
-  // it('User undoes a change they saved, syncs with canvas', () => {
-  //   cy.uploadFixture('flows/CamelRoute.yaml');
+  it('User undoes a change and redoes a change', () => {
+    cy.uploadFixture('flows/CamelRoute.yaml');
 
-  //   cy.editorDeleteLine(31, 7);
+    cy.editorDeleteLine(5, 7);
+    // click undo button => reverted automatic adjustments
+    cy.editorClickUndoXTimes(4);
 
-  //   // CHECK branch with digitalocean and set header step was deleted
-  //   cy.get('[data-testid="viz-step-digitalocean"]').should('not.exist');
-  //   cy.get('[data-testid="viz-step-set-header"]').should('not.exist');
+    // CHECK changes are reflected in the code editor
+    cy.checkCodeSpanLine('- setHeader:', 0);
+    cy.checkCodeSpanLine('constant: test', 0);
+    cy.checkCodeSpanLine('name: test', 0);
+    cy.checkCodeSpanLine('- marshal:', 1);
+    cy.checkCodeSpanLine('id: marshal-3801', 1);
 
-  //   // First click undo button => reverted automatic adjustments
-  //   cy.editorClickUndoXTimes(1);
-  //   // Second click undo button => changes reverted & alert is displayed
-  //   cy.editorClickUndoXTimes(7);
-  //   // CHECK alert is displayed
-  //   cy.get('.pf-c-alert__title').contains(
-  //     "Any invalid code will be replaced after sync. If you don't want to lose your changes please make a backup.",
-  //   );
-
-  //   // CHECK branch with digitalocean and set header step was deleted
-  //   cy.get('[data-testid="viz-step-digitalocean"]').should('be.visible');
-  //   cy.get('[data-testid="viz-step-set-header"]').should('be.visible');
-  // });
+    // click redo button => redo adjustments
+    cy.editorClickRedoXTimes(2);
+    // CHECK changes are reflected in the code editor
+    cy.checkCodeSpanLine('- marshal:', 0);
+    cy.checkCodeSpanLine('id: marshal-3801', 0);
+  });
 
   it('User uploads YAML file, syncs with canvas', () => {
     cy.uploadFixture('flows/TimerKafkaKB.yaml');
