@@ -68,7 +68,6 @@ export interface IKameletSpecDefinition {
   properties?: Record<string, IKameletSpecProperty>;
   example?: string;
   default?: unknown;
-  'x-descriptors'?: string[];
 }
 
 export interface IKameletSpecProperty {
@@ -77,6 +76,11 @@ export interface IKameletSpecProperty {
   type: string;
   default?: string | boolean | number;
   example?: string;
+  'x-descriptors'?: string[];
+}
+
+export interface IKameletCustomProperty extends IKameletSpecProperty {
+  name: string;
 }
 
 export interface IKameletCustomDefinition {
@@ -92,4 +96,5 @@ export interface IKameletCustomDefinition {
   namespace: string;
   labels: Record<string, string>;
   annotations: Record<string, string>;
+  kameletProperties: IKameletCustomProperty[];
 }

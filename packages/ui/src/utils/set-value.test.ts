@@ -8,6 +8,12 @@ describe('setValue', () => {
     expect(obj).toEqual({ a: undefined });
   });
 
+  it('should not replace empty arrays `[]` with `undefined`', () => {
+    const obj = { a: [] };
+    setValue(obj, 'a', []);
+    expect(obj).toEqual({ a: [] });
+  });
+
   it('should ignore empty objects `{}` when setting it at root path', () => {
     const obj = {};
     setValue(obj, ROOT_PATH, {});

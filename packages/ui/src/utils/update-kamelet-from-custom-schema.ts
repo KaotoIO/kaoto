@@ -4,6 +4,8 @@ import {
   IKameletMetadataLabels,
   KameletKnownAnnotations,
   KameletKnownLabels,
+  IKameletSpecProperty,
+  IKameletCustomProperty,
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
 import { setValue } from './set-value';
@@ -54,4 +56,27 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
 
   setValue(kamelet, 'metadata.labels', newLabels);
   setValue(kamelet, 'metadata.annotations', newAnnotations);
+
+  const propertiesArray: IKameletCustomProperty[] = getValue(value, 'kameletProperties');
+  const newProperties = propertiesArray?.reduce(
+    (acc, property) => {
+      if (property !== undefined) {
+        const { name, ...rest } = property;
+        acc[name] = rest;
+      }
+      return acc;
+    },
+    {} as Record<string, IKameletSpecProperty>,
+  );
+
+  let previousProperties: Record<string, IKameletSpecProperty> = getValue(kamelet, 'spec.definition.properties', {});
+  if (typeof previousProperties !== 'object') {
+    previousProperties = {};
+  }
+
+  const arePreviousPropertiesEmpty = Object.keys(previousProperties).length === 0;
+  const isPropertiesArrayEmpty = propertiesArray?.length === 0;
+  if (!(arePreviousPropertiesEmpty && isPropertiesArrayEmpty) && newProperties !== undefined) {
+    setValue(kamelet, 'spec.definition.properties', newProperties);
+  }
 };
