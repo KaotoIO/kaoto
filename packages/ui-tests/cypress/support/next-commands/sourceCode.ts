@@ -64,6 +64,13 @@ Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
   });
 });
 
+Cypress.Commands.add('editorClickRedoXTimes', (repeatCount: number) => {
+  repeatCount = repeatCount ?? 1;
+  Array.from({ length: repeatCount }).forEach(() => {
+    return cy.get('[data-testid="sourceCode--redoButton"]').click();
+  });
+});
+
 Cypress.Commands.add('compareFileWithMonacoEditor', (filePath: string) => {
   cy.fixture(filePath).then((fileContent) => {
     const fileLines = fileContent.split('\n').filter((line: string) => line.trim() !== '');

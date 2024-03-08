@@ -71,6 +71,7 @@ declare global {
       checkCodeSpanLine(spanText: string, linesCount?: number): Chainable<JQuery<Element>>;
       checkMultiLineContent(text: string[]): Chainable<JQuery<Element>>;
       editorClickUndoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
+      editorClickRedoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       compareFileWithMonacoEditor(filePath: string): Chainable<JQuery<Element>>;
     }
   }

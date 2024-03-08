@@ -85,20 +85,4 @@ describe('Test for Multi route actions from the code editor', () => {
     // CHECK the insert-field-action step was added
     cy.get('[data-type="node"][data-id^="setBody"]').should('have.length', 1);
   });
-
-  // Blocked ATM by https://github.com/patternfly/patternfly-react/issues/9838
-  //     it('User reverts route deletion using code editor', () => {
-  //       cy.uploadFixture('CamelRouteMultiFlow.yaml');
-  //       cy.editorDeleteLine(8, 12);
-  //
-  //       cy.showAllRoutes();
-  //       cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 1);
-  //       // First click undo button => reverted automatic adjustments
-  //       cy.editorClickUndoXTimes();
-  //       // Second click undo button => changes reverted & alert is displayed
-  //       cy.editorClickUndoXTimes(12);
-  //
-  //       cy.showAllRoutes();
-  //       cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 2);
-  //     });
 });
