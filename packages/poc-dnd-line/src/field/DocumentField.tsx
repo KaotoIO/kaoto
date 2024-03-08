@@ -1,6 +1,6 @@
 import { AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
 import { CSSProperties, forwardRef, FunctionComponent, useCallback, useRef, useState } from 'react';
-import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { Active, useDraggable, useDroppable } from '@dnd-kit/core';
 import { useCanvas } from '../canvas/useCanvas';
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -33,6 +33,10 @@ export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
     const fieldId = path;
     const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
       id: 'droppable-' + fieldId,
+      data: {
+        path,
+        name: field.name,
+      },
     });
     const {
       attributes,
@@ -41,16 +45,21 @@ export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
       transform,
     } = useDraggable({
       id: 'draggable-' + fieldId,
+      data: {
+        path,
+        name: field.name,
+      },
     });
 
     const droppableStyle: CSSProperties = {
-      border: isOver ? 5 : 0,
+      borderWidth: isOver ? 1 : undefined,
       borderColor: isOver ? 'blue' : undefined,
       color: isOver ? 'blue' : undefined,
     };
     const draggableStyle: CSSProperties = transform
       ? {
-          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          borderWidth: 1,
+          borderColor: 'blue',
         }
       : undefined;
 

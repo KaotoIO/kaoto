@@ -2,11 +2,14 @@ import { Accordion, Page, Split, SplitItem } from '@patternfly/react-core';
 import { sourceDoc, targetDoc } from './data';
 import { DocumentField } from './field/DocumentField';
 import { LineGroup } from './line/Line';
-import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { useCanvas } from './canvas/useCanvas';
 import { CanvasProvider } from './canvas/CanvasProvider';
 import {
+  DataRef,
   DndContext,
+  DragOverlay,
+  DragStartEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -19,13 +22,15 @@ export const SourceTargetContainer: FunctionComponent = () => {
   const DnDMonitor: FunctionComponent = () => {
     useDndMonitor({
       onDragStart(event) {
-        console.log('onDragStart:' + event);
+        console.log(`onDragStart: [active: ${JSON.stringify(event.active.data.current)}`);
       },
       onDragEnd(event) {
-        console.log('onDragEnd:' + event);
+        console.log(
+          `onDragEnd: [active: ${JSON.stringify(event.active.data.current)}, overt:${JSON.stringify(event.over.data.current)}`,
+        );
       },
       onDragCancel(event) {
-        console.log('onDragCancel:' + event);
+        console.log('onDragCancel:' + JSON.stringify(event.active.data.current));
       },
     });
     return <></>;
@@ -45,11 +50,21 @@ export const SourceTargetContainer: FunctionComponent = () => {
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
+  const [activeData, setActiveData] = useState<DataRef<Record<string, any>>>(null);
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveData(event.active.data);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setActiveData(null);
+  }, []);
+
   return (
     <CanvasProvider>
-      <DndContext sensors={sensors}>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <DnDMonitor></DnDMonitor>
         <SourceTarget></SourceTarget>
+        <DragOverlay dropAnimation={null}>{activeData?.current ? activeData.current.name : null}</DragOverlay>
       </DndContext>
     </CanvasProvider>
   );
