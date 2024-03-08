@@ -236,8 +236,9 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
         {language && (
           <div className="metadata-editor">
             <MetadataEditor
+              key={language.model.name}
               data-testid="expression-editor"
-              name={'expression'}
+              name="expression"
               schema={languageSchema}
               metadata={expressionModel}
               onChangeModel={(model) => onChangeExpressionModel(language.model.name, model)}

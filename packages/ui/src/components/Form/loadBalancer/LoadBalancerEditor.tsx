@@ -130,8 +130,9 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
             {loadBalancer && (
               <div className="load-balancer-editor">
                 <MetadataEditor
+                  key={loadBalancer.model.name}
                   data-testid="loadbalancer-editor"
-                  name={'loadbalancer'}
+                  name="loadbalancer"
                   schema={loadBalancerSchema}
                   metadata={loadBalancerModel}
                   onChangeModel={(model) => handleOnChange(loadBalancer.model.name, model)}
