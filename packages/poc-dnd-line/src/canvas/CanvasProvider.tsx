@@ -13,9 +13,6 @@ export interface ICanvasContext {
   getFieldReference: (path: string) => MutableRefObject<HTMLDivElement>;
   getAllFieldPaths: () => string[];
   reloadFieldReferences: () => void;
-  getParentPath: (path: string) => string;
-  setParentPath: (path: string, parentPath: string) => void;
-  reloadParentPaths: () => void;
 }
 
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
@@ -48,43 +45,14 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     setFieldReferenceMap(new Map(fieldReferenceMap));
   }, [fieldReferenceMap]);
 
-  const getParentPath = useCallback(
-    (path: string) => {
-      return parentPathMap.get(path);
-    },
-    [parentPathMap],
-  );
-
-  const setParentPath = useCallback(
-    (path: string, parentPath: string) => {
-      parentPathMap.set(path, parentPath);
-    },
-    [parentPathMap],
-  );
-
-  const reloadParentPaths = useCallback(() => {
-    setParentPathMap(new Map(parentPathMap));
-  }, [parentPathMap]);
-
   const value = useMemo(() => {
     return {
       setFieldReference,
       getFieldReference,
       getAllFieldPaths,
       reloadFieldReferences,
-      getParentPath,
-      setParentPath,
-      reloadParentPaths,
     };
-  }, [
-    setFieldReference,
-    getFieldReference,
-    getAllFieldPaths,
-    reloadFieldReferences,
-    getParentPath,
-    setParentPath,
-    reloadParentPaths,
-  ]);
+  }, [setFieldReference, getFieldReference, getAllFieldPaths, reloadFieldReferences]);
 
   return <CanvasContext.Provider value={value}>{props.children}</CanvasContext.Provider>;
 };

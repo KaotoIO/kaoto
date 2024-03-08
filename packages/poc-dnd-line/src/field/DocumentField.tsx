@@ -1,7 +1,7 @@
 import { AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
-import { forwardRef, FunctionComponent, useCallback, useRef, useState } from 'react';
+import { CSSProperties, forwardRef, FunctionComponent, useCallback, useRef, useState } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { useCanvas } from './canvas/useCanvas';
+import { useCanvas } from '../canvas/useCanvas';
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 type ChildFieldProps = {
@@ -30,7 +30,7 @@ type DocumentFieldProps = {
 export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
   ({ field, path, initialExpanded = true, onToggle }, forwardedRef) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(initialExpanded);
-    const fieldId = field.name + Math.random();
+    const fieldId = path;
     const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
       id: 'droppable-' + fieldId,
     });
@@ -43,10 +43,12 @@ export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
       id: 'draggable-' + fieldId,
     });
 
-    const droppableStyle = {
-      color: isOver ? 'green' : undefined,
+    const droppableStyle: CSSProperties = {
+      border: isOver ? 5 : 0,
+      borderColor: isOver ? 'blue' : undefined,
+      color: isOver ? 'blue' : undefined,
     };
-    const draggableStyle = transform
+    const draggableStyle: CSSProperties = transform
       ? {
           transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         }
@@ -60,8 +62,20 @@ export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
       <div ref={forwardedRef}>
         <AccordionItem>
           {!field.fields || field.fields.length == 0 ? (
-            <AccordionContent>
-              <div ref={setDroppableNodeRef} style={droppableStyle}>
+            <div id={'droppable-' + fieldId} ref={setDroppableNodeRef} style={droppableStyle}>
+              <div
+                id={'draggable-' + fieldId}
+                ref={setDraggableNodeRef}
+                style={draggableStyle}
+                {...listeners}
+                {...attributes}
+              >
+                <AccordionContent>{field.name}</AccordionContent>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div id={'droppable-' + fieldId} ref={setDroppableNodeRef} style={droppableStyle}>
                 <div
                   id={'draggable-' + fieldId}
                   ref={setDraggableNodeRef}
@@ -69,19 +83,11 @@ export const DocumentField = forwardRef<HTMLDivElement, DocumentFieldProps>(
                   {...listeners}
                   {...attributes}
                 >
-                  {field.name}
+                  <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
+                    {field.name}
+                  </AccordionToggle>
                 </div>
               </div>
-            </AccordionContent>
-          ) : (
-            <>
-              <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
-                <div ref={setDroppableNodeRef} style={droppableStyle}>
-                  <div ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
-                    {field.name}
-                  </div>
-                </div>
-              </AccordionToggle>
               <AccordionContent isHidden={!isExpanded} id={fieldId}>
                 {field.fields.map((field: any) => (
                   <ChildField key={field.name} field={field} parentPath={path} onToggle={onToggle} />
