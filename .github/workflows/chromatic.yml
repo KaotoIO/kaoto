@@ -15,6 +15,7 @@ on:
       - main
     paths-ignore:
       - 'packages/ui-tests/cypress/**'
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # List of jobs
 jobs:
