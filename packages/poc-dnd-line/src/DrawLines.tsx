@@ -23,12 +23,7 @@ export const DrawLines: FunctionComponent = () => {
 
   const onRefresh = useCallback(() => {
     reloadFieldReferences();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    onRefresh();
-  }, [onRefresh]);
+  }, [reloadFieldReferences]);
 
   return (
     <Page>

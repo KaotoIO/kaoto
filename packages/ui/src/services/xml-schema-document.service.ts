@@ -23,11 +23,12 @@ import {
   XmlSchemaSequenceMember,
   XmlSchemaSimpleType,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField } from '../models';
+import { BaseDocument, BaseField, IDocument, DocumentType } from '../models';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
   fields: XmlSchemaField[] = [];
+  id: string = `document-` + Math.random();
 
   constructor(public xmlSchema: XmlSchema) {
     super();
@@ -36,15 +37,33 @@ export class XmlSchemaDocument extends BaseDocument {
     }
     // TODO let user choose the root element from top level elements if there're multiple
     this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
-    XmlSchemaDocumentService.populateElement(this.fields, this.rootElement);
+    XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
     this.type = 'XML';
   }
+
+  get path() {
+    return `${this.id}:/`;
+  }
 }
+
+type XmlSchemaParentType = XmlSchemaDocument | XmlSchemaField;
 
 export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = '';
   namespacePrefix: string | null = '';
+
+  constructor(private parent: XmlSchemaParentType) {
+    super();
+  }
+
+  get path(): string {
+    return `${this.parent.path}/${this.id}`;
+  }
+
+  get id(): string {
+    return this.isAttribute ? '@' + this.name : this.name;
+  }
 }
 
 export class XmlSchemaDocumentService {
@@ -52,6 +71,21 @@ export class XmlSchemaDocumentService {
     const collection = new XmlSchemaCollection();
     const xmlSchema = collection.read(content, () => {});
     return new XmlSchemaDocument(xmlSchema);
+  }
+
+  static populateXmlSchemaDocument(documents: IDocument[], type: DocumentType, name: string, content: string) {
+    const doc = XmlSchemaDocumentService.parseXmlSchema(content);
+    doc.name = name;
+    doc.id = type + ':' + name;
+    const sameNameDocs = documents.filter((d) => d.name === name);
+    for (let sequence = 0; sameNameDocs.length > 0; sequence++) {
+      const candidateId = `${name}.${sequence}`;
+      if (!sameNameDocs.find((d) => d.id === candidateId)) {
+        doc.id = candidateId;
+        break;
+      }
+    }
+    documents.push(doc);
   }
 
   static getFirstElement(xmlSchema: XmlSchema) {
@@ -75,8 +109,8 @@ export class XmlSchemaDocumentService {
     );
   }
 
-  static populateElement(fields: XmlSchemaField[], element: XmlSchemaElement) {
-    const field: XmlSchemaField = new XmlSchemaField();
+  static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
+    const field: XmlSchemaField = new XmlSchemaField(parent);
     field.name = element.getWireName()!.getLocalPart()!;
     field.namespaceURI = element.getWireName()!.getNamespaceURI();
     field.namespacePrefix = element.getWireName()!.getPrefix();
@@ -94,26 +128,30 @@ export class XmlSchemaDocumentService {
       const complex = schemaType as XmlSchemaComplexType;
       const attributes: XmlSchemaAttributeOrGroupRef[] = complex.getAttributes();
       attributes.forEach((attr) => {
-        XmlSchemaDocumentService.populateAttributeOrGroupRef(field.fields, attr);
+        XmlSchemaDocumentService.populateAttributeOrGroupRef(field, field.fields, attr);
       });
-      XmlSchemaDocumentService.populateParticle(field.fields, complex.getParticle());
+      XmlSchemaDocumentService.populateParticle(field, field.fields, complex.getParticle());
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(element);
     }
   }
 
-  static populateAttributeOrGroupRef(fields: XmlSchemaField[], attr: XmlSchemaAttributeOrGroupRef) {
+  static populateAttributeOrGroupRef(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    attr: XmlSchemaAttributeOrGroupRef,
+  ) {
     if (attr instanceof XmlSchemaAttribute) {
-      XmlSchemaDocumentService.populateAttribute(fields, attr);
+      XmlSchemaDocumentService.populateAttribute(parent, fields, attr);
     } else if (attr instanceof XmlSchemaAttributeGroupRef) {
-      XmlSchemaDocumentService.populateAttributeGroupRef(fields, attr);
+      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, attr);
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(attr);
     }
   }
 
-  static populateAttribute(fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
-    const field = new XmlSchemaField();
+  static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
+    const field = new XmlSchemaField(parent);
     field.isAttribute = true;
     field.name = attr.getWireName()!.getLocalPart()!;
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
@@ -121,44 +159,56 @@ export class XmlSchemaDocumentService {
     fields.push(field);
   }
 
-  static populateAttributeGroupRef(fields: XmlSchemaField[], groupRef: XmlSchemaAttributeGroupRef) {
+  static populateAttributeGroupRef(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    groupRef: XmlSchemaAttributeGroupRef,
+  ) {
     const ref: XmlSchemaRef<XmlSchemaAttributeGroup> = groupRef.getRef();
-    XmlSchemaDocumentService.populateAttributeGroup(fields, ref.getTarget());
+    XmlSchemaDocumentService.populateAttributeGroup(parent, fields, ref.getTarget());
   }
 
-  static populateAttributeGroupMember(fields: XmlSchemaField[], member: XmlSchemaAttributeGroupMember) {
+  static populateAttributeGroupMember(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    member: XmlSchemaAttributeGroupMember,
+  ) {
     if (member instanceof XmlSchemaAttribute) {
-      XmlSchemaDocumentService.populateAttribute(fields, member);
+      XmlSchemaDocumentService.populateAttribute(parent, fields, member);
     } else if (member instanceof XmlSchemaAttributeGroup) {
-      XmlSchemaDocumentService.populateAttributeGroup(fields, member);
+      XmlSchemaDocumentService.populateAttributeGroup(parent, fields, member);
     } else if (member instanceof XmlSchemaAttributeGroupRef) {
-      XmlSchemaDocumentService.populateAttributeGroupRef(fields, member);
+      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, member);
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateAttributeGroup(fields: XmlSchemaField[], group: XmlSchemaAttributeGroup | null) {
+  static populateAttributeGroup(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    group: XmlSchemaAttributeGroup | null,
+  ) {
     if (group == null) {
       return;
     }
     group
       .getAttributes()
       .forEach((member: XmlSchemaAttributeGroupMember) =>
-        XmlSchemaDocumentService.populateAttributeGroupMember(fields, member),
+        XmlSchemaDocumentService.populateAttributeGroupMember(parent, fields, member),
       );
   }
 
-  static populateParticle(fields: XmlSchemaField[], particle: XmlSchemaParticle | null) {
+  static populateParticle(parent: XmlSchemaParentType, fields: XmlSchemaField[], particle: XmlSchemaParticle | null) {
     if (particle == null) {
       return;
     }
     if (particle instanceof XmlSchemaAny) {
       XmlSchemaDocumentService.populateAny(fields, particle);
     } else if (particle instanceof XmlSchemaElement) {
-      XmlSchemaDocumentService.populateElement(fields, particle);
+      XmlSchemaDocumentService.populateElement(parent, fields, particle);
     } else if (particle instanceof XmlSchemaGroupParticle) {
-      XmlSchemaDocumentService.populateGroupParticle(fields, particle);
+      XmlSchemaDocumentService.populateGroupParticle(parent, fields, particle);
     } else if (particle instanceof XmlSchemaGroupRef) {
       XmlSchemaDocumentService.populateGroupRef(fields, particle);
     } else {
@@ -171,7 +221,11 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.throwNotYetSupported(schemaAny);
   }
 
-  static populateGroupParticle(fields: XmlSchemaField[], groupParticle: XmlSchemaGroupParticle | null) {
+  static populateGroupParticle(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    groupParticle: XmlSchemaGroupParticle | null,
+  ) {
     if (groupParticle == null) {
       return;
     }
@@ -179,17 +233,21 @@ export class XmlSchemaDocumentService {
       const choice = groupParticle as XmlSchemaChoice;
       choice
         .getItems()
-        .forEach((member: XmlSchemaChoiceMember) => XmlSchemaDocumentService.populateChoiceMember(fields, member));
+        .forEach((member: XmlSchemaChoiceMember) =>
+          XmlSchemaDocumentService.populateChoiceMember(parent, fields, member),
+        );
     } else if (groupParticle instanceof XmlSchemaSequence) {
       const sequence = groupParticle as XmlSchemaSequence;
       sequence
         .getItems()
-        .forEach((member: XmlSchemaSequenceMember) => XmlSchemaDocumentService.populateSequenceMember(fields, member));
+        .forEach((member: XmlSchemaSequenceMember) =>
+          XmlSchemaDocumentService.populateSequenceMember(parent, fields, member),
+        );
     } else if (groupParticle instanceof XmlSchemaAll) {
       const all = groupParticle as XmlSchemaAll;
       all
         .getItems()
-        .forEach((member: XmlSchemaAllMember) => XmlSchemaDocumentService.populateAllMember(fields, member));
+        .forEach((member: XmlSchemaAllMember) => XmlSchemaDocumentService.populateAllMember(parent, fields, member));
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(groupParticle);
     }
@@ -199,37 +257,41 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.throwNotYetSupported(groupRef);
   }
 
-  static populateChoiceMember(fields: XmlSchemaField[], member: XmlSchemaChoiceMember) {
+  static populateChoiceMember(parent: XmlSchemaParentType, fields: XmlSchemaField[], member: XmlSchemaChoiceMember) {
     if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(fields, member);
+      XmlSchemaDocumentService.populateParticle(parent, fields, member);
     } else if (member instanceof XmlSchemaGroup) {
-      XmlSchemaDocumentService.populateGroup(fields, member);
+      XmlSchemaDocumentService.populateGroup(parent, fields, member);
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateSequenceMember(fields: XmlSchemaField[], member: XmlSchemaSequenceMember) {
+  static populateSequenceMember(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    member: XmlSchemaSequenceMember,
+  ) {
     if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(fields, member);
+      XmlSchemaDocumentService.populateParticle(parent, fields, member);
     } else if (member instanceof XmlSchemaGroup) {
-      XmlSchemaDocumentService.populateGroup(fields, member);
+      XmlSchemaDocumentService.populateGroup(parent, fields, member);
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateAllMember(fields: XmlSchemaField[], member: XmlSchemaAllMember) {
+  static populateAllMember(parent: XmlSchemaParentType, fields: XmlSchemaField[], member: XmlSchemaAllMember) {
     if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(fields, member);
+      XmlSchemaDocumentService.populateParticle(parent, fields, member);
     } else if (member instanceof XmlSchemaGroup) {
-      XmlSchemaDocumentService.populateGroup(fields, member);
+      XmlSchemaDocumentService.populateGroup(parent, fields, member);
     } else {
       XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateGroup(fields: XmlSchemaField[], group: XmlSchemaGroup) {
-    XmlSchemaDocumentService.populateParticle(fields, group.getParticle());
+  static populateGroup(parent: XmlSchemaParentType, fields: XmlSchemaField[], group: XmlSchemaGroup) {
+    XmlSchemaDocumentService.populateParticle(parent, fields, group.getParticle());
   }
 }

@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, memo, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, memo, useContext, useMemo } from 'react';
 import {
   Drawer,
   DrawerActions,
@@ -32,13 +32,14 @@ import { MappingDetailsView, SourceTargetView } from './views';
 import { DataMapperContext } from '../providers';
 import { CanvasView } from '../models';
 import { ContextToolbar } from './ContextToolbar';
+import { useDataMapper } from '../hooks';
 
 export interface IMainLayoutProps {
   showSidebar: boolean;
 }
 
 export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout() {
-  const [isDrawerExpanded, setDrawerExpanded] = useState<boolean>(false);
+  const { selectedMapping, setSelectedMapping } = useDataMapper();
 
   const { activeView } = useContext(DataMapperContext)!;
   const currentView = useMemo(() => {
@@ -62,7 +63,7 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function Mai
     <DrawerPanelContent>
       <DrawerHead>Mapping Details</DrawerHead>
       <DrawerActions>
-        <DrawerCloseButton onClick={() => setDrawerExpanded(false)} />
+        <DrawerCloseButton onClick={() => setSelectedMapping(null)} />
       </DrawerActions>
       <MappingDetailsView />
     </DrawerPanelContent>
@@ -71,7 +72,7 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function Mai
   return (
     <Page header={header}>
       <PageSection variant={PageSectionVariants.default}>
-        <Drawer isExpanded={isDrawerExpanded} isInline>
+        <Drawer isExpanded={!!selectedMapping} isInline>
           <DrawerContent panelContent={drawerPanelContent}>
             <DrawerContentBody>{currentView}</DrawerContentBody>
           </DrawerContent>

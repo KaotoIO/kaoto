@@ -16,19 +16,14 @@
 import { MainLayout } from './layout';
 import { FunctionComponent } from 'react';
 
-import { useDataMapperContext } from './hooks/useDataMapperContext';
-import { DndContext } from '@dnd-kit/core';
+import { useDataMapper } from './hooks/useDataMapper';
 
 export interface IDataMapperProps {
   modalsContainerId?: string;
 }
 
 export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
-  const { selectedMapping } = useDataMapperContext()!;
+  const { selectedMapping } = useDataMapper()!;
 
-  return (
-    <DndContext>
-      <MainLayout showSidebar={!!selectedMapping} />
-    </DndContext>
-  );
+  return <MainLayout showSidebar={!!selectedMapping} />;
 };

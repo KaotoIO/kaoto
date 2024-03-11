@@ -20,13 +20,14 @@ import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
 import { readFileAsString } from '../../util';
 import { XmlSchemaDocumentService } from '../../services';
-import { useDataMapperContext } from '../../hooks';
+import { useDataMapper } from '../../hooks';
+import { DocumentType } from '../../models/document';
 
 export interface IImportActionProps {
   isSource: boolean;
 }
 export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ isSource }) => {
-  const { sourceDocuments, refreshSourceDocuments, targetDocuments, refreshTargetDocuments } = useDataMapperContext();
+  const { sourceDocuments, refreshSourceDocuments, targetDocuments, refreshTargetDocuments } = useDataMapper();
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
@@ -34,17 +35,14 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ is
 
   const onImport = useCallback(
     (file: File) => {
-      const fileName = file.name;
       readFileAsString(file).then((content) => {
-        const document = XmlSchemaDocumentService.parseXmlSchema(content);
-        document.name = fileName;
-        if (isSource) {
-          sourceDocuments.push(document);
-          refreshSourceDocuments();
-        } else {
-          targetDocuments.push(document);
-          refreshTargetDocuments();
-        }
+        XmlSchemaDocumentService.populateXmlSchemaDocument(
+          isSource ? sourceDocuments : targetDocuments,
+          isSource ? DocumentType.SOURCE : DocumentType.TARGET,
+          file.name,
+          content,
+        );
+        isSource ? refreshSourceDocuments() : refreshTargetDocuments();
       });
     },
     [isSource, refreshSourceDocuments, refreshTargetDocuments, sourceDocuments, targetDocuments],

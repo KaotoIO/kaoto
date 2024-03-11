@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { DataMapperContext, IDataMapperContext } from '../providers';
 
-export const errorMessage = 'useDataMapperContext should be called into DataMapperContextProvider';
+export const errorMessage = 'useDataMapper should be called into DataMapperProvider';
 
-export const useDataMapperContext = (): IDataMapperContext => {
+export const useDataMapper = (): IDataMapperContext => {
   const ctx = useContext(DataMapperContext);
   if (!ctx) throw new Error(errorMessage);
   return ctx;

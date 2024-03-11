@@ -1,5 +1,3 @@
-import { generateRandomId } from '../util';
-
 export interface INamespace {
   alias: string;
   uri: string;
@@ -26,6 +24,7 @@ export interface IField {
 export interface IDocument {
   id: string;
   name: string;
+  path: string;
   type: string;
   fields: IField[];
   namespaces?: INamespace[];
@@ -33,23 +32,29 @@ export interface IDocument {
 
 export abstract class BaseDocument implements IDocument {
   fields: IField[] = [];
-  id: string = generateRandomId('document');
+  abstract id: string;
   name: string = '';
+  abstract path: string;
   type: string = '';
 }
 
 export abstract class BaseField implements IField {
   enumeration: boolean = false;
   fields: IField[] = [];
-  id: string = generateRandomId('field');
+  abstract id: string;
   isAttribute: boolean = false;
   isCollection: boolean = false;
   isConnected: boolean = false;
   isDisabled: boolean = false;
   isInCollection: boolean = false;
   name: string = '';
-  path: string = '';
+  abstract path: string;
   scope: string = '';
   type: string = '';
   value: string = '';
+}
+
+export enum DocumentType {
+  SOURCE = 'source',
+  TARGET = 'target',
 }

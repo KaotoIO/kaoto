@@ -1,2 +1,2 @@
 export * from './useToggle';
-export * from './useDataMapperContext';
+export * from './useDataMapper';

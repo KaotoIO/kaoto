@@ -1,16 +1,34 @@
 import { AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
-import { FunctionComponent, useState } from 'react';
+import { forwardRef, FunctionComponent, useRef, useState } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { IField } from '../../models';
+import { useCanvas } from '../../hooks/useCanvas';
+
+type DocumentFieldContentProps = {
+  field: IField;
+};
+
+const DocumentFieldContent: FunctionComponent<DocumentFieldContentProps> = ({ field }) => {
+  return field.isAttribute ? '@' + field.name : field.name;
+};
 
 type DocumentFieldProps = {
   field: IField;
+  onToggle: () => void;
 };
-export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field }) => {
+
+export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field, onToggle }) => {
+  const { setFieldReference } = useCanvas();
+  const ref = useRef<HTMLDivElement>(null);
+  setFieldReference(field.path, ref);
+  return <DocumentFieldImpl ref={ref} onToggle={onToggle} field={field} />;
+};
+
+const DocumentFieldImpl = forwardRef<HTMLDivElement, DocumentFieldProps>(({ field, onToggle }, forwardedRef) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
-  const fieldId = field.name + Math.random();
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: 'droppable-' + fieldId,
+    id: 'droppable-' + field.path,
+    data: field,
   });
   const {
     attributes,
@@ -18,49 +36,62 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ field }) 
     setNodeRef: setDraggableNodeRef,
     transform,
   } = useDraggable({
-    id: 'draggable-' + fieldId,
+    id: 'draggable-' + field.path,
+    data: field,
   });
+
   const droppableStyle = {
-    color: isOver ? 'green' : undefined,
+    borderWidth: isOver ? 1 : undefined,
+    borderColor: isOver ? 'blue' : undefined,
+    color: isOver ? 'blue' : undefined,
   };
   const draggableStyle = transform
     ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        borderWidth: 1,
+        borderColor: 'blue',
       }
     : undefined;
 
   return (
-    <AccordionItem>
-      {!field.fields || field.fields.length === 0 ? (
-        <AccordionContent>
-          <div ref={setDroppableNodeRef} style={droppableStyle}>
+    <div ref={forwardedRef}>
+      <AccordionItem>
+        {!field.fields || field.fields.length === 0 ? (
+          <div id={'droppable-' + field.path} ref={setDroppableNodeRef} style={droppableStyle}>
             <div
-              id={'draggable-' + fieldId}
+              id={'draggable-' + field.path}
               ref={setDraggableNodeRef}
               style={draggableStyle}
               {...listeners}
               {...attributes}
             >
-              {field.isAttribute ? '@' + field.name : field.name}
+              <AccordionContent>
+                <DocumentFieldContent field={field} />
+              </AccordionContent>
             </div>
           </div>
-        </AccordionContent>
-      ) : (
-        <>
-          <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
-            <div ref={setDroppableNodeRef} style={droppableStyle}>
-              <div ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
-                {field.name}
+        ) : (
+          <>
+            <div id={'droppable-' + field.path} ref={setDroppableNodeRef} style={droppableStyle}>
+              <div
+                id={'draggable-' + field.path}
+                ref={setDraggableNodeRef}
+                style={draggableStyle}
+                {...listeners}
+                {...attributes}
+              >
+                <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.name}>
+                  <DocumentFieldContent field={field} />
+                </AccordionToggle>
               </div>
             </div>
-          </AccordionToggle>
-          <AccordionContent isHidden={!isExpanded} id={fieldId}>
-            {field.fields.map((f: IField) => (
-              <DocumentField key={f.name} field={f} />
-            ))}
-          </AccordionContent>
-        </>
-      )}
-    </AccordionItem>
+            <AccordionContent isHidden={!isExpanded} id={field.path}>
+              {field.fields.map((f: IField) => (
+                <DocumentField key={f.name} field={f} onToggle={onToggle} />
+              ))}
+            </AccordionContent>
+          </>
+        )}
+      </AccordionItem>
+    </div>
   );
-};
+});

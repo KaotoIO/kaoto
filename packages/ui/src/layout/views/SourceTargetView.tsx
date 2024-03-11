@@ -11,12 +11,13 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
-import { useDataMapperContext } from '../../hooks';
+import { useDataMapper } from '../../hooks';
 import { Document } from '../../components/document';
 import { ImportDocumentButton } from '../../components/document';
+import { MappingLinksContainer } from '../../components/mapping/MappingLink';
 
 export const SourceTargetView: FunctionComponent = () => {
-  const { sourceDocuments, targetDocuments } = useDataMapperContext();
+  const { sourceDocuments, targetDocuments } = useDataMapper();
   const sourceDocumentsActions = (
     <ActionList>
       <ActionListItem>
@@ -33,9 +34,10 @@ export const SourceTargetView: FunctionComponent = () => {
   );
 
   return (
-    <Split hasGutter>
+    <Split>
+      <MappingLinksContainer />
       <SplitItem isFilled>
-        <Card id="card-source">
+        <Card id="card-source" isCompact>
           <CardHeader actions={{ actions: sourceDocumentsActions }}>
             <CardTitle>Source</CardTitle>
           </CardHeader>
@@ -50,9 +52,9 @@ export const SourceTargetView: FunctionComponent = () => {
           </CardBody>
         </Card>
       </SplitItem>
-      <SplitItem>draw lines here</SplitItem>
+      <SplitItem isFilled>&nbsp;</SplitItem>
       <SplitItem isFilled>
-        <Card id="card-target">
+        <Card id="card-target" isCompact>
           <CardHeader actions={{ actions: targetDocumentActions }}>
             <CardTitle>Target</CardTitle>
           </CardHeader>

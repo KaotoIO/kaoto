@@ -21,22 +21,17 @@ import { CanvasView, IDocument, IMapping } from '../models';
 export interface IDataMapperContext {
   loading: boolean;
   activeView: CanvasView;
-
   setActiveView(view: CanvasView): void;
 
-  constants: IDocument;
-  sourceProperties: IDocument;
-  targetProperties: IDocument;
   sourceDocuments: IDocument[];
   refreshSourceDocuments: () => void;
   targetDocuments: IDocument[];
   refreshTargetDocuments: () => void;
-  mappings: IMapping[];
 
-  setMappings(mappings: IMapping[]): void;
+  mappings: IMapping[];
+  refreshMappings(): void;
 
   selectedMapping: IMapping | null;
-
   setSelectedMapping(mapping: IMapping | null): void;
 }
 
@@ -45,24 +40,6 @@ export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [loading, _setLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
-  const [constants, _setConstants] = useState<IDocument>({
-    id: 'constants',
-    name: 'Constants',
-    type: 'constants',
-    fields: [],
-  } as IDocument);
-  const [sourceProperties, _setSourceProperties] = useState<IDocument>({
-    id: 'sourceProperties',
-    name: 'Source Properties',
-    type: 'source',
-    fields: [],
-  });
-  const [targetProperties, _setTargetProperties] = useState<IDocument>({
-    id: 'targetProperties',
-    name: 'Target Properties',
-    type: 'target',
-    fields: [],
-  });
   const [sourceDocuments, setSourceDocuments] = useState<IDocument[]>([]);
   const [targetDocuments, setTargetDocuments] = useState<IDocument[]>([]);
   const [mappings, setMappings] = useState<IMapping[]>([]);
@@ -71,24 +48,26 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const refreshSourceDocuments = useCallback(() => {
     setSourceDocuments([...sourceDocuments]);
   }, [sourceDocuments]);
+
   const refreshTargetDocuments = useCallback(() => {
     setTargetDocuments([...targetDocuments]);
   }, [targetDocuments]);
+
+  const refreshMappings = useCallback(() => {
+    setMappings([...mappings]);
+  }, [mappings]);
 
   const value = useMemo(() => {
     return {
       loading,
       activeView,
       setActiveView,
-      constants,
-      sourceProperties,
-      targetProperties,
       sourceDocuments,
       refreshSourceDocuments,
       targetDocuments,
       refreshTargetDocuments,
       mappings,
-      setMappings,
+      refreshMappings,
       selectedMapping,
       setSelectedMapping,
     };
@@ -96,14 +75,12 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     activeView,
     refreshSourceDocuments,
     refreshTargetDocuments,
-    constants,
     loading,
     mappings,
+    refreshMappings,
     selectedMapping,
     sourceDocuments,
-    sourceProperties,
     targetDocuments,
-    targetProperties,
   ]);
 
   return (
