@@ -1,6 +1,13 @@
 import 'cypress-file-upload';
 
+Cypress.Commands.add('waitForEditorToLoad', () => {
+  cy.get('.pf-v5-c-code-editor').should(($editor) => {
+    expect($editor.find('div:contains("Loading...")')).to.not.exist;
+  });
+});
+
 Cypress.Commands.add('editorAddText', (line, text) => {
+  cy.waitForEditorToLoad();
   text.split('\n').forEach((lineToWrite, i) => {
     cy.get('.pf-v5-c-code-editor')
       .click()
@@ -12,16 +19,17 @@ Cypress.Commands.add('editorAddText', (line, text) => {
 
 Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
+  cy.waitForEditorToLoad();
   cy.get('.pf-v5-c-code-editor__main > input').attachFile(fixture);
 });
 
 Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => {
   repeatCount = repeatCount ?? 1;
+  cy.waitForEditorToLoad();
   // Open the Go to Line dialog
   cy.get('.pf-v5-c-code-editor')
     .click()
     .type('{ctrl}' + '{g}', { delay: 1 });
-
   // Type the line number to delete
   cy.get('input[aria-describedby="quickInput_message"]')
     .click()
@@ -35,6 +43,7 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
 
 Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number) => {
   linesCount = linesCount ?? 1;
+  cy.waitForEditorToLoad();
   cy.get('.pf-v5-c-code-editor').within(() => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);
   });
@@ -54,6 +63,7 @@ Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
 });
 
 Cypress.Commands.add('editorScrollToTop', () => {
+  cy.waitForEditorToLoad();
   cy.get('.pf-v5-c-code-editor').click().type('{ctrl}{home}', { release: false });
 });
 
@@ -72,6 +82,7 @@ Cypress.Commands.add('editorClickRedoXTimes', (repeatCount: number) => {
 });
 
 Cypress.Commands.add('compareFileWithMonacoEditor', (filePath: string) => {
+  cy.waitForEditorToLoad();
   cy.fixture(filePath).then((fileContent) => {
     const fileLines = fileContent.split('\n').filter((line: string) => line.trim() !== '');
 
