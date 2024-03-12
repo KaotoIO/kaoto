@@ -67,7 +67,7 @@
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
-    "@storybook/addon-actions": "^7.6.12",
+    "@storybook/addon-actions": "^8.0.0",
     "@storybook/addon-knobs": "^7.0.2",
     "@testing-library/jest-dom": "^6.4.2",
     "@types/jest": "^29.5.12",
