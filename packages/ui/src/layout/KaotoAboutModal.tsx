@@ -1,16 +1,14 @@
 import { AboutModal, TextContent, TextList, TextListItem } from '@patternfly/react-core';
+import { FunctionComponent } from 'react';
 import logo from '../assets/logo-kaoto-dark.png';
+import { GIT_DATE, GIT_HASH, KAOTO_VERSION } from '../version';
 
 export interface IAboutModal {
   handleCloseModal: () => void;
   isModalOpen: boolean;
 }
 
-export const KaotoAboutModal = ({ handleCloseModal, isModalOpen }: IAboutModal) => {
-  const KAOTO_VERSION: string = '2.0.0';
-  const GIT_COMMIT_HASH: string = 'some weird hash';
-  const GIT_LAST_COMMIT_DATE: string = 'some date';
-
+export const KaotoAboutModal: FunctionComponent<IAboutModal> = ({ handleCloseModal, isModalOpen }) => {
   return (
     <AboutModal
       isOpen={isModalOpen}
@@ -31,11 +29,11 @@ export const KaotoAboutModal = ({ handleCloseModal, isModalOpen }: IAboutModal) 
           <TextListItem component="dt">Build info</TextListItem>
           <TextListItem component="dt">Git commit hash</TextListItem>
           <TextListItem component="dd" data-testid="about-git-commit-hash">
-            {GIT_COMMIT_HASH}
+            {GIT_HASH}
           </TextListItem>
           <TextListItem component="dt">Git last commit date</TextListItem>
           <TextListItem component="dd" data-testid="about-git-last-commit-date">
-            {GIT_LAST_COMMIT_DATE}
+            {GIT_DATE}
           </TextListItem>
         </TextList>
       </TextContent>
