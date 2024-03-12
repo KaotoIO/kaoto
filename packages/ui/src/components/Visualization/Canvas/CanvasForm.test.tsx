@@ -208,7 +208,7 @@ describe('CanvasForm', () => {
       });
       const expressionInput = screen
         .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Expression');
+        .filter((textbox) => textbox.getAttribute('name') === 'expression');
       const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
       act(() => {
         fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
@@ -279,7 +279,7 @@ describe('CanvasForm', () => {
       });
       const expressionInput = screen
         .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Expression');
+        .filter((textbox) => textbox.getAttribute('name') === 'expression');
       const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
       act(() => {
         fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
