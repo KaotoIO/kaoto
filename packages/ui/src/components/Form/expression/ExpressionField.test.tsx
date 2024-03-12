@@ -85,9 +85,9 @@ describe('ExpressionField', () => {
 
     const expressionInput = screen
       .getAllByRole('textbox')
-      .filter((textbox) => textbox.getAttribute('label') === 'Expression');
+      .filter((textbox) => textbox.getAttribute('name') === 'expression');
     expect(expressionInput).toHaveLength(1);
-    expect(expressionInput[0].getAttribute('value')).toEqual('${body}');
+    expect(expressionInput[0].textContent).toEqual('${body}');
     act(() => {
       fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
     });

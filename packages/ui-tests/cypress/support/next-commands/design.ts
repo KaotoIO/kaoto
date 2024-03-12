@@ -26,20 +26,20 @@ Cypress.Commands.add('interactWithDataformatInputObject', (inputName: string, va
 
 Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?: string) => {
   if (value !== undefined && value !== null) {
-    cy.get(`input[name="${inputName}"]`).clear();
-    cy.get(`input[name="${inputName}"]`).type(value);
+    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).clear();
+    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value);
   } else {
-    cy.get(`input[name="${inputName}"]`).click();
+    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click();
   }
 });
 
 Cypress.Commands.add('checkConfigCheckboxObject', (inputName: string, value: boolean) => {
   const checked = value ? '' : 'not.';
-  cy.get(`input[name="${inputName}"]`).should(`${checked}be.checked`);
+  cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).should(`${checked}be.checked`);
 });
 
 Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string) => {
-  cy.get(`input[name="${inputName}"]`).should('have.value', value);
+  cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).should('have.value', value);
 });
 
 Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {

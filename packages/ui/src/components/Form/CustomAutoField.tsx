@@ -1,8 +1,17 @@
-import { DateField, ListField, NestField, RadioField, TextField, BoolField } from '@kaoto-next/uniforms-patternfly';
+import {
+  BoolField,
+  DateField,
+  ListField,
+  LongTextField,
+  NestField,
+  RadioField,
+  TextField,
+} from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
-import { TypeaheadField } from './customField/TypeaheadField';
-import { DisabledField } from './customField/DisabledField';
+import { getValue } from '../../utils';
 import { BeanReferenceField } from './bean/BeanReferenceField';
+import { DisabledField } from './customField/DisabledField';
+import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
@@ -16,7 +25,8 @@ export const CustomAutoField = createAutoField((props) => {
     return props.checkboxes && props.fieldType !== Array ? RadioField : TypeaheadField;
   }
 
-  const comment = props['$comment'] as string;
+  const title = getValue(props, 'field.title');
+  const comment = getValue(props, '$comment');
   // Assuming generic object field without any children to use PropertiesField
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (props.fieldType === Object && (props.field as any)?.type === 'object' && !(props.field as any)?.properties) {
@@ -45,6 +55,8 @@ export const CustomAutoField = createAutoField((props) => {
       /* catalog preprocessor put 'string' as a type and the javaType as a schema $comment */
       if (comment?.startsWith('class:')) {
         return BeanReferenceField;
+      } else if (title === 'Expression') {
+        return LongTextField;
       }
       return TextField;
   }
