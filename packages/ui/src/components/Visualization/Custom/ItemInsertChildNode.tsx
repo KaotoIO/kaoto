@@ -48,8 +48,7 @@ export const ItemInsertChildNode: FunctionComponent<ItemInsertChildNodeProps> = 
 
   return shouldRender ? (
     <ContextMenuItem onClick={onInsertNode} data-testid={props['data-testid']}>
-      <AngleDoubleDownIcon /> Add {props.mode === AddStepMode.InsertSpecialChildStep ? 'special' : ''} step node into{' '}
-      {vizNode?.id}
+      <AngleDoubleDownIcon /> Insert
     </ContextMenuItem>
   ) : null;
 };

@@ -18,7 +18,7 @@ export const ItemRemoveNode: FunctionComponent<IDataTestID> = (props) => {
 
   return shouldRender ? (
     <ContextMenuItem onClick={onRemoveNode} data-testid={props['data-testid']}>
-      <MinusIcon /> Remove {vizNode?.id} node
+      <MinusIcon /> Remove
     </ContextMenuItem>
   ) : null;
 };

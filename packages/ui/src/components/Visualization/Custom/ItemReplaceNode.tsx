@@ -33,7 +33,7 @@ export const ItemReplaceNode: FunctionComponent<IDataTestID> = (props) => {
 
   return shouldRender ? (
     <ContextMenuItem onClick={onReplaceNode} data-testid={props['data-testid']}>
-      <AngleRightIcon /> Replace {vizNode?.id} node
+      <AngleRightIcon /> Replace
     </ContextMenuItem>
   ) : null;
 };
