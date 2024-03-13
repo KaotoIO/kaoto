@@ -191,12 +191,7 @@ public class CamelYamlDslSchemaProcessor {
                     propToRemove.add(propName);
                     continue;
                 }
-                if (!LOAD_BALANCE_DEFINITION.equals(processorFQCN) && propName.equals("inheritErrorHandler")) {
-                    // workaround for https://issues.apache.org/jira/browse/CAMEL-20188
-                    // TODO remove this once updated to camel 4.3.0
-                    propToRemove.add(propName);
-                    continue;
-                }
+
                 var property = (ObjectNode) propEntry.getValue();
                 var refParent = property.findParent("$ref");
                 if (refParent != null) {
@@ -301,11 +296,6 @@ public class CamelYamlDslSchemaProcessor {
             var propToRemove = new HashSet<String>();
             for (var property : definitionProperties.properties()) {
                 var propName = property.getKey();
-                if (!LOAD_BALANCE_DEFINITION.equals(definitionName) && propName.equals("inheritErrorHandler")) {
-                    // workaround for https://issues.apache.org/jira/browse/CAMEL-20188
-                    // TODO remove this once updated to camel 4.3.0
-                    propToRemove.add(propName);
-                }
                 var propValue = property.getValue();
                 if (!propValue.has("$ref") && !propValue.has("type")) {
                     // inherited properties, such as for expression - supposed to be handled separately
