@@ -17,7 +17,6 @@ package io.kaoto.camelcatalog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
