@@ -7,6 +7,8 @@ export * from './get-value';
 export * from './is-defined';
 export * from './is-enum-type';
 export * from './node-icon-resolver';
+export * from './resolve-ref-if-needed';
 export * from './set-value';
 export * from './get-custom-schema-from-kamelet';
 export * from './update-kamelet-from-custom-schema';
+export * from './weight-schema-properties';
