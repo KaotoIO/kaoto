@@ -1,5 +1,13 @@
-import { AboutModal, TextContent, TextList, TextListItem } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import {
+  AboutModal,
+  TextContent,
+  TextList,
+  TextListItem,
+  Timestamp,
+  TimestampFormat,
+  TimestampTooltipVariant,
+} from '@patternfly/react-core';
+import { FunctionComponent, useMemo } from 'react';
 import logo from '../assets/logo-kaoto-dark.png';
 import { GIT_DATE, GIT_HASH, KAOTO_VERSION } from '../version';
 
@@ -8,7 +16,11 @@ export interface IAboutModal {
   isModalOpen: boolean;
 }
 
+const TOOLTIP_PROPS = { variant: TimestampTooltipVariant.default } as const;
+
 export const KaotoAboutModal: FunctionComponent<IAboutModal> = ({ handleCloseModal, isModalOpen }) => {
+  const buildDate = useMemo(() => new Date(GIT_DATE), []);
+
   return (
     <AboutModal
       isOpen={isModalOpen}
@@ -33,7 +45,12 @@ export const KaotoAboutModal: FunctionComponent<IAboutModal> = ({ handleCloseMod
           </TextListItem>
           <TextListItem component="dt">Git last commit date</TextListItem>
           <TextListItem component="dd" data-testid="about-git-last-commit-date">
-            {GIT_DATE}
+            <Timestamp
+              date={buildDate}
+              dateFormat={TimestampFormat.full}
+              timeFormat={TimestampFormat.long}
+              tooltip={TOOLTIP_PROPS}
+            />
           </TextListItem>
         </TextList>
       </TextContent>
