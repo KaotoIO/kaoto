@@ -23,8 +23,7 @@ describe('Test source code editor', () => {
       apiVersion: camel.apache.org/v1
       name: insert-field-action
       kind: Kamelet`;
-    const insertLine = 10;
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(11, stepToInsert);
     cy.openDesignPage();
 
     // CHECK the insert-field-action step was added
@@ -66,13 +65,11 @@ describe('Test source code editor', () => {
 
   it('User Add a new branch in the YAML', () => {
     cy.uploadFixture('flows/ComplexKamelet.yaml');
-
-    const stepToInsert = `\n              - simple: {{}{{}?test}}
+    const stepToInsert = `              - simple: {{}{{}?test}}
                 steps:
                   - to:
                       uri: atlasmap:null`;
-    const insertLine = 40;
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(42, stepToInsert);
     cy.openDesignPage();
 
     // CHECK branch with atlasmap was created

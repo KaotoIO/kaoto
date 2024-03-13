@@ -35,9 +35,8 @@ describe('Test URI node config', () => {
 
   it('User adds URI step to the YAML', () => {
     cy.uploadFixture('flows/UriConfKamelet.yaml');
-    const insertLine = 43;
     const stepToInsert = `      - to: aws2-s3:testBucket?autoCreateBucket=true`;
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(43, stepToInsert);
     cy.openDesignPage();
 
     // CHECK the insert-field-action step was added
@@ -56,9 +55,8 @@ describe('Test URI node config', () => {
 
   it('User adds URI step to the YAML', () => {
     cy.uploadFixture('flows/UriConfRoute.yaml');
-    const insertLine = 10;
     const stepToInsert = `        - to: aws2-s3:testBucket?autoCreateBucket=true`;
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(11, stepToInsert);
     cy.openDesignPage();
 
     // CHECK the insert-field-action step was added
