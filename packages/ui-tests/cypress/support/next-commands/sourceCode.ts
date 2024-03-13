@@ -8,12 +8,19 @@ Cypress.Commands.add('waitForEditorToLoad', () => {
 
 Cypress.Commands.add('editorAddText', (line, text) => {
   cy.waitForEditorToLoad();
-  text.split('\n').forEach((lineToWrite, i) => {
-    cy.get('.pf-v5-c-code-editor')
-      .click()
-      .type('{pageUp}{pageUp}' + '{downArrow}'.repeat(line + i) + '{enter}{upArrow}' + lineToWrite, {
-        delay: 1,
-      });
+  cy.get('.pf-v5-c-code-editor')
+    .click()
+    .type('{ctrl}' + '{g}', { delay: 1 });
+  // Select the line number where to insert the new text
+  cy.get('input[aria-describedby="quickInput_message"]')
+    .click()
+    .type(`${line}` + '{enter}');
+  // insert new line, so the new text can be added
+  cy.focused().type('{enter}{upArrow}', { delay: 1 });
+  text.split('\n').forEach((lineToWrite) => {
+    cy.focused().type('{enter}{enter}{upArrow}', { delay: 1 });
+    cy.focused().type('{ctrl}{l}', { delay: 1 });
+    cy.focused().type(lineToWrite, { delay: 1 });
   });
 });
 

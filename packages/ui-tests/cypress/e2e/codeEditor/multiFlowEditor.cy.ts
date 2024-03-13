@@ -64,8 +64,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.uploadFixture('flows/MultiflowCR.yaml');
     const stepToInsert = `        - setHeader:
             constant: test`;
-    const insertLine = 8;
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(9, stepToInsert);
     cy.openDesignPage();
 
     // CHECK the set-header step was added
@@ -76,9 +75,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.uploadFixture('flows/MultiflowCR.yaml');
     const stepToInsert = `        - setBody:
           constant: test`;
-    const insertLine = 19;
-
-    cy.editorAddText(insertLine, stepToInsert);
+    cy.editorAddText(20, stepToInsert);
 
     cy.openDesignPage();
     cy.showAllRoutes();
