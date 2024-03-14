@@ -5,7 +5,6 @@ import {
   ComponentFactory,
   ConcentricLayout,
   DagreLayout,
-  DefaultEdge,
   EdgeAnimationSpeed,
   EdgeStyle,
   ForceLayout,
@@ -22,6 +21,7 @@ import { IVisualizationNode } from '../../../models/visualization/base-visual-en
 import { CustomGroupWithSelection, CustomNodeWithSelection } from '../Custom';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
+import { CustomEdge } from '../Custom/CustomEdge';
 
 export class CanvasService {
   static nodes: CanvasNode[] = [];
@@ -57,7 +57,7 @@ export class CanvasService {
           case ModelKind.node:
             return CustomNodeWithSelection;
           case ModelKind.edge:
-            return DefaultEdge;
+            return CustomEdge;
           default:
             return undefined;
         }
