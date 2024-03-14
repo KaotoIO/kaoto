@@ -30,11 +30,39 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const statusDecoratorTooltip = vizNode?.getNodeValidationText();
   const nodeStatus = !statusDecoratorTooltip ? NodeStatus.default : NodeStatus.warning;
 
+  let nType: string = '';
+  let badge = undefined;
+  let badgeColor = undefined;
+  let badgeTextColor = undefined;
+  const badgeBorderColor = 'black';
+
+  if (vizNode && vizNode.data['componentName']) {
+    nType = '' + vizNode.data['componentName'];
+  }
+
+  if (nType === '') {
+    badge = 'P';
+    badgeColor = '#F4C145';
+    badgeTextColor = 'black';
+  } else if (nType.startsWith('kamelet:')) {
+    badge = 'K';
+    badgeColor = '#0066CC';
+    badgeTextColor = 'white';
+  } else {
+    badge = 'C';
+    badgeColor = '#6EC664';
+    badgeTextColor = 'black';
+  }
+
   return (
     <DefaultNode
       {...rest}
       element={element}
       label={label}
+      badge={badge}
+      badgeColor={badgeColor}
+      badgeTextColor={badgeTextColor}
+      badgeBorderColor={badgeBorderColor}
       truncateLength={15}
       showStatusDecorator
       statusDecoratorTooltip={statusDecoratorTooltip}
