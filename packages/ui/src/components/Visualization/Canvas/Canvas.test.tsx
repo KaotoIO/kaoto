@@ -11,6 +11,7 @@ describe('Canvas', () => {
   const entity2 = { ...entity, id: 'route-9999' } as CamelRouteVisualEntity;
 
   it('should render correctly', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = render(
       <TestProvidersWrapper
         visibleFlows={{ visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult}
