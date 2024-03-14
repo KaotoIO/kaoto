@@ -500,6 +500,7 @@ describe('CanvasForm', () => {
    */
 
   it('should render for all component without an error', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
     Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
       try {
@@ -521,6 +522,7 @@ describe('CanvasForm', () => {
   });
 
   it('should render for all kamelets without an error', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     Object.entries(kameletCatalogMap).forEach(([name, kamelet]) => {
       try {

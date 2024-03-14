@@ -12,6 +12,7 @@ describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
   let dataformatCatalog: Record<string, ICamelDataformatDefinition>;
   beforeAll(async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     dataformatCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (dataformatCatalog as any).default;
