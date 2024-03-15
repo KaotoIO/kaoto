@@ -1,3 +1,6 @@
+export const DEFAULT_MIN_OCCURS = 0;
+export const DEFAULT_MAX_OCCURS = 1;
+
 export interface INamespace {
   alias: string;
   uri: string;
@@ -5,56 +8,84 @@ export interface INamespace {
   isTarget: boolean;
 }
 
+type IParentType = IDocument | IField;
+
 export interface IField {
-  id: string;
+  parent: IParentType;
+  fieldIdentifier: FieldIdentifier;
   name: string;
+  expression: string;
   type: string;
   fields: IField[];
-  scope: string;
-  value: string;
-  path: string;
   isAttribute: boolean;
-  isCollection: boolean;
-  isConnected: boolean;
-  isInCollection: boolean;
-  isDisabled: boolean;
-  enumeration: boolean;
+  defaultValue: string | null;
+  minOccurs: number;
+  maxOccurs: number;
 }
 
 export interface IDocument {
-  id: string;
+  documentType: DocumentType;
+  documentId: string;
+  fieldIdentifier: FieldIdentifier;
   name: string;
-  path: string;
   type: string;
   fields: IField[];
   namespaces?: INamespace[];
 }
 
 export abstract class BaseDocument implements IDocument {
+  documentType: DocumentType = DocumentType.SOURCE_BODY;
+  documentId: string = '';
+  abstract fieldIdentifier: FieldIdentifier;
   fields: IField[] = [];
-  abstract id: string;
   name: string = '';
-  abstract path: string;
   type: string = '';
 }
 
 export abstract class BaseField implements IField {
-  enumeration: boolean = false;
+  abstract parent: IParentType;
+  abstract fieldIdentifier: FieldIdentifier;
   fields: IField[] = [];
-  abstract id: string;
   isAttribute: boolean = false;
-  isCollection: boolean = false;
-  isConnected: boolean = false;
-  isDisabled: boolean = false;
-  isInCollection: boolean = false;
   name: string = '';
-  abstract path: string;
-  scope: string = '';
+  expression: string = '';
   type: string = '';
-  value: string = '';
+  minOccurs: number = DEFAULT_MIN_OCCURS;
+  maxOccurs: number = DEFAULT_MAX_OCCURS;
+  defaultValue: string | null = null;
 }
 
 export enum DocumentType {
-  SOURCE = 'source',
-  TARGET = 'target',
+  SOURCE_BODY = 'sourceBody',
+  TARGET_BODY = 'targetBody',
+  PARAM = 'param',
+}
+
+export class FieldIdentifier {
+  documentType: DocumentType = DocumentType.SOURCE_BODY;
+  documentId: string = '';
+  pathSegments: string[] = [];
+
+  constructor(expression?: string) {
+    if (!expression) return;
+    const parts = expression.split('://');
+    if (parts.length < 2) return;
+    const index = parts[0].indexOf(':');
+    this.documentType = (index !== -1 ? parts[0].substring(0, index) : parts[0]) as DocumentType;
+    this.documentId = index !== -1 ? parts[0].substring(index + 1) : this.documentId;
+    this.pathSegments = parts[1].length > 0 ? parts[1].split('/') : [];
+  }
+
+  toString() {
+    const beforePath = `${this.documentType}:${this.documentId}://`;
+    return this.pathSegments.length > 0 ? `${beforePath}${this.pathSegments.join('/')}` : beforePath;
+  }
+
+  static childOf(parent: FieldIdentifier, childSegment: string) {
+    const answer = new FieldIdentifier();
+    answer.documentType = parent.documentType;
+    answer.documentId = parent.documentId;
+    answer.pathSegments = [...parent.pathSegments, childSegment];
+    return answer;
+  }
 }

@@ -39,8 +39,8 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) 
       style={lineStyle}
     >
       <title>
-        Source: {JSON.stringify(mapping.sourceFields.map((f) => f.path))}, Target:{' '}
-        {JSON.stringify(mapping.targetFields.map((f) => f.path))}
+        Source: {JSON.stringify(mapping.sourceFields.map((f) => f.fieldIdentifier))}, Target:{' '}
+        {JSON.stringify(mapping.targetFields.map((f) => f.fieldIdentifier))}
       </title>
     </path>
   );
@@ -96,8 +96,8 @@ export const MappingLinksContainer = () => {
     const answer: LineProps[] = mappings.reduce((acc, mapping) => {
       for (const sourceField of mapping.sourceFields) {
         for (const targetField of mapping.targetFields) {
-          const sourceClosestPath = getClosestExpandedPath(sourceField.path);
-          const targetClosestPath = getClosestExpandedPath(targetField.path);
+          const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
+          const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());
           if (sourceClosestPath && targetClosestPath) {
             const sourceFieldRef = getFieldReference(sourceClosestPath);
             const targetFieldRef = getFieldReference(targetClosestPath);

@@ -16,6 +16,7 @@
 import { FunctionComponent } from 'react';
 import { Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import { MainMenuToolbarItem } from '../components/toolbar';
+import { ToggleDebugToolbarItem } from '../components/toolbar/ToggleDebugToolbarItem';
 
 export const ContextToolbar: FunctionComponent = () => {
   return (
@@ -24,6 +25,7 @@ export const ContextToolbar: FunctionComponent = () => {
         {
           <ToolbarGroup variant="button-group" spacer={{ default: 'spacerMd' }}>
             <MainMenuToolbarItem />
+            <ToggleDebugToolbarItem />
           </ToolbarGroup>
         }
       </ToolbarContent>

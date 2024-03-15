@@ -5,14 +5,17 @@ export class MappingService {
     return (
       !!mappings &&
       mappings.find((mapping) => {
-        return mapping.sourceFields[0]?.path === sourceField.path && mapping.targetFields[0]?.path === targetField.path;
+        return (
+          mapping.sourceFields[0]?.fieldIdentifier === sourceField.fieldIdentifier &&
+          mapping.targetFields[0]?.fieldIdentifier === targetField.fieldIdentifier
+        );
       })
     );
   }
 
   static createNewMapping(sourceField: IField, targetField: IField) {
     return {
-      id: 'mapping-' + Math.random(),
+      id: 'mapping-' + Math.floor(Math.random() * 10000),
       name: '',
       sourceFields: [sourceField],
       targetFields: [targetField],

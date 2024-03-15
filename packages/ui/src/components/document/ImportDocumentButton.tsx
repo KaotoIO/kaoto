@@ -38,7 +38,7 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ is
       readFileAsString(file).then((content) => {
         XmlSchemaDocumentService.populateXmlSchemaDocument(
           isSource ? sourceDocuments : targetDocuments,
-          isSource ? DocumentType.SOURCE : DocumentType.TARGET,
+          isSource ? DocumentType.SOURCE_BODY : DocumentType.TARGET_BODY,
           file.name,
           content,
         );

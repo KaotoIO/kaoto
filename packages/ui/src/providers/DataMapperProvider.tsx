@@ -30,9 +30,11 @@ export interface IDataMapperContext {
 
   mappings: IMapping[];
   refreshMappings(): void;
-
   selectedMapping: IMapping | null;
   setSelectedMapping(mapping: IMapping | null): void;
+
+  debug: boolean;
+  setDebug(debug: boolean): void;
 }
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
@@ -44,6 +46,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const [targetDocuments, setTargetDocuments] = useState<IDocument[]>([]);
   const [mappings, setMappings] = useState<IMapping[]>([]);
   const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
+  const [debug, setDebug] = useState<boolean>(false);
 
   const refreshSourceDocuments = useCallback(() => {
     setSourceDocuments([...sourceDocuments]);
@@ -70,6 +73,8 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       refreshMappings,
       selectedMapping,
       setSelectedMapping,
+      debug,
+      setDebug,
     };
   }, [
     activeView,
@@ -81,6 +86,8 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     selectedMapping,
     sourceDocuments,
     targetDocuments,
+    debug,
+    setDebug,
   ]);
 
   return (

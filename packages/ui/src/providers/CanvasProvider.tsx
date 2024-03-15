@@ -20,16 +20,15 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { Label } from '@patternfly/react-core';
-import { useDataMapper } from '../hooks';
-import { IField } from '../models';
+import { useDataMapper } from '../hooks/useDataMapper';
+import { DocumentType, IField } from '../models';
 import { MappingService } from '../services/mapping.service';
-import { DnDMonitor } from '../components/debug/DnDMonitor';
 
 export interface ICanvasContext {
   setFieldReference: (path: string, ref: MutableRefObject<HTMLDivElement | null>) => void;
   getFieldReference: (path: string) => MutableRefObject<HTMLDivElement | null> | null;
-  getAllFieldPaths: () => string[];
   reloadFieldReferences: () => void;
+  getAllFieldPaths: () => string[];
 }
 
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
@@ -51,24 +50,34 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
-  const [activeData, setActiveData] = useState<DataRef<Record<string, string>> | null>(null);
+  const [activeData, setActiveData] = useState<DataRef<IField> | null>(null);
   const [fieldReferenceMap, setFieldReferenceMap] = useState<Map<string, MutableRefObject<HTMLDivElement | null>>>(
     new Map<string, MutableRefObject<HTMLDivElement>>(),
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveData(event.active.data);
+    setActiveData(event.active.data as DataRef<IField>);
   }, []);
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const sourceField = event.active.data.current as IField;
-      const targetField = event.over?.data.current as IField;
-      if (sourceField && targetField && !MappingService.mappingExists(mappings, sourceField, targetField)) {
-        const mapping = MappingService.createNewMapping(sourceField, targetField);
-        mappings.push(mapping);
-        refreshMappings();
+      const fromField = event.active.data.current as IField;
+      const toField = event.over?.data.current as IField;
+      const fromDocType = fromField.fieldIdentifier.documentType;
+      const toDocType = toField.fieldIdentifier.documentType;
+      if (
+        fromDocType !== toDocType &&
+        (fromDocType === DocumentType.TARGET_BODY || toDocType === DocumentType.TARGET_BODY)
+      ) {
+        const sourceField = fromDocType !== DocumentType.TARGET_BODY ? fromField : toField;
+        const targetField = fromDocType !== DocumentType.TARGET_BODY ? toField : fromField;
+        if (sourceField && targetField && !MappingService.mappingExists(mappings, sourceField, targetField)) {
+          const mapping = MappingService.createNewMapping(sourceField, targetField);
+          mappings.push(mapping);
+          refreshMappings();
+        }
       }
+      setActiveData(null);
     },
     [mappings, refreshMappings],
   );
@@ -87,30 +96,29 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     [fieldReferenceMap],
   );
 
-  const getAllFieldPaths = useCallback(() => {
-    return Array.from(fieldReferenceMap.keys());
-  }, [fieldReferenceMap]);
-
   const reloadFieldReferences = useCallback(() => {
     setFieldReferenceMap(new Map(fieldReferenceMap));
+  }, [fieldReferenceMap]);
+
+  const getAllFieldPaths = useCallback(() => {
+    return Array.from(fieldReferenceMap.keys());
   }, [fieldReferenceMap]);
 
   const value: ICanvasContext = useMemo(() => {
     return {
       setFieldReference,
       getFieldReference,
-      getAllFieldPaths,
       reloadFieldReferences,
+      getAllFieldPaths,
     };
-  }, [setFieldReference, getFieldReference, getAllFieldPaths, reloadFieldReferences]);
+  }, [setFieldReference, getFieldReference, reloadFieldReferences, getAllFieldPaths]);
 
   return (
     <CanvasContext.Provider value={value}>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <DnDMonitor></DnDMonitor>
         {props.children}
         <DragOverlay dropAnimation={null}>
-          <Label>{activeData?.current?.name ? activeData.current.name : 'dragging...'}</Label>
+          <Label>{activeData?.current?.expression ? activeData.current.expression : 'dragging...'}</Label>
         </DragOverlay>
       </DndContext>
     </CanvasContext.Provider>

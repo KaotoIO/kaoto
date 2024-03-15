@@ -17,13 +17,25 @@ import { MainLayout } from './layout';
 import { FunctionComponent } from 'react';
 
 import { useDataMapper } from './hooks/useDataMapper';
+import { DataMapperMonitor } from './components/debug/DataMapperMonitor';
+import { CanvasMonitor } from './components/debug/CanvasMonitor';
 
 export interface IDataMapperProps {
   modalsContainerId?: string;
 }
 
 export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
-  const { selectedMapping } = useDataMapper()!;
+  const { debug, selectedMapping } = useDataMapper()!;
 
-  return <MainLayout showSidebar={!!selectedMapping} />;
+  return (
+    <>
+      {debug && (
+        <>
+          <DataMapperMonitor />
+          <CanvasMonitor />
+        </>
+      )}
+      <MainLayout showSidebar={!!selectedMapping} />;
+    </>
+  );
 };

@@ -21,3 +21,4 @@ export { XmlSchemaRef } from './utils/XmlSchemaRef';
 export { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 export { XmlSchemaSequenceMember } from './particle/XmlSchemaSequenceMember';
 export { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+export { XmlSchemaUse } from './XmlSchemaUse';

@@ -15,6 +15,7 @@ import { useDataMapper } from '../../hooks';
 import { Document } from '../../components/document';
 import { ImportDocumentButton } from '../../components/document';
 import { MappingLinksContainer } from '../../components/mapping/MappingLink';
+import { DocumentType } from '../../models/document';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { sourceDocuments, targetDocuments } = useDataMapper();
@@ -45,7 +46,7 @@ export const SourceTargetView: FunctionComponent = () => {
             <Stack hasGutter>
               {sourceDocuments.map((doc) => (
                 <StackItem key={doc.name}>
-                  <Document model={doc} />
+                  <Document documentType={DocumentType.SOURCE_BODY} model={doc} />
                 </StackItem>
               ))}
             </Stack>
@@ -62,7 +63,7 @@ export const SourceTargetView: FunctionComponent = () => {
             <Stack hasGutter>
               {targetDocuments.map((doc) => (
                 <StackItem key={doc.name}>
-                  <Document model={doc} />
+                  <Document documentType={DocumentType.TARGET_BODY} model={doc} />
                 </StackItem>
               ))}
             </Stack>

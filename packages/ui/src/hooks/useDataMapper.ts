@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { DataMapperContext, IDataMapperContext } from '../providers';
+import { DataMapperContext, IDataMapperContext } from '../providers/DataMapperProvider';
 
 export const errorMessage = 'useDataMapper should be called into DataMapperProvider';
 

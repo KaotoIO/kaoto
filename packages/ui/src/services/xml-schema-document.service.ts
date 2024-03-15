@@ -1,8 +1,8 @@
 import {
   XmlSchema,
   XmlSchemaAll,
-  XmlSchemaAny,
   XmlSchemaAllMember,
+  XmlSchemaAny,
   XmlSchemaAttribute,
   XmlSchemaAttributeGroup,
   XmlSchemaAttributeGroupMember,
@@ -22,13 +22,13 @@ import {
   XmlSchemaSequence,
   XmlSchemaSequenceMember,
   XmlSchemaSimpleType,
+  XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField, IDocument, DocumentType } from '../models';
+import { BaseDocument, BaseField, DocumentType, FieldIdentifier, IDocument } from '../models';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
   fields: XmlSchemaField[] = [];
-  id: string = `document-` + Math.random();
 
   constructor(public xmlSchema: XmlSchema) {
     super();
@@ -41,8 +41,8 @@ export class XmlSchemaDocument extends BaseDocument {
     this.type = 'XML';
   }
 
-  get path() {
-    return `${this.id}:/`;
+  get fieldIdentifier(): FieldIdentifier {
+    return new FieldIdentifier(`${this.documentType}:${this.documentId}://`);
   }
 }
 
@@ -53,16 +53,12 @@ export class XmlSchemaField extends BaseField {
   namespaceURI: string | null = '';
   namespacePrefix: string | null = '';
 
-  constructor(private parent: XmlSchemaParentType) {
+  constructor(public parent: XmlSchemaParentType) {
     super();
   }
 
-  get path(): string {
-    return `${this.parent.path}/${this.id}`;
-  }
-
-  get id(): string {
-    return this.isAttribute ? '@' + this.name : this.name;
+  get fieldIdentifier(): FieldIdentifier {
+    return FieldIdentifier.childOf(this.parent.fieldIdentifier, this.expression);
   }
 }
 
@@ -73,15 +69,16 @@ export class XmlSchemaDocumentService {
     return new XmlSchemaDocument(xmlSchema);
   }
 
-  static populateXmlSchemaDocument(documents: IDocument[], type: DocumentType, name: string, content: string) {
+  static populateXmlSchemaDocument(documents: IDocument[], documentType: DocumentType, name: string, content: string) {
     const doc = XmlSchemaDocumentService.parseXmlSchema(content);
     doc.name = name;
-    doc.id = type + ':' + name;
+    doc.documentType = documentType;
+    doc.documentId = name;
     const sameNameDocs = documents.filter((d) => d.name === name);
     for (let sequence = 0; sameNameDocs.length > 0; sequence++) {
       const candidateId = `${name}.${sequence}`;
-      if (!sameNameDocs.find((d) => d.id === candidateId)) {
-        doc.id = candidateId;
+      if (!sameNameDocs.find((d) => d.documentId === candidateId)) {
+        doc.documentId = candidateId;
         break;
       }
     }
@@ -109,11 +106,21 @@ export class XmlSchemaDocumentService {
     );
   }
 
+  /**
+   * Populate XML Element as a field into {@link fields} array passed in as an argument.
+   * @param parent
+   * @param fields
+   * @param element
+   */
   static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
     const field: XmlSchemaField = new XmlSchemaField(parent);
     field.name = element.getWireName()!.getLocalPart()!;
+    field.expression = field.name;
     field.namespaceURI = element.getWireName()!.getNamespaceURI();
     field.namespacePrefix = element.getWireName()!.getPrefix();
+    field.defaultValue = element.defaultValue || element.fixedValue;
+    field.minOccurs = element.getMinOccurs();
+    field.maxOccurs = element.getMaxOccurs();
     fields.push(field);
 
     const schemaType = element.getSchemaType();
@@ -150,13 +157,37 @@ export class XmlSchemaDocumentService {
     }
   }
 
+  /**
+   * Populate XML Attribute as a field into {@link fields} array passed in as an argument.
+   * @param parent
+   * @param fields
+   * @param attr
+   */
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
     const field = new XmlSchemaField(parent);
     field.isAttribute = true;
     field.name = attr.getWireName()!.getLocalPart()!;
+    field.expression = '@' + field.name;
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
     field.namespacePrefix = attr.getWireName()!.getPrefix();
+    field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     fields.push(field);
+
+    const use = attr.getUse();
+    switch (use) {
+      case XmlSchemaUse.PROHIBITED:
+        field.maxOccurs = 0;
+        field.minOccurs = 0;
+        break;
+      case XmlSchemaUse.REQUIRED:
+        field.minOccurs = 1;
+        field.maxOccurs = 1;
+        break;
+      default: // OPTIONAL, NONE or not specified
+        field.minOccurs = 0;
+        field.maxOccurs = 1;
+        break;
+    }
   }
 
   static populateAttributeGroupRef(
