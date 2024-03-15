@@ -107,6 +107,7 @@ public class CamelYamlDslSchemaProcessor {
             answer = definitions.withObject("/" + getNameFromRef(answer)).deepCopy();
 
         }
+        extractSingleOneOfFromAnyOf(answer);
         answer.set("$schema", rootSchema.get("$schema"));
         populateDefinitions(answer, definitions);
         var writer = new StringWriter();
@@ -142,6 +143,47 @@ public class CamelYamlDslSchemaProcessor {
                 }
             }
         }
+    }
+
+    /**
+     * Extract single OneOf definition from AnyOf definition and put it into the root definitions.
+     * It's a workaround for the current Camel YAML DSL JSON schema, where some AnyOf definition
+     * contains only one OneOf definition. This can be removed once https://github.com/KaotoIO/kaoto-next/issues/948
+     * is resolved.
+     * This is done mostly for the errorHandler definition, f.i.
+     * ```
+     * {
+     * anyOf: [
+     * {
+     * oneOf: [
+     * { type: "object", ... },
+     * { type: "object", ... },
+     * ]
+     * },
+     * ]
+     * }
+     * ```
+     * will be transformed into
+     * ```
+     * {
+     * oneOf: [
+     * { type: "object", ... },
+     * { type: "object", ... },
+     * ]
+     * }
+     */
+    private void extractSingleOneOfFromAnyOf(ObjectNode definition) {
+        if (!definition.has("anyOf")) {
+            return;
+        }
+        var anyOfArray = definition.withArray("/anyOf");
+        if (anyOfArray.size() != 1) {
+            return;
+        }
+
+        var anyOfOneOf = anyOfArray.get(0).withArray("/oneOf");
+        definition.set("oneOf", anyOfOneOf);
+        definition.remove("anyOf");
     }
 
     /**

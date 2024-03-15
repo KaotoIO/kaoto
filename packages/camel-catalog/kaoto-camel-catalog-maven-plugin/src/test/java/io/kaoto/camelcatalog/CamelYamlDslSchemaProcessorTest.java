@@ -52,6 +52,18 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
+    public void test_extract_single_oneOf_from_anyOf() throws Exception {
+        var subSchemaMap = processor.processSubSchema();
+        var errorHandlerSchema = jsonMapper.readTree(subSchemaMap.get("errorHandler"));
+
+        assertFalse(errorHandlerSchema.has("anyOf"));
+
+        assertTrue(errorHandlerSchema.has("oneOf"));
+        assertTrue(errorHandlerSchema.get("oneOf").isArray());
+        assertEquals(7, errorHandlerSchema.get("oneOf").size());
+    }
+
+    @Test
     public void testGetDataFormats() throws Exception {
         var dataFormatMap = processor.getDataFormats();
         assertTrue(dataFormatMap.size() > 30 && dataFormatMap.size() < 50);
