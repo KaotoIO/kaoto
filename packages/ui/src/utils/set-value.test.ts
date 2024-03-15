@@ -37,4 +37,10 @@ describe('setValue', () => {
     setValue(obj, ROOT_PATH, { d: 2 });
     expect(obj).toEqual({ a: { b: { c: 1 } }, d: 2 });
   });
+
+  it('should remove all properties when assigning `undefined` to the root path', () => {
+    const obj = { a: { b: { c: 1 } } };
+    setValue(obj, ROOT_PATH, undefined);
+    expect(obj).toEqual({});
+  });
 });

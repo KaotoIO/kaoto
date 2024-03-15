@@ -24,6 +24,15 @@ export const weightSchemaProperties = (
       points += weightSchemaProperties(model[key] as Record<string, unknown>, oneOfProperty, rootSchema);
     }
 
+    if (!isDefined(oneOfProperty.type) && Array.isArray(oneOfProperty.oneOf)) {
+      const nestedOneOfPoints = oneOfProperty.oneOf.reduce((nestedPoints, nestedOneOf) => {
+        nestedPoints += weightSchemaProperties(model[key] as Record<string, unknown>, nestedOneOf, rootSchema);
+        return nestedPoints;
+      }, 0);
+
+      points += nestedOneOfPoints;
+    }
+
     return points;
   }, 0);
 };
