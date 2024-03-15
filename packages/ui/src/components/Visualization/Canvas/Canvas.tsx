@@ -188,8 +188,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     setSelectedNode(undefined);
   }, []);
 
+  const isSidebarOpen = useMemo(() => selectedNode !== undefined, [selectedNode]);
+
   return (
     <TopologyView
+      sideBarOpen={isSidebarOpen}
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={props.contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
