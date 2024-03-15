@@ -70,4 +70,19 @@ describe('weightSchemaProperties', () => {
 
     expect(result).toBe(22);
   });
+
+  it('should resolve nested oneOf properties', () => {
+    const model: ErrorHandler = {
+      '': undefined,
+      noErrorHandler: undefined,
+      refErrorHandler: {
+        id: 'id',
+        ref: 'myReference',
+      },
+    };
+
+    const result = weightSchemaProperties(model, errorHandlerSchema.oneOf![5], errorHandlerSchema);
+
+    expect(result).toBe(23);
+  });
 });
