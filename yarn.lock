@@ -2471,6 +2471,7 @@ __metadata:
     "@types/lodash.clonedeep": ^4.5.7
     "@types/lodash.get": ^4.4.2
     "@types/lodash.isempty": ^4.4.9
+    "@types/lodash.memoize": ^4.1.9
     "@types/lodash.set": ^4.3.7
     "@types/node": ^20.0.0
     "@types/react": ^18.2.25
@@ -2499,6 +2500,7 @@ __metadata:
     lodash.clonedeep: ^4.5.0
     lodash.get: ^4.4.2
     lodash.isempty: ^4.4.0
+    lodash.memoize: ^4.1.2
     lodash.set: ^4.3.2
     monaco-editor: ^0.45.0
     monaco-yaml: ^5.1.1
@@ -6065,6 +6067,15 @@ __metadata:
   dependencies:
     "@types/lodash": "*"
   checksum: 89f94bac5364850cb2f49a414a1632371541bdb2e6c00d73fbe2f7ad827a3ced3eaa42d64d9463eced4499d99c0619757605322f45c5b0d36cd761c561dcf8a2
+  languageName: node
+  linkType: hard
+
+"@types/lodash.memoize@npm:^4.1.9":
+  version: 4.1.9
+  resolution: "@types/lodash.memoize@npm:4.1.9"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: d11efe604911aabbf9c49eb02e944de856619d6e0ab348d83be3ff07de245ee605ea71b1f3ee24b5c134286d02625119edf3ac2c0e6aa4732f699b1f4aa55240
   languageName: node
   linkType: hard
 
@@ -13851,6 +13862,13 @@ __metadata:
   version: 4.4.0
   resolution: "lodash.ismatch@npm:4.4.0"
   checksum: a393917578842705c7fc1a30fb80613d1ac42d20b67eb26a2a6004d6d61ee90b419f9eb320508ddcd608e328d91eeaa2651411727eaa9a12534ed6ccb02fc705
+  languageName: node
+  linkType: hard
+
+"lodash.memoize@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "lodash.memoize@npm:4.1.2"
+  checksum: 9ff3942feeccffa4f1fafa88d32f0d24fdc62fd15ded5a74a5f950ff5f0c6f61916157246744c620173dddf38d37095a92327d5fd3861e2063e736a5c207d089
   languageName: node
   linkType: hard
 
