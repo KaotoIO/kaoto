@@ -52,7 +52,7 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
-    public void test_extract_single_oneOf_from_anyOf() throws Exception {
+    public void testExtractSingleOneOfFromAnyOf() throws Exception {
         var subSchemaMap = processor.processSubSchema();
         var errorHandlerSchema = jsonMapper.readTree(subSchemaMap.get("errorHandler"));
 
