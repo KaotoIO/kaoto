@@ -1,4 +1,9 @@
-import { IField, IMapping } from '../models';
+import { DocumentType, IField, IMapping } from '../models';
+
+type MappingFieldPairReturnType = {
+  sourceField?: IField;
+  targetField?: IField;
+};
 
 export class MappingService {
   static mappingExists(mappings: IMapping[], sourceField: IField, targetField: IField) {
@@ -11,6 +16,28 @@ export class MappingService {
         );
       })
     );
+  }
+
+  static validateFieldPairForNewMapping(
+    mappings: IMapping[],
+    fromField: IField,
+    toField: IField,
+  ): MappingFieldPairReturnType {
+    const answer: MappingFieldPairReturnType = {};
+    const fromDocType = fromField.fieldIdentifier.documentType;
+    const toDocType = toField.fieldIdentifier.documentType;
+    if (
+      fromDocType !== toDocType &&
+      (fromDocType === DocumentType.TARGET_BODY || toDocType === DocumentType.TARGET_BODY)
+    ) {
+      const sourceField = fromDocType !== DocumentType.TARGET_BODY ? fromField : toField;
+      const targetField = fromDocType !== DocumentType.TARGET_BODY ? toField : fromField;
+      if (sourceField && targetField && !MappingService.mappingExists(mappings, sourceField, targetField)) {
+        answer.sourceField = sourceField;
+        answer.targetField = targetField;
+      }
+    }
+    return answer;
   }
 
   static createNewMapping(sourceField: IField, targetField: IField) {

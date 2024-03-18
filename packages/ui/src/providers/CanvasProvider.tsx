@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/core';
 import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { DocumentType, IField } from '../models';
+import { IField } from '../models';
 import { MappingService } from '../services/mapping.service';
 
 export interface ICanvasContext {
@@ -63,19 +63,11 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     (event: DragEndEvent) => {
       const fromField = event.active.data.current as IField;
       const toField = event.over?.data.current as IField;
-      const fromDocType = fromField.fieldIdentifier.documentType;
-      const toDocType = toField.fieldIdentifier.documentType;
-      if (
-        fromDocType !== toDocType &&
-        (fromDocType === DocumentType.TARGET_BODY || toDocType === DocumentType.TARGET_BODY)
-      ) {
-        const sourceField = fromDocType !== DocumentType.TARGET_BODY ? fromField : toField;
-        const targetField = fromDocType !== DocumentType.TARGET_BODY ? toField : fromField;
-        if (sourceField && targetField && !MappingService.mappingExists(mappings, sourceField, targetField)) {
-          const mapping = MappingService.createNewMapping(sourceField, targetField);
-          mappings.push(mapping);
-          refreshMappings();
-        }
+      const { sourceField, targetField } = MappingService.validateFieldPairForNewMapping(mappings, fromField, toField);
+      if (sourceField && targetField) {
+        const mapping = MappingService.createNewMapping(sourceField, targetField);
+        mappings.push(mapping);
+        refreshMappings();
       }
       setActiveData(null);
     },

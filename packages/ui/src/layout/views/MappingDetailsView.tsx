@@ -1,10 +1,10 @@
 import { FunctionComponent } from 'react';
 import { useDataMapper } from '../../hooks';
 import { Card, CardBody, CardTitle, Stack, StackItem } from '@patternfly/react-core';
-import { IMappedField } from '../../models';
+import { IField } from '../../models';
 
 type FieldDetailsProps = {
-  field: IMappedField;
+  field: IField;
 };
 
 const FieldDetails: FunctionComponent<FieldDetailsProps> = ({ field }) => {
