@@ -1,8 +1,9 @@
-import { AutoField, AutoFields, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
+import { AutoField, AutoForm, ErrorsField } from '@kaoto-next/uniforms-patternfly';
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useSchemaBridgeContext } from '../../hooks';
 import { IDataTestID } from '../../models';
 import { CustomAutoFieldDetector } from './CustomAutoField';
+import { CustomAutoFields } from './CustomAutoFields';
 
 interface CustomAutoFormProps extends IDataTestID {
   model: unknown;
@@ -17,7 +18,7 @@ interface CustomAutoFormProps extends IDataTestID {
 export type CustomAutoFormRef = { fields: HTMLElement[]; form: typeof AutoForm };
 
 export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>((props, forwardedRef) => {
-  const schemaBridge = useSchemaBridgeContext();
+  const { schemaBridge } = useSchemaBridgeContext();
   const formRef = useRef<typeof AutoForm>();
   const fieldsRefs = useRef<HTMLElement[]>([]);
   const sortedFieldsNames = useMemo(() => {
@@ -70,7 +71,7 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
             />
           ))
         ) : (
-          <AutoFields omitFields={props.omitFields} />
+          <CustomAutoFields omitFields={props.omitFields} />
         )}
         <ErrorsField />
       </AutoForm>
