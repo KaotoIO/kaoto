@@ -1,27 +1,6 @@
-import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 
 describe.skip('XML parser', () => {
-  describe('fast-xml-parser', () => {
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: '_attr_',
-      preserveOrder: true,
-    });
-
-    it('should parse XML schema', () => {
-      const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
-      const parsed = parser.parse(orderXsd);
-      expect(parsed).toBeDefined();
-    });
-
-    it('should parse XML document', () => {
-      const orderXml = fs.readFileSync(__dirname + '/../../../../test-resources/ExampleOrder.xml').toString();
-      const parsed = parser.parse(orderXml);
-      expect(parsed).toBeDefined();
-    });
-  });
-
   describe('DOMParser', () => {
     const parser = new DOMParser();
 
