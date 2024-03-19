@@ -36,7 +36,7 @@ describe('Camel Route', () => {
     it.each([
       [{ route: { from: 'direct:foo' } }, false],
       [{ from: 'direct:foo' }, false],
-      [{ from: { uri: 'direct:foo' } }, false],
+      [{ from: { uri: 'direct:foo' } }, true],
       [{ from: { uri: 'direct:foo', steps: [] } }, true],
       [camelRouteJson, false],
       [camelFromJson, true],
