@@ -42,10 +42,7 @@ export class MappingSerializerService {
     }
 
     const xsltDocument = template.ownerDocument;
-    const fieldStack: IField[] = [];
-    for (let next = target.parent; 'parent' in next; next = (next as IField).parent) {
-      fieldStack.push(next);
-    }
+    const fieldStack: IField[] = MappingSerializerService.getFieldStack(target);
     let parentNode = template;
     while (fieldStack.length) {
       const currentField = fieldStack.pop()!;
@@ -60,15 +57,21 @@ export class MappingSerializerService {
         }
       });
       if (!element) {
-        const nsResolver = xsltDocument.createNSResolver(parentNode);
-        const prefix = nsResolver.lookupPrefix(currentField.namespaceURI);
-        const name = prefix ? prefix + ':' + currentField.name : currentField.name;
-        element = xsltDocument.createElementNS(currentField.namespaceURI, name);
+        element = xsltDocument.createElementNS(currentField.namespaceURI, currentField.name);
         parentNode.appendChild(element);
       }
       parentNode = element;
     }
     return parentNode;
+  }
+
+  static getFieldStack(field: IField, includeItself: boolean = false) {
+    const fieldStack: IField[] = [];
+    if (includeItself) fieldStack.push(field);
+    for (let next = field.parent; 'parent' in next; next = (next as IField).parent) {
+      fieldStack.push(next);
+    }
+    return fieldStack;
   }
 
   static isInSameNamespace(element: Element, field: IField) {
@@ -80,20 +83,50 @@ export class MappingSerializerService {
 
   static putSource(parent: Element, source: IField, target: IField) {
     const xsltDocument = parent.ownerDocument;
-    const sourceXpath = '/' + source.fieldIdentifier.pathSegments.join('/');
+    const sourceXPath = MappingSerializerService.getXPath(xsltDocument, source);
     if (target.isAttribute) {
       const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
       xslAttribute.setAttribute('name', target.name);
       parent.appendChild(xslAttribute);
       const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
-      valueOf.setAttribute('select', sourceXpath);
+      valueOf.setAttribute('select', sourceXPath);
       xslAttribute.appendChild(valueOf);
     } else {
       const element = xsltDocument.createElementNS(target.namespaceURI, target.name);
       parent.appendChild(element);
       const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
-      valueOf.setAttribute('select', sourceXpath);
+      valueOf.setAttribute('select', sourceXPath);
       element.appendChild(valueOf);
+    }
+  }
+
+  static getXPath(xsltDocument: Document, field: IField) {
+    const fieldStack = MappingSerializerService.getFieldStack(field, true);
+    const pathStack: string[] = [];
+    while (fieldStack.length) {
+      const currentField = fieldStack.pop()!;
+      const prefix = MappingSerializerService.getOrCreateNSPrefix(xsltDocument, currentField.namespaceURI);
+      pathStack.push(prefix ? prefix + ':' + currentField.expression : currentField.expression);
+    }
+    return '/' + pathStack.join('/');
+  }
+
+  static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {
+    const rootElement = xsltDocument.documentElement;
+    if (namespace == null || namespace === '') {
+      return null;
+    }
+    const prefix = rootElement.lookupPrefix(namespace);
+    if (prefix != null && prefix !== '') {
+      return prefix;
+    }
+    for (let counter = 0; ; counter++) {
+      const prefix = 'ns' + counter;
+      const existing = rootElement.lookupNamespaceURI(prefix);
+      if (!existing) {
+        rootElement.setAttribute('xmlns:' + prefix, namespace);
+        return prefix;
+      }
     }
   }
 
