@@ -81,8 +81,13 @@ export class MappingSerializerService {
   static putSource(parent: Element, source: IField, target: IField) {
     const xsltDocument = parent.ownerDocument;
     const sourceXpath = '/' + source.fieldIdentifier.pathSegments.join('/');
-    if (source.isAttribute) {
-      parent.setAttributeNS(target.namespaceURI, target.name, sourceXpath);
+    if (target.isAttribute) {
+      const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
+      xslAttribute.setAttribute('name', target.name);
+      parent.appendChild(xslAttribute);
+      const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
+      valueOf.setAttribute('select', sourceXpath);
+      xslAttribute.appendChild(valueOf);
     } else {
       const element = xsltDocument.createElementNS(target.namespaceURI, target.name);
       parent.appendChild(element);
