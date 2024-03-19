@@ -50,8 +50,8 @@ type XmlSchemaParentType = XmlSchemaDocument | XmlSchemaField;
 
 export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
-  namespaceURI: string | null = '';
-  namespacePrefix: string | null = '';
+  namespaceURI: string | null = null;
+  namespacePrefix: string | null = null;
 
   constructor(public parent: XmlSchemaParentType) {
     super();

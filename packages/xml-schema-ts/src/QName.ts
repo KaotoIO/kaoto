@@ -1,15 +1,11 @@
 export class QName {
-  private namespaceURI: string;
-
   constructor(
-    namespaceURI: string | null,
+    private namespaceURI: string | null,
     private localPart: string | null,
     private prefix: string | null = null,
-  ) {
-    this.namespaceURI = namespaceURI != null ? namespaceURI : '';
-  }
+  ) {}
 
-  getNamespaceURI(): string {
+  getNamespaceURI(): string | null {
     return this.namespaceURI;
   }
 
@@ -25,11 +21,11 @@ export class QName {
     if (qNameAsString == null) {
       throw new Error('cannot create QName from null');
     } else if (qNameAsString === '') {
-      return new QName('', qNameAsString, '');
+      return new QName(null, qNameAsString, '');
     } else if (qNameAsString.charAt(0) !== '{') {
-      return new QName('', qNameAsString, '');
+      return new QName(null, qNameAsString, '');
     } else if (qNameAsString.startsWith('{}')) {
-      return new QName('', qNameAsString.substring(2), '');
+      return new QName(null, qNameAsString.substring(2), '');
     } else {
       const endOfNamespaceURI = qNameAsString.indexOf('}');
       if (endOfNamespaceURI === -1) {

@@ -1597,6 +1597,7 @@ __metadata:
     "@babel/preset-typescript": ^7.23.3
     "@datamapper-poc/xml-schema-ts": "workspace:*"
     "@dnd-kit/core": ^6.1.0
+    "@patternfly/react-code-editor": ^5.2.3
     "@patternfly/react-core": ^5.1.2
     "@patternfly/react-table": ^5.1.2
     "@patternfly/react-topology": ^5.1.0
@@ -1626,6 +1627,7 @@ __metadata:
     jest-environment-jsdom: ^29.7.0
     loglevel: ^1.9.1
     madge: ^6.1.0
+    monaco-editor: ^0.47.0
     pako: ^2.1.0
     prettier: ^3.2.5
     react: ^18.2.0
@@ -1645,6 +1647,7 @@ __metadata:
     use-debounce: ^10.0.0
     vite: ^5.0.12
     vite-plugin-circular-dependency: ^0.4.0
+    xml-formatter: ^3.6.2
   languageName: unknown
   linkType: soft
 
@@ -2578,6 +2581,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monaco-editor/loader@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@monaco-editor/loader@npm:1.4.0"
+  dependencies:
+    state-local: ^1.0.6
+  peerDependencies:
+    monaco-editor: ">= 0.21.0 < 1"
+  checksum: 374ec0ea872ee15b33310e105a43217148161480d3955c5cece87d0f801754cd2c45a3f6c539a75da18a066c1615756fb87eaf1003f1df6a64a0cbce5d2c3749
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "@monaco-editor/react@npm:4.6.0"
+  dependencies:
+    "@monaco-editor/loader": ^1.4.0
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 9d44e76c5baad6db5f84c90a5540fbd3c9af691b97d76cf2a99b3c8273004d0efe44c2572d80e9d975c9af10022c21e4a66923924950a5201e82017c8b20428c
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -2914,6 +2941,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@patternfly/react-code-editor@npm:^5.2.3":
+  version: 5.2.3
+  resolution: "@patternfly/react-code-editor@npm:5.2.3"
+  dependencies:
+    "@monaco-editor/react": ^4.6.0
+    "@patternfly/react-core": ^5.2.3
+    "@patternfly/react-icons": ^5.2.1
+    "@patternfly/react-styles": ^5.2.1
+    react-dropzone: 14.2.3
+    tslib: ^2.5.0
+  peerDependencies:
+    react: ^17 || ^18
+    react-dom: ^17 || ^18
+  checksum: b54d0c7763068c070961aacaa4e89faaa685d1a8bc7ad1a0854cb0577885414a4aa5c10b49c48c9cbf20b12d9d2b88e83d791e74ccfe2d268c1c43fbc34038b4
+  languageName: node
+  linkType: hard
+
 "@patternfly/react-core@npm:^5.1.1, @patternfly/react-core@npm:^5.1.2, @patternfly/react-core@npm:^5.2.0, @patternfly/react-core@npm:^5.2.2":
   version: 5.2.2
   resolution: "@patternfly/react-core@npm:5.2.2"
@@ -2928,6 +2972,23 @@ __metadata:
     react: ^17 || ^18
     react-dom: ^17 || ^18
   checksum: 88bee51a0275e493dbd9519d50bffa548096d5d06b644ced1e14dfe9771d3ec6c6d1bac80513db37e1866803435372e8ffc3c8ceeaaed4bb332e01ad7122a92d
+  languageName: node
+  linkType: hard
+
+"@patternfly/react-core@npm:^5.2.3":
+  version: 5.2.3
+  resolution: "@patternfly/react-core@npm:5.2.3"
+  dependencies:
+    "@patternfly/react-icons": ^5.2.1
+    "@patternfly/react-styles": ^5.2.1
+    "@patternfly/react-tokens": ^5.2.1
+    focus-trap: 7.5.2
+    react-dropzone: ^14.2.3
+    tslib: ^2.5.0
+  peerDependencies:
+    react: ^17 || ^18
+    react-dom: ^17 || ^18
+  checksum: 3e9e560f745fe00a15e563b3911896cdef7840cce44a98795339ac389c012aa4d104db5f9cc73ca2acef3f9d980aad37a5e1a99e2280b2e480d03e738c67eed9
   languageName: node
   linkType: hard
 
@@ -9914,6 +9975,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"monaco-editor@npm:^0.47.0":
+  version: 0.47.0
+  resolution: "monaco-editor@npm:0.47.0"
+  checksum: a1c5fe6a0d71214aa2fd4fd635f89a7df6ad599e4e01492a268eb70a456e7a29dfa301324e00b577eaf9fa69813b8a28924980ab8457d89faf14d13fcbbc2d6e
+  languageName: node
+  linkType: hard
+
 "moo-color@npm:^1.0.2":
   version: 1.0.3
   resolution: "moo-color@npm:1.0.3"
@@ -11082,7 +11150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dropzone@npm:^14.2.3":
+"react-dropzone@npm:14.2.3, react-dropzone@npm:^14.2.3":
   version: 14.2.3
   resolution: "react-dropzone@npm:14.2.3"
   dependencies:
@@ -12044,6 +12112,13 @@ __metadata:
   dependencies:
     escape-string-regexp: ^2.0.0
   checksum: 052bf4d25bbf5f78e06c1d5e67de2e088b06871fa04107ca8d3f0e9d9263326e2942c8bedee3545795fc77d787d443a538345eef74db2f8e35db3558c6f91ff7
+  languageName: node
+  linkType: hard
+
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: d1afcf1429e7e6eb08685b3a94be8797db847369316d4776fd51f3962b15b984dacc7f8e401ad20968e5798c9565b4b377afedf4e4c4d60fe7495e1cbe14a251
   languageName: node
   linkType: hard
 
@@ -13439,10 +13514,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"xml-formatter@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "xml-formatter@npm:3.6.2"
+  dependencies:
+    xml-parser-xo: ^4.1.0
+  checksum: 6ca632b136d47f68b12be88e5543f859cdc754c9e1c1386c68b8c7803f9b894c8ec19f51bdcbfa957d782358aa19778b2ef46702f4120a78920661b683033290
+  languageName: node
+  linkType: hard
+
 "xml-name-validator@npm:^4.0.0":
   version: 4.0.0
   resolution: "xml-name-validator@npm:4.0.0"
   checksum: af100b79c29804f05fa35aa3683e29a321db9b9685d5e5febda3fa1e40f13f85abc40f45a6b2bf7bee33f68a1dc5e8eaef4cec100a304a9db565e6061d4cb5ad
+  languageName: node
+  linkType: hard
+
+"xml-parser-xo@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "xml-parser-xo@npm:4.1.1"
+  checksum: f726f4416d501eb9b197a7a34178aeaee9ba9a53babf61e78265240f8a6f44bd099a15c76d2610a9519c9d1dcc812bb773ae8a00df39019f911f24e1ecff0cdf
   languageName: node
   linkType: hard
 

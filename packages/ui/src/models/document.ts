@@ -21,6 +21,7 @@ export interface IField {
   defaultValue: string | null;
   minOccurs: number;
   maxOccurs: number;
+  namespaceURI: string | null;
 }
 
 export interface IDocument {
@@ -53,6 +54,7 @@ export abstract class BaseField implements IField {
   minOccurs: number = DEFAULT_MIN_OCCURS;
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
+  namespaceURI: string | null = null;
 }
 
 export enum DocumentType {
