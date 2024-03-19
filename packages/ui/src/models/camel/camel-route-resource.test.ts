@@ -31,7 +31,7 @@ describe('CamelRouteResource', () => {
       [camelFromJson, CamelRouteVisualEntity],
       [{ from: { uri: 'direct:foo', steps: [] } }, CamelRouteVisualEntity],
       [{ from: 'direct:foo' }, NonVisualEntity],
-      [{ from: { uri: 'direct:foo' } }, NonVisualEntity],
+      [{ from: { uri: 'direct:foo' } }, CamelRouteVisualEntity],
       [{ beans: [] }, BeansEntity],
       [{}, NonVisualEntity],
       [undefined, undefined],

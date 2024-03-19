@@ -29,9 +29,8 @@ export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefini
   const objectKeys = Object.keys(rawEntity!);
   const isFromHolder = objectKeys.length === 1 && objectKeys[0] === 'from';
   const isValidUriField = typeof (rawEntity as { from: FromDefinition })?.from?.uri === 'string';
-  const isValidStepsArray = Array.isArray((rawEntity as { from: FromDefinition })?.from?.steps);
 
-  return isFromHolder && isValidUriField && isValidStepsArray;
+  return isFromHolder && isValidUriField;
 };
 
 export class CamelRouteVisualEntity extends AbstractCamelVisualEntity {
