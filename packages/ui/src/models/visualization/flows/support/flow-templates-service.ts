@@ -1,8 +1,8 @@
 import { parse } from 'yaml';
-import { SourceSchemaType } from '../../camel/source-schema-type';
-import { kameletTemplate } from './templates/kamelet';
-import { pipeTemplate } from './templates/pipe';
-import { routeTemplate } from './templates/route';
+import { SourceSchemaType } from '../../../camel/source-schema-type';
+import { kameletTemplate } from '../templates/kamelet';
+import { pipeTemplate } from '../templates/pipe';
+import { routeTemplate } from '../templates/route';
 
 export class FlowTemplateService {
   static getFlowTemplate = (type: SourceSchemaType) => {

@@ -1,11 +1,11 @@
-import { FlowsList } from './FlowsList';
 import { act, fireEvent, render } from '@testing-library/react';
+import { EntitiesContextResult } from '../../../../hooks';
 import { SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
+import { IVisibleFlows, VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { EntitiesContextResult } from '../../../../hooks';
-import { IVisibleFlows, VisualFlowsApi } from '../../../../models/visualization/flows/flows-visibility';
-import { VisibleFlowsContext, VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
+import { VisibleFLowsContextResult, VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { FlowsList } from './FlowsList';
 
 const getContextValue = () => {
   return {

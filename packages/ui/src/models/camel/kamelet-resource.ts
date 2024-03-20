@@ -2,17 +2,17 @@ import set from 'lodash/set';
 import { TileFilter } from '../../public-api';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';
-import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
-import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
-import { CamelKResource } from './camel-k-resource';
-import { SourceSchemaType } from './source-schema-type';
-import { RouteTemplateBeansAwareResource } from './camel-resource';
+import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import {
   RouteTemplateBeansEntity,
   RouteTemplateBeansParentType,
 } from '../visualization/metadata/routeTemplateBeansEntity';
+import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
+import { CamelKResource } from './camel-k-resource';
+import { RouteTemplateBeansAwareResource } from './camel-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 export class KameletResource extends CamelKResource implements RouteTemplateBeansAwareResource {
   private flow: KameletVisualEntity;

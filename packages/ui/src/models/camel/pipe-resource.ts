@@ -3,7 +3,7 @@ import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
-import { FlowTemplateService } from '../visualization/flows/flow-templates-service';
+import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
 import { CamelKResource } from './camel-k-resource';
 import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
