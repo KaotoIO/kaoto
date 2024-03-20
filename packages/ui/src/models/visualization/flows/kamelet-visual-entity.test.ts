@@ -63,23 +63,23 @@ describe('KameletVisualEntity', () => {
   });
 
   it('should set the id to the name if provided', () => {
-    const kamelet = new KameletVisualEntity(kameletDef);
-    expect(kamelet.id).toEqual('My Kamelet');
-    expect(kamelet.metadata.name).toEqual('My Kamelet');
+    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
+    expect(kameletVisualEntity.id).toEqual('My Kamelet');
+    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('My Kamelet');
   });
 
   it('should set a random id if the kamelet name is not provided', () => {
     kameletDef.metadata.name = undefined as unknown as IKameletMetadata['name'];
-    const kamelet = new KameletVisualEntity(kameletDef);
-    expect(kamelet.id).toEqual('kamelet-1234');
-    expect(kamelet.metadata.name).toEqual('kamelet-1234');
+    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
+    expect(kameletVisualEntity.id).toEqual('kamelet-1234');
+    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('kamelet-1234');
   });
 
   it('should set the id', () => {
-    const kamelet = new KameletVisualEntity(kameletDef);
-    kamelet.setId('new-id');
-    expect(kamelet.id).toEqual('new-id');
-    expect(kamelet.metadata.name).toEqual('new-id');
+    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
+    kameletVisualEntity.setId('new-id');
+    expect(kameletVisualEntity.id).toEqual('new-id');
+    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('new-id');
   });
 
   describe('getComponentSchema when querying the ROOT_PATH', () => {

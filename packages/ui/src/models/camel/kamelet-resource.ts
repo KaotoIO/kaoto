@@ -26,8 +26,8 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
     }
 
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
-    if (this.flow.spec.template.beans) {
-      this.beans = new RouteTemplateBeansEntity(this.flow.spec.template as RouteTemplateBeansParentType);
+    if (this.flow.kamelet.spec.template.beans) {
+      this.beans = new RouteTemplateBeansEntity(this.flow.kamelet.spec.template as RouteTemplateBeansParentType);
     }
   }
 
@@ -82,13 +82,13 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
   }
 
   createRouteTemplateBeansEntity(): RouteTemplateBeansEntity {
-    this.flow.spec.template.beans = [];
-    this.beans = new RouteTemplateBeansEntity(this.flow.spec.template as RouteTemplateBeansParentType);
+    this.flow.kamelet.spec.template.beans = [];
+    this.beans = new RouteTemplateBeansEntity(this.flow.kamelet.spec.template as RouteTemplateBeansParentType);
     return this.beans;
   }
 
   deleteRouteTemplateBeansEntity(): void {
-    this.flow.spec.template.beans = undefined;
+    this.flow.kamelet.spec.template.beans = undefined;
     this.beans = undefined;
   }
 }

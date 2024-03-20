@@ -2,7 +2,7 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { ROOT_PATH, getCustomSchemaFromKamelet, updateKameletFromCustomSchema } from '../../../utils';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition, IKameletMetadata, IKameletSpec } from '../../kamelets-catalog';
+import { IKameletDefinition } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
@@ -11,25 +11,22 @@ import { CamelCatalogService } from './camel-catalog.service';
 export class KameletVisualEntity extends AbstractCamelVisualEntity {
   id: string;
   readonly type = EntityType.Kamelet;
-  spec: IKameletSpec;
-  metadata: IKameletMetadata;
 
   constructor(public kamelet: IKameletDefinition) {
     super({ id: kamelet.metadata?.name, from: kamelet?.spec.template.from });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
-    this.metadata = kamelet?.metadata ?? { name: this.id };
-    this.metadata.name = kamelet?.metadata.name ?? this.id;
-    this.spec = kamelet.spec;
+    this.kamelet.metadata = kamelet?.metadata ?? { name: this.id };
+    this.kamelet.metadata.name = kamelet?.metadata.name ?? this.id;
   }
 
   /** Internal API methods */
   setId(routeId: string): void {
     this.id = routeId;
-    this.metadata.name = this.id;
+    this.kamelet.metadata.name = this.id;
   }
 
   getId(): string {
-    return this.metadata.name;
+    return this.kamelet.metadata.name;
   }
 
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
@@ -67,6 +64,6 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
   }
 
   protected getRootUri(): string | undefined {
-    return this.spec.template.from?.uri;
+    return this.kamelet.spec.template.from?.uri;
   }
 }
