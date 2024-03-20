@@ -54,7 +54,7 @@ export const MappingDetailsView: FunctionComponent = () => {
                 <CardTitle>Target</CardTitle>
                 <CardBody>
                   <Stack>
-                    {selectedMapping.sourceFields.map((field) => (
+                    {selectedMapping.targetFields.map((field) => (
                       <StackItem>
                         <FieldDetails field={field} />
                       </StackItem>

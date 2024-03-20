@@ -91,6 +91,10 @@ export class MappingSerializerService {
       const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
       valueOf.setAttribute('select', sourceXPath);
       xslAttribute.appendChild(valueOf);
+    } else if (target.fields.length > 0) {
+      const copyOf = xsltDocument.createElementNS(NS_XSL, 'copy-of');
+      copyOf.setAttribute('select', sourceXPath);
+      parent.appendChild(copyOf);
     } else {
       const element = xsltDocument.createElementNS(target.namespaceURI, target.name);
       parent.appendChild(element);
