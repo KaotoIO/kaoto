@@ -2,7 +2,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { EntitiesContextResult } from '../../../../hooks';
 import { SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { IVisibleFlows } from '../../../../models/visualization/flows/flows-visibility';
+import { IVisibleFlows } from '../../../../models/visualization/flows/support/flows-visibility';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFLowsContextResult, VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { FlowsMenu } from './FlowsMenu';

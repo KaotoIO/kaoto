@@ -1,7 +1,7 @@
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
-import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/flows-visibility';
+import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { FlowsList } from './FlowsList';
 

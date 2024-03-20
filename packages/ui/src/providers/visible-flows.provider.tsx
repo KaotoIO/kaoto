@@ -1,5 +1,9 @@
 import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useMemo, useReducer } from 'react';
-import { IVisibleFlows, VisibleFlowsReducer, VisualFlowsApi } from '../models/visualization/flows/flows-visibility';
+import {
+  IVisibleFlows,
+  VisibleFlowsReducer,
+  VisualFlowsApi,
+} from '../models/visualization/flows/support/flows-visibility';
 import { EntitiesContext } from './entities.provider';
 
 export interface VisibleFLowsContextResult {
