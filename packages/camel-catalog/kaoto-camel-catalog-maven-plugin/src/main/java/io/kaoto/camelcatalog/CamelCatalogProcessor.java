@@ -315,23 +315,19 @@ public class CamelCatalogProcessor {
             var entityName = entry.getKey();
             var entitySchema = entry.getValue();
             var entityCatalog = catalogMap.get(entityName);
-            if ("beans".equals(entityName)) {
-                processBeansParameters(entitySchema, entityCatalog);
-            } else if ("from".equals(entityName)) {
-                processFromParameters(entitySchema, entityCatalog);
-            } else if ("route".equals(entityName)) {
-                processRouteParameters(entitySchema, entityCatalog);
-            } else if ("routeTemplate".equals(entityName)) {
-                processRouteTemplateParameters(entitySchema, entityCatalog);
-            } else if ("templatedRoute".equals(entityName)) {
-                processTemplatedRouteParameters(entitySchema, entityCatalog);
-            } else if ("restConfiguration".equals(entityName)) {
-                processRestConfigurationParameters(entitySchema, entityCatalog);
-            } else if ("rest".equals(entityName)) {
-                processRestParameters(entitySchema, entityCatalog);
-            } else {
-                processEntityParameters(entityName, entitySchema, entityCatalog);
+            switch (entityName) {
+                case "beans" -> processBeansParameters(entitySchema, entityCatalog);
+                case "from" -> processFromParameters(entitySchema, entityCatalog);
+                case "route" -> processRouteParameters(entitySchema, entityCatalog);
+                case "routeTemplate" -> processRouteTemplateParameters(entitySchema, entityCatalog);
+                case "templatedRoute" -> processTemplatedRouteParameters(entitySchema, entityCatalog);
+                case "restConfiguration" -> processRestConfigurationParameters(entitySchema, entityCatalog);
+                case "rest" -> processRestParameters(entitySchema, entityCatalog);
+                case null, default -> processEntityParameters(entityName, entitySchema, entityCatalog);
             }
+
+            sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog);
+
             var json = JsonMapper.asJsonObject(entityCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", entitySchema);
@@ -511,6 +507,20 @@ public class CamelCatalogProcessor {
             }
             doProcessParameter(entityCatalog, propertyName, propertySchema);
         }
+    }
+
+    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, EipModel entityCatalog) {
+        var sortedSchemaProperties = jsonMapper.createObjectNode();
+        var camelYamlDslProperties = entitySchema.withObject("/properties").properties().stream().map(Map.Entry::getKey).sorted(
+                new CamelYamlDSLKeysComparator(entityCatalog.getOptions())
+        ).toList();
+
+        for (var propertyName : camelYamlDslProperties) {
+            var propertySchema = entitySchema.withObject("/properties").withObject("/" + propertyName);
+            sortedSchemaProperties.set(propertyName, propertySchema);
+        }
+
+        entitySchema.set("properties", sortedSchemaProperties);
     }
 
     private void addMoreBeans(ObjectNode answer, Map<String, EipModel> catalogMap) throws Exception {
