@@ -1,0 +1,213 @@
+import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import { RestConfiguration } from '@kaoto-next/camel-catalog/types';
+import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
+import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { EntityType } from '../../camel/entities';
+import { CatalogKind } from '../../catalog-kind';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
+
+describe('CamelRestConfigurationVisualEntity', () => {
+  const REST_CONFIGURATION_ID_REGEXP = /^restConfiguration-[a-zA-Z0-9]{4}$/;
+  let restConfigurationDef: { restConfiguration: RestConfiguration };
+
+  beforeAll(async () => {
+    const entityCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    CamelCatalogService.setCatalogKey(
+      CatalogKind.Entity,
+      entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
+    );
+  });
+
+  afterAll(() => {
+    CamelCatalogService.clearCatalogs();
+  });
+
+  beforeEach(() => {
+    restConfigurationDef = {
+      restConfiguration: {
+        ...restConfigurationStub.restConfiguration,
+      },
+    };
+  });
+
+  describe('isApplicable', () => {
+    it.each([
+      [true, { restConfiguration: {} }],
+      [true, { restConfiguration: { bindingMode: 'off' } }],
+      [true, restConfigurationStub],
+      [false, { from: { id: 'from-1234', steps: [] } }],
+      [false, { restConfiguration: { bindingMode: 'off' }, anotherProperty: true }],
+    ])('should return %s for %s', (result, definition) => {
+      expect(CamelRestConfigurationVisualEntity.isApplicable(definition)).toEqual(result);
+    });
+  });
+
+  describe('constructor', () => {
+    it('should set id to generated id', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      expect(entity.id).toMatch(REST_CONFIGURATION_ID_REGEXP);
+    });
+  });
+
+  it('should return id', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.getId()).toMatch(REST_CONFIGURATION_ID_REGEXP);
+  });
+
+  it('should set id', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+    const newId = 'newId';
+    entity.setId(newId);
+
+    expect(entity.getId()).toEqual(newId);
+  });
+
+  it('should return node label', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.getNodeLabel()).toEqual('restConfiguration');
+  });
+
+  it('should return tooltip content', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.getTooltipContent()).toEqual('restConfiguration');
+  });
+
+  describe('getComponentSchema', () => {
+    it('should return entity current definition', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      expect(entity.getComponentSchema().definition).toEqual(restConfigurationDef.restConfiguration);
+    });
+
+    it.skip('should return schema from store', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      expect(entity.getComponentSchema().schema).toEqual(restConfigurationSchema);
+    });
+
+    it('should return hardcoded schema title', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      expect(entity.getComponentSchema().title).toEqual('Rest Configuration');
+    });
+  });
+
+  describe('updateModel', () => {
+    it('should update model', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+      const path = 'restConfiguration.bindingMode';
+      const value = 'json';
+
+      entity.updateModel(path, value);
+
+      expect(restConfigurationDef.restConfiguration.bindingMode).toEqual(value);
+    });
+
+    it('should not update model if path is not defined', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+      const value = 'json_xml';
+
+      entity.updateModel(undefined, value);
+
+      expect(restConfigurationDef.restConfiguration.bindingMode).toEqual('off');
+    });
+
+    it('should reset the restConfiguration object if it is not defined', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      entity.updateModel('restConfiguration', {});
+
+      expect(restConfigurationDef.restConfiguration).toEqual({});
+    });
+  });
+
+  it('return no interactions', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.getNodeInteraction()).toEqual({
+      canHavePreviousStep: false,
+      canHaveNextStep: false,
+      canHaveChildren: false,
+      canHaveSpecialChildren: false,
+      canRemoveStep: false,
+      canReplaceStep: false,
+    });
+  });
+
+  /** Skip until https://github.com/KaotoIO/kaoto-next/issues/969 gets resolved */
+  describe.skip('getNodeValidationText', () => {
+    it('should return undefined for valid definitions', () => {
+      const entity = new CamelRestConfigurationVisualEntity({
+        restConfiguration: {
+          ...restConfigurationDef.restConfiguration,
+          useXForwardHeaders: true,
+          apiVendorExtension: true,
+          skipBindingOnErrorCode: true,
+          clientRequestValidation: true,
+          enableCORS: true,
+          enableNoContentResponse: true,
+          inlineRoutes: true,
+        },
+      });
+
+      expect(entity.getNodeValidationText()).toBeUndefined();
+    });
+
+    it('should not modify the original definition when validating', () => {
+      const originalRestConfigurationDef: RestConfiguration = { ...restConfigurationDef.restConfiguration };
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      entity.getNodeValidationText();
+
+      expect(restConfigurationDef.restConfiguration).toEqual(originalRestConfigurationDef);
+    });
+
+    it('should return errors when there is an invalid property', () => {
+      const invalidRestConfigurationDef: RestConfiguration = {
+        ...restConfigurationDef.restConfiguration,
+        bindingMode: 'WildModeOn' as RestConfiguration['bindingMode'],
+      };
+      const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
+
+      expect(entity.getNodeValidationText()).toEqual(`'/useXForwardHeaders' must be boolean,
+'/apiVendorExtension' must be boolean,
+'/skipBindingOnErrorCode' must be boolean,
+'/clientRequestValidation' must be boolean,
+'/enableCORS' must be boolean,
+'/enableNoContentResponse' must be boolean,
+'/inlineRoutes' must be boolean`);
+    });
+  });
+
+  describe('toVizNode', () => {
+    it('should return visualization node', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      const vizNode = entity.toVizNode();
+
+      expect(vizNode.data).toEqual({
+        componentName: undefined,
+        entity: {
+          id: entity.getId(),
+          restConfigurationDef,
+          type: EntityType.RestConfiguration,
+        },
+        icon: '',
+        isGroup: true,
+        path: 'restConfiguration',
+        processorName: 'restConfiguration',
+      });
+    });
+  });
+
+  it('should serialize the restConfiguration definition', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.toJSON()).toEqual(restConfigurationDef);
+  });
+});
