@@ -10,7 +10,7 @@ export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 export class MappingSerializerService {
   static createNew() {
-    return new DOMParser().parseFromString(EMPTY_XSL, 'text/xml');
+    return new DOMParser().parseFromString(EMPTY_XSL, 'application/xml');
   }
 
   static serialize(mappings: IMapping[]): string {
@@ -24,10 +24,13 @@ export class MappingSerializerService {
   }
 
   static populateMapping(xsltDocument: Document, source: IField, target: IField) {
+    const prefix = xsltDocument.lookupPrefix(NS_XSL);
     const nsResolver = xsltDocument.createNSResolver(xsltDocument);
-    const prefix = nsResolver.lookupPrefix(NS_XSL);
+    // jsdom requires `type` to be specified anyway, but if `type` is specified,
+    // Chrome requires NS Resolver to be explicitly specified.
+    // Note that `createNSResolver()` returns null with jsdom.
     const template = xsltDocument
-      .evaluate(`/${prefix}:stylesheet/${prefix}:template[@match='/']`, xsltDocument, nsResolver)
+      .evaluate(`/${prefix}:stylesheet/${prefix}:template[@match='/']`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
       .iterateNext();
     if (!template || template.nodeType !== Node.ELEMENT_NODE) {
       throw Error('No root template in the XSLT document');
