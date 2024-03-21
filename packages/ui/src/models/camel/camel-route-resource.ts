@@ -5,6 +5,7 @@ import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelOnExceptionVisualEntity } from '../visualization/flows/camel-on-exception-visual-entity';
+import { CamelRestConfigurationVisualEntity } from '../visualization/flows/camel-rest-configuration-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
@@ -15,7 +16,11 @@ import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
-  static readonly SUPPORTED_ENTITIES = [CamelOnExceptionVisualEntity, CamelErrorHandlerVisualEntity] as const;
+  static readonly SUPPORTED_ENTITIES = [
+    CamelOnExceptionVisualEntity,
+    CamelErrorHandlerVisualEntity,
+    CamelRestConfigurationVisualEntity,
+  ] as const;
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
