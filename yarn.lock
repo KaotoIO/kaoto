@@ -1729,6 +1729,7 @@ __metadata:
     vite: ^5.0.12
     vite-plugin-circular-dependency: ^0.4.0
     xml-formatter: ^3.6.2
+    xslt-ts: ^1.1.8
   languageName: unknown
   linkType: soft
 
@@ -4795,13 +4796,13 @@ __metadata:
   linkType: hard
 
 "axios@npm:^1.5.1":
-  version: 1.6.7
-  resolution: "axios@npm:1.6.7"
+  version: 1.6.8
+  resolution: "axios@npm:1.6.8"
   dependencies:
-    follow-redirects: ^1.15.4
+    follow-redirects: ^1.15.6
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 87d4d429927d09942771f3b3a6c13580c183e31d7be0ee12f09be6d5655304996bb033d85e54be81606f4e89684df43be7bf52d14becb73a12727bf33298a082
+  checksum: bf007fa4b207d102459300698620b3b0873503c6d47bf5a8f6e43c0c64c90035a4f698b55027ca1958f61ab43723df2781c38a99711848d232cad7accbcdfcdd
   languageName: node
   linkType: hard
 
@@ -7567,13 +7568,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.4":
-  version: 1.15.5
-  resolution: "follow-redirects@npm:1.15.5"
+"follow-redirects@npm:^1.15.6":
+  version: 1.15.6
+  resolution: "follow-redirects@npm:1.15.6"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: 5ca49b5ce6f44338cbfc3546823357e7a70813cecc9b7b768158a1d32c1e62e7407c944402a918ea8c38ae2e78266312d617dc68783fac502cbb55e1047b34ec
+  checksum: a62c378dfc8c00f60b9c80cab158ba54e99ba0239a5dd7c81245e5a5b39d10f0c35e249c3379eae719ff0285fff88c365dd446fab19dee771f1d76252df1bbf5
   languageName: node
   linkType: hard
 
@@ -8121,6 +8122,15 @@ __metadata:
   dependencies:
     function-bind: ^1.1.2
   checksum: 9081c382a4fe8a62639a8da5c7d3322b203c319147e48783763dd741863d9f2dcaa743574fe2a1283871c445d8ba99ea45d5fff384e5ad27ca9dd7a367d79de0
+  languageName: node
+  linkType: hard
+
+"he@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "he@npm:1.2.0"
+  bin:
+    he: bin/he
+  checksum: 3d4d6babccccd79c5c5a3f929a68af33360d6445587d628087f39a965079d84f18ce9c3d3f917ee1e3978916fc833bb8b29377c3b403f919426f91bc6965e7a7
   languageName: node
   linkType: hard
 
@@ -13884,6 +13894,23 @@ __metadata:
   version: 2.2.0
   resolution: "xmlchars@npm:2.2.0"
   checksum: 8c70ac94070ccca03f47a81fcce3b271bd1f37a591bf5424e787ae313fcb9c212f5f6786e1fa82076a2c632c0141552babcd85698c437506dfa6ae2d58723062
+  languageName: node
+  linkType: hard
+
+"xpath-ts@npm:^1.3.13":
+  version: 1.3.13
+  resolution: "xpath-ts@npm:1.3.13"
+  checksum: d7e40dbe45ee5b903b88720f0799030d98e4039266ea7aafc7d738fee18eb6351ff283e9e91a1792c72762f7b4794a355b9b2318eadfbec52c432a24ab855860
+  languageName: node
+  linkType: hard
+
+"xslt-ts@npm:^1.1.8":
+  version: 1.1.8
+  resolution: "xslt-ts@npm:1.1.8"
+  dependencies:
+    he: ^1.2.0
+    xpath-ts: ^1.3.13
+  checksum: 37d358f6f73614c391db6909b21ce2752533597f0984e605fcf49a8dcf1015c9eca73884cb81e84c60380b22fce4102343d42aac3ec6e6b1334bd6bdbb88ff87
   languageName: node
   linkType: hard
 

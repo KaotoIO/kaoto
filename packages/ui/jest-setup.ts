@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 // import '@testing-library/jest-dom/extend-expect'
+import { install, XSLTProcessor } from 'xslt-ts';
 
 Object.defineProperty(window, 'fetch', {
   writable: true,
@@ -26,3 +27,8 @@ const fetchMock = jest.spyOn(window, 'fetch');
 beforeEach(() => {
   fetchMock.mockResolvedValue(null as unknown as Response);
 });
+
+// Inject xslt-ts implementation since jsdom doesn't provide XSLTProcessor
+install(new DOMParser(), new XMLSerializer(), document.implementation);
+global.XSLTProcessor = XSLTProcessor;
+window.XSLTProcessor = XSLTProcessor;
