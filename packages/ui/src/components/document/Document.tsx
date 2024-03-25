@@ -1,8 +1,20 @@
-import { FunctionComponent, useCallback, useState } from 'react';
-import { Accordion, Card, CardBody, CardExpandableContent, CardHeader, CardTitle } from '@patternfly/react-core';
-import { IDocument, DocumentType } from '../../models';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import {
+  Accordion,
+  ActionList,
+  ActionListItem,
+  Card,
+  CardBody,
+  CardExpandableContent,
+  CardHeader,
+  CardTitle,
+} from '@patternfly/react-core';
+import { IDocument, DocumentType, PrimitiveDocument } from '../../models';
 import { DocumentField } from './DocumentField';
 import { useCanvas } from '../../hooks/useCanvas';
+import { AttachSchemaButton } from './AttachSchemaButton';
+import { DetachSchemaButton } from './DetachSchemaButton';
+import { DeleteParameterButton } from './DeleteParameterButton';
 
 export type DocumentProps = {
   documentType: DocumentType;
@@ -20,9 +32,52 @@ export const Document: FunctionComponent<DocumentProps> = ({ documentType, model
     reloadFieldReferences();
   }, [isExpanded, reloadFieldReferences]);
 
-  return (
-    <Card isExpanded={isExpanded} isCompact>
-      <CardHeader onExpand={handleOnExpand}>
+  const primitiveDocumentHeaderActiopns = useMemo(() => {
+    return (
+      <ActionList isIconList={true}>
+        <ActionListItem>
+          <AttachSchemaButton documentType={documentType} documentId={model.documentId}></AttachSchemaButton>
+        </ActionListItem>
+        {documentType === DocumentType.PARAM && (
+          <ActionListItem>
+            <DeleteParameterButton parameterName={model.documentId} />
+          </ActionListItem>
+        )}
+      </ActionList>
+    );
+  }, [documentType, model.documentId]);
+
+  const structuredDocumentHeaderActions = useMemo(() => {
+    return (
+      <ActionList isIconList={true}>
+        <ActionListItem>
+          <AttachSchemaButton
+            documentType={documentType}
+            documentId={model.documentId}
+            hasSchema={true}
+          ></AttachSchemaButton>
+        </ActionListItem>
+        <ActionListItem>
+          <DetachSchemaButton documentType={documentType} documentId={model.documentId}></DetachSchemaButton>
+        </ActionListItem>
+        {documentType === DocumentType.PARAM && (
+          <ActionListItem>
+            <DeleteParameterButton parameterName={model.documentId} />
+          </ActionListItem>
+        )}
+      </ActionList>
+    );
+  }, [documentType, model]);
+
+  return model instanceof PrimitiveDocument ? (
+    <Card isPlain>
+      <CardHeader actions={{ actions: primitiveDocumentHeaderActiopns, hasNoOffset: true }}>
+        <CardTitle>{model.name}</CardTitle>
+      </CardHeader>
+    </Card>
+  ) : (
+    <Card isExpanded={isExpanded} isPlain>
+      <CardHeader onExpand={handleOnExpand} actions={{ actions: structuredDocumentHeaderActions, hasNoOffset: true }}>
         <CardTitle>{model.name}</CardTitle>
       </CardHeader>
       <CardExpandableContent>

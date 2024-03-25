@@ -16,7 +16,7 @@ describe('XmlSchemaDocumentService', () => {
 
   it('should populate XML Schema Document', () => {
     const docs: IDocument[] = [];
-    XmlSchemaDocumentService.populateXmlSchemaDocument(docs, DocumentType.SOURCE_BODY, 'ShipOrder.xsd', orderXsd);
+    XmlSchemaDocumentService.createXmlSchemaDocument(docs, DocumentType.SOURCE_BODY, 'ShipOrder.xsd', orderXsd);
     expect(docs.length).toEqual(1);
   });
 });

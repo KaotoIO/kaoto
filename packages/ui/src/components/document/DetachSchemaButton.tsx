@@ -1,0 +1,86 @@
+/*
+    Copyright (C) 2017 Red Hat, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
+import { FunctionComponent, useCallback } from 'react';
+
+import { ExportIcon } from '@patternfly/react-icons';
+import { useDataMapper, useToggle } from '../../hooks';
+import { DocumentType, PrimitiveDocument } from '../../models/document';
+
+type DeleteSchemaProps = {
+  documentType: DocumentType;
+  documentId: string;
+};
+
+export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
+  const { sourceParameterMap, refreshSourceParameters, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
+  const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
+
+  const onConfirmDelete = useCallback(() => {
+    const primitiveDoc = new PrimitiveDocument(documentType, documentId);
+    switch (documentType) {
+      case DocumentType.SOURCE_BODY:
+        setSourceBodyDocument(primitiveDoc);
+        break;
+      case DocumentType.TARGET_BODY:
+        setTargetBodyDocument(primitiveDoc);
+        break;
+      case DocumentType.PARAM:
+        sourceParameterMap.set(documentId, primitiveDoc);
+        refreshSourceParameters();
+        break;
+    }
+    closeModal();
+  }, [
+    closeModal,
+    documentId,
+    documentType,
+    refreshSourceParameters,
+    setSourceBodyDocument,
+    setTargetBodyDocument,
+    sourceParameterMap,
+  ]);
+
+  return (
+    <>
+      <Tooltip position={'auto'} enableFlip={true} content={<div>Detach schema</div>}>
+        <Button
+          variant="plain"
+          aria-label="Detach schema"
+          data-testid={`detach-schema-${documentType}-${documentId}-button`}
+          onClick={openModal}
+        >
+          <ExportIcon />
+        </Button>
+      </Tooltip>
+      <Modal
+        variant={ModalVariant.small}
+        isOpen={isModalOpen}
+        title="Detach schema"
+        actions={[
+          <Button key="confirm" variant="primary" onClick={onConfirmDelete}>
+            Confirm
+          </Button>,
+          <Button key="cancel" variant="link" onClick={closeModal}>
+            Cancel
+          </Button>,
+        ]}
+      >
+        Detach correlated schema and make it back to be a primitive value?
+      </Modal>
+    </>
+  );
+};

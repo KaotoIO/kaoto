@@ -35,7 +35,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
           <CanvasMonitor />
         </>
       )}
-      <MainLayout showSidebar={!!selectedMapping} />;
+      <MainLayout showSidebar={!!selectedMapping} />
     </>
   );
 };

@@ -1,74 +1,67 @@
 import {
-  ActionList,
-  ActionListItem,
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
+  Panel,
+  PanelHeader,
+  PanelMain,
   Split,
   SplitItem,
   Stack,
   StackItem,
+  Text,
+  TextContent,
+  TextVariants,
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 import { useDataMapper } from '../../hooks';
 import { Document } from '../../components/document';
-import { ImportDocumentButton } from '../../components/document';
 import { MappingLinksContainer } from '../../components/mapping/MappingLink';
 import { DocumentType } from '../../models/document';
+import { Parameters } from '../../components/document/Parameters';
+import './SourceTargetView.scss';
 
 export const SourceTargetView: FunctionComponent = () => {
-  const { sourceDocuments, targetDocuments } = useDataMapper();
-  const sourceDocumentsActions = (
-    <ActionList>
-      <ActionListItem>
-        <ImportDocumentButton isSource={true} />
-      </ActionListItem>
-    </ActionList>
-  );
-  const targetDocumentActions = (
-    <ActionList>
-      <ActionListItem>
-        <ImportDocumentButton isSource={false} />
-      </ActionListItem>
-    </ActionList>
-  );
+  const { sourceBodyDocument, targetBodyDocument } = useDataMapper();
 
   return (
-    <Split>
+    <Split className="sourceTargetView">
       <MappingLinksContainer />
       <SplitItem isFilled>
-        <Card id="card-source" isCompact>
-          <CardHeader actions={{ actions: sourceDocumentsActions }}>
-            <CardTitle>Source</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <Stack hasGutter>
-              {sourceDocuments.map((doc) => (
-                <StackItem key={doc.name}>
-                  <Document documentType={DocumentType.SOURCE_BODY} model={doc} />
-                </StackItem>
-              ))}
+        <Panel id="panel-source" variant="bordered" isScrollable className="sourcePanel">
+          <PanelHeader>
+            <TextContent>
+              <Text component={TextVariants.h3}>Source</Text>
+            </TextContent>
+          </PanelHeader>
+          <PanelMain maxHeight="90%">
+            <Stack>
+              <StackItem>
+                <Parameters />
+              </StackItem>
+              <StackItem>&nbsp;</StackItem>
+              <StackItem key={sourceBodyDocument.name}>
+                <Document documentType={DocumentType.SOURCE_BODY} model={sourceBodyDocument} />
+              </StackItem>
             </Stack>
-          </CardBody>
-        </Card>
+          </PanelMain>
+        </Panel>
       </SplitItem>
-      <SplitItem isFilled>&nbsp;</SplitItem>
+      <SplitItem className="lineBlank" isFilled>
+        &nbsp;
+      </SplitItem>
       <SplitItem isFilled>
-        <Card id="card-target" isCompact>
-          <CardHeader actions={{ actions: targetDocumentActions }}>
-            <CardTitle>Target</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <Stack hasGutter>
-              {targetDocuments.map((doc) => (
-                <StackItem key={doc.name}>
-                  <Document documentType={DocumentType.TARGET_BODY} model={doc} />
-                </StackItem>
-              ))}
+        <Panel id="panel-target" variant="bordered" isScrollable className="targetPanel">
+          <PanelHeader>
+            <TextContent>
+              <Text component={TextVariants.h3}>Target</Text>
+            </TextContent>
+          </PanelHeader>
+          <PanelMain maxHeight="90%">
+            <Stack>
+              <StackItem>
+                <Document documentType={DocumentType.TARGET_BODY} model={targetBodyDocument} />
+              </StackItem>
             </Stack>
-          </CardBody>
-        </Card>
+          </PanelMain>
+        </Panel>
       </SplitItem>
     </Split>
   );

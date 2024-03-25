@@ -7,6 +7,10 @@ import { XmlSchemaDocumentService } from './xml-schema-document.service';
 const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
 const sourceDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
 sourceDoc.documentType = DocumentType.SOURCE_BODY;
+const sourceParamDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
+sourceParamDoc.documentType = DocumentType.PARAM;
+sourceParamDoc.name = 'sourceParam1';
+sourceParamDoc.documentId = 'sourceParam1';
 const targetDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
 targetDoc.documentType = DocumentType.TARGET_BODY;
 const domParser = new DOMParser();
@@ -161,6 +165,50 @@ describe('MappingSerializerService', () => {
       expect(title.textContent).toEqual('some title');
       expect(notInSchema.textContent).toEqual('this element is not defined in the schema');
        */
+    });
+
+    it('should serialize structured parameter field mapping', () => {
+      const serialized = MappingSerializerService.serialize([
+        {
+          sourceFields: [getField(sourceParamDoc, '/ShipOrder/Item')],
+          targetFields: [getField(targetDoc, '/ShipOrder/Item')],
+        },
+      ] as IMapping[]);
+      const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
+      const xslParam = xsltDomDocument
+        .evaluate('/xsl:stylesheet/xsl:param', xsltDomDocument, null, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(xslParam.getAttribute('name')).toEqual('sourceParam1');
+      const xslCopyOf = xsltDomDocument
+        .evaluate('/xsl:stylesheet/xsl:template/ShipOrder/xsl:copy-of', xsltDomDocument, null, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(xslCopyOf.getAttribute('select')).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+
+      const inputString = `<?xml version="1.0" encoding="UTF-8"?>
+        <ns0:ShipOrder xmlns:ns0="io.kaoto.datamapper.poc.test" OrderId="3">
+          <OrderPerson>foo</OrderPerson>
+          <ShipTo>
+            <Name>bar</Name>
+          </ShipTo>
+          <Item>
+            <Title>some title</Title>
+            <NotInSchema>this element is not defined in the schema</NotInSchema>
+          </Item>
+        </ns0:ShipOrder>`;
+      const inputDom = domParser.parseFromString(inputString, 'application/xml');
+      xsltProcessor.setParameter(null, 'sourceParam1', inputDom);
+      xsltProcessor.importStylesheet(xsltDomDocument);
+      const transformed = xsltProcessor.transformToDocument(domParser.parseFromString('<root/>', 'application/xml'));
+      // jsdom namespace handling is buggy
+      const shipOrder = transformed.getElementsByTagName('ShipOrder')[0];
+      expect(shipOrder.getAttribute('OrderId')).toBeNull();
+      expect(shipOrder.getElementsByTagName('OrderPerson').length).toEqual(0);
+      expect(shipOrder.getElementsByTagName('ShipTo').length).toEqual(0);
+      const item = shipOrder.getElementsByTagName('Item')[0];
+      const title = item.getElementsByTagName('Title')[0];
+      expect(title).toBeTruthy();
+      const notInSchema = item.getElementsByTagName('NotInSchema')[0];
+      expect(notInSchema).toBeTruthy();
     });
   });
 });

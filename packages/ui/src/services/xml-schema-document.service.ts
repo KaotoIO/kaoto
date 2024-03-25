@@ -24,7 +24,7 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField, DocumentType, FieldIdentifier, IDocument } from '../models';
+import { BaseDocument, BaseField, DocumentType, FieldIdentifier } from '../models';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
@@ -40,21 +40,20 @@ export class XmlSchemaDocument extends BaseDocument {
     XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
     this.type = 'XML';
   }
-
-  get fieldIdentifier(): FieldIdentifier {
-    return new FieldIdentifier(`${this.documentType}:${this.documentId}://`);
-  }
 }
 
 type XmlSchemaParentType = XmlSchemaDocument | XmlSchemaField;
 
 export class XmlSchemaField extends BaseField {
+  ownerDocument: XmlSchemaDocument;
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = null;
   namespacePrefix: string | null = null;
 
   constructor(public parent: XmlSchemaParentType) {
     super();
+    this.ownerDocument =
+      this.parent instanceof XmlSchemaDocument ? this.parent : (this.parent as XmlSchemaField).ownerDocument;
   }
 
   get fieldIdentifier(): FieldIdentifier {
@@ -69,20 +68,12 @@ export class XmlSchemaDocumentService {
     return new XmlSchemaDocument(xmlSchema);
   }
 
-  static populateXmlSchemaDocument(documents: IDocument[], documentType: DocumentType, name: string, content: string) {
+  static createXmlSchemaDocument(documentType: DocumentType, documentId: string, content: string) {
     const doc = XmlSchemaDocumentService.parseXmlSchema(content);
-    doc.name = name;
+    doc.name = documentId;
     doc.documentType = documentType;
-    doc.documentId = name;
-    const sameNameDocs = documents.filter((d) => d.name === name);
-    for (let sequence = 0; sameNameDocs.length > 0; sequence++) {
-      const candidateId = `${name}.${sequence}`;
-      if (!sameNameDocs.find((d) => d.documentId === candidateId)) {
-        doc.documentId = candidateId;
-        break;
-      }
-    }
-    documents.push(doc);
+    doc.documentId = documentId;
+    return doc;
   }
 
   static getFirstElement(xmlSchema: XmlSchema) {

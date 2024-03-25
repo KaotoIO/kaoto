@@ -16,17 +16,19 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
-import { CanvasView, IDocument, IMapping } from '../models';
+import { CanvasView, DocumentType, IDocument, IMapping, PrimitiveDocument } from '../models';
 
 export interface IDataMapperContext {
   loading: boolean;
   activeView: CanvasView;
   setActiveView(view: CanvasView): void;
 
-  sourceDocuments: IDocument[];
-  refreshSourceDocuments: () => void;
-  targetDocuments: IDocument[];
-  refreshTargetDocuments: () => void;
+  sourceParameterMap: Map<string, IDocument>;
+  refreshSourceParameters: () => void;
+  sourceBodyDocument: IDocument;
+  setSourceBodyDocument: (doc: IDocument) => void;
+  targetBodyDocument: IDocument;
+  setTargetBodyDocument: (doc: IDocument) => void;
 
   mappings: IMapping[];
   refreshMappings(): void;
@@ -42,19 +44,20 @@ export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [loading, _setLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
-  const [sourceDocuments, setSourceDocuments] = useState<IDocument[]>([]);
-  const [targetDocuments, setTargetDocuments] = useState<IDocument[]>([]);
+  const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
+  const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
+    new PrimitiveDocument(DocumentType.SOURCE_BODY, 'Body'),
+  );
+  const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
+    new PrimitiveDocument(DocumentType.TARGET_BODY, 'Body'),
+  );
   const [mappings, setMappings] = useState<IMapping[]>([]);
   const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
   const [debug, setDebug] = useState<boolean>(false);
 
-  const refreshSourceDocuments = useCallback(() => {
-    setSourceDocuments([...sourceDocuments]);
-  }, [sourceDocuments]);
-
-  const refreshTargetDocuments = useCallback(() => {
-    setTargetDocuments([...targetDocuments]);
-  }, [targetDocuments]);
+  const refreshSourceParameters = useCallback(() => {
+    setSourceParameterMap(new Map(sourceParameterMap));
+  }, [sourceParameterMap]);
 
   const refreshMappings = useCallback(() => {
     setMappings([...mappings]);
@@ -65,10 +68,12 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       loading,
       activeView,
       setActiveView,
-      sourceDocuments,
-      refreshSourceDocuments,
-      targetDocuments,
-      refreshTargetDocuments,
+      sourceParameterMap,
+      refreshSourceParameters,
+      sourceBodyDocument,
+      setSourceBodyDocument,
+      targetBodyDocument,
+      setTargetBodyDocument,
       mappings,
       refreshMappings,
       selectedMapping,
@@ -78,14 +83,16 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     };
   }, [
     activeView,
-    refreshSourceDocuments,
-    refreshTargetDocuments,
+    refreshSourceParameters,
     loading,
     mappings,
     refreshMappings,
     selectedMapping,
-    sourceDocuments,
-    targetDocuments,
+    sourceParameterMap,
+    sourceBodyDocument,
+    setSourceBodyDocument,
+    targetBodyDocument,
+    setTargetBodyDocument,
     debug,
     setDebug,
   ]);

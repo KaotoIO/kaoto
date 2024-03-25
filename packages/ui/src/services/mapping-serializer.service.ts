@@ -1,9 +1,10 @@
-import { IField, IMapping } from '../models';
+import { DocumentType, IField, IMapping } from '../models';
 import xmlFormat from 'xml-formatter';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
 export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="${NS_XSL}">
+  <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
   </xsl:template>
 </xsl:stylesheet>
@@ -36,7 +37,7 @@ export class MappingSerializerService {
       throw Error('No root template in the XSLT document');
     }
     const parent = MappingSerializerService.getOrCreateParent(template as Element, target);
-    MappingSerializerService.putSource(parent, source, target);
+    MappingSerializerService.populateSource(parent, source, target);
   }
 
   static getOrCreateParent(template: Element, target: IField) {
@@ -84,8 +85,9 @@ export class MappingSerializerService {
     return element.namespaceURI === field.namespaceURI;
   }
 
-  static putSource(parent: Element, source: IField, target: IField) {
+  static populateSource(parent: Element, source: IField, target: IField) {
     const xsltDocument = parent.ownerDocument;
+    MappingSerializerService.populateParam(xsltDocument, source);
     const sourceXPath = MappingSerializerService.getXPath(xsltDocument, source);
     if (target.isAttribute) {
       const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
@@ -107,6 +109,34 @@ export class MappingSerializerService {
     }
   }
 
+  static populateParam(xsltDocument: Document, source: IField) {
+    if (source.ownerDocument.documentType !== DocumentType.PARAM) return;
+    const paramName = source.ownerDocument.documentId;
+    const prefix = xsltDocument.lookupPrefix(NS_XSL);
+    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+    const existing = xsltDocument
+      .evaluate(
+        `/${prefix}:stylesheet/${prefix}:param[@name='${paramName}']`,
+        xsltDocument,
+        nsResolver,
+        XPathResult.ANY_TYPE,
+      )
+      .iterateNext();
+    if (!existing) {
+      const xsltParam = xsltDocument.createElementNS(NS_XSL, 'param');
+      xsltParam.setAttribute('name', paramName);
+      const template = xsltDocument
+        .evaluate(
+          `/${prefix}:stylesheet/${prefix}:template[@match='/']`,
+          xsltDocument,
+          nsResolver,
+          XPathResult.ANY_TYPE,
+        )
+        .iterateNext()!;
+      (template.parentNode as Element).insertBefore(xsltParam, template);
+    }
+  }
+
   static getXPath(xsltDocument: Document, field: IField) {
     const fieldStack = MappingSerializerService.getFieldStack(field, true);
     const pathStack: string[] = [];
@@ -115,7 +145,9 @@ export class MappingSerializerService {
       const prefix = MappingSerializerService.getOrCreateNSPrefix(xsltDocument, currentField.namespaceURI);
       pathStack.push(prefix ? prefix + ':' + currentField.expression : currentField.expression);
     }
-    return '/' + pathStack.join('/');
+    const paramPrefix =
+      field.ownerDocument.documentType === DocumentType.PARAM ? '$' + field.ownerDocument.documentId : '';
+    return paramPrefix + '/' + pathStack.join('/');
   }
 
   static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {

@@ -23,11 +23,18 @@ import { XmlSchemaDocumentService } from '../../services';
 import { useDataMapper } from '../../hooks';
 import { DocumentType } from '../../models/document';
 
-export interface IImportActionProps {
-  isSource: boolean;
-}
-export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ isSource }) => {
-  const { sourceDocuments, refreshSourceDocuments, targetDocuments, refreshTargetDocuments } = useDataMapper();
+type AttachSchemaProps = {
+  documentType: DocumentType;
+  documentId: string;
+  hasSchema?: boolean;
+};
+
+export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
+  documentType,
+  documentId,
+  hasSchema = false,
+}) => {
+  const { sourceParameterMap, refreshSourceParameters, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
@@ -36,16 +43,29 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ is
   const onImport = useCallback(
     (file: File) => {
       readFileAsString(file).then((content) => {
-        XmlSchemaDocumentService.populateXmlSchemaDocument(
-          isSource ? sourceDocuments : targetDocuments,
-          isSource ? DocumentType.SOURCE_BODY : DocumentType.TARGET_BODY,
-          file.name,
-          content,
-        );
-        isSource ? refreshSourceDocuments() : refreshTargetDocuments();
+        const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
+        switch (documentType) {
+          case DocumentType.SOURCE_BODY:
+            setSourceBodyDocument(document);
+            break;
+          case DocumentType.TARGET_BODY:
+            setTargetBodyDocument(document);
+            break;
+          case DocumentType.PARAM:
+            sourceParameterMap.set(documentId, document);
+            refreshSourceParameters();
+            break;
+        }
       });
     },
-    [isSource, refreshSourceDocuments, refreshTargetDocuments, sourceDocuments, targetDocuments],
+    [
+      documentId,
+      documentType,
+      refreshSourceParameters,
+      setSourceBodyDocument,
+      setTargetBodyDocument,
+      sourceParameterMap,
+    ],
   );
 
   useEffect(() => {
@@ -58,11 +78,11 @@ export const ImportDocumentButton: FunctionComponent<IImportActionProps> = ({ is
   }, [files, onImport]);
 
   return (
-    <Tooltip position={'auto'} enableFlip={true} content={<div>Import instance or schema file</div>}>
+    <Tooltip position={'auto'} enableFlip={true} content={<div>{hasSchema ? 'Update schema' : 'Attach a schema'}</div>}>
       <Button
         variant="plain"
-        aria-label="Import instance or schema file"
-        data-testid={`import-instance-or-schema-file-${isSource}-button`}
+        aria-label={hasSchema ? 'Update schema' : 'Attach schema'}
+        data-testid={`attach-schema-${documentType}-${documentId}-button`}
         onClick={onClick}
       >
         <ImportIcon />

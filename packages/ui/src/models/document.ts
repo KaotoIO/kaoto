@@ -8,10 +8,11 @@ export interface INamespace {
   isTarget: boolean;
 }
 
-type IParentType = IDocument | IField;
+export type IParentType = IDocument | IField;
 
 export interface IField {
   parent: IParentType;
+  ownerDocument: IDocument;
   fieldIdentifier: FieldIdentifier;
   name: string;
   expression: string;
@@ -37,14 +38,36 @@ export interface IDocument {
 export abstract class BaseDocument implements IDocument {
   documentType: DocumentType = DocumentType.SOURCE_BODY;
   documentId: string = '';
-  abstract fieldIdentifier: FieldIdentifier;
   fields: IField[] = [];
   name: string = '';
   type: string = '';
+  get fieldIdentifier(): FieldIdentifier {
+    return new FieldIdentifier(`${this.documentType}:${this.documentId}://`);
+  }
+}
+
+export class PrimitiveDocument extends BaseDocument implements IField {
+  ownerDocument = this;
+  defaultValue: string | null = null;
+  expression: string = '';
+  isAttribute: boolean = false;
+  maxOccurs: number = 1;
+  minOccurs: number = 0;
+  namespaceURI: string | null = null;
+  parent: IParentType = this;
+
+  constructor(
+    public documentType: DocumentType,
+    public documentId: string,
+  ) {
+    super();
+    this.name = this.documentId;
+  }
 }
 
 export abstract class BaseField implements IField {
   abstract parent: IParentType;
+  abstract ownerDocument: IDocument;
   abstract fieldIdentifier: FieldIdentifier;
   fields: IField[] = [];
   isAttribute: boolean = false;
