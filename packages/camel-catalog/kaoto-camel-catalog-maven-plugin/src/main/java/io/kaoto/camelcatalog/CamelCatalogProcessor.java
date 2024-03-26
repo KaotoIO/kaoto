@@ -104,6 +104,7 @@ public class CamelCatalogProcessor {
             var property = (ObjectNode) propertyEntry.getValue();
             var propertySchema = answerProperties.withObject("/" + propertyName);
             if (property.has("displayName")) propertySchema.put("title", property.get("displayName").asText());
+            if (property.has("group")) propertySchema.put("group", property.get("group").asText());
             if (property.has("description")) propertySchema.put("description", property.get("description").asText());
             var propertyType = "string";
             if (property.has("type")) {

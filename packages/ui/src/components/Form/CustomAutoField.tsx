@@ -1,16 +1,9 @@
-import {
-  BoolField,
-  DateField,
-  ListField,
-  LongTextField,
-  NestField,
-  RadioField,
-  TextField,
-} from '@kaoto-next/uniforms-patternfly';
+import { BoolField, DateField, ListField, LongTextField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { getValue } from '../../utils';
 import { OneOfField } from './OneOf/OneOfField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
+import { CustomNestField } from './customField/CustomNestField';
 import { DisabledField } from './customField/DisabledField';
 import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
@@ -55,7 +48,7 @@ export const CustomAutoField = createAutoField((props) => {
     case Number:
       return TextField;
     case Object:
-      return NestField;
+      return CustomNestField;
     case String:
       /* catalog preprocessor put 'string' as a type and the javaType as a schema $comment */
       if (comment?.startsWith('class:')) {
