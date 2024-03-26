@@ -122,7 +122,7 @@ describe('getCustomSchemaFromKamelet', () => {
     expect(customSchema).toEqual(expectedCustomSchema);
   });
 
-  it('should get a custom kamelet definition from a kamelet with string properies', () => {
+  it('should get a custom kamelet definition from a kamelet with string properties', () => {
     const kameletWithStringProperties = cloneDeep(inputKameletStruct);
     kameletWithStringProperties.spec.definition.properties = test as unknown as Record<string, IKameletSpecProperty>;
 
@@ -150,7 +150,7 @@ describe('getCustomSchemaFromKamelet', () => {
     expect(customSchema).toEqual(expectedCustomSchema);
   });
 
-  it('should get a custom kamelet definition from a kamelet with malformed properies', () => {
+  it('should get a custom kamelet definition from a kamelet with malformed properties', () => {
     const kameletWithMalformedProperties = {
       apiVersion: 'camel.apache.org/v1',
       kind: SourceSchemaType.Kamelet,
