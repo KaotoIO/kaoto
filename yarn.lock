@@ -13489,12 +13489,12 @@ __metadata:
   linkType: hard
 
 "vite-plugin-circular-dependency@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "vite-plugin-circular-dependency@npm:0.4.0"
+  version: 0.4.1
+  resolution: "vite-plugin-circular-dependency@npm:0.4.1"
   dependencies:
     "@rollup/pluginutils": ^5.1.0
     chalk: ^4.1.2
-  checksum: 899d9cccf0f188f8111ef1739c8f21cd6eac65b657962f5cd55793c41f049148d9f7da922d7d2b3205d7fd3d4eb074be2edb5a21bc7728185b104d9e3a07cac6
+  checksum: 415a960471f08fe43ee3442a49732b52c8e08e57e07a080bc42f8c28f2d8042b14195f1ec75c2226d84d0c3577157373a0d85afd6912d05d761383c891d31788
   languageName: node
   linkType: hard
 
