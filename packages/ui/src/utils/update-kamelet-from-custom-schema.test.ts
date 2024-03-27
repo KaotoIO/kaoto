@@ -53,9 +53,8 @@ describe('updateKameletFromCustomSchema', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
-              timerName: 'user',
             },
-            uri: 'timer',
+            uri: 'timer:user',
           },
         },
         types: {
@@ -150,9 +149,8 @@ describe('updateKameletFromCustomSchema', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
-              timerName: 'user',
             },
-            uri: 'timer',
+            uri: 'timer:user',
           },
         },
         types: {
@@ -230,9 +228,8 @@ describe('updateKameletFromCustomSchema', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
-              timerName: 'user',
             },
-            uri: 'timer',
+            uri: 'timer:user',
           },
         },
         types: {
@@ -350,9 +347,8 @@ describe('updateKameletFromCustomSchema', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
-              timerName: 'user',
             },
-            uri: 'timer',
+            uri: 'timer:user',
           },
         },
         types: {
@@ -428,9 +424,8 @@ describe('updateKameletFromCustomSchema', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
-              timerName: 'user',
             },
-            uri: 'timer',
+            uri: 'timer:user',
           },
         },
         types: {
