@@ -36,9 +36,8 @@ spec:
   template:
     from:
       id: ${getCamelRandomId('from')}
-      uri: "timer"
+      uri: "timer:user"
       parameters:
-        timerName: user
         period: "{{period}}"
       steps:
       - to: https://random-data-api.com/api/v2/users

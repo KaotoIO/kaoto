@@ -5,9 +5,8 @@ export const routeTemplate = () => {
     id: ${getCamelRandomId('route')}
     from:
       id: ${getCamelRandomId('from')}
-      uri: timer
+      uri: timer:template
       parameters:
-        timerName: template
         period: "1000"
       steps:
         - log:

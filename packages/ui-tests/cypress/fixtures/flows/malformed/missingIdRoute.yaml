@@ -3,7 +3,6 @@
       id: from-4257
       uri: timer:template
       parameters:
-        timerName: timer-name
         repeatCount: "5"
       steps:
         - setBody:
