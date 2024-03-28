@@ -56,7 +56,7 @@ describe('Test for root containers', () => {
     cy.get(`input[name="inputType.id"]`).clear().type('test.inputType.id');
     cy.get(`input[name="inputType.urn"]`).clear().type('test.inputType.urn');
     cy.get(`input[name="inputType.validate"]`).check();
-    cy.get(`input[name="logMask"]`).uncheck();
+    cy.get(`input[name="logMask"]`).check();
     cy.get(`input[name="messageHistory"]`).check();
     cy.get(`input[name="nodePrefixId"]`).clear().type('test.nodePrefixId');
     cy.get(`input[name="outputType.description"]`).clear().type('test.outputType.description');
@@ -79,8 +79,7 @@ describe('Test for root containers', () => {
     cy.checkCodeSpanLine('id: test.inputType.id');
     cy.checkCodeSpanLine('urn: test.inputType.urn');
     cy.checkCodeSpanLine('validate: true');
-    // Blocked by - https://github.com/KaotoIO/kaoto-next/issues/861
-    // cy.checkCodeSpanLine('logMask: false');
+    cy.checkCodeSpanLine('logMask: true');
     cy.checkCodeSpanLine('messageHistory: true');
     cy.checkCodeSpanLine('validate: true');
     cy.checkCodeSpanLine('nodePrefixId: test.nodePrefixId');
