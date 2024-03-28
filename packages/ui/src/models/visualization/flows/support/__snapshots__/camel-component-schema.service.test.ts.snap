@@ -107,7 +107,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     },
     "properties": {
       "autoStartup": {
-        "default": "true",
+        "default": true,
         "description": "Whether to auto start this route",
         "title": "Auto Startup",
         "type": "boolean",
@@ -136,7 +136,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "$ref": "#/definitions/org.apache.camel.model.InputTypeDefinition",
       },
       "logMask": {
-        "default": "false",
+        "default": false,
         "description": "Whether security mask for Logging is enabled on this route.",
         "title": "Log Mask",
         "type": "boolean",

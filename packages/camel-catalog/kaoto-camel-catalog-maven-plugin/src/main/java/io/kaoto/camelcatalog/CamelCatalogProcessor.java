@@ -353,6 +353,8 @@ public class CamelCatalogProcessor {
         if (catalogOption.getDefaultValue() != null) {
             if ("array".equals(propertyType)) {
                 propertySchema.withArray("/default").add(catalogOption.getDefaultValue().toString());
+            } else if ("boolean".equals(propertyType)) {
+                propertySchema.put("default", Boolean.valueOf(catalogOption.getDefaultValue().toString()));
             } else {
                 propertySchema.put("default", catalogOption.getDefaultValue().toString());
             }
