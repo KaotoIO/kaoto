@@ -44,6 +44,8 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
   updateModel(path: string | undefined, value: Record<string, unknown>): void {
     if (path === ROOT_PATH) {
       updateKameletFromCustomSchema(this.kamelet, value);
+      this.id = this.kamelet.metadata.name;
+      this.route.id = this.kamelet.metadata.name;
       return;
     }
 

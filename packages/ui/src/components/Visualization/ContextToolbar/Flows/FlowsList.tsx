@@ -66,6 +66,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                   onSelectFlow(flow.id);
                 }}
                 onChange={(name) => {
+                  visualFlowsApi.renameFlow(flow.id, name);
                   flow.setId(name);
                   updateEntitiesFromCamelResource();
                 }}

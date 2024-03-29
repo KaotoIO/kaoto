@@ -43,7 +43,8 @@ type VisibleFlowAction =
   | { type: 'hideAllFlows' }
   | { type: 'clearFlows' }
   | { type: 'setVisibleFlows'; flows: string[] }
-  | { type: 'initVisibleFlows'; visibleFlows: IVisibleFlows };
+  | { type: 'initVisibleFlows'; visibleFlows: IVisibleFlows }
+  | { type: 'renameFlow'; flowId: string; newName: string };
 
 export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
   let visibleFlows;
@@ -84,6 +85,16 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
       return {};
     case 'initVisibleFlows':
       return { ...action.visibleFlows };
+
+    case 'renameFlow':
+      // eslint-disable-next-line no-case-declarations
+      const newState = {
+        ...state,
+        [action.newName]: state[action.flowId],
+      };
+      delete newState[action.flowId];
+
+      return newState;
   }
 }
 
@@ -116,5 +127,9 @@ export class VisualFlowsApi {
 
   initVisibleFlows(visibleFlows: IVisibleFlows) {
     this.dispatch({ type: 'initVisibleFlows', visibleFlows: visibleFlows });
+  }
+
+  renameFlow(flowId: string, newName: string) {
+    this.dispatch({ type: 'renameFlow', flowId, newName });
   }
 }

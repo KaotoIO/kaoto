@@ -1,5 +1,6 @@
 import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { VisibleFlowsContext } from '../../../providers';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
 import { isDefined, setValue } from '../../../utils';
@@ -20,9 +21,11 @@ interface CanvasFormProps {
 }
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
+  const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
   const formRef = useRef<CustomAutoFormRef>(null);
   const divRef = useRef<HTMLDivElement>(null);
+  const flowIdRef = useRef<string | undefined>(undefined);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -35,6 +38,11 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const model = visualComponentSchema?.definition;
   const title = visualComponentSchema?.title;
 
+  /** Store the flow's initial Id */
+  useEffect(() => {
+    flowIdRef.current = props.selectedNode.data?.vizNode?.getBaseEntity()?.getId();
+  }, []);
+
   useEffect(() => {
     formRef.current?.form.reset();
   }, [props.selectedNode.data?.vizNode]);
@@ -45,7 +53,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         return;
       }
 
-      const newModel = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
+      const newModel = props.selectedNode.data.vizNode.getComponentSchema()?.definition || {};
       setValue(newModel, path, value);
       props.selectedNode.data.vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
@@ -65,6 +73,14 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     return { isExpressionAwareStep, isDataFormatAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
   }, [visualComponentSchema]);
 
+  const onClose = useCallback(() => {
+    props.onClose?.();
+    const newId = props.selectedNode.data?.vizNode?.getBaseEntity()?.getId();
+    if (typeof flowIdRef.current === 'string' && typeof newId === 'string' && flowIdRef.current !== newId) {
+      visualFlowsApi.renameFlow(flowIdRef.current, newId);
+    }
+  }, [props, visualFlowsApi]);
+
   return (
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Card className="canvas-form">
@@ -72,7 +88,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
           <CanvasFormHeader
             nodeId={props.selectedNode.id}
             title={title}
-            onClose={props.onClose}
+            onClose={onClose}
             nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
           />
         </CardHeader>
