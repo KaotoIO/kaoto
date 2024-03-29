@@ -14,9 +14,11 @@ describe('XmlSchemaDocumentService', () => {
     expect(fields.length > 0).toBeTruthy();
   });
 
-  it('should populate XML Schema Document', () => {
-    const docs: IDocument[] = [];
-    XmlSchemaDocumentService.createXmlSchemaDocument(docs, DocumentType.SOURCE_BODY, 'ShipOrder.xsd', orderXsd);
-    expect(docs.length).toEqual(1);
+  it('should create XML Schema Document', () => {
+    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', orderXsd);
+    expect(doc.documentType).toEqual(DocumentType.SOURCE_BODY);
+    expect(doc.documentId).toEqual('ShipOrder.xsd');
+    expect(doc.name).toEqual('ShipOrder.xsd');
+    expect(doc.fields.length).toEqual(1);
   });
 });
