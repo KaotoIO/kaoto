@@ -1,6 +1,6 @@
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 import * as fs from 'fs';
-import { DocumentType, IDocument } from '../models';
+import { DocumentType } from '../models';
 
 describe('XmlSchemaDocumentService', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
