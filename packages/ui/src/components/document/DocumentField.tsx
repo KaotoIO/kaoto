@@ -1,9 +1,10 @@
-import { AccordionContent, AccordionItem, AccordionToggle } from '@patternfly/react-core';
+import { AccordionContent, AccordionItem, AccordionToggle, Split, SplitItem } from '@patternfly/react-core';
 import { forwardRef, FunctionComponent, useMemo, useRef, useState } from 'react';
-import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { IField } from '../../models';
 import { useCanvas } from '../../hooks/useCanvas';
 import { DocumentType } from '../../models/document';
+import { DnDContainer } from './DnDContainer';
+import { GripVerticalIcon } from '@patternfly/react-icons';
 
 type DocumentFieldProps = {
   documentType: DocumentType;
@@ -24,74 +25,40 @@ const DocumentFieldImpl = forwardRef<HTMLDivElement, DocumentFieldProps>(
     const [isExpanded, setIsExpanded] = useState<boolean>(true);
     const dndId = useMemo(() => field.name + '-' + Math.floor(Math.random() * 10000), [field.name]);
 
-    const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-      id: 'droppable-' + dndId,
-      data: field,
-    });
-    const {
-      attributes,
-      listeners,
-      setNodeRef: setDraggableNodeRef,
-      transform,
-    } = useDraggable({
-      id: 'draggable-' + dndId,
-      data: field,
-    });
-
-    const droppableStyle = {
-      borderWidth: isOver ? 1 : undefined,
-      borderColor: isOver ? 'blue' : undefined,
-      color: isOver ? 'blue' : undefined,
-    };
-    const draggableStyle = transform
-      ? {
-          borderWidth: 1,
-          borderColor: 'blue',
-        }
-      : undefined;
-
-    return (
+    return !field.fields || field.fields.length === 0 ? (
       <div ref={forwardedRef}>
-        <AccordionItem>
-          {!field.fields || field.fields.length === 0 ? (
-            <div id={'droppable-' + dndId} ref={setDroppableNodeRef} style={droppableStyle}>
-              <div
-                id={'draggable-' + dndId}
-                ref={setDraggableNodeRef}
-                style={draggableStyle}
-                {...listeners}
-                {...attributes}
-              >
-                <AccordionContent>{field.expression}</AccordionContent>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div id={'droppable-' + dndId} ref={setDroppableNodeRef} style={droppableStyle}>
-                <div
-                  id={'draggable-' + dndId}
-                  ref={setDraggableNodeRef}
-                  style={draggableStyle}
-                  {...listeners}
-                  {...attributes}
-                >
-                  <AccordionToggle
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    isExpanded={isExpanded}
-                    id={field.expression}
-                  >
-                    {field.expression}
-                  </AccordionToggle>
-                </div>
-              </div>
-              <AccordionContent isHidden={!isExpanded} id={field.expression}>
-                {field.fields.map((f: IField) => (
-                  <DocumentField documentType={documentType} key={f.expression} field={f} onToggle={onToggle} />
-                ))}
-              </AccordionContent>
-            </>
-          )}
-        </AccordionItem>
+        <DnDContainer dndId={dndId} field={field}>
+          <AccordionItem key={dndId}>
+            <AccordionContent>
+              <Split hasGutter>
+                <SplitItem>
+                  <GripVerticalIcon />
+                </SplitItem>
+                <SplitItem>{field.expression}</SplitItem>
+              </Split>
+            </AccordionContent>
+          </AccordionItem>
+        </DnDContainer>
+      </div>
+    ) : (
+      <div ref={forwardedRef}>
+        <DnDContainer dndId={dndId} field={field}>
+          <AccordionItem key={dndId}>
+            <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.expression}>
+              <Split hasGutter>
+                <SplitItem>
+                  <GripVerticalIcon />
+                </SplitItem>
+                <SplitItem>{field.expression}</SplitItem>
+              </Split>
+            </AccordionToggle>
+            <AccordionContent isHidden={!isExpanded} id={field.expression}>
+              {field.fields.map((f: IField) => (
+                <DocumentField documentType={documentType} key={f.expression} field={f} onToggle={onToggle} />
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        </DnDContainer>
       </div>
     );
   },

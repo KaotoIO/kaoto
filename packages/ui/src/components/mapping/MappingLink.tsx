@@ -46,7 +46,11 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) 
   );
 };
 
-export const MappingLinksContainer = () => {
+type MappingLinksContainerProps = {
+  lineRefreshToken: string;
+};
+
+export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps> = ({ lineRefreshToken }) => {
   const { mappings, selectedMapping } = useDataMapper();
   const [linePropsList, setLinePropsList] = useState<LineProps[]>([]);
   const { getFieldReference } = useCanvas();
@@ -110,7 +114,14 @@ export const MappingLinksContainer = () => {
       return acc;
     }, [] as LineProps[]);
     setLinePropsList(answer);
-  }, [getClosestExpandedPath, getFieldReference, mappings, populateCoordFromFieldRef, selectedMapping]);
+  }, [
+    lineRefreshToken,
+    getClosestExpandedPath,
+    getFieldReference,
+    mappings,
+    populateCoordFromFieldRef,
+    selectedMapping,
+  ]);
 
   return (
     <svg

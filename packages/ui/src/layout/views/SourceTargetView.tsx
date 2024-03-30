@@ -20,10 +20,11 @@ import './SourceTargetView.scss';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { sourceBodyDocument, targetBodyDocument } = useDataMapper();
+  const lineRefreshToken = Math.floor(Math.random() * 1000).toString();
 
   return (
     <Split className="sourceTargetView">
-      <MappingLinksContainer />
+      <MappingLinksContainer lineRefreshToken={lineRefreshToken} />
       <SplitItem isFilled>
         <Panel id="panel-source" variant="bordered" isScrollable className="sourcePanel">
           <PanelHeader>

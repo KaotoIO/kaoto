@@ -62,6 +62,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   ) {
     super();
     this.name = this.documentId;
+    this.expression = this.documentId;
   }
 }
 

@@ -17,6 +17,7 @@ import { useDataMapper, useToggle } from '../../hooks';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { DocumentType, PrimitiveDocument } from '../../models/document';
 import { Document } from './Document';
+import { useCanvas } from '../../hooks/useCanvas';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -88,6 +89,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
 
 export const Parameters: FunctionComponent = () => {
   const { sourceParameterMap } = useDataMapper();
+  const { reloadFieldReferences } = useCanvas();
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(false);
   const {
     state: isAddingNewParameter,
@@ -99,6 +101,11 @@ export const Parameters: FunctionComponent = () => {
     setSourceParametersExpanded(true);
     toggleOnAddNewParameter();
   }, [toggleOnAddNewParameter]);
+
+  const handleOnExpand = useCallback(() => {
+    setSourceParametersExpanded(!isSourceParametersExpanded);
+    reloadFieldReferences();
+  }, [isSourceParametersExpanded, reloadFieldReferences]);
 
   const parametersHeaderActions = useMemo(() => {
     return (
@@ -120,11 +127,8 @@ export const Parameters: FunctionComponent = () => {
   }, [handleAddNewParameter]);
 
   return (
-    <Card id="card-source-parameters" isPlain isExpanded={isSourceParametersExpanded}>
-      <CardHeader
-        onExpand={() => setSourceParametersExpanded(!isSourceParametersExpanded)}
-        actions={{ actions: parametersHeaderActions, hasNoOffset: true }}
-      >
+    <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
+      <CardHeader onExpand={handleOnExpand} actions={{ actions: parametersHeaderActions, hasNoOffset: true }}>
         <CardTitle>Parameters</CardTitle>
       </CardHeader>
       <CardExpandableContent>
