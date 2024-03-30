@@ -57,7 +57,7 @@ export const useEntities = (): EntitiesContextResult => {
   }, [eventNotifier]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
-    const code = stringify(camelResource, { sortMapEntries: camelResource.sortFn }) || '';
+    const code = stringify(camelResource, { sortMapEntries: camelResource.sortFn, schema: 'yaml-1.1' }) || '';
     eventNotifier.next('entities:updated', code);
   }, [camelResource, eventNotifier]);
 

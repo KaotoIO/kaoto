@@ -2,7 +2,8 @@ import { act, renderHook } from '@testing-library/react';
 import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
-import { EventNotifier } from '../utils';
+import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
+import { EventNotifier, setValue } from '../utils';
 import { useEntities } from './entities';
 
 describe('useEntities', () => {
@@ -42,9 +43,24 @@ describe('useEntities', () => {
     expect(result.current.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson.route)]);
   });
 
+  it('should serialize using YAML 1.1', () => {
+    const notifierSpy = jest.spyOn(eventNotifier, 'next');
+    const { result } = renderHook(() => useEntities());
+
+    act(() => {
+      eventNotifier.next('code:updated', camelRouteYaml_1_1_original);
+    });
+
+    act(() => {
+      setValue(result.current.visualEntities[0], 'route.from.parameters.bindingMode', 'off');
+      result.current.updateSourceCodeFromEntities();
+    });
+
+    expect(notifierSpy).toHaveBeenCalledWith('entities:updated', camelRouteYaml_1_1_updated);
+  });
+
   it('should notifiy subscribers when the entities are updated', () => {
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
-
     const { result } = renderHook(() => useEntities());
 
     act(() => {
