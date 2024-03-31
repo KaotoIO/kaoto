@@ -53,7 +53,7 @@ type MappingLinksContainerProps = {
 export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps> = ({ lineRefreshToken }) => {
   const { mappings, selectedMapping } = useDataMapper();
   const [linePropsList, setLinePropsList] = useState<LineProps[]>([]);
-  const { getFieldReference } = useCanvas();
+  const { getNodeReference } = useCanvas();
 
   const populateCoordFromFieldRef = useCallback(
     (
@@ -81,19 +81,31 @@ export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps
   );
 
   const getParentPath = useCallback((path: string) => {
+    if (path.endsWith('://')) return path.substring(0, path.indexOf(':'));
+
     const lastSeparatorIndex = path.lastIndexOf('/');
-    return lastSeparatorIndex !== -1 ? path.substring(0, lastSeparatorIndex) : null;
+    const endIndex =
+      lastSeparatorIndex !== -1 && path.charAt(lastSeparatorIndex - 1) === '/'
+        ? lastSeparatorIndex + 1
+        : lastSeparatorIndex;
+    return endIndex !== -1 ? path.substring(0, endIndex) : null;
   }, []);
 
   const getClosestExpandedPath = useCallback(
     (path: string) => {
       let tracedPath: string | null = path;
-      while (!!tracedPath && getFieldReference(tracedPath)?.current?.getClientRects().length === 0) {
-        tracedPath = getParentPath(tracedPath);
+      while (
+        !!tracedPath &&
+        (getNodeReference(tracedPath)?.current == null ||
+          getNodeReference(tracedPath)?.current?.getClientRects().length === 0)
+      ) {
+        const parentPath = getParentPath(tracedPath);
+        if (parentPath === tracedPath) break;
+        tracedPath = parentPath;
       }
       return tracedPath;
     },
-    [getFieldReference, getParentPath],
+    [getNodeReference, getParentPath],
   );
 
   useEffect(() => {
@@ -103,8 +115,8 @@ export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps
           const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
           const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());
           if (sourceClosestPath && targetClosestPath) {
-            const sourceFieldRef = getFieldReference(sourceClosestPath);
-            const targetFieldRef = getFieldReference(targetClosestPath);
+            const sourceFieldRef = getNodeReference(sourceClosestPath);
+            const targetFieldRef = getNodeReference(targetClosestPath);
             !!sourceFieldRef &&
               !!targetFieldRef &&
               populateCoordFromFieldRef(acc, mapping, sourceFieldRef, targetFieldRef);
@@ -117,7 +129,7 @@ export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps
   }, [
     lineRefreshToken,
     getClosestExpandedPath,
-    getFieldReference,
+    getNodeReference,
     mappings,
     populateCoordFromFieldRef,
     selectedMapping,

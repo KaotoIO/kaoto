@@ -25,10 +25,10 @@ import { IField } from '../models';
 import { MappingService } from '../services/mapping.service';
 
 export interface ICanvasContext {
-  setFieldReference: (path: string, ref: MutableRefObject<HTMLDivElement | null>) => void;
-  getFieldReference: (path: string) => MutableRefObject<HTMLDivElement | null> | null;
-  reloadFieldReferences: () => void;
-  getAllFieldPaths: () => string[];
+  setNodeReference: (path: string, ref: MutableRefObject<HTMLDivElement | null>) => void;
+  getNodeReference: (path: string) => MutableRefObject<HTMLDivElement | null> | null;
+  reloadNodeReferences: () => void;
+  getAllNodePaths: () => string[];
 }
 
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
@@ -51,7 +51,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
   const [activeData, setActiveData] = useState<DataRef<IField> | null>(null);
-  const [fieldReferenceMap, setFieldReferenceMap] = useState<Map<string, MutableRefObject<HTMLDivElement | null>>>(
+  const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<HTMLDivElement | null>>>(
     new Map<string, MutableRefObject<HTMLDivElement>>(),
   );
 
@@ -74,36 +74,36 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     [mappings, refreshMappings],
   );
 
-  const setFieldReference = useCallback(
+  const setNodeReference = useCallback(
     (path: string, ref: MutableRefObject<HTMLDivElement | null>) => {
-      fieldReferenceMap.set(path, ref);
+      nodeReferenceMap.set(path, ref);
     },
-    [fieldReferenceMap],
+    [nodeReferenceMap],
   );
 
-  const getFieldReference = useCallback(
+  const getNodeReference = useCallback(
     (path: string) => {
-      return fieldReferenceMap.get(path) || null;
+      return nodeReferenceMap.get(path) || null;
     },
-    [fieldReferenceMap],
+    [nodeReferenceMap],
   );
 
-  const reloadFieldReferences = useCallback(() => {
-    setFieldReferenceMap(new Map(fieldReferenceMap));
-  }, [fieldReferenceMap]);
+  const reloadNodeReferences = useCallback(() => {
+    setNodeReferenceMap(new Map(nodeReferenceMap));
+  }, [nodeReferenceMap]);
 
-  const getAllFieldPaths = useCallback(() => {
-    return Array.from(fieldReferenceMap.keys());
-  }, [fieldReferenceMap]);
+  const getAllNodePaths = useCallback(() => {
+    return Array.from(nodeReferenceMap.keys());
+  }, [nodeReferenceMap]);
 
   const value: ICanvasContext = useMemo(() => {
     return {
-      setFieldReference,
-      getFieldReference,
-      reloadFieldReferences,
-      getAllFieldPaths,
+      setNodeReference,
+      getNodeReference,
+      reloadNodeReferences,
+      getAllNodePaths,
     };
-  }, [setFieldReference, getFieldReference, reloadFieldReferences, getAllFieldPaths]);
+  }, [setNodeReference, getNodeReference, reloadNodeReferences, getAllNodePaths]);
 
   return (
     <CanvasContext.Provider value={value}>

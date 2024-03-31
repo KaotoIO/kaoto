@@ -18,6 +18,7 @@ import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { DocumentType, PrimitiveDocument } from '../../models/document';
 import { Document } from './Document';
 import { useCanvas } from '../../hooks/useCanvas';
+import { NodeContainer } from './NodeContainer';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -89,13 +90,18 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
 
 export const Parameters: FunctionComponent = () => {
   const { sourceParameterMap } = useDataMapper();
-  const { reloadFieldReferences } = useCanvas();
+  const { reloadNodeReferences } = useCanvas();
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(false);
   const {
     state: isAddingNewParameter,
     toggleOff: toggleOffAddNewParameter,
     toggleOn: toggleOnAddNewParameter,
   } = useToggle(false);
+
+  const { getNodeReference, setNodeReference } = useCanvas();
+  const ref = useRef<HTMLDivElement>(null);
+  const nodeRefId = 'param';
+  getNodeReference(nodeRefId) !== ref && setNodeReference(nodeRefId, ref);
 
   const handleAddNewParameter = useCallback(() => {
     setSourceParametersExpanded(true);
@@ -104,8 +110,8 @@ export const Parameters: FunctionComponent = () => {
 
   const handleOnExpand = useCallback(() => {
     setSourceParametersExpanded(!isSourceParametersExpanded);
-    reloadFieldReferences();
-  }, [isSourceParametersExpanded, reloadFieldReferences]);
+    reloadNodeReferences();
+  }, [isSourceParametersExpanded, reloadNodeReferences]);
 
   const parametersHeaderActions = useMemo(() => {
     return (
@@ -128,9 +134,11 @@ export const Parameters: FunctionComponent = () => {
 
   return (
     <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
-      <CardHeader onExpand={handleOnExpand} actions={{ actions: parametersHeaderActions, hasNoOffset: true }}>
-        <CardTitle>Parameters</CardTitle>
-      </CardHeader>
+      <NodeContainer ref={ref}>
+        <CardHeader onExpand={handleOnExpand} actions={{ actions: parametersHeaderActions, hasNoOffset: true }}>
+          <CardTitle>Parameters</CardTitle>
+        </CardHeader>
+      </NodeContainer>
       <CardExpandableContent>
         <CardBody>
           <Stack>

@@ -1,13 +1,13 @@
-import { CSSProperties, FunctionComponent, PropsWithChildren } from 'react';
+import { CSSProperties, forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 import { IField } from '../../models';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 
-interface DnDContainerProps extends PropsWithChildren {
-  dndId: string;
-  field: IField;
+interface NodeContainerProps extends PropsWithChildren {
+  dndId?: string;
+  field?: IField;
 }
 
-export const DnDContainer: FunctionComponent<DnDContainerProps> = ({ children, dndId, field }) => {
+const DnDContainer: FunctionComponent<NodeContainerProps> = ({ dndId, field, children }) => {
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
     id: 'droppable-' + dndId,
     data: field,
@@ -43,3 +43,17 @@ export const DnDContainer: FunctionComponent<DnDContainerProps> = ({ children, d
     </div>
   );
 };
+
+export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(
+  ({ children, dndId, field }, forwardedRef) => {
+    return dndId && field ? (
+      <div ref={forwardedRef}>
+        <DnDContainer dndId={dndId} field={field}>
+          {children}
+        </DnDContainer>
+      </div>
+    ) : (
+      <div ref={forwardedRef}>{children}</div>
+    );
+  },
+);

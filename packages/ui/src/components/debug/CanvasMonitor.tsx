@@ -25,16 +25,16 @@ export const CanvasMonitor: FunctionComponent = () => {
     },
   });
 
-  const { getAllFieldPaths, reloadFieldReferences } = useCanvas();
+  const { getAllNodePaths, reloadNodeReferences } = useCanvas();
   useEffect(() => {
     console.log(
       'Field References: [' +
-        getAllFieldPaths()
+        getAllNodePaths()
           .map((p) => p + '\n')
           .toString() +
         ']',
     );
-  }, [getAllFieldPaths, reloadFieldReferences]);
+  }, [getAllNodePaths, reloadNodeReferences]);
 
   return <></>;
 };
