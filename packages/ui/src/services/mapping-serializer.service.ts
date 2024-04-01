@@ -1,4 +1,4 @@
-import { DocumentType, IField, IMapping } from '../models';
+import { DocumentType, IField, IMapping, PrimitiveDocument } from '../models';
 import xmlFormat from 'xml-formatter';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
@@ -32,11 +32,14 @@ export class MappingSerializerService {
     // Note that `createNSResolver()` returns null with jsdom.
     const template = xsltDocument
       .evaluate(`/${prefix}:stylesheet/${prefix}:template[@match='/']`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
-      .iterateNext();
+      .iterateNext() as Element;
     if (!template || template.nodeType !== Node.ELEMENT_NODE) {
       throw Error('No root template in the XSLT document');
     }
-    const parent = MappingSerializerService.getOrCreateParent(template as Element, target);
+    const parent =
+      target instanceof PrimitiveDocument
+        ? template
+        : MappingSerializerService.getOrCreateParent(template as Element, target);
     MappingSerializerService.populateSource(parent, source, target);
   }
 
@@ -72,7 +75,7 @@ export class MappingSerializerService {
   static getFieldStack(field: IField, includeItself: boolean = false) {
     const fieldStack: IField[] = [];
     if (includeItself) fieldStack.push(field);
-    for (let next = field.parent; 'parent' in next; next = (next as IField).parent) {
+    for (let next = field.parent; 'parent' in next && next !== next.parent; next = (next as IField).parent) {
       fieldStack.push(next);
     }
     return fieldStack;
@@ -96,6 +99,10 @@ export class MappingSerializerService {
       const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
       valueOf.setAttribute('select', sourceXPath);
       xslAttribute.appendChild(valueOf);
+    } else if (target instanceof PrimitiveDocument) {
+      const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
+      valueOf.setAttribute('select', sourceXPath);
+      parent.appendChild(valueOf);
     } else if (target.fields.length > 0) {
       const copyOf = xsltDocument.createElementNS(NS_XSL, 'copy-of');
       copyOf.setAttribute('select', sourceXPath);
@@ -147,7 +154,7 @@ export class MappingSerializerService {
     }
     const paramPrefix =
       field.ownerDocument.documentType === DocumentType.PARAM ? '$' + field.ownerDocument.documentId : '';
-    return paramPrefix + '/' + pathStack.join('/');
+    return field.ownerDocument instanceof PrimitiveDocument ? paramPrefix : paramPrefix + '/' + pathStack.join('/');
   }
 
   static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {

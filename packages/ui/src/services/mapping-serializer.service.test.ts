@@ -1,5 +1,5 @@
 import { MappingSerializerService, NS_XSL } from './mapping-serializer.service';
-import { IDocument, IField, IMapping } from '../models';
+import { IDocument, IField, IMapping, PrimitiveDocument } from '../models';
 import { DocumentType } from '../models/document';
 import * as fs from 'fs';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -11,8 +11,10 @@ const sourceParamDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
 sourceParamDoc.documentType = DocumentType.PARAM;
 sourceParamDoc.name = 'sourceParam1';
 sourceParamDoc.documentId = 'sourceParam1';
+const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
 const targetDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
 targetDoc.documentType = DocumentType.TARGET_BODY;
+const targetPrimitiveDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, 'primitiveTargetBody');
 const domParser = new DOMParser();
 const xsltProcessor = new XSLTProcessor();
 
@@ -209,6 +211,24 @@ describe('MappingSerializerService', () => {
       expect(title).toBeTruthy();
       const notInSchema = item.getElementsByTagName('NotInSchema')[0];
       expect(notInSchema).toBeTruthy();
+    });
+
+    it('should serialize primitive parameter to primitive target body mapping', () => {
+      const serialized = MappingSerializerService.serialize([
+        {
+          sourceFields: [sourcePrimitiveParamDoc as IField],
+          targetFields: [targetPrimitiveDoc as IField],
+        },
+      ] as IMapping[]);
+      const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
+      const xslParam = xsltDomDocument
+        .evaluate('/xsl:stylesheet/xsl:param', xsltDomDocument, null, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(xslParam.getAttribute('name')).toEqual('primitive');
+      const xslValueOf = xsltDomDocument
+        .evaluate('/xsl:stylesheet/xsl:template/xsl:value-of', xsltDomDocument, null, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(xslValueOf.getAttribute('select')).toEqual('$primitive');
     });
   });
 });
