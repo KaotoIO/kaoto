@@ -6,8 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.Kind;
 import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.Kind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

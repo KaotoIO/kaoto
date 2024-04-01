@@ -18,7 +18,7 @@ package io.kaoto.camelcatalog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.camel.dsl.yaml.CamelYamlRoutesBuilderLoader;
+import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class CamelCatalogProcessorTest {
 
     public CamelCatalogProcessorTest() throws Exception {
         this.jsonMapper = new ObjectMapper();
-        var is = CamelYamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
+        var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
         yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
         schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
         this.processor = new CamelCatalogProcessor(jsonMapper, schemaProcessor);

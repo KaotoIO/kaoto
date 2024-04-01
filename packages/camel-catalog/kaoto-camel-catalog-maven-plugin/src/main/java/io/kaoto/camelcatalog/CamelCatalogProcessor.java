@@ -19,10 +19,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.Kind;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.JsonMapper;
+import org.apache.camel.tooling.model.Kind;
 
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -409,7 +409,7 @@ public class CamelCatalogProcessor {
                 propertySchema.put("title", "From");
                 propertySchema.put("description", "From");
                 continue;
-            } else if (List.of("inputType", "outputType").contains(propertyName)) {
+            } else if (List.of("inputType", "outputType", "errorHandler").contains(propertyName)) {
                 // no "inputType" and "outputType" in the catalog, just keep it as-is
                 continue;
             }
