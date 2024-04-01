@@ -16,19 +16,15 @@
 import { FunctionComponent, memo, useContext, useMemo } from 'react';
 import {
   Drawer,
-  DrawerActions,
-  DrawerCloseButton,
   DrawerContent,
   DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
   Masthead,
   MastheadContent,
   Page,
   PageSection,
   PageSectionVariants,
 } from '@patternfly/react-core';
-import { MappingDetailsView, SourceTargetView } from './views';
+import { MappingDetailsDrawerPanel, SourceTargetView } from './views';
 import { DataMapperContext } from '../providers';
 import { CanvasView } from '../models';
 import { ContextToolbar } from './ContextToolbar';
@@ -39,7 +35,7 @@ export interface IMainLayoutProps {
 }
 
 export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout() {
-  const { selectedMapping, setSelectedMapping } = useDataMapper();
+  const { selectedMapping } = useDataMapper();
 
   const { activeView } = useContext(DataMapperContext)!;
   const currentView = useMemo(() => {
@@ -59,21 +55,11 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function Mai
     </Masthead>
   );
 
-  const drawerPanelContent = (
-    <DrawerPanelContent>
-      <DrawerHead>Mapping Details</DrawerHead>
-      <DrawerActions>
-        <DrawerCloseButton onClick={() => setSelectedMapping(null)} />
-      </DrawerActions>
-      <MappingDetailsView />
-    </DrawerPanelContent>
-  );
-
   return (
     <Page header={header}>
       <PageSection variant={PageSectionVariants.default}>
         <Drawer isExpanded={!!selectedMapping} isInline>
-          <DrawerContent panelContent={drawerPanelContent}>
+          <DrawerContent panelContent={<MappingDetailsDrawerPanel />}>
             <DrawerContentBody>{currentView}</DrawerContentBody>
           </DrawerContent>
         </Drawer>

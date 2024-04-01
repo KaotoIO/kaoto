@@ -1,2 +1,2 @@
-export * from './MappingDetailsView';
+export * from './MappingDetailsDrawerPanel';
 export * from './SourceTargetView';
