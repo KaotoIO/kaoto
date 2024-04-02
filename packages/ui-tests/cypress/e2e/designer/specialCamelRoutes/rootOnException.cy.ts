@@ -4,7 +4,7 @@ describe('Test for root containers', () => {
   });
 
   it('Root onException steps config', () => {
-    cy.uploadFixture('flows/onExceptionCR.yaml');
+    cy.uploadFixture('flows/camelRoute/onException.yaml');
     cy.openDesignPage();
 
     cy.selectInsertNode('onException-1234');
@@ -26,7 +26,7 @@ describe('Test for root containers', () => {
   });
 
   it('Root onException config', () => {
-    cy.uploadFixture('flows/onExceptionCR.yaml');
+    cy.uploadFixture('flows/camelRoute/onException.yaml');
     cy.openDesignPage();
 
     cy.get('[data-id^="onException"]')

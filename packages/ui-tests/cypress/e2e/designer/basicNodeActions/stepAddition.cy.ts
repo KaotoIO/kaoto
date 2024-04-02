@@ -4,7 +4,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - add steps to CamelRoute', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('setHeader');
@@ -21,7 +21,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - add steps to Pipe/KB', () => {
-    cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('json-deserialize-action');

@@ -1,9 +1,9 @@
-describe('Test for Multi route actions from the canvas', () => {
+describe('Test for missing config props canvas warnings', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
   it('Check the canvas node warnings in Camel Route', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('setHeader');
@@ -29,7 +29,7 @@ describe('Test for Multi route actions from the canvas', () => {
   });
 
   it('Check the canvas node warnings in Pipe', () => {
-    cy.uploadFixture('flows/ErrorHandlerPipe.yaml');
+    cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openDesignPage();
 
     cy.get('[data-id^="delay-action"] g').find('.pf-topology__node__decorator__bg').click();

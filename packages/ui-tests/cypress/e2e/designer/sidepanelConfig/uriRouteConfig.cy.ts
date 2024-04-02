@@ -3,7 +3,7 @@ describe('Test URI node config', () => {
     cy.openHomePage();
   });
 
-  const testFile = ['flows/UriConfKamelet.yaml', 'flows/UriConfRoute.yaml'];
+  const testFile = ['flows/kamelet/uriConf.yaml', 'flows/camelRoute/uriConf.yaml'];
   testFile.forEach((file) => {
     it('load the URI config route from ' + file + ', edit node in canvas and check', () => {
       cy.uploadFixture(file);
@@ -34,7 +34,7 @@ describe('Test URI node config', () => {
   });
 
   it('User adds URI step to the YAML', () => {
-    cy.uploadFixture('flows/UriConfKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/uriConf.yaml');
     const stepToInsert = `      - to: aws2-s3:testBucket?autoCreateBucket=true`;
     cy.editorAddText(43, stepToInsert);
     cy.openDesignPage();
@@ -54,7 +54,7 @@ describe('Test URI node config', () => {
   });
 
   it('User adds URI step to the YAML', () => {
-    cy.uploadFixture('flows/UriConfRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/uriConf.yaml');
     const stepToInsert = `        - to: aws2-s3:testBucket?autoCreateBucket=true`;
     cy.editorAddText(11, stepToInsert);
     cy.openDesignPage();

@@ -4,7 +4,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
   });
 
   it('Design - sidebar loadBalancer configuration in CR', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('marshal');

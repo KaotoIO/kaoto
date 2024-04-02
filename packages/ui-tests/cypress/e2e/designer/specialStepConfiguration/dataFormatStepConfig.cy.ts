@@ -4,7 +4,7 @@ describe('Tests for sidebar dataformat configuration', () => {
   });
 
   it('Design - sidebar dataformat configuration', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     // Configure marshal dataformat
@@ -24,7 +24,7 @@ describe('Tests for sidebar dataformat configuration', () => {
   });
 
   it('Design - sidebar dataformat configuration in Kamelet', () => {
-    cy.uploadFixture('flows/BasicKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
     // Configure marshal dataformat

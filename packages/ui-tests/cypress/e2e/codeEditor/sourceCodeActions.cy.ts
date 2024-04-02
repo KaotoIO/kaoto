@@ -4,7 +4,7 @@ describe('Test source code editor', () => {
   });
 
   it('loads the YAML editor and deletes steps, check with visualization', () => {
-    cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openDesignPage();
     cy.get('[data-id^="json-deserialize-action"]').should('exist');
     cy.openSourceCode();
@@ -16,7 +16,7 @@ describe('Test source code editor', () => {
   });
 
   it('User adds step to the YAML', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
 
     const stepToInsert = `  steps:
   - ref:
@@ -31,7 +31,7 @@ describe('Test source code editor', () => {
   });
 
   it('User removes step from the YAML', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
 
     cy.editorDeleteLine(12, 6);
     cy.openDesignPage();
@@ -40,7 +40,7 @@ describe('Test source code editor', () => {
   });
 
   it('User edits step in the YAML', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
 
     cy.editorDeleteLine(13, 1);
     const name = `      name: aws-s3-sink`;
@@ -53,7 +53,7 @@ describe('Test source code editor', () => {
   });
 
   it('User Deletes branch in the YAML', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
 
     cy.editorDeleteLine(41, 7);
     cy.openDesignPage();
@@ -64,7 +64,7 @@ describe('Test source code editor', () => {
   });
 
   it('User Add a new branch in the YAML', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     const stepToInsert = `              - simple: {{}{{}?test}}
                 steps:
                   - to:
@@ -77,7 +77,7 @@ describe('Test source code editor', () => {
   });
 
   it('User undoes a change and redoes a change', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
 
     cy.editorDeleteLine(5, 7);
     // click undo button => reverted automatic adjustments
@@ -98,7 +98,7 @@ describe('Test source code editor', () => {
   });
 
   it('User uploads YAML file, syncs with canvas', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
     cy.openDesignPage();
 
     // CHECK the kafka-sink and timer-source were imported

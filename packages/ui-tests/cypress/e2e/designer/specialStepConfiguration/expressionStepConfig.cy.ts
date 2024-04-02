@@ -4,7 +4,7 @@ describe('Tests for sidebar expression configuration', () => {
   });
 
   it('Design - sidebar expression configuration', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
@@ -24,7 +24,7 @@ describe('Tests for sidebar expression configuration', () => {
 
   //reproducer for https://github.com/KaotoIO/kaoto-next/issues/518
   it('Design - name attribute was sometimes lost after expression configuration', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
@@ -73,7 +73,7 @@ describe('Tests for sidebar expression configuration', () => {
 
   // Blocked by: https://github.com/KaotoIO/kaoto-next/issues/904
   it.skip('Design - expression configuration with switching type', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
@@ -93,7 +93,7 @@ describe('Tests for sidebar expression configuration', () => {
   });
 
   it('Design - sidebar expression configuration in Kamelet', () => {
-    cy.uploadFixture('flows/BasicKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
     // Configure setBody expression
     cy.openStepConfigurationTab('setBody');

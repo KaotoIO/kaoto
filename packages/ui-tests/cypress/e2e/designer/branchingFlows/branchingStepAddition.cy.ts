@@ -4,7 +4,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it(' User appends a branch from the canvas', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.checkNodeExist('when', 3);
@@ -18,7 +18,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it('User deletes a branch from the canvas', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.checkNodeExist('when', 3);
@@ -36,7 +36,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it('User inserts a branch from the canvas', () => {
-    cy.uploadFixture('flows/BasicKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('marshal');
@@ -53,7 +53,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it('User appends a step in a branch from the canvas (last in the branch)', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.checkNodeExist('setHeader', 1);
@@ -65,7 +65,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it('User prepends a step in a branch from the canvas (first in the branch)', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.checkNodeExist('digitalocean', 1);
@@ -77,7 +77,7 @@ describe('Test for Branching actions from the canvas', () => {
   });
 
   it('User prepends a step to a step whose previous step contains branches', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.checkNodeExist('filter', 1);

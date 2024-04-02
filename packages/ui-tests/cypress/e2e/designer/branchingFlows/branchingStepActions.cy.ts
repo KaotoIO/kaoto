@@ -4,7 +4,7 @@ describe('User completes normal actions on steps in a branch', () => {
   });
 
   it('User configures a step in a branch', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('marshal');
@@ -18,7 +18,7 @@ describe('User completes normal actions on steps in a branch', () => {
   });
 
   it('User deletes a step in a branch', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.removeNodeByName('digitalocean');
@@ -28,7 +28,7 @@ describe('User completes normal actions on steps in a branch', () => {
   });
 
   it('User replaces a step in a branch', () => {
-    cy.uploadFixture('flows/ComplexKamelet.yaml');
+    cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
     cy.selectReplaceNode('digitalocean');
