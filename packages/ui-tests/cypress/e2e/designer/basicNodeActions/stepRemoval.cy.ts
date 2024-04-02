@@ -4,7 +4,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - remove steps from CamelRoute', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.removeNodeByName('setHeader');
     cy.removeNodeByName('log');
@@ -20,7 +20,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - remove steps from Pipe/KB', () => {
-    cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openDesignPage();
     cy.removeNodeByName('json-deserialize-action');
     cy.removeNodeByName('kafka-source');
@@ -37,7 +37,7 @@ describe('Tests for Design page', () => {
   });
 
   it('In an integration with at least two steps, user deletes the first step, showing a placeholder step in its place (start-end)', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.removeNodeByName('timer');
@@ -54,7 +54,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Step detail - User deletes a step, which closes the detail drawer', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('log');

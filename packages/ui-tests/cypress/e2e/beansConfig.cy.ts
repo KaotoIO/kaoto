@@ -4,7 +4,7 @@ describe('Test for Bean support', () => {
   });
 
   it('Beans - create a new bean using bean editor', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openBeans();
     cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
     cy.get(`input[name="name"]`).clear().type('test');
@@ -40,7 +40,7 @@ describe('Test for Bean support', () => {
 
   it('Beans - create a new bean using editor and edit in bean editor', () => {
     cy.openSourceCode();
-    cy.uploadFixture('flows/Beans.yaml');
+    cy.uploadFixture('flows/camelRoute/beans.yaml');
 
     cy.openBeans();
 
@@ -73,7 +73,7 @@ describe('Test for Bean support', () => {
   });
 
   it('Beans - delete bean properties using the bean editor', () => {
-    cy.uploadFixture('flows/Beans.yaml');
+    cy.uploadFixture('flows/camelRoute/beans.yaml');
     cy.openBeans();
 
     cy.get('[data-testid="metadata-row-0"]').click();
@@ -89,7 +89,7 @@ describe('Test for Bean support', () => {
   });
 
   it('Beans - delete bean using the bean editor', () => {
-    cy.uploadFixture('flows/Beans.yaml');
+    cy.uploadFixture('flows/camelRoute/beans.yaml');
     cy.openBeans();
 
     cy.get('[data-testid="metadata-delete-1-btn"]').click();

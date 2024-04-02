@@ -1,10 +1,10 @@
-describe('Test for root containers', () => {
+describe('Test for camel route root containers configuration', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
 
   it('Canvas route wrap and unwrap', () => {
-    cy.uploadFixture('flows/MultiflowCR.yaml');
+    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
     cy.toggleRouteVisibility(1);
 
@@ -29,7 +29,7 @@ describe('Test for root containers', () => {
 
   // Blocked by: https://github.com/KaotoIO/kaoto-next/issues/860
   it.skip('Canvas route wrap and unwrap, toggle visibility', () => {
-    cy.uploadFixture('flows/MultiflowCR.yaml');
+    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
     cy.toggleRouteVisibility(1);
     cy.get('[data-id^="route-1234"]')
@@ -41,8 +41,8 @@ describe('Test for root containers', () => {
     cy.checkNodeExist('log', 0);
   });
 
-  it('Canvas route container config', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+  it('Canvas camel route container config', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.get('[data-id^="camel-route"]')

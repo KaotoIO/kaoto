@@ -1,10 +1,10 @@
-describe('Test for Error handler support', () => {
+describe('Test for Pipe Error handler support', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
 
   it('ErrorHandler - create a new errorHandler using errorHandler editor', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
     cy.openPipeErrorHandler();
     cy.get('.pf-v5-c-menu-toggle__toggle-icon').click();
     cy.get('[data-testid="pipe-error-handler-select-option-log"]').click();
@@ -44,7 +44,7 @@ describe('Test for Error handler support', () => {
 
   it('ErrorHandler - edit in errorHandler editor', () => {
     cy.openSourceCode();
-    cy.uploadFixture('flows/ErrorHandlerPipe.yaml');
+    cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openPipeErrorHandler();
     cy.get(`input[name="log.parameters.maximumRedeliveries"]`).clear().type('5');
     cy.get(`input[name="log.parameters.redeliveryDelay"]`).clear().type('1000');
@@ -55,7 +55,7 @@ describe('Test for Error handler support', () => {
   });
 
   it('ErrorHandler - delete errorHandler properties using the ErrorHandler editor', () => {
-    cy.uploadFixture('flows/ErrorHandlerPipe.yaml');
+    cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openPipeErrorHandler();
 
     cy.get(`input[name="log.parameters.maximumRedeliveries"]`).clear();
@@ -68,7 +68,7 @@ describe('Test for Error handler support', () => {
   });
 
   it('ErrorHandler - select "no error handlers" - delete errorHandler', () => {
-    cy.uploadFixture('flows/ErrorHandlerPipe.yaml');
+    cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openPipeErrorHandler();
     cy.get('.pf-v5-c-menu-toggle__toggle-icon').click();
     cy.get('[data-testid="pipe-error-handler-select-option-none"]').click();

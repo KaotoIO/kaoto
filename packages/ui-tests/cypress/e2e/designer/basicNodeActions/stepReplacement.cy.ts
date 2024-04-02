@@ -4,7 +4,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - replace steps in CamelRoute', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.selectReplaceNode('timer');
@@ -36,7 +36,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - replace steps in Pipe/KB', () => {
-    cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openDesignPage();
 
     cy.selectReplaceNode('kafka-source');

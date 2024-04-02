@@ -4,7 +4,7 @@ describe('Tests for Design page', () => {
   });
 
   it('Design - sidebar step configuration', () => {
-    cy.uploadFixture('flows/TimerKafkaKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
     cy.openDesignPage();
     // Configure timer - source step
     cy.openStepConfigurationTab('timer-source');

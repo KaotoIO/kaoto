@@ -4,7 +4,7 @@ describe('Tests for sidebar setHeaders step configuration', () => {
   });
 
   it('Design - sidebar setHeaders configuration in CR', () => {
-    cy.uploadFixture('flows/CamelRoute.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
     cy.selectAppendNode('marshal');

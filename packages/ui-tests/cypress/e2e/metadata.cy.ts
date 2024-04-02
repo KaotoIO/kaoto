@@ -4,7 +4,7 @@ describe('Test for Metadata Editor support', () => {
   });
 
   it('Metadata Editor - edit metadata using metadata editor', () => {
-    cy.uploadFixture('flows/KafkaSourceSinkKB.yaml');
+    cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
     cy.expandWrappedSection('annotations');
@@ -90,7 +90,7 @@ describe('Test for Metadata Editor support', () => {
 
   it('Metadata Editor - create a new bean using editor and edit in bean editor', () => {
     cy.openSourceCode();
-    cy.uploadFixture('flows/MetadataPipe.yaml');
+    cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
     cy.get(`input[name="creationTimestamp"]`).clear().type('updatedCreationTimestamp');
@@ -121,7 +121,7 @@ describe('Test for Metadata Editor support', () => {
 
   it('Metadata Editor - delete bean properties using the bean editor', () => {
     cy.openSourceCode();
-    cy.uploadFixture('flows/MetadataPipe.yaml');
+    cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
     cy.expandWrappedSection('annotations');

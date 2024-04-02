@@ -4,8 +4,8 @@ describe('Test for node bean reference and configuration support', () => {
   });
 
   const testData = [
-    { file: 'SqlBeansKamelet.yaml', dataSource: '#bean:{{test}}' },
-    { file: 'SqlBeansCR.yaml', dataSource: '#test' },
+    { file: 'kamelet/sqlBeans.yaml', dataSource: '#bean:{{test}}' },
+    { file: 'camelRoute/sqlBeans.yaml', dataSource: '#test' },
   ];
   testData.forEach((data) => {
     it('Beans - create a new bean in route using bean editor ' + data.file, () => {
@@ -45,8 +45,8 @@ describe('Test for node bean reference and configuration support', () => {
   });
 
   const newTestData = [
-    { file: 'SqlBeansKamelet.yaml', dataSource: '#bean:{{postgreSqlSource}}' },
-    { file: 'SqlBeansCR.yaml', dataSource: '#postgreSqlSource' },
+    { file: 'kamelet/sqlBeans.yaml', dataSource: '#bean:{{postgreSqlSource}}' },
+    { file: 'camelRoute/sqlBeans.yaml', dataSource: '#postgreSqlSource' },
   ];
   newTestData.forEach((data) => {
     it('Beans - select existing bean in node form config ' + data.file, () => {
@@ -82,7 +82,7 @@ describe('Test for node bean reference and configuration support', () => {
 
   // blocked by https://github.com/KaotoIO/kaoto-next/issues/558
   it.skip('Beans - delete bean using the bean editor', () => {
-    cy.uploadFixture('flows/SqlBeansCR.yaml');
+    cy.uploadFixture('flows/camelRoute/sqlBeans.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('sql');
     cy.configureBeanReference('parameters.dataSource', 'postgreSqlSource');
