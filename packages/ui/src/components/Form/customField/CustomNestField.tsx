@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Card, CardBody, CardHeader, CardTitle, ExpandableSection } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader, CardTitle, ExpandableSection, capitalize } from '@patternfly/react-core';
 import { useMemo } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 import { getValue } from '../../../utils';
@@ -75,7 +75,8 @@ export const CustomNestField = connectField(
 
         {Object.entries(propertiesArray.groups).map(([groupName, groupFields]) => (
           <ExpandableSection
-            toggleText={`${groupName} properties`}
+            key={`${groupName}-section-toggle`}
+            toggleText={capitalize(`${groupName} properties`)}
             toggleId="expandable-section-toggle"
             contentId="expandable-section-content"
           >

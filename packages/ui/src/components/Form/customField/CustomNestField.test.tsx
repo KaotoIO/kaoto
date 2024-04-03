@@ -62,8 +62,8 @@ describe('CustomNestField', () => {
       .getAllByRole('textbox')
       .filter((textbox) => textbox.getAttribute('label') === 'Pattern');
     expect(inputPatternElement).toHaveLength(0);
-    const advancedProperties = screen.getByRole('button', { name: 'advanced properties' });
-    const secretProperties = screen.getByRole('button', { name: 'secret properties' });
+    const advancedProperties = screen.getByRole('button', { name: 'Advanced properties' });
+    const secretProperties = screen.getByRole('button', { name: 'Secret properties' });
     expect(advancedProperties).toBeInTheDocument();
     expect(secretProperties).toBeInTheDocument();
   });
@@ -76,7 +76,7 @@ describe('CustomNestField', () => {
         </AutoForm>
       </AutoField.componentDetectorContext.Provider>,
     );
-    const buttonElement = screen.getByRole('button', { name: 'advanced properties' });
+    const buttonElement = screen.getByRole('button', { name: 'Advanced properties' });
     await act(async () => {
       fireEvent.click(buttonElement);
     });
@@ -126,7 +126,7 @@ describe('CustomNestField', () => {
 
     const advancedButton = screen
       .getAllByRole('button')
-      .filter((button) => button.textContent === 'advanced properties');
+      .filter((button) => button.textContent === 'Advanced properties');
     expect(advancedButton).toHaveLength(0);
   });
 });
