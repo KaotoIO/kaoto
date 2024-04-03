@@ -139,8 +139,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
     });
   });
 
-  /** Skip until https://github.com/KaotoIO/kaoto-next/issues/969 gets resolved */
-  describe.skip('getNodeValidationText', () => {
+  describe('getNodeValidationText', () => {
     it('should return undefined for valid definitions', () => {
       const entity = new CamelRestConfigurationVisualEntity({
         restConfiguration: {
@@ -170,7 +169,13 @@ describe('CamelRestConfigurationVisualEntity', () => {
     it('should return errors when there is an invalid property', () => {
       const invalidRestConfigurationDef: RestConfiguration = {
         ...restConfigurationDef.restConfiguration,
-        bindingMode: 'WildModeOn' as RestConfiguration['bindingMode'],
+        useXForwardHeaders: 'true' as unknown as RestConfiguration['useXForwardHeaders'],
+        apiVendorExtension: 'true' as unknown as RestConfiguration['apiVendorExtension'],
+        skipBindingOnErrorCode: 'true' as unknown as RestConfiguration['skipBindingOnErrorCode'],
+        clientRequestValidation: 'true' as unknown as RestConfiguration['clientRequestValidation'],
+        enableCORS: 'true' as unknown as RestConfiguration['enableCORS'],
+        enableNoContentResponse: 'true' as unknown as RestConfiguration['enableNoContentResponse'],
+        inlineRoutes: 'true' as unknown as RestConfiguration['inlineRoutes'],
       };
       const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
 
