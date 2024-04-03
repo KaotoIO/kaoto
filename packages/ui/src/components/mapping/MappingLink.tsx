@@ -46,11 +46,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) 
   );
 };
 
-type MappingLinksContainerProps = {
-  lineRefreshToken: string;
-};
-
-export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps> = ({ lineRefreshToken }) => {
+export const MappingLinksContainer: FunctionComponent = () => {
   const { mappings, selectedMapping } = useDataMapper();
   const [linePropsList, setLinePropsList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
@@ -108,7 +104,7 @@ export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps
     [getNodeReference, getParentPath],
   );
 
-  useEffect(() => {
+  const refreshLinks = useCallback(() => {
     const answer: LineProps[] = mappings.reduce((acc, mapping) => {
       for (const sourceField of mapping.sourceFields) {
         for (const targetField of mapping.targetFields) {
@@ -126,14 +122,17 @@ export const MappingLinksContainer: FunctionComponent<MappingLinksContainerProps
       return acc;
     }, [] as LineProps[]);
     setLinePropsList(answer);
-  }, [
-    lineRefreshToken,
-    getClosestExpandedPath,
-    getNodeReference,
-    mappings,
-    populateCoordFromFieldRef,
-    selectedMapping,
-  ]);
+  }, [getClosestExpandedPath, getNodeReference, mappings, populateCoordFromFieldRef]);
+
+  useEffect(() => {
+    refreshLinks();
+    window.addEventListener('resize', refreshLinks);
+    window.addEventListener('scroll', refreshLinks);
+    return () => {
+      window.removeEventListener('resize', refreshLinks);
+      window.removeEventListener('scroll', refreshLinks);
+    };
+  }, [refreshLinks, selectedMapping]);
 
   return (
     <svg
