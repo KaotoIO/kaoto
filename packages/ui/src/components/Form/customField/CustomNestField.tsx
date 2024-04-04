@@ -49,9 +49,6 @@ export const CustomNestField = connectField(
           const group: string = getValue(definition, 'group', '');
           if (group === '' || group === 'common' || group === 'producer' || group === 'consumer') {
             acc.common.push(name);
-          } else if (group.includes('advanced')) {
-            acc.groups['advanced'] ??= [];
-            acc.groups['advanced'].push(name);
           } else {
             acc.groups[group] ??= [];
             acc.groups[group].push(name);
@@ -63,30 +60,32 @@ export const CustomNestField = connectField(
     }, [props.properties]);
 
     return (
-      <Card data-testid={'nest-field'} {...filterDOMProps(props)}>
+      <Card className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
         <CardHeader>
           <CardTitle>{label}</CardTitle>
         </CardHeader>
-        <CardBody className="custom-nestfield-spacing">
+        <CardBody>
           {propertiesArray.common.map((field) => (
             <CustomAutoField key={field} name={field} />
           ))}
         </CardBody>
 
-        {Object.entries(propertiesArray.groups).map(([groupName, groupFields]) => (
-          <ExpandableSection
-            key={`${groupName}-section-toggle`}
-            toggleText={capitalize(`${groupName} properties`)}
-            toggleId="expandable-section-toggle"
-            contentId="expandable-section-content"
-          >
-            <CardBody className="custom-nestfield-spacing">
-              {groupFields.map((field) => (
-                <CustomAutoField key={field} name={field} />
-              ))}
-            </CardBody>
-          </ExpandableSection>
-        ))}
+        {Object.entries(propertiesArray.groups)
+          .sort((a, b) => (a[0] === 'advanced' ? 1 : b[0] === 'advanced' ? -1 : 0))
+          .map(([groupName, groupFields]) => (
+            <ExpandableSection
+              key={`${groupName}-section-toggle`}
+              toggleText={capitalize(`${groupName} properties`)}
+              toggleId="expandable-section-toggle"
+              contentId="expandable-section-content"
+            >
+              <CardBody>
+                {groupFields.map((field) => (
+                  <CustomAutoField key={field} name={field} />
+                ))}
+              </CardBody>
+            </ExpandableSection>
+          ))}
       </Card>
     );
   },
