@@ -50,11 +50,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
         >
           <Tooltip content={tooltipContent}>
             <div className="custom-node__image">
-              <img
-                src={vizNode?.data.icon}
-                width={CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.7}
-                height={CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.7}
-              />
+              <img src={vizNode?.data.icon} />
             </div>
           </Tooltip>
         </foreignObject>
