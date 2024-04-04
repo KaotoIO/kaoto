@@ -1,4 +1,11 @@
-.custom-nestfield-spacing {
-  display: grid;
-  gap: var(--pf-v5-c-form--GridGap);
+.custom-nest-field {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v5-c-card__body {
+    display: grid;
+    gap: var(--pf-v5-c-form--GridGap);
+  }
+
+  .pf-v5-c-expandable-section {
+    --pf-v5-c-expandable-section__content--MarginTop: 0;
+  }
 }
