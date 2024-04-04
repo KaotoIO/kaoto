@@ -1,12 +1,20 @@
-.sourceTargetView {
+.source-target-view {
   height: 100%;
-}
-.sourcePanel {
-  height: 100%;
-}
 
-.lineBlank {}
+  &__source-panel {
+    height: 100%;
+  }
+  &__source-panel-main {
+    height: 100%;
+  }
 
-.targetPanel {
-  height: 100%;
+  &__line-blank {}
+
+  &__target-panel {
+    height: 100%;
+  }
+
+  &__target-panel-main {
+    height: 100%;
+  }
 }

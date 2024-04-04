@@ -29,6 +29,7 @@ import { DataMapperContext } from '../providers';
 import { CanvasView } from '../models';
 import { ContextToolbar } from './ContextToolbar';
 import { useDataMapper } from '../hooks';
+import './MainLayout.scss';
 
 export interface IMainLayoutProps {
   showSidebar: boolean;
@@ -57,10 +58,10 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function Mai
 
   return (
     <Page header={header}>
-      <PageSection variant={PageSectionVariants.default}>
+      <PageSection variant={PageSectionVariants.default} className="main-layout">
         <Drawer isExpanded={!!selectedMapping} isInline>
-          <DrawerContent panelContent={<MappingDetailsDrawerPanel />}>
-            <DrawerContentBody>{currentView}</DrawerContentBody>
+          <DrawerContent panelContent={<MappingDetailsDrawerPanel />} className="main-layout__drawer-content">
+            <DrawerContentBody className="main-layout__drawer-content-body">{currentView}</DrawerContentBody>
           </DrawerContent>
         </Drawer>
       </PageSection>

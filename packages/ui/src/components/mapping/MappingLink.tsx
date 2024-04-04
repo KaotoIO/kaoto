@@ -121,6 +121,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
           }
         }
       }
+      console.log('>>>> refreshLinks');
       return acc;
     }, [] as LineProps[]);
     setLinePropsList(answer);
