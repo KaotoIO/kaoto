@@ -1,10 +1,11 @@
 import { AccordionContent, AccordionItem, AccordionToggle, Split, SplitItem } from '@patternfly/react-core';
-import { forwardRef, FunctionComponent, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { IField } from '../../models';
 import { useCanvas } from '../../hooks/useCanvas';
 import { DocumentType } from '../../models/document';
 import { NodeContainer } from './NodeContainer';
 import { GripVerticalIcon } from '@patternfly/react-icons';
+import { NodeReference } from '../../providers/CanvasProvider';
 
 type DocumentFieldProps = {
   documentType: DocumentType;
@@ -13,34 +14,40 @@ type DocumentFieldProps = {
 };
 
 export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ documentType, field, onToggle }) => {
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const dndId = useMemo(() => field.name + '-' + Math.floor(Math.random() * 10000), [field.name]);
   const { getNodeReference, setNodeReference } = useCanvas();
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
+  useImperativeHandle(nodeReference, () => ({
+    get headerRef() {
+      return headerRef.current ?? containerRef.current;
+    },
+    get containerRef() {
+      return containerRef.current;
+    },
+  }));
   const fieldRefId = field.fieldIdentifier.toString();
-  getNodeReference(fieldRefId) !== ref && setNodeReference(fieldRefId, ref);
-  return <DocumentFieldImpl documentType={documentType} ref={ref} onToggle={onToggle} field={field} />;
-};
+  getNodeReference(fieldRefId) !== nodeReference && setNodeReference(fieldRefId, nodeReference);
 
-const DocumentFieldImpl = forwardRef<HTMLDivElement, DocumentFieldProps>(
-  ({ documentType, field, onToggle }, forwardedRef) => {
-    const [isExpanded, setIsExpanded] = useState<boolean>(true);
-    const dndId = useMemo(() => field.name + '-' + Math.floor(Math.random() * 10000), [field.name]);
-
-    return !field.fields || field.fields.length === 0 ? (
-      <NodeContainer dndId={dndId} field={field} ref={forwardedRef}>
-        <AccordionItem key={dndId}>
-          <AccordionContent>
-            <Split hasGutter>
-              <SplitItem>
-                <GripVerticalIcon />
-              </SplitItem>
-              <SplitItem>{field.expression}</SplitItem>
-            </Split>
-          </AccordionContent>
-        </AccordionItem>
-      </NodeContainer>
-    ) : (
-      <NodeContainer dndId={dndId} field={field} ref={forwardedRef}>
-        <AccordionItem key={dndId}>
+  return !field.fields || field.fields.length === 0 ? (
+    <NodeContainer dndId={dndId} field={field} ref={containerRef}>
+      <AccordionItem key={dndId}>
+        <AccordionContent>
+          <Split hasGutter>
+            <SplitItem>
+              <GripVerticalIcon />
+            </SplitItem>
+            <SplitItem>{field.expression}</SplitItem>
+          </Split>
+        </AccordionContent>
+      </AccordionItem>
+    </NodeContainer>
+  ) : (
+    <NodeContainer dndId={dndId} field={field} ref={containerRef}>
+      <AccordionItem key={dndId}>
+        <div ref={headerRef}>
           <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.expression}>
             <Split hasGutter>
               <SplitItem>
@@ -49,13 +56,13 @@ const DocumentFieldImpl = forwardRef<HTMLDivElement, DocumentFieldProps>(
               <SplitItem>{field.expression}</SplitItem>
             </Split>
           </AccordionToggle>
-          <AccordionContent isHidden={!isExpanded} id={field.expression}>
-            {field.fields.map((f: IField) => (
-              <DocumentField documentType={documentType} key={f.expression} field={f} onToggle={onToggle} />
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-      </NodeContainer>
-    );
-  },
-);
+        </div>
+        <AccordionContent isHidden={!isExpanded} id={field.expression}>
+          {field.fields.map((f: IField) => (
+            <DocumentField documentType={documentType} key={f.expression} field={f} onToggle={onToggle} />
+          ))}
+        </AccordionContent>
+      </AccordionItem>
+    </NodeContainer>
+  );
+};

@@ -2,6 +2,7 @@ import { FunctionComponent, MutableRefObject, useCallback, useEffect, useState }
 import { useCanvas } from '../../hooks/useCanvas';
 import { IMapping } from '../../models';
 import { useDataMapper } from '../../hooks';
+import { NodeReference } from '../../providers/CanvasProvider';
 
 type LineCoord = {
   x1: number;
@@ -55,11 +56,11 @@ export const MappingLinksContainer: FunctionComponent = () => {
     (
       coords: LineProps[],
       mapping: IMapping,
-      sourceRef: MutableRefObject<HTMLDivElement | null>,
-      targetRef: MutableRefObject<HTMLDivElement | null>,
+      sourceRef: MutableRefObject<NodeReference>,
+      targetRef: MutableRefObject<NodeReference>,
     ) => {
-      const sourceRect = sourceRef.current?.getBoundingClientRect();
-      const targetRect = targetRef.current?.getBoundingClientRect();
+      const sourceRect = sourceRef.current?.headerRef?.getBoundingClientRect();
+      const targetRect = targetRef.current?.headerRef?.getBoundingClientRect();
       if (!sourceRect || !targetRect) {
         return;
       }
@@ -93,7 +94,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
       while (
         !!tracedPath &&
         (getNodeReference(tracedPath)?.current == null ||
-          getNodeReference(tracedPath)?.current?.getClientRects().length === 0)
+          getNodeReference(tracedPath)?.current.headerRef == null ||
+          getNodeReference(tracedPath)?.current.headerRef?.getClientRects().length === 0)
       ) {
         const parentPath = getParentPath(tracedPath);
         if (parentPath === tracedPath) break;

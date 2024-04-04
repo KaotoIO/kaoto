@@ -12,13 +12,14 @@ import {
   TextInput,
   Tooltip,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useDataMapper, useToggle } from '../../hooks';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { DocumentType, PrimitiveDocument } from '../../models/document';
 import { Document } from './Document';
 import { useCanvas } from '../../hooks/useCanvas';
 import { NodeContainer } from './NodeContainer';
+import { NodeReference } from '../../providers/CanvasProvider';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -99,9 +100,18 @@ export const Parameters: FunctionComponent = () => {
   } = useToggle(false);
 
   const { getNodeReference, setNodeReference } = useCanvas();
-  const ref = useRef<HTMLDivElement>(null);
+  const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
+  const headerRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(nodeReference, () => ({
+    get headerRef() {
+      return headerRef.current;
+    },
+    get containerRef() {
+      return headerRef.current;
+    },
+  }));
   const nodeRefId = 'param';
-  getNodeReference(nodeRefId) !== ref && setNodeReference(nodeRefId, ref);
+  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   const handleAddNewParameter = useCallback(() => {
     setSourceParametersExpanded(true);
@@ -134,7 +144,7 @@ export const Parameters: FunctionComponent = () => {
 
   return (
     <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
-      <NodeContainer ref={ref}>
+      <NodeContainer ref={headerRef}>
         <CardHeader onExpand={handleOnExpand} actions={{ actions: parametersHeaderActions, hasNoOffset: true }}>
           <CardTitle>Parameters</CardTitle>
         </CardHeader>

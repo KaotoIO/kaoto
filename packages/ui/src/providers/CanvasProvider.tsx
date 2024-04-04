@@ -24,9 +24,14 @@ import { useDataMapper } from '../hooks/useDataMapper';
 import { IField } from '../models';
 import { MappingService } from '../services/mapping.service';
 
+export interface NodeReference {
+  headerRef: HTMLDivElement | null;
+  containerRef: HTMLDivElement | null;
+}
+
 export interface ICanvasContext {
-  setNodeReference: (path: string, ref: MutableRefObject<HTMLDivElement | null>) => void;
-  getNodeReference: (path: string) => MutableRefObject<HTMLDivElement | null> | null;
+  setNodeReference: (path: string, ref: MutableRefObject<NodeReference>) => void;
+  getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
   getAllNodePaths: () => string[];
 }
@@ -51,8 +56,8 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
   const [activeData, setActiveData] = useState<DataRef<IField> | null>(null);
-  const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<HTMLDivElement | null>>>(
-    new Map<string, MutableRefObject<HTMLDivElement>>(),
+  const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
+    new Map<string, MutableRefObject<NodeReference>>(),
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -75,7 +80,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   );
 
   const setNodeReference = useCallback(
-    (path: string, ref: MutableRefObject<HTMLDivElement | null>) => {
+    (path: string, ref: MutableRefObject<NodeReference>) => {
       nodeReferenceMap.set(path, ref);
     },
     [nodeReferenceMap],

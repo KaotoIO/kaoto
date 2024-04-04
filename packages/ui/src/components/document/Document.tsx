@@ -1,4 +1,4 @@
-import { forwardRef, FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
+import { forwardRef, FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import {
   Accordion,
   ActionList,
@@ -19,6 +19,7 @@ import { AttachSchemaButton } from './AttachSchemaButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { NodeContainer } from './NodeContainer';
+import { NodeReference } from '../../providers/CanvasProvider';
 
 export type DocumentProps = {
   documentType: DocumentType;
@@ -29,8 +30,18 @@ type DocumentImplProps = DocumentProps & {
   nodeId: string;
 };
 
-const PrimitiveDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
+const PrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   ({ documentType, model, nodeId }, forwardedRef) => {
+    const ref = useRef<HTMLDivElement>(null);
+    useImperativeHandle(forwardedRef, () => ({
+      get headerRef() {
+        return ref.current;
+      },
+      get containerRef() {
+        return ref.current;
+      },
+    }));
+
     const headerActiopns = useMemo(() => {
       return (
         <ActionList isIconList={true}>
@@ -48,7 +59,7 @@ const PrimitiveDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
 
     return (
       <Card id={nodeId} isCompact>
-        <NodeContainer dndId={nodeId} field={model as PrimitiveDocument} ref={forwardedRef}>
+        <NodeContainer dndId={nodeId} field={model as PrimitiveDocument} ref={ref}>
           <CardHeader actions={{ actions: headerActiopns, hasNoOffset: true }}>
             <CardTitle>
               <Split hasGutter>
@@ -65,7 +76,7 @@ const PrimitiveDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
   },
 );
 
-const StructuredDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
+const StructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   ({ documentType, model, nodeId }, forwardedRef) => {
     const { reloadNodeReferences } = useCanvas();
     const [isExpanded, setExpanded] = useState<boolean>(true);
@@ -77,6 +88,16 @@ const StructuredDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
       setExpanded(!isExpanded);
       reloadNodeReferences();
     }, [isExpanded, reloadNodeReferences]);
+
+    const headerRef = useRef<HTMLDivElement>(null);
+    useImperativeHandle(forwardedRef, () => ({
+      get headerRef() {
+        return headerRef.current;
+      },
+      get containerRef() {
+        return headerRef.current;
+      },
+    }));
 
     const headerActions = useMemo(() => {
       return (
@@ -102,7 +123,7 @@ const StructuredDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
 
     return (
       <Card id={nodeId} isExpanded={isExpanded} isCompact>
-        <NodeContainer ref={forwardedRef}>
+        <NodeContainer ref={headerRef}>
           <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
             <CardTitle>{model.name}</CardTitle>
           </CardHeader>
@@ -123,15 +144,15 @@ const StructuredDocumentImpl = forwardRef<HTMLDivElement, DocumentImplProps>(
 
 export const Document: FunctionComponent<DocumentProps> = ({ documentType, model }) => {
   const { getNodeReference, setNodeReference } = useCanvas();
-  const ref = useRef<HTMLDivElement>(null);
+  const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
   const fieldRefId = model.fieldIdentifier.toString();
-  getNodeReference(fieldRefId) !== ref && setNodeReference(fieldRefId, ref);
+  getNodeReference(fieldRefId) !== nodeReference && setNodeReference(fieldRefId, nodeReference);
 
   const nodeId = useMemo(() => model.documentId + '-' + Math.floor(Math.random() * 10000), [model.documentId]);
 
   return model instanceof PrimitiveDocument ? (
-    <PrimitiveDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={ref} />
+    <PrimitiveDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
   ) : (
-    <StructuredDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={ref} />
+    <StructuredDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
   );
 };
