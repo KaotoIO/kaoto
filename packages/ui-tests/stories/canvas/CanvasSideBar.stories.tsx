@@ -1,10 +1,13 @@
 import {
+  CamelRouteVisualEntity,
   CanvasNode,
   CanvasSideBar,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeIconResolver,
+  VisibleFlowsProvider,
   VisualComponentSchema,
+  camelRouteJson,
 } from '@kaoto-next/ui/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { useState } from 'react';
@@ -53,6 +56,7 @@ const selectedNode: CanvasNode = {
           },
         } as VisualComponentSchema;
       },
+      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
     } as IVisualizationNode,
   },
 };
@@ -75,6 +79,7 @@ const unknownSelectedNode: CanvasNode = {
           definition: null,
         } as VisualComponentSchema;
       },
+      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
     } as IVisualizationNode,
   },
 };
@@ -87,7 +92,11 @@ export default {
 const Template: StoryFn<typeof CanvasSideBar> = (args) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleClose = () => setIsModalOpen(!isModalOpen);
-  return <CanvasSideBar {...args} onClose={handleClose} />;
+  return (
+    <VisibleFlowsProvider>
+      <CanvasSideBar {...args} onClose={handleClose} />
+    </VisibleFlowsProvider>
+  );
 };
 
 export const ProcessorNode = Template.bind({});
