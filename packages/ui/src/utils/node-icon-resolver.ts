@@ -91,7 +91,7 @@ import kafka from '../assets/components/kafka.svg';
 import kubernetes from '../assets/components/kubernetes.svg';
 import log2 from '../assets/components/log.png';
 import mail from '../assets/components/mail.png';
-import mongodb from '../assets/components/mongodb.png';
+import mongodb from '../assets/components/mongodb.svg';
 import mqtt from '../assets/components/mqtt3.png';
 import netty from '../assets/components/netty.png';
 import openshift from '../assets/components/openshift.png';
