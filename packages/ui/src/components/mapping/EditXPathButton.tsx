@@ -6,7 +6,7 @@ import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { IMapping } from '../../models';
 import { MappingSerializerService } from '../../services/mapping-serializer.service';
 import { Monaco } from '@monaco-editor/react';
-import { editor } from 'monaco-editor';
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
 
 type EditXPathButtonProps = {
