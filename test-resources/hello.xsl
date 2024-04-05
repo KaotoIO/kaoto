@@ -4,7 +4,7 @@
 
     <xsl:template match="/">
         <Hello>
-            <xsl:value-of select="OrderPerson"></xsl:value-of>
+            <xsl:value-of select="OrderPerson" />
         </Hello>
     </xsl:template>
 

@@ -11,6 +11,7 @@ export interface IMapping {
   sourceFields: IField[];
   targetFields: IField[];
   transformations: ITransformation[];
+  xpath?: string;
 }
 
 export class Mapping implements IMapping {

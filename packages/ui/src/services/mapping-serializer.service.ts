@@ -17,14 +17,15 @@ export class MappingSerializerService {
   static serialize(mappings: IMapping[]): string {
     const xslt = MappingSerializerService.createNew();
     mappings.forEach((mapping) => {
-      const source = mapping.sourceFields[0];
-      const target = mapping.targetFields[0];
-      MappingSerializerService.populateMapping(xslt, source, target);
+      MappingSerializerService.populateMapping(xslt, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
   }
 
-  static populateMapping(xsltDocument: Document, source: IField, target: IField) {
+  static populateMapping(xsltDocument: Document, mapping: IMapping) {
+    const source = mapping.sourceFields[0];
+    const target = mapping.targetFields[0];
+
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
     const nsResolver = xsltDocument.createNSResolver(xsltDocument);
     // jsdom requires `type` to be specified anyway, but if `type` is specified,
@@ -36,11 +37,13 @@ export class MappingSerializerService {
     if (!template || template.nodeType !== Node.ELEMENT_NODE) {
       throw Error('No root template in the XSLT document');
     }
+    MappingSerializerService.populateParam(xsltDocument, source);
     const parent =
       target instanceof PrimitiveDocument
         ? template
         : MappingSerializerService.getOrCreateParent(template as Element, target);
-    MappingSerializerService.populateSource(parent, source, target);
+    const sourceXPath = mapping.xpath ? mapping.xpath : MappingSerializerService.getXPath(xsltDocument, source);
+    MappingSerializerService.populateSource(parent, sourceXPath, target);
   }
 
   static getOrCreateParent(template: Element, target: IField) {
@@ -88,10 +91,8 @@ export class MappingSerializerService {
     return element.namespaceURI === field.namespaceURI;
   }
 
-  static populateSource(parent: Element, source: IField, target: IField) {
+  static populateSource(parent: Element, sourceXPath: string, target: IField) {
     const xsltDocument = parent.ownerDocument;
-    MappingSerializerService.populateParam(xsltDocument, source);
-    const sourceXPath = MappingSerializerService.getXPath(xsltDocument, source);
     if (target.isAttribute) {
       const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
       xslAttribute.setAttribute('name', target.name);
