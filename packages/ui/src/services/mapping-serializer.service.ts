@@ -1,4 +1,4 @@
-import { DocumentType, IField, IMapping, PrimitiveDocument } from '../models';
+import { DocumentType, IDocument, IField, IMapping, PrimitiveDocument } from '../models';
 import xmlFormat from 'xml-formatter';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
@@ -14,12 +14,41 @@ export class MappingSerializerService {
     return new DOMParser().parseFromString(EMPTY_XSL, 'application/xml');
   }
 
-  static serialize(mappings: IMapping[]): string {
+  static serialize(mappings: IMapping[], sourceParameterMap: Map<string, IDocument>): string {
     const xslt = MappingSerializerService.createNew();
+    MappingSerializerService.populateParam(xslt, sourceParameterMap);
     mappings.forEach((mapping) => {
       MappingSerializerService.populateMapping(xslt, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
+  }
+
+  static populateParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
+    sourceParameterMap.forEach((_doc, paramName) => {
+      const prefix = xsltDocument.lookupPrefix(NS_XSL);
+      const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+      const existing = xsltDocument
+        .evaluate(
+          `/${prefix}:stylesheet/${prefix}:param[@name='${paramName}']`,
+          xsltDocument,
+          nsResolver,
+          XPathResult.ANY_TYPE,
+        )
+        .iterateNext();
+      if (!existing) {
+        const xsltParam = xsltDocument.createElementNS(NS_XSL, 'param');
+        xsltParam.setAttribute('name', paramName);
+        const template = xsltDocument
+          .evaluate(
+            `/${prefix}:stylesheet/${prefix}:template[@match='/']`,
+            xsltDocument,
+            nsResolver,
+            XPathResult.ANY_TYPE,
+          )
+          .iterateNext()!;
+        (template.parentNode as Element).insertBefore(xsltParam, template);
+      }
+    });
   }
 
   static populateMapping(xsltDocument: Document, mapping: IMapping) {
@@ -37,7 +66,6 @@ export class MappingSerializerService {
     if (!template || template.nodeType !== Node.ELEMENT_NODE) {
       throw Error('No root template in the XSLT document');
     }
-    MappingSerializerService.populateParam(xsltDocument, source);
     const parent =
       target instanceof PrimitiveDocument
         ? template
@@ -114,34 +142,6 @@ export class MappingSerializerService {
       const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
       valueOf.setAttribute('select', sourceXPath);
       element.appendChild(valueOf);
-    }
-  }
-
-  static populateParam(xsltDocument: Document, source: IField) {
-    if (source.ownerDocument.documentType !== DocumentType.PARAM) return;
-    const paramName = source.ownerDocument.documentId;
-    const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
-    const existing = xsltDocument
-      .evaluate(
-        `/${prefix}:stylesheet/${prefix}:param[@name='${paramName}']`,
-        xsltDocument,
-        nsResolver,
-        XPathResult.ANY_TYPE,
-      )
-      .iterateNext();
-    if (!existing) {
-      const xsltParam = xsltDocument.createElementNS(NS_XSL, 'param');
-      xsltParam.setAttribute('name', paramName);
-      const template = xsltDocument
-        .evaluate(
-          `/${prefix}:stylesheet/${prefix}:template[@match='/']`,
-          xsltDocument,
-          nsResolver,
-          XPathResult.ANY_TYPE,
-        )
-        .iterateNext()!;
-      (template.parentNode as Element).insertBefore(xsltParam, template);
     }
   }
 

@@ -1,7 +1,7 @@
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { PenIcon } from '@patternfly/react-icons';
-import { useToggle } from '../../hooks';
+import { useDataMapper, useToggle } from '../../hooks';
 import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { IMapping } from '../../models';
 import { MappingSerializerService } from '../../services/mapping-serializer.service';
@@ -14,6 +14,7 @@ type EditXPathButtonProps = {
 };
 
 export const EditXPathButton: FunctionComponent<EditXPathButtonProps> = ({ mapping }) => {
+  const { refreshMappings } = useDataMapper();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
   const [xpath, setXpath] = useState<string | undefined>(mapping?.xpath);
   const allowEditXPath = !!(mapping && (mapping.xpath || mapping.sourceFields[0]));
@@ -30,8 +31,9 @@ export const EditXPathButton: FunctionComponent<EditXPathButtonProps> = ({ mappi
   const handleSubmitXPath = useCallback(() => {
     mapping!.xpath = xpath;
     if (mapping!.sourceFields.length > 0) mapping!.sourceFields = [];
+    refreshMappings();
     closeModal();
-  }, [closeModal, mapping, xpath]);
+  }, [closeModal, mapping, refreshMappings, xpath]);
 
   const onEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
     editor.layout();

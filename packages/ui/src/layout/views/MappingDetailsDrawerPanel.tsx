@@ -98,7 +98,7 @@ export const MappingDetailsDrawerPanel: FunctionComponent = () => {
                   {selectedMapping.xpath ? (
                     <StackItem>
                       XPath
-                      <TextInput value={selectedMapping.xpath} readOnlyVariant="default" />
+                      <TextInput id="xpath" value={selectedMapping.xpath} readOnlyVariant="default" />
                     </StackItem>
                   ) : (
                     selectedMapping.sourceFields.map((field) => (

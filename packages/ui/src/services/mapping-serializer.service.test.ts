@@ -12,6 +12,10 @@ sourceParamDoc.documentType = DocumentType.PARAM;
 sourceParamDoc.name = 'sourceParam1';
 sourceParamDoc.documentId = 'sourceParam1';
 const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
+const sourceParameterMap = new Map<string, IDocument>([
+  ['sourceParam1', sourceParamDoc],
+  ['primitive', sourcePrimitiveParamDoc],
+]);
 const targetDoc = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
 targetDoc.documentType = DocumentType.TARGET_BODY;
 const targetPrimitiveDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, 'primitiveTargetBody');
@@ -46,7 +50,7 @@ describe('MappingSerializerService', () => {
 
   describe('serialize()', () => {
     it('should return an empty XSLT document with empty mappings', () => {
-      const empty = MappingSerializerService.serialize([]);
+      const empty = MappingSerializerService.serialize([], sourceParameterMap);
       const dom = domParser.parseFromString(empty, 'application/xml');
       const template = dom
         .evaluate('/xsl:stylesheet/xsl:template', dom, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE)
@@ -57,12 +61,15 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize an attribute mapping', () => {
-      const serialized = MappingSerializerService.serialize([
-        {
-          sourceFields: [getField(sourceDoc, '/ShipOrder/@OrderId')],
-          targetFields: [getField(targetDoc, '/ShipOrder/@OrderId')],
-        },
-      ] as IMapping[]);
+      const serialized = MappingSerializerService.serialize(
+        [
+          {
+            sourceFields: [getField(sourceDoc, '/ShipOrder/@OrderId')],
+            targetFields: [getField(targetDoc, '/ShipOrder/@OrderId')],
+          },
+        ] as IMapping[],
+        sourceParameterMap,
+      );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
       const xslAttribute = xsltDomDocument
         .evaluate(
@@ -90,12 +97,15 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize an element mapping', () => {
-      const serialized = MappingSerializerService.serialize([
-        {
-          sourceFields: [getField(sourceDoc, '/ShipOrder/ShipTo/Name')],
-          targetFields: [getField(targetDoc, '/ShipOrder/ShipTo/Name')],
-        },
-      ] as IMapping[]);
+      const serialized = MappingSerializerService.serialize(
+        [
+          {
+            sourceFields: [getField(sourceDoc, '/ShipOrder/ShipTo/Name')],
+            targetFields: [getField(targetDoc, '/ShipOrder/ShipTo/Name')],
+          },
+        ] as IMapping[],
+        sourceParameterMap,
+      );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
       const xslValueOf = xsltDomDocument
         .evaluate(
@@ -128,12 +138,15 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize a container field mapping', () => {
-      const serialized = MappingSerializerService.serialize([
-        {
-          sourceFields: [getField(sourceDoc, '/ShipOrder/Item')],
-          targetFields: [getField(targetDoc, '/ShipOrder/Item')],
-        },
-      ] as IMapping[]);
+      const serialized = MappingSerializerService.serialize(
+        [
+          {
+            sourceFields: [getField(sourceDoc, '/ShipOrder/Item')],
+            targetFields: [getField(targetDoc, '/ShipOrder/Item')],
+          },
+        ] as IMapping[],
+        sourceParameterMap,
+      );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
       const xslCopyOf = xsltDomDocument
         .evaluate('/xsl:stylesheet/xsl:template/ShipOrder/xsl:copy-of', xsltDomDocument, null, XPathResult.ANY_TYPE)
@@ -170,12 +183,15 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize structured parameter field mapping', () => {
-      const serialized = MappingSerializerService.serialize([
-        {
-          sourceFields: [getField(sourceParamDoc, '/ShipOrder/Item')],
-          targetFields: [getField(targetDoc, '/ShipOrder/Item')],
-        },
-      ] as IMapping[]);
+      const serialized = MappingSerializerService.serialize(
+        [
+          {
+            sourceFields: [getField(sourceParamDoc, '/ShipOrder/Item')],
+            targetFields: [getField(targetDoc, '/ShipOrder/Item')],
+          },
+        ] as IMapping[],
+        sourceParameterMap,
+      );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
       const xslParam = xsltDomDocument
         .evaluate('/xsl:stylesheet/xsl:param', xsltDomDocument, null, XPathResult.ANY_TYPE)
@@ -214,12 +230,15 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize primitive parameter to primitive target body mapping', () => {
-      const serialized = MappingSerializerService.serialize([
-        {
-          sourceFields: [sourcePrimitiveParamDoc as IField],
-          targetFields: [targetPrimitiveDoc as IField],
-        },
-      ] as IMapping[]);
+      const serialized = MappingSerializerService.serialize(
+        [
+          {
+            sourceFields: [sourcePrimitiveParamDoc as IField],
+            targetFields: [targetPrimitiveDoc as IField],
+          },
+        ] as IMapping[],
+        sourceParameterMap,
+      );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
       const xslParam = xsltDomDocument
         .evaluate('/xsl:stylesheet/xsl:param', xsltDomDocument, null, XPathResult.ANY_TYPE)
