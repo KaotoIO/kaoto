@@ -9,7 +9,7 @@ import {
   SplitItem,
   Tooltip,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { IField } from '../../models';
 import { useCanvas } from '../../hooks/useCanvas';
 import { DocumentType } from '../../models/document';
@@ -29,9 +29,13 @@ const DocumentFieldButtons: FunctionComponent<DocumentFieldButtonsProps> = ({ fi
   const { mappings, setSelectedMapping } = useDataMapper();
   const correlatedMappings = MappingService.getMappingsFor(mappings, field);
 
-  const handleSelectMapping = useCallback(() => {
-    setSelectedMapping(correlatedMappings[0]);
-  }, [correlatedMappings, setSelectedMapping]);
+  const handleSelectMapping = useCallback(
+    (event: MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      setSelectedMapping(correlatedMappings[0]);
+      event.stopPropagation();
+    },
+    [correlatedMappings, setSelectedMapping],
+  );
 
   return (
     <ActionList>
