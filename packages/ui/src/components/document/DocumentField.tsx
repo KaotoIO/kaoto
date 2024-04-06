@@ -30,7 +30,7 @@ const DocumentFieldButtons: FunctionComponent<DocumentFieldButtonsProps> = ({ fi
   const correlatedMappings = MappingService.getMappingsFor(mappings, field);
 
   const handleSelectMapping = useCallback(
-    (event: MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    (event: MouseEvent<HTMLButtonElement>) => {
       setSelectedMapping(correlatedMappings[0]);
       event.stopPropagation();
     },
