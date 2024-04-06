@@ -240,9 +240,14 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       );
       const xsltDomDocument = domParser.parseFromString(serialized, 'application/xml');
-      const xslParam = xsltDomDocument
-        .evaluate('/xsl:stylesheet/xsl:param', xsltDomDocument, null, XPathResult.ANY_TYPE)
-        .iterateNext() as Element;
+      const xpathResult = xsltDomDocument.evaluate(
+        '/xsl:stylesheet/xsl:param',
+        xsltDomDocument,
+        null,
+        XPathResult.ANY_TYPE,
+      );
+      xpathResult.iterateNext();
+      const xslParam = xpathResult.iterateNext() as Element;
       expect(xslParam.getAttribute('name')).toEqual('primitive');
       const xslValueOf = xsltDomDocument
         .evaluate('/xsl:stylesheet/xsl:template/xsl:value-of', xsltDomDocument, null, XPathResult.ANY_TYPE)

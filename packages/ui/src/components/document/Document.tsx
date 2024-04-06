@@ -20,6 +20,7 @@ import { DetachSchemaButton } from './DetachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/CanvasProvider';
+import './Document.scss';
 
 export type DocumentProps = {
   documentType: DocumentType;

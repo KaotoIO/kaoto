@@ -1,11 +1,58 @@
-import { AccordionContent, AccordionItem, AccordionToggle, Split, SplitItem } from '@patternfly/react-core';
-import { FunctionComponent, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionToggle,
+  ActionList,
+  ActionListItem,
+  Button,
+  Split,
+  SplitItem,
+  Tooltip,
+} from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { IField } from '../../models';
 import { useCanvas } from '../../hooks/useCanvas';
 import { DocumentType } from '../../models/document';
 import { NodeContainer } from './NodeContainer';
-import { GripVerticalIcon } from '@patternfly/react-icons';
+import { CircleIcon, GripVerticalIcon } from '@patternfly/react-icons';
 import { NodeReference } from '../../providers/CanvasProvider';
+import './Document.scss';
+import { useDataMapper } from '../../hooks';
+import { MappingService } from '../../services/mapping.service';
+import './Document.scss';
+
+type DocumentFieldButtonsProps = {
+  field: IField;
+};
+
+const DocumentFieldButtons: FunctionComponent<DocumentFieldButtonsProps> = ({ field }) => {
+  const { mappings, setSelectedMapping } = useDataMapper();
+  const correlatedMappings = MappingService.getMappingsFor(mappings, field);
+
+  const handleSelectMapping = useCallback(() => {
+    setSelectedMapping(correlatedMappings[0]);
+  }, [correlatedMappings, setSelectedMapping]);
+
+  return (
+    <ActionList>
+      {correlatedMappings.length > 0 && (
+        <ActionListItem>
+          <Tooltip position={'auto'} enableFlip={true} content="Show Mapping Details">
+            <Button
+              size="sm"
+              variant="plain"
+              aria-label="Show Mapping Details"
+              data-testid={`select-mapping-${field.ownerDocument?.documentId}-${field.name}-button`}
+              onClick={handleSelectMapping}
+              className="document-field__button"
+              icon={<CircleIcon />}
+            ></Button>
+          </Tooltip>
+        </ActionListItem>
+      )}
+    </ActionList>
+  );
+};
 
 type DocumentFieldProps = {
   documentType: DocumentType;
@@ -39,7 +86,10 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ documentT
             <SplitItem>
               <GripVerticalIcon />
             </SplitItem>
-            <SplitItem>{field.expression}</SplitItem>
+            <SplitItem isFilled>{field.expression}</SplitItem>
+            <SplitItem>
+              <DocumentFieldButtons field={field} />
+            </SplitItem>
           </Split>
         </AccordionContent>
       </AccordionItem>
@@ -53,7 +103,10 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ documentT
               <SplitItem>
                 <GripVerticalIcon />
               </SplitItem>
-              <SplitItem>{field.expression}</SplitItem>
+              <SplitItem isFilled>{field.expression}</SplitItem>
+              <SplitItem>
+                <DocumentFieldButtons field={field} />
+              </SplitItem>
             </Split>
           </AccordionToggle>
         </div>

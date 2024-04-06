@@ -48,4 +48,12 @@ export class MappingService {
       targetFields: [targetField],
     } as IMapping;
   }
+
+  static getMappingsFor(allMappings: IMapping[], field: IField) {
+    if (field.ownerDocument.documentType === DocumentType.TARGET_BODY) {
+      return allMappings.filter((m) => m.targetFields.indexOf(field) !== -1);
+    } else {
+      return allMappings.filter((m) => m.sourceFields.indexOf(field) !== -1);
+    }
+  }
 }
