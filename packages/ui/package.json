@@ -48,6 +48,7 @@
     "@patternfly/react-table": "^5.1.2",
     "@patternfly/react-topology": "^5.1.0",
     "@types/pako": "^2.0.3",
+    "chevrotain": "10.5.0",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "file-saver": "^2.0.5",
