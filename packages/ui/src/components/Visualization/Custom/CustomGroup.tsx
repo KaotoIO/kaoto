@@ -1,6 +1,15 @@
-import { DefaultGroup, GraphElement, Layer, isNode, observer, withSelection } from '@patternfly/react-topology';
+import {
+  DefaultGroup,
+  GraphElement,
+  Layer,
+  isNode,
+  observer,
+  withSelection,
+  withContextMenu,
+} from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { CanvasNode } from '../Canvas/canvas.models';
+import { ItemRemoveGroup } from './ItemRemoveGroup';
 
 type IDefaultGroup = Parameters<typeof DefaultGroup>[0];
 interface ICustomGroup extends IDefaultGroup {
@@ -34,4 +43,6 @@ const CustomGroup: FunctionComponent<ICustomGroup> = observer(({ element, ...res
   );
 });
 
-export const CustomGroupWithSelection = withSelection()(CustomGroup);
+export const CustomGroupWithSelection = withContextMenu(() => [
+  <ItemRemoveGroup key="context-menu-container-remove" data-testid="context-menu-container-remove" />,
+])(withSelection()(CustomGroup));
