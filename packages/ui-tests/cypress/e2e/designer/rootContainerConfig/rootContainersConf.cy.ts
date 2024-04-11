@@ -11,17 +11,20 @@ describe('Test for camel route root containers configuration', () => {
     cy.get('[data-id^="route-1234"]')
       .find('.pf-topology__group__label')
       .find('.pf-topology__node__action-icon')
+      .eq(0)
       .click();
 
     cy.get('[data-id^="route-4321"]')
       .find('.pf-topology__group__label')
       .find('.pf-topology__node__action-icon')
+      .eq(0)
       .click();
     cy.checkNodeExist('timer', 0);
     cy.checkNodeExist('log', 0);
     cy.get('[data-id^="route-4321"]')
       .find('.pf-topology__group__label')
       .find('.pf-topology__node__action-icon')
+      .eq(0)
       .click();
     cy.checkNodeExist('timer', 1);
     cy.checkNodeExist('log', 1);
