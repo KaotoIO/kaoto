@@ -1,12 +1,12 @@
-import { ErrorHandler, NoErrorHandler } from '@kaoto-next/camel-catalog/types';
+import { ErrorHandlerBuilderDeserializer, NoErrorHandler } from '@kaoto-next/camel-catalog/types';
 import { useSchemasStore } from '../../../store';
 import { errorHandlerSchema } from '../../../stubs/error-handler';
-import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 import { EntityType } from '../../camel/entities';
+import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 
 describe('CamelErrorHandlerVisualEntity', () => {
   const ERROR_HANDLER_ID_REGEXP = /^errorHandler-[a-zA-Z0-9]{4}$/;
-  let errorHandlerDef: { errorHandler: ErrorHandler };
+  let errorHandlerDef: { errorHandler: ErrorHandlerBuilderDeserializer };
 
   beforeAll(() => {
     useSchemasStore.getState().setSchema('errorHandler', {

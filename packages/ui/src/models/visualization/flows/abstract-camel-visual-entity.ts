@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
-import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { ROOT_PATH, getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
+import { ROOT_PATH, getArrayProperty, getValue, setValue } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -20,12 +20,13 @@ import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './sup
 import { CamelStepsService } from './support/camel-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity {
-  constructor(public route: RouteDefinition) {}
+export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
+  constructor(public route: T) {}
 
   abstract id: string;
   abstract type: EntityType;
   abstract setId(id: string): void;
+  abstract toJSON(): unknown;
   protected abstract getRootUri(): string | undefined;
 
   getId(): string {
@@ -68,17 +69,11 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     return SchemaService.OMIT_FORM_FIELDS;
   }
 
-  toJSON() {
-    return { route: this.route };
-  }
-
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
     const updatedValue = CamelComponentSchemaService.getUriSerializedDefinition(path, value);
 
     setValue(this.route, path, updatedValue);
-
-    if (isDefined(this.route.id)) this.id = this.route.id;
   }
 
   /**
@@ -106,12 +101,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       (options.data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
     );
 
-    /** Replace the root `from` step */
-    if (options.mode === AddStepMode.ReplaceStep && options.data.path === 'from' && isDefined(this.route.from)) {
-      const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
-      Object.assign(this.route.from, fromValue);
-      return;
-    } else if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
+    if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
       this.insertChildStep(options, stepsProperties, defaultValue);
       return;
     }
@@ -144,15 +134,6 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
 
   removeStep(path?: string): void {
     if (!path) return;
-    /**
-     * If there's only one path segment, it means the target is the `from` property of the route
-     * therefore we replace it with an empty object
-     */
-    if (path === 'from') {
-      setValue(this.route, 'from.uri', '');
-      return;
-    }
-
     const pathArray = path.split('.');
     const last = pathArray[pathArray.length - 1];
     const penultimate = pathArray[pathArray.length - 2];
@@ -207,6 +188,9 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
       (data as CamelRouteVisualEntityData).processorName,
     );
+    const canReplaceStep = CamelComponentSchemaService.canReplaceStep(
+      (data as CamelRouteVisualEntityData).processorName,
+    );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
 
@@ -215,7 +199,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       canHaveNextStep: canHavePreviousStep,
       canHaveChildren,
       canHaveSpecialChildren,
-      canReplaceStep: true,
+      canReplaceStep,
       canRemoveStep: true,
       canRemoveFlow: data.path === ROOT_PATH,
     };
@@ -254,7 +238,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
   }
 
   private insertChildStep(
-    options: Parameters<AbstractCamelVisualEntity['addStep']>[0],
+    options: Parameters<AbstractCamelVisualEntity<object>['addStep']>[0],
     stepsProperties: CamelProcessorStepsProperties[],
     defaultValue: ProcessorDefinition = {},
   ) {

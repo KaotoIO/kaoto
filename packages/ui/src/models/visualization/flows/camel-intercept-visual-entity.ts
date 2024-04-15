@@ -1,4 +1,4 @@
-import { OnException, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { Intercept, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
@@ -14,31 +14,29 @@ import { CamelRouteVisualEntityData } from './support/camel-component-types';
 import { CamelStepsService } from './support/camel-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-export class CamelOnExceptionVisualEntity
-  extends AbstractCamelVisualEntity<{ onException: OnException }>
+export class CamelInterceptVisualEntity
+  extends AbstractCamelVisualEntity<{ intercept: Intercept }>
   implements BaseVisualCamelEntity
 {
   id: string;
-  readonly type = EntityType.OnException;
-  private static readonly ROOT_PATH = 'onException';
+  readonly type = EntityType.Intercept;
+  static readonly ROOT_PATH = 'intercept';
 
-  constructor(public onExceptionDef: { onException: OnException }) {
-    super(onExceptionDef);
-    const id = onExceptionDef.onException.id ?? getCamelRandomId(CamelOnExceptionVisualEntity.ROOT_PATH);
+  constructor(public interceptDef: { intercept: Intercept }) {
+    super(interceptDef);
+    const id = interceptDef.intercept.id ?? getCamelRandomId(CamelInterceptVisualEntity.ROOT_PATH);
     this.id = id;
-    this.onExceptionDef.onException.id = id;
+    this.interceptDef.intercept.id = id;
   }
 
-  static isApplicable(onExceptionDef: unknown): onExceptionDef is { onException: OnException } {
-    if (!isDefined(onExceptionDef) || Array.isArray(onExceptionDef) || typeof onExceptionDef !== 'object') {
+  static isApplicable(interceptDef: unknown): interceptDef is { intercept: Intercept } {
+    if (!isDefined(interceptDef) || Array.isArray(interceptDef) || typeof interceptDef !== 'object') {
       return false;
     }
 
-    const objectKeys = Object.keys(onExceptionDef!);
+    const objectKeys = Object.keys(interceptDef!);
 
-    return (
-      objectKeys.length === 1 && this.ROOT_PATH in onExceptionDef! && typeof onExceptionDef.onException === 'object'
-    );
+    return objectKeys.length === 1 && this.ROOT_PATH in interceptDef! && typeof interceptDef.intercept === 'object';
   }
 
   getId(): string {
@@ -47,7 +45,7 @@ export class CamelOnExceptionVisualEntity
 
   setId(id: string): void {
     this.id = id;
-    this.onExceptionDef.onException.id = id;
+    this.interceptDef.intercept.id = id;
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
@@ -59,8 +57,8 @@ export class CamelOnExceptionVisualEntity
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
-    const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
-    const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
+    const canReplaceStep = data.path !== CamelInterceptVisualEntity.ROOT_PATH;
+    const canRemoveStep = data.path !== CamelInterceptVisualEntity.ROOT_PATH;
 
     return {
       canHavePreviousStep,
@@ -69,7 +67,7 @@ export class CamelOnExceptionVisualEntity
       canHaveSpecialChildren,
       canReplaceStep,
       canRemoveStep,
-      canRemoveFlow: data.path === CamelOnExceptionVisualEntity.ROOT_PATH,
+      canRemoveFlow: data.path === CamelInterceptVisualEntity.ROOT_PATH,
     };
   }
 
@@ -81,19 +79,19 @@ export class CamelOnExceptionVisualEntity
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const onExceptionGroupNode = CamelStepsService.getVizNodeFromProcessor(
-      CamelOnExceptionVisualEntity.ROOT_PATH,
-      { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
-      this.onExceptionDef,
+    const interceptGroupNode = CamelStepsService.getVizNodeFromProcessor(
+      CamelInterceptVisualEntity.ROOT_PATH,
+      { processorName: CamelInterceptVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
+      this.interceptDef,
     );
-    onExceptionGroupNode.data.entity = this;
-    onExceptionGroupNode.data.isGroup = true;
+    interceptGroupNode.data.entity = this;
+    interceptGroupNode.data.isGroup = true;
 
-    return onExceptionGroupNode;
+    return interceptGroupNode;
   }
 
-  toJSON(): { onException: OnException } {
-    return { onException: this.onExceptionDef.onException };
+  toJSON(): { intercept: Intercept } {
+    return { intercept: this.interceptDef.intercept };
   }
 
   protected getRootUri(): string | undefined {

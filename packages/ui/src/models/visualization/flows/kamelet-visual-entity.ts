@@ -1,14 +1,23 @@
+import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { ROOT_PATH, getCustomSchemaFromKamelet, updateKameletFromCustomSchema } from '../../../utils';
+import {
+  ROOT_PATH,
+  getCustomSchemaFromKamelet,
+  isDefined,
+  setValue,
+  updateKameletFromCustomSchema,
+} from '../../../utils';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { VisualComponentSchema } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
+import { CamelComponentDefaultService } from './support/camel-component-default.service';
 
-export class KameletVisualEntity extends AbstractCamelVisualEntity {
+export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefinition> {
   id: string;
   readonly type = EntityType.Kamelet;
 
@@ -27,6 +36,10 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
 
   getId(): string {
     return this.kamelet.metadata.name;
+  }
+
+  toJSON(): { route: RouteDefinition } {
+    return { route: this.route };
   }
 
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
@@ -50,6 +63,41 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     }
 
     super.updateModel(path, value);
+    if (isDefined(this.route.id)) this.id = this.route.id;
+  }
+
+  addStep(options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string | undefined;
+  }): void {
+    /** Replace the root `from` step */
+    if (options.mode === AddStepMode.ReplaceStep && options.data.path === 'from' && isDefined(this.route.from)) {
+      const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
+      Object.assign(this.route.from, fromValue);
+      return;
+    }
+
+    super.addStep(options);
+  }
+
+  removeStep(path?: string): void {
+    if (!path) return;
+    /**
+     * If there's only one path segment, it means the target is the `from` property of the route
+     * therefore we replace it with an empty object
+     */
+    if (path === 'from') {
+      setValue(this.route, 'from.uri', '');
+      return;
+    }
+
+    super.removeStep(path);
+  }
+
+  protected getRootUri(): string | undefined {
+    return this.kamelet.spec.template.from?.uri;
   }
 
   private getRootKameletSchema(): KaotoSchemaDefinition['schema'] {
@@ -63,9 +111,5 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity {
     }
 
     return schema;
-  }
-
-  protected getRootUri(): string | undefined {
-    return this.kamelet.spec.template.from?.uri;
   }
 }
