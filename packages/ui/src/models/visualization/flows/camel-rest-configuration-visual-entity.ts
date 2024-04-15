@@ -2,6 +2,7 @@ import { ProcessorDefinition, RestConfiguration } from '@kaoto-next/camel-catalo
 import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { SchemaService } from '../../../components/Form/schema.service';
 import { isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
@@ -75,6 +76,10 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
       schema: schema?.propertiesSchema || {},
       title: 'Rest Configuration',
     };
+  }
+
+  getOmitFormFields(): string[] {
+    return SchemaService.OMIT_FORM_FIELDS;
   }
 
   updateModel(path: string | undefined, value: unknown): void {

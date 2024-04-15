@@ -26,6 +26,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Given a path, get the component type and definition */
   getComponentSchema: (path?: string) => VisualComponentSchema | undefined;
 
+  /** Returnt fields that should be omitted when configuring this entity */
+  getOmitFormFields: () => string[];
+
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
 

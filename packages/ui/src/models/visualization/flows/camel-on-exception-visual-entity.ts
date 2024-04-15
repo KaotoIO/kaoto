@@ -1,5 +1,6 @@
 import { OnException, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { SchemaService } from '../../../components/Form/schema.service';
 import { getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities/base-entity';
@@ -11,12 +12,12 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelStepsService } from './support/camel-steps.service';
-import { ModelValidationService } from './support/validators/model-validation.service';
-import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
+import { CamelStepsService } from './support/camel-steps.service';
+import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -79,6 +80,10 @@ export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
+  }
+
+  getOmitFormFields(): string[] {
+    return SchemaService.OMIT_FORM_FIELDS;
   }
 
   updateModel(path: string | undefined, value: unknown): void {
