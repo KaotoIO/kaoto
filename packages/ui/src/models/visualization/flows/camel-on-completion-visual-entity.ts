@@ -1,4 +1,4 @@
-import { OnException, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { OnCompletion, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
@@ -14,30 +14,30 @@ import { CamelRouteVisualEntityData } from './support/camel-component-types';
 import { CamelStepsService } from './support/camel-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-export class CamelOnExceptionVisualEntity
-  extends AbstractCamelVisualEntity<{ onException: OnException }>
+export class CamelOnCompletionVisualEntity
+  extends AbstractCamelVisualEntity<{ onCompletion: OnCompletion }>
   implements BaseVisualCamelEntity
 {
   id: string;
-  readonly type = EntityType.OnException;
-  private static readonly ROOT_PATH = 'onException';
+  readonly type = EntityType.OnCompletion;
+  static readonly ROOT_PATH = 'onCompletion';
 
-  constructor(public onExceptionDef: { onException: OnException }) {
-    super(onExceptionDef);
-    const id = onExceptionDef.onException.id ?? getCamelRandomId(CamelOnExceptionVisualEntity.ROOT_PATH);
+  constructor(public onCompletionDef: { onCompletion: OnCompletion }) {
+    super(onCompletionDef);
+    const id = onCompletionDef.onCompletion.id ?? getCamelRandomId(CamelOnCompletionVisualEntity.ROOT_PATH);
     this.id = id;
-    this.onExceptionDef.onException.id = id;
+    this.onCompletionDef.onCompletion.id = id;
   }
 
-  static isApplicable(onExceptionDef: unknown): onExceptionDef is { onException: OnException } {
-    if (!isDefined(onExceptionDef) || Array.isArray(onExceptionDef) || typeof onExceptionDef !== 'object') {
+  static isApplicable(onCompletionDef: unknown): onCompletionDef is { onCompletion: OnCompletion } {
+    if (!isDefined(onCompletionDef) || Array.isArray(onCompletionDef) || typeof onCompletionDef !== 'object') {
       return false;
     }
 
-    const objectKeys = Object.keys(onExceptionDef!);
+    const objectKeys = Object.keys(onCompletionDef!);
 
     return (
-      objectKeys.length === 1 && this.ROOT_PATH in onExceptionDef! && typeof onExceptionDef.onException === 'object'
+      objectKeys.length === 1 && this.ROOT_PATH in onCompletionDef! && typeof onCompletionDef.onCompletion === 'object'
     );
   }
 
@@ -47,7 +47,7 @@ export class CamelOnExceptionVisualEntity
 
   setId(id: string): void {
     this.id = id;
-    this.onExceptionDef.onException.id = id;
+    this.onCompletionDef.onCompletion.id = id;
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
@@ -59,8 +59,8 @@ export class CamelOnExceptionVisualEntity
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
-    const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
-    const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
+    const canReplaceStep = data.path !== CamelOnCompletionVisualEntity.ROOT_PATH;
+    const canRemoveStep = data.path !== CamelOnCompletionVisualEntity.ROOT_PATH;
 
     return {
       canHavePreviousStep,
@@ -69,7 +69,7 @@ export class CamelOnExceptionVisualEntity
       canHaveSpecialChildren,
       canReplaceStep,
       canRemoveStep,
-      canRemoveFlow: data.path === CamelOnExceptionVisualEntity.ROOT_PATH,
+      canRemoveFlow: data.path === CamelOnCompletionVisualEntity.ROOT_PATH,
     };
   }
 
@@ -81,19 +81,19 @@ export class CamelOnExceptionVisualEntity
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const onExceptionGroupNode = CamelStepsService.getVizNodeFromProcessor(
-      CamelOnExceptionVisualEntity.ROOT_PATH,
-      { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
-      this.onExceptionDef,
+    const onCompletionGroupNode = CamelStepsService.getVizNodeFromProcessor(
+      CamelOnCompletionVisualEntity.ROOT_PATH,
+      { processorName: CamelOnCompletionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
+      this.onCompletionDef,
     );
-    onExceptionGroupNode.data.entity = this;
-    onExceptionGroupNode.data.isGroup = true;
+    onCompletionGroupNode.data.entity = this;
+    onCompletionGroupNode.data.isGroup = true;
 
-    return onExceptionGroupNode;
+    return onCompletionGroupNode;
   }
 
-  toJSON(): { onException: OnException } {
-    return { onException: this.onExceptionDef.onException };
+  toJSON(): { onCompletion: OnCompletion } {
+    return { onCompletion: this.onCompletionDef.onCompletion };
   }
 
   protected getRootUri(): string | undefined {

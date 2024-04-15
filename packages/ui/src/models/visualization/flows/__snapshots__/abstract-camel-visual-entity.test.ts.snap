@@ -20,7 +20,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
   "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canReplaceStep": false,
 }
 `;
 
@@ -32,7 +32,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
   "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canReplaceStep": false,
 }
 `;
 
@@ -44,7 +44,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
   "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canReplaceStep": false,
 }
 `;
 
@@ -68,7 +68,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
   "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canReplaceStep": false,
 }
 `;
 
@@ -80,7 +80,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
   "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canReplaceStep": false,
 }
 `;
 

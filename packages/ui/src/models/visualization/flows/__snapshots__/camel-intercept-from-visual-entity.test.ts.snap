@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{
+  processorName: 'interceptSendToEndpoint',
+  path: 'interceptSendToEndpoint'
+}' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'from', path: 'from' }' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'intercept', path: 'intercept' }' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'interceptFrom', path: 'interceptFrom' }' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": true,
+  "canRemoveStep": false,
+  "canReplaceStep": false,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'log', path: 'log' }' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onException', path: 'onException' }' processor 1`] = `
+{
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'route', path: 'route' }' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'to', path: 'to' }' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptFromVisualEntity should serialize the entity 1`] = `
+{
+  "interceptFrom": {
+    "id": "interceptFrom-1234",
+    "uri": "direct:a-reference",
+  },
+}
+`;
