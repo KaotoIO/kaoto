@@ -1,5 +1,6 @@
 /* eslint-disable no-case-declarations */
 import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { SchemaService } from '../../../components/Form/schema.service';
 import { ROOT_PATH, getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { NodeIconResolver } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
@@ -61,6 +62,10 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     return visualComponentSchema;
+  }
+
+  getOmitFormFields(): string[] {
+    return SchemaService.OMIT_FORM_FIELDS;
   }
 
   toJSON() {

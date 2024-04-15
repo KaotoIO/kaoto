@@ -2,6 +2,7 @@ import { Pipe } from '@kaoto-next/camel-catalog/types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { SchemaService } from '../../../components/Form/schema.service';
 import { getArrayProperty, NodeIconResolver } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -62,6 +63,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     if (!path) return undefined;
     const stepModel = get(this.spec, path) as PipeStep;
     return KameletSchemaService.getVisualComponentSchema(stepModel);
+  }
+
+  getOmitFormFields(): string[] {
+    return SchemaService.OMIT_FORM_FIELDS;
   }
 
   toJSON() {

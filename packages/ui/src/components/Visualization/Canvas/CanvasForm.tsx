@@ -5,7 +5,6 @@ import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
 import { isDefined, setValue } from '../../../utils';
 import { ErrorBoundary } from '../../ErrorBoundary';
-import { SchemaService } from '../../Form';
 import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
@@ -26,6 +25,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const formRef = useRef<CustomAutoFormRef>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const flowIdRef = useRef<string | undefined>(undefined);
+  const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -107,7 +107,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
                 model={model}
                 onChange={handleOnChangeIndividualProp}
                 sortFields={false}
-                omitFields={SchemaService.OMIT_FORM_FIELDS}
+                omitFields={omitFields.current}
                 data-testid="autoform"
               />
               <div data-testid="root-form-placeholder" ref={divRef} />
