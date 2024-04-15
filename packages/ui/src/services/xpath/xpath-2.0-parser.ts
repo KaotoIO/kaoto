@@ -586,7 +586,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
   });
 
   private SingleType = this.RULE('SingleType', () => {
-    this.SUBRULE(this.AtomicType);
+    this.SUBRULE(this.QName);
     this.OPTION(() => this.CONSUME(Question));
   });
 
