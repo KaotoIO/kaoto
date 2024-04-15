@@ -32,6 +32,7 @@ export interface IDataMapperContext {
 
   mappings: IMapping[];
   refreshMappings(): void;
+  setMappings(mappings: IMapping[]): void;
   selectedMapping: IMapping | null;
   setSelectedMapping(mapping: IMapping | null): void;
 
@@ -76,6 +77,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       setTargetBodyDocument,
       mappings,
       refreshMappings,
+      setMappings,
       selectedMapping,
       setSelectedMapping,
       debug,

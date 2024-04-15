@@ -19,6 +19,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { ExportIcon } from '@patternfly/react-icons';
 import { useDataMapper, useToggle } from '../../hooks';
 import { DocumentType, PrimitiveDocument } from '../../models/document';
+import { MappingService } from '../../services/mapping.service';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -26,10 +27,19 @@ type DeleteSchemaProps = {
 };
 
 export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
-  const { sourceParameterMap, refreshSourceParameters, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
+  const {
+    mappings,
+    setMappings,
+    sourceParameterMap,
+    refreshSourceParameters,
+    setSourceBodyDocument,
+    setTargetBodyDocument,
+  } = useDataMapper();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
+    const cleanedMappings = MappingService.removeAllMappingsForDocument(mappings, documentType, documentId);
+    setMappings(cleanedMappings);
     const primitiveDoc = new PrimitiveDocument(documentType, documentId);
     switch (documentType) {
       case DocumentType.SOURCE_BODY:
@@ -48,6 +58,8 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
     closeModal,
     documentId,
     documentType,
+    mappings,
+    setMappings,
     refreshSourceParameters,
     setSourceBodyDocument,
     setTargetBodyDocument,
@@ -79,7 +91,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
           </Button>,
         ]}
       >
-        Detach correlated schema and make it back to be a primitive value?
+        Detach correlated schema and make it back to be a primitive value? Related mappings will be also removed.
       </Modal>
     </>
   );

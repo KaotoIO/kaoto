@@ -2,20 +2,24 @@ import { FunctionComponent, useCallback } from 'react';
 import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { useDataMapper, useToggle } from '../../hooks';
+import { MappingService } from '../../services/mapping.service';
+import { DocumentType } from '../../models';
 
 type DeleteParameterProps = {
   parameterName: string;
 };
 
 export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({ parameterName }) => {
-  const { sourceParameterMap, refreshSourceParameters } = useDataMapper();
+  const { mappings, setMappings, sourceParameterMap, refreshSourceParameters } = useDataMapper();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
+    const cleaned = MappingService.removeAllMappingsForDocument(mappings, DocumentType.PARAM, parameterName);
+    setMappings(cleaned);
     sourceParameterMap.delete(parameterName);
     refreshSourceParameters();
     closeModal();
-  }, [closeModal, parameterName, refreshSourceParameters, sourceParameterMap]);
+  }, [closeModal, mappings, parameterName, refreshSourceParameters, setMappings, sourceParameterMap]);
 
   return (
     <>
@@ -42,7 +46,7 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
           </Button>,
         ]}
       >
-        Delete parameter "{parameterName}"?
+        Delete parameter "{parameterName}"? Related mappings will be also removed.
       </Modal>
     </>
   );

@@ -22,6 +22,7 @@ import { readFileAsString } from '../../util';
 import { XmlSchemaDocumentService } from '../../services';
 import { useDataMapper } from '../../hooks';
 import { DocumentType } from '../../models/document';
+import { MappingService } from '../../services/mapping.service';
 
 type AttachSchemaProps = {
   documentType: DocumentType;
@@ -34,7 +35,14 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentId,
   hasSchema = false,
 }) => {
-  const { sourceParameterMap, refreshSourceParameters, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
+  const {
+    mappings,
+    setMappings,
+    sourceParameterMap,
+    refreshSourceParameters,
+    setSourceBodyDocument,
+    setTargetBodyDocument,
+  } = useDataMapper();
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
@@ -44,6 +52,13 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     (file: File) => {
       readFileAsString(file).then((content) => {
         const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
+        if (hasSchema) {
+          const cleaned = MappingService.removeStaleMappingsForDocument(mappings, document);
+          setMappings(cleaned);
+        } else {
+          const cleaned = MappingService.removeAllMappingsForDocument(mappings, documentType, documentId);
+          setMappings(cleaned);
+        }
         switch (documentType) {
           case DocumentType.SOURCE_BODY:
             setSourceBodyDocument(document);
@@ -61,7 +76,10 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     [
       documentId,
       documentType,
+      hasSchema,
+      mappings,
       refreshSourceParameters,
+      setMappings,
       setSourceBodyDocument,
       setTargetBodyDocument,
       sourceParameterMap,

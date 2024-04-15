@@ -1,5 +1,6 @@
 import { DocumentType, IDocument, IField, IMapping, PrimitiveDocument } from '../models';
 import xmlFormat from 'xml-formatter';
+import { DocumentService } from './document.service';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
 export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
@@ -80,7 +81,7 @@ export class MappingSerializerService {
     }
 
     const xsltDocument = template.ownerDocument;
-    const fieldStack: IField[] = MappingSerializerService.getFieldStack(target);
+    const fieldStack: IField[] = DocumentService.getFieldStack(target);
     let parentNode = template;
     while (fieldStack.length) {
       const currentField = fieldStack.pop()!;
@@ -101,15 +102,6 @@ export class MappingSerializerService {
       parentNode = element;
     }
     return parentNode;
-  }
-
-  static getFieldStack(field: IField, includeItself: boolean = false) {
-    const fieldStack: IField[] = [];
-    if (includeItself) fieldStack.push(field);
-    for (let next = field.parent; 'parent' in next && next !== next.parent; next = (next as IField).parent) {
-      fieldStack.push(next);
-    }
-    return fieldStack;
   }
 
   static isInSameNamespace(element: Element, field: IField) {
@@ -146,7 +138,7 @@ export class MappingSerializerService {
   }
 
   static getXPath(xsltDocument: Document, field: IField) {
-    const fieldStack = MappingSerializerService.getFieldStack(field, true);
+    const fieldStack = DocumentService.getFieldStack(field, true);
     const pathStack: string[] = [];
     while (fieldStack.length) {
       const currentField = fieldStack.pop()!;
