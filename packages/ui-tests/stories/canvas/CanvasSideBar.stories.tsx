@@ -5,6 +5,7 @@ import {
   IVisualizationNode,
   IVisualizationNodeData,
   NodeIconResolver,
+  NodeIconType,
   VisibleFlowsProvider,
   VisualComponentSchema,
   camelRouteJson,
@@ -25,7 +26,7 @@ const selectedNode: CanvasNode = {
         label: 'log-sink',
         path: 'sink',
         isPlaceholder: false,
-        icon: NodeIconResolver.getIcon('log'),
+        icon: NodeIconResolver.getIcon('log', NodeIconType.EIP),
       } as IVisualizationNodeData,
       id: 'log-sink-6839',
       nextNode: undefined,
@@ -101,7 +102,7 @@ const Template: StoryFn<typeof CanvasSideBar> = (args) => {
 
 export const ProcessorNode = Template.bind({});
 ProcessorNode.args = {
-  selectedNode: selectedNode,
+  selectedNode,
 };
 
 export const SelectedUnknownNode = Template.bind({});

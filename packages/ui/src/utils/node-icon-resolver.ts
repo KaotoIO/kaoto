@@ -121,40 +121,34 @@ import workday from '../assets/components/workday.svg';
 import xslt from '../assets/components/xslt2.png';
 
 import { CatalogKind } from '../models/catalog-kind';
-import { IKameletDefinition } from '../models/kamelets-catalog';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntityType } from '../models/camel/entities';
 
+export const enum NodeIconType {
+  Component,
+  EIP,
+  Kamelet,
+  VisualEntity,
+}
+
 export class NodeIconResolver {
-  static getIcon(elementName: string | undefined): string {
-    if (elementName?.startsWith('kamelet:')) {
-      const kameletDefinition = CamelCatalogService.getComponent(
-        CatalogKind.Kamelet,
-        elementName.replace('kamelet:', ''),
-      ) as IKameletDefinition | undefined;
-
-      return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? this.getUnknownIcon();
-    }
-
-    let icon = this.getComponentIcon(elementName);
-    if (icon !== undefined) {
-      return icon;
-    }
-
-    icon = this.getEIPIcon(elementName);
-    if (icon !== undefined) {
-      return icon;
-    }
-
-    icon = this.getVisualEntityIcon(elementName);
-    if (icon !== undefined) {
-      return icon;
-    }
-
-    if (elementName === '') {
+  static getIcon(elementName: string | undefined, type: NodeIconType): string {
+    if (!elementName) {
       return this.getUnknownIcon();
     }
-    return this.getDefaultCamelIcon();
+
+    if (elementName.startsWith('kamelet') || type === NodeIconType.Kamelet) {
+      return this.getKameletIcon(elementName) ?? this.getUnknownIcon();
+    }
+
+    switch (type) {
+      case NodeIconType.Component:
+        return this.getComponentIcon(elementName) ?? this.getDefaultCamelIcon();
+      case NodeIconType.EIP:
+        return this.getEIPIcon(elementName) ?? this.getDefaultCamelIcon();
+      case NodeIconType.VisualEntity:
+        return this.getVisualEntityIcon(elementName) ?? this.getDefaultCamelIcon();
+    }
   }
 
   static getUnknownIcon(): string {
@@ -169,7 +163,16 @@ export class NodeIconResolver {
     return generic_component;
   }
 
-  private static getComponentIcon(elementName?: string): string | undefined {
+  private static getKameletIcon(elementName: string): string | undefined {
+    const kameletDefinition = CamelCatalogService.getComponent(
+      CatalogKind.Kamelet,
+      elementName.replace('kamelet:', ''),
+    );
+
+    return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'];
+  }
+
+  private static getComponentIcon(elementName: string): string | undefined {
     switch (elementName) {
       case 'activemq':
         return activemq;
@@ -615,7 +618,7 @@ export class NodeIconResolver {
     }
   }
 
-  private static getEIPIcon(elementName?: string): string | undefined {
+  private static getEIPIcon(elementName: string): string | undefined {
     switch (elementName) {
       case 'aggregate':
         return aggregate;
@@ -743,7 +746,7 @@ export class NodeIconResolver {
     }
   }
 
-  private static getVisualEntityIcon(elementName?: string): string | undefined {
+  private static getVisualEntityIcon(elementName: string): string | undefined {
     switch (elementName) {
       case EntityType.Route:
         return route;

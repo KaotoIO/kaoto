@@ -2,7 +2,7 @@ import { ErrorHandlerBuilderDeserializer, ProcessorDefinition } from '@kaoto/cam
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import { useSchemasStore } from '../../../store';
-import { getValue, isDefined, setValue } from '../../../utils';
+import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
@@ -131,6 +131,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     );
     errorHandlerGroupNode.data.entity = this;
     errorHandlerGroupNode.data.isGroup = true;
+    errorHandlerGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
 
     return errorHandlerGroupNode;
   }
