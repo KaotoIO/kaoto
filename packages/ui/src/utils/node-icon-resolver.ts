@@ -16,7 +16,7 @@ import filter from '../assets/eip/filter.png';
 import generic_eip from '../assets/eip/generic.png';
 import idempotent_consumer from '../assets/eip/idempotentConsumer.png';
 import load_balance from '../assets/eip/load-balance.png';
-import log from '../assets/eip/log.png';
+import log from '../assets/eip/log.svg';
 import loop from '../assets/eip/loop.png';
 import multicast from '../assets/eip/multicast.png';
 import otherwise from '../assets/eip/otherwise.png';
