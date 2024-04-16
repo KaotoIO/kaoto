@@ -135,9 +135,9 @@ export class CanvasService {
     this.edges = [];
     this.visitedNodes = [];
 
-    const firstChild = vizNode.getChildren()?.[0];
-    if (vizNode.data.isGroup && firstChild) {
-      this.appendNodesAndEdges(firstChild);
+    const children = vizNode.getChildren();
+    if (vizNode.data.isGroup && children) {
+      children.forEach((child) => this.appendNodesAndEdges(child));
       const containerId = vizNode.getBaseEntity()?.getId() ?? 'Unknown';
       const group = this.getContainer(containerId, {
         label: containerId,
