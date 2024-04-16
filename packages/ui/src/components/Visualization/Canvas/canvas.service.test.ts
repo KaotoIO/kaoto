@@ -135,6 +135,43 @@ describe('CanvasService', () => {
       expect(edges).toEqual([]);
     });
 
+    it('should return nodes and edges for a group with children', () => {
+      const groupVizNode = createVisualizationNode('group', { isGroup: true });
+      const child1VizNode = createVisualizationNode('child1', {});
+      const child2VizNode = createVisualizationNode('child2', {});
+      groupVizNode.addChild(child1VizNode);
+      groupVizNode.addChild(child2VizNode);
+
+      const { nodes, edges } = CanvasService.getFlowDiagram(groupVizNode);
+
+      expect(nodes).toEqual([
+        {
+          ...DEFAULT_NODE_PROPS,
+          id: 'child1-1234',
+          parentNode: 'group-1234',
+          data: { vizNode: child1VizNode },
+        },
+        {
+          ...DEFAULT_NODE_PROPS,
+          id: 'child2-1234',
+          parentNode: 'group-1234',
+          data: { vizNode: child2VizNode },
+        },
+        {
+          children: ['child1-1234', 'child2-1234'],
+          data: { vizNode: groupVizNode },
+          group: true,
+          type: 'group',
+          id: 'Unknown',
+          label: 'Unknown',
+          style: {
+            padding: 60,
+          },
+        },
+      ]);
+      expect(edges).toEqual([]);
+    });
+
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
       const vizNode = createVisualizationNode('node', {});
       const childNode = createVisualizationNode('child', {});
