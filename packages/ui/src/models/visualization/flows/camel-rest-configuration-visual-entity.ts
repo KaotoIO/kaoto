@@ -3,7 +3,7 @@ import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { isDefined, setValue } from '../../../utils';
+import { NodeIconResolver, NodeIconType, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
@@ -125,6 +125,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     );
     restConfigurationGroupNode.data.entity = this;
     restConfigurationGroupNode.data.isGroup = true;
+    restConfigurationGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
 
     return restConfigurationGroupNode;
   }

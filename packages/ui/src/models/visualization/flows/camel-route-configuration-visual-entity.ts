@@ -3,7 +3,7 @@ import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../public-api';
-import { NodeIconResolver, getValue, isDefined, setValue } from '../../../utils';
+import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -144,7 +144,7 @@ export class CamelRouteConfigurationVisualEntity
       path: CamelRouteConfigurationVisualEntity.ROOT_PATH,
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type),
+      icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
       processorName: CamelRouteConfigurationVisualEntity.ROOT_PATH,
     });
 

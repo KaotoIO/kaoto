@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
 import { getValue } from '../../../../utils';
-import { NodeIconResolver } from '../../../../utils/node-icon-resolver';
+import { NodeIconResolver, NodeIconType } from '../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { createVisualizationNode } from '../../visualization-node';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
@@ -17,9 +17,10 @@ export class CamelStepsService {
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): IVisualizationNode {
+    const nodeIconType = componentLookup.componentName ? NodeIconType.Component : NodeIconType.EIP;
     const data: CamelRouteVisualEntityData = {
       path,
-      icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup)),
+      icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup), nodeIconType),
       processorName: componentLookup.processorName,
       componentName: componentLookup.componentName,
     };
