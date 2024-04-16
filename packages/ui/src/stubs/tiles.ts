@@ -57,6 +57,13 @@ export const processorOtherwiseTile: ITile = {
   tags: ['eip', 'routing'],
 };
 
+export const processorInterceptTile: ITile = {
+  type: CatalogKind.Processor,
+  name: 'intercept',
+  title: 'Intercept',
+  tags: ['configuration'],
+};
+
 export const componentSlackTile: ITile = {
   type: CatalogKind.Component,
   name: 'slack',
@@ -87,6 +94,7 @@ export const tiles: ITile[] = [
   processorTile,
   processorWhenTile,
   processorOtherwiseTile,
+  processorInterceptTile,
   componentSlackTile,
   componentKubernetesSecretsTile,
   componentCronTile,

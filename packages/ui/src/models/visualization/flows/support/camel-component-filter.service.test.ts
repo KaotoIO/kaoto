@@ -7,10 +7,11 @@ import {
   kameletSSHSinkTile,
   kameletSinkTile,
   kameletSourceTile,
-  processorWhenTile,
-  processorOtherwiseTile,
   kameletStringTemplateActionTile,
+  processorInterceptTile,
+  processorOtherwiseTile,
   processorTile,
+  processorWhenTile,
   tiles,
 } from '../../../../stubs';
 import { AddStepMode } from '../../base-visual-entity';
@@ -70,6 +71,20 @@ describe('CamelComponentFilterService', () => {
       );
 
       expect(tiles.filter(filterFn)).toEqual([processorWhenTile]);
+    });
+
+    it('should offer applicable processors when requesting routeConfiguration special children', () => {
+      const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+        AddStepMode.InsertSpecialChildStep,
+        {
+          path: 'routeConfiguration',
+          processorName: 'routeConfiguration' as keyof ProcessorDefinition,
+          label: 'RouteConfiguration',
+        },
+        {},
+      );
+
+      expect(tiles.filter(filterFn)).toEqual([processorInterceptTile]);
     });
 
     it('scenario for a new step before an existing step', () => {

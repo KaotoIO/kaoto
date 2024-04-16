@@ -10,7 +10,19 @@ import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
 
 export class CamelComponentSchemaService {
-  static DISABLED_SIBLING_STEPS = ['from', 'onWhen', 'when', 'otherwise', 'doCatch', 'doFinally', 'onException'];
+  static DISABLED_SIBLING_STEPS = [
+    'from',
+    'onWhen',
+    'when',
+    'otherwise',
+    'doCatch',
+    'doFinally',
+    'intercept',
+    'interceptFrom',
+    'interceptSendToEndpoint',
+    'onException',
+    'onCompletion',
+  ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
@@ -64,10 +76,16 @@ export class CamelComponentSchemaService {
     }
 
     const uriString = CamelUriHelper.getUriString(definition);
+    const id = definition?.id;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
+      case 'errorHandler' as keyof ProcessorDefinition:
       case 'onException' as keyof ProcessorDefinition:
-        return definition?.id ?? '';
+      case 'onCompletion' as keyof ProcessorDefinition:
+      case 'intercept' as keyof ProcessorDefinition:
+      case 'interceptFrom' as keyof ProcessorDefinition:
+      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
+        return id ?? camelElementLookup.processorName;
 
       case 'from' as keyof ProcessorDefinition:
         return uriString ?? 'from: Unknown';
@@ -111,6 +129,12 @@ export class CamelComponentSchemaService {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
   }
 
+  static canReplaceStep(processorName: keyof ProcessorDefinition): boolean {
+    return (
+      processorName === ('from' as keyof ProcessorDefinition) || !this.DISABLED_SIBLING_STEPS.includes(processorName)
+    );
+  }
+
   static getProcessorStepsProperties(processorName: keyof ProcessorDefinition): CamelProcessorStepsProperties[] {
     switch (processorName) {
       /** choice */ case 'when':
@@ -131,7 +155,11 @@ export class CamelComponentSchemaService {
       case 'step':
       case 'whenSkipSendToEndpoint':
       case 'from' as keyof ProcessorDefinition:
-      case 'onException' as keyof ProcessorDefinition:
+      case /** routeConfiguration */ 'intercept' as keyof ProcessorDefinition:
+      case /** routeConfiguration */ 'interceptFrom' as keyof ProcessorDefinition:
+      case /** routeConfiguration */ 'interceptSendToEndpoint' as keyof ProcessorDefinition:
+      case /** routeConfiguration */ 'onException' as keyof ProcessorDefinition:
+      case /** routeConfiguration */ 'onCompletion' as keyof ProcessorDefinition:
         return [{ name: 'steps', type: 'branch' }];
 
       case 'choice':
@@ -145,6 +173,15 @@ export class CamelComponentSchemaService {
           { name: 'steps', type: 'branch' },
           { name: 'doCatch', type: 'clause-list' },
           { name: 'doFinally', type: 'single-clause' },
+        ];
+
+      case 'routeConfiguration' as keyof ProcessorDefinition:
+        return [
+          { name: 'intercept', type: 'clause-list' },
+          { name: 'interceptFrom', type: 'clause-list' },
+          { name: 'interceptSendToEndpoint', type: 'clause-list' },
+          { name: 'onException', type: 'clause-list' },
+          { name: 'onCompletion', type: 'clause-list' },
         ];
 
       default:

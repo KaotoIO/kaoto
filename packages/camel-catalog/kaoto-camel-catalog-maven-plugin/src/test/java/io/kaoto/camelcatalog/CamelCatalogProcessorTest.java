@@ -216,7 +216,7 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testGetPatternCatalog() throws Exception {
-        assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 65);
+        assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 70);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
         var aggregateSchema = processorCatalog.withObject("/aggregate").withObject("/propertiesSchema");
@@ -229,6 +229,11 @@ public class CamelCatalogProcessorTest {
         assertEquals("string", uri.get("type").asText());
         var parameters = toDSchema.withObject("/properties").withObject("/parameters");
         assertEquals("object", parameters.get("type").asText());
+    }
+
+    @Test
+    public void testRouteConfigurationCatalog() throws Exception {
+        List.of("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").forEach(name -> assertTrue(entityCatalog.has(name), name));
     }
 
     @Test
