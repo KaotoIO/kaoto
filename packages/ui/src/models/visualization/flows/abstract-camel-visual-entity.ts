@@ -217,6 +217,7 @@ export abstract class AbstractCamelVisualEntity implements BaseVisualCamelEntity
       canHaveSpecialChildren,
       canReplaceStep: true,
       canRemoveStep: true,
+      canRemoveFlow: data.path === ROOT_PATH,
     };
   }
 

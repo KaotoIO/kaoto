@@ -100,6 +100,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
       canHaveSpecialChildren: false,
       canRemoveStep: false,
       canReplaceStep: false,
+      canRemoveFlow: true,
     };
   }
 

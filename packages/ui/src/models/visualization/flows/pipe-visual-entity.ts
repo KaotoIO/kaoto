@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { getArrayProperty, NodeIconResolver } from '../../../utils';
+import { getArrayProperty, NodeIconResolver, ROOT_PATH } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeMetadata, PipeSpec, PipeStep } from '../../camel/entities/pipe-overrides';
@@ -165,6 +165,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       canHaveSpecialChildren: false,
       canReplaceStep: true,
       canRemoveStep: true,
+      canRemoveFlow: data.path === ROOT_PATH,
     };
   }
 

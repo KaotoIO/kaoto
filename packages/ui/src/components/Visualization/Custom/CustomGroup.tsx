@@ -4,11 +4,13 @@ import {
   Layer,
   isNode,
   observer,
-  withSelection,
   withContextMenu,
+  withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
+import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../Canvas/canvas.models';
+import { ItemInsertChildNode } from './ItemInsertChildNode';
 import { ItemRemoveGroup } from './ItemRemoveGroup';
 
 type IDefaultGroup = Parameters<typeof DefaultGroup>[0];
@@ -44,5 +46,10 @@ const CustomGroup: FunctionComponent<ICustomGroup> = observer(({ element, ...res
 });
 
 export const CustomGroupWithSelection = withContextMenu(() => [
+  <ItemInsertChildNode
+    key="context-menu-item-insert-special"
+    data-testid="context-menu-item-insert-special"
+    mode={AddStepMode.InsertSpecialChildStep}
+  />,
   <ItemRemoveGroup key="context-menu-container-remove" data-testid="context-menu-container-remove" />,
 ])(withSelection()(CustomGroup));

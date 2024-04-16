@@ -59,10 +59,24 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
-  it('should return node label', () => {
-    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+  describe('getNodeLabel', () => {
+    it.each([
+      ['deadLetterChannel', { id: 'deadLetterChannelId' }, 'deadLetterChannelId'],
+      ['defaultErrorHandler', { id: 'defaultErrorHandlerId' }, 'defaultErrorHandlerId'],
+      ['jtaTransactionErrorHandler', { id: 'jtaTransactionErrorHandlerId' }, 'jtaTransactionErrorHandlerId'],
+      ['noErrorHandler', { id: 'noErrorHandlerId' }, 'noErrorHandlerId'],
+      ['refErrorHandler', { id: 'refErrorHandlerId' }, 'refErrorHandlerId'],
+      ['springTransactionErrorHandler', { id: 'springTransactionErrorHandlerId' }, 'springTransactionErrorHandlerId'],
+      ['springTransactionErrorHandler', {}, 'errorHandler'],
+    ])('should return %s label', (errorHandler, definition, label) => {
+      errorHandlerDef.errorHandler = {
+        [errorHandler]: definition,
+      };
 
-    expect(entity.getNodeLabel()).toEqual('errorHandler');
+      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+      expect(entity.getNodeLabel()).toEqual(label);
+    });
   });
 
   it('should return tooltip content', () => {
@@ -130,6 +144,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
       canHaveSpecialChildren: false,
       canRemoveStep: false,
       canReplaceStep: false,
+      canRemoveFlow: true,
     });
   });
 

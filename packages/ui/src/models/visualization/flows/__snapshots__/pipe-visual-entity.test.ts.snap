@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pipe getNodeInteraction should return the correct interaction for the '#' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": true,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`Pipe getNodeInteraction should return the correct interaction for the 'sink' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`Pipe getNodeInteraction should return the correct interaction for the 'source' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`Pipe getNodeInteraction should return the correct interaction for the 'steps.1' processor 1`] = `
+{
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;

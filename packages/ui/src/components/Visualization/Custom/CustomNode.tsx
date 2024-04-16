@@ -17,6 +17,7 @@ import { ItemAddNode } from './ItemAddNode';
 import { ItemInsertChildNode } from './ItemInsertChildNode';
 import { ItemRemoveNode } from './ItemRemoveNode';
 import { ItemReplaceNode } from './ItemReplaceNode';
+import { ItemRemoveGroup } from './ItemRemoveGroup';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -78,4 +79,5 @@ export const CustomNodeWithSelection: typeof DefaultNode = withContextMenu(() =>
   />,
   <ItemReplaceNode key="context-menu-item-replace" data-testid="context-menu-item-replace" />,
   <ItemRemoveNode key="context-menu-item-remove" data-testid="context-menu-item-remove" />,
+  <ItemRemoveGroup key="context-menu-container-remove" data-testid="context-menu-container-remove" />,
 ])(withSelection()(CustomNode) as typeof DefaultNode) as typeof DefaultNode;

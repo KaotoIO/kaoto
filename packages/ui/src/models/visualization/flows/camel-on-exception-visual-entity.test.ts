@@ -31,4 +31,24 @@ describe('CamelOnExceptionVisualEntity', () => {
       expect(onExceptionDef.onException.id).toEqual(entity.id);
     });
   });
+
+  describe('getNodeInteraction', () => {
+    it.each([
+      'route',
+      'from',
+      'to',
+      'log',
+      'onException',
+      'onCompletion',
+      'intercept',
+      'interceptFrom',
+      'interceptSendToEndpoint',
+    ])(`should return the correct interaction for the '%s' processor`, (processorName) => {
+      const onExceptionDef = { onException: {} as OnException };
+      const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
+
+      const result = entity.getNodeInteraction({ processorName });
+      expect(result).toMatchSnapshot();
+    });
+  });
 });

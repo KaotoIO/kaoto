@@ -1,8 +1,8 @@
-import { ErrorHandler, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { ErrorHandlerBuilderDeserializer, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import { useSchemasStore } from '../../../store';
-import { isDefined, setValue } from '../../../utils';
+import { getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
@@ -17,12 +17,12 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.ErrorHandler;
 
-  constructor(public errorHandlerDef: { errorHandler: ErrorHandler }) {
+  constructor(public errorHandlerDef: { errorHandler: ErrorHandlerBuilderDeserializer }) {
     const id = getCamelRandomId('errorHandler');
     this.id = id;
   }
 
-  static isApplicable(errorHandlerDef: unknown): errorHandlerDef is { errorHandler: ErrorHandler } {
+  static isApplicable(errorHandlerDef: unknown): errorHandlerDef is { errorHandler: ErrorHandlerBuilderDeserializer } {
     if (!isDefined(errorHandlerDef) || Array.isArray(errorHandlerDef) || typeof errorHandlerDef !== 'object') {
       return false;
     }
@@ -43,7 +43,32 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   getNodeLabel(): string {
-    return 'errorHandler';
+    const deadLetterChannelId: string | undefined = getValue(this.errorHandlerDef.errorHandler, 'deadLetterChannel.id');
+    const defaultErrorHandlerId: string | undefined = getValue(
+      this.errorHandlerDef.errorHandler,
+      'defaultErrorHandler.id',
+    );
+    const jtaTransactionErrorHandlerId: string | undefined = getValue(
+      this.errorHandlerDef.errorHandler,
+      'jtaTransactionErrorHandler.id',
+    );
+    const noErrorHandlerId: string | undefined = getValue(this.errorHandlerDef.errorHandler, 'noErrorHandler.id');
+    const refErrorHandlerId: string | undefined = getValue(this.errorHandlerDef.errorHandler, 'refErrorHandler.id');
+    const springTransactionErrorHandlerId: string | undefined = getValue(
+      this.errorHandlerDef.errorHandler,
+      'springTransactionErrorHandler.id',
+    );
+
+    let errorHandlerId =
+      deadLetterChannelId ??
+      defaultErrorHandlerId ??
+      jtaTransactionErrorHandlerId ??
+      noErrorHandlerId ??
+      refErrorHandlerId ??
+      springTransactionErrorHandlerId;
+
+    if (!errorHandlerId?.trim()) errorHandlerId = 'errorHandler';
+    return errorHandlerId;
   }
 
   getTooltipContent(): string {
@@ -90,6 +115,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
       canHaveSpecialChildren: false,
       canRemoveStep: false,
       canReplaceStep: false,
+      canRemoveFlow: true,
     };
   }
 
@@ -109,7 +135,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return errorHandlerGroupNode;
   }
 
-  toJSON(): unknown {
-    return this.errorHandlerDef;
+  toJSON(): { errorHandler: ErrorHandlerBuilderDeserializer } {
+    return { errorHandler: this.errorHandlerDef.errorHandler };
   }
 }
