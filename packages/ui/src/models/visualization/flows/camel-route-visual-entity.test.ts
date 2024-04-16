@@ -230,7 +230,7 @@ describe('Camel Route', () => {
       camelEntity.route.id = undefined;
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('');
+      expect(vizNode.getNodeLabel()).toEqual('route');
     });
 
     it('should use the uri as the node label', () => {

@@ -33,6 +33,7 @@ import java.util.Set;
  */
 public class CamelYamlDslSchemaProcessor {
     private static final String PROCESSOR_DEFINITION = "org.apache.camel.model.ProcessorDefinition";
+    private static final String ROUTE_CONFIGURATION_DEFINITION = "org.apache.camel.model.RouteConfigurationDefinition";
     private static final String LOAD_BALANCE_DEFINITION = "org.apache.camel.model.LoadBalanceDefinition";
     private static final String EXPRESSION_SUB_ELEMENT_DEFINITION = "org.apache.camel.model.ExpressionSubElementDefinition";
     private static final String SAGA_DEFINITION = "org.apache.camel.model.SagaDefinition";
@@ -212,9 +213,10 @@ public class CamelYamlDslSchemaProcessor {
         var processors = relocatedDefinitions
                 .withObject(PROCESSOR_DEFINITION)
                 .withObject("/properties");
+        addRouteConfigurationProcessors(relocatedDefinitions, processors);
 
         var answer = new LinkedHashMap<String, ObjectNode>();
-        for( var processorEntry : processors) {
+        for (var processorEntry : processors) {
             var processorFQCN = getNameFromRef((ObjectNode)processorEntry);
             if (processorBlocklist.contains(processorFQCN)) {
                 continue;
@@ -264,6 +266,22 @@ public class CamelYamlDslSchemaProcessor {
             answer.put(processorFQCN, processor);
         }
         return answer;
+    }
+
+    private void addRouteConfigurationProcessors(ObjectNode relocatedDefinitions, ObjectNode processors) {
+        var routeConfigurationProcessor = relocatedDefinitions
+                .withObject(ROUTE_CONFIGURATION_DEFINITION)
+                .withObject("/properties");
+        var interceptProcessor = routeConfigurationProcessor.withObject("intercept").withObject("items").withObject("properties");
+        var interceptFromProcessor = routeConfigurationProcessor.withObject("interceptFrom").withObject("items").withObject("properties");
+        var interceptSendToEndpointProcessor = routeConfigurationProcessor.withObject("interceptSendToEndpoint").withObject("items").withObject("properties");
+        var onExceptionProcessor = routeConfigurationProcessor.withObject("onException").withObject("items").withObject("properties");
+        var onCompletionProcessor = routeConfigurationProcessor.withObject("onCompletion").withObject("items").withObject("properties");
+        processors.setAll(interceptProcessor);
+        processors.setAll(interceptFromProcessor);
+        processors.setAll(interceptSendToEndpointProcessor);
+        processors.setAll(onExceptionProcessor);
+        processors.setAll(onCompletionProcessor);
     }
 
     private ObjectNode extractFromOneOf(String name, ObjectNode definition) throws Exception {

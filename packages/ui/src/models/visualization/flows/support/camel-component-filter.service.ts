@@ -4,7 +4,17 @@ import { AddStepMode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
-  private static SPECIAL_CHILDREN = ['when', 'otherwise', 'doCatch', 'doFinally'];
+  private static SPECIAL_CHILDREN = [
+    'when',
+    'otherwise',
+    'doCatch',
+    'doFinally',
+    'intercept',
+    'interceptFrom',
+    'interceptSendToEndpoint',
+    'onException',
+    'onCompletion',
+  ];
 
   static getCamelCompatibleComponents(
     mode: AddStepMode,
@@ -32,6 +42,7 @@ export class CamelComponentFilterService {
       const specialChildren: Record<string, string[]> = {
         choice: ['when'],
         doTry: ['doCatch'],
+        routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
       };
 
       /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */

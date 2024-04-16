@@ -1,12 +1,12 @@
 import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
 import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
-import { CatalogKind } from '../../../catalog-kind';
-import { CamelCatalogService } from '../camel-catalog.service';
-import { CamelComponentSchemaService } from './camel-component-schema.service';
+import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
+import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
-import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
+import { CamelCatalogService } from '../camel-catalog.service';
+import { CamelComponentSchemaService } from './camel-component-schema.service';
 
 describe('CamelComponentSchemaService', () => {
   let path: string;
@@ -280,6 +280,7 @@ describe('CamelComponentSchemaService', () => {
         'timer:foo?delay=1000&period=1000',
       ],
       [{ processorName: 'from' as keyof ProcessorDefinition }, {}, 'from: Unknown'],
+      [{ processorName: 'from' as keyof ProcessorDefinition, id: 'from-1234', uri: '' }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: '' }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: null }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: 10 }, {}, 'from: Unknown'],
@@ -298,6 +299,58 @@ describe('CamelComponentSchemaService', () => {
       [{ processorName: 'toD' as keyof ProcessorDefinition }, '', 'toD'],
       [{ processorName: 'choice' as keyof ProcessorDefinition }, {}, 'choice'],
       [{ processorName: 'otherwise' as keyof ProcessorDefinition }, {}, 'otherwise'],
+      [
+        { processorName: 'errorHandler' as keyof ProcessorDefinition },
+        { id: 'errorHandler-1234', description: 'Error Handler' },
+        'Error Handler',
+      ],
+      [
+        { processorName: 'errorHandler' as keyof ProcessorDefinition },
+        { id: 'errorHandler-1234' },
+        'errorHandler-1234',
+      ],
+      [
+        { processorName: 'onException' as keyof ProcessorDefinition },
+        { id: 'onException-1234', description: 'On Exception' },
+        'On Exception',
+      ],
+      [{ processorName: 'onException' as keyof ProcessorDefinition }, { id: 'onException-1234' }, 'onException-1234'],
+      [
+        { processorName: 'onCompletion' as keyof ProcessorDefinition },
+        { id: 'onCompletion-1234', description: 'On Completion' },
+        'On Completion',
+      ],
+      [
+        { processorName: 'onCompletion' as keyof ProcessorDefinition },
+        { id: 'onCompletion-1234' },
+        'onCompletion-1234',
+      ],
+      [
+        { processorName: 'intercept' as keyof ProcessorDefinition },
+        { id: 'intercept-1234', description: 'Intercept' },
+        'Intercept',
+      ],
+      [{ processorName: 'intercept' as keyof ProcessorDefinition }, { id: 'intercept-1234' }, 'intercept-1234'],
+      [
+        { processorName: 'interceptFrom' as keyof ProcessorDefinition },
+        { id: 'interceptFrom-1234', description: 'InterceptFrom' },
+        'InterceptFrom',
+      ],
+      [
+        { processorName: 'interceptFrom' as keyof ProcessorDefinition },
+        { id: 'interceptFrom-1234' },
+        'interceptFrom-1234',
+      ],
+      [
+        { processorName: 'interceptSendToEndpoint' as keyof ProcessorDefinition },
+        { id: 'interceptSendToEndpoint-1234', description: 'InterceptSendToEndpoint' },
+        'InterceptSendToEndpoint',
+      ],
+      [
+        { processorName: 'interceptSendToEndpoint' as keyof ProcessorDefinition },
+        { id: 'interceptSendToEndpoint-1234' },
+        'interceptSendToEndpoint-1234',
+      ],
     ])(
       'should return the processor name if the component name is not provided: %s [%s]',
       (componentLookup, definition, result) => {
@@ -381,6 +434,28 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
+  describe('canReplaceStep', () => {
+    it.each([
+      ['from', true],
+      ['when', false],
+      ['otherwise', false],
+      ['doCatch', false],
+      ['doFinally', false],
+      ['intercept', false],
+      ['interceptFrom', false],
+      ['interceptSendToEndpoint', false],
+      ['onException', false],
+      ['onCompletion', false],
+      ['aggregate', true],
+      ['onFallback', true],
+      ['saga', true],
+    ])('should return whether the %s processor could be replaced', (processorName, result) => {
+      const canBeReplaced = CamelComponentSchemaService.canReplaceStep(processorName as keyof ProcessorDefinition);
+
+      expect(canBeReplaced).toEqual(result);
+    });
+  });
+
   describe('getProcessorStepsProperties', () => {
     it.each([
       ['from', [{ name: 'steps', type: 'branch' }]],
@@ -409,6 +484,21 @@ describe('CamelComponentSchemaService', () => {
       ['to', []],
       ['toD', []],
       ['log', []],
+      [
+        'routeConfiguration',
+        [
+          { name: 'intercept', type: 'clause-list' },
+          { name: 'interceptFrom', type: 'clause-list' },
+          { name: 'interceptSendToEndpoint', type: 'clause-list' },
+          { name: 'onException', type: 'clause-list' },
+          { name: 'onCompletion', type: 'clause-list' },
+        ],
+      ],
+      ['intercept', [{ name: 'steps', type: 'branch' }]],
+      ['interceptFrom', [{ name: 'steps', type: 'branch' }]],
+      ['interceptSendToEndpoint', [{ name: 'steps', type: 'branch' }]],
+      ['onException', [{ name: 'steps', type: 'branch' }]],
+      ['onCompletion', [{ name: 'steps', type: 'branch' }]],
     ])(`should return the steps properties for '%s'`, (processorName, result) => {
       const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
         processorName as keyof ProcessorDefinition,
