@@ -136,6 +136,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       canHaveSpecialChildren: false,
       canRemoveStep: false,
       canReplaceStep: false,
+      canRemoveFlow: true,
     });
   });
 

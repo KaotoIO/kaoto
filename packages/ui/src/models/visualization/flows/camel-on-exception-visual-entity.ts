@@ -225,6 +225,7 @@ export class CamelOnExceptionVisualEntity implements BaseVisualCamelEntity {
       canHaveSpecialChildren,
       canReplaceStep,
       canRemoveStep,
+      canRemoveFlow: data.path === CamelOnExceptionVisualEntity.ROOT_PATH,
     };
   }
 

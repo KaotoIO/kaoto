@@ -125,6 +125,16 @@ describe('Pipe', () => {
     });
   });
 
+  describe('getNodeInteraction', () => {
+    it.each(['source', 'sink', 'steps.1', '#'])(
+      `should return the correct interaction for the '%s' processor`,
+      (path) => {
+        const result = pipe.getNodeInteraction({ path });
+        expect(result).toMatchSnapshot();
+      },
+    );
+  });
+
   describe('getNodeValidationText', () => {
     it('should return an `undefined` if the path is `undefined`', () => {
       const result = pipe.getNodeValidationText(undefined);

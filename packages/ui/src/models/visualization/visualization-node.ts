@@ -24,6 +24,15 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
+  private readonly DISABLED_NODE_INTERACTION: NodeInteraction = {
+    canHavePreviousStep: false,
+    canHaveNextStep: false,
+    canHaveChildren: false,
+    canHaveSpecialChildren: false,
+    canReplaceStep: false,
+    canRemoveStep: false,
+    canRemoveFlow: false,
+  };
 
   constructor(
     public readonly id: string,
@@ -47,16 +56,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeInteraction(): NodeInteraction {
-    return (
-      this.getBaseEntity()?.getNodeInteraction(this.data) ?? {
-        canHavePreviousStep: false,
-        canHaveNextStep: false,
-        canHaveChildren: false,
-        canHaveSpecialChildren: false,
-        canReplaceStep: false,
-        canRemoveStep: false,
-      }
-    );
+    return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
