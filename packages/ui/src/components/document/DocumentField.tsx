@@ -14,7 +14,7 @@ import { IField } from '../../models';
 import { useCanvas } from '../../hooks/useCanvas';
 import { DocumentType } from '../../models/document';
 import { NodeContainer } from './NodeContainer';
-import { CircleIcon, GripVerticalIcon } from '@patternfly/react-icons';
+import { AtIcon, CircleIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import { NodeReference } from '../../providers/CanvasProvider';
 import './Document.scss';
 import { useDataMapper } from '../../hooks';
@@ -90,7 +90,17 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ documentT
             <SplitItem>
               <GripVerticalIcon />
             </SplitItem>
-            <SplitItem isFilled>{field.expression}</SplitItem>
+            {field.maxOccurs > 1 && (
+              <SplitItem>
+                <LayerGroupIcon />
+              </SplitItem>
+            )}
+            {field.isAttribute && (
+              <SplitItem>
+                <AtIcon />
+              </SplitItem>
+            )}
+            <SplitItem isFilled>{field.name}</SplitItem>
             <SplitItem>
               <DocumentFieldButtons field={field} />
             </SplitItem>
@@ -107,7 +117,12 @@ export const DocumentField: FunctionComponent<DocumentFieldProps> = ({ documentT
               <SplitItem>
                 <GripVerticalIcon />
               </SplitItem>
-              <SplitItem isFilled>{field.expression}</SplitItem>
+              {field.maxOccurs > 1 && (
+                <SplitItem>
+                  <LayerGroupIcon />
+                </SplitItem>
+              )}
+              <SplitItem isFilled>{field.name}</SplitItem>
               <SplitItem>
                 <DocumentFieldButtons field={field} />
               </SplitItem>
