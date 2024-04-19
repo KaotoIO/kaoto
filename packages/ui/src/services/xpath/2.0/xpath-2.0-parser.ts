@@ -1,6 +1,6 @@
 import { defaultParserErrorProvider, IParserConfig, ITokenConfig, TokenType } from 'chevrotain';
 import { createToken as orgCreateToken, CstParser, Lexer } from 'chevrotain';
-import { XPathParser, XPathParserResult } from './xpath-parser';
+import { XPathParser, XPathParserResult } from '../xpath-parser';
 
 const fragments: Record<string, RegExp> = {};
 const f = fragments;

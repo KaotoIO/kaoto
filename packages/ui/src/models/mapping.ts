@@ -1,8 +1,29 @@
-import { generateRandomId } from '../util';
 import { IField } from './document';
+import { Types } from './types';
+
+export interface IFunctionArgumentDefinition {
+  name: string;
+  type: Types;
+  displayName: string;
+  description: string;
+  minOccurs: number;
+  maxOccurs: number;
+}
+
+export interface IFunctionDefinition {
+  name: string;
+  displayName: string;
+  description: string;
+  returnType: Types;
+  returnCollection?: boolean;
+  arguments: IFunctionArgumentDefinition[];
+}
+
+export type ITransformationArgument = ITransformation | IField | string | number;
 
 export interface ITransformation {
-  name: string;
+  ref: IFunctionDefinition;
+  arguments: ITransformationArgument[];
 }
 
 export interface IMapping {
@@ -10,14 +31,6 @@ export interface IMapping {
   name: string;
   sourceFields: IField[];
   targetFields: IField[];
-  transformations: ITransformation[];
+  transformation?: ITransformation;
   xpath?: string;
-}
-
-export class Mapping implements IMapping {
-  id: string = generateRandomId('mapping');
-  name: string = '';
-  sourceFields: IField[] = [];
-  targetFields: IField[] = [];
-  transformations: ITransformation[] = [];
 }

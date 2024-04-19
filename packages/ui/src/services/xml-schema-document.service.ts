@@ -25,6 +25,7 @@ import {
   XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
 import { BaseDocument, BaseField, DocumentType, FieldIdentifier } from '../models';
+import { Types } from '../models/types';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
@@ -38,7 +39,7 @@ export class XmlSchemaDocument extends BaseDocument {
     // TODO let user choose the root element from top level elements if there're multiple
     this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
     XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
-    this.type = 'XML';
+    this.schemaType = 'XML';
   }
 }
 
@@ -116,10 +117,11 @@ export class XmlSchemaDocumentService {
 
     const schemaType = element.getSchemaType();
     if (schemaType == null) {
-      field.type = element.getSchemaTypeName()?.getLocalPart() || 'string';
+      const typeName = element.getSchemaTypeName()?.getLocalPart();
+      field.type = (typeName && Types[typeName as keyof typeof Types]) || Types.AnyType;
       return;
     }
-    field.type = 'container';
+    field.type = Types.Container;
     if (schemaType instanceof XmlSchemaSimpleType) {
       XmlSchemaDocumentService.throwNotYetSupported(element);
     } else if (schemaType instanceof XmlSchemaComplexType) {

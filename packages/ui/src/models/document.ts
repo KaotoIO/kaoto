@@ -1,3 +1,5 @@
+import { Types } from './types';
+
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
 
@@ -16,7 +18,7 @@ export interface IField {
   fieldIdentifier: FieldIdentifier;
   name: string;
   expression: string;
-  type: string;
+  type: Types;
   fields: IField[];
   isAttribute: boolean;
   defaultValue: string | null;
@@ -30,7 +32,7 @@ export interface IDocument {
   documentId: string;
   fieldIdentifier: FieldIdentifier;
   name: string;
-  type: string;
+  schemaType: string;
   fields: IField[];
   namespaces?: INamespace[];
 }
@@ -40,7 +42,7 @@ export abstract class BaseDocument implements IDocument {
   documentId: string = '';
   fields: IField[] = [];
   name: string = '';
-  type: string = '';
+  schemaType = '';
   get fieldIdentifier(): FieldIdentifier {
     return new FieldIdentifier(`${this.documentType}:${this.documentId}://`);
   }
@@ -55,6 +57,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   minOccurs: number = 0;
   namespaceURI: string | null = null;
   parent: IParentType = this;
+  type = Types.AnyType;
 
   constructor(
     public documentType: DocumentType,
@@ -74,7 +77,7 @@ export abstract class BaseField implements IField {
   isAttribute: boolean = false;
   name: string = '';
   expression: string = '';
-  type: string = '';
+  type = Types.AnyType;
   minOccurs: number = DEFAULT_MIN_OCCURS;
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;

@@ -15,6 +15,7 @@ export const XMLNS_ATTRIBUTE_NS_URI = 'http://www.w3.org/2000/xmlns/';
 export const XMLNS_PREFIX = 'xml';
 export const XMLNS_URI = 'http://www.w3.org/XML/1998/namespace';
 export const XSD_ANY = new QName(URI_2001_SCHEMA_XSD, 'any');
+export const XSD_ANYATOMICTYPE = new QName(URI_2001_SCHEMA_XSD, 'anyAtomicType');
 export const XSD_ANYSIMPLETYPE = new QName(URI_2001_SCHEMA_XSD, 'anySimpleType');
 export const XSD_ANYTYPE = new QName(URI_2001_SCHEMA_XSD, 'anyType');
 export const XSD_ANYURI = new QName(URI_2001_SCHEMA_XSD, 'anyURI');
