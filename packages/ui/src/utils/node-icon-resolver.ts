@@ -181,6 +181,7 @@ export class NodeIconResolver {
       case 'atmosphere-websocket':
       case 'atom':
       case 'avro':
+        return generic_component;
       case 'aws-cloudtrail':
       case 'aws-config':
       case 'aws-secrets-manager':
@@ -223,8 +224,8 @@ export class NodeIconResolver {
       case 'azure-storage-queue':
         return azure;
       case 'bean':
-        return bean;
       case 'bean-validator':
+        return bean;
       case 'bonita':
       case 'box':
       case 'braintree':
