@@ -103,6 +103,8 @@ export class CamelComponentDefaultService {
           id: ${getCamelRandomId('doTry')}
           doCatch:
             - id: ${getCamelRandomId('doCatch')}
+              exception:
+                - java.lang.NullPointerException
               steps: []
           doFinally:
             id: ${getCamelRandomId('doFinally')}
@@ -111,6 +113,14 @@ export class CamelComponentDefaultService {
             - log:
                 id: ${getCamelRandomId('log')}
                 message: "\${body}"
+        `);
+
+      case 'doCatch':
+        return parse(`
+          id: ${getCamelRandomId('doCatch')}
+          exception:
+            - java.lang.NullPointerException
+          steps: []
         `);
 
       default:
