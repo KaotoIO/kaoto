@@ -1,8 +1,10 @@
 import {
   Button,
+  Divider,
   MenuToggle,
   MenuToggleElement,
   Select,
+  SelectGroup,
   SelectList,
   SelectOption,
   SelectOptionProps,
@@ -11,42 +13,45 @@ import {
   TextInputGroupUtilities,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { XPathParserService } from '../../services/xpath/xpath-parser.service';
+import { FunctionGroup } from '../../services/xpath/xpath-parser';
+import { IFunctionDefinition } from '../../models';
 
-const initialSelectOptions: SelectOptionProps[] = [
-  { value: 'Alabama', children: 'Alabama' },
-  { value: 'Florida', children: 'Florida' },
-  { value: 'New Jersey', children: 'New Jersey' },
-  { value: 'New Mexico', children: 'New Mexico' },
-  { value: 'New York', children: 'New York' },
-  { value: 'North Carolina', children: 'North Carolina' },
-];
+const functionCatalog = XPathParserService.getXPathFunctionDefinitions();
 
 export const FunctionSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
-  const [selectOptions, setSelectOptions] = useState<SelectOptionProps[]>(initialSelectOptions);
+  const [functionOptions, setFunctionOptions] = useState<Record<FunctionGroup, IFunctionDefinition[]>>(functionCatalog);
   const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const textInputRef = useRef<HTMLInputElement>();
 
   useEffect(() => {
-    let newSelectOptions: SelectOptionProps[] = initialSelectOptions;
-
-    // Filter menu items based on the text input value when one exists
+    let newFunctionOptions = functionCatalog;
     if (filterValue) {
-      newSelectOptions = initialSelectOptions.filter((menuItem) =>
-        String(menuItem.children).toLowerCase().includes(filterValue.toLowerCase()),
+      newFunctionOptions = Object.keys(functionCatalog).reduce(
+        (acc, groupName) => {
+          const group = groupName as FunctionGroup;
+          acc[group] = groupName.includes(filterValue)
+            ? functionCatalog[group]
+            : functionCatalog[group].reduce((acc2, functionDef) => {
+                if (
+                  functionDef.name.includes(filterValue) ||
+                  functionDef.displayName.includes(filterValue) ||
+                  functionDef.description.includes(filterValue)
+                ) {
+                  acc2.push(functionDef);
+                }
+                return acc2;
+              }, [] as IFunctionDefinition[]);
+          return acc;
+        },
+        {} as Record<FunctionGroup, IFunctionDefinition[]>,
       );
-
-      // When no options are found after filtering, display 'No results found'
-      if (!newSelectOptions.length) {
-        newSelectOptions = [
-          { isDisabled: false, children: `No results found for "${filterValue}"`, value: 'no results' },
-        ];
-      }
 
       // Open the menu when the input value changes and the new value is not empty
       if (!isOpen) {
@@ -54,7 +59,7 @@ export const FunctionSelector = () => {
       }
     }
 
-    setSelectOptions(newSelectOptions);
+    setFunctionOptions(newFunctionOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
   }, [filterValue, isOpen]);
@@ -89,7 +94,7 @@ export const FunctionSelector = () => {
       if (key === 'ArrowUp') {
         // When no index is set or at the first index, focus to the last, otherwise decrement focus index
         if (focusedItemIndex === null || focusedItemIndex === 0) {
-          indexToFocus = selectOptions.length - 1;
+          indexToFocus = functionOptions.length - 1;
         } else {
           indexToFocus = focusedItemIndex - 1;
         }
@@ -97,7 +102,7 @@ export const FunctionSelector = () => {
 
       if (key === 'ArrowDown') {
         // When no index is set or at the last index, focus to the first, otherwise increment focus index
-        if (focusedItemIndex === null || focusedItemIndex === selectOptions.length - 1) {
+        if (focusedItemIndex === null || focusedItemIndex === functionOptions.length - 1) {
           indexToFocus = 0;
         } else {
           indexToFocus = focusedItemIndex + 1;
@@ -105,13 +110,13 @@ export const FunctionSelector = () => {
       }
 
       setFocusedItemIndex(indexToFocus);
-      const focusedItem = selectOptions.filter((option) => !option.isDisabled)[indexToFocus];
+      const focusedItem = functionOptions.filter((option) => !option.isDisabled)[indexToFocus];
       setActiveItem(`select-typeahead-${focusedItem.value.replace(' ', '-')}`);
     }
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const enabledMenuItems = selectOptions.filter((option) => !option.isDisabled);
+    const enabledMenuItems = functionOptions.filter((option) => !option.isDisabled);
     const [firstMenuItem] = enabledMenuItems;
     const focusedItem = focusedItemIndex ? enabledMenuItems[focusedItemIndex] : firstMenuItem;
 
@@ -187,6 +192,35 @@ export const FunctionSelector = () => {
     </MenuToggle>
   );
 
+  type FunctionSelectGroupProps = {
+    group: FunctionGroup;
+  };
+
+  const FunctionSelectGroup: FunctionComponent<FunctionSelectGroupProps> = ({ group }) => {
+    const functions = functionOptions[group];
+    return (
+      <>
+        <SelectGroup label={group}>
+          <SelectList>
+            {functions.map((func) => (
+              <SelectOption
+                key={func.name}
+                onClick={() => setSelected(func.name)}
+                id={`select-typeahead-${func.name}`}
+                value={func.name}
+                ref={null}
+                description={func.description}
+              >
+                {func.displayName}
+              </SelectOption>
+            ))}
+          </SelectList>
+        </SelectGroup>
+        <Divider />
+      </>
+    );
+  };
+
   return (
     <Select
       id="typeahead-select"
@@ -199,17 +233,10 @@ export const FunctionSelector = () => {
       toggle={toggle}
     >
       <SelectList id="select-typeahead-listbox">
-        {selectOptions.map((option, index) => (
-          <SelectOption
-            key={option.value || option.children}
-            isFocused={focusedItemIndex === index}
-            className={option.className}
-            onClick={() => setSelected(option.value)}
-            id={`select-typeahead-${option.value.replace(' ', '-')}`}
-            {...option}
-            ref={null}
-          />
-        ))}
+        {Object.keys(functionOptions).map((groupName) => {
+          const group = groupName as FunctionGroup;
+          return functionOptions[group].length > 0 && <FunctionSelectGroup group={group} />;
+        })}
       </SelectList>
     </Select>
   );
