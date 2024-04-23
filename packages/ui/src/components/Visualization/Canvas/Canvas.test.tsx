@@ -1,12 +1,13 @@
-import { render, waitFor, fireEvent, screen} from '@testing-library/react';
-import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
-import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
-import { VisibleFLowsContextResult } from '../../../providers/visible-flows.provider';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
+import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
+import { EntitiesContext } from '../../../providers';
+import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
+import { VisibleFLowsContextResult, VisibleFlowsContext } from '../../../providers/visible-flows.provider';
+import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
-import { TestProvidersWrapper } from '../../../stubs';
-import { act } from 'react-dom/test-utils';
 import { Canvas } from './Canvas';
 
 describe('Canvas', () => {
@@ -43,32 +44,44 @@ describe('Canvas', () => {
   });
 
   it('should be able to delete the routes', async () => {
-    const camelRouteResource = new CamelRouteResource(camelRouteJson);
-    const routeEntity = camelRouteResource.getVisualEntities();
-    const removeSpy = jest.spyOn(camelRouteResource, 'removeEntity');
+    const camelResource = new CamelRouteResource(camelRouteJson);
+    const routeEntity = camelResource.getVisualEntities();
+    const removeSpy = jest.spyOn(camelResource, 'removeEntity');
+    const setCurrentSchemaTypeSpy = jest.fn();
+    const updateEntitiesFromCamelResourceSpy = jest.fn();
+    const updateSourceCodeFromEntitiesSpy = jest.fn();
 
     render(
-      <TestProvidersWrapper
-      visibleFlows={
-        { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult
-      }
-    >
-      <Canvas entities={routeEntity} />
-    </TestProvidersWrapper>,
+      <EntitiesContext.Provider
+        value={{
+          camelResource,
+          entities: camelResource.getEntities(),
+          visualEntities: camelResource.getVisualEntities(),
+          currentSchemaType: camelResource.getType(),
+          setCurrentSchemaType: setCurrentSchemaTypeSpy,
+          updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
+          updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+        }}
+      >
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult}
+        >
+          <Canvas entities={routeEntity} />
+        </VisibleFlowsContext.Provider>
+      </EntitiesContext.Provider>,
     );
 
     // Right click anywhere on the container label
     const route = screen.getByText('route-8888');
-    // const route = document.querySelectorAll('.pf-topology__group');
-    await act(async() => {
+    await act(async () => {
       fireEvent.contextMenu(route);
     });
 
-    // click the Delete ContextMenuItem
-    const deleteRoute = screen.getByRole('menuitem', {name: 'Delete'});
+    // Click the Delete ContextMenuItem
+    const deleteRoute = screen.getByRole('menuitem', { name: 'Delete' });
     expect(deleteRoute).toBeInTheDocument();
 
-    await act(() => {
+    await act(async () => {
       fireEvent.click(deleteRoute);
     });
 
@@ -81,33 +94,45 @@ describe('Canvas', () => {
     const kameletResource = new KameletResource(kameletJson);
     const kameletEntity = kameletResource.getVisualEntities();
     const removeSpy = jest.spyOn(kameletResource, 'removeEntity');
+    const setCurrentSchemaTypeSpy = jest.fn();
+    const updateEntitiesFromCamelResourceSpy = jest.fn();
+    const updateSourceCodeFromEntitiesSpy = jest.fn();
 
     render(
-      <TestProvidersWrapper
-      visibleFlows={
-        { visibleFlows: { ['user-source']: true } } as unknown as VisibleFLowsContextResult
-      }
-    >
-      <Canvas entities={kameletEntity} />
-    </TestProvidersWrapper>,
+      <EntitiesContext.Provider
+        value={{
+          camelResource: kameletResource,
+          entities: kameletResource.getEntities(),
+          visualEntities: kameletResource.getVisualEntities(),
+          currentSchemaType: kameletResource.getType(),
+          setCurrentSchemaType: setCurrentSchemaTypeSpy,
+          updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
+          updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+        }}
+      >
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { ['user-source']: true } } as unknown as VisibleFLowsContextResult}
+        >
+          <Canvas entities={kameletEntity} />
+        </VisibleFlowsContext.Provider>
+      </EntitiesContext.Provider>,
     );
 
     // Right click anywhere on the container label
     const kamelet = screen.getByText('user-source');
     // const route = document.querySelectorAll('.pf-topology__group');
-    await act(async() => {
+    await act(async () => {
       fireEvent.contextMenu(kamelet);
     });
 
     // click the Delete ContextMenuItem
-    const deleteKamelet = screen.getByRole('menuitem', {name: 'Delete'});
+    const deleteKamelet = screen.getByRole('menuitem', { name: 'Delete' });
     expect(deleteKamelet).toBeInTheDocument();
 
-    await act(() => {
+    await act(async () => {
       fireEvent.click(deleteKamelet);
     });
 
-    screen.debug();
     // Check if the remove function is called
     expect(removeSpy).toHaveBeenCalled();
   });
