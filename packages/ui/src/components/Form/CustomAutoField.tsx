@@ -9,6 +9,7 @@ import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
+import { CustomLongTextField } from './customField/CustomLongTextField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -56,7 +57,7 @@ export const CustomAutoField = createAutoField((props) => {
       } else if (title === 'Expression') {
         return LongTextField;
       }
-      return TextField;
+      return CustomLongTextField;
   }
 
   return DisabledField;
