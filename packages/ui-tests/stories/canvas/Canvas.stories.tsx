@@ -39,8 +39,8 @@ const emptyCamelRouteJson = {
   },
 };
 
-const camelRouteEntity = new CamelRouteVisualEntity(complexRouteMock.route);
-const emptyCamelRouteEntity = new CamelRouteVisualEntity(emptyCamelRouteJson.route);
+const camelRouteEntity = new CamelRouteVisualEntity(complexRouteMock);
+const emptyCamelRouteEntity = new CamelRouteVisualEntity(emptyCamelRouteJson);
 const pipeEntity = new PipeVisualEntity(pipeJson.spec!);
 const kameletEntity = new KameletVisualEntity(kameletJson);
 const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson.spec!);

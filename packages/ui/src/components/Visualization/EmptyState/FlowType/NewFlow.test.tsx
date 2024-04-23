@@ -52,7 +52,7 @@ describe('NewFlow.tsx', () => {
 
   const visualEntities = [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity];
 
-  test('should render all of the types', async () => {
+  it('should render all of the types', async () => {
     const wrapper = renderWithContext();
     const trigger = await wrapper.findByTestId('dsl-list-dropdown');
 
@@ -67,7 +67,7 @@ describe('NewFlow.tsx', () => {
     }
   });
 
-  test('should warn the user when adding a different type of flow', async () => {
+  it('should warn the user when adding a different type of flow', async () => {
     const wrapper = renderWithContext();
     const trigger = await wrapper.findByTestId('dsl-list-dropdown');
 

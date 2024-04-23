@@ -56,7 +56,7 @@ const selectedNode: CanvasNode = {
           },
         } as VisualComponentSchema;
       },
-      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
     } as IVisualizationNode,
   },
 };
@@ -79,7 +79,7 @@ const unknownSelectedNode: CanvasNode = {
           definition: null,
         } as VisualComponentSchema;
       },
-      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+      getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
     } as IVisualizationNode,
   },
 };

@@ -7,23 +7,24 @@ import { TileFilter } from '../../components/Catalog';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { BeansEntity } from '../visualization/metadata';
+import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
 import { CamelRouteResource } from './camel-route-resource';
-import { BaseCamelEntity } from './entities';
+import { BaseCamelEntity, EntityType } from './entities';
 import { IntegrationResource } from './integration-resource';
 import { KameletBindingResource } from './kamelet-binding-resource';
 import { KameletResource } from './kamelet-resource';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
   getEntities(): BaseCamelEntity[];
-  addNewEntity(entity?: unknown): string;
+  addNewEntity(entityType?: EntityType): string;
   removeEntity(id?: string): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
   getType(): SourceSchemaType;
+  getCanvasEntityList(): BaseVisualCamelEntityDefinition;
 
   /** Components Catalog related methods */
   getCompatibleComponents(
@@ -34,6 +35,17 @@ export interface CamelResource {
   ): TileFilter | undefined;
 
   sortFn?: (a: unknown, b: unknown) => number;
+}
+
+export interface BaseVisualCamelEntityDefinition {
+  common: BaseVisualCamelEntityDefinitionItem[];
+  groups: Record<string, BaseVisualCamelEntityDefinitionItem[]>;
+}
+
+export interface BaseVisualCamelEntityDefinitionItem {
+  name: EntityType;
+  title: string;
+  description: string;
 }
 
 export interface BeansAwareResource {

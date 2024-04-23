@@ -84,7 +84,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       expect(entity.getComponentSchema().definition).toEqual(restConfigurationDef.restConfiguration);
     });
 
-    it.skip('should return schema from store', () => {
+    it('should return schema from store', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
       expect(entity.getComponentSchema().schema).toEqual(restConfigurationSchema);

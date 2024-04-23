@@ -13,7 +13,7 @@ describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
 
   beforeEach(() => {
-    camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson.route));
+    camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
   });
 
   describe('isCamelRoute', () => {
@@ -250,9 +250,11 @@ describe('Camel Route', () => {
 
     it('should populate the viz node chain with simple steps', () => {
       const vizNode = new CamelRouteVisualEntity({
-        id: 'route-1234',
-        from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
-      } as unknown as RouteDefinition).toVizNode();
+        route: {
+          id: 'route-1234',
+          from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
+        },
+      }).toVizNode();
       const fromNode = vizNode.getChildren()![0];
 
       /** Given a structure of

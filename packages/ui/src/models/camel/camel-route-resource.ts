@@ -1,8 +1,9 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
-import { AddStepMode } from '../visualization/base-visual-entity';
-import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from '../visualization/flows';
+import { CatalogKind } from '../catalog-kind';
+import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
+import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from '../visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
@@ -16,27 +17,34 @@ import { CamelComponentFilterService } from '../visualization/flows/support/came
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity, isBeans } from '../visualization/metadata';
-import { BeansAwareResource, CamelResource } from './camel-resource';
-import { BaseCamelEntity } from './entities';
+import { BaseVisualCamelEntityDefinition, BeansAwareResource, CamelResource } from './camel-resource';
+import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
-  static readonly SUPPORTED_ENTITIES = [
-    CamelOnExceptionVisualEntity,
-    CamelOnCompletionVisualEntity,
-    CamelErrorHandlerVisualEntity,
-    CamelRestConfigurationVisualEntity,
-    CamelRouteConfigurationVisualEntity,
-    CamelInterceptVisualEntity,
-    CamelInterceptFromVisualEntity,
-    CamelInterceptSendToEndpointVisualEntity,
-  ] as const;
+  static readonly SUPPORTED_ENTITIES: { type: EntityType; group: string; Entity: BaseVisualCamelEntityConstructor }[] =
+    [
+      { type: EntityType.Route, group: '', Entity: CamelRouteVisualEntity },
+      { type: EntityType.RouteConfiguration, group: 'Configuration', Entity: CamelRouteConfigurationVisualEntity },
+      { type: EntityType.Intercept, group: 'Configuration', Entity: CamelInterceptVisualEntity },
+      { type: EntityType.InterceptFrom, group: 'Configuration', Entity: CamelInterceptFromVisualEntity },
+      {
+        type: EntityType.InterceptSendToEndpoint,
+        group: 'Configuration',
+        Entity: CamelInterceptSendToEndpointVisualEntity,
+      },
+      { type: EntityType.OnCompletion, group: 'Configuration', Entity: CamelOnCompletionVisualEntity },
+      { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity },
+      { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity },
+      { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
+    ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
     b: unknown,
   ) => number;
   private entities: BaseCamelEntity[] = [];
+  private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
 
   constructor(json?: unknown) {
     if (!json) return;
@@ -50,13 +58,51 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     }, [] as BaseCamelEntity[]);
   }
 
-  addNewEntity(): string {
-    const template = FlowTemplateService.getFlowTemplate(this.getType());
-    const route = template[0].route as RouteDefinition;
-    const visualEntity = new CamelRouteVisualEntity(route);
-    this.entities.push(visualEntity);
+  getCanvasEntityList(): BaseVisualCamelEntityDefinition {
+    if (isDefined(this.resolvedEntities)) {
+      return this.resolvedEntities;
+    }
 
-    return visualEntity.id;
+    this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.reduce(
+      (acc, { type, group }) => {
+        const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
+        const entityDefinition = {
+          name: type,
+          title: catalogEntity?.model.title || type,
+          description: catalogEntity?.model.description || '',
+        };
+
+        if (group === '') {
+          acc.common.push(entityDefinition);
+          return acc;
+        }
+
+        acc.groups[group] ??= [];
+        acc.groups[group].push(entityDefinition);
+        return acc;
+      },
+      { common: [], groups: {} } as BaseVisualCamelEntityDefinition,
+    );
+
+    return this.resolvedEntities;
+  }
+
+  addNewEntity(entityType?: EntityType): string {
+    if (entityType && entityType !== EntityType.Route) {
+      const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
+      if (supportedEntity) {
+        const entity = new supportedEntity.Entity();
+        this.entities.push(entity);
+        return entity.id;
+      }
+    }
+
+    const template = FlowTemplateService.getFlowTemplate(this.getType());
+    const route = template[0] as RouteDefinition;
+    const entity = new CamelRouteVisualEntity(route);
+    this.entities.push(entity);
+
+    return entity.id;
   }
 
   getType(): SourceSchemaType {
@@ -71,7 +117,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     return this.entities.filter(
       (entity) =>
         entity instanceof CamelRouteVisualEntity ||
-        CamelRouteResource.SUPPORTED_ENTITIES.some((SupportedEntity) => entity instanceof SupportedEntity),
+        CamelRouteResource.SUPPORTED_ENTITIES.some(({ Entity }) => entity instanceof Entity),
     ) as CamelRouteVisualEntity[];
   }
 
@@ -104,10 +150,6 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     if (index !== -1) {
       this.entities.splice(index, 1);
     }
-    // we don't want to end up with clean entities, so we're adding default one if the list if empty
-    if (this.entities.length === 0) {
-      this.addNewEntity();
-    }
   }
 
   /** Components Catalog related methods */
@@ -125,17 +167,12 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       return undefined;
     }
 
-    if (isCamelRoute(rawItem)) {
-      return new CamelRouteVisualEntity(rawItem.route);
-    } else if (isCamelFrom(rawItem)) {
-      return new CamelRouteVisualEntity({ from: rawItem.from });
-    } else if (isBeans(rawItem)) {
+    if (isBeans(rawItem)) {
       return new BeansEntity(rawItem);
     }
 
-    for (const Entity of CamelRouteResource.SUPPORTED_ENTITIES) {
+    for (const { Entity } of CamelRouteResource.SUPPORTED_ENTITIES) {
       if (Entity.isApplicable(rawItem)) {
-        // @ts-expect-error When iterating over the entities, we know that the entity is applicable but TS doesn't, hence causing an error
         return new Entity(rawItem);
       }
     }

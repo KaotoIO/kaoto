@@ -40,7 +40,7 @@ describe('useEntities', () => {
     });
 
     expect(result.current.entities).toEqual([]);
-    expect(result.current.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson.route)]);
+    expect(result.current.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
   });
 
   it('should serialize using YAML 1.1', () => {

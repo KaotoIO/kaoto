@@ -4,13 +4,13 @@ import {
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+import { createCamelPropertiesSorter } from '../../utils';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
-import { CamelResource } from './camel-resource';
+import { BaseVisualCamelEntityDefinition, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { createCamelPropertiesSorter } from '../../utils';
 
 export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
 
@@ -39,6 +39,13 @@ export abstract class CamelKResource implements CamelResource {
       };
     }
     this.metadata = this.resource.metadata && new MetadataEntity(this.resource);
+  }
+
+  getCanvasEntityList(): BaseVisualCamelEntityDefinition {
+    return {
+      common: [],
+      groups: {},
+    };
   }
 
   removeEntity(_id?: string) {}

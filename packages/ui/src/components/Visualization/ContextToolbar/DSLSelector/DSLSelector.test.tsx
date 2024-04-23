@@ -1,9 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { EntitiesContextResult } from '../../../../hooks';
 import { KaotoSchemaDefinition } from '../../../../models';
 import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { SourceCodeApiContext } from '../../../../providers/source-code.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import { DSLSelector } from './DSLSelector';
 
 describe('DSLSelector.tsx', () => {
@@ -25,28 +23,14 @@ describe('DSLSelector.tsx', () => {
     schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
   } as KaotoSchemaDefinition;
 
-  const renderWithContext = () => {
-    return render(
-      <SourceCodeApiContext.Provider
-        value={{
-          setCodeAndNotify: jest.fn(),
-        }}
-      >
-        <EntitiesContext.Provider
-          value={
-            {
-              currentSchemaType: SourceSchemaType.Integration,
-            } as unknown as EntitiesContextResult
-          }
-        >
-          <DSLSelector />
-        </EntitiesContext.Provider>
-      </SourceCodeApiContext.Provider>,
-    );
-  };
-
   it('should render all of the types', async () => {
-    const wrapper = renderWithContext();
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelector />
+      </Provider>,
+    );
+
     const trigger = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -61,7 +45,13 @@ describe('DSLSelector.tsx', () => {
   });
 
   it('should warn the user when adding a different type of flow', async () => {
-    const wrapper = renderWithContext();
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelector />
+      </Provider>,
+    );
+
     const trigger = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */

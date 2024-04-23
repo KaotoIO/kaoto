@@ -1,63 +1,42 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { EntitiesContextResult } from '../../../../hooks';
-import { SourceSchemaType } from '../../../../models/camel';
-import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { IVisibleFlows, VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { VisibleFLowsContextResult, VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { CamelRouteResource } from '../../../../models/camel';
+import { EntityType } from '../../../../models/camel/entities';
+import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
+import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
-import { camelRouteJson } from '../../../../stubs';
-
-const getContextValue = () => {
-  const visualEntity1 = new CamelRouteVisualEntity({ ...camelRouteJson.route, id: 'entity1' });
-  const visualEntity2 = new CamelRouteVisualEntity({ ...camelRouteJson.route, id: 'entity2' });
-
-  return {
-    currentSchemaType: SourceSchemaType.Integration,
-    visualEntities: [visualEntity1, visualEntity2],
-    updateEntitiesFromCamelResource: jest.fn(),
-  } as unknown as EntitiesContextResult;
-};
-const getVisibleFlowsContextValue = () => {
-  return {
-    visibleFlows: { ['entity1']: true, ['entity2']: false } as IVisibleFlows,
-    visualFlowsApi: new VisualFlowsApi(jest.fn),
-  };
-};
-let contextValue: EntitiesContextResult;
-let visibleFlowsValue: VisibleFLowsContextResult;
-
-const FlowsListWithContexts: React.FunctionComponent<{
-  contextValue: EntitiesContextResult;
-  visibleFlowsValue: VisibleFLowsContextResult;
-  onClose?: () => void;
-}> = ({ contextValue, visibleFlowsValue, onClose }) => {
-  return (
-    <EntitiesContext.Provider value={contextValue}>
-      <VisibleFlowsContext.Provider value={visibleFlowsValue}>
-        <FlowsList onClose={onClose ?? jest.fn} />
-      </VisibleFlowsContext.Provider>
-    </EntitiesContext.Provider>
-  );
-};
 
 describe('FlowsList.tsx', () => {
+  let camelResource: CamelRouteResource;
+
   beforeEach(() => {
-    contextValue = getContextValue();
-    visibleFlowsValue = getVisibleFlowsContextValue();
+    camelResource = new CamelRouteResource();
+    camelResource.addNewEntity(EntityType.Route);
+    camelResource.addNewEntity(EntityType.RouteConfiguration);
   });
 
   it('should render the existing flows', async () => {
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
     const flows = await wrapper.findAllByTestId(/flows-list-row-*/);
 
     expect(flows).toHaveLength(2);
   });
 
   it('should display an empty state when there is no routes available', async () => {
-    contextValue = { ...contextValue, visualEntities: [] };
-    visibleFlowsValue = { ...visibleFlowsValue, visibleFlows: {} };
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
+    camelResource.removeEntity('route-1234');
+    camelResource.removeEntity('routeConfiguration-1234');
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
 
     const emptyState = await wrapper.findByTestId('empty-state');
 
@@ -65,9 +44,14 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should render the flows ids', async () => {
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
-    const flow1 = await wrapper.findByText('entity1');
-    const flow2 = await wrapper.findByText('entity2');
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+    const flow1 = await wrapper.findByText('route-1234');
+    const flow2 = await wrapper.findByText('routeConfiguration-1234');
 
     expect(flow1).toBeInTheDocument();
     expect(flow2).toBeInTheDocument();
@@ -75,29 +59,41 @@ describe('FlowsList.tsx', () => {
 
   it('should make the selected flow visible by clicking on its ID', async () => {
     let resId = '';
-    const visFlowApi = new VisualFlowsApi(jest.fn);
-    jest.spyOn(visFlowApi, 'toggleFlowVisible').mockImplementation((id: string) => {
+    const visualFlowsApi = new VisualFlowsApi(jest.fn);
+    jest.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
       resId = id;
     });
-    visibleFlowsValue = { ...visibleFlowsValue, visualFlowsApi: visFlowApi };
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
-    const flowId = await wrapper.findByTestId('goto-btn-entity1');
+
+    const visibleFlowsContext: VisibleFLowsContextResult = {
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi,
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+    const flowId = await wrapper.findByTestId('goto-btn-route-1234');
 
     act(() => {
       fireEvent.click(flowId);
     });
 
-    expect(resId).toBe('entity1');
+    expect(resId).toBe('route-1234');
   });
 
   it('should call onClose when clicking on a flow ID', async () => {
     const onCloseSpy = jest.fn();
-
+    const { Provider } = TestProvidersWrapper({ camelResource });
     const wrapper = render(
-      <FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} onClose={onCloseSpy} />,
+      <Provider>
+        <FlowsList onClose={onCloseSpy} />
+      </Provider>,
     );
 
-    const flowId = await wrapper.findByTestId('goto-btn-entity1');
+    const flowId = await wrapper.findByTestId('goto-btn-route-1234');
 
     act(() => {
       fireEvent.click(flowId);
@@ -108,29 +104,50 @@ describe('FlowsList.tsx', () => {
 
   it('should toggle the visibility of a flow clicking on the Eye icon', async () => {
     let resId = '';
-    const visFlowApi = new VisualFlowsApi(jest.fn);
-    jest.spyOn(visFlowApi, 'toggleFlowVisible').mockImplementation((id: string) => {
+    const visualFlowsApi = new VisualFlowsApi(jest.fn);
+    jest.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
       resId = id;
     });
 
-    visibleFlowsValue = { ...getVisibleFlowsContextValue(), visualFlowsApi: visFlowApi };
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
-    const toggleFlowId = await wrapper.findByTestId('toggle-btn-entity1');
+    const visibleFlowsContext: VisibleFLowsContextResult = {
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi,
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const toggleFlowId = await wrapper.findByTestId('toggle-btn-route-1234');
 
     act(() => {
       fireEvent.click(toggleFlowId);
     });
 
-    expect(resId).toEqual('entity1');
+    expect(resId).toEqual('route-1234');
   });
 
   it('should render the appropriate Eye icon', async () => {
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
-    const flow1 = await wrapper.findByTestId('toggle-btn-entity1-visible');
+    const visibleFlowsContext: VisibleFLowsContextResult = {
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi: new VisualFlowsApi(jest.fn),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const flow1 = await wrapper.findByTestId('toggle-btn-route-1234-visible');
     expect(flow1).toBeInTheDocument();
 
     /** Eye slash icon */
-    const flow2 = await wrapper.findByTestId('toggle-btn-entity2-hidden');
+    const flow2 = await wrapper.findByTestId('toggle-btn-routeConfiguration-1234-hidden');
     expect(flow2).toBeInTheDocument();
   });
 
@@ -138,27 +155,39 @@ describe('FlowsList.tsx', () => {
     const visualFlowsApi = new VisualFlowsApi(jest.fn);
     const renameSpy = jest.spyOn(visualFlowsApi, 'renameFlow');
 
-    visibleFlowsValue = { ...getVisibleFlowsContextValue(), visualFlowsApi };
-    const wrapper = render(<FlowsListWithContexts contextValue={contextValue} visibleFlowsValue={visibleFlowsValue} />);
+    const visibleFlowsContext: VisibleFLowsContextResult = {
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi,
+    };
+
+    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({
+      camelResource,
+      visibleFlowsContext,
+    });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
 
     await act(async () => {
-      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-entity1--edit');
+      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-route-1234--edit');
       fireEvent.click(entityOnePencilIcon);
     });
 
     await act(async () => {
-      const input = await wrapper.findByDisplayValue('entity1');
+      const input = await wrapper.findByDisplayValue('route-1234');
       fireEvent.change(input, { target: { value: 'new-name' } });
       fireEvent.blur(input);
     });
 
     await act(async () => {
-      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-entity1--save');
+      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-route-1234--save');
       fireEvent.click(entityOnePencilIcon);
     });
 
-    expect(renameSpy).toHaveBeenCalledWith('entity1', 'new-name');
-    expect(contextValue.visualEntities[0].id).toEqual('new-name');
-    expect(contextValue.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
+    expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
+    expect(camelResource.getVisualEntities()[0].id).toEqual('new-name');
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalledTimes(1);
   });
 });

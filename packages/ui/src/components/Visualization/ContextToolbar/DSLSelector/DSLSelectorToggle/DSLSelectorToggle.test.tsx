@@ -1,9 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { FunctionComponent } from 'react';
-import { EntitiesContextResult } from '../../../../../hooks';
 import { KaotoSchemaDefinition } from '../../../../../models';
 import { SourceSchemaType, sourceSchemaConfig } from '../../../../../models/camel';
-import { EntitiesContext } from '../../../../../providers/entities.provider';
+import { TestProvidersWrapper } from '../../../../../stubs';
 import { DSLSelectorToggle } from './DSLSelectorToggle';
 
 const config = sourceSchemaConfig;
@@ -21,28 +19,25 @@ config.config[SourceSchemaType.Route].schema = {
 } as KaotoSchemaDefinition;
 
 describe('DSLSelectorToggle.tsx', () => {
-  let onSelect: () => void;
-  beforeEach(() => {
-    onSelect = jest.fn();
-  });
-
-  const DSLSelectorWithContext: FunctionComponent<{ currentSchemaType?: SourceSchemaType }> = (props) => {
-    const currentSchemaType = props.currentSchemaType ?? SourceSchemaType.Route;
-    return (
-      <EntitiesContext.Provider key={Date.now()} value={{ currentSchemaType } as unknown as EntitiesContextResult}>
-        <DSLSelectorToggle onSelect={onSelect} />
-      </EntitiesContext.Provider>
-    );
-  };
-
   it('component renders', () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     const toggle = wrapper.queryByTestId('dsl-list-dropdown');
     expect(toggle).toBeInTheDocument();
   });
 
   it('should call onSelect when clicking on the MenuToggleAction', async () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const onSelectSpy = jest.fn();
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle onSelect={onSelectSpy} />
+      </Provider>,
+    );
 
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
@@ -57,13 +52,17 @@ describe('DSLSelectorToggle.tsx', () => {
     });
 
     await waitFor(() => {
-      expect(onSelect).toHaveBeenCalled();
+      expect(onSelectSpy).toHaveBeenCalled();
     });
   });
 
   it('should disable the MenuToggleAction if the DSL is already selected', async () => {
-    const wrapper = render(<DSLSelectorWithContext currentSchemaType={SourceSchemaType.Route} />);
-
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
     act(() => {
@@ -71,18 +70,27 @@ describe('DSLSelectorToggle.tsx', () => {
     });
 
     /** Click on first element */
-    const element = await wrapper.findByText('Camel Route');
-    // act(() => {
-    //   fireEvent.click(element);
-    // });
+    const element = await wrapper.findAllByRole('option');
+    act(() => {
+      fireEvent.click(element[0]);
+    });
 
-    waitFor(() => {
-      expect(element).toBeDisabled();
+    act(() => {
+      fireEvent.click(toggle);
+    });
+
+    await waitFor(async () => {
+      expect(element[0]).toBeDisabled();
     });
   });
 
   it('should toggle list of DSLs', async () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Click on toggle */
@@ -104,7 +112,12 @@ describe('DSLSelectorToggle.tsx', () => {
   });
 
   it('should show selected value', async () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -129,7 +142,12 @@ describe('DSLSelectorToggle.tsx', () => {
   });
 
   it('should have selected DSL if provided', async () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -145,7 +163,12 @@ describe('DSLSelectorToggle.tsx', () => {
   });
 
   it('should close Select when pressing ESC', async () => {
-    const wrapper = render(<DSLSelectorWithContext />);
+    const { Provider } = TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <DSLSelectorToggle />
+      </Provider>,
+    );
     const toggle = await wrapper.findByTestId('dsl-list-dropdown');
 
     /** Open Select */
@@ -163,15 +186,9 @@ describe('DSLSelectorToggle.tsx', () => {
       fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
     });
 
-    waitFor(() => {
+    await waitFor(async () => {
       /** The close panel is an async process */
       expect(menu).not.toBeInTheDocument();
-    });
-
-    waitFor(() => {
-      const element = wrapper.queryByRole('option', { selected: true });
-      expect(element).toBeInTheDocument();
-      expect(element).toHaveTextContent('Camel Route');
     });
   });
 });

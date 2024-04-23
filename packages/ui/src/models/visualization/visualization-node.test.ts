@@ -173,7 +173,7 @@ describe('VisualizationNode', () => {
     });
 
     it('should delegate to the BaseVisualCamelEntity to remove the underlying child', () => {
-      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(camelRouteJson.route);
+      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(camelRouteJson);
 
       node = camelRouteVisualEntityStub.toVizNode();
       const fromNode = node.getChildren()?.[0];

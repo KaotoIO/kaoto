@@ -3,30 +3,36 @@ import {
   CatalogSchemaLoader,
   CatalogTilesProvider,
   ContextToolbar,
-  EntitiesContext,
+  EntitiesProvider,
   SchemasLoaderProvider,
-  SourceCodeContext,
+  SourceCodeApiContext,
+  SourceCodeProvider,
   VisibleFlowsProvider,
+  camelRouteYaml,
+  kameletYaml,
+  pipeYaml,
 } from '@kaoto/kaoto/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';
-import camelRouteMock from '../../cypress/fixtures/camelRouteMock.json';
+import { useContext } from 'react';
 
-const EntitiesContextDecorator = (Story: StoryFn) => (
-  <SourceCodeContext.Provider value={{ sourceCode: '', setCodeAndNotify: () => {} }}>
-    <EntitiesContext.Provider value={camelRouteMock}>
-      <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <CatalogTilesProvider>
-            <VisibleFlowsProvider>
-              <Story />
-            </VisibleFlowsProvider>
-          </CatalogTilesProvider>
-        </CatalogLoaderProvider>
-      </SchemasLoaderProvider>
-    </EntitiesContext.Provider>
-  </SourceCodeContext.Provider>
-);
+const EntitiesContextDecorator = (Story: StoryFn) => {
+  return (
+    <SourceCodeProvider>
+      <EntitiesProvider>
+        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+          <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+            <CatalogTilesProvider>
+              <VisibleFlowsProvider>
+                <Story />
+              </VisibleFlowsProvider>
+            </CatalogTilesProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </EntitiesProvider>
+    </SourceCodeProvider>
+  );
+};
 
 export default {
   title: 'Canvas/ContextToolbar',
@@ -37,7 +43,10 @@ export default {
   },
 } as Meta<typeof ContextToolbar>;
 
-const Template: StoryFn<typeof ContextToolbar> = () => {
+const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
+  const sourceCodeApi = useContext(SourceCodeApiContext);
+  sourceCodeApi.setCodeAndNotify(props.sourceCode);
+
   return (
     <Toolbar>
       <ToolbarContent>
@@ -49,4 +58,23 @@ const Template: StoryFn<typeof ContextToolbar> = () => {
     </Toolbar>
   );
 };
+
 export const Default = Template.bind({});
+Default.args = {
+  sourceCode: camelRouteYaml,
+};
+
+export const Kamelet = Template.bind({});
+Kamelet.args = {
+  sourceCode: kameletYaml,
+};
+
+export const Pipe = Template.bind({});
+Pipe.args = {
+  sourceCode: pipeYaml,
+};
+
+export const Empty = Template.bind({});
+Empty.args = {
+  sourceCode: '',
+};
