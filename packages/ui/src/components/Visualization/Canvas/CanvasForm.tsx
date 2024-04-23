@@ -53,8 +53,13 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         return;
       }
 
+      let updatedValue = value;
+      if (value === '') {
+        updatedValue = undefined;
+      }
+
       const newModel = props.selectedNode.data.vizNode.getComponentSchema()?.definition || {};
-      setValue(newModel, path, value);
+      setValue(newModel, path, updatedValue);
       props.selectedNode.data.vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
