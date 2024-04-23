@@ -118,7 +118,7 @@ export class VisualFlowsApi {
   }
 
   setVisibleFlows(flows: string[]) {
-    this.dispatch({ type: 'setVisibleFlows', flows: flows });
+    this.dispatch({ type: 'setVisibleFlows', flows });
   }
 
   clearFlows() {
@@ -126,7 +126,7 @@ export class VisualFlowsApi {
   }
 
   initVisibleFlows(visibleFlows: IVisibleFlows) {
-    this.dispatch({ type: 'initVisibleFlows', visibleFlows: visibleFlows });
+    this.dispatch({ type: 'initVisibleFlows', visibleFlows });
   }
 
   renameFlow(flowId: string, newName: string) {

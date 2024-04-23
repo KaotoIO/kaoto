@@ -101,4 +101,4 @@ export const camelRouteJson = {
   },
 };
 
-export const camelRoute = new CamelRouteVisualEntity(camelRouteJson.route);
+export const camelRoute = new CamelRouteVisualEntity(camelRouteJson);

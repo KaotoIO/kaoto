@@ -36,14 +36,42 @@ export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefini
   return isFromHolder && isValidUriField;
 };
 
+const getDefaultRouteDefinition = (fromDefinition?: { from: FromDefinition }): { route: RouteDefinition } => ({
+  route: {
+    from: fromDefinition?.from ?? {
+      uri: '',
+      steps: [],
+    },
+  },
+});
+
 export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<RouteDefinition> {
   id: string;
+  route: RouteDefinition;
   readonly type = EntityType.Route;
 
-  constructor(public route: RouteDefinition) {
+  constructor(routeRaw: { route: RouteDefinition } | { from: FromDefinition } | undefined) {
+    let route: RouteDefinition;
+    let routeRawId: string | undefined;
+    if (isCamelFrom(routeRaw)) {
+      route = getDefaultRouteDefinition(routeRaw).route;
+      routeRawId = routeRaw.from.id;
+    } else if (isCamelRoute(routeRaw)) {
+      route = routeRaw.route;
+      routeRawId = routeRaw.route?.id;
+    } else {
+      route = getDefaultRouteDefinition().route;
+    }
+
     super(route);
-    this.id = route.id ?? getCamelRandomId('route');
+    this.route = route;
+    const id = routeRawId ?? getCamelRandomId('route');
+    this.id = id;
     this.route.id = this.id;
+  }
+
+  static isApplicable(routeDef: unknown): routeDef is { route: RouteDefinition } | { from: FromDefinition } {
+    return isCamelRoute(routeDef) || isCamelFrom(routeDef);
   }
 
   /** Internal API methods */

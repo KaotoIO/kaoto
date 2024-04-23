@@ -137,13 +137,13 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
 
-    it('should create a new entity after deleting them all', () => {
+    it('should NOT create a new entity after deleting them all', () => {
       const resource = new CamelRouteResource(camelRouteJson);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
 
-      expect(resource.getVisualEntities()).toHaveLength(1);
+      expect(resource.getVisualEntities()).toHaveLength(0);
     });
   });
 

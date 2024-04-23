@@ -69,8 +69,7 @@ describe('createCamelResource', () => {
     expect(resource.getVisualEntities().length).toEqual(2);
   });
 
-  // TODO
-  it.skip('should create a Kamelet', () => {
+  it('should create a Kamelet', () => {
     const resource = createCamelResource(kameletJson);
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
     expect(resource.getVisualEntities().length).toEqual(1);

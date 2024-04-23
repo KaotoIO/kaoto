@@ -5,11 +5,11 @@ describe('Test for Multi route actions from the canvas', () => {
 
   it('User changes route type in the canvas', () => {
     cy.switchIntegrationType('Kamelet');
-    cy.get('[data-testid="toolbar-current-dsl"]').contains('Kamelet');
+    cy.get('[data-testid="dsl-list-dropdown"]').contains('Kamelet');
     cy.switchIntegrationType('camelYamlDsl');
-    cy.get('[data-testid="toolbar-current-dsl"]').contains('Camel Route');
+    cy.get('[data-testid="dsl-list-dropdown"]').contains('Camel Route');
     cy.switchIntegrationType('Pipe');
-    cy.get('[data-testid="toolbar-current-dsl"]').contains('Pipe');
+    cy.get('[data-testid="dsl-list-dropdown"]').contains('Pipe');
   });
 
   it('User shows and hides a route', () => {
@@ -55,8 +55,7 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.checkCodeSpanLine('id: route-1234', 0);
   });
 
-  // Blocked ATM by https://github.com/KaotoIO/kaoto/issues/301
-  it.skip('User deletes routes in the canvas till there are no routes', () => {
+  it('User deletes routes in the canvas till there are no routes', () => {
     cy.openDesignPage();
     cy.addNewRoute();
     cy.addNewRoute();
@@ -67,13 +66,17 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.deleteRoute(0);
     cy.deleteRoute(0);
     cy.deleteRoute(0);
-    cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
-    cy.get('[data-testid="flows-list-empty-state"]').should('have.length', 1);
-    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
 
-    cy.get('[data-testid="flows-list-empty-state"]').within(() => {
-      cy.get('h4.pf-c-title').should('have.text', "There's no routes to show");
+    cy.toggleFlowsList();
+
+    cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
+
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
+    cy.get('#flows-list-select').within(() => {
+      cy.get('h4.pf-v5-c-empty-state__title-text').should('have.text', "There's no routes to show");
     });
+
+    cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
   });
 
   const testData = ['Pipe', 'Kamelet'];
@@ -83,7 +86,7 @@ describe('Test for Multi route actions from the canvas', () => {
       cy.switchIntegrationType(data);
       cy.get('[data-testid="dsl-list-dropdown"]').click({ force: true });
       cy.get('.pf-v5-c-menu__item-text').contains(data).closest('button').should('be.disabled');
-      cy.get('[data-testid="dsl-list-btn"]').should('be.disabled');
+      cy.get('[data-testid="new-entity-list-dropdown"]').should('not.exist');
 
       cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/1');
     });
@@ -92,6 +95,7 @@ describe('Test for Multi route actions from the canvas', () => {
   it('User creates multiple CamelRoute type routes in canvas', () => {
     // Camel Route is set as default type - simply add new routes
     cy.deleteRoute(0);
+    cy.addNewRoute();
     cy.addNewRoute();
     cy.addNewRoute();
 

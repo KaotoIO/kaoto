@@ -64,7 +64,8 @@ Cypress.Commands.add('switchIntegrationType', (type: string) => {
 });
 
 Cypress.Commands.add('addNewRoute', () => {
-  cy.get('[data-testid="dsl-list-btn"]').click();
+  cy.get('[data-testid="new-entity-list-dropdown"]').click();
+  cy.get('[data-testid="new-entity-route"]').click();
 });
 
 Cypress.Commands.add('toggleRouteVisibility', (index) => {

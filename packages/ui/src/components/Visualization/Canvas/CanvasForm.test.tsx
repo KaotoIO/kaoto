@@ -84,7 +84,7 @@ describe('CanvasForm', () => {
   });
 
   beforeEach(() => {
-    camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson.route);
+    camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
     const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[2]; // choice
   });
@@ -112,7 +112,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => undefined,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
         } as unknown as IVisualizationNode,
       },
     };
@@ -141,7 +141,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
         } as unknown as IVisualizationNode,
       },
     };
@@ -172,7 +172,7 @@ describe('CanvasForm', () => {
       data: {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson.route),
+          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
         } as unknown as IVisualizationNode,
       },
     };
