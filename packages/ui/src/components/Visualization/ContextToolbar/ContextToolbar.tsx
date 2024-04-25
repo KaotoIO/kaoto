@@ -5,7 +5,7 @@ import { EntitiesContext } from '../../../providers/entities.provider';
 import './ContextToolbar.scss';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';
-import { NewFlow } from './FlowType/NewFlow';
+import { NewFlow } from '../EmptyState/FlowType/NewFlow';
 import { FlowsMenu } from './Flows/FlowsMenu';
 
 export const ContextToolbar: FunctionComponent = () => {
