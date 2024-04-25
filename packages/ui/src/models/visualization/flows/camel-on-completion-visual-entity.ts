@@ -22,7 +22,7 @@ export class CamelOnCompletionVisualEntity
   readonly type = EntityType.OnCompletion;
   static readonly ROOT_PATH = 'onCompletion';
 
-  constructor(public onCompletionDef: { onCompletion: OnCompletion }) {
+  constructor(public onCompletionDef: { onCompletion: OnCompletion } = { onCompletion: {} }) {
     super(onCompletionDef);
     const id = onCompletionDef.onCompletion.id ?? getCamelRandomId(CamelOnCompletionVisualEntity.ROOT_PATH);
     this.id = id;

@@ -22,7 +22,7 @@ export class CamelInterceptVisualEntity
   readonly type = EntityType.Intercept;
   static readonly ROOT_PATH = 'intercept';
 
-  constructor(public interceptDef: { intercept: Intercept }) {
+  constructor(public interceptDef: { intercept: Intercept } = { intercept: {} }) {
     super(interceptDef);
     const id = interceptDef.intercept.id ?? getCamelRandomId(CamelInterceptVisualEntity.ROOT_PATH);
     this.id = id;

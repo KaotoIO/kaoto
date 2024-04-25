@@ -22,7 +22,7 @@ export class CamelOnExceptionVisualEntity
   readonly type = EntityType.OnException;
   private static readonly ROOT_PATH = 'onException';
 
-  constructor(public onExceptionDef: { onException: OnException }) {
+  constructor(public onExceptionDef: { onException: OnException } = { onException: {} }) {
     super(onExceptionDef);
     const id = onExceptionDef.onException.id ?? getCamelRandomId(CamelOnExceptionVisualEntity.ROOT_PATH);
     this.id = id;

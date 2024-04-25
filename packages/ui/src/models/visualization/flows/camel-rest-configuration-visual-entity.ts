@@ -21,7 +21,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   readonly type = EntityType.RestConfiguration;
   private schemaValidator: ValidateFunction<RestConfiguration> | undefined;
 
-  constructor(public restConfigurationDef: { restConfiguration: RestConfiguration }) {
+  constructor(public restConfigurationDef: { restConfiguration: RestConfiguration } = { restConfiguration: {} }) {
     const id = getCamelRandomId('restConfiguration');
     this.id = id;
   }

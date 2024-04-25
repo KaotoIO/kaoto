@@ -23,7 +23,9 @@ export class CamelInterceptSendToEndpointVisualEntity
   readonly type = EntityType.InterceptSendToEndpoint;
   static readonly ROOT_PATH = 'interceptSendToEndpoint';
 
-  constructor(interceptSendToEndpointRaw: { interceptSendToEndpoint: InterceptSendToEndpoint }) {
+  constructor(
+    interceptSendToEndpointRaw: { interceptSendToEndpoint: InterceptSendToEndpoint } = { interceptSendToEndpoint: {} },
+  ) {
     let interceptSendToEndpointDef: { interceptSendToEndpoint: Exclude<InterceptSendToEndpoint, string> };
     if (typeof interceptSendToEndpointRaw.interceptSendToEndpoint === 'string') {
       interceptSendToEndpointDef = {

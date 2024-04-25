@@ -37,7 +37,9 @@ export class CamelRouteConfigurationVisualEntity
     'onCompletion',
   ];
 
-  constructor(public routeConfigurationDef: { routeConfiguration: RouteConfigurationDefinition }) {
+  constructor(
+    public routeConfigurationDef: { routeConfiguration: RouteConfigurationDefinition } = { routeConfiguration: {} },
+  ) {
     super(routeConfigurationDef);
     const id =
       routeConfigurationDef.routeConfiguration.id ?? getCamelRandomId(CamelRouteConfigurationVisualEntity.ROOT_PATH);
