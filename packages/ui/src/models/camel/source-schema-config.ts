@@ -6,6 +6,7 @@ export interface ISourceSchema {
   schema: KaotoSchemaDefinition | undefined;
   name: string;
   multipleRoute: boolean;
+  description?: string;
 }
 
 interface IEntitySchemaConfig {
@@ -22,26 +23,35 @@ class SourceSchemaConfig {
       name: 'Camel Route',
       schema: undefined,
       multipleRoute: true,
+      description:
+        'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.',
     },
     [SourceSchemaType.Kamelet]: {
       name: 'Kamelet',
       schema: undefined,
       multipleRoute: false,
+      description:
+        'Defines a reusable Camel route as a building block. Kamelets can not be executed on their own, they are used as sources, actions or sinks in Camel Routes or Pipes.',
     },
     [SourceSchemaType.Pipe]: {
       name: 'Pipe',
       schema: undefined,
       multipleRoute: false,
+      description:
+        'Defines a sequence of concatenated Kamelets to form start to finish integration flows. Pipes are a more abstract level of defining integration flows, by chosing and configuring Kamelets.',
     },
     [SourceSchemaType.KameletBinding]: {
       name: 'Kamelet Binding',
       schema: undefined,
       multipleRoute: false,
+      description:
+        'Defines a sequence of concatenated Kamelets to form start to finish integration flows. Pipes are a more abstract level of defining integration flows, by chosing and configuring Kamelets.',
     },
     [SourceSchemaType.Integration]: {
       name: 'Integration',
       schema: undefined,
       multipleRoute: true,
+      description: 'An integration defines a Camel route in a CRD file.',
     },
   };
 

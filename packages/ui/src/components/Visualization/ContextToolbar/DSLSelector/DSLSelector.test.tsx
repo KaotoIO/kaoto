@@ -1,0 +1,81 @@
+import { act, fireEvent, render } from '@testing-library/react';
+import { EntitiesContextResult } from '../../../../hooks';
+import { KaotoSchemaDefinition } from '../../../../models';
+import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { SourceCodeApiContext } from '../../../../providers/source-code.provider';
+import { DSLSelector } from './DSLSelector';
+
+describe('DSLSelector.tsx', () => {
+  const config = sourceSchemaConfig;
+  config.config[SourceSchemaType.Integration].schema = {
+    schema: { name: 'Integration', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Pipe].schema = {
+    schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Kamelet].schema = {
+    schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.KameletBinding].schema = {
+    name: 'kameletBinding',
+    schema: { description: 'desc' },
+  } as KaotoSchemaDefinition;
+  config.config[SourceSchemaType.Route].schema = {
+    schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
+  } as KaotoSchemaDefinition;
+
+  const renderWithContext = () => {
+    return render(
+      <SourceCodeApiContext.Provider
+        value={{
+          setCodeAndNotify: jest.fn(),
+        }}
+      >
+        <EntitiesContext.Provider
+          value={
+            {
+              currentSchemaType: SourceSchemaType.Integration,
+            } as unknown as EntitiesContextResult
+          }
+        >
+          <DSLSelector />
+        </EntitiesContext.Provider>
+      </SourceCodeApiContext.Provider>,
+    );
+  };
+
+  it('should render all of the types', async () => {
+    const wrapper = renderWithContext();
+    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+
+    /** Open Select */
+    act(() => {
+      fireEvent.click(trigger);
+    });
+
+    for (const name of ['Pipe', 'Camel Route']) {
+      const element = await wrapper.findByText(name);
+      expect(element).toBeInTheDocument();
+    }
+  });
+
+  it('should warn the user when adding a different type of flow', async () => {
+    const wrapper = renderWithContext();
+    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+
+    /** Open Select */
+    act(() => {
+      fireEvent.click(trigger);
+    });
+
+    /** Select an option */
+    act(() => {
+      const element = wrapper.getByText('Pipe');
+      fireEvent.click(element);
+    });
+
+    const modal = await wrapper.findByTestId('confirmation-modal');
+    expect(modal).toBeInTheDocument();
+  });
+});
