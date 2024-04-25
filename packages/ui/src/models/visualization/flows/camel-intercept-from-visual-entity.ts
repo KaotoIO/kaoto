@@ -23,7 +23,7 @@ export class CamelInterceptFromVisualEntity
   readonly type = EntityType.InterceptFrom;
   static readonly ROOT_PATH = 'interceptFrom';
 
-  constructor(interceptFromRaw: { interceptFrom: InterceptFrom }) {
+  constructor(interceptFromRaw: { interceptFrom: InterceptFrom } = { interceptFrom: {} }) {
     let interceptFromDef: { interceptFrom: Exclude<InterceptFrom, string> };
     if (typeof interceptFromRaw.interceptFrom === 'string') {
       interceptFromDef = {

@@ -17,7 +17,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.ErrorHandler;
 
-  constructor(public errorHandlerDef: { errorHandler: ErrorHandlerBuilderDeserializer }) {
+  constructor(public errorHandlerDef: { errorHandler: ErrorHandlerBuilderDeserializer } = { errorHandler: {} }) {
     const id = getCamelRandomId('errorHandler');
     this.id = id;
   }
