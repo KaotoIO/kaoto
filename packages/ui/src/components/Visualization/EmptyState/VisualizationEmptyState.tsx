@@ -11,7 +11,7 @@ import {
 import { CubesIcon as PatternFlyCubesIcon, EyeSlashIcon as PatternFlyEyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useMemo } from 'react';
 import { IDataTestID } from '../../../models';
-import { NewFlow } from '../ContextToolbar/FlowType/NewFlow';
+import { NewFlow } from './FlowType/NewFlow';
 
 const CubesIcon: FunctionComponent = (props) => <PatternFlyCubesIcon data-testid="cubes-icon" {...props} />;
 const EyeSlashIcon: FunctionComponent = (props) => <PatternFlyEyeSlashIcon data-testid="eye-slash-icon" {...props} />;
