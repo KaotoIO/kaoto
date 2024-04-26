@@ -84,4 +84,29 @@ describe('ExpressionEditor', () => {
     });
     expect(inputElement).toHaveValue('');
   });
+
+  it('find bean method with a word bean', async () => {
+    const language = ExpressionService.getDefinitionFromModelName(
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+      'method',
+    );
+    render(
+      <ExpressionEditor
+        language={language}
+        expressionModel={{}}
+        onChangeExpressionModel={onChangeMock}
+      ></ExpressionEditor>,
+    );
+    const inputElement = screen.getAllByRole('combobox')[0];
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'b' } });
+    });
+    const dropdownItems = screen.getAllByTestId(/expression-dropdownitem-.*/);
+    expect(dropdownItems).toHaveLength(6);
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'bean' } });
+    });
+    const dropdownItems2 = screen.getAllByTestId(/expression-dropdownitem-.*/);
+    expect(dropdownItems2).toHaveLength(1);
+  });
 });
