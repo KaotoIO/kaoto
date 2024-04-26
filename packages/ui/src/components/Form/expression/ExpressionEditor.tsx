@@ -79,8 +79,11 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
 
     // Filter menu items based on the text input value when one exists
     if (filterValue) {
-      newSelectOptions = languageCatalogMap.filter((menuItem) =>
-        String(menuItem.value).toLowerCase().includes(filterValue.toLowerCase()),
+      newSelectOptions = languageCatalogMap.filter(
+        (menuItem) =>
+          String(menuItem.value).toLowerCase().includes(filterValue.toLowerCase()) ||
+          String(menuItem.children).toLowerCase().includes(filterValue.toLowerCase()) ||
+          String(menuItem.description).toLowerCase().includes(filterValue.toLowerCase()),
       );
       // When no options are found after filtering, display 'No results found'
       if (!newSelectOptions.length) {
