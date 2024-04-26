@@ -101,6 +101,52 @@ describe('ExpressionModalLauncher', () => {
     expect(mockOnChange.mock.calls).toHaveLength(1);
     expect(mockOnConfirm.mock.calls).toHaveLength(1);
   });
+
+  it('should render expression preview for bean method', () => {
+    const model = { ref: '#myBean', method: 'doSomething' };
+    const language = ExpressionService.getDefinitionFromModelName(
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+      'method',
+    );
+    const mockOnChange = jest.fn();
+    const mockOnConfirm = jest.fn();
+    const mockOnCancel = jest.fn();
+    render(
+      <ExpressionModalLauncher
+        name="expression"
+        language={language}
+        model={model}
+        onCancel={mockOnCancel}
+        onChange={mockOnChange}
+        onConfirm={mockOnConfirm}
+      ></ExpressionModalLauncher>,
+    );
+    const previewInput = screen.getByTestId('expression-preview-input');
+    expect(previewInput.getAttribute('value')).toEqual('Bean Method: #myBean.doSomething()');
+  });
+
+  it('should render expression preview for tokenize', () => {
+    const model = { token: ',' };
+    const language = ExpressionService.getDefinitionFromModelName(
+      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
+      'tokenize',
+    );
+    const mockOnChange = jest.fn();
+    const mockOnConfirm = jest.fn();
+    const mockOnCancel = jest.fn();
+    render(
+      <ExpressionModalLauncher
+        name="expression"
+        language={language}
+        model={model}
+        onCancel={mockOnCancel}
+        onChange={mockOnChange}
+        onConfirm={mockOnConfirm}
+      ></ExpressionModalLauncher>,
+    );
+    const previewInput = screen.getByTestId('expression-preview-input');
+    expect(previewInput.getAttribute('value')).toEqual('Tokenize: (token=[,])');
+  });
 });
 
 it('should close the modal when the close button is clicked', () => {
