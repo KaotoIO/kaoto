@@ -1,6 +1,6 @@
 import { Button, InputGroup, InputGroupItem, Modal, TextInput, ModalVariant } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
 import { ExpressionEditor } from './ExpressionEditor';
 import './ExpressionModalLauncher.scss';
@@ -40,13 +40,26 @@ export const ExpressionModalLauncher = ({
     onCancel();
   };
 
-  const expressionLabel = language && model?.expression ? language.model.name + ': ' + model.expression : '';
+  const expressionLabel = useMemo(() => {
+    if (!language) return '';
+    if (language.model.name === 'method') {
+      let expression = model.ref || model.beanType || '';
+      if (expression) expression += '.';
+      if (model.method) expression += model.method + '()';
+      return 'Bean Method: ' + expression;
+    }
+    if (language.model.name === 'tokenize') {
+      return model.token ? `Tokenize: (token=[${model.token}])` : 'Tokenize';
+    }
+    return model?.expression ? language.model.name + ': ' + model.expression : language.model.name;
+  }, [language, model?.beanType, model?.expression, model?.method, model?.ref, model?.token]);
 
   return (
     <>
       <InputGroup>
         <InputGroupItem isFill>
           <TextInput
+            data-testid="expression-preview-input"
             id={'expression-preview-' + name}
             placeholder="Not configured"
             readOnlyVariant="default"
