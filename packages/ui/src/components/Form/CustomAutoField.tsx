@@ -54,9 +54,9 @@ export const CustomAutoField = createAutoField((props) => {
       /* catalog preprocessor put 'string' as a type and the javaType as a schema $comment */
       if (comment?.startsWith('class:')) {
         return BeanReferenceField;
-      } else if (title === 'Expression') {
-        return LongTextField;
-      }
+      // } else if (title === 'Expression') {
+      //   return LongTextField;
+      // }
       return CustomLongTextField;
   }
 
