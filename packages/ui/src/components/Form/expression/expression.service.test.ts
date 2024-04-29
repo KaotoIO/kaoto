@@ -1,11 +1,11 @@
 import { ExpressionService } from './expression.service';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 
 describe('ExpressionService', () => {
   beforeAll(async () => {
-    const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(

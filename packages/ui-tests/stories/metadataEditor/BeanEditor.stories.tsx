@@ -1,4 +1,4 @@
-import { MetadataEditor } from '@kaoto-next/ui';
+import { MetadataEditor } from '@kaoto/kaoto';
 import { Meta, StoryFn } from '@storybook/react';
 
 import mockSchema from '../../cypress/fixtures/metadata/beansSchema.json';

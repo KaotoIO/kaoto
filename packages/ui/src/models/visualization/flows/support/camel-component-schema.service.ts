@@ -1,4 +1,4 @@
-import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import { CamelUriHelper, ParsedParameters, ROOT_PATH, isDefined } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';

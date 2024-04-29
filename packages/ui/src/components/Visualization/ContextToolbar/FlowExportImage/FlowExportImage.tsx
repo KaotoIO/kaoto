@@ -1,7 +1,7 @@
 import { Button, Tooltip, TooltipProps } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
 import { toPng } from 'html-to-image';
-import { Exception } from '@kaoto-next/camel-catalog/types';
+import { Exception } from '@kaoto/camel-catalog/types';
 
 export const defaultTooltipText = 'Export as image';
 

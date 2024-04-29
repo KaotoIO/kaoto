@@ -1,5 +1,5 @@
 import { SchemaService } from '../schema.service';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
 import { AutoForm } from 'uniforms';
@@ -33,7 +33,7 @@ describe('ExpressionAwareNestField', () => {
   const schemaBridge = schemaService.getSchemaBridge(mockSchema);
 
   beforeAll(async () => {
-    const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(

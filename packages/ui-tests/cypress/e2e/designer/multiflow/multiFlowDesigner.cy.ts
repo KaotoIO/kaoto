@@ -55,7 +55,7 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.checkCodeSpanLine('id: route-1234', 0);
   });
 
-  // Blocked ATM by https://github.com/KaotoIO/kaoto-next/issues/301
+  // Blocked ATM by https://github.com/KaotoIO/kaoto/issues/301
   it.skip('User deletes routes in the canvas till there are no routes', () => {
     cy.openDesignPage();
     cy.addNewRoute();

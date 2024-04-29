@@ -1,9 +1,9 @@
 {
-  "name": "@kaoto-next/camel-catalog",
+  "name": "@kaoto/camel-catalog",
   "version": "2.0.0-dev",
   "type": "commonjs",
   "description": "Camel Catalog and schemas for Kaoto",
-  "repository": "https://github.com/KaotoIO/kaoto-next",
+  "repository": "https://github.com/KaotoIO/kaoto",
   "repositoryDirectory": "packages/camel-catalog",
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",

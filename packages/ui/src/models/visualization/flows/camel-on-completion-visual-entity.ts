@@ -1,4 +1,4 @@
-import { OnCompletion, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { OnCompletion, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';

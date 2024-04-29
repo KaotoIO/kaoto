@@ -1,4 +1,4 @@
-# kaoto-next
+# kaoto
 The next version of the UI for the Kaoto project.
 
 ## How to do a release

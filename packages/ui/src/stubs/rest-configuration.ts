@@ -1,4 +1,4 @@
-import { RestConfiguration } from '@kaoto-next/camel-catalog/types';
+import { RestConfiguration } from '@kaoto/camel-catalog/types';
 import { KaotoSchemaDefinition } from '../models';
 
 export const restConfigurationStub: { restConfiguration: RestConfiguration } = {

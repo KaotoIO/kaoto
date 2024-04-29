@@ -1,5 +1,5 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
@@ -14,11 +14,11 @@ describe('CamelComponentSchemaService', () => {
   let modelCatalogMap = {} as Record<string, ICamelProcessorDefinition>;
 
   beforeAll(async () => {
-    const componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
-    modelCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file);
-    const patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
-    const kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
-    const entityCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    const componentCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file);
+    modelCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.models.file);
+    const patternCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.patterns.file);
+    const kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    const entityCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
     CamelCatalogService.setCatalogKey(
       CatalogKind.Component,
       componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,

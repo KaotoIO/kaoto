@@ -1,4 +1,4 @@
-import { InlineEdit } from '@kaoto-next/ui';
+import { InlineEdit } from '@kaoto/kaoto';
 import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';
 import { useState } from 'react';

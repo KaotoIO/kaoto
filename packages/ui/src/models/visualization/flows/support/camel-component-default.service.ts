@@ -1,4 +1,4 @@
-import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../../../camel-catalog-index';

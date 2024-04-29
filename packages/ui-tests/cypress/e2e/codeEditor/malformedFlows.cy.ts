@@ -3,7 +3,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openHomePage();
   });
 
-  // blocked ATM by https://github.com/KaotoIO/kaoto-next/issues/575
+  // blocked ATM by https://github.com/KaotoIO/kaoto/issues/575
   it.skip('User creates a flow with missing route ID', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/malformed/camelRoute/missingId.yaml');
@@ -23,7 +23,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.compareFileWithMonacoEditor('flows/malformed/missingIdRoute.yaml');
   });
 
-  // blocked ATM by https://github.com/KaotoIO/kaoto-next/issues/683
+  // blocked ATM by https://github.com/KaotoIO/kaoto/issues/683
   it.skip('User creates kameletBinding with missing kind definition', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/missingKind.yaml');
@@ -45,7 +45,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openStepConfigurationTab('id');
     cy.get('[data-ouia-component-id^="OUIA-Generated-Title"]').should('have.text', 'id');
     cy.closeStepConfigurationTab();
-    // Related issue to provide more info https://github.com/KaotoIO/kaoto-next/issues/309
+    // Related issue to provide more info https://github.com/KaotoIO/kaoto/issues/309
     // verify the route wasn't removed and left for the user to repair
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/malformed/camelRoute/unknownNode.yaml');

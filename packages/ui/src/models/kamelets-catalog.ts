@@ -1,4 +1,4 @@
-import { FromDefinition, Kamelet, ObjectMeta, RouteTemplateBeanDefinition } from '@kaoto-next/camel-catalog/types';
+import { FromDefinition, Kamelet, ObjectMeta, RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
 import { SourceSchemaType } from './camel/source-schema-type';
 import { KaotoSchemaDefinition } from './kaoto-schema';
 

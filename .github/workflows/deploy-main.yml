@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: "18.x"
           registry-url: "https://registry.npmjs.org"
-          scope: "@kaoto-next"
+          scope: "@kaoto"
           cache: "yarn"
 
       - name: "🛰️ Setup Java"
@@ -41,10 +41,10 @@ jobs:
       - name: "🔧 Install dependencies"
         run: yarn
 
-      # Build packages excluding @kaoto-next/camel-catalog since it was build during installing dependencies
+      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: "🔧 Build packages"
         run: |
-          yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
+          yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
 
       - name: "🔧 Tar UI Dist"
         shell: bash
@@ -82,7 +82,7 @@ jobs:
           mkdir -p packages/ui/dist
           tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
-      - name: "📤 Upload artifact @kaoto-next/ui web application"
+      - name: "📤 Upload artifact @kaoto/kaoto web application"
         uses: actions/upload-pages-artifact@v3
         with:
           path: "packages/ui/dist"
@@ -92,7 +92,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   deploy-images:
-    if: github.repository == 'KaotoIO/kaoto-next'
+    if: github.repository == 'KaotoIO/kaoto'
     runs-on: ubuntu-latest
     needs:
       - build-distribution

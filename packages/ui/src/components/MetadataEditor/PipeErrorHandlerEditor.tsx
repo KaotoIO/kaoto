@@ -1,5 +1,5 @@
 import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useMemo, useState } from 'react';
-import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto-next/camel-catalog/types';
+import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto/camel-catalog/types';
 import { MenuToggle, MenuToggleElement, Select, SelectList, SelectOption } from '@patternfly/react-core';
 import { MetadataEditor } from './MetadataEditor';
 

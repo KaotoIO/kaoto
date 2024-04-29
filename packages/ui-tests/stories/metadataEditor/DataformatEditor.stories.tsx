@@ -1,4 +1,4 @@
-import { DataFormatEditor, MetadataEditor } from '@kaoto-next/ui';
+import { DataFormatEditor, MetadataEditor } from '@kaoto/kaoto';
 import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
@@ -6,7 +6,7 @@ import {
   KaotoSchemaDefinition,
   SchemasLoaderProvider,
   VisualComponentSchema,
-} from '@kaoto-next/ui/testing';
+} from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { CanvasNode } from './../canvas.models';
 

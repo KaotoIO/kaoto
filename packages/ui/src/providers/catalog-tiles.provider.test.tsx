@@ -1,8 +1,8 @@
-//import componentsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-components.json';
-//import patternsCatalog from '@kaoto-next/camel-catalog/camel-catalog-aggregate-patterns.json';
-//import kameletsBoundariesCatalog from '@kaoto-next/camel-catalog/kamelet-boundaries.json';
-//import kameletsCatalog from '@kaoto-next/camel-catalog/kamelets-aggregate.json';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+//import componentsCatalog from '@kaoto/camel-catalog/camel-catalog-aggregate-components.json';
+//import patternsCatalog from '@kaoto/camel-catalog/camel-catalog-aggregate-patterns.json';
+//import kameletsBoundariesCatalog from '@kaoto/camel-catalog/kamelet-boundaries.json';
+//import kameletsCatalog from '@kaoto/camel-catalog/kamelets-aggregate.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { act, render, screen } from '@testing-library/react';
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
@@ -24,11 +24,11 @@ describe('CatalogTilesProvider', () => {
   let getCatalogByKeySpy: jest.SpyInstance;
 
   beforeEach(async () => {
-    const componentsCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
-    const patternsCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
-    const kameletsCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    const componentsCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file);
+    const patternsCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.patterns.file);
+    const kameletsCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     const kameletsBoundariesCatalog = await import(
-      '@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kameletBoundaries.file
+      '@kaoto/camel-catalog/' + catalogIndex.catalogs.kameletBoundaries.file
     );
 
     getCatalogByKeySpy = jest.spyOn(CamelCatalogService, 'getCatalogByKey');

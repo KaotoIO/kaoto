@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { DoCatch, ProcessorDefinition, When1 } from '@kaoto-next/camel-catalog/types';
+import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
 import { getValue } from '../../../../utils';
 import { NodeIconResolver } from '../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../base-visual-entity';

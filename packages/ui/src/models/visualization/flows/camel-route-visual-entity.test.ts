@@ -1,4 +1,4 @@
-import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';

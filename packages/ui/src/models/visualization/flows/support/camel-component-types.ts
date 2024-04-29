@@ -1,4 +1,4 @@
-import { ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { IVisualizationNodeData } from '../../base-visual-entity';
 
 export interface ICamelElementLookupResult {

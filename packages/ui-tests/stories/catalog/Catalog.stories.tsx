@@ -1,4 +1,4 @@
-import { Catalog, ITile } from '@kaoto-next/ui';
+import { Catalog, ITile } from '@kaoto/kaoto';
 import { Meta, StoryFn } from '@storybook/react';
 import catalog from '../../cypress/fixtures/catalog-slim.json';
 

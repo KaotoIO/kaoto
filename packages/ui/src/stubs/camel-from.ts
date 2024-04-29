@@ -1,4 +1,4 @@
-import { FromDefinition } from '@kaoto-next/camel-catalog/types';
+import { FromDefinition } from '@kaoto/camel-catalog/types';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 
 /**

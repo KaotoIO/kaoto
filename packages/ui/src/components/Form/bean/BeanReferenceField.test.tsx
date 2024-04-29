@@ -9,12 +9,12 @@ import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { SchemaService } from '../schema.service';
 import { BeanReferenceField } from './BeanReferenceField';
 import { BeansAwareResource, CamelRouteResource } from '../../../models/camel';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
 
 describe('BeanReferenceField', () => {
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (entitiesCatalog as any).default;
     CamelCatalogService.setCatalogKey(

@@ -1,4 +1,4 @@
-import { ITile, PropertiesModal } from '@kaoto-next/ui';
+import { ITile, PropertiesModal } from '@kaoto/kaoto';
 import { Meta, StoryFn } from '@storybook/react';
 import { useState } from 'react';
 import aggregate from '../../cypress/fixtures/aggregate.json';

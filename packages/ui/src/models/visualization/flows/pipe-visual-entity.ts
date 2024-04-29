@@ -1,4 +1,4 @@
-import { Pipe } from '@kaoto-next/camel-catalog/types';
+import { Pipe } from '@kaoto/camel-catalog/types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';

@@ -1,14 +1,14 @@
 import { NewBeanModal } from './NewBeanModal';
 import { fireEvent, render } from '@testing-library/react';
 import { screen } from '@testing-library/dom';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { act } from 'react-dom/test-utils';
 
 describe('NewBeanModal', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let beanSchema: any;
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
     beanSchema = entitiesCatalog.bean.propertiesSchema;
   });
 

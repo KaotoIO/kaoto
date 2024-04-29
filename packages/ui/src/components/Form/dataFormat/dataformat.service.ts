@@ -11,7 +11,7 @@ export class DataFormatService {
 
   /**
    * Get the DataFormat schema from the DataFormat catalog. DataFormat catalog has its properties schema in itself,
-   * which is combined in @kaoto-next/camel-catalog.
+   * which is combined in @kaoto/camel-catalog.
    * @param dataFormatCatalog The {@link ICamelDataformatDefinition} object represents the DataFormat to get the schema.
    */
   static getDataFormatSchema(dataFormatCatalog?: ICamelDataformatDefinition) {

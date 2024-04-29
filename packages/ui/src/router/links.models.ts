@@ -9,5 +9,5 @@ export const enum Links {
 }
 
 export const enum ExternalLinks {
-  GitHub = 'https://github.com/KaotoIO/kaoto-next',
+  GitHub = 'https://github.com/KaotoIO/kaoto',
 }

@@ -1,4 +1,4 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import cloneDeep from 'lodash/cloneDeep';
 import * as routeStub from '../../../stubs/camel-route';
 import * as kameletStub from '../../../stubs/kamelet-route';
@@ -11,7 +11,7 @@ import { BeansEntityHandler } from './beans-entity-handler';
 
 describe('BeansEntityHandler', () => {
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     delete (entitiesCatalog as any).default;
     CamelCatalogService.setCatalogKey(

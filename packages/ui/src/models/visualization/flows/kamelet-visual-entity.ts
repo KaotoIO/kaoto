@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import {
   ROOT_PATH,

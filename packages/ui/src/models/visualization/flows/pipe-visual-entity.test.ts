@@ -1,5 +1,5 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { Pipe } from '@kaoto-next/camel-catalog/types';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import { Pipe } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
 import { EntityType } from '../../camel/entities';
@@ -18,7 +18,7 @@ describe('Pipe', () => {
   beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
     pipe = new PipeVisualEntity(pipeCR.spec!);
-    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap as Record<string, IKameletDefinition>);
   });
 

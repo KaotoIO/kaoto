@@ -1,5 +1,5 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { AutoField, AutoFields } from '@kaoto-next/uniforms-patternfly';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
@@ -37,21 +37,21 @@ describe('CanvasForm', () => {
   const schemaService = new SchemaService();
 
   beforeAll(async () => {
-    componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
+    componentCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file);
     delete componentCatalogMap.default;
-    const modelCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file);
+    const modelCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.models.file);
     delete modelCatalog.default;
-    patternCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.patterns.file);
+    patternCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.patterns.file);
     delete patternCatalogMap.default;
-    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     delete kameletCatalogMap.default;
-    const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
     delete languageCatalog.default;
-    const dataformatCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
+    const dataformatCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     delete dataformatCatalog.default;
-    const loadbalancerCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
+    const loadbalancerCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
     delete loadbalancerCatalog.default;
-    const entitiesCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
     delete entitiesCatalog.default;
     CamelCatalogService.setCatalogKey(
       CatalogKind.Component,

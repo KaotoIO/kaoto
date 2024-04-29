@@ -22,7 +22,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkCodeSpanLine('resultType: java.lang.String', 1);
   });
 
-  //reproducer for https://github.com/KaotoIO/kaoto-next/issues/518
+  //reproducer for https://github.com/KaotoIO/kaoto/issues/518
   it('Design - name attribute was sometimes lost after expression configuration', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
@@ -71,7 +71,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkCodeSpanLine('expression: .name', 1);
   });
 
-  // Blocked by: https://github.com/KaotoIO/kaoto-next/issues/904
+  // Blocked by: https://github.com/KaotoIO/kaoto/issues/904
   it.skip('Design - expression configuration with switching type', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();

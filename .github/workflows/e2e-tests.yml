@@ -43,13 +43,13 @@ jobs:
       # Install dependencies
       - run: yarn install --immutable
 
-      # Build packages excluding @kaoto-next/camel-catalog since it was build during installing dependencies
+      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
+        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
 
       # Build lib
-      - name: Build @kaoto-next/ui package in lib mode
-        run: yarn workspace @kaoto-next/ui run build:lib
+      - name: Build @kaoto/kaoto package in lib mode
+        run: yarn workspace @kaoto/kaoto run build:lib
 
       - name: 💾 Save build folder
         uses: actions/upload-artifact@v4
@@ -100,7 +100,7 @@ jobs:
           browser: firefox
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run preview
+          start: yarn workspace @kaoto/kaoto run preview
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
           wait-on: 'http://localhost:4173'
@@ -159,7 +159,7 @@ jobs:
           browser: chrome
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run preview
+          start: yarn workspace @kaoto/kaoto run preview
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
           wait-on: 'http://localhost:4173'
@@ -218,7 +218,7 @@ jobs:
           browser: edge
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto-next/ui run preview
+          start: yarn workspace @kaoto/kaoto run preview
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
           wait-on: 'http://localhost:4173'

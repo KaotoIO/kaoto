@@ -80,7 +80,7 @@ describe('Test for node bean reference and configuration support', () => {
     });
   });
 
-  // blocked by https://github.com/KaotoIO/kaoto-next/issues/558
+  // blocked by https://github.com/KaotoIO/kaoto/issues/558
   it.skip('Beans - delete bean using the bean editor', () => {
     cy.uploadFixture('flows/camelRoute/sqlBeans.yaml');
     cy.openDesignPage();

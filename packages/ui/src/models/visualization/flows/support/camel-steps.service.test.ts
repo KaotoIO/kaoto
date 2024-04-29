@@ -1,4 +1,4 @@
-import { ProcessorDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { ICamelElementLookupResult } from './camel-component-types';
 import { CamelStepsService } from './camel-steps.service';
 

@@ -12,7 +12,7 @@ export class ExpressionService {
 
   /**
    * Get the language schema from the language catalog. Language catalog has its properties schema in itself,
-   * which is combined in @kaoto-next/camel-catalog.
+   * which is combined in @kaoto/camel-catalog.
    * @param languageCatalog The {@link ICamelLanguageDefinition} object represents the language to get the schema.
    */
   static getLanguageSchema(languageCatalog: ICamelLanguageDefinition) {
