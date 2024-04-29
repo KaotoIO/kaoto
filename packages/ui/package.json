@@ -43,7 +43,7 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
-    "@kaoto-next/uniforms-patternfly": "^0.6.8",
+    "@kaoto-next/uniforms-patternfly": "^0.6.10",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@patternfly/patternfly": "5.2.1",
