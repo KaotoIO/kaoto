@@ -1,8 +1,4 @@
-import {
-  BeansDeserializer,
-  RegistryBeanDefinition,
-  RouteTemplateBeanDefinition,
-} from '@kaoto-next/camel-catalog/types';
+import { BeansDeserializer, RegistryBeanDefinition, RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
 import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';

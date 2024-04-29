@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto-next'
+          scope: '@kaoto'
           cache: 'yarn'
 
       - uses: actions/setup-java@v4
@@ -34,16 +34,16 @@ jobs:
 
       # Lint style files
       - name: 💅 Run stylelint
-        run: yarn workspace @kaoto-next/ui run lint:style
+        run: yarn workspace @kaoto/kaoto run lint:style
 
       # Run tests
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
 
-      # Build packages excluding @kaoto-next/camel-catalog since it was build during installing dependencies
+      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
+        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
 
       # Build lib
-      - name: Build @kaoto-next/ui package in lib mode
-        run: yarn workspace @kaoto-next/ui run build:lib
+      - name: Build @kaoto/kaoto package in lib mode
+        run: yarn workspace @kaoto/kaoto run build:lib

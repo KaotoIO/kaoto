@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { AddStepMode } from '../visualization/base-visual-entity';

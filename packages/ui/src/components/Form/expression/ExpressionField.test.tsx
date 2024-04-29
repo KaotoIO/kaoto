@@ -5,7 +5,7 @@ import { AutoField } from '@kaoto-next/uniforms-patternfly';
 import { AutoForm } from 'uniforms';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { act } from 'react-dom/test-utils';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 
 const mockSchema = {
@@ -26,7 +26,7 @@ const schemaBridge = schemaService.getSchemaBridge(mockSchema);
 const mockOnChange = jest.fn();
 
 beforeAll(async () => {
-  const languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+  const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   delete (languageCatalog as any).default;
   CamelCatalogService.setCatalogKey(

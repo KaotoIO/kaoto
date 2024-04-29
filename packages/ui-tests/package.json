@@ -1,10 +1,10 @@
 {
-  "name": "@kaoto-next/ui-tests",
+  "name": "@kaoto/kaoto-tests",
   "private": true,
   "version": "2.0.0-dev",
   "type": "module",
   "description": "Kaoto UI tests and storybook",
-  "repository": "https://github.com/KaotoIO/kaoto-next",
+  "repository": "https://github.com/KaotoIO/kaoto",
   "repositoryDirectory": "packages/ui-tests",
   "author": {
     "name": "The Kaoto Team"
@@ -22,7 +22,7 @@
     "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=chpt_7a4940aa65b14ab"
   },
   "devDependencies": {
-    "@kaoto-next/ui": "workspace:*",
+    "@kaoto/kaoto": "workspace:*",
     "@storybook/addon-essentials": "^7.2.3",
     "@storybook/addon-interactions": "^7.2.3",
     "@storybook/addon-links": "^7.2.3",

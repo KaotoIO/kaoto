@@ -39,7 +39,7 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.checkCodeSpanLine('unmarshalType: com.fasterxml.jackson.databind.JsonNode', 1);
     cy.checkCodeSpanLine('schemaResolver: "#bean:{{schemaResolver}}"', 1);
 
-    // Blocked by https://github.com/KaotoIO/kaoto-next/issues/489
+    // Blocked by https://github.com/KaotoIO/kaoto/issues/489
     // cy.checkCodeSpanLine('camel:jackson-avro', 1);
   });
 });

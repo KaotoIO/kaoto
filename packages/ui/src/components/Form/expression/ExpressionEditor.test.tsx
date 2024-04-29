@@ -1,4 +1,4 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
@@ -12,7 +12,7 @@ describe('ExpressionEditor', () => {
 
   let languageCatalog: Record<string, ICamelLanguageDefinition>;
   beforeAll(async () => {
-    languageCatalog = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
     delete (languageCatalog as any).default;
     CamelCatalogService.setCatalogKey(
       CatalogKind.Language,

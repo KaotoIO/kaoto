@@ -13,7 +13,7 @@ import {
   VisibleFlowsContext,
   kameletJson,
   pipeJson,
-} from '@kaoto-next/ui/testing';
+} from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
 

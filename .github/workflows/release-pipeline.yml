@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto-next'
+          scope: '@kaoto'
           cache: 'yarn'
 
       - uses: actions/setup-java@v4
@@ -65,8 +65,8 @@ jobs:
         run: yarn
 
       # Build lib
-      - name: Build @kaoto-next/ui package in lib mode
-        run: yarn workspace @kaoto-next/ui run build:lib
+      - name: Build @kaoto/kaoto package in lib mode
+        run: yarn workspace @kaoto/kaoto run build:lib
 
       # Version and publish
       - name: 'Version and publish'
@@ -91,7 +91,7 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto-next'
+          scope: '@kaoto'
           cache: 'yarn'
 
       - uses: actions/setup-java@v4
@@ -105,7 +105,7 @@ jobs:
 
       - name: "🔧 Build packages"
         run: |
-          yarn workspaces foreach --verbose --topological-dev --exclude @kaoto-next/camel-catalog run build
+          yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
 
       - name: "🛰️ Login to Container Registry"
         uses: docker/login-action@v3

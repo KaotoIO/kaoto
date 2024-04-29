@@ -6,7 +6,7 @@ import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { KameletVisualEntity } from './kamelet-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 
 describe('KameletVisualEntity', () => {
@@ -85,7 +85,7 @@ describe('KameletVisualEntity', () => {
   describe('getComponentSchema when querying the ROOT_PATH', () => {
     let entityCatalogMap: Record<string, unknown>;
     beforeEach(async () => {
-      entityCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.entities.file);
+      entityCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
       CamelCatalogService.setCatalogKey(
         CatalogKind.Entity,
         entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,

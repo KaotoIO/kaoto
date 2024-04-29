@@ -1,5 +1,5 @@
 import { CamelOnExceptionVisualEntity } from './camel-on-exception-visual-entity';
-import { OnException } from '@kaoto-next/camel-catalog/types';
+import { OnException } from '@kaoto/camel-catalog/types';
 
 describe('CamelOnExceptionVisualEntity', () => {
   const ONEXCEPTION_ID_REGEXP = /^onException-[a-zA-Z0-9]{4}$/;

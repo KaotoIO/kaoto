@@ -1,10 +1,5 @@
 import { Meta, StoryFn } from '@storybook/react';
-import {
-  CatalogLoaderProvider,
-  CatalogSchemaLoader,
-  SchemasLoaderProvider,
-  NewBeanModal,
-} from '@kaoto-next/ui/testing';
+import { CatalogLoaderProvider, CatalogSchemaLoader, SchemasLoaderProvider, NewBeanModal } from '@kaoto/kaoto/testing';
 
 export default {
   title: 'Canvas/NewBeanModal',

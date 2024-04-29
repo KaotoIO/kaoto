@@ -1,4 +1,4 @@
-import catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import catalogIndex from '@kaoto/camel-catalog/index.json';
 import { act, render, screen } from '@testing-library/react';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { SchemasLoaderProvider } from './schemas.provider';

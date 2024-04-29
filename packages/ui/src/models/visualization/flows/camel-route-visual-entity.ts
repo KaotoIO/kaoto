@@ -1,4 +1,4 @@
-import { FromDefinition, RouteDefinition } from '@kaoto-next/camel-catalog/types';
+import { FromDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';

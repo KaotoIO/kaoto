@@ -7,16 +7,15 @@ body:
       value: |
         Thank you for reporting an issue :pray:.
 
-        - This issue tracker is for reporting bugs found in [Kaoto UI](https://github.com/KaotoIO/kaoto-next)
+        - This issue tracker is for reporting bugs found in [Kaoto UI](https://github.com/KaotoIO/kaoto)
         - If you have a question about how to achieve something and are struggling, please post a question
-        inside of Kaoto's [Discussions](https://github.com/KaotoIO/kaoto-next/discussions)
+        inside of Kaoto's [Discussions](https://github.com/KaotoIO/kaoto/discussions)
         - If it's an issue about the website please go to the [kaoto.io website repo](https://github.com/KaotoIO/kaoto.io)
-        - If it's an issue about the backend or API, please go to [that repo](https://github.com/KaotoIO/kaoto-backend)
 
         Before submitting a new bug/issue, please check the links below to see if there is a solution or question posted there already:
-         - [Kaoto's Open Issues](https://github.com/KaotoIO/kaoto-next/issues?q=is%3Aissue+sort%3Aupdated-desc+position)
-         - [Kaoto's Closed Issues](https://github.com/KaotoIO/kaoto-next/issues?q=is%3Aissue+sort%3Aupdated-desc+position+is%3Aclosed)
-         - [Kaoto Discussions](https://github.com/KaotoIO/kaoto-next/discussions)
+         - [Kaoto's Open Issues](https://github.com/KaotoIO/kaoto/issues?q=is%3Aissue+sort%3Aupdated-desc+position)
+         - [Kaoto's Closed Issues](https://github.com/KaotoIO/kaoto/issues?q=is%3Aissue+sort%3Aupdated-desc+position+is%3Aclosed)
+         - [Kaoto Discussions](https://github.com/KaotoIO/kaoto/discussions)
 
         The more information you fill in, the better the community can help you.
   - type: textarea

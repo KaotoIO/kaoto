@@ -1,4 +1,4 @@
-import { Pipe } from '@kaoto-next/camel-catalog/types';
+import { Pipe } from '@kaoto/camel-catalog/types';
 
 export const pipeYaml = `
 apiVersion: camel.apache.org/v1

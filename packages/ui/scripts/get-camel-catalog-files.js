@@ -15,13 +15,13 @@ export const getCamelCatalogFiles = () => {
   let camelCatalogPath = '';
 
   try {
-    const camelCatalogIndexJsonPath = require.resolve('@kaoto-next/camel-catalog/index.json');
+    const camelCatalogIndexJsonPath = require.resolve('@kaoto/camel-catalog/index.json');
     camelCatalogPath = normalizePath(dirname(camelCatalogIndexJsonPath));
   } catch (error) {
-    throw new Error(`Could not find '@kaoto-next/camel-catalog' \n\n ${error}`);
+    throw new Error(`Could not find '@kaoto/camel-catalog' \n\n ${error}`);
   }
 
-  console.info(`Found '@kaoto-next/camel-catalog' in ${camelCatalogPath}`, '\n');
+  console.info(`Found '@kaoto/camel-catalog' in ${camelCatalogPath}`, '\n');
 
   try {
     if (readdirSync(camelCatalogPath).length === 0) {
@@ -31,8 +31,8 @@ export const getCamelCatalogFiles = () => {
     const message = [
       `The '${camelCatalogPath}' folder is empty.`,
       'No files found in the Camel Catalog directory.',
-      'Please run `yarn workspace @kaoto-next/camel-catalog run build`',
-      'or `yarn build` in the `@kaoto-next/camel-catalog` package',
+      'Please run `yarn workspace @kaoto/camel-catalog run build`',
+      'or `yarn build` in the `@kaoto/camel-catalog` package',
     ];
 
     throw new Error(message.join('\n\n'));

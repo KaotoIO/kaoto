@@ -1,4 +1,4 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import cloneDeep from 'lodash/cloneDeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
@@ -13,10 +13,10 @@ describe('AbstractCamelVisualEntity', () => {
 
   beforeAll(async () => {
     const componentCatalogMap: Record<string, ICamelComponentDefinition> = await import(
-      '@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file
+      '@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file
     );
     const modelsCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-      '@kaoto-next/camel-catalog/' + catalogIndex.catalogs.models.file
+      '@kaoto/camel-catalog/' + catalogIndex.catalogs.models.file
     );
     CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, modelsCatalogMap);

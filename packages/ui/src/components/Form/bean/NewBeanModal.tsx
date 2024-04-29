@@ -1,4 +1,4 @@
-import { RegistryBeanDefinition } from '@kaoto-next/camel-catalog/types';
+import { RegistryBeanDefinition } from '@kaoto/camel-catalog/types';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../models';

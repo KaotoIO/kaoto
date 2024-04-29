@@ -1,4 +1,4 @@
-import { KameletBinding } from '@kaoto-next/camel-catalog/types';
+import { KameletBinding } from '@kaoto/camel-catalog/types';
 
 export type KameletBindingSpec = NonNullable<KameletBinding['spec']>;
 export type KameletBindingSource = NonNullable<KameletBinding['spec']>['source'];

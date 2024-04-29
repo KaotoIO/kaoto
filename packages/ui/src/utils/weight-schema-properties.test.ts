@@ -1,4 +1,4 @@
-import { ErrorHandler } from '@kaoto-next/camel-catalog/types';
+import { ErrorHandler } from '@kaoto/camel-catalog/types';
 import { errorHandlerSchema } from '../stubs/error-handler';
 import { weightSchemaProperties } from './weight-schema-properties';
 

@@ -1,4 +1,4 @@
-import { ErrorHandlerBuilderDeserializer, ProcessorDefinition } from '@kaoto-next/camel-catalog/types';
+import { ErrorHandlerBuilderDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import { useSchemasStore } from '../../../store';

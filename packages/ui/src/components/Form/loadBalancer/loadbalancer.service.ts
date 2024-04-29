@@ -11,7 +11,7 @@ export class LoadBalancerService {
 
   /**
    * Get the LoadBalancer schema from the LoadBalancer catalog. LoadBalancer catalog has its properties schema in itself,
-   * which is combined in @kaoto-next/camel-catalog.
+   * which is combined in @kaoto/camel-catalog.
    * @param loadBalancerCatalog The {@link ICamelLoadBalancerDefinition} object represents the LoadBalancer to get the schema.
    */
   static getLoadBalancerSchema(loadBalancerCatalog?: ICamelLoadBalancerDefinition) {

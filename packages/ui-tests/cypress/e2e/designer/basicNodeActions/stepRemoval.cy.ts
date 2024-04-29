@@ -62,7 +62,7 @@ describe('Tests for Design page', () => {
     cy.removeNodeByName('log');
     cy.get('.pf-topology-side-bar').should('not.be.visible');
 
-    // Blocked by https://github.com/KaotoIO/kaoto-next/issues/527
+    // Blocked by https://github.com/KaotoIO/kaoto/issues/527
     // cy.openStepConfigurationTab('timer');
     // cy.get('.pf-topology-side-bar').should('be.visible');
     // cy.removeNodeByName('setHeader');

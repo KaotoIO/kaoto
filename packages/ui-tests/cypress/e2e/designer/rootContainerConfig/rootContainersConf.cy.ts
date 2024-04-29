@@ -30,7 +30,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkNodeExist('log', 1);
   });
 
-  // Blocked by: https://github.com/KaotoIO/kaoto-next/issues/860
+  // Blocked by: https://github.com/KaotoIO/kaoto/issues/860
   it.skip('Canvas route wrap and unwrap, toggle visibility', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();

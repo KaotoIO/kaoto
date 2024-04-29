@@ -149,7 +149,7 @@ public class CamelYamlDslSchemaProcessor {
     /**
      * Extract single OneOf definition from AnyOf definition and put it into the root definitions.
      * It's a workaround for the current Camel YAML DSL JSON schema, where some AnyOf definition
-     * contains only one OneOf definition. This can be removed once https://github.com/KaotoIO/kaoto-next/issues/948
+     * contains only one OneOf definition. This can be removed once https://github.com/KaotoIO/kaoto/issues/948
      * is resolved.
      * This is done mostly for the errorHandler definition, f.i.
      * ```

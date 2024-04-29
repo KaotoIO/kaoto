@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { ObjectMeta } from '@kaoto-next/camel-catalog/types';
+import { ObjectMeta } from '@kaoto/camel-catalog/types';
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
 
 export const MetadataPage: FunctionComponent = () => {

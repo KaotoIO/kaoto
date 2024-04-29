@@ -1,4 +1,4 @@
-# kaoto-next
+# kaoto
 The next version of the UI for the Kaoto project.
 
 https://kaotoio.github.io/kaoto/
@@ -8,7 +8,7 @@ https://kaotoio.github.io/kaoto/
 - [Getting Started](#getting-started)
   - [Clone the Repository](#clone-the-repository)
   - [Install Dependencies](#install-dependencies)
-- [Running kaoto-next with Docker](#running-kaoto-next-with-docker)
+- [Running kaoto with Docker](#running-kaoto-with-docker)
 - [Development](#development)
   - [Web Application](#web-application)
     - [Run](#run)
@@ -30,23 +30,23 @@ _For more information on Vite, check [Vite's documentation](https://vitejs.dev/c
 First, clone the repository to your local machine.
 
 ```sh
-git clone https://github.com/KaotoIO/kaoto-next
+git clone https://github.com/KaotoIO/kaoto
 ```
 ### Install Dependencies
 
 Navigate to the cloned directory and install the necessary packages.
 
 ```sh
-cd kaoto-next
+cd kaoto
 yarn install
 ```
-_Note: By default, `@kaoto-next/camel-catalog` will also be built using the `mvn` wrapper._
+_Note: By default, `@kaoto/camel-catalog` will also be built using the `mvn` wrapper._
 
-## Running kaoto-next with Docker
+## Running kaoto with Docker
 For trial purposes, there is a docker image that can be run locally:
 
 ```sh
-docker run --rm -p 8080:8080 --name kaoto-next quay.io/kaotoio/kaoto-app:main
+docker run --rm -p 8080:8080 --name kaoto quay.io/kaotoio/kaoto-app:main
 ```
 
 ## Development
@@ -54,26 +54,26 @@ docker run --rm -p 8080:8080 --name kaoto-next quay.io/kaotoio/kaoto-app:main
 #### Run
 To start the development server, execute the following command:
 ```sh
-yarn workspace @kaoto-next/ui run start
+yarn workspace @kaoto/kaoto run start
 ```
 The application will be accessible at `http://localhost:5173` by default.
 
 #### Build
 To build the web application, execute:
 ```sh
-yarn workspace @kaoto-next/ui run build
+yarn workspace @kaoto/kaoto run build
 ```
 
 ### Public Components
 To build the public components, execute:
 ```sh
-yarn workspace @kaoto-next/ui run build:lib
+yarn workspace @kaoto/kaoto run build:lib
 ```
 
 ## Camel Catalog and Supporting Schemas
 To build the Camel Catalog and the supporting schemas, run:
 ```sh
-yarn workspace @kaoto-next/camel-catalog run build
+yarn workspace @kaoto/camel-catalog run build
 ```
 _Optional: You can update the Camel version in the `pom.xml` file and then run the build command again._
 
@@ -84,9 +84,9 @@ To view the storybook stories, go to [Chromatic](https://main--64ef22df8bb709ffa
 To run Storybook locally:
 ``` bash
 # first build the ui library
-yarn workspace @kaoto-next/ui build:lib
+yarn workspace @kaoto/kaoto build:lib
 
 # run the storybook
-yarn workspace @kaoto-next/ui-tests storybook
+yarn workspace @kaoto/kaoto-tests storybook
 ```
-To publish to Chromatic: `yarn workspace @kaoto-next/ui-tests chromatic`
+To publish to Chromatic: `yarn workspace @kaoto/kaoto-tests chromatic`

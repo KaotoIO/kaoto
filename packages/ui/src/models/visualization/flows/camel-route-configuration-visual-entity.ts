@@ -1,4 +1,4 @@
-import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto-next/camel-catalog/types';
+import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';

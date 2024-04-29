@@ -1,4 +1,4 @@
-import { BeansDeserializer } from '@kaoto-next/camel-catalog/types';
+import { BeansDeserializer } from '@kaoto/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType, BaseCamelEntity } from '../../camel/entities';
 import { isDefined } from '../../../utils';

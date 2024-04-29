@@ -1,6 +1,6 @@
-# Contributing to Kaoto-Next
+# Contributing to Kaoto
 
-Thank you for considering contributing to Kaoto-next! Community contributions are essential for the project's success, and we welcome bug fixes, documentation improvements, feature additions, and more.
+Thank you for considering contributing to Kaoto! Community contributions are essential for the project's success, and we welcome bug fixes, documentation improvements, feature additions, and more.
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ Before you start contributing, ensure that you have the following installed:
    - Fork the project to your GitHub account by clicking the 'Fork' button on the project's GitHub page.
 
 2. **Clone Your Fork**:
-   - Clone your fork using `git clone https://github.com/YOUR_USERNAME/kaoto-next.git`.
+   - Clone your fork using `git clone https://github.com/YOUR_USERNAME/kaoto.git`.
 
 3. **Install Dependencies**:
    - Navigate to the cloned folder and run `yarn install` to install all necessary dependencies.
@@ -30,7 +30,7 @@ Before you start contributing, ensure that you have the following installed:
 
 ### Find or Create an Issue
 
-- Look for existing issues on the [GitHub Issues page](https://github.com/KaotoIO/kaoto-next/issues).
+- Look for existing issues on the [GitHub Issues page](https://github.com/KaotoIO/kaoto/issues).
 - If you want to work on something new, feel free to create a new issue and discuss it with the team.
 
 ### Create a Feature Branch
@@ -49,7 +49,7 @@ Before you start contributing, ensure that you have the following installed:
 
 ### Submit a Pull Request (PR)
 
-- Create a pull request from your fork to the main Kaoto-next repository.
+- Create a pull request from your fork to the main Kaoto repository.
 - Provide a detailed description of your changes, referencing any related issues.
 - Await feedback or approval from the maintainers.
 
@@ -71,7 +71,7 @@ Before you start contributing, ensure that you have the following installed:
 
 ---
 
-Your contributions make Kaoto-next better, and we sincerely appreciate your support and collaboration. Happy coding!
+Your contributions make Kaoto better, and we sincerely appreciate your support and collaboration. Happy coding!
 
 ## Questions or Need Help?
 
@@ -79,4 +79,4 @@ If you have any questions or need assistance, feel free to create an issue on Gi
 
 ---
 
-Your contributions make Kaoto-next better, and we sincerely appreciate your support and collaboration. Happy coding!
+Your contributions make Kaoto better, and we sincerely appreciate your support and collaboration. Happy coding!

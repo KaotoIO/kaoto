@@ -1,6 +1,6 @@
 import { BaseCamelEntity } from './entities';
 import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
-import { Integration as IntegrationType } from '@kaoto-next/camel-catalog/types';
+import { Integration as IntegrationType } from '@kaoto/camel-catalog/types';
 import { SourceSchemaType } from './source-schema-type';
 import { CamelKResource } from './camel-k-resource';
 

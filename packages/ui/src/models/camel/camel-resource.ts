@@ -2,7 +2,7 @@ import {
   Integration as IntegrationType,
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
-} from '@kaoto-next/camel-catalog/types';
+} from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';

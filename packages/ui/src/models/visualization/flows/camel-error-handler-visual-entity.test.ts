@@ -1,4 +1,4 @@
-import { ErrorHandlerBuilderDeserializer, NoErrorHandler } from '@kaoto-next/camel-catalog/types';
+import { ErrorHandlerBuilderDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 import { useSchemasStore } from '../../../store';
 import { errorHandlerSchema } from '../../../stubs/error-handler';
 import { EntityType } from '../../camel/entities';

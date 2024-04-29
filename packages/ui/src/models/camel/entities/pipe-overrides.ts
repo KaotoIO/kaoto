@@ -1,4 +1,4 @@
-import { Pipe } from '@kaoto-next/camel-catalog/types';
+import { Pipe } from '@kaoto/camel-catalog/types';
 
 export type PipeSpec = NonNullable<Pipe['spec']>;
 export type PipeMetadata = NonNullable<Pipe['metadata']>;

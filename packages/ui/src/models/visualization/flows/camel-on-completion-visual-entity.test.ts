@@ -1,4 +1,4 @@
-import { OnCompletion } from '@kaoto-next/camel-catalog/types';
+import { OnCompletion } from '@kaoto/camel-catalog/types';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';

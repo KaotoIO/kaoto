@@ -1,4 +1,4 @@
-import * as catalogIndex from '@kaoto-next/camel-catalog/index.json';
+import * as catalogIndex from '@kaoto/camel-catalog/index.json';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
 import { CatalogKind } from '../../catalog-kind';
@@ -12,11 +12,11 @@ describe('CamelCatalogService', () => {
   let loadbalancersMap: Record<string, unknown>;
   let kameletCatalogMap: Record<string, unknown>;
   beforeEach(async () => {
-    componentCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.components.file);
-    dataformatsCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
-    languagesCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.languages.file);
-    loadbalancersMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
-    kameletCatalogMap = await import('@kaoto-next/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
+    componentCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file);
+    dataformatsCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
+    languagesCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
+    loadbalancersMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
+    kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     CamelCatalogService.setCatalogKey(
       CatalogKind.Component,
       componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
