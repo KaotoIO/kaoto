@@ -1,4 +1,4 @@
-import { BoolField, DateField, ListField, LongTextField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
+import { BoolField, DateField, ListField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { getValue } from '../../utils';
 import { OneOfField } from './OneOf/OneOfField';
@@ -9,7 +9,11 @@ import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
+import { CustomLongTextField } from './customField/CustomLongTextField';
 import { PasswordField } from './customField/PasswordField';
+
+// Name of the properties that should load CustomLongTextField
+const CustomLongTextProps = ['Expression', 'Description'];
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -59,8 +63,8 @@ export const CustomAutoField = createAutoField((props) => {
       /* catalog preprocessor put 'string' as a type and the javaType as a schema $comment */
       if (comment?.startsWith('class:')) {
         return BeanReferenceField;
-      } else if (title === 'Expression') {
-        return LongTextField;
+      } else if (CustomLongTextProps.includes(title)) {
+        return CustomLongTextField;
       }
       return TextField;
   }
