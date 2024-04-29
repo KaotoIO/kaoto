@@ -65,9 +65,9 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
             <AutoField
               key={field}
               name={field}
-              inputRef={(node: HTMLElement) => {
-                fieldsRefs.current[index] = node;
-              }}
+              // inputRef={(node: HTMLElement) => {
+              //   fieldsRefs.current[index] = node;
+              // }}
             />
           ))
         ) : (
