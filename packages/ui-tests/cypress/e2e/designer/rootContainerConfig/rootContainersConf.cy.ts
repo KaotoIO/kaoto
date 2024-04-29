@@ -53,16 +53,16 @@ describe('Test for camel route root containers configuration', () => {
       .find('.pf-topology__node__label__background')
       .click();
 
-    cy.get(`input[name="description"]`).clear().type('test.description');
+    cy.get(`textarea[name="description"]`).clear().type('test.description');
     cy.get(`input[name="group"]`).clear().type('test.group');
-    cy.get(`input[name="inputType.description"]`).clear().type('test.inputType.description');
+    cy.get(`textarea[name="inputType.description"]`).clear().type('test.inputType.description');
     cy.get(`input[name="inputType.id"]`).clear().type('test.inputType.id');
     cy.get(`input[name="inputType.urn"]`).clear().type('test.inputType.urn');
     cy.get(`input[name="inputType.validate"]`).check();
     cy.get(`input[name="logMask"]`).check();
     cy.get(`input[name="messageHistory"]`).check();
     cy.get(`input[name="nodePrefixId"]`).clear().type('test.nodePrefixId');
-    cy.get(`input[name="outputType.description"]`).clear().type('test.outputType.description');
+    cy.get(`textarea[name="outputType.description"]`).clear().type('test.outputType.description');
     cy.get(`input[name="outputType.id"]`).clear().type('test.outputType.id');
     cy.get(`input[name="outputType.urn"]`).clear().type('test.outputType.urn');
     cy.get(`input[name="outputType.validate"]`).check();

@@ -34,7 +34,7 @@ describe('Test for root containers', () => {
       .find('.pf-topology__node__label__background')
       .click();
 
-    cy.get(`input[name="description"]`).clear().type('testDescription');
+    cy.get(`textarea[name="description"]`).clear().type('testDescription');
     cy.get(`input[name="onExceptionOccurredRef"]`).clear().type('testOnExceptionOccurredRef');
     cy.get(`input[name="onRedeliveryRef"]`).clear().type('testOnRedeliveryRef');
     cy.get(`input[name="redeliveryPolicy.id"]`).clear().type('testRedeliveryPolicyId');

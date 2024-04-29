@@ -203,7 +203,7 @@ describe('CanvasForm', () => {
       </EntitiesProvider>,
     );
 
-    const idField = screen.getAllByLabelText('Description', { selector: 'input' })[0];
+    const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
     act(() => {
       fireEvent.change(idField, { target: { value: '' } });
     });

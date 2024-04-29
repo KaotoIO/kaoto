@@ -19,7 +19,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
       .type('roundRobinId');
 
     cy.get(`input[name="id"]`).eq(1).clear().type('testId');
-    cy.get(`input[name="description"]`).clear().type('loadBalancerDescription');
+    cy.get(`textarea[name="description"]`).clear().type('loadBalancerDescription');
     cy.get(`input[name="inheritErrorHandler"]`).check();
     cy.closeStepConfigurationTab();
 
