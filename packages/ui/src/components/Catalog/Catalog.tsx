@@ -7,6 +7,7 @@ import { CatalogLayout, ITile } from './Catalog.models';
 import './Catalog.scss';
 import { CatalogFilter } from './CatalogFilter';
 import { filterTiles } from './filter-tiles';
+import { sortTags } from './sort-tags';
 
 interface CatalogProps {
   /** Tiles list */
@@ -20,6 +21,11 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
   /** Selected Group */
   const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
   const [filterTags, setFilterTags] = useState<string[]>([]);
+
+  /** All tags, sorted to have selected and prioritized tags first */
+  const { sortedTags, overflowIndex } = useMemo(() => {
+    return sortTags(props.tiles, filterTags);
+  }, [filterTags, props.tiles]);
 
   /** Filter by selected group */
   const filteredTilesByGroup = useMemo(() => {
@@ -68,6 +74,8 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         className="catalog__filter"
         searchTerm={searchTerm}
         groups={tilesGroups}
+        tags={sortedTags}
+        tagsOverflowIndex={overflowIndex}
         layouts={[CatalogLayout.Gallery, CatalogLayout.List]}
         activeGroups={activeGroups}
         activeLayout={activeLayout}
