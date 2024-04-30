@@ -14,11 +14,14 @@ import {
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { CatalogLayout } from './Catalog.models';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
+import { TimesCircleIcon } from '@patternfly/react-icons';
 
 interface CatalogFilterProps {
   className?: string;
   searchTerm: string;
   groups: { name: string; count: number }[];
+  tags: string[];
+  tagsOverflowIndex: number;
   layouts: CatalogLayout[];
   activeGroups: string[];
   activeLayout: CatalogLayout;
@@ -36,8 +39,16 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
     inputRef.current?.focus();
   }, []);
 
-  const onClose = (tag: string) => {
-    props.setFilterTags(props.filterTags.filter((savedTag) => savedTag !== tag));
+  const onToggleTag = (tag: string) => {
+    const isToggled = props.filterTags.includes(tag);
+
+    props.setFilterTags(
+      isToggled ? props.filterTags.filter((savedTag) => savedTag !== tag) : props.filterTags.concat(tag),
+    );
+  };
+
+  const handleClearFilterTags = () => {
+    props.setFilterTags([]);
   };
 
   const toggleActiveGroup = (selected: boolean, group: string) => {
@@ -107,10 +118,32 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
           </FormGroup>
         </GridItem>
       </Grid>
-      <LabelGroup categoryName="Filtered tags" numLabels={10}>
-        {props.filterTags.map((tag, index) => (
-          <Label key={tag + index} id={tag + index} color="blue" onClose={() => onClose(tag)} isCompact>
-            {tag}
+      <LabelGroup
+        categoryName={'Filter Categories'}
+        numLabels={props.filterTags.length > 0 ? props.tagsOverflowIndex + 1 : props.tagsOverflowIndex}
+      >
+        {props.filterTags.length > 0 && (
+          <Label
+            key="clear"
+            id="clear"
+            color="grey"
+            variant="filled"
+            onClick={handleClearFilterTags}
+            icon={<TimesCircleIcon />}
+          >
+            <b>Clear</b>
+          </Label>
+        )}
+        {props.tags.map((tag, index) => (
+          <Label
+            key={tag + index}
+            id={tag + index}
+            data-testid={`button-catalog-tag-${tag}`}
+            color={props.filterTags.includes(tag) ? 'blue' : 'grey'}
+            onClick={() => onToggleTag(tag)}
+            variant={props.filterTags.includes(tag) ? 'filled' : 'outline'}
+          >
+            {props.filterTags.includes(tag) ? <b>{tag}</b> : <>{tag}</>}
           </Label>
         ))}
       </LabelGroup>

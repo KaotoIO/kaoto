@@ -38,9 +38,9 @@ describe('Catalog related tests', () => {
 
     cy.get('[data-testid="tile-aws2-redshift-data"]').should('be.visible');
 
-    cy.get('button[aria-label="Close cloud"]').click();
-    cy.get('button[aria-label="Close database"]').click();
-    cy.get('button[aria-label="Close serverless"]').click();
+    cy.get('[data-testid="button-catalog-tag-cloud"]').click();
+    cy.get('[data-testid="button-catalog-tag-database"]').click();
+    cy.get('[data-testid="button-catalog-tag-serverless"]').click();
     cy.contains('h2', 'Showing 1 elements').should('not.exist');
   });
 
