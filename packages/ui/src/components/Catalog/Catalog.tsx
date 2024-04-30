@@ -31,9 +31,16 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     return Object.entries(filteredTilesByGroup).map(([group, tiles]) => ({ name: group, count: tiles.length }));
   }, [filteredTilesByGroup]);
 
-  const [activeGroup, setActiveGroup] = useState<string>(tilesGroups[0].name);
+  const [activeGroups, setActiveGroups] = useState<string[]>(tilesGroups.map((g) => g.name));
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
-  const filteredTiles = useMemo(() => filteredTilesByGroup[activeGroup] ?? [], [activeGroup, filteredTilesByGroup]);
+  const filteredTiles = useMemo(() => {
+    return Object.entries(filteredTilesByGroup).reduce((acc, [group, tiles]) => {
+      if (activeGroups.includes(group)) {
+        acc.push(...tiles);
+      }
+      return acc;
+    }, [] as ITile[]);
+  }, [activeGroups, filteredTilesByGroup]);
 
   const onFilterChange = useCallback(
     (_event: unknown, value = '') => {
@@ -62,11 +69,11 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         searchTerm={searchTerm}
         groups={tilesGroups}
         layouts={[CatalogLayout.Gallery, CatalogLayout.List]}
-        activeGroup={activeGroup}
+        activeGroups={activeGroups}
         activeLayout={activeLayout}
         filterTags={filterTags}
         onChange={onFilterChange}
-        setActiveGroup={setActiveGroup}
+        setActiveGroups={setActiveGroups}
         setActiveLayout={setActiveLayout}
         setFilterTags={setFilterTags}
       />

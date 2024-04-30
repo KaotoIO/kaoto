@@ -27,7 +27,7 @@ describe('camelComponentToTile', () => {
 
     const tile = camelComponentToTile(componentDef);
 
-    expect(tile.headerTags).toEqual(['Preview']);
+    expect(tile.headerTags).toEqual(['Component', 'Preview']);
   });
 
   it('should populate the tags and version', () => {
@@ -67,7 +67,7 @@ describe('camelComponentToTile', () => {
 
     const tile = camelComponentToTile(componentDef);
 
-    expect(tile.headerTags).toEqual(['Deprecated']);
+    expect(tile.headerTags).toEqual(['Component', 'Deprecated']);
   });
 });
 
@@ -210,6 +210,6 @@ describe('kameletToTile', () => {
 
     const tile = kameletToTile(kameletDef);
 
-    expect(tile.headerTags).toEqual(['Preview']);
+    expect(tile.headerTags).toEqual(['Kamelet', 'Preview']);
   });
 });
