@@ -21,6 +21,10 @@ export interface IFunctionDefinition {
 
 export type ITransformationArgument = ITransformation | IField | string | number;
 
+export interface ForEachDefinition {
+  collection: IField;
+}
+
 export interface ITransformation {
   ref: IFunctionDefinition;
   arguments: ITransformationArgument[];
@@ -32,5 +36,6 @@ export interface IMapping {
   sourceFields: IField[];
   targetFields: IField[];
   transformation?: ITransformation;
+  forEach?: ForEachDefinition;
   xpath?: string;
 }

@@ -1,6 +1,8 @@
 import {
   Button,
   Divider,
+  InputGroup,
+  InputGroupItem,
   MenuToggle,
   MenuToggleElement,
   Select,
@@ -11,47 +13,60 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
+  Tooltip,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
 import { XPathParserService } from '../../services/xpath/xpath-parser.service';
 import { FunctionGroup } from '../../services/xpath/xpath-parser';
 import { IFunctionDefinition } from '../../models';
 
-const functionCatalog = XPathParserService.getXPathFunctionDefinitions();
+type FunctionOptionProps = SelectOptionProps & {
+  functionGroup: string;
+  displayName: string;
+  descriptionString: string;
+  functionDefinition: IFunctionDefinition;
+};
+const functionDefinitions = XPathParserService.getXPathFunctionDefinitions();
+const allFunctionOptions = Object.keys(functionDefinitions).reduce((acc, value) => {
+  return functionDefinitions[value as FunctionGroup].reduce((acc2, func) => {
+    acc2.push({
+      value: func.name,
+      children: func.displayName,
+      displayName: func.displayName,
+      description: func.description,
+      descriptionString: func.description,
+      functionGroup: value,
+      functionDefinition: func,
+    });
+    return acc2;
+  }, acc);
+}, [] as FunctionOptionProps[]);
 
-export const FunctionSelector = () => {
+type FunctionSelectorProps = {
+  onSelect: (selected: IFunctionDefinition) => void;
+};
+export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
-  const [functionOptions, setFunctionOptions] = useState<Record<FunctionGroup, IFunctionDefinition[]>>(functionCatalog);
+  const [functionOptions, setFunctionOptions] = useState<FunctionOptionProps[]>(allFunctionOptions);
   const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const textInputRef = useRef<HTMLInputElement>();
 
   useEffect(() => {
-    let newFunctionOptions = functionCatalog;
+    let newFunctionOptions = allFunctionOptions;
     if (filterValue) {
-      newFunctionOptions = Object.keys(functionCatalog).reduce(
-        (acc, groupName) => {
-          const group = groupName as FunctionGroup;
-          acc[group] = groupName.includes(filterValue)
-            ? functionCatalog[group]
-            : functionCatalog[group].reduce((acc2, functionDef) => {
-                if (
-                  functionDef.name.includes(filterValue) ||
-                  functionDef.displayName.includes(filterValue) ||
-                  functionDef.description.includes(filterValue)
-                ) {
-                  acc2.push(functionDef);
-                }
-                return acc2;
-              }, [] as IFunctionDefinition[]);
-          return acc;
-        },
-        {} as Record<FunctionGroup, IFunctionDefinition[]>,
-      );
+      newFunctionOptions = allFunctionOptions.filter((option) => {
+        return (
+          option.functionGroup.includes(filterValue) ||
+          option.value.includes(filterValue) ||
+          option.displayName.includes(filterValue) ||
+          option.descriptionString.includes(filterValue)
+        );
+      });
 
       // Open the menu when the input value changes and the new value is not empty
       if (!isOpen) {
@@ -68,14 +83,15 @@ export const FunctionSelector = () => {
     setIsOpen(!isOpen);
   };
 
-  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    // eslint-disable-next-line no-console
-    console.log('selected', value);
-
+  const handleOnSelect = (
+    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    value: string | number | undefined,
+  ) => {
     if (value && value !== 'no results') {
       setInputValue(value as string);
       setFilterValue('');
       setSelected(value as string);
+      onSelect(functionOptions.find((op) => op.value === value)!.functionDefinition);
     }
     setIsOpen(false);
     setFocusedItemIndex(null);
@@ -154,7 +170,6 @@ export const FunctionSelector = () => {
       aria-label="Typeahead menu toggle"
       onClick={onToggleClick}
       isExpanded={isOpen}
-      isFullWidth
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
@@ -165,7 +180,7 @@ export const FunctionSelector = () => {
           id="typeahead-select-input"
           autoComplete="off"
           innerRef={textInputRef}
-          placeholder="Select a state"
+          placeholder="Select function"
           {...(activeItem && { 'aria-activedescendant': activeItem })}
           role="combobox"
           isExpanded={isOpen}
@@ -192,28 +207,33 @@ export const FunctionSelector = () => {
     </MenuToggle>
   );
 
-  type FunctionSelectGroupProps = {
-    group: FunctionGroup;
+  type FunctionOptionsGroupProps = {
+    group: string;
+    indexes: number[];
   };
 
-  const FunctionSelectGroup: FunctionComponent<FunctionSelectGroupProps> = ({ group }) => {
-    const functions = functionOptions[group];
+  const FunctionOptionsGroup: FunctionComponent<FunctionOptionsGroupProps> = ({ group, indexes }) => {
     return (
       <>
         <SelectGroup label={group}>
           <SelectList>
-            {functions.map((func) => (
-              <SelectOption
-                key={func.name}
-                onClick={() => setSelected(func.name)}
-                id={`select-typeahead-${func.name}`}
-                value={func.name}
-                ref={null}
-                description={func.description}
-              >
-                {func.displayName}
-              </SelectOption>
-            ))}
+            {indexes.map((index) => {
+              const option = functionOptions[index];
+              return (
+                <SelectOption
+                  key={option.value}
+                  isFocused={focusedItemIndex === index}
+                  className={option.className}
+                  onClick={() => setSelected(option.value)}
+                  id={`select-typeahead-${option.value}`}
+                  value={option.value}
+                  ref={null}
+                  description={option.description}
+                >
+                  {option.displayName}
+                </SelectOption>
+              );
+            })}
           </SelectList>
         </SelectGroup>
         <Divider />
@@ -221,23 +241,67 @@ export const FunctionSelector = () => {
     );
   };
 
+  const groupedOptionIndexes = useMemo(
+    () =>
+      functionOptions.reduce(
+        (acc, option) => {
+          if (!acc[option.functionGroup]) {
+            acc[option.functionGroup] = [];
+          }
+          acc[option.functionGroup].push(functionOptions.indexOf(option));
+          return acc;
+        },
+        {} as Record<string, number[]>,
+      ),
+    [functionOptions],
+  );
+
+  const GroupedFunctionOptions: FunctionComponent = () => {
+    const first = true;
+    return Object.keys(groupedOptionIndexes).map((group) => {
+      if (groupedOptionIndexes[group].length == 0) return undefined;
+      return first ? (
+        <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
+      ) : (
+        <>
+          <Divider />
+          <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
+        </>
+      );
+    });
+  };
+
   return (
-    <Select
-      id="typeahead-select"
-      isOpen={isOpen}
-      selected={selected}
-      onSelect={onSelect}
-      onOpenChange={() => {
-        setIsOpen(false);
-      }}
-      toggle={toggle}
-    >
-      <SelectList id="select-typeahead-listbox">
-        {Object.keys(functionOptions).map((groupName) => {
-          const group = groupName as FunctionGroup;
-          return functionOptions[group].length > 0 && <FunctionSelectGroup group={group} />;
-        })}
-      </SelectList>
-    </Select>
+    <InputGroup>
+      <InputGroupItem>
+        <Select
+          id="typeahead-select"
+          isOpen={isOpen}
+          selected={selected}
+          onSelect={handleOnSelect}
+          onOpenChange={() => {
+            setIsOpen(false);
+          }}
+          toggle={toggle}
+          isScrollable
+          popperProps={{ preventOverflow: true }}
+        >
+          <GroupedFunctionOptions />
+        </Select>
+      </InputGroupItem>
+      <InputGroupItem>
+        <Tooltip content={'Apply function'}>
+          <Button
+            isDisabled={!selected}
+            variant="control"
+            aria-label="Apply Function"
+            data-testid={`apply-function-button`}
+            onClick={() => {}}
+          >
+            Apply
+          </Button>
+        </Tooltip>
+      </InputGroupItem>
+    </InputGroup>
   );
 };

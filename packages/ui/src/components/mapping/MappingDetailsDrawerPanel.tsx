@@ -24,7 +24,7 @@ import { IField } from '../../models';
 import { DeleteMappingButton } from './DeleteMappingButton';
 import { Table, TableVariant, Tbody, Td, Tr } from '@patternfly/react-table';
 import { PenIcon, SaveIcon, TimesIcon } from '@patternfly/react-icons';
-import { TransformationEditor } from './TransformationEditor';
+import { TransformationEditor } from '../transformation/TransformationEditor';
 
 type FieldDetailsProps = {
   field: IField;
@@ -155,7 +155,7 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
               <CardTitle>Target Field : {selectedMapping.targetFields[0].fieldIdentifier.toString()}</CardTitle>
             </CardHeader>
             <CardBody>
-              <TransformationEditor name={''} />
+              <TransformationEditor />
             </CardBody>
           </Card>
         ) : (
