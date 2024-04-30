@@ -69,8 +69,7 @@ Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number)
   cy.performNodeAction(nodeName, 'prepend', nodeIndex);
 });
 
-Cypress.Commands.add('chooseFromCatalog', (nodeType: string, name: string) => {
-  cy.get(`[data-testid="${nodeType}-catalog-tab"]`).click();
+Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
   cy.get('.pf-v5-c-text-input-group__text-input').click();
   cy.get('.pf-v5-c-text-input-group__text-input').type(name);
   cy.get(`#${name}`).should('be.visible').click();

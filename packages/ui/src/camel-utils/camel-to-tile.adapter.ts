@@ -3,7 +3,7 @@ import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKam
 
 export const camelComponentToTile = (componentDef: ICamelComponentDefinition): ITile => {
   const { name, title, description, supportLevel, label, version } = componentDef.component;
-  const headerTags: string[] = [];
+  const headerTags: string[] = ['Component'];
   const tags: string[] = [];
 
   if (supportLevel && !componentDef.component.deprecated) {
@@ -42,13 +42,14 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
     name,
     title,
     description,
+    headerTags: ['Processor'],
     tags,
     rawObject: processorDef,
   };
 };
 
 export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
-  const headerTags: string[] = [];
+  const headerTags: string[] = ['Kamelet'];
   if (kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']) {
     headerTags.push(kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']);
   }

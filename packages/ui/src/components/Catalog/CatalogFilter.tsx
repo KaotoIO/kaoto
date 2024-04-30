@@ -20,11 +20,11 @@ interface CatalogFilterProps {
   searchTerm: string;
   groups: { name: string; count: number }[];
   layouts: CatalogLayout[];
-  activeGroup: string;
+  activeGroups: string[];
   activeLayout: CatalogLayout;
   filterTags: string[];
   onChange: (event: unknown, value?: string) => void;
-  setActiveGroup: (group: string) => void;
+  setActiveGroups: (groups: string[]) => void;
   setActiveLayout: (layout: CatalogLayout) => void;
   setFilterTags: (tags: string[]) => void;
 }
@@ -38,6 +38,17 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
 
   const onClose = (tag: string) => {
     props.setFilterTags(props.filterTags.filter((savedTag) => savedTag !== tag));
+  };
+
+  const toggleActiveGroup = (selected: boolean, group: string) => {
+    if (selected && !props.activeGroups.includes(group)) {
+      props.activeGroups.push(group);
+      props.setActiveGroups([...props.activeGroups]);
+    } else if (!selected && props.activeGroups.includes(group)) {
+      props.activeGroups.splice(props.activeGroups.indexOf(group), 1);
+      props.setActiveGroups([...props.activeGroups]);
+    }
+    inputRef.current?.focus();
   };
 
   return (
@@ -69,11 +80,8 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
                   key={tileGroup.name}
                   data-testid={`${tileGroup.name}-catalog-tab`}
                   buttonId={`toggle-group-button-${tileGroup.name}`}
-                  isSelected={props.activeGroup === tileGroup.name}
-                  onChange={() => {
-                    props.setActiveGroup(tileGroup.name);
-                    inputRef.current?.focus();
-                  }}
+                  isSelected={props.activeGroups.includes(tileGroup.name)}
+                  onChange={(_event, selected: boolean) => toggleActiveGroup(selected, tileGroup.name)}
                 />
               ))}
             </ToggleGroup>

@@ -8,6 +8,10 @@ export const getTagColor = (tag: string): COLOR => {
       return 'orange';
     case 'deprecated':
       return 'red';
+    case 'component':
+    case 'processor':
+    case 'kamelet':
+      return 'blue';
     default:
       return 'grey';
   }
