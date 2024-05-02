@@ -134,7 +134,9 @@ Cypress.Commands.add('selectDataformat', (dataformat: string) => {
 });
 
 Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
-  cy.get(`div[data-testid="${type}-config-card"] button.pf-v5-c-menu-toggle`).should('be.visible').click();
+  cy.get(`div[data-testid="${type}-config-card"] div.pf-v5-c-menu-toggle button.pf-v5-c-menu-toggle__button`)
+    .should('be.visible')
+    .click();
   const regex = new RegExp(`^${format}$`);
   cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });

@@ -450,9 +450,7 @@ describe('CanvasForm', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -509,9 +507,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].marshal!.avro).toBeUndefined();
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
 
-      const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -560,9 +556,7 @@ describe('CanvasForm', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -619,9 +613,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeUndefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
-      const button = screen
-        .getAllByRole('button')
-        .filter((button) => button.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
+      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
