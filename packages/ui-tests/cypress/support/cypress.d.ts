@@ -5,7 +5,7 @@
 export {};
 
 declare global {
-  type ActionType = 'append' | 'prepend' | 'replace' | 'insert' | 'insert-special' | 'remove';
+  type ActionType = 'append' | 'prepend' | 'replace' | 'insert' | 'insert-special' | 'delete';
 
   namespace Cypress {
     interface Chainable {
