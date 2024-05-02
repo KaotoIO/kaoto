@@ -1,23 +1,27 @@
+import { Tooltip } from '@patternfly/react-core';
+import { ArrowDownIcon, ArrowUpIcon, CodeBranchIcon, PlusIcon } from '@patternfly/react-icons';
 import {
+  ContextMenuSeparator,
   DefaultNode,
+  ElementModel,
+  GraphElement,
   Node,
   NodeStatus,
+  WithSelectionProps,
   observer,
   withContextMenu,
   withSelection,
-  WithSelectionProps,
 } from '@patternfly/react-topology';
-import { Tooltip } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
 import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasDefaults } from '../Canvas/canvas.defaults';
 import { CanvasNode } from '../Canvas/canvas.models';
 import './CustomNode.scss';
-import { ItemAddNode } from './ItemAddNode';
-import { ItemInsertChildNode } from './ItemInsertChildNode';
-import { ItemRemoveNode } from './ItemRemoveNode';
-import { ItemReplaceNode } from './ItemReplaceNode';
-import { ItemRemoveGroup } from './ItemRemoveGroup';
+import { ItemAddStep } from './ItemAddStep';
+import { ItemDeleteGroup } from './ItemDeleteGroup';
+import { ItemDeleteStep } from './ItemDeleteStep';
+import { ItemInsertStep } from './ItemInsertStep';
+import { ItemReplaceStep } from './ItemReplaceStep';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -60,24 +64,92 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   );
 });
 
-export const CustomNodeWithSelection: typeof DefaultNode = withContextMenu(() => [
-  <ItemAddNode
-    key="context-menu-item-prepend"
-    data-testid="context-menu-item-prepend"
-    mode={AddStepMode.PrependStep}
-  />,
-  <ItemAddNode key="context-menu-item-append" data-testid="context-menu-item-append" mode={AddStepMode.AppendStep} />,
-  <ItemInsertChildNode
-    key="context-menu-item-insert"
-    data-testid="context-menu-item-insert"
-    mode={AddStepMode.InsertChildStep}
-  />,
-  <ItemInsertChildNode
-    key="context-menu-item-insert-special"
-    data-testid="context-menu-item-insert-special"
-    mode={AddStepMode.InsertSpecialChildStep}
-  />,
-  <ItemReplaceNode key="context-menu-item-replace" data-testid="context-menu-item-replace" />,
-  <ItemRemoveNode key="context-menu-item-remove" data-testid="context-menu-item-remove" />,
-  <ItemRemoveGroup key="context-menu-container-remove" data-testid="context-menu-container-remove" />,
-])(withSelection()(CustomNode) as typeof DefaultNode) as typeof DefaultNode;
+export const CustomNodeWithSelection: typeof DefaultNode = withSelection()(
+  withContextMenu((element: GraphElement<ElementModel, CanvasNode['data']>) => {
+    const items: ReactElement[] = [];
+    const vizNode = element.getData()?.vizNode;
+    if (!vizNode) return items;
+
+    const nodeInteractions = vizNode.getNodeInteraction();
+
+    if (nodeInteractions.canHavePreviousStep) {
+      items.push(
+        <ItemAddStep
+          key="context-menu-item-prepend"
+          data-testid="context-menu-item-prepend"
+          mode={AddStepMode.PrependStep}
+          vizNode={vizNode}
+        >
+          <ArrowUpIcon /> Prepend
+        </ItemAddStep>,
+      );
+    }
+    if (nodeInteractions.canHaveNextStep) {
+      items.push(
+        <ItemAddStep
+          key="context-menu-item-append"
+          data-testid="context-menu-item-append"
+          mode={AddStepMode.AppendStep}
+          vizNode={vizNode}
+        >
+          <ArrowDownIcon /> Append
+        </ItemAddStep>,
+      );
+    }
+    if (nodeInteractions.canHavePreviousStep || nodeInteractions.canHaveNextStep) {
+      items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
+    }
+
+    if (nodeInteractions.canHaveChildren) {
+      items.push(
+        <ItemInsertStep
+          key="context-menu-item-insert"
+          data-testid="context-menu-item-insert"
+          mode={AddStepMode.InsertChildStep}
+          vizNode={vizNode}
+        >
+          <PlusIcon /> Add step
+        </ItemInsertStep>,
+      );
+    }
+    if (nodeInteractions.canHaveSpecialChildren) {
+      items.push(
+        <ItemInsertStep
+          key="context-menu-item-insert-special"
+          data-testid="context-menu-item-insert-special"
+          mode={AddStepMode.InsertSpecialChildStep}
+          vizNode={vizNode}
+        >
+          <CodeBranchIcon /> Add branch
+        </ItemInsertStep>,
+      );
+    }
+    if (nodeInteractions.canHaveChildren || nodeInteractions.canHaveSpecialChildren) {
+      items.push(<ContextMenuSeparator key="context-menu-separator-insert" />);
+    }
+
+    if (nodeInteractions.canReplaceStep) {
+      items.push(
+        <ItemReplaceStep key="context-menu-item-replace" data-testid="context-menu-item-replace" vizNode={vizNode} />,
+      );
+      items.push(<ContextMenuSeparator key="context-menu-separator" />);
+    }
+
+    if (nodeInteractions.canRemoveStep) {
+      items.push(
+        <ItemDeleteStep key="context-menu-item-delete" data-testid="context-menu-item-delete" vizNode={vizNode} />,
+      );
+    }
+    if (nodeInteractions.canRemoveFlow) {
+      items.push(
+        <ItemDeleteGroup
+          key="context-menu-container-remove"
+          data-testid="context-menu-container-remove"
+          vizNode={vizNode}
+        />,
+      );
+    }
+
+    return items;
+  })(CustomNode as typeof DefaultNode),
+) as typeof DefaultNode;

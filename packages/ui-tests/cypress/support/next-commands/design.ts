@@ -43,7 +43,7 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
 });
 
 Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {
-  cy.performNodeAction(nodeName, 'remove', nodeIndex);
+  cy.performNodeAction(nodeName, 'delete', nodeIndex);
   cy.get(nodeName).should('not.exist');
   // wait for the canvas rerender
   cy.wait(1000);
