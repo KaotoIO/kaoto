@@ -1,6 +1,5 @@
 import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { fireEvent, render, screen, act } from '@testing-library/react';
 import { CatalogKind, ICamelDataformatDefinition, KaotoSchemaDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
@@ -11,7 +10,7 @@ import { DataFormatEditor } from './DataFormatEditor';
 describe('DataFormatEditor', () => {
   let mockNode: CanvasNode;
   let dataformatCatalog: Record<string, ICamelDataformatDefinition>;
-  beforeAll(async () => {
+  beforeEach(async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     dataformatCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
     /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -50,14 +49,52 @@ describe('DataFormatEditor', () => {
 
   it('should render', async () => {
     render(<DataFormatEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button');
+    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
     await act(async () => {
-      fireEvent.click(buttons[1]);
+      fireEvent.click(buttons[0]);
     });
     const json = screen.getByTestId('dataformat-dropdownitem-json');
     fireEvent.click(json.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-dataformat');
     expect(form.innerHTML).toContain('Allow Unmarshall Type');
+  });
+
+  it('should filter candidates with a text input', async () => {
+    render(<DataFormatEditor selectedNode={mockNode} />);
+    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    await act(async () => {
+      fireEvent.click(buttons[0]);
+    });
+    let dropdownItems = screen.queryAllByTestId(/dataformat-dropdownitem-.*/);
+    expect(dropdownItems.length).toBeGreaterThan(40);
+    const inputElement = screen.getAllByRole('combobox')[0];
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'json' } });
+    });
+    dropdownItems = screen.getAllByTestId(/dataformat-dropdownitem-.*/);
+    expect(dropdownItems).toHaveLength(3);
+  });
+
+  it('should clear filter and close the dropdown with close button', async () => {
+    render(<DataFormatEditor selectedNode={mockNode} />);
+    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    await act(async () => {
+      fireEvent.click(buttons[0]);
+    });
+    let inputElement = screen.getAllByRole('combobox')[0];
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'json' } });
+    });
+    let dropdownItems = screen.getAllByTestId(/dataformat-dropdownitem-.*/);
+    expect(dropdownItems).toHaveLength(3);
+    const clearButton = screen.getByLabelText('Clear input value');
+    await act(async () => {
+      fireEvent.click(clearButton);
+    });
+    dropdownItems = screen.getAllByTestId(/dataformat-dropdownitem-.*/);
+    expect(dropdownItems.length).toBeGreaterThan(40);
+    inputElement = screen.getAllByRole('combobox')[0];
+    expect(inputElement).toHaveValue('');
   });
 
   it('should render for all dataformats without an error', () => {

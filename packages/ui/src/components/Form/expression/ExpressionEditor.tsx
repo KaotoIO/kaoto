@@ -79,12 +79,14 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
 
     // Filter menu items based on the text input value when one exists
     if (filterValue) {
-      newSelectOptions = languageCatalogMap.filter(
-        (menuItem) =>
-          String(menuItem.value).toLowerCase().includes(filterValue.toLowerCase()) ||
-          String(menuItem.children).toLowerCase().includes(filterValue.toLowerCase()) ||
-          String(menuItem.description).toLowerCase().includes(filterValue.toLowerCase()),
-      );
+      const lowerFilterValue = filterValue.toLowerCase();
+      newSelectOptions = languageCatalogMap.filter((menuItem) => {
+        return (
+          String(menuItem.value).toLowerCase().includes(lowerFilterValue) ||
+          String(menuItem.children).toLowerCase().includes(lowerFilterValue) ||
+          String(menuItem.description).toLowerCase().includes(lowerFilterValue)
+        );
+      });
       // When no options are found after filtering, display 'No results found'
       if (!newSelectOptions.length) {
         newSelectOptions = [
@@ -100,7 +102,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
     setSelectOptions(newSelectOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
-  }, [filterValue]);
+  }, [filterValue, isOpen, languageCatalogMap]);
 
   const onTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setInputValue(value);
