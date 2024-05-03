@@ -121,5 +121,11 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
   cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
     cy.wrap(buttons[index]).click();
   });
+  cy.get('body').then(($body) => {
+    if ($body.find('.pf-m-danger').length) {
+      // Delete Confirmation Modal appeared, click on the confirm button
+      cy.get('.pf-m-danger').click();
+    }
+  });
   cy.closeFlowsListIfVisible();
 });

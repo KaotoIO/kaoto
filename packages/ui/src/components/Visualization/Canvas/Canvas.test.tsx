@@ -8,6 +8,7 @@ import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
+import { DeleteModalContextProvider } from '../../../providers';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -56,9 +57,11 @@ describe('Canvas', () => {
       } as unknown as VisibleFLowsContextResult,
     });
     const wrapper = render(
-      <Provider>
-        <Canvas entities={routeEntities} />
-      </Provider>,
+      <DeleteModalContextProvider>
+        <Provider>
+          <Canvas entities={routeEntities} />
+        </Provider>
+      </DeleteModalContextProvider>,
     );
 
     // Right click anywhere on the container label
@@ -73,6 +76,14 @@ describe('Canvas', () => {
 
     await act(async () => {
       fireEvent.click(deleteRoute);
+    });
+
+    // Deal with the Confirmation modal
+    const deleteConfirmation = screen.getByRole('button', { name: 'Confirm' });
+    expect(deleteConfirmation).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(deleteConfirmation);
     });
 
     // Check if the remove function is called
@@ -93,9 +104,11 @@ describe('Canvas', () => {
     });
 
     const wrapper = render(
-      <Provider>
-        <Canvas entities={kameletEntities} />
-      </Provider>,
+      <DeleteModalContextProvider>
+        <Provider>
+          <Canvas entities={kameletEntities} />
+        </Provider>
+      </DeleteModalContextProvider>,
     );
 
     // Right click anywhere on the container label
@@ -111,6 +124,14 @@ describe('Canvas', () => {
 
     await act(async () => {
       fireEvent.click(deleteKamelet);
+    });
+
+    // Deal with the Confirmation modal
+    const deleteConfirmation = screen.getByRole('button', { name: 'Confirm' });
+    expect(deleteConfirmation).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(deleteConfirmation);
     });
 
     // Check if the remove function is called
