@@ -42,10 +42,7 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.get('.pf-v5-c-helper-text__item-text').should('have.text', 'Name must be unique');
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').dblclick();
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').clear().type('test 2');
-    cy.get('.pf-v5-c-helper-text__item-text').should(
-      'have.text',
-      'Name should only contain lowercase letters, numbers, and dashes',
-    );
+    cy.get('.pf-v5-c-helper-text__item-text').should('have.text', '');
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').dblclick();
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').clear().type('test3');
     cy.get('[data-testid="goto-btn-route-1234--save"]').click();

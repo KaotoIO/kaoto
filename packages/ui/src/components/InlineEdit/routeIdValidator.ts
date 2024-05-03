@@ -20,18 +20,13 @@ export class RouteIdValidator {
     const errMessages = [];
     const flowsIds = visualEntities.map((flow) => flow.getId());
 
-    const isValidURI = RouteIdValidator.isNameValidCheck(flowName);
-    if (!isValidURI) {
-      errMessages.push('Name should only contain lowercase letters, numbers, and dashes');
-    }
-
     const isUnique = !flowsIds.includes(flowName);
     if (!isUnique) {
       errMessages.push('Name must be unique');
     }
 
     return {
-      status: isValidURI && isUnique ? ValidationStatus.Success : ValidationStatus.Error,
+      status: isUnique ? ValidationStatus.Success : ValidationStatus.Error,
       errMessages,
     };
   }

@@ -37,29 +37,4 @@ describe('routeIdValidator', () => {
     expect(result.status).toEqual(ValidationStatus.Error);
     expect(result.errMessages).toEqual(['Name must be unique']);
   });
-
-  it('should return an error if the name is not a valid URI', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
-    const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
-
-    const result = RouteIdValidator.validateUniqueName('The amazing Route', visualEntities);
-
-    expect(result.status).toEqual(ValidationStatus.Error);
-    expect(result.errMessages).toEqual(['Name should only contain lowercase letters, numbers, and dashes']);
-  });
-
-  it('should return an error if the name is not unique neither a valid URI', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
-    const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('The amazing Route');
-
-    const result = RouteIdValidator.validateUniqueName('The amazing Route', visualEntities);
-
-    expect(result.status).toEqual(ValidationStatus.Error);
-    expect(result.errMessages).toEqual([
-      'Name should only contain lowercase letters, numbers, and dashes',
-      'Name must be unique',
-    ]);
-  });
 });
