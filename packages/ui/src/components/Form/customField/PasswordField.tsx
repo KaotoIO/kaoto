@@ -35,6 +35,7 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
     <InputGroup>
       <InputGroupItem isFill>
         <TextInput
+          autoComplete="new-password"
           aria-label="uniforms text field"
           data-testid="password-field"
           name={props.name}

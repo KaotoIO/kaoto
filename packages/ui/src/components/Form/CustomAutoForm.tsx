@@ -50,6 +50,7 @@ export const CustomAutoForm = forwardRef<CustomAutoFormRef, CustomAutoFormProps>
   return (
     <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
       <AutoForm
+        autoComplete="new-password"
         ref={formRef}
         schema={schemaBridge}
         model={props.model}

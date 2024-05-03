@@ -69,6 +69,7 @@ exports[`CanvasForm should render 1`] = `
       class="pf-v5-c-card__body canvas-form__body"
     >
       <form
+        autocomplete="new-password"
         class="pf-v5-c-form"
         data-testid="autoform"
         novalidate=""
