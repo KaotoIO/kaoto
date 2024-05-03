@@ -59,7 +59,9 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
         <Button
           data-testid={'password-show-hide-button'}
           variant="control"
-          onClick={() => setPasswordHidden(!passwordHidden)}
+          onClick={() => {
+            setPasswordHidden(!passwordHidden);
+          }
           aria-label={passwordHidden ? 'Show' : 'Hide'}
         >
           {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
