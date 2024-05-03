@@ -9,6 +9,7 @@ import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
+import { PasswordField } from './customField/PasswordField';
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
@@ -36,6 +37,11 @@ export const CustomAutoField = createAutoField((props) => {
   } else if (props.fieldType === Object && (props.field as any)?.type === 'object' && comment === 'expression') {
     // The property which supports inlined expression such as `/setHeaders/headers[n]
     return ExpressionAwareNestField;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((props.field as any)?.format === 'password') {
+    return PasswordField;
   }
 
   switch (props.fieldType) {
