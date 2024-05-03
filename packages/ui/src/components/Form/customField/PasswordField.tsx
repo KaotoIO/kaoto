@@ -35,8 +35,8 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
     <InputGroup>
       <InputGroupItem isFill>
         <TextInput
-          aria-label={'uniforms text field'}
-          data-testid={'password-field'}
+          aria-label="uniforms text field"
+          data-testid="password-field"
           name={props.name}
           isDisabled={props.disabled}
           validated={props.error ? 'error' : 'default'}
