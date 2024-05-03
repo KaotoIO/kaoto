@@ -40,7 +40,9 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
           name={props.name}
           isDisabled={props.disabled}
           validated={props.error ? 'error' : 'default'}
-          onChange={(_event, value) => onChange(value)}
+          onChange={(_event, value) => {
+            onChange(value);
+          }
           placeholder={props.placeholder}
           ref={props.inputRef}
           type={passwordHidden ? 'password' : 'text'}
