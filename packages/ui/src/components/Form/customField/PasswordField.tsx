@@ -42,7 +42,7 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
           validated={props.error ? 'error' : 'default'}
           onChange={(_event, value) => {
             onChange(value);
-          }
+          }}
           placeholder={props.placeholder}
           ref={props.inputRef}
           type={passwordHidden ? 'password' : 'text'}
@@ -63,7 +63,7 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
           variant="control"
           onClick={() => {
             setPasswordHidden(!passwordHidden);
-          }
+          }}
           aria-label={passwordHidden ? 'Show' : 'Hide'}
         >
           {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
