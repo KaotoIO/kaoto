@@ -163,8 +163,15 @@ export const CustomNodeWithSelection: typeof DefaultNode = withSelection()(
     }
 
     if (nodeInteractions.canRemoveStep) {
+      const childrenNodes = vizNode.getChildren();
+      const shouldConfirmBeforeDeletion = childrenNodes !== undefined && childrenNodes.length > 0;
       items.push(
-        <ItemDeleteStep key="context-menu-item-delete" data-testid="context-menu-item-delete" vizNode={vizNode} />,
+        <ItemDeleteStep
+          key="context-menu-item-delete"
+          data-testid="context-menu-item-delete"
+          vizNode={vizNode}
+          loadModal={shouldConfirmBeforeDeletion}
+        />,
       );
     }
     if (nodeInteractions.canRemoveFlow) {

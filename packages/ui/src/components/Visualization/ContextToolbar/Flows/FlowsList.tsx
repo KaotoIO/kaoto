@@ -4,6 +4,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useRef } from 'react';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { DeleteModalContext } from '../../../../providers/delete-modal.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { InlineEdit } from '../../../InlineEdit';
 import './FlowsList.scss';
@@ -18,6 +19,7 @@ interface IFlowsList {
 export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
+  const deleteModalContext = useContext(DeleteModalContext);
 
   const isListEmpty = visualEntities.length === 0;
 
@@ -102,7 +104,14 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 data-testid={`delete-btn-${flow.id}`}
                 icon={<TrashIcon />}
                 variant="plain"
-                onClick={(event) => {
+                onClick={async (event) => {
+                  const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+                    title: 'Permanently delete flow?',
+                    text: 'All steps will be lost.',
+                  });
+
+                  if (!isDeleteConfirmed) return;
+
                   camelResource.removeEntity(flow.id);
                   updateEntitiesFromCamelResource();
                   /** Required to avoid closing the Dropdown after clicking in the icon */

@@ -8,6 +8,7 @@ import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
 import { SourceCodeApiContext } from '../providers/source-code.provider';
 import { VisibleFlowsProvider } from '../providers/visible-flows.provider';
+import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
 import { EventNotifier } from '../utils';
 
 interface KaotoBridgeProps {
@@ -144,7 +145,9 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
       <CatalogLoaderProvider catalogUrl={props.catalogUrl}>
         <CatalogTilesProvider>
           <VisibleFlowsProvider>
-            <CatalogModalProvider>{props.children}</CatalogModalProvider>
+            <CatalogModalProvider>
+              <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
+            </CatalogModalProvider>
           </VisibleFlowsProvider>
         </CatalogTilesProvider>
       </CatalogLoaderProvider>
