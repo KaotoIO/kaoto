@@ -16,7 +16,7 @@ import filter from '../assets/eip/filter.png';
 import generic_eip from '../assets/eip/generic.png';
 import idempotent_consumer from '../assets/eip/idempotentConsumer.png';
 import load_balance from '../assets/eip/load-balance.png';
-import log from '../assets/eip/log.svg';
+import logEIP from '../assets/eip/log.png';
 import loop from '../assets/eip/loop.png';
 import multicast from '../assets/eip/multicast.png';
 import otherwise from '../assets/eip/otherwise.png';
@@ -89,7 +89,7 @@ import jira from '../assets/components/jira.svg';
 import jms from '../assets/components/jms.png';
 import kafka from '../assets/components/kafka.svg';
 import kubernetes from '../assets/components/kubernetes.svg';
-import log2 from '../assets/components/log.png';
+import logComponent from '../assets/components/log.svg';
 import mail from '../assets/components/mail.png';
 import mongodb from '../assets/components/mongodb.svg';
 import mqtt from '../assets/components/mqtt3.png';
@@ -433,7 +433,7 @@ export class NodeIconResolver {
       case 'ldif':
         return generic_component;
       case 'log':
-        return log2;
+        return logComponent;
       case 'lpr':
       case 'lucene':
       case 'lumberjack':
@@ -652,7 +652,7 @@ export class NodeIconResolver {
       case 'loadBalance':
         return load_balance;
       case 'log':
-        return log;
+        return logEIP;
       case 'loop':
         return loop;
       case 'marshal':
