@@ -3,6 +3,8 @@ import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { act, renderHook } from '@testing-library/react';
 import { useEditorApi } from './editor-api';
 import { EditorTheme } from '@kie-tools-core/editor/dist/api';
+import { useSourceCodeStore } from '../../store';
+import { EventNotifier } from '../../utils';
 
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = jest.fn();
@@ -76,11 +78,46 @@ describe('useEditorApi', () => {
     expect(preview).toBeUndefined();
   });
 
-  it('should resolve undo and redo without errors', async () => {
+  it('should clear pastState when loading the store for the first time', async () => {
+    const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
+
     const { result } = renderHook(() => useEditorApi(), { wrapper });
 
-    await expect(result.current.editorApi.undo()).resolves.toBeUndefined();
-    await expect(result.current.editorApi.redo()).resolves.toBeUndefined();
+    await act(async () => {
+      await result.current.editorApi.setContent('test-path', 'test-content 1');
+      await result.current.editorApi.setContent('test-path', 'test-content 2');
+      await result.current.editorApi.setContent('test-path', 'test-content 3');
+    });
+
+    expect(clearSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call undo when the editor is asked to undo', async () => {
+    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
+    const storeUndoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
+
+    const { result } = renderHook(() => useEditorApi(), { wrapper });
+
+    await act(async () => {
+      await result.current.editorApi.undo();
+    });
+
+    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
+    expect(storeUndoSpy).toHaveBeenCalled();
+  });
+
+  it('should call redo when the editor is asked to redo', async () => {
+    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
+    const storeRedoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
+
+    const { result } = renderHook(() => useEditorApi(), { wrapper });
+
+    await act(async () => {
+      await result.current.editorApi.redo();
+    });
+
+    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
+    expect(storeRedoSpy).toHaveBeenCalled();
   });
 
   it('should validate and return an empty array', async () => {

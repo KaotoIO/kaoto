@@ -1,17 +1,19 @@
 import { EditorApi } from '@kie-tools-core/editor/dist/api';
 import { useCallback, useContext, useMemo, useRef } from 'react';
-import { StateControlCommand } from '@kie-tools-core/editor/dist/api';
-import { EditService } from '../EditService';
+import { useUndoRedo } from '../../hooks/undo-redo.hook';
 import { SourceCodeApiContext } from '../../providers/source-code.provider';
+import { useSourceCodeStore } from '../../store';
 
 export interface SourceCodeBridgeProviderRef extends EditorApi {
   setContent: (path: string, content: string) => Promise<void>;
   getContent: () => Promise<string>;
 }
 
-export const useEditorApi = (onStateControlCommandUpdate?: (command: StateControlCommand) => void) => {
+export const useEditorApi = () => {
   const sourceCodeRef = useRef<string>('');
+  const firstSetContentRef = useRef<boolean>(true);
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
+  const { undo, redo } = useUndoRedo();
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
@@ -39,6 +41,11 @@ export const useEditorApi = (onStateControlCommandUpdate?: (command: StateContro
 
       sourceCodeApiContext.setCodeAndNotify(content, path);
       sourceCodeRef.current = content;
+
+      if (firstSetContentRef.current) {
+        useSourceCodeStore.temporal.getState().clear();
+        firstSetContentRef.current = false;
+      }
     },
     [sourceCodeApiContext],
   );
@@ -59,34 +66,12 @@ export const useEditorApi = (onStateControlCommandUpdate?: (command: StateContro
        */
       getContent: () => Promise.resolve(sourceCodeRef.current),
       getPreview: () => Promise.resolve(undefined),
-      undo: async (): Promise<void> => {
-        const previous = EditService.getInstance().undo();
-        if (previous === undefined) return;
-        try {
-          EditService.getInstance().beginUndoRedo();
-          sourceCodeApiContext.setCodeAndNotify(previous);
-          sourceCodeRef.current = previous;
-          onStateControlCommandUpdate?.(StateControlCommand.UNDO);
-        } finally {
-          EditService.getInstance().endUndoRedo();
-        }
-      },
-      redo: async (): Promise<void> => {
-        const next = EditService.getInstance().redo();
-        if (next === undefined) return;
-        try {
-          EditService.getInstance().beginUndoRedo();
-          sourceCodeApiContext.setCodeAndNotify(next);
-          sourceCodeRef.current = next;
-          onStateControlCommandUpdate?.(StateControlCommand.REDO);
-        } finally {
-          EditService.getInstance().endUndoRedo();
-        }
-      },
+      undo: (): Promise<void> => Promise.resolve(undo()),
+      redo: (): Promise<void> => Promise.resolve(redo()),
       validate: () => Promise.resolve([]),
       setTheme: () => Promise.resolve(),
     }),
-    [onStateControlCommandUpdate, setContent, sourceCodeApiContext],
+    [redo, setContent, undo],
   );
 
   const output = useMemo(() => {

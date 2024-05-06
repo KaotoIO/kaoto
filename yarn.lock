@@ -1809,6 +1809,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.23.2":
+  version: 7.28.2
+  resolution: "@babel/runtime@npm:7.28.2"
+  checksum: 10/a0965fbdd6aaa40709290923bbe05e1c4314021f0cef608eb1d69f04f717c41829e50a53d79c4a0f461512b4be9b3c0190dc19387b219bcdaacdd793b2fe1b8a
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.24.7, @babel/template@npm:^7.3.3":
   version: 7.24.7
   resolution: "@babel/template@npm:7.24.7"
@@ -3074,6 +3081,7 @@ __metadata:
     "@patternfly/react-icons": "npm:^6.2.2"
     "@patternfly/react-table": "npm:^6.2.2"
     "@patternfly/react-topology": "npm:^6.2.0"
+    "@redux-devtools/extension": "npm:^3.3.0"
     "@swc/core": "npm:^1.7.14"
     "@swc/jest": "npm:^0.2.36"
     "@testing-library/dom": "npm:^10.0.0"
@@ -3101,6 +3109,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:5.1.0-rc-eb3ad065-20240822"
     globals: "npm:^15.9.0"
+    hotkeys-js: "npm:^3.13.15"
     html-to-image: "npm:1.11.11"
     jest: "npm:^29.7.0"
     jest-canvas-mock: "npm:^2.5.2"
@@ -3138,6 +3147,7 @@ __metadata:
     xml-formatter: "npm:^3.6.5"
     xml-name-validator: "npm:^5.0.0"
     yaml: "npm:^2.3.2"
+    zundo: "npm:^2.3.0"
     zustand: "npm:^4.3.9"
   peerDependencies:
     "@kaoto/camel-catalog": ^0.1.10
@@ -4070,6 +4080,18 @@ __metadata:
   version: 0.1.1
   resolution: "@pkgr/core@npm:0.1.1"
   checksum: 10/6f25fd2e3008f259c77207ac9915b02f1628420403b2630c92a07ff963129238c9262afc9e84344c7a23b5cc1f3965e2cd17e3798219f5fd78a63d144d3cceba
+  languageName: node
+  linkType: hard
+
+"@redux-devtools/extension@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@redux-devtools/extension@npm:3.3.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.23.2"
+    immutable: "npm:^4.3.4"
+  peerDependencies:
+    redux: ^3.1.0 || ^4.0.0 || ^5.0.0
+  checksum: 10/07c2bb6f786900f29509f1e414ae0af845cb276a471e1e0e961d3a6a7dc16485ffe620bf01a1e0a545181d550058d197525760bbddb2c172acac25ddbe9dbd0d
   languageName: node
   linkType: hard
 
@@ -11780,6 +11802,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hotkeys-js@npm:^3.13.15":
+  version: 3.13.15
+  resolution: "hotkeys-js@npm:3.13.15"
+  checksum: 10/f10314bd171c5b265d923e8eae3b0c4d96899a46f956caa6468e8c5c4d1755a08f3986d7ece9f331d783ae1876d535e9471330176d27a5e06568b3e7f7cb7c4a
+  languageName: node
+  linkType: hard
+
 "html-encoding-sniffer@npm:^3.0.0":
   version: 3.0.0
   resolution: "html-encoding-sniffer@npm:3.0.0"
@@ -11964,6 +11993,13 @@ __metadata:
   version: 3.0.6
   resolution: "immediate@npm:3.0.6"
   checksum: 10/f9b3486477555997657f70318cc8d3416159f208bec4cca3ff3442fd266bc23f50f0c9bd8547e1371a6b5e82b821ec9a7044a4f7b944798b25aa3cc6d5e63e62
+  languageName: node
+  linkType: hard
+
+"immutable@npm:^4.3.4":
+  version: 4.3.7
+  resolution: "immutable@npm:4.3.7"
+  checksum: 10/37d963c5050f03ae5f3714ba7a43d469aa482051087f4c65d673d1501c309ea231d87480c792e19fa85e2eaf965f76af5d0aa92726505f3cfe4af91619dfb80b
   languageName: node
   linkType: hard
 
@@ -20595,6 +20631,18 @@ __metadata:
   version: 2.1.2
   resolution: "yoctocolors-cjs@npm:2.1.2"
   checksum: 10/d731e3ba776a0ee19021d909787942933a6c2eafb2bbe85541f0c59aa5c7d475ce86fcb860d5803105e32244c3dd5ba875b87c4c6bf2d6f297da416aa54e556f
+  languageName: node
+  linkType: hard
+
+"zundo@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "zundo@npm:2.3.0"
+  peerDependencies:
+    zustand: ^4.3.0 || ^5.0.0
+  peerDependenciesMeta:
+    zustand:
+      optional: false
+  checksum: 10/410513dbbd94a635cb9f7f74655256adcd392b6077c0e920af80e4f6e4fb6093697784f373d485b90211f24ef89ba459bae89c0125931d6b8e2a2d80525b68fb
   languageName: node
   linkType: hard
 
