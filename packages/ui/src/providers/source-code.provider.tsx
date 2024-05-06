@@ -1,12 +1,5 @@
-import {
-  FunctionComponent,
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { FunctionComponent, PropsWithChildren, createContext, useCallback, useLayoutEffect, useMemo } from 'react';
+import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 
 interface ISourceCodeApi {
@@ -27,20 +20,27 @@ export const SourceCodeProvider: FunctionComponent<SourceCodeProviderProps> = ({
   children,
 }) => {
   const eventNotifier = EventNotifier.getInstance();
-  const [sourceCode, setSourceCode] = useState<string>(initialSourceCode);
+  const { sourceCode, setSourceCode, setPath } = useSourceCodeStore();
+
+  useLayoutEffect(() => {
+    setSourceCode(initialSourceCode);
+    useSourceCodeStore.temporal.getState().clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useLayoutEffect(() => {
     return eventNotifier.subscribe('entities:updated', (code) => {
       setSourceCode(code);
     });
-  }, [eventNotifier]);
+  }, [eventNotifier, setSourceCode]);
 
   const setCodeAndNotify = useCallback(
     (code: string, path?: string) => {
       setSourceCode(code);
+      setPath(path);
       eventNotifier.next('code:updated', { code, path });
     },
-    [eventNotifier],
+    [eventNotifier, setPath, setSourceCode],
   );
 
   const sourceCodeApi: ISourceCodeApi = useMemo(

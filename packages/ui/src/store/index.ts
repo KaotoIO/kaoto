@@ -1,5 +1,6 @@
 import { mountStoreDevtool } from 'simple-zustand-devtools';
 import { useSchemasStore } from './schemas.store';
+import { useSourceCodeStore } from './sourcecode.store';
 
 let isDevMode = true;
 try {
@@ -10,6 +11,8 @@ try {
 
 if (isDevMode) {
   mountStoreDevtool('Schemas Store', useSchemasStore);
+  mountStoreDevtool('SourceCode Store', useSourceCodeStore);
 }
 
 export * from './schemas.store';
+export * from './sourcecode.store';

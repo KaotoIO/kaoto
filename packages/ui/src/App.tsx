@@ -13,6 +13,7 @@ import {
   CatalogLoaderProvider,
   CatalogTilesProvider,
   EntitiesProvider,
+  KeyboardShortcutsProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsProvider,
@@ -22,7 +23,6 @@ import {
 import { isDefined } from './utils';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
 import { setColorScheme } from './utils/color-scheme';
-import { EditorCommandsProvider } from './providers/editor-commands.provider';
 
 function App() {
   const controller = useMemo(() => ControllerService.createController(), []);
@@ -42,35 +42,35 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <EditorCommandsProvider>
-          <RuntimeProvider catalogUrl={catalogUrl}>
-            <SchemasLoaderProvider>
-              <CatalogLoaderProvider>
-                <EntitiesProvider>
-                  <Shell>
-                    <CatalogTilesProvider>
-                      <VisualizationProvider controller={controller}>
-                        <VisibleFlowsProvider>
-                          <RenderingProvider>
-                            <RegisterComponents>
-                              <NodeInteractionAddonProvider>
-                                <RegisterNodeInteractionAddons>
-                                  <SuggestionRegistryProvider>
+        <RuntimeProvider catalogUrl={catalogUrl}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <EntitiesProvider>
+                <Shell>
+                  <CatalogTilesProvider>
+                    <VisualizationProvider controller={controller}>
+                      <VisibleFlowsProvider>
+                        <RenderingProvider>
+                          <RegisterComponents>
+                            <NodeInteractionAddonProvider>
+                              <RegisterNodeInteractionAddons>
+                                <SuggestionRegistryProvider>
+                                  <KeyboardShortcutsProvider>
                                     <Outlet />
-                                  </SuggestionRegistryProvider>
-                                </RegisterNodeInteractionAddons>
-                              </NodeInteractionAddonProvider>
-                            </RegisterComponents>
-                          </RenderingProvider>
-                        </VisibleFlowsProvider>
-                      </VisualizationProvider>
-                    </CatalogTilesProvider>
-                  </Shell>
-                </EntitiesProvider>
-              </CatalogLoaderProvider>
-            </SchemasLoaderProvider>
-          </RuntimeProvider>
-        </EditorCommandsProvider>
+                                  </KeyboardShortcutsProvider>
+                                </SuggestionRegistryProvider>
+                              </RegisterNodeInteractionAddons>
+                            </NodeInteractionAddonProvider>
+                          </RegisterComponents>
+                        </RenderingProvider>
+                      </VisibleFlowsProvider>
+                    </VisualizationProvider>
+                  </CatalogTilesProvider>
+                </Shell>
+              </EntitiesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );

@@ -1,5 +1,6 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { useContext, useRef } from 'react';
+import { useSourceCodeStore } from '../store';
 import { camelRouteYaml } from '../stubs/camel-route';
 import { EventNotifier } from '../utils';
 import { SourceCodeApiContext, SourceCodeContext, SourceCodeProvider } from './source-code.provider';
@@ -49,6 +50,43 @@ describe('SourceCodeProvider', () => {
     });
 
     expect(notifierSpy).toHaveBeenCalledWith('code:updated', { code: camelRouteYaml, path: undefined });
+  });
+
+  it('should clear pastState when loading the store for the first time', () => {
+    const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
+
+    render(
+      <SourceCodeProvider>
+        <TestProvider />
+      </SourceCodeProvider>,
+    );
+
+    expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('should call `setSourceCode` upon receiving a `entities:updated` notification', () => {
+    const eventNotifier = EventNotifier.getInstance();
+    const originalSetSourceCode = useSourceCodeStore.getState().setSourceCode;
+    const setSourceCodeSpy = jest.fn();
+
+    act(() => {
+      useSourceCodeStore.setState({ setSourceCode: setSourceCodeSpy });
+    });
+
+    render(
+      <SourceCodeProvider>
+        <TestProvider />
+      </SourceCodeProvider>,
+    );
+
+    act(() => {
+      eventNotifier.next('entities:updated', camelRouteYaml);
+    });
+    act(() => {
+      useSourceCodeStore.setState({ setSourceCode: originalSetSourceCode });
+    });
+
+    expect(setSourceCodeSpy).toHaveBeenCalledWith(camelRouteYaml);
   });
 });
 
