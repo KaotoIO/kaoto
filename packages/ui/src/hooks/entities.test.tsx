@@ -161,4 +161,67 @@ describe('useEntities', () => {
 `,
     );
   });
+
+  describe('comments', () => {
+    it(`should store code's comments`, () => {
+      const code = `# This is a comment
+      # An indented comment
+
+- route:
+    id: route-1234
+    from:
+      id: from-1234
+      uri: timer:template
+      parameters:
+        period: "1000"
+      # This comment won't be stored
+      steps:
+        - log:
+            id: log-1234
+            message: template message
+`;
+
+      const { result } = renderHook(() => useEntities());
+
+      act(() => {
+        eventNotifier.next('code:updated', code);
+      });
+
+      expect(result.current.camelResource.getComments()).toEqual([
+        '# This is a comment',
+        '      # An indented comment',
+        '',
+      ]);
+    });
+
+    it('should add comments to the source code', () => {
+      const notifierSpy = jest.spyOn(eventNotifier, 'next');
+      const { result } = renderHook(() => useEntities());
+
+      act(() => {
+        result.current.camelResource.setComments(['# This is a comment', '      # An indented comment', '']);
+        result.current.camelResource.addNewEntity();
+        result.current.updateSourceCodeFromEntities();
+      });
+
+      expect(notifierSpy).toHaveBeenCalledWith(
+        'entities:updated',
+        `# This is a comment
+      # An indented comment
+
+- route:
+    id: route-1234
+    from:
+      id: from-1234
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            id: log-1234
+            message: template message
+`,
+      );
+    });
+  });
 });

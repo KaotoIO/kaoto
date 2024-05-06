@@ -45,6 +45,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   ) => number;
   private entities: BaseCamelEntity[] = [];
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
+  private comments: string[] = [];
 
   constructor(json?: unknown) {
     if (!json) return;
@@ -160,6 +161,14 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     definition?: any,
   ): TileFilter {
     return CamelComponentFilterService.getCamelCompatibleComponents(mode, visualEntityData, definition);
+  }
+
+  setComments(comments: string[]): void {
+    this.comments = comments;
+  }
+
+  getComments(): string[] {
+    return this.comments;
   }
 
   private getEntity(rawItem: unknown): BaseCamelEntity | undefined {

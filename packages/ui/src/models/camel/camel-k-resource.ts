@@ -28,6 +28,7 @@ export abstract class CamelKResource implements CamelResource {
   readonly sortFn = createCamelPropertiesSorter(CamelKResource.PARAMETERS_ORDER) as (a: unknown, b: unknown) => number;
   protected resource: CamelKType;
   private metadata?: MetadataEntity;
+  private comments: string[] = [];
 
   constructor(resource?: CamelKType) {
     if (resource) {
@@ -92,5 +93,13 @@ export abstract class CamelKResource implements CamelResource {
   /** Components Catalog related methods */
   getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): TileFilter | undefined {
     return undefined;
+  }
+
+  setComments(comments: string[]) {
+    this.comments = comments;
+  }
+
+  getComments(): string[] {
+    return this.comments;
   }
 }
