@@ -408,4 +408,10 @@ export class CamelComponentSchemaService {
       Object.assign(definition.parameters, parametersFromSyntax);
     }
   }
+
+  static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
+    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Pattern, processorName);
+
+    return processorDefinition?.propertiesSchema?.properties?.disabled !== undefined;
+  }
 }

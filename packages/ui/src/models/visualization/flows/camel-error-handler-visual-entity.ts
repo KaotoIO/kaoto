@@ -116,6 +116,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
       canRemoveStep: false,
       canReplaceStep: false,
       canRemoveFlow: true,
+      canBeDisabled: false,
     };
   }
 

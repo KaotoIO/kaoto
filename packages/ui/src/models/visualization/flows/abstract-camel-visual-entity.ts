@@ -193,6 +193,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
 
     return {
       canHavePreviousStep,
@@ -202,6 +203,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       canReplaceStep,
       canRemoveStep: true,
       canRemoveFlow: data.path === ROOT_PATH,
+      canBeDisabled,
     };
   }
 

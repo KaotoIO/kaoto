@@ -2,6 +2,7 @@
 
 exports[`Pipe getNodeInteraction should return the correct interaction for the '#' processor 1`] = `
 {
+  "canBeDisabled": false,
   "canHaveChildren": false,
   "canHaveNextStep": true,
   "canHavePreviousStep": true,
@@ -14,6 +15,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 
 exports[`Pipe getNodeInteraction should return the correct interaction for the 'sink' processor 1`] = `
 {
+  "canBeDisabled": false,
   "canHaveChildren": false,
   "canHaveNextStep": false,
   "canHavePreviousStep": true,
@@ -26,6 +28,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 
 exports[`Pipe getNodeInteraction should return the correct interaction for the 'source' processor 1`] = `
 {
+  "canBeDisabled": false,
   "canHaveChildren": false,
   "canHaveNextStep": true,
   "canHavePreviousStep": false,
@@ -38,6 +41,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 
 exports[`Pipe getNodeInteraction should return the correct interaction for the 'steps.1' processor 1`] = `
 {
+  "canBeDisabled": false,
   "canHaveChildren": false,
   "canHaveNextStep": true,
   "canHavePreviousStep": true,

@@ -61,6 +61,7 @@ export class CamelOnCompletionVisualEntity
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelOnCompletionVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelOnCompletionVisualEntity.ROOT_PATH;
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
 
     return {
       canHavePreviousStep,
@@ -70,6 +71,7 @@ export class CamelOnCompletionVisualEntity
       canReplaceStep,
       canRemoveStep,
       canRemoveFlow: data.path === CamelOnCompletionVisualEntity.ROOT_PATH,
+      canBeDisabled,
     };
   }
 
