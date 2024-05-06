@@ -1,5 +1,5 @@
 import { Icon } from '@patternfly/react-core';
-import { CatalogIcon } from '@patternfly/react-icons';
+import { CatalogIcon, RedoIcon, UndoIcon } from '@patternfly/react-icons';
 import {
   GRAPH_LAYOUT_END_EVENT,
   Model,
@@ -23,6 +23,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useStore } from 'zustand';
 import layoutHorizontalIcon from '../../../assets/layout-horizontal.png';
 import layoutVerticalIcon from '../../../assets/layout-vertical.png';
 import { useLocalStorage } from '../../../hooks';
@@ -30,6 +31,8 @@ import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
+import { useSourceCodeStore } from '../../../store';
+import { EventNotifier } from '../../../utils/event-notifier';
 import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
@@ -47,6 +50,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
+
+  const eventNotifier = EventNotifier.getInstance();
+  const { undo, redo } = useStore(useSourceCodeStore.temporal, (state) => state);
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
@@ -93,6 +99,24 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
             }),
           },
           {
+            id: 'topology-control-bar-undo-button',
+            icon: <UndoIcon />,
+            tooltip: 'Undo',
+            callback: action(() => {
+              undo();
+              eventNotifier.next('code:updated', useSourceCodeStore.getState().sourceCode);
+            }),
+          },
+          {
+            id: 'topology-control-bar-redo-button',
+            icon: <RedoIcon />,
+            tooltip: 'Redo',
+            callback: action(() => {
+              redo();
+              eventNotifier.next('code:updated', useSourceCodeStore.getState().sourceCode);
+            }),
+          },
+          {
             id: 'topology-control-bar-catalog-button',
             icon: <CatalogIcon />,
             tooltip: 'Open Catalog',
@@ -121,7 +145,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       legend: false,
       customButtons,
     });
-  }, [catalogModalContext, controller]);
+  }, [catalogModalContext, controller, eventNotifier, redo, setActiveLayout, undo]);
 
   const handleSelection = useCallback(
     (selectedIds: string[]) => {
@@ -181,7 +205,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     };
 
     controller.fromModel(model, false);
-  }, [controller, props.entities, visibleFlows]);
+  }, [activeLayout, controller, props.entities, visibleFlows]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
