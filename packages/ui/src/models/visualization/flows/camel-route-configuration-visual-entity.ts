@@ -120,6 +120,7 @@ export class CamelRouteConfigurationVisualEntity
         canRemoveStep: false,
         canReplaceStep: false,
         canRemoveFlow: true,
+        canBeDisabled: false,
       };
     }
 

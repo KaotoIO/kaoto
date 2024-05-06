@@ -137,6 +137,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       canRemoveStep: false,
       canReplaceStep: false,
       canRemoveFlow: true,
+      canBeDisabled: false,
     });
   });
 

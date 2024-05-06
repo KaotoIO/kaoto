@@ -76,6 +76,7 @@ export class CamelInterceptFromVisualEntity
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
 
     return {
       canHavePreviousStep,
@@ -85,6 +86,7 @@ export class CamelInterceptFromVisualEntity
       canReplaceStep,
       canRemoveStep,
       canRemoveFlow: data.path === CamelInterceptFromVisualEntity.ROOT_PATH,
+      canBeDisabled,
     };
   }
 

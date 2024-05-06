@@ -32,6 +32,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     canReplaceStep: false,
     canRemoveStep: false,
     canRemoveFlow: false,
+    canBeDisabled: false,
   };
 
   constructor(

@@ -61,6 +61,7 @@ export class CamelOnExceptionVisualEntity
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
 
     return {
       canHavePreviousStep,
@@ -70,6 +71,7 @@ export class CamelOnExceptionVisualEntity
       canReplaceStep,
       canRemoveStep,
       canRemoveFlow: data.path === CamelOnExceptionVisualEntity.ROOT_PATH,
+      canBeDisabled,
     };
   }
 

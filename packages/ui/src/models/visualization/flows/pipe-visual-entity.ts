@@ -166,6 +166,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       canReplaceStep: true,
       canRemoveStep: true,
       canRemoveFlow: data.path === ROOT_PATH,
+      canBeDisabled: false,
     };
   }
 

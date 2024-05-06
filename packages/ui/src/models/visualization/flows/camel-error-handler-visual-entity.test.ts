@@ -145,6 +145,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
       canRemoveStep: false,
       canReplaceStep: false,
       canRemoveFlow: true,
+      canBeDisabled: false,
     });
   });
 
