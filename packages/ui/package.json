@@ -75,7 +75,8 @@
     "usehooks-ts": "^2.15.1",
     "uuid": "^9.0.0",
     "yaml": "^2.3.2",
-    "zustand": "^4.3.9"
+    "zundo": "^2.1.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",

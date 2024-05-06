@@ -2540,7 +2540,8 @@ __metadata:
     vite-plugin-dts: ^3.5.1
     vite-plugin-static-copy: ^1.0.0
     yaml: ^2.3.2
-    zustand: ^4.3.9
+    zundo: ^2.1.0
+    zustand: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -19761,14 +19762,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:^4.3.9":
-  version: 4.4.1
-  resolution: "zustand@npm:4.4.1"
+"zundo@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "zundo@npm:2.1.0"
+  peerDependencies:
+    zustand: ^4.3.0
+  peerDependenciesMeta:
+    zustand:
+      optional: false
+  checksum: 293be0581e57c93df263f213d7077b1f0d3bcd344be0a6a65cd881932c1abbf8513836e9570de259b837ef4e6ec6cce68df1728abffc2883173fcc6016ce10d9
+  languageName: node
+  linkType: hard
+
+"zustand@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "zustand@npm:4.5.2"
   dependencies:
     use-sync-external-store: 1.2.0
   peerDependencies:
     "@types/react": ">=16.8"
-    immer: ">=9.0"
+    immer: ">=9.0.6"
     react: ">=16.8"
   peerDependenciesMeta:
     "@types/react":
@@ -19777,6 +19790,6 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 80acd0fbf633782996642802c8692bbb80ae5c80a8dff4c501b88250acd5ccd468fbc6398bdce198475a25e3839c91385b81da921274f33ffb5c2d08c3eab400
+  checksum: 160052a7faaefbaad1071e890a06e5d7a04f6ff6985def30a7b4471f4ddbdd1d30bb05b3688a2777cd0b717d1f0d98dad24883a5caa3deeb3afb4d83b6dabc55
   languageName: node
   linkType: hard
