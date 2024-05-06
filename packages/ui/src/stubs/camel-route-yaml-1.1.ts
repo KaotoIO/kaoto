@@ -9,7 +9,8 @@ export const camelRouteYaml_1_1_original = `
       steps: []
 `;
 
-export const camelRouteYaml_1_1_updated = `- route:
+export const camelRouteYaml_1_1_updated = `
+- route:
     id: route-3376
     from:
       id: from-3505

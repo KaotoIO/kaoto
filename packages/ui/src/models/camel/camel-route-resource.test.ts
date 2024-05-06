@@ -186,4 +186,12 @@ describe('CamelRouteResource', () => {
       expect(firstEntity.toJSON()).not.toBeUndefined();
     });
   });
+
+  describe('comments', () => {
+    it('should set and get comments', () => {
+      const resource = new CamelRouteResource();
+      resource.setComments(['a', 'b']);
+      expect(resource.getComments()).toEqual(['a', 'b']);
+    });
+  });
 });

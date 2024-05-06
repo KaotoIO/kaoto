@@ -35,6 +35,8 @@ export interface CamelResource {
   ): TileFilter | undefined;
 
   sortFn?: (a: unknown, b: unknown) => number;
+  setComments(comments: string[]): void;
+  getComments(): string[];
 }
 
 export interface BaseVisualCamelEntityDefinition {

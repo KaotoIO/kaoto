@@ -5,6 +5,18 @@ import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
 
+/**
+ * Regular expression to match commented lines, regardless of indentation
+ * Given the following examples, the regular expression should match the comments:
+ * ```
+ * # This is a comment
+ *     # This is an indented comment
+ *# This is an indented comment
+ * ```
+ * The regular expression should match the first three lines
+ */
+const COMMENTED_LINES_REGEXP = /^\s*#.*$/;
+
 export interface EntitiesContextResult {
   entities: BaseCamelEntity[];
   currentSchemaType: SourceSchemaType;
@@ -46,8 +58,20 @@ export const useEntities = (): EntitiesContextResult => {
    */
   useLayoutEffect(() => {
     return eventNotifier.subscribe('code:updated', (code) => {
+      /** Extract comments from the source code */
+      const lines = code.split('\n');
+      const comments: string[] = [];
+      for (const line of lines) {
+        if (line.trim() === '' || COMMENTED_LINES_REGEXP.test(line)) {
+          comments.push(line);
+        } else {
+          break;
+        }
+      }
+
       const rawEntities = parse(code);
       const camelResource = createCamelResource(rawEntities);
+      camelResource.setComments(comments);
       const entities = camelResource.getEntities();
       const visualEntities = camelResource.getVisualEntities();
       setCamelResource(camelResource);
@@ -57,7 +81,13 @@ export const useEntities = (): EntitiesContextResult => {
   }, [eventNotifier]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
-    const code = stringify(camelResource, { sortMapEntries: camelResource.sortFn, schema: 'yaml-1.1' }) || '';
+    let code = stringify(camelResource, { sortMapEntries: camelResource.sortFn, schema: 'yaml-1.1' }) || '';
+
+    if (camelResource.getComments().length > 0) {
+      const comments = camelResource.getComments().join('\n');
+      code = comments + '\n' + code;
+    }
+
     eventNotifier.next('entities:updated', code);
   }, [camelResource, eventNotifier]);
 
