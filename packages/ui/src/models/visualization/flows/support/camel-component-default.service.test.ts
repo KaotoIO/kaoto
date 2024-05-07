@@ -55,7 +55,7 @@ describe('CamelComponentDefaultService', () => {
       expect(setHeaderDefault.setHeader).toBeDefined();
       expect((setHeaderDefault.setHeader!.id as string).startsWith('setHeader-')).toBeTruthy();
       expect(setHeaderDefault.setHeader!.name).toBeUndefined();
-      expect((setHeaderDefault.setHeader!.expression as any).simple.expression).toEqual('');
+      expect((setHeaderDefault.setHeader!.expression as any).simple.expression).toEqual({});
     });
 
     it('should return the default value for a setProperty processor', () => {
@@ -66,7 +66,7 @@ describe('CamelComponentDefaultService', () => {
       expect(setPropertyDefault.setProperty).toBeDefined();
       expect((setPropertyDefault.setProperty!.id as string).startsWith('setProperty-')).toBeTruthy();
       expect(setPropertyDefault.setProperty!.name).toBeUndefined();
-      expect((setPropertyDefault.setProperty!.expression as any).simple.expression).toEqual('');
+      expect((setPropertyDefault.setProperty!.expression as any).simple.expression).toEqual({});
     });
 
     it('should return the default value for a setVariable processor', () => {
@@ -77,7 +77,7 @@ describe('CamelComponentDefaultService', () => {
       expect(setVariableDefault.setVariable).toBeDefined();
       expect((setVariableDefault.setVariable!.id as string).startsWith('setVariable-')).toBeTruthy();
       expect(setVariableDefault.setVariable!.name).toBeUndefined();
-      expect((setVariableDefault.setVariable!.expression as any).simple.expression).toEqual('');
+      expect((setVariableDefault.setVariable!.expression as any).simple.expression).toEqual({});
     });
 
     it('should return the default value for a setBody processor', () => {
@@ -87,7 +87,7 @@ describe('CamelComponentDefaultService', () => {
       } as DefinedComponent);
       expect(setBodyDefault.setBody).toBeDefined();
       expect((setBodyDefault.setBody!.id as string).startsWith('setBody-')).toBeTruthy();
-      expect((setBodyDefault.setBody!.expression as any).simple.expression).toEqual('');
+      expect((setBodyDefault.setBody!.expression as any).simple.expression).toEqual({});
     });
 
     it('should return the default value for a filter processor', () => {
@@ -97,8 +97,8 @@ describe('CamelComponentDefaultService', () => {
       } as DefinedComponent);
       expect(filterDefault.filter).toBeDefined();
       expect((filterDefault.filter!.id as string).startsWith('filter-')).toBeTruthy();
-      expect((filterDefault.filter!.expression as any).simple.expression).toEqual('');
-      expect(filterDefault.filter!.steps).toEqual([]);
+      expect((filterDefault.filter!.expression as any).simple.expression).toEqual({});
+      expect(filterDefault.filter!.steps).toBeUndefined();
     });
   });
 });

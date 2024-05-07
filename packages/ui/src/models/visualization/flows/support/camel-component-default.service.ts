@@ -126,10 +126,10 @@ export class CamelComponentDefaultService {
       case 'setHeader':
       case 'setProperty':
       case 'setVariable':
-      case 'setBody':      
+      case 'setBody':
       case 'filter':
         return parse(`
-        [processorName]:
+        ${processorName}:
           id: ${getCamelRandomId(processorName)}
           expression:
             simple:
