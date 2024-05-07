@@ -124,49 +124,16 @@ export class CamelComponentDefaultService {
         `);
 
       case 'setHeader':
-        return parse(`
-        setHeader:
-          id: ${getCamelRandomId('setHeader')}
-          expression:
-            simple:
-              expression: ""
-        `);
-
       case 'setProperty':
-        return parse(`
-        setProperty:
-          id: ${getCamelRandomId('setProperty')}
-          expression:
-            simple:
-              expression: ""
-        `);
-
       case 'setVariable':
-        return parse(`
-        setVariable:
-          id: ${getCamelRandomId('setVariable')}
-          expression:
-            simple:
-              expression: ""
-        `);
-
-      case 'setBody':
-        return parse(`
-        setBody:
-          id: ${getCamelRandomId('setBody')}
-          expression:
-            simple:
-              expression: ""
-        `);
-
+      case 'setBody':      
       case 'filter':
         return parse(`
-        filter:
-          id: ${getCamelRandomId('filter')}
+        [processorName]:
+          id: ${getCamelRandomId(processorName)}
           expression:
             simple:
-              expression: ""
-          steps: []
+              expression: {}
         `);
       default:
         return {
