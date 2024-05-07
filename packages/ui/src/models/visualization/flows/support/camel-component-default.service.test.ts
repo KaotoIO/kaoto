@@ -46,5 +46,59 @@ describe('CamelComponentDefaultService', () => {
       expect(doCatchDefault.id).toBeDefined();
       expect(doCatchDefault.exception).toHaveLength(1);
     });
+
+    it('should return the default value for a setHeader processor', () => {
+      const setHeaderDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'setHeader',
+      } as DefinedComponent);
+      expect(setHeaderDefault.setHeader).toBeDefined();
+      expect((setHeaderDefault.setHeader!.id as string).startsWith('setHeader-')).toBeTruthy();
+      expect(setHeaderDefault.setHeader!.name).toBeUndefined();
+      expect((setHeaderDefault.setHeader!.expression as any).simple.expression).toEqual('');
+    });
+
+    it('should return the default value for a setProperty processor', () => {
+      const setPropertyDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'setProperty',
+      } as DefinedComponent);
+      expect(setPropertyDefault.setProperty).toBeDefined();
+      expect((setPropertyDefault.setProperty!.id as string).startsWith('setProperty-')).toBeTruthy();
+      expect(setPropertyDefault.setProperty!.name).toBeUndefined();
+      expect((setPropertyDefault.setProperty!.expression as any).simple.expression).toEqual('');
+    });
+
+    it('should return the default value for a setVariable processor', () => {
+      const setVariableDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'setVariable',
+      } as DefinedComponent);
+      expect(setVariableDefault.setVariable).toBeDefined();
+      expect((setVariableDefault.setVariable!.id as string).startsWith('setVariable-')).toBeTruthy();
+      expect(setVariableDefault.setVariable!.name).toBeUndefined();
+      expect((setVariableDefault.setVariable!.expression as any).simple.expression).toEqual('');
+    });
+
+    it('should return the default value for a setBody processor', () => {
+      const setBodyDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'setBody',
+      } as DefinedComponent);
+      expect(setBodyDefault.setBody).toBeDefined();
+      expect((setBodyDefault.setBody!.id as string).startsWith('setBody-')).toBeTruthy();
+      expect((setBodyDefault.setBody!.expression as any).simple.expression).toEqual('');
+    });
+
+    it('should return the default value for a filter processor', () => {
+      const filterDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'filter',
+      } as DefinedComponent);
+      expect(filterDefault.filter).toBeDefined();
+      expect((filterDefault.filter!.id as string).startsWith('filter-')).toBeTruthy();
+      expect((filterDefault.filter!.expression as any).simple.expression).toEqual('');
+      expect(filterDefault.filter!.steps).toEqual([]);
+    });
   });
 });
