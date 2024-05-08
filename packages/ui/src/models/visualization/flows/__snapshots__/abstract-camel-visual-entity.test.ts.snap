@@ -8,7 +8,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canHavePreviousStep": false,
   "canHaveSpecialChildren": false,
   "canRemoveFlow": false,
-  "canRemoveStep": true,
+  "canRemoveStep": false,
   "canReplaceStep": true,
 }
 `;
