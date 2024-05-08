@@ -182,18 +182,15 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
-    );
-    const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
-      (data as CamelRouteVisualEntityData).processorName,
-    );
-    const canReplaceStep = CamelComponentSchemaService.canReplaceStep(
-      (data as CamelRouteVisualEntityData).processorName,
-    );
+    const processorName = (data as CamelRouteVisualEntityData).processorName;
+    const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(processorName);
+    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(processorName);
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
-    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
+    const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
+    const canRemoveStep = processorName !== ('from' as keyof ProcessorDefinition);
+    const canRemoveFlow = data.path === ROOT_PATH;
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
     return {
       canHavePreviousStep,
@@ -201,8 +198,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       canHaveChildren,
       canHaveSpecialChildren,
       canReplaceStep,
-      canRemoveStep: true,
-      canRemoveFlow: data.path === ROOT_PATH,
+      canRemoveStep,
+      canRemoveFlow,
       canBeDisabled,
     };
   }
