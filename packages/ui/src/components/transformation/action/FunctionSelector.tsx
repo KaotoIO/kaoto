@@ -1,5 +1,3 @@
-import { IField } from '../../models';
-import { FunctionComponent, Ref, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Divider,
@@ -18,16 +16,19 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { useDataMapper } from '../../hooks';
-import { DocumentService } from '../../services/document.service';
+import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
+import { XPathParserService } from '../../../services/xpath/xpath-parser.service';
+import { FunctionGroup } from '../../../services/xpath/xpath-parser';
+import { IFunctionDefinition } from '../../../models';
 
-type FieldOptionProps = SelectOptionProps & {
+type FunctionOptionProps = SelectOptionProps & {
   functionGroup: string;
   displayName: string;
   descriptionString: string;
   functionDefinition: IFunctionDefinition;
 };
-const allFieldOptions = Object.keys(functionDefinitions).reduce((acc, value) => {
+const functionDefinitions = XPathParserService.getXPathFunctionDefinitions();
+const allFunctionOptions = Object.keys(functionDefinitions).reduce((acc, value) => {
   return functionDefinitions[value as FunctionGroup].reduce((acc2, func) => {
     acc2.push({
       value: func.name,
@@ -40,33 +41,25 @@ const allFieldOptions = Object.keys(functionDefinitions).reduce((acc, value) => 
     });
     return acc2;
   }, acc);
-}, [] as FieldOptionProps[]);
+}, [] as FunctionOptionProps[]);
 
-type FieldSelectorProps = {
-  onSelect: (field: IField) => void;
+type FunctionSelectorProps = {
+  onSelect: (selected: IFunctionDefinition) => void;
 };
-
-export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect }) => {
+export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
-  const [allFieldOptions, setAllFieldOptions] = useState<FieldOptionProps[]>([]);
-  const [filteredFieldOptions, setFilteredFieldOptions] = useState<FieldOptionProps[]>([]);
+  const [functionOptions, setFunctionOptions] = useState<FunctionOptionProps[]>(allFunctionOptions);
   const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const textInputRef = useRef<HTMLInputElement>();
 
-  const { sourceParameterMap, sourceBodyDocument } = useDataMapper();
-
   useEffect(() => {
-    const sourceBodyFields = DocumentService.getAllFields(sourceBodyDocument);
-  }, [sourceParameterMap, sourceBodyDocument]);
-
-  useEffect(() => {
-    let newFunctionOptions = allFieldOptions;
+    let newFunctionOptions = allFunctionOptions;
     if (filterValue) {
-      newFunctionOptions = allFieldOptions.filter((option) => {
+      newFunctionOptions = allFunctionOptions.filter((option) => {
         return (
           option.functionGroup.includes(filterValue) ||
           option.value.includes(filterValue) ||
@@ -81,7 +74,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
       }
     }
 
-    setFilteredFieldOptions(newFunctionOptions);
+    setFunctionOptions(newFunctionOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
   }, [filterValue, isOpen]);
@@ -98,7 +91,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
       setInputValue(value as string);
       setFilterValue('');
       setSelected(value as string);
-      onSelect(filteredFieldOptions.find((op) => op.value === value)!.functionDefinition);
+      onSelect(functionOptions.find((op) => op.value === value)!.functionDefinition);
     }
     setIsOpen(false);
     setFocusedItemIndex(null);
@@ -117,7 +110,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
       if (key === 'ArrowUp') {
         // When no index is set or at the first index, focus to the last, otherwise decrement focus index
         if (focusedItemIndex === null || focusedItemIndex === 0) {
-          indexToFocus = filteredFieldOptions.length - 1;
+          indexToFocus = functionOptions.length - 1;
         } else {
           indexToFocus = focusedItemIndex - 1;
         }
@@ -125,7 +118,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
 
       if (key === 'ArrowDown') {
         // When no index is set or at the last index, focus to the first, otherwise increment focus index
-        if (focusedItemIndex === null || focusedItemIndex === filteredFieldOptions.length - 1) {
+        if (focusedItemIndex === null || focusedItemIndex === functionOptions.length - 1) {
           indexToFocus = 0;
         } else {
           indexToFocus = focusedItemIndex + 1;
@@ -133,13 +126,13 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
       }
 
       setFocusedItemIndex(indexToFocus);
-      const focusedItem = filteredFieldOptions.filter((option) => !option.isDisabled)[indexToFocus];
+      const focusedItem = functionOptions.filter((option) => !option.isDisabled)[indexToFocus];
       setActiveItem(`select-typeahead-${focusedItem.value.replace(' ', '-')}`);
     }
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const enabledMenuItems = filteredFieldOptions.filter((option) => !option.isDisabled);
+    const enabledMenuItems = functionOptions.filter((option) => !option.isDisabled);
     const [firstMenuItem] = enabledMenuItems;
     const focusedItem = focusedItemIndex ? enabledMenuItems[focusedItemIndex] : firstMenuItem;
 
@@ -170,7 +163,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
     }
   };
 
-  const toggle = (toggleRef: Ref<MenuToggleElement>) => (
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
       variant="typeahead"
@@ -214,18 +207,18 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
     </MenuToggle>
   );
 
-  type FieldOptionsGroupProps = {
+  type FunctionOptionsGroupProps = {
     group: string;
     indexes: number[];
   };
 
-  const FieldOptionsGroup: FunctionComponent<FieldOptionsGroupProps> = ({ group, indexes }) => {
+  const FunctionOptionsGroup: FunctionComponent<FunctionOptionsGroupProps> = ({ group, indexes }) => {
     return (
       <>
         <SelectGroup label={group}>
           <SelectList>
             {indexes.map((index) => {
-              const option = filteredFieldOptions[index];
+              const option = functionOptions[index];
               return (
                 <SelectOption
                   key={option.value}
@@ -250,29 +243,28 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
 
   const groupedOptionIndexes = useMemo(
     () =>
-      filteredFieldOptions.reduce(
+      functionOptions.reduce(
         (acc, option) => {
           if (!acc[option.functionGroup]) {
             acc[option.functionGroup] = [];
           }
-          acc[option.functionGroup].push(filteredFieldOptions.indexOf(option));
+          acc[option.functionGroup].push(functionOptions.indexOf(option));
           return acc;
         },
         {} as Record<string, number[]>,
       ),
-    [filteredFieldOptions],
+    [functionOptions],
   );
 
-  const GroupedFieldOptions: FunctionComponent = () => {
-    const first = true;
-    return Object.keys(groupedOptionIndexes).map((group) => {
+  const GroupedFunctionOptions: FunctionComponent = () => {
+    return Object.keys(groupedOptionIndexes).map((group, index) => {
       if (groupedOptionIndexes[group].length == 0) return undefined;
-      return first ? (
-        <FieldOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
+      return index === 0 ? (
+        <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
       ) : (
         <>
           <Divider />
-          <FieldOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
+          <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
         </>
       );
     });
@@ -293,19 +285,19 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
           isScrollable
           popperProps={{ preventOverflow: true }}
         >
-          <GroupedFieldOptions />
+          <GroupedFunctionOptions />
         </Select>
       </InputGroupItem>
       <InputGroupItem>
-        <Tooltip content={'Add Field'}>
+        <Tooltip content={'Apply function'}>
           <Button
             isDisabled={!selected}
             variant="control"
-            aria-label="Add Field"
-            data-testid={`add-field-button`}
+            aria-label="Apply Function"
+            data-testid={`apply-function-button`}
             onClick={() => {}}
           >
-            Add
+            Apply
           </Button>
         </Tooltip>
       </InputGroupItem>

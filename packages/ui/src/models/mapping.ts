@@ -19,15 +19,22 @@ export interface IFunctionDefinition {
   arguments: IFunctionArgumentDefinition[];
 }
 
-export type ITransformationArgument = ITransformation | IField | string | number;
+export type IFunctionCallArgument = IFunctionCall | IField | string | number;
 
-export interface ForEachDefinition {
+export interface IForEach {
   collection: IField;
+  transformation: ITransformation;
 }
 
-export interface ITransformation {
+export interface IFunctionCall {
   ref: IFunctionDefinition;
-  arguments: ITransformationArgument[];
+  arguments: IFunctionCallArgument[];
+}
+
+export type TransformationElement = IFunctionCall | IForEach | IField | string | number;
+
+export interface ITransformation {
+  elements: TransformationElement[];
 }
 
 export interface IMapping {
@@ -36,6 +43,4 @@ export interface IMapping {
   sourceFields: IField[];
   targetFields: IField[];
   transformation?: ITransformation;
-  forEach?: ForEachDefinition;
-  xpath?: string;
 }

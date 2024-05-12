@@ -81,6 +81,11 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
     [onToggleEditMode],
   );
 
+  const handleCloseDetails = useCallback(() => {
+    handleToggleEditMode(false);
+    setSelectedMapping(null);
+  }, [handleToggleEditMode, setSelectedMapping]);
+
   const handleSaveTransformation = useCallback(() => {
     handleToggleEditMode(false);
   }, [handleToggleEditMode]);
@@ -146,7 +151,7 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
           </TextContent>
           <DrawerActions>
             <DeleteMappingButton mapping={selectedMapping} onDelete={() => setSelectedMapping(null)} />
-            <DrawerCloseButton onClick={() => setSelectedMapping(null)} />
+            <DrawerCloseButton onClick={handleCloseDetails} />
           </DrawerActions>
         </DrawerHead>
         {isEditMode ? (

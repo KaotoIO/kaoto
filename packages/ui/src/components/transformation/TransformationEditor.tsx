@@ -1,10 +1,8 @@
 import { FunctionComponent, MouseEvent, useCallback, useMemo, useState } from 'react';
-import { FunctionSelector } from './FunctionSelector';
+import { FunctionSelector } from './action/FunctionSelector';
 import {
   ActionList,
   ActionListItem,
-  Button,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -12,49 +10,14 @@ import {
   MenuToggleElement,
   Stack,
   StackItem,
-  Tooltip,
   TreeView,
   TreeViewDataItem,
 } from '@patternfly/react-core';
 import { useDataMapper } from '../../hooks';
-import { IField, ITransformation } from '../../models';
-import { ListIcon, TrashIcon } from '@patternfly/react-icons';
-import { ConstantInput } from './ConstantInput';
-import { FieldSelector } from './FieldSelector';
-
-type ButtonProps = {
-  onClick: () => void;
-};
-
-const ForEachButton: FunctionComponent<ButtonProps> = ({ onClick }) => {
-  return (
-    <Tooltip content={<div>Process for each collection item</div>}>
-      <Button
-        variant="link"
-        aria-label="For Each"
-        data-testid={`for-each-button`}
-        onClick={onClick}
-        icon={<ListIcon />}
-      >
-        For Each
-      </Button>
-    </Tooltip>
-  );
-};
-
-const DeleteFieldButton: FunctionComponent<ButtonProps> = ({ onClick }) => {
-  return (
-    <Tooltip content={<div>Delete field from mapping</div>}>
-      <Button
-        variant="plain"
-        aria-label="Delete field"
-        data-testid={`delete-field-button`}
-        onClick={onClick}
-        icon={<TrashIcon />}
-      ></Button>
-    </Tooltip>
-  );
-};
+import { IField, IFunctionDefinition } from '../../models';
+import { ConstantInput } from './action/ConstantInput';
+import { FieldSelector } from './action/FieldSelector';
+import { TreeItemHelper } from './treeItem/tree-item-helper';
 
 enum TopAction {
   Function = 'Function',
@@ -80,69 +43,19 @@ export const TransformationEditor: FunctionComponent = () => {
     [],
   );
 
-  const txToTreeItem = useCallback((transformation: ITransformation): TreeViewDataItem => {
-    return {
-      name: transformation.ref?.name || 'Fields',
-      id: '',
-      children: transformation.arguments.map((arg) => {
-        const argAsTx = arg as ITransformation;
-        return argAsTx.ref || argAsTx.arguments ? txToTreeItem(argAsTx) : arg;
-      }),
-    } as TreeViewDataItem;
-  }, []);
+  const transformationTree = useMemo((): TreeViewDataItem[] => {
+    return (
+      selectedMapping?.transformation?.elements.map((element) =>
+        TreeItemHelper.createTransformationTreeItem(element),
+      ) || []
+    );
+  }, [selectedMapping?.transformation?.elements]);
 
-  const fieldsToTreeItem = useCallback((fields?: IField[]) => {
-    if (!fields) return [];
-    return !fields
-      ? []
-      : fields.map((f) => {
-          return {
-            name: (
-              <Tooltip content={f.fieldIdentifier.toString()}>
-                <div>{f.expression}</div>
-              </Tooltip>
-            ),
-            action: (
-              <ActionList>
-                <Divider
-                  orientation={{
-                    default: 'vertical',
-                  }}
-                />
-                <ActionListItem>
-                  <FunctionSelector onSelect={() => {}} />
-                </ActionListItem>
-                {f.maxOccurs > 1 && (
-                  <>
-                    <Divider
-                      orientation={{
-                        default: 'vertical',
-                      }}
-                    />
-                    <ActionListItem>
-                      <ForEachButton onClick={() => {}} />{' '}
-                    </ActionListItem>
-                  </>
-                )}
-                <Divider
-                  orientation={{
-                    default: 'vertical',
-                  }}
-                />
-                <ActionListItem>
-                  <DeleteFieldButton onClick={() => {}} />
-                </ActionListItem>
-              </ActionList>
-            ),
-          };
-        });
-  }, []);
+  const handleAddField = useCallback((field: IField) => {}, []);
 
-  const transformationTree = useMemo(() => {
-    return selectedMapping?.transformation
-      ? [txToTreeItem(selectedMapping.transformation)]
-      : fieldsToTreeItem(selectedMapping?.sourceFields);
-  }, [fieldsToTreeItem, selectedMapping?.sourceFields, selectedMapping?.transformation, txToTreeItem]);
+  const handleAddFunction = useCallback((func: IFunctionDefinition) => {}, []);
+
+  const handleAddConstant = useCallback((value: string) => {}, []);
 
   return (
     selectedMapping && (
@@ -157,7 +70,7 @@ export const TransformationEditor: FunctionComponent = () => {
                 onOpenChange={(isOpen: boolean) => setIsTopActionDropdownOpen(isOpen)}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle ref={toggleRef} onClick={onTopActionDropdownToggle} isExpanded={isTopActionDropdownOpen}>
-                    {topAction ? topAction : 'Select the type of top level item to add'}
+                    {topAction ? topAction : 'Select the top level item to add'}
                   </MenuToggle>
                 )}
               >
@@ -175,9 +88,9 @@ export const TransformationEditor: FunctionComponent = () => {
               </Dropdown>
             </ActionListItem>
             <ActionListItem>
-              {topAction === TopAction.Field && <FieldSelector onSelect={() => {}} />}
-              {topAction === TopAction.Function && <FunctionSelector onSelect={() => {}} />}
-              {topAction === TopAction.Constant && <ConstantInput onSubmit={() => {}} />}
+              {topAction === TopAction.Field && <FieldSelector onSelect={handleAddField} />}
+              {topAction === TopAction.Function && <FunctionSelector onSelect={handleAddFunction} />}
+              {topAction === TopAction.Constant && <ConstantInput onSubmit={handleAddConstant} />}
             </ActionListItem>
           </ActionList>
         </StackItem>
