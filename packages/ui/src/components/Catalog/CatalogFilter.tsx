@@ -2,8 +2,6 @@ import {
   Badge,
   Form,
   FormGroup,
-  Grid,
-  GridItem,
   Label,
   LabelGroup,
   SearchInput,
@@ -11,10 +9,11 @@ import {
   ToggleGroupItem,
   capitalize,
 } from '@patternfly/react-core';
+import { TimesCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useEffect, useRef } from 'react';
 import { CatalogLayout } from './Catalog.models';
+import './CatalogFilter.scss';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
-import { TimesCircleIcon } from '@patternfly/react-icons';
 
 interface CatalogFilterProps {
   className?: string;
@@ -63,67 +62,66 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
   };
 
   return (
-    <Form className={props.className}>
-      <Grid hasGutter>
-        <GridItem md={5} lg={6}>
-          <FormGroup label="Filter" fieldId="search-term">
-            <SearchInput
-              aria-label="Filter by name, description or tag"
-              placeholder="Filter by name, description or tag"
-              value={props.searchTerm}
-              onChange={props.onChange}
-              onClear={props.onChange}
-              ref={inputRef}
-            />
-          </FormGroup>
-        </GridItem>
+    <div className={props.className}>
+      <Form className="filter-bar">
+        <FormGroup className="filter-bar__search" label="Filter" fieldId="search-term">
+          <SearchInput
+            aria-label="Filter by name, description or tag"
+            placeholder="Filter by name, description or tag"
+            value={props.searchTerm}
+            onChange={props.onChange}
+            onClear={props.onChange}
+            ref={inputRef}
+          />
+        </FormGroup>
 
-        <GridItem className="pf-v5-u-text-align-right" md={5}>
-          <FormGroup label="Type" fieldId="element-type">
-            <ToggleGroup aria-label="Select element type">
-              {props.groups.map((tileGroup) => (
-                <ToggleGroupItem
-                  text={
-                    <>
-                      <span>{capitalize(tileGroup.name)}</span> <Badge isRead>{tileGroup.count}</Badge>
-                    </>
-                  }
-                  key={tileGroup.name}
-                  data-testid={`${tileGroup.name}-catalog-tab`}
-                  buttonId={`toggle-group-button-${tileGroup.name}`}
-                  isSelected={props.activeGroups.includes(tileGroup.name)}
-                  onChange={(_event, selected: boolean) => toggleActiveGroup(selected, tileGroup.name)}
-                />
-              ))}
-            </ToggleGroup>
-          </FormGroup>
-        </GridItem>
-        <GridItem md={2} lg={1}>
-          <FormGroup label="Layout" fieldId="layout">
-            <ToggleGroup aria-label="Change layout">
-              {props.layouts.map((key) => (
-                <ToggleGroupItem
-                  icon={<CatalogLayoutIcon key={key} layout={key} />}
-                  key={key}
-                  data-testid={`toggle-layout-button-${key}`}
-                  buttonId={`toggle-layout-button-${key}`}
-                  aria-label={`toggle-layout-button-${key}`}
-                  isSelected={props.activeLayout === key}
-                  onChange={() => {
-                    props.setActiveLayout(key);
-                  }}
-                />
-              ))}
-            </ToggleGroup>
-          </FormGroup>
-        </GridItem>
-      </Grid>
+        <FormGroup label="Type" fieldId="element-type">
+          <ToggleGroup aria-label="Select element type">
+            {props.groups.map((tileGroup) => (
+              <ToggleGroupItem
+                text={
+                  <>
+                    <span>{capitalize(tileGroup.name)}</span> <Badge isRead>{tileGroup.count}</Badge>
+                  </>
+                }
+                key={tileGroup.name}
+                data-testid={`${tileGroup.name}-catalog-tab`}
+                buttonId={`toggle-group-button-${tileGroup.name}`}
+                isSelected={props.activeGroups.includes(tileGroup.name)}
+                onChange={(_event, selected: boolean) => toggleActiveGroup(selected, tileGroup.name)}
+              />
+            ))}
+          </ToggleGroup>
+        </FormGroup>
+
+        <FormGroup label="Layout" fieldId="layout">
+          <ToggleGroup aria-label="Change layout">
+            {props.layouts.map((key) => (
+              <ToggleGroupItem
+                icon={<CatalogLayoutIcon key={key} layout={key} />}
+                key={key}
+                data-testid={`toggle-layout-button-${key}`}
+                buttonId={`toggle-layout-button-${key}`}
+                aria-label={`toggle-layout-button-${key}`}
+                isSelected={props.activeLayout === key}
+                onChange={() => {
+                  props.setActiveLayout(key);
+                }}
+              />
+            ))}
+          </ToggleGroup>
+        </FormGroup>
+      </Form>
+
       <LabelGroup
-        categoryName={'Filter Categories'}
+        isCompact
+        className="category-bar"
+        categoryName="Filter Categories"
         numLabels={props.filterTags.length > 0 ? props.tagsOverflowIndex + 1 : props.tagsOverflowIndex}
       >
         {props.filterTags.length > 0 && (
           <Label
+            isCompact
             key="clear"
             id="clear"
             color="grey"
@@ -136,6 +134,7 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
         )}
         {props.tags.map((tag, index) => (
           <Label
+            isCompact
             key={tag + index}
             id={tag + index}
             data-testid={`button-catalog-tag-${tag}`}
@@ -147,6 +146,6 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
           </Label>
         ))}
       </LabelGroup>
-    </Form>
+    </div>
   );
 };
