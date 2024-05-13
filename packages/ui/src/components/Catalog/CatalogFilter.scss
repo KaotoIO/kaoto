@@ -1,0 +1,16 @@
+.filter-bar {
+  padding: 0 2px;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  margin-bottom: var(--pf-v5-global--spacer--sm);
+
+  &__search {
+    flex: 1;
+  }
+}
+
+.category-bar {
+  display: flex;
+  flex-flow: row;
+}
