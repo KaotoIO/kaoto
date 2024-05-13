@@ -28,6 +28,10 @@ Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
   cy.waitForEditorToLoad();
   cy.get('.pf-v5-c-code-editor__main > input').attachFile(fixture);
+
+  cy.get('.pf-v5-c-code-editor').should(($editor) => {
+    expect($editor.find('[data-uri^="inmemory://"]')).to.exist;
+  });
 });
 
 Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => {
