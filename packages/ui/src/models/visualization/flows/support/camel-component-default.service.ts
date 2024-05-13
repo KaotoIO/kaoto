@@ -132,9 +132,9 @@ export class CamelComponentDefaultService {
         ${processorName}:
           id: ${getCamelRandomId(processorName)}
           expression:
-            simple:
-              expression: {}
+            simple: {}
         `);
+
       default:
         return {
           [processorName]: {
