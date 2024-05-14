@@ -219,13 +219,16 @@ public class KaotoCamelCatalogMojo extends AbstractMojo {
             var catalogMap = catalogProcessor.processCatalog();
             catalogMap.forEach((name, catalog) -> {
                 try {
-                    // Adding Kamelet Configuration Schema to the Entities Catalog
+                    // Adding Kamelet & Pipe Configuration Schema to the Entities Catalog
                     if (name.equals("entities")) {
                         var catalogNode = jsonMapper.readTree(catalog);
-                        var schema = inputDir.resolve("schema").resolve("KameletConfiguration.json");
-                        ((ObjectNode) catalogNode).putObject("KameletConfiguration").putObject("propertiesSchema");
-                        ((ObjectNode) catalogNode.path("KameletConfiguration").path("propertiesSchema"))
+                        String files[] = {"KameletConfiguration.json", "PipeConfiguration.json"};
+                        for (String file : files) {
+                            var schema = inputDir.resolve("schema").resolve(file);
+                            ((ObjectNode) catalogNode).putObject(file.split("\\.")[0]).putObject("propertiesSchema");
+                            ((ObjectNode) catalogNode.path(file.split("\\.")[0]).path("propertiesSchema"))
                                 .setAll((ObjectNode) jsonMapper.readTree(schema.toFile()));
+                        }
 
                         StringWriter writer = new StringWriter();
                         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();

@@ -188,6 +188,7 @@
                 -->
                 <additionalSchema>${inputDirectory}/schema/PipeErrorHandler.json</additionalSchema>
                 <additionalSchema>${inputDirectory}/schema/KameletConfiguration.json</additionalSchema>
+                <additionalSchema>${inputDirectory}/schema/PipeConfiguration.json</additionalSchema>
               </additionalSchemas>
             </configuration>
           </execution>

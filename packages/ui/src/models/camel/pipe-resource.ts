@@ -25,7 +25,7 @@ export class PipeResource extends CamelKResource {
     if (!this.pipe.spec) {
       this.pipe.spec = {};
     }
-    this.flow = new PipeVisualEntity(this.pipe.spec, this.pipe.metadata);
+    this.flow = new PipeVisualEntity(this.pipe);
     this.errorHandler =
       this.pipe.spec.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
   }
@@ -34,7 +34,7 @@ export class PipeResource extends CamelKResource {
     super.removeEntity();
     const flowTemplate: PipeType = FlowTemplateService.getFlowTemplate(this.getType());
     this.pipe = flowTemplate;
-    this.flow = new PipeVisualEntity(flowTemplate.spec, flowTemplate.metadata);
+    this.flow = new PipeVisualEntity(flowTemplate);
   }
 
   getEntities(): BaseCamelEntity[] {
@@ -50,7 +50,7 @@ export class PipeResource extends CamelKResource {
   }
 
   refreshVisualMetadata() {
-    this.flow = new PipeVisualEntity(this.pipe.spec, this.pipe.metadata);
+    this.flow = new PipeVisualEntity(this.pipe);
   }
 
   getVisualEntities(): PipeVisualEntity[] {
