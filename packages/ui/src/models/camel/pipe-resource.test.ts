@@ -8,9 +8,9 @@ describe('PipeResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
-    expect(vis.spec!.source!.ref!.name).toEqual('webhook-source');
-    expect(vis.spec!.steps![0].ref?.name).toEqual('delay-action');
-    expect(vis.spec!.sink!.ref!.name).toEqual('log-sink');
+    expect(vis.pipe.spec!.source!.ref!.name).toEqual('webhook-source');
+    expect(vis.pipe.spec!.steps![0].ref?.name).toEqual('delay-action');
+    expect(vis.pipe.spec!.sink!.ref!.name).toEqual('log-sink');
     expect(resource.getEntities().length).toEqual(2);
     const metadataEntity = resource.getMetadataEntity();
     expect(metadataEntity?.parent.metadata!.name).toEqual('webhook-binding');
@@ -24,9 +24,9 @@ describe('PipeResource', () => {
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
-    expect(vis.spec?.source).toBeUndefined();
-    expect(vis.spec?.steps).toBeUndefined();
-    expect(vis.spec?.sink).toBeUndefined();
+    expect(vis.pipe.spec?.source).toBeUndefined();
+    expect(vis.pipe.spec?.steps).toBeUndefined();
+    expect(vis.pipe.spec?.sink).toBeUndefined();
   });
 
   it('should create/delete entities', () => {
@@ -34,7 +34,7 @@ describe('PipeResource', () => {
     expect(resource.getEntities().length).toEqual(0);
     expect(resource.getMetadataEntity()).toBeUndefined();
     expect(resource.getErrorHandlerEntity()).toBeUndefined();
-    expect(resource.toJSON().metadata).toBeUndefined();
+    expect(resource.toJSON().metadata).toBeDefined();
     expect(resource.toJSON().spec!.errorHandler).toBeUndefined();
     const metadataEntity = resource.createMetadataEntity();
     expect(resource.getMetadataEntity()).toEqual(metadataEntity);

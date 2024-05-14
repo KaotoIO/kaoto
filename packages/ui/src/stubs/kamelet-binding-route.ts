@@ -101,4 +101,4 @@ export const kameletBindingJson = {
   },
 };
 
-export const kameletBinding = new KameletBindingVisualEntity(kameletBindingJson.spec);
+export const kameletBinding = new KameletBindingVisualEntity(kameletBindingJson);

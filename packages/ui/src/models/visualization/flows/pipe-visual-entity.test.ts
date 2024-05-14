@@ -12,43 +12,43 @@ import { KameletSchemaService } from './support/kamelet-schema.service';
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
-  let pipe: PipeVisualEntity;
+  let pipeVisualEntity: PipeVisualEntity;
   let kameletCatalogMap: Record<string, unknown>;
 
   beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
-    pipe = new PipeVisualEntity(pipeCR.spec!);
+    pipeVisualEntity = new PipeVisualEntity(pipeCR);
     kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap as Record<string, IKameletDefinition>);
   });
 
   describe('id', () => {
     it('should have an uuid', () => {
-      expect(pipe.id).toBeDefined();
-      expect(typeof pipe.id).toBe('string');
+      expect(pipeVisualEntity.id).toBeDefined();
+      expect(typeof pipeVisualEntity.id).toBe('string');
     });
 
     it('should have a type', () => {
-      expect(pipe.type).toEqual(EntityType.Pipe);
+      expect(pipeVisualEntity.type).toEqual(EntityType.Pipe);
     });
 
     it('should return the id', () => {
-      expect(pipe.getId()).toEqual(expect.any(String));
+      expect(pipeVisualEntity.getId()).toEqual(expect.any(String));
     });
 
     it('should change the id', () => {
-      pipe.setId('pipe-12345');
-      expect(pipe.getId()).toEqual('pipe-12345');
+      pipeVisualEntity.setId('pipe-12345');
+      expect(pipeVisualEntity.getId()).toEqual('pipe-12345');
     });
   });
 
   describe('getComponentSchema', () => {
     it('should return undefined if no path is provided', () => {
-      expect(pipe.getComponentSchema()).toBeUndefined();
+      expect(pipeVisualEntity.getComponentSchema()).toBeUndefined();
     });
 
     it('should return undefined if no component model is found', () => {
-      const result = pipe.getComponentSchema('test');
+      const result = pipeVisualEntity.getComponentSchema('test');
 
       expect(result).toBeUndefined();
     });
@@ -61,20 +61,20 @@ describe('Pipe', () => {
         definition: {},
       });
 
-      pipe.getComponentSchema('source');
+      pipeVisualEntity.getComponentSchema('source');
       expect(spy).toBeCalledTimes(1);
     });
   });
 
   it('should return the json', () => {
-    expect(pipe.toJSON()).toEqual(pipeJson.spec);
+    expect(pipeVisualEntity.toJSON()).toEqual(pipeJson.spec);
   });
 
   describe('updateModel', () => {
     it('should not update the model if no path is provided', () => {
       const originalObject = JSON.parse(JSON.stringify(pipeJson));
 
-      pipe.updateModel(undefined, undefined);
+      pipeVisualEntity.updateModel(undefined, undefined as unknown as Record<string, unknown>);
 
       expect(originalObject).toEqual(pipeJson);
     });
@@ -82,46 +82,46 @@ describe('Pipe', () => {
     it('should update the model', () => {
       const name = 'webhook-source';
 
-      pipe.updateModel('source', { name });
+      pipeVisualEntity.updateModel('source', { name });
 
-      expect(pipe.spec?.source?.properties?.name).toEqual(name);
+      expect(pipeVisualEntity.pipe.spec?.source?.properties?.name).toEqual(name);
     });
 
     it('should not update the model if the path is not correct', () => {
       const name = 'webhook-source';
 
-      pipe.updateModel('nonExistingPath', { name });
+      pipeVisualEntity.updateModel('nonExistingPath', { name });
 
-      expect(pipe.spec?.source?.properties).toBeUndefined();
+      expect(pipeVisualEntity.pipe.spec?.source?.properties).toBeUndefined();
     });
   });
 
   describe('removeStep', () => {
     it('should not remove the step if no path is provided', () => {
-      pipe.removeStep();
+      pipeVisualEntity.removeStep();
 
-      expect(pipe.toJSON()).toEqual(pipeJson.spec);
+      expect(pipeVisualEntity.toJSON()).toEqual(pipeJson.spec);
     });
 
     it('should remove the `source` step', () => {
-      pipe.removeStep('source');
+      pipeVisualEntity.removeStep('source');
 
-      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
-      expect(pipe.spec?.source).toEqual({});
+      expect(pipeVisualEntity.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipeVisualEntity.pipe.spec?.source).toEqual({});
     });
 
     it('should remove the `sink` step', () => {
-      pipe.removeStep('sink');
+      pipeVisualEntity.removeStep('sink');
 
-      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
-      expect(pipe.spec?.sink).toEqual({});
+      expect(pipeVisualEntity.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipeVisualEntity.pipe.spec?.sink).toEqual({});
     });
 
     it('should remove the `steps.0` step', () => {
-      pipe.removeStep('steps.0');
+      pipeVisualEntity.removeStep('steps.0');
 
-      expect(pipe.toJSON()).not.toEqual(pipeJson.spec);
-      expect(pipe.spec.steps).toEqual([]);
+      expect(pipeVisualEntity.toJSON()).not.toEqual(pipeJson.spec);
+      expect(pipeVisualEntity.pipe.spec!.steps).toEqual([]);
     });
   });
 
@@ -129,7 +129,7 @@ describe('Pipe', () => {
     it.each(['source', 'sink', 'steps.1', '#'])(
       `should return the correct interaction for the '%s' processor`,
       (path) => {
-        const result = pipe.getNodeInteraction({ path });
+        const result = pipeVisualEntity.getNodeInteraction({ path });
         expect(result).toMatchSnapshot();
       },
     );
@@ -137,45 +137,46 @@ describe('Pipe', () => {
 
   describe('getNodeValidationText', () => {
     it('should return an `undefined` if the path is `undefined`', () => {
-      const result = pipe.getNodeValidationText(undefined);
+      const result = pipeVisualEntity.getNodeValidationText(undefined);
 
       expect(result).toEqual(undefined);
     });
 
     it('should return an `undefined` if the path is empty', () => {
-      const result = pipe.getNodeValidationText('');
+      const result = pipeVisualEntity.getNodeValidationText('');
 
       expect(result).toEqual(undefined);
     });
 
     it('should return a validation text relying on the `validateNodeStatus` method', () => {
-      const missingParametersModel = cloneDeep(pipeJson.spec);
-      missingParametersModel!.steps![0].properties = {};
-      pipe = new PipeVisualEntity(missingParametersModel);
+      const missingParametersModel = cloneDeep(pipeJson);
+      missingParametersModel.spec!.steps![0].properties = {};
+      pipeVisualEntity = new PipeVisualEntity(missingParametersModel);
 
-      const result = pipe.getNodeValidationText('steps.0');
+      const result = pipeVisualEntity.getNodeValidationText('steps.0');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ milliseconds ]');
     });
   });
 
   describe('toVizNode', () => {
-    it('should return the viz node and set the initial path to `source`', () => {
-      const vizNode = pipe.toVizNode();
+    it('should return the viz node and set the initial path to `#`', () => {
+      const vizNode = pipeVisualEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
-      expect(vizNode.data.path).toEqual('source');
+      expect(vizNode.data.path).toEqual('#');
     });
 
     it('should use the uri as the node label', () => {
-      const vizNode = pipe.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
     });
 
     it('should set the node labels as `Unknown` if the uri is not available', () => {
-      pipe = new PipeVisualEntity({});
-      const sourceNode = pipe.toVizNode();
+      pipeVisualEntity = new PipeVisualEntity({});
+
+      const sourceNode = pipeVisualEntity.toVizNode().getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
       expect(sourceNode.getNodeLabel()).toEqual('source: Unknown');
@@ -183,17 +184,23 @@ describe('Pipe', () => {
     });
 
     it('should populate the viz node chain with the steps', () => {
-      const vizNode = pipe.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode();
 
-      expect(vizNode.data.path).toEqual('source');
-      expect(vizNode.getNodeLabel()).toEqual('webhook-source');
+      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
       expect(vizNode.getPreviousNode()).toBeUndefined();
-      expect(vizNode.getNextNode()).toBeDefined();
+      expect(vizNode.getNextNode()).toBeUndefined();
+      expect(vizNode.getChildren()).toBeDefined();
 
-      const steps0 = vizNode.getNextNode()!;
+      const source = vizNode.getChildren()![0];
+      expect(source.getNodeLabel()).toEqual('webhook-source');
+      expect(source.getPreviousNode()).toBeUndefined();
+      expect(source.getNextNode()).toBeDefined();
+
+      const steps0 = source.getNextNode()!;
       expect(steps0.data.path).toEqual('steps.0');
       expect(steps0.getNodeLabel()).toEqual('delay-action');
-      expect(steps0.getPreviousNode()).toBe(vizNode);
+      expect(steps0.getPreviousNode()).toBe(source);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
