@@ -36,6 +36,6 @@ public class CamelYamlDslSchemaTest extends CamelCatalogTestSupport {
         assertEquals(beansSchema.get("type").asText(), "array");
         var definitions = beansSchema.withObject("/definitions");
         assertEquals(1, definitions.size());
-        assertTrue(definitions.has("org.apache.camel.model.app.RegistryBeanDefinition"));
+        assertTrue(definitions.has("org.apache.camel.model.BeanFactoryDefinition"));
     }
 }

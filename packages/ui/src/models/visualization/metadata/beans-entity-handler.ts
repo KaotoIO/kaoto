@@ -1,4 +1,4 @@
-import { BeansDeserializer, RegistryBeanDefinition, RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
+import { BeansDeserializer, BeanFactory } from '@kaoto/camel-catalog/types';
 import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
@@ -8,7 +8,7 @@ import { BeansEntity } from './beansEntity';
 import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
 
 /**
- * This class is to absorb a little bit of difference between beans such as {@link RegistryBeanDefinition} and {@link RouteTemplateBeanDefinition}.
+ * This class is to absorb a little bit of difference between beans such as {@link BeanFactory}.
  */
 export class BeansEntityHandler {
   private type: 'beans' | 'routeTemplateBean' | undefined;
@@ -71,7 +71,7 @@ export class BeansEntityHandler {
     return this.getBeansEntity()?.parent.beans;
   }
 
-  setBeansModel(model: BeansDeserializer | RouteTemplateBeanDefinition[]) {
+  setBeansModel(model: BeansDeserializer | BeanFactory[]) {
     if (!Array.isArray(model) || model.length === 0) {
       const entity = this.getBeansEntity();
       entity && this.deleteBeansEntity(entity);

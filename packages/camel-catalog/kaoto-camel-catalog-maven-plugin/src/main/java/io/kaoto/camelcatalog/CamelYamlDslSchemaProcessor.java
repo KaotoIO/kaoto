@@ -40,8 +40,6 @@ public class CamelYamlDslSchemaProcessor {
     private static final String PROPERTY_EXPRESSION_DEFINITION = "org.apache.camel.model.PropertyExpressionDefinition";
     private static final String ERROR_HANDLER_DEFINITION = "org.apache.camel.model.ErrorHandlerDefinition";
     private static final String ERROR_HANDLER_DESERIALIZER = "org.apache.camel.dsl.yaml.deserializers.ErrorHandlerBuilderDeserializer";
-    private static final String ROUTE_TEMPLATE_BEAN_DEFINITION = "org.apache.camel.model.RouteTemplateBeanDefinition";
-    private static final String TEMPLATED_ROUTE_BEAN_DEFINITION = "org.apache.camel.model.TemplatedRouteBeanDefinition";
     private final ObjectMapper jsonMapper;
     private final ObjectNode yamlDslSchema;
     private final List<String> processorBlocklist = List.of(
@@ -550,26 +548,6 @@ public class CamelYamlDslSchemaProcessor {
             sanitizeDefinitions(yamlInFQCN, yamlInDefinition);
             answer.put(yamlInName, yamlInDefinition);
         }
-        return answer;
-    }
-
-    public ObjectNode getRouteTemplateBean() {
-        var definitions = yamlDslSchema
-                .withObject("/items")
-                .withObject("/definitions");
-        var relocatedDefinitions = relocateToRootDefinitions(definitions);
-        var answer = relocatedDefinitions.withObject(ROUTE_TEMPLATE_BEAN_DEFINITION);
-        populateDefinitions(answer, relocatedDefinitions);
-        return answer;
-    }
-
-    public ObjectNode getTemplatedRouteBean() {
-        var definitions = yamlDslSchema
-                .withObject("/items")
-                .withObject("/definitions");
-        var relocatedDefinitions = relocateToRootDefinitions(definitions);
-        var answer = relocatedDefinitions.withObject(TEMPLATED_ROUTE_BEAN_DEFINITION);
-        populateDefinitions(answer, relocatedDefinitions);
         return answer;
     }
 

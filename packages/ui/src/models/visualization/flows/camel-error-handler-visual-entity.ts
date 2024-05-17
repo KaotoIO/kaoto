@@ -1,4 +1,4 @@
-import { ErrorHandlerBuilderDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import { useSchemasStore } from '../../../store';
@@ -17,12 +17,12 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.ErrorHandler;
 
-  constructor(public errorHandlerDef: { errorHandler: ErrorHandlerBuilderDeserializer } = { errorHandler: {} }) {
+  constructor(public errorHandlerDef: { errorHandler: ErrorHandlerDeserializer } = { errorHandler: {} }) {
     const id = getCamelRandomId('errorHandler');
     this.id = id;
   }
 
-  static isApplicable(errorHandlerDef: unknown): errorHandlerDef is { errorHandler: ErrorHandlerBuilderDeserializer } {
+  static isApplicable(errorHandlerDef: unknown): errorHandlerDef is { errorHandler: ErrorHandlerDeserializer } {
     if (!isDefined(errorHandlerDef) || Array.isArray(errorHandlerDef) || typeof errorHandlerDef !== 'object') {
       return false;
     }
@@ -137,7 +137,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return errorHandlerGroupNode;
   }
 
-  toJSON(): { errorHandler: ErrorHandlerBuilderDeserializer } {
+  toJSON(): { errorHandler: ErrorHandlerDeserializer } {
     return { errorHandler: this.errorHandlerDef.errorHandler };
   }
 }
