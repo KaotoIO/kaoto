@@ -44,7 +44,7 @@ public class CamelYamlDslSchemaProcessorTest {
         assertEquals("array", beansSchema.get("type").asText());
         var beanSchema = beansSchema
                 .withObject("/definitions")
-                .withObject("/org.apache.camel.model.app.RegistryBeanDefinition");
+                .withObject("/org.apache.camel.model.BeanFactoryDefinition");
         var beanPropertySchema = beanSchema
                 .withObject("/properties")
                 .withObject("/properties");
@@ -165,20 +165,6 @@ public class CamelYamlDslSchemaProcessorTest {
                 "restConfiguration",
                 "rest"
         ).forEach(name -> assertTrue(entityMap.containsKey(name), name));
-    }
-
-    @Test
-    public void testGetRouteTemplateBean() {
-        var rtb = processor.getRouteTemplateBean();
-        assertNotNull(rtb);
-        assertNotNull(rtb.withObject("/definitions").withObject("/org.apache.camel.model.PropertyDefinition"));
-    }
-
-    @Test
-    public void testGetTemplatedRouteBean() {
-        var trb = processor.getTemplatedRouteBean();
-        assertNotNull(trb);
-        assertNotNull(trb.withObject("/definitions").withObject("/org.apache.camel.model.PropertyDefinition"));
     }
 
     @Test

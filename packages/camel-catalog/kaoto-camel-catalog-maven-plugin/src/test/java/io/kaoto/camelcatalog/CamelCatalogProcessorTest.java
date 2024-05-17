@@ -216,7 +216,7 @@ public class CamelCatalogProcessorTest {
 
     @Test
     public void testGetPatternCatalog() throws Exception {
-        assertTrue(processorCatalog.size() > 55 && processorCatalog.size() < 70);
+        assertTrue(processorCatalog.size() > 65 && processorCatalog.size() < 80);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
         var aggregateSchema = processorCatalog.withObject("/aggregate").withObject("/propertiesSchema");
@@ -259,8 +259,7 @@ public class CamelCatalogProcessorTest {
                 "templatedRoute",
                 "restConfiguration",
                 "rest",
-                "routeTemplateBean",
-                "templatedRouteBean"
+                "routeTemplateBean"
         ).forEach(name -> assertTrue(entityCatalog.has(name), name));
         var bean = entityCatalog.withObject("/bean");
         var beanScriptLanguage = bean.withObject("/propertiesSchema")
@@ -270,7 +269,7 @@ public class CamelCatalogProcessorTest {
         var beans = entityCatalog.withObject("/beans");
         var beansScript = beans.withObject("/propertiesSchema")
                 .withObject("/definitions")
-                .withObject("/org.apache.camel.model.app.RegistryBeanDefinition")
+                .withObject("/org.apache.camel.model.BeanFactoryDefinition")
                 .withObject("/properties")
                 .withObject("/script");
         assertEquals("Script", beansScript.get("title").asText());
@@ -279,11 +278,6 @@ public class CamelCatalogProcessorTest {
                 .withObject("/properties")
                 .withObject("/type");
         assertEquals("Type", routeTemplateBeanType.get("title").asText());
-        var templatedRouteBean = entityCatalog.withObject("/templatedRouteBean");
-        var templatedRouteBeanProperties = templatedRouteBean.withObject("/propertiesSchema")
-                .withObject("/properties")
-                .withObject("/properties");
-        assertEquals("Properties", templatedRouteBeanProperties.get("title").asText());
     }
 
     @Test

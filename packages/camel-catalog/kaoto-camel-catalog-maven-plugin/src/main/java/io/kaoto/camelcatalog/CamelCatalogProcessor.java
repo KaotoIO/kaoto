@@ -34,6 +34,7 @@ import java.util.*;
 public class CamelCatalogProcessor {
     private static final String TO_DYNAMIC_DEFINITION = "org.apache.camel.model.ToDynamicDefinition";
     private static final String SET_HEADERS_DEFINITION = "org.apache.camel.model.SetHeadersDefinition";
+    private static final String SET_VARIABLES_DEFINITION = "org.apache.camel.model.SetVariablesDefinition";
     private final ObjectMapper jsonMapper;
     private final DefaultCamelCatalog api;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
@@ -262,6 +263,12 @@ public class CamelCatalogProcessor {
                     sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
                 }
+                if (SET_VARIABLES_DEFINITION.equals((processorFQCN)) && "variables".equals(propertyName)) {
+                    propertySchema.put("title", "Variables");
+                    propertySchema.put("description", "Variables to set");
+                    sortedSchemaProperties.set(propertyName, propertySchema);
+                    continue;
+                }
 
                 var catalogOpOptional = processorCatalog.getOptions().stream().filter(op -> op.getName().equals(propertyName)).findFirst();
                 if (catalogOpOptional.isEmpty()) {
@@ -371,7 +378,7 @@ public class CamelCatalogProcessor {
     }
 
     private void processBeansParameters(ObjectNode entitySchema, EipModel entityCatalog) throws Exception {
-        var beanDef = entitySchema.withObject("/definitions").withObject("/org.apache.camel.model.app.RegistryBeanDefinition");
+        var beanDef = entitySchema.withObject("/definitions").withObject("/org.apache.camel.model.BeanFactoryDefinition");
         for (var property : beanDef.withObject("/properties").properties()) {
             var propertyName = property.getKey();
             var propertySchema = (ObjectNode) property.getValue();
@@ -398,8 +405,6 @@ public class CamelCatalogProcessor {
             // parameter name mismatch between schema and catalog
             if ("routePolicyRef".equals(op.getName())) {
                 op.setName("routePolicy");
-            } else if ("streamCache".equals(op.getName())) {
-                op.setName("streamCaching");
             }
         }
         for (var property : entitySchema.withObject("/properties").properties()) {
@@ -413,6 +418,10 @@ public class CamelCatalogProcessor {
             } else if (List.of("inputType", "outputType").contains(propertyName)) {
                 // no "inputType" and "outputType" in the catalog, just keep it as-is
                 continue;
+            } else if ("streamCaching".equals(propertyName)) {
+                entityCatalog.getOptions().stream().filter(op -> "streamCache".equals(op.getName())).findFirst().ifPresent(op -> {
+                    op.setName("streamCaching");
+                });
             }
             doProcessParameter(entityCatalog, propertyName, propertySchema);
         }
@@ -533,25 +542,13 @@ public class CamelCatalogProcessor {
         var beanDefinition = answer.withObject("/beans")
                 .withObject("/propertiesSchema")
                 .withObject("/definitions")
-                .withObject("/org.apache.camel.model.app.RegistryBeanDefinition");
+                .withObject("/org.apache.camel.model.BeanFactoryDefinition");
         catalogTree.set("propertiesSchema", beanDefinition);
         answer.set("bean", catalogTree);
 
-        var routeTemplateBeanCatalog = catalogMap.get("templateBean");
-        json = JsonMapper.asJsonObject(routeTemplateBeanCatalog).toJson();
-        catalogTree = (ObjectNode) jsonMapper.readTree(json);
-        var propertiesSchema = schemaProcessor.getRouteTemplateBean();
-        processEntityParameters("routeTemplateBean", propertiesSchema, routeTemplateBeanCatalog);
-        catalogTree.set("propertiesSchema", propertiesSchema);
+        // routeTemplateBean is used for kamelet beans in UI. Let BeanFactoryDefinition pretend to be routeTemplateBean
+        // definition in order to distinguish kamelet beans from plain YAML beans without making bigger UI change.
         answer.set("routeTemplateBean", catalogTree);
-
-        var templatedRouteBeanCatalog = catalogMap.get("templatedRouteBean");
-        json = JsonMapper.asJsonObject(templatedRouteBeanCatalog).toJson();
-        catalogTree = (ObjectNode) jsonMapper.readTree(json);
-        propertiesSchema = schemaProcessor.getTemplatedRouteBean();
-        processEntityParameters("templatedRouteBean", propertiesSchema, templatedRouteBeanCatalog);
-        catalogTree.set("propertiesSchema", propertiesSchema);
-        answer.set("templatedRouteBean", catalogTree);
     }
 
     /**

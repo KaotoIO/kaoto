@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { MetadataEditor } from '../../components/MetadataEditor';
 import { BeansEntityHandler } from '../../models/visualization/metadata/beans-entity-handler';
-import { BeansDeserializer, RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
+import { BeansDeserializer, BeanFactory } from '@kaoto/camel-catalog/types';
 
 export const BeansPage: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
@@ -22,7 +22,7 @@ export const BeansPage: FunctionComponent = () => {
   }, [beansHandler]);
 
   const handleChangeModel = useCallback(
-    (model: BeansDeserializer | RouteTemplateBeanDefinition[]) => {
+    (model: BeansDeserializer | BeanFactory[]) => {
       beansHandler.setBeansModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
     },

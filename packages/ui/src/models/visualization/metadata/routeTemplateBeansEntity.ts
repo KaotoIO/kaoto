@@ -1,9 +1,9 @@
-import { RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
+import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType, BaseCamelEntity } from '../../camel/entities';
 
 export type RouteTemplateBeansParentType = {
-  beans: Partial<RouteTemplateBeanDefinition>[];
+  beans: Partial<BeanFactory>[];
 };
 
 export class RouteTemplateBeansEntity implements BaseCamelEntity {

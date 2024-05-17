@@ -1,4 +1,4 @@
-import { RegistryBeanDefinition } from '@kaoto/camel-catalog/types';
+import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../models';
@@ -13,7 +13,7 @@ export type NewBeanModalProps = {
   propertyTitle: string;
   javaType?: string;
   isOpen: boolean;
-  onCreateBean: (model: RegistryBeanDefinition) => void;
+  onCreateBean: (model: BeanFactory) => void;
   onCancelCreateBean: () => void;
 };
 
@@ -31,7 +31,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBea
     const beanModelTmp = cloneDeep(beanModel);
     const valid = await submitRef.current?.form.validate();
     if (!isDefined(valid)) {
-      props.onCreateBean(beanModelTmp as RegistryBeanDefinition);
+      props.onCreateBean(beanModelTmp as BeanFactory);
     }
   }, [beanModel, props]);
 

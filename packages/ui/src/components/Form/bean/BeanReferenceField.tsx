@@ -15,7 +15,7 @@ import {
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { RegistryBeanDefinition, RouteTemplateBeanDefinition } from '@kaoto/camel-catalog/types';
+import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { NewBeanModal } from './NewBeanModal';
 import { BeansEntityHandler } from '../../../models/visualization/metadata/beans-entity-handler';
 
@@ -217,7 +217,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
   );
 
   const handleCreateBean = useCallback(
-    (model: RegistryBeanDefinition | RouteTemplateBeanDefinition) => {
+    (model: BeanFactory) => {
       beansHandler.addNewBean(model);
 
       const beanRef = beansHandler.getReferenceFromName(model.name);
