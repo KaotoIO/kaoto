@@ -3709,16 +3709,16 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-actions@npm:^8.0.0":
-  version: 8.0.10
-  resolution: "@storybook/addon-actions@npm:8.0.10"
+  version: 8.1.1
+  resolution: "@storybook/addon-actions@npm:8.1.1"
   dependencies:
-    "@storybook/core-events": 8.0.10
+    "@storybook/core-events": 8.1.1
     "@storybook/global": ^5.0.0
     "@types/uuid": ^9.0.1
     dequal: ^2.0.2
     polished: ^4.2.2
     uuid: ^9.0.0
-  checksum: 013c1766f0bafbe4beb3413f2828a8c55dd8986182342200d8755c3e8b4acab7dd66973c1ee71a9ea5bcca016664d95f57f5360d964fc1580ae9eac607cf1e51
+  checksum: 94694b75756a90dd34f8187eecb90a871a62f60a24fa64c52a7c35755ab6b81b7e91d5428e65c9851421cba0af49e246fba654b9731939669e4868c70105857f
   languageName: node
   linkType: hard
 
@@ -3754,12 +3754,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-events@npm:8.0.10":
-  version: 8.0.10
-  resolution: "@storybook/core-events@npm:8.0.10"
+"@storybook/core-events@npm:8.1.1":
+  version: 8.1.1
+  resolution: "@storybook/core-events@npm:8.1.1"
   dependencies:
+    "@storybook/csf": ^0.1.7
     ts-dedent: ^2.0.0
-  checksum: 4dff0bcad8dd4543b4c6e87447107589e63d6ad212cc4b6a989306951c053f70cca827382251b8cb8e6696ad0a308b14f2a918b5d5d18b91d3c196ab71edf7ec
+  checksum: 6ee283eaafe10ec1253f72a5b33fe554acc32d8e3872b036c6f8a8ade8a300cd4f44bed29a55a02fa5ee45b3fdd93f84fcf77d67413bcf864435daeb5cb5007c
+  languageName: node
+  linkType: hard
+
+"@storybook/csf@npm:^0.1.7":
+  version: 0.1.7
+  resolution: "@storybook/csf@npm:0.1.7"
+  dependencies:
+    type-fest: ^2.19.0
+  checksum: 0f2b32a3d3920620d032436429fff9f3a08add8e52dc735a5dfd6ce46260a12c7ec87f4fff065bf0e8baae988d1655eea25d5aaba810e7687119ac5661eaeaa4
   languageName: node
   linkType: hard
 
@@ -13193,7 +13203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^2.5.1":
+"type-fest@npm:^2.19.0, type-fest@npm:^2.5.1":
   version: 2.19.0
   resolution: "type-fest@npm:2.19.0"
   checksum: a4ef07ece297c9fba78fc1bd6d85dff4472fe043ede98bd4710d2615d15776902b595abf62bd78339ed6278f021235fb28a96361f8be86ed754f778973a0d278
