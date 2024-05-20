@@ -41,9 +41,9 @@ const emptyCamelRouteJson = {
 
 const camelRouteEntity = new CamelRouteVisualEntity(complexRouteMock);
 const emptyCamelRouteEntity = new CamelRouteVisualEntity(emptyCamelRouteJson);
-const pipeEntity = new PipeVisualEntity(pipeJson.spec!);
+const pipeEntity = new PipeVisualEntity(pipeJson);
 const kameletEntity = new KameletVisualEntity(kameletJson);
-const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson.spec!);
+const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson);
 
 const ContextDecorator = (Story: StoryFn) => (
   <SourceCodeProvider>
