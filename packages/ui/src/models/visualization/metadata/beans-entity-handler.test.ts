@@ -36,7 +36,7 @@ describe('BeansEntityHandler', () => {
       expect(beanSchema!.properties!.builderClass.title).toEqual('Builder Class');
       expect(beanSchema!.properties!.script.title).toEqual('Script');
       const beansSchema = beansHandler.getBeansSchema();
-      expect((beansSchema!.items as KaotoSchemaDefinition['schema'])['$ref']).toContain('RegistryBeanDefinition');
+      expect((beansSchema!.items as KaotoSchemaDefinition['schema'])['$ref']).toContain('BeanFactoryDefinition');
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });
@@ -85,13 +85,13 @@ describe('BeansEntityHandler', () => {
       expect(model.spec.template.beans).toBeUndefined();
       expect(beansHandler.isSupported()).toBeTruthy();
       const beanSchema = beansHandler.getBeanSchema();
-      expect(beanSchema?.properties!.builderClass).toBeUndefined();
+      expect(beanSchema?.properties!.builderClass).toBeDefined();
       expect(beanSchema?.properties!.script.title).toEqual('Script');
       const beansSchema = beansHandler.getBeansSchema();
       expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.scriptLanguage.title).toEqual(
         'Script Language',
       );
-      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.builderClass).toBeUndefined();
+      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.builderClass).toBeDefined();
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });

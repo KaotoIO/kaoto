@@ -30,12 +30,12 @@ describe('Tests for sidebar dataformat configuration', () => {
     // Configure marshal dataformat
     cy.openStepConfigurationTab('marshal');
     cy.selectDataformat('Avro');
-    cy.configureDropdownValue('library', 'Jackson');
+    cy.configureDropdownValue('library', 'avroJackson');
     cy.interactWithDataformatInputObject('unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
     cy.interactWithDataformatInputObject('schemaResolver', '#bean:{{}{{}schemaResolver}}');
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('library: Jackson', 1);
+    cy.checkCodeSpanLine('library: avroJackson', 1);
     cy.checkCodeSpanLine('unmarshalType: com.fasterxml.jackson.databind.JsonNode', 1);
     cy.checkCodeSpanLine('schemaResolver: "#bean:{{schemaResolver}}"', 1);
 

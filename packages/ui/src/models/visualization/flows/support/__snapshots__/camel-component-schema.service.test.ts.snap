@@ -11,6 +11,20 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
   "schema": {
     "additionalProperties": false,
     "definitions": {
+      "org.apache.camel.model.ErrorHandlerDefinition": {
+        "$comment": "errorhandler",
+        "additionalProperties": false,
+        "description": "Camel error handling.",
+        "properties": {
+          "id": {
+            "description": "The id of this node",
+            "title": "Id",
+            "type": "string",
+          },
+        },
+        "title": "Error Handler",
+        "type": "object",
+      },
       "org.apache.camel.model.FromDefinition": {
         "additionalProperties": false,
         "properties": {
@@ -117,6 +131,16 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "title": "Description",
         "type": "string",
       },
+      "errorHandler": {
+        "$ref": "#/definitions/org.apache.camel.model.ErrorHandlerDefinition",
+        "description": "Sets the error handler to use for this route",
+        "title": "Error Handler",
+      },
+      "errorHandlerRef": {
+        "description": "Sets the bean ref name of the error handler builder to use on this route",
+        "title": "Error Handler",
+        "type": "string",
+      },
       "from": {
         "$ref": "#/definitions/org.apache.camel.model.FromDefinition",
         "description": "From",
@@ -194,7 +218,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "title": "Startup Order",
         "type": "number",
       },
-      "streamCaching": {
+      "streamCache": {
         "description": "Whether stream caching is enabled on this route.",
         "title": "Stream Cache",
         "type": "boolean",
@@ -567,7 +591,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
   },
   "schema": {
     "additionalProperties": false,
-    "description": "Logs the defined message to the logger",
+    "description": "Used for printing custom messages to the logger.",
     "properties": {
       "description": {
         "description": "Sets the description of this node",
@@ -620,7 +644,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "type": "string",
       },
     },
-    "title": "Log",
+    "title": "Logger",
     "type": "object",
   },
   "title": "log",
@@ -689,7 +713,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
   },
   "schema": {
     "additionalProperties": false,
-    "description": "Logs the defined message to the logger",
+    "description": "Used for printing custom messages to the logger.",
     "properties": {
       "description": {
         "description": "Sets the description of this node",
@@ -742,7 +766,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "type": "string",
       },
     },
-    "title": "Log",
+    "title": "Logger",
     "type": "object",
   },
   "title": "log",
