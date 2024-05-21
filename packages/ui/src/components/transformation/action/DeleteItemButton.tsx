@@ -2,17 +2,18 @@ import { FunctionComponent } from 'react';
 import { Button, Tooltip } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 
-type DeleteFieldButtonProps = {
+type DeleteItemButtonProps = {
+  itemName: string;
   onClick: () => void;
 };
 
-export const DeleteFieldButton: FunctionComponent<DeleteFieldButtonProps> = ({ onClick }) => {
+export const DeleteItemButton: FunctionComponent<DeleteItemButtonProps> = ({ itemName, onClick }) => {
   return (
-    <Tooltip content={<div>Delete field from mapping</div>}>
+    <Tooltip content={<div>Delete {itemName} from mapping</div>}>
       <Button
         variant="plain"
-        aria-label="Delete field"
-        data-testid={`delete-field-button`}
+        aria-label="Delete ${itemName}"
+        data-testid={`delete-${itemName}-button`}
         onClick={onClick}
         icon={<TrashIcon />}
       ></Button>

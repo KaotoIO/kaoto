@@ -19,28 +19,42 @@ export interface IFunctionDefinition {
   arguments: IFunctionArgumentDefinition[];
 }
 
-export type IFunctionCallArgument = IFunctionCall | IField | string | number;
+export interface ITransformationItem {
+  parent: ITransformationItem | ITransformation;
+}
 
-export interface IForEach {
+export interface IForEach extends ITransformationItem {
   collection: IField;
   transformation: ITransformation;
 }
 
-export interface IFunctionCall {
-  ref: IFunctionDefinition;
+export interface IFunctionCallArgumentType extends ITransformationItem {}
+
+export interface IFunctionCallArgument {
+  definition: IFunctionArgumentDefinition;
+  arguments: IFunctionCallArgumentType[];
+}
+
+export interface IFunctionCall extends IFunctionCallArgumentType {
+  definition: IFunctionDefinition;
   arguments: IFunctionCallArgument[];
 }
 
-export type TransformationElement = IFunctionCall | IForEach | IField | string | number;
+export interface IFieldItem extends IFunctionCallArgumentType {
+  field: IField;
+}
+
+export interface ILiteralItem extends IFunctionCallArgumentType {
+  value: string | number;
+}
 
 export interface ITransformation {
-  elements: TransformationElement[];
+  elements: ITransformationItem[];
 }
 
 export interface IMapping {
   id: string;
   name: string;
-  sourceFields: IField[];
+  source: ITransformation;
   targetFields: IField[];
-  transformation?: ITransformation;
 }

@@ -16,15 +16,15 @@ import {
   StackItem,
   Text,
   TextContent,
-  TextInput,
   TextVariants,
   Tooltip,
 } from '@patternfly/react-core';
 import { IField } from '../../models';
 import { DeleteMappingButton } from './DeleteMappingButton';
 import { Table, TableVariant, Tbody, Td, Tr } from '@patternfly/react-table';
-import { PenIcon, SaveIcon, TimesIcon } from '@patternfly/react-icons';
+import { PenIcon, TimesIcon } from '@patternfly/react-icons';
 import { TransformationEditor } from '../transformation/TransformationEditor';
+import { MappingService } from '../../services/mapping.service';
 
 type FieldDetailsProps = {
   field: IField;
@@ -86,11 +86,7 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
     setSelectedMapping(null);
   }, [handleToggleEditMode, setSelectedMapping]);
 
-  const handleSaveTransformation = useCallback(() => {
-    handleToggleEditMode(false);
-  }, [handleToggleEditMode]);
-
-  const handleCancelEditTransformation = useCallback(() => {
+  const handleCloseEditTransformation = useCallback(() => {
     handleToggleEditMode(false);
   }, [handleToggleEditMode]);
 
@@ -100,24 +96,12 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
         {isEditMode ? (
           <>
             <ActionListItem>
-              <Tooltip position={'auto'} enableFlip={true} content={<div>Save Transformation</div>}>
-                <Button
-                  variant="plain"
-                  aria-label="Save Transformation"
-                  data-testid={`save-transformation-button`}
-                  onClick={handleSaveTransformation}
-                >
-                  <SaveIcon />
-                </Button>
-              </Tooltip>
-            </ActionListItem>
-            <ActionListItem>
               <Tooltip position={'auto'} enableFlip={true} content={<div>Cancel Edit Transformation</div>}>
                 <Button
                   variant="plain"
-                  aria-label="Cancel Edit Transformation"
-                  data-testid={`cancel-edit-transformation-button`}
-                  onClick={handleCancelEditTransformation}
+                  aria-label="Close Edit Transformation"
+                  data-testid={`close-edit-transformation-button`}
+                  onClick={handleCloseEditTransformation}
                 >
                   <TimesIcon />
                 </Button>
@@ -140,7 +124,7 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
         )}
       </ActionList>
     );
-  }, [handleCancelEditTransformation, handleSaveTransformation, handleToggleEditMode, isEditMode]);
+  }, [handleCloseEditTransformation, handleToggleEditMode, isEditMode]);
 
   return (
     selectedMapping && (
@@ -172,18 +156,11 @@ export const MappingDetailsDrawerPanel: FunctionComponent<MappingDetailsDrawerPa
                 </CardHeader>
                 <CardBody>
                   <Stack>
-                    {selectedMapping.xpath ? (
-                      <StackItem>
-                        XPath
-                        <TextInput id="xpath" value={selectedMapping.xpath} readOnlyVariant="default" />
+                    {MappingService.extractSourceFields(selectedMapping.source).map((field) => (
+                      <StackItem key={field.name}>
+                        <FieldDetails field={field} />
                       </StackItem>
-                    ) : (
-                      selectedMapping.sourceFields.map((field) => (
-                        <StackItem key={field.name}>
-                          <FieldDetails field={field} />
-                        </StackItem>
-                      ))
-                    )}
+                    ))}
                   </Stack>
                 </CardBody>
               </Card>

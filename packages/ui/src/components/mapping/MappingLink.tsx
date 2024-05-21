@@ -3,6 +3,7 @@ import { useCanvas } from '../../hooks/useCanvas';
 import { IMapping } from '../../models';
 import { useDataMapper } from '../../hooks';
 import { NodeReference } from '../../providers/CanvasProvider';
+import { MappingService } from '../../services/mapping.service';
 
 type LineCoord = {
   x1: number;
@@ -40,8 +41,8 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) 
       style={lineStyle}
     >
       <title>
-        Source: {JSON.stringify(mapping.sourceFields.map((f) => f.fieldIdentifier))}, Target:{' '}
-        {JSON.stringify(mapping.targetFields.map((f) => f.fieldIdentifier))}
+        Source: {JSON.stringify(MappingService.extractSourceFields(mapping.source).map((f) => f.fieldIdentifier))},
+        Target: {JSON.stringify(mapping.targetFields.map((f) => f.fieldIdentifier))}
       </title>
     </path>
   );
@@ -108,7 +109,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   const refreshLinks = useCallback(() => {
     const answer: LineProps[] = mappings.reduce((acc, mapping) => {
-      for (const sourceField of mapping.sourceFields) {
+      for (const sourceField of MappingService.extractSourceFields(mapping.source)) {
         for (const targetField of mapping.targetFields) {
           const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
           const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());

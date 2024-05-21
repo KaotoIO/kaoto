@@ -23,6 +23,7 @@ import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { IField } from '../models';
 import { MappingService } from '../services/mapping.service';
+import { TransformationService } from '../services/transformation.service';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -68,8 +69,15 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     (event: DragEndEvent) => {
       const fromField = event.active.data.current as IField;
       const toField = event.over?.data.current as IField;
-      const { sourceField, targetField } = MappingService.validateFieldPairForNewMapping(mappings, fromField, toField);
-      if (sourceField && targetField) {
+      const { existing, sourceField, targetField } = MappingService.validateNewFieldPairForMapping(
+        mappings,
+        fromField,
+        toField,
+      );
+      if (existing && sourceField) {
+        TransformationService.addSourceField(existing.source, sourceField);
+        refreshMappings();
+      } else if (sourceField && targetField) {
         const mapping = MappingService.createNewMapping(sourceField, targetField);
         mappings.push(mapping);
         refreshMappings();

@@ -1,5 +1,5 @@
 import { IField } from '../../../models';
-import { FunctionComponent, Ref, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Divider,
@@ -28,10 +28,10 @@ type FieldOptionProps = SelectOptionProps & {
 };
 
 type FieldSelectorProps = {
-  onSelect: (field: IField) => void;
+  onSubmit: (field: IField) => void;
 };
 
-export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect }) => {
+export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSubmit }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
@@ -52,6 +52,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
         children: field.fieldIdentifier.toString(),
         documentId: field.fieldIdentifier.documentId,
         documentType: field.fieldIdentifier.documentType,
+        fieldDefinition: field,
       } as FieldOptionProps;
     });
     setAllFieldOptions(updatedAllFieldOptions);
@@ -86,7 +87,6 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
       setInputValue(value as string);
       setFilterValue('');
       setSelected(value as string);
-      onSelect(filteredFieldOptions.find((op) => op.value === value)!.fieldDefinition);
     }
     setIsOpen(false);
     setFocusedItemIndex(null);
@@ -264,6 +264,11 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
     });
   };
 
+  const handleAddField = useCallback(() => {
+    const fieldOption = allFieldOptions.find((f) => f.value === selected);
+    fieldOption && onSubmit(fieldOption.fieldDefinition);
+  }, [allFieldOptions, onSubmit, selected]);
+
   return (
     <InputGroup>
       <InputGroupItem>
@@ -289,7 +294,7 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSelect 
             variant="control"
             aria-label="Add Field"
             data-testid={`add-field-button`}
-            onClick={() => {}}
+            onClick={handleAddField}
           >
             Add
           </Button>

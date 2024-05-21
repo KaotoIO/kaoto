@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { XPathParserService } from '../../../services/xpath/xpath-parser.service';
 import { FunctionGroup } from '../../../services/xpath/xpath-parser';
 import { IFunctionDefinition } from '../../../models';
@@ -44,9 +44,9 @@ const allFunctionOptions = Object.keys(functionDefinitions).reduce((acc, value) 
 }, [] as FunctionOptionProps[]);
 
 type FunctionSelectorProps = {
-  onSelect: (selected: IFunctionDefinition) => void;
+  onSubmit: (selected: IFunctionDefinition) => void;
 };
-export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onSelect }) => {
+export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onSubmit }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
@@ -91,7 +91,6 @@ export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onS
       setInputValue(value as string);
       setFilterValue('');
       setSelected(value as string);
-      onSelect(functionOptions.find((op) => op.value === value)!.functionDefinition);
     }
     setIsOpen(false);
     setFocusedItemIndex(null);
@@ -162,6 +161,10 @@ export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onS
         break;
     }
   };
+
+  const handleAddFunction = useCallback(() => {
+    onSubmit(functionOptions.find((op) => op.value === selected)!.functionDefinition);
+  }, [functionOptions, onSubmit, selected]);
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -260,12 +263,12 @@ export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onS
     return Object.keys(groupedOptionIndexes).map((group, index) => {
       if (groupedOptionIndexes[group].length == 0) return undefined;
       return index === 0 ? (
-        <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
+        <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} key={index} />
       ) : (
-        <>
+        <div key={index}>
           <Divider />
           <FunctionOptionsGroup group={group} indexes={groupedOptionIndexes[group]} />
-        </>
+        </div>
       );
     });
   };
@@ -295,9 +298,9 @@ export const FunctionSelector: FunctionComponent<FunctionSelectorProps> = ({ onS
             variant="control"
             aria-label="Apply Function"
             data-testid={`apply-function-button`}
-            onClick={() => {}}
+            onClick={handleAddFunction}
           >
-            Apply
+            Add
           </Button>
         </Tooltip>
       </InputGroupItem>
