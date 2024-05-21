@@ -70,7 +70,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.get(`input[name="routeConfigurationId"]`).clear().type('test.routeConfigurationId');
     cy.get(`input[name="routePolicy"]`).clear().type('test.routePolicy');
     cy.get(`input[name="startupOrder"]`).clear().type('test.startupOrder');
-    cy.get(`input[name="streamCaching"]`).check();
+    cy.get(`input[name="streamCache"]`).check();
     cy.get(`input[name="trace"]`).check();
 
     cy.openSourceCode();
@@ -95,7 +95,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('routeConfigurationId: test.routeConfigurationId');
     cy.checkCodeSpanLine('routePolicy: test.routePolicy');
     cy.checkCodeSpanLine('startupOrder: test.startupOrder');
-    cy.checkCodeSpanLine('streamCaching: true');
+    cy.checkCodeSpanLine('streamCache: true');
     cy.checkCodeSpanLine('trace: true');
   });
 });

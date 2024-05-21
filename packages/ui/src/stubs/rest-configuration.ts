@@ -64,8 +64,9 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     useXForwardHeaders: {
       type: 'boolean',
       title: 'Use XForward Headers',
-      description: 'Whether to use X-Forward headers for Host and related setting. The default value is true.',
-      default: true,
+      description:
+        'Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc. Then the proxy can send X-Forward headers (X-Forwarded-Proto) that influences the host names in the OpenAPI schema that camel-openapi-java generates from Rest DSL routes.',
+      default: false,
     },
     producerApiDoc: {
       type: 'string',
@@ -83,7 +84,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Api Context Path',
       description:
-        'Sets a leading API context-path the REST API services will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.',
+        'Sets a leading context-path the REST API will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.',
     },
     apiContextRouteId: {
       type: 'string',
@@ -120,6 +121,12 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
         'Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.',
       default: false,
     },
+    bindingPackageScan: {
+      type: 'string',
+      title: 'Binding Package Scan',
+      description:
+        'Package name to use as base (offset) for classpath scanning of POJO classes are located when using binding mode is enabled for JSon or XML. Multiple package names can be separated by comma.',
+    },
     clientRequestValidation: {
       type: 'boolean',
       title: 'Client Request Validation',
@@ -144,8 +151,8 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'boolean',
       title: 'Inline Routes',
       description:
-        'Inline routes in rest-dsl which are linked using direct endpoints. By default, each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). Enabling this allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. This option is default false.',
-      default: false,
+        'Inline routes in rest-dsl which are linked using direct endpoints. Each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). By inlining (default) allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. If a route is not using direct endpoint then the rest-dsl is not inlined, and will become an individual route. This option is default true.',
+      default: true,
     },
     jsonDataFormat: {
       type: 'string',
