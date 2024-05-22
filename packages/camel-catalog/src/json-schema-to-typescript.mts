@@ -15,8 +15,8 @@ import index from '../dist/index.json' assert { type: 'json' };
 const ensureTypesFolder = async () => {
   const typesFolder = resolve('./dist/types');
 
-  await rimraf(typesFolder);
-  await mkdir(typesFolder);
+  await rimraf(typesFolder, { filter: (path) => !path.includes('catalog-index.d.ts') });
+  await mkdir(typesFolder, { recursive: true });
 };
 
 /** Function to compile a JSON schema file to a TypeScript file */
@@ -50,7 +50,7 @@ const addTitleToDefinitions = (schema: JSONSchema) => {
 async function main() {
   await ensureTypesFolder();
 
-  const exportedFiles: string[] = [];
+  const exportedFiles: string[] = ['catalog-index'];
 
   console.log('---');
   const targetSchemaNames = [

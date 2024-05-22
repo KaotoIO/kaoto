@@ -1,4 +1,4 @@
-import { SchemaEntry } from '../models';
+import { Entry } from '@kaoto/camel-catalog/types';
 import { CatalogSchemaLoader } from './catalog-schema-loader';
 
 describe('CatalogSchemaLoader', () => {
@@ -38,7 +38,7 @@ describe('CatalogSchemaLoader', () => {
   });
 
   describe('getSchemasFiles', () => {
-    const schemasEntries: Record<string, SchemaEntry> = {
+    const schemasEntries: Record<string, Entry> = {
       rest: {
         description: 'description-1',
         file: 'file-1.json',

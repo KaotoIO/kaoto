@@ -76,6 +76,34 @@
           </mojoDependencies>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>cz.habarta.typescript-generator</groupId>
+        <artifactId>typescript-generator-maven-plugin</artifactId>
+        <version>3.2.1263</version>
+        <executions>
+          <execution>
+            <id>generate</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <jsonLibrary>jackson2</jsonLibrary>
+          <generateNpmPackageJson>false</generateNpmPackageJson>
+          <outputKind>module</outputKind>
+          <outputFileType>declarationFile</outputFileType>
+          <generateJaxrsApplicationInterface>true</generateJaxrsApplicationInterface>
+          <classesFromAutomaticJaxrsApplication>true</classesFromAutomaticJaxrsApplication>
+          <restNamespacing>perResource</restNamespacing>
+
+          <outputFile>../dist/types/catalog-index.d.ts</outputFile>
+          <classPatterns>
+            <classPattern>io.kaoto.camelcatalog.Index</classPattern>
+          </classPatterns>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
