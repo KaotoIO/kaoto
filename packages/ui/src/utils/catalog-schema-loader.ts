@@ -1,4 +1,5 @@
-import { KaotoSchemaDefinition, SchemaEntry } from '../models';
+import { Entry } from '@kaoto/camel-catalog/types';
+import { KaotoSchemaDefinition } from '../models';
 
 export class CatalogSchemaLoader {
   /** The `.` is required to support relative routes in GitHub pages */
@@ -12,7 +13,7 @@ export class CatalogSchemaLoader {
     return { body, uri: response.url };
   }
 
-  static getSchemasFiles(basePath: string, schemaFiles: Record<string, SchemaEntry>): Promise<KaotoSchemaDefinition>[] {
+  static getSchemasFiles(basePath: string, schemaFiles: Record<string, Entry>): Promise<KaotoSchemaDefinition>[] {
     return Object.entries(schemaFiles).map(async ([name, schemaDef]) => {
       const fetchedSchema = await this.fetchFile(`${basePath}/${schemaDef.file}`);
       const tags = [];
