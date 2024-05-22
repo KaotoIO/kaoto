@@ -16,7 +16,6 @@
   </description>
   <url>https://kaoto.io</url>
 
-
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>

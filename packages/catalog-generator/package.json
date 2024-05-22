@@ -1,0 +1,40 @@
+{
+  "name": "@kaoto/catalog-generator",
+  "version": "2.1.0-dev",
+  "type": "commonjs",
+  "description": "Camel Catalog and schemas for Kaoto",
+  "repository": "https://github.com/KaotoIO/kaoto",
+  "repositoryDirectory": "packages/catalog-generator",
+  "author": "The Kaoto Team",
+  "license": "Apache License v2.0",
+  "private": true,
+  "main": "./package.json",
+  "exports": {
+    ".": "./dist",
+    "./index.json": "./dist/camel-catalog/index.json",
+    "./types": "./dist/types/index.ts",
+    "./package.json": "./package.json",
+    "./*.json": "./dist/*.json"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn build:mvn && yarn build:default:catalog && yarn build:ts",
+    "build:mvn": "./mvnw clean install",
+    "build:default:catalog": "./mvnw package; java -jar ./target/catalog-generator-0.0.1-SNAPSHOT.jar -o ./dist/camel-catalog -n \"Default Kaoto catalog\"",
+    "build:ts": "node --loader ts-node/esm ./scripts/json-schema-to-typescript.mts",
+    "lint": "yarn eslint \"scripts/**/*.{mts,ts}\"",
+    "lint:fix": "yarn lint --fix",
+    "clean": "yarn rimraf ./dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "json-schema-to-typescript": "^14.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.2"
+  }
+}
