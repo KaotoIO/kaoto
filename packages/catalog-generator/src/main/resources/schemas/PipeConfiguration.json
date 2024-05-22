@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Pipe configuration",
+  "description": "Schema for Pipe configuration",
+  "properties": {
+    "name": {
+      "title": "Name",
+      "description": "Name of the Pipe",
+      "type": "string"
+    },
+    "labels": {
+      "additionalProperties": {
+        "default": "",
+        "type": "string"
+      },
+      "title": "Labels",
+      "description": "Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels",
+      "type": "object"
+    },
+    "annotations": {
+      "additionalProperties": {
+        "default": "",
+        "type": "string"
+      },
+      "title": "Annotations",
+      "description": "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,313 @@
+package io.kaoto.camelcatalog.maven;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.DefaultRuntimeProvider;
+import org.apache.camel.catalog.quarkus.QuarkusRuntimeProvider;
+import org.apache.camel.springboot.catalog.SpringBootRuntimeProvider;
+import org.apache.camel.tooling.model.OtherModel;
+
+import io.kaoto.camelcatalog.model.CatalogRuntime;
+import io.kaoto.camelcatalog.model.Constants;
+import io.kaoto.camelcatalog.model.MavenCoordinates;
+
+public class CamelCatalogVersionLoader {
+    private static final Logger LOGGER = Logger.getLogger(CamelCatalogVersionLoader.class.getName());
+    private final KaotoMavenVersionManager KAOTO_VERSION_MANAGER = new KaotoMavenVersionManager();
+    private final CamelCatalog camelCatalog = new DefaultCamelCatalog(false);
+    private final Map<String, String> kameletBoundaries = new HashMap<>();
+    private final Map<String, String> kamelets = new HashMap<>();
+    private final List<String> camelKCRDs = new ArrayList<>();
+    private final Map<String, String> localSchemas = new HashMap<>();
+    private final CatalogRuntime runtime;
+    private String camelYamlDSLSchema;
+    private String kubernetesSchema;
+    private boolean verbose = false;
+
+    public CamelCatalogVersionLoader(CatalogRuntime runtime, boolean verbose) {
+        this.runtime = runtime;
+        this.verbose = verbose;
+        KAOTO_VERSION_MANAGER.setLog(verbose);
+        camelCatalog.setVersionManager(KAOTO_VERSION_MANAGER);
+    }
+
+    public CatalogRuntime getRuntime() {
+        return runtime;
+    }
+
+    public CamelCatalog getCamelCatalog() {
+        return camelCatalog;
+    }
+
+    public String getCamelYamlDslSchema() {
+        return camelYamlDSLSchema;
+    }
+
+    public List<String> getKameletBoundaries() {
+        return kameletBoundaries.values().stream().toList();
+    }
+
+    public List<String> getKamelets() {
+        return kamelets.values().stream().toList();
+    }
+
+    public String getKubernetesSchema() {
+        return kubernetesSchema;
+    }
+
+    public List<String> getCamelKCRDs() {
+        return camelKCRDs;
+    }
+
+    public Map<String, String> getLocalSchemas() {
+        return localSchemas;
+    }
+
+    public boolean loadCamelCatalog(String version) {
+        if (version != null) {
+            configureRepositories(version);
+            MavenCoordinates mavenCoordinates = getCatalogMavenCoordinates(runtime, version);
+            loadDependencyInClasspath(mavenCoordinates);
+        }
+
+        /**
+         * Check the current runtime, so we can apply the corresponding RuntimeProvider
+         * to the catalog
+         */
+        switch (runtime) {
+            case Quarkus:
+                camelCatalog.setRuntimeProvider(new QuarkusRuntimeProvider());
+                break;
+            case SpringBoot:
+                camelCatalog.setRuntimeProvider(new SpringBootRuntimeProvider());
+                break;
+            default:
+                camelCatalog.setRuntimeProvider(new DefaultRuntimeProvider());
+                break;
+        }
+
+        return camelCatalog.getCatalogVersion() != null;
+    }
+
+    public boolean loadCamelYamlDsl() {
+        OtherModel yamlDSLModel = camelCatalog.otherModel("yaml-dsl");
+        MavenCoordinates mavenCoordinates = getYamlDslMavenCoordinates(runtime, yamlDSLModel);
+        loadDependencyInClasspath(mavenCoordinates);
+
+        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+        URL resourceURL = classLoader.getResource(Constants.CAMEL_YAML_DSL_ARTIFACT);
+        if (resourceURL == null) {
+            return false;
+        }
+
+        try (InputStream inputStream = resourceURL.openStream()) {
+            try (Scanner scanner = new Scanner(inputStream)) {
+                scanner.useDelimiter("\\A");
+                camelYamlDSLSchema = scanner.hasNext() ? scanner.next() : "";
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.toString(), e);
+            return false;
+        }
+
+        return camelYamlDSLSchema != null;
+    }
+
+    public boolean loadKameletBoundaries() {
+        loadResourcesFromFolderAsString("kamelet-boundaries", kameletBoundaries, ".kamelet.yaml");
+        return !kameletBoundaries.isEmpty();
+    }
+
+    public boolean loadKamelets(String version) {
+        if (version != null) {
+            // If the version is null, we load the installed version
+            MavenCoordinates mavenCoordinates = new MavenCoordinates(Constants.APACHE_CAMEL_KAMELETS_ORG,
+                    Constants.KAMELETS_PACKAGE,
+                    version);
+            loadDependencyInClasspath(mavenCoordinates);
+        }
+
+        loadResourcesFromFolderAsString("kamelets", kamelets, ".kamelet.yaml");
+
+        return !kamelets.isEmpty();
+    }
+
+    public boolean loadKubernetesSchema() {
+        String url = "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/api__v1_openapi.json";
+
+        try (InputStream in = new URI(url).toURL().openStream();
+                Scanner scanner = new Scanner(in, StandardCharsets.UTF_8.name())) {
+            scanner.useDelimiter("\\A");
+            kubernetesSchema = scanner.hasNext() ? scanner.next() : "";
+        } catch (IOException | URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.toString(), e);
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean loadCamelKCRDs(String version) {
+        MavenCoordinates mavenCoordinates = new MavenCoordinates(Constants.APACHE_CAMEL_K_ORG,
+                Constants.CAMEL_K_CRDS_PACKAGE,
+                version);
+        boolean areCamelKCRDsLoaded = loadDependencyInClasspath(mavenCoordinates);
+
+        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+
+        for (String crd : Constants.CAMEL_K_CRDS_ARTIFACTS) {
+            URL resourceURL = classLoader.getResource(crd);
+            if (resourceURL == null) {
+                return false;
+            }
+
+            try (InputStream inputStream = resourceURL.openStream()) {
+                try (Scanner scanner = new Scanner(inputStream)) {
+                    scanner.useDelimiter("\\A");
+                    camelKCRDs.add(scanner.hasNext() ? scanner.next() : "");
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.toString(), e);
+                return false;
+            }
+        }
+
+        return areCamelKCRDsLoaded;
+    }
+
+    public void loadLocalSchemas() {
+        loadResourcesFromFolderAsString("schemas", localSchemas, ".json");
+    }
+
+    private void configureRepositories(String version) {
+        if (KAOTO_VERSION_MANAGER.repositories.get("central") == null)
+            KAOTO_VERSION_MANAGER.addMavenRepository("central", "https://repo1.maven.org/maven2/");
+
+        if (version.contains("redhat") && KAOTO_VERSION_MANAGER.repositories.get("maven.redhat.ga") == null)
+            KAOTO_VERSION_MANAGER.addMavenRepository("maven.redhat.ga", "https://maven.repository.redhat.com/ga/");
+    }
+
+    private void loadResourcesFromFolderAsString(String resourceFolderName, Map<String, String> filesMap,
+            String fileSuffix) {
+        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+
+        try {
+            Iterator<URL> it = classLoader.getResources(resourceFolderName).asIterator();
+
+            while (it.hasNext()) {
+                URL resourceUrl = it.next();
+
+                if ("jar".equals(resourceUrl.getProtocol())) {
+                    JarURLConnection connection = (JarURLConnection) resourceUrl.openConnection();
+                    JarFile jarFile = connection.getJarFile();
+                    Enumeration<JarEntry> entries = jarFile.entries();
+
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        if (entry.getName().startsWith(connection.getEntryName()) && !entry.isDirectory()
+                                && entry.getName().endsWith(fileSuffix)) {
+
+                            if (verbose) {
+                                LOGGER.log(Level.INFO, () -> "Parsing: " + entry.getName());
+                            }
+
+                            try (InputStream inputStream = jarFile.getInputStream(entry)) {
+                                try (Scanner scanner = new Scanner(inputStream)) {
+                                    scanner.useDelimiter("\\A");
+                                    String filenameWithoutExtension = entry.getName()
+                                            .replace(resourceFolderName + "/", "")
+                                            .replace(fileSuffix, "");
+                                    filesMap.put(filenameWithoutExtension, scanner.hasNext() ? scanner.next() : "");
+                                }
+                            } catch (IOException e) {
+                                LOGGER.log(Level.SEVERE, e.toString(), e);
+                            }
+                        }
+                    }
+                } else if ("file".equals(resourceUrl.getProtocol())) {
+                    try (var pathWalker = Files.walk(Paths.get(resourceUrl.toURI()))) {
+                        pathWalker.filter(Files::isRegularFile)
+                                .filter(path -> path.toString().endsWith(fileSuffix))
+                                .forEach(path -> {
+                                    if (verbose) {
+                                        LOGGER.log(Level.INFO, () -> "Parsing: " + path.toString());
+                                    }
+
+                                    try {
+                                        String filenameWithoutExtension = path.toFile().getName().substring(0,
+                                                path.toFile().getName().lastIndexOf('.'));
+                                        filesMap.put(filenameWithoutExtension, new String(Files.readAllBytes(path)));
+                                    } catch (IOException e) {
+                                        LOGGER.log(Level.SEVERE, e.toString(), e);
+                                    }
+                                });
+                    } catch (IOException | URISyntaxException e) {
+                        LOGGER.log(Level.SEVERE, e.toString(), e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.toString(), e);
+        }
+    }
+
+    private MavenCoordinates getCatalogMavenCoordinates(CatalogRuntime runtime, String version) {
+        switch (runtime) {
+            case Quarkus:
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".quarkus", "camel-quarkus-catalog", version);
+            case SpringBoot:
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".springboot",
+                        "camel-catalog-provider-springboot",
+                        version);
+            default:
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG, "camel-catalog", version);
+        }
+    }
+
+    private MavenCoordinates getYamlDslMavenCoordinates(CatalogRuntime runtime, OtherModel yamlDSLModel) {
+        switch (runtime) {
+            case Quarkus:
+                String version = yamlDSLModel.getMetadata().get("camelVersion").toString();
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG, Constants.CAMEL_YAML_DSL_PACKAGE, version);
+            case SpringBoot:
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG, Constants.CAMEL_YAML_DSL_PACKAGE,
+                        yamlDSLModel.getVersion());
+            default:
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG,
+                        Constants.CAMEL_YAML_DSL_PACKAGE,
+                        yamlDSLModel.getVersion());
+        }
+    }
+
+    /*
+     * This method is used to load a dependency in the classpath. This is a
+     * workaround
+     * to load dependencies that are not in the classpath, while the Kamel Catalog
+     * exposes a method to load dependencies in the classpath.
+     */
+    private boolean loadDependencyInClasspath(MavenCoordinates mavenCoordinates) {
+        return camelCatalog.loadRuntimeProviderVersion(mavenCoordinates.getGroupId(), mavenCoordinates.getArtifactId(),
+                mavenCoordinates.getVersion());
+    }
+}
