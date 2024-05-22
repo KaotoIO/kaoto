@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Kamelet configuration",
+  "description": "Schema for Kamelet configuration",
+  "properties": {
+    "name": {
+      "title": "Name",
+      "description": "Name of the kamelet",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "description": "Title of the kamelet",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "description": "Formal description of the kamelet",
+      "type": "string"
+    },
+    "type": {
+      "title": "Kamelet Type",
+      "description": "Select the Kamelet type from the available options",
+      "type": "string",
+      "enum": [
+        "source",
+        "action",
+        "sink"
+      ]
+    },
+    "icon": {
+      "title": "Kamelet Icon",
+      "description": "Choose icon for the kamelet",
+      "type": "string"
+    },
+    "supportLevel": {
+      "title": "Support Level",
+      "description": "Support Level of the kamelet",
+      "type": "string"
+    },
+    "catalogVersion": {
+      "title": "Catalog Version",
+      "description": "Catalog Version of the kamelet",
+      "type": "string"
+    },
+    "provider": {
+      "title": "Provider",
+      "description": "Provider of the kamelet",
+      "type": "string"
+    },
+    "group": {
+      "title": "Group",
+      "description": "Group of the kamelet",
+      "type": "string"
+    },
+    "namespace": {
+      "title": "Namespace",
+      "description": "Namespace of the kamelet",
+      "type": "string"
+    },
+    "labels": {
+      "additionalProperties": {
+        "default": "",
+        "type": "string"
+      },
+      "title": "Additional Labels",
+      "description": "Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels",
+      "type": "object"
+    },
+    "annotations": {
+      "additionalProperties": {
+        "default": "",
+        "type": "string"
+      },
+      "title": "Additional Annotations",
+      "description": "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations",
+      "type": "object"
+    },
+    "kameletProperties": {
+      "title": "Properties",
+      "type": "array",
+      "description": "Configure properties on the Kamelet",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "Property name",
+            "description": "Name of the property",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "description": "Display name of the property",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "description": "Simple text description of the property",
+            "type": "string"
+          },
+          "type": {
+            "title": "Property type",
+            "description": "Set the expected type for this property",
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean"
+            ],
+            "default": "string"
+          },
+          "default": {
+            "title": "Default",
+            "description": "Default value for the property",
+            "type": "string"
+          },
+          "x-descriptors": {
+          "title": "X-descriptors",
+            "description": "Specific aids for the visual tools",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "type"
+  ]
+}
