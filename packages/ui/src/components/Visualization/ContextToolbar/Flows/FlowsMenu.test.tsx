@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { CamelResource, CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/camel/entities';
 import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
@@ -73,14 +73,15 @@ describe('FlowsMenu.tsx', () => {
     });
 
     const flowsList = await wrapper.findByTestId('flows-list-table');
+
     /** Press Escape key to close the menu */
     act(() => {
       fireEvent.focus(flowsList);
       fireEvent.keyDown(flowsList, { key: 'Escape', code: 'Escape', charCode: 27 });
     });
 
-    /** Wait for the List to appear */
-    await act(async () => {
+    /** Wait for the List to disappear */
+    await waitFor(() => {
       expect(flowsList).not.toBeInTheDocument();
     });
   });

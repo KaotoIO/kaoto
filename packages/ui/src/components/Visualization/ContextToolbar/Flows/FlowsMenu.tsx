@@ -1,9 +1,12 @@
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
+import { Truncate } from '@patternfly/react-core';
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+
 import { FlowsList } from './FlowsList';
+import './FlowsMenu.scss';
 
 export const FlowsMenu: FunctionComponent = () => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
@@ -36,8 +39,12 @@ export const FlowsMenu: FunctionComponent = () => {
             <Icon isInline>
               <ListIcon />
             </Icon>
-            <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm">
-              {visibleFlowsInformation().singleFlowId ?? 'Routes'}
+            <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm flows-menu-display">
+              <Truncate
+                content={visibleFlowsInformation().singleFlowId ?? 'Routes'}
+                tooltipPosition="top"
+                className="flows-menu-truncate"
+              />
             </span>
             <Badge data-testid="flows-list-route-count" isRead>
               {visibleFlowsInformation().visibleFlowsCount}/{visibleFlowsInformation().totalFlowsCount}

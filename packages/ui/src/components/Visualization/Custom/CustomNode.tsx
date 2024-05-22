@@ -25,6 +25,7 @@ import { ItemDeleteStep } from './ItemDeleteStep';
 import { ItemDisableStep } from './ItemDisableStep';
 import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
+import { doTruncateLabel } from '../../../utils/truncate-label';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -43,9 +44,8 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
     <DefaultNode
       {...rest}
       element={element}
-      label={label}
+      label={doTruncateLabel(label)}
       labelClassName={clsx('custom-node__label', { 'custom-node__label--disabled': isDisabled })}
-      truncateLength={15}
       showStatusDecorator={!isDisabled}
       statusDecoratorTooltip={statusDecoratorTooltip}
       nodeStatus={nodeStatus}
