@@ -11,6 +11,7 @@ export const DeleteItemButton: FunctionComponent<DeleteItemButtonProps> = ({ ite
   return (
     <Tooltip content={<div>Delete {itemName} from mapping</div>}>
       <Button
+        component="small"
         variant="plain"
         aria-label="Delete ${itemName}"
         data-testid={`delete-${itemName}-button`}

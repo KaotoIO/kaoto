@@ -15,7 +15,7 @@ export const ConstantInput: FunctionComponent<ConstantInputProps> = ({ onSubmit 
   return (
     <InputGroup>
       <InputGroupItem>
-        <TextInput onChange={(_event, value) => setText(value)} value={text} />
+        <TextInput id="input-constant-value" onChange={(_event, value) => setText(value)} value={text} />
       </InputGroupItem>
       <InputGroupItem>
         <Tooltip content={'Add constant'}>

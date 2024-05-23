@@ -20,7 +20,7 @@ export interface IFunctionDefinition {
 }
 
 export interface ITransformationItem {
-  parent: ITransformationItem | ITransformation;
+  parent: ITransformationItem | ITransformation | IFunctionCallArgument;
 }
 
 export interface IForEach extends ITransformationItem {
@@ -32,7 +32,7 @@ export interface IFunctionCallArgumentType extends ITransformationItem {}
 
 export interface IFunctionCallArgument {
   definition: IFunctionArgumentDefinition;
-  arguments: IFunctionCallArgumentType[];
+  values: IFunctionCallArgumentType[];
 }
 
 export interface IFunctionCall extends IFunctionCallArgumentType {

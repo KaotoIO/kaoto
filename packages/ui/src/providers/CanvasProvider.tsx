@@ -75,7 +75,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
         toField,
       );
       if (existing && sourceField) {
-        TransformationService.addSourceField(existing.source, sourceField);
+        TransformationService.addField(existing.source, sourceField);
         refreshMappings();
       } else if (sourceField && targetField) {
         const mapping = MappingService.createNewMapping(sourceField, targetField);

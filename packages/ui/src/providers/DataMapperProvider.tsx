@@ -64,6 +64,10 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     setMappings([...mappings]);
   }, [mappings]);
 
+  const handleSetSelectedMapping = useCallback((mapping: IMapping) => {
+    setSelectedMapping(mapping ? { ...mapping } : null);
+  }, []);
+
   const value = useMemo(() => {
     return {
       loading,
@@ -79,7 +83,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       refreshMappings,
       setMappings,
       selectedMapping,
-      setSelectedMapping,
+      setSelectedMapping: handleSetSelectedMapping,
       debug,
       setDebug,
     };
