@@ -3680,8 +3680,8 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-knobs@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@storybook/addon-knobs@npm:7.0.2"
+  version: 7.1.1
+  resolution: "@storybook/addon-knobs@npm:7.1.1"
   dependencies:
     copy-to-clipboard: ^3.3.3
     core-js: ^3.29.0
@@ -3707,7 +3707,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: a28a61bb18d4c07edd3b031abbc9c81b48cf1c2b7d0707177f383c70f01b1e91d6f364969e42cdb34a7b761bc68e7603b53136c01887e56e24b408eb843d36fe
+  checksum: 8dc51ecdd9bbeedfb4857a546c483956b81b6531e2aae5b9ffeb3eeb955940e870ec93293188cad3a1ad42bd5452e110687127407b68c4a98f815fbf2f8876de
   languageName: node
   linkType: hard
 
