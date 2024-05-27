@@ -3,7 +3,6 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffec
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { LocalStorageKeys } from '../models';
 import { SourceCodeApiContext } from '../providers/source-code.provider';
-import { camelRouteYaml } from '../stubs/camel-route';
 import { EventNotifier } from '../utils/event-notifier';
 import { Navigation } from './Navigation';
 import './Shell.scss';
@@ -24,7 +23,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
    * as we just want to set the initial values
    */
   useEffect(() => {
-    const localSourceCode = localStorage.getItem(LocalStorageKeys.SourceCode) ?? camelRouteYaml;
+    const localSourceCode = localStorage.getItem(LocalStorageKeys.SourceCode) ?? '';
     sourceCodeApiContext.setCodeAndNotify(localSourceCode);
   }, [sourceCodeApiContext]);
 
