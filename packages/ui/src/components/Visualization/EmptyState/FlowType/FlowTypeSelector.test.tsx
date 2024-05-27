@@ -41,7 +41,7 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?:
 describe('FlowTypeSelector.tsx', () => {
   test('component renders', () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = wrapper.queryByTestId('dsl-list-dropdown');
+    const toggle = wrapper.queryByTestId('viz-dsl-list-dropdown');
     expect(toggle).toBeInTheDocument();
   });
 
@@ -70,7 +70,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should toggle list of DSLs', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -90,7 +90,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should show list of DSLs', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -103,7 +103,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should disable a SelectOption if is already selected and does not support multiple flows', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.Pipe} />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -119,7 +119,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should show selected value', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -144,7 +144,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should not have anything selected if "isStatic=true"', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -170,7 +170,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should have selected DSL if provided', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -186,7 +186,7 @@ describe('FlowTypeSelector.tsx', () => {
 
   test('should close Select when pressing ESC', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {

@@ -25,7 +25,7 @@ Cypress.Commands.add('expandVisualization', () => {
 Cypress.Commands.add('openDesignPage', () => {
   cy.expandVisualization();
   cy.get('[data-testid="Design"]').click();
-  cy.get('[data-test-id="topology"]').should('be.visible');
+  cy.get('.pf-topology-container').should('be.visible');
 });
 
 Cypress.Commands.add('openSourceCode', () => {
