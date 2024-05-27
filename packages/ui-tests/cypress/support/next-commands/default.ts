@@ -8,9 +8,9 @@ Cypress.Commands.add('openHomePage', () => {
   cy.get('[data-testid="loading-catalogs"]').should('be.visible');
   cy.get('[data-testid="loading-catalogs"]').should('not.exist');
 
-  cy.get('[data-kind="graph"]').should('exist');
+  cy.get('[data-testid="visualization-empty-state"]').should('exist');
   // Wait for the element to become visible
-  cy.get('[data-kind="graph"]').should('be.visible');
+  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
 });
 
 Cypress.Commands.add('expandVisualization', () => {
