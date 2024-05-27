@@ -54,7 +54,7 @@ describe('NewFlow.tsx', () => {
 
   it('should render all of the types', async () => {
     const wrapper = renderWithContext();
-    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+    const trigger = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -69,7 +69,7 @@ describe('NewFlow.tsx', () => {
 
   it('should warn the user when adding a different type of flow', async () => {
     const wrapper = renderWithContext();
-    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+    const trigger = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
     act(() => {
