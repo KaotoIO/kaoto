@@ -23,7 +23,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
    * as we just want to set the initial values
    */
   useEffect(() => {
-    const localSourceCode = localStorage.getItem(LocalStorageKeys.SourceCode) ?? '';
+    const localSourceCode = localStorage.getItem(LocalStorageKeys.SourceCode) ?? '[]';
     sourceCodeApiContext.setCodeAndNotify(localSourceCode);
   }, [sourceCodeApiContext]);
 
