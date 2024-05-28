@@ -15,6 +15,7 @@ describe('Test for Multi route actions from the canvas', () => {
   it('User shows and hides a route', () => {
     cy.addNewRoute();
     cy.addNewRoute();
+    cy.addNewRoute();
 
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/3');
 
@@ -59,6 +60,7 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.openDesignPage();
     cy.addNewRoute();
     cy.addNewRoute();
+    cy.addNewRoute();
     cy.showAllRoutes();
 
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
@@ -94,7 +96,6 @@ describe('Test for Multi route actions from the canvas', () => {
 
   it('User creates multiple CamelRoute type routes in canvas', () => {
     // Camel Route is set as default type - simply add new routes
-    cy.deleteRoute(0);
     cy.addNewRoute();
     cy.addNewRoute();
     cy.addNewRoute();

@@ -66,7 +66,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
-      data-testid="dsl-list-dropdown"
+      data-testid="viz-dsl-list-dropdown"
       ref={toggleRef}
       onClick={onToggleClick}
       isExpanded={isOpen}
