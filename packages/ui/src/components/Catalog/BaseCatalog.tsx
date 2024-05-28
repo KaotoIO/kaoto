@@ -24,7 +24,7 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
 
   const onSelectDataListItem = useCallback(
     (_event: React.MouseEvent | React.KeyboardEvent, id: string) => {
-      const tile = props.tiles.find((tile) => tile.name === id);
+      const tile = props.tiles.find((tile) => tile.name + '-' + tile.type === id);
       onTileClick(tile!);
     },
     [onTileClick, props.tiles],

@@ -37,7 +37,7 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
     <DataListItem
       aria-labelledby={props.tile.name}
       key={props.tile.name}
-      id={props.tile.name}
+      id={props.tile.name + '-' + props.tile.type}
       className="catalog-data-list-item"
     >
       <DataListItemRow>
