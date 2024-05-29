@@ -66,4 +66,12 @@ export class TransformationService {
       value: value,
     } as ILiteralItem);
   }
+
+  static toExpression(transformation: ITransformation) {
+    return 'TODO';
+  }
+
+  static fromExpression(expression: string) {
+    return {} as ITransformation;
+  }
 }

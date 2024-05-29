@@ -1,5 +1,5 @@
 import { CSSProperties, forwardRef, FunctionComponent, PropsWithChildren } from 'react';
-import { IField } from '../../models';
+import { IField } from '../../models/document';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 
 interface NodeContainerProps extends PropsWithChildren {

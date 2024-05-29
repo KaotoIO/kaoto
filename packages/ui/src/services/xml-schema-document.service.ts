@@ -24,7 +24,7 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField, DocumentType, FieldIdentifier } from '../models';
+import { BaseDocument, BaseField, DocumentType, FieldIdentifier } from '../models/document';
 import { Types } from '../models/types';
 
 export class XmlSchemaDocument extends BaseDocument {

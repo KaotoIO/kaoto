@@ -1,4 +1,4 @@
-import { IDocument, IField, PrimitiveDocument } from '../models';
+import { IDocument, IField, PrimitiveDocument } from '../models/document';
 
 export class DocumentService {
   static getFieldStack(field: IField, includeItself: boolean = false) {

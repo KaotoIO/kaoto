@@ -16,8 +16,9 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
-import { CanvasView, DocumentType, IDocument, IMapping, PrimitiveDocument } from '../models';
-
+import { IMapping } from '../models/mapping';
+import { DocumentType, IDocument, PrimitiveDocument } from '../models/document';
+import { CanvasView } from '../models/view';
 export interface IDataMapperContext {
   loading: boolean;
   activeView: CanvasView;

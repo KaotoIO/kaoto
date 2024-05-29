@@ -11,7 +11,8 @@ import {
 import { FieldSelector } from './FieldSelector';
 import { FunctionSelector } from './FunctionSelector';
 import { ConstantInput } from './ConstantInput';
-import { IField, IFunctionCallArgument, IFunctionDefinition, ITransformation } from '../../../models';
+import { IFunctionCallArgument, IFunctionDefinition, ITransformation } from '../../../models/mapping';
+import { IField } from '../../../models/document';
 import { TransformationService } from '../../../services/transformation.service';
 
 enum TopAction {

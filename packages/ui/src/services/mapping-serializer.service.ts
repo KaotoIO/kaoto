@@ -1,4 +1,5 @@
-import { DocumentType, IDocument, IField, IMapping, PrimitiveDocument } from '../models';
+import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
+import { IMapping, ITransformation } from '../models/mapping';
 import xmlFormat from 'xml-formatter';
 import { DocumentService } from './document.service';
 
@@ -53,7 +54,7 @@ export class MappingSerializerService {
   }
 
   static populateMapping(xsltDocument: Document, mapping: IMapping) {
-    const source = mapping.sourceFields[0];
+    const source = mapping.source;
     const target = mapping.targetFields[0];
 
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
@@ -137,8 +138,8 @@ export class MappingSerializerService {
     }
   }
 
-  static getXPath(xsltDocument: Document, field: IField) {
-    const fieldStack = DocumentService.getFieldStack(field, true);
+  static getXPath(xsltDocument: Document, source: ITransformation) {
+    const fieldStack = DocumentService.getFieldStack(source, true);
     const pathStack: string[] = [];
     while (fieldStack.length) {
       const currentField = fieldStack.pop()!;
@@ -146,8 +147,8 @@ export class MappingSerializerService {
       pathStack.push(prefix ? prefix + ':' + currentField.expression : currentField.expression);
     }
     const paramPrefix =
-      field.ownerDocument.documentType === DocumentType.PARAM ? '$' + field.ownerDocument.documentId : '';
-    return field.ownerDocument instanceof PrimitiveDocument ? paramPrefix : paramPrefix + '/' + pathStack.join('/');
+      source.ownerDocument.documentType === DocumentType.PARAM ? '$' + source.ownerDocument.documentId : '';
+    return source.ownerDocument instanceof PrimitiveDocument ? paramPrefix : paramPrefix + '/' + pathStack.join('/');
   }
 
   static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {

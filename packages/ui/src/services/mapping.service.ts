@@ -1,14 +1,12 @@
 import {
-  DocumentType,
-  IDocument,
-  IField,
   IFieldItem,
   IForEach,
   IFunctionCall,
   IFunctionCallArgumentType,
   IMapping,
   ITransformation,
-} from '../models';
+} from '../models/mapping';
+import { DocumentType, IDocument, IField } from '../models/document';
 import { DocumentService } from './document.service';
 import { TransformationService } from './transformation.service';
 

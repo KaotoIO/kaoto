@@ -12,7 +12,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 import { GripVerticalIcon } from '@patternfly/react-icons';
-import { IDocument, DocumentType, PrimitiveDocument } from '../../models';
+import { IDocument, DocumentType, PrimitiveDocument } from '../../models/document';
 import { DocumentField } from './DocumentField';
 import { useCanvas } from '../../hooks/useCanvas';
 import { AttachSchemaButton } from './AttachSchemaButton';
@@ -131,7 +131,7 @@ const StructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
         </NodeContainer>
         <CardExpandableContent>
           <CardBody>
-            <Accordion isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
               {model.fields.map((field) => (
                 <DocumentField documentType={documentType} field={field} key={field.name} onToggle={handleOnToggle} />
               ))}

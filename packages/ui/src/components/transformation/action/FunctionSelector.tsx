@@ -19,7 +19,7 @@ import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { XPathParserService } from '../../../services/xpath/xpath-parser.service';
 import { FunctionGroup } from '../../../services/xpath/xpath-parser';
-import { IFunctionDefinition } from '../../../models';
+import { IFunctionDefinition } from '../../../models/mapping';
 
 type FunctionOptionProps = SelectOptionProps & {
   functionGroup: string;

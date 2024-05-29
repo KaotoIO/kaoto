@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, memo, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, memo, useContext, useMemo } from 'react';
 import {
   Drawer,
   DrawerContent,
@@ -24,13 +24,12 @@ import {
   PageSection,
   PageSectionVariants,
 } from '@patternfly/react-core';
-import { MappingDetailsDrawerPanel, SourceTargetView } from './views';
+import { SourceTargetView } from './views';
 import { DataMapperContext } from '../providers';
-import { CanvasView } from '../models';
+import { CanvasView } from '../models/view';
 import { ContextToolbar } from './ContextToolbar';
 import { useDataMapper } from '../hooks';
 import './MainLayout.scss';
-import { useCanvas } from '../hooks/useCanvas';
 
 export interface IMainLayoutProps {
   showSidebar: boolean;
@@ -38,26 +37,16 @@ export interface IMainLayoutProps {
 
 export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function MainLayout() {
   const { selectedMapping } = useDataMapper();
-  const [isEditMode, setEditMode] = useState<boolean>(false);
-  const { reloadNodeReferences } = useCanvas();
 
   const { activeView } = useContext(DataMapperContext)!;
   const currentView = useMemo(() => {
     switch (activeView) {
       case CanvasView.SOURCE_TARGET:
-        return <SourceTargetView isSourceOnly={isEditMode} />;
+        return <SourceTargetView />;
       default:
         return <>View {activeView} is not supported</>;
     }
-  }, [activeView, isEditMode]);
-
-  const handleToggleEditMode = useCallback(
-    (isEditMode: boolean) => {
-      setEditMode(isEditMode);
-      setTimeout(() => reloadNodeReferences(), 200);
-    },
-    [reloadNodeReferences],
-  );
+  }, [activeView]);
 
   const header = (
     <Masthead>
@@ -71,10 +60,7 @@ export const MainLayout: FunctionComponent<IMainLayoutProps> = memo(function Mai
     <Page header={header}>
       <PageSection variant={PageSectionVariants.default} className="main-layout">
         <Drawer isExpanded={!!selectedMapping} isInline>
-          <DrawerContent
-            panelContent={<MappingDetailsDrawerPanel onToggleEditMode={handleToggleEditMode} />}
-            className="main-layout__drawer-content"
-          >
+          <DrawerContent panelContent={<></>} className="main-layout__drawer-content">
             <DrawerContentBody className="main-layout__drawer-content-body">{currentView}</DrawerContentBody>
           </DrawerContent>
         </Drawer>
