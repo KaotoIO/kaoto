@@ -1805,7 +1805,7 @@ __metadata:
     "@patternfly/react-table": ^5.1.2
     "@patternfly/react-topology": ^5.1.0
     "@storybook/addon-actions": ^8.0.0
-    "@storybook/addon-knobs": ^7.0.2
+    "@storybook/addon-knobs": ^8.0.0
     "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react": ^15.0.0
     "@types/jest": ^29.5.12
@@ -3679,9 +3679,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-knobs@npm:^7.0.2":
-  version: 7.1.1
-  resolution: "@storybook/addon-knobs@npm:7.1.1"
+"@storybook/addon-knobs@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@storybook/addon-knobs@npm:8.0.0"
   dependencies:
     copy-to-clipboard: ^3.3.3
     core-js: ^3.29.0
@@ -3695,11 +3695,10 @@ __metadata:
     react-lifecycles-compat: ^3.0.4
     react-select: ^5.7.0
   peerDependencies:
-    "@storybook/addons": ^7.0.0
-    "@storybook/api": ^7.0.0
-    "@storybook/components": ^7.0.0
-    "@storybook/core-events": ^7.0.0
-    "@storybook/theming": ^7.0.0
+    "@storybook/api": ^8.0.0
+    "@storybook/components": ^8.0.0
+    "@storybook/core-events": ^8.0.0
+    "@storybook/theming": ^8.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
   peerDependenciesMeta:
@@ -3707,7 +3706,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 8dc51ecdd9bbeedfb4857a546c483956b81b6531e2aae5b9ffeb3eeb955940e870ec93293188cad3a1ad42bd5452e110687127407b68c4a98f815fbf2f8876de
+  checksum: fdebdec1583a7c108030936ef8019a5c9390160d1f6451e9c78d9abdbc30d6f4ffdbfc45f5020229e648bf2bacc8fd9986d16c86433e665122970ddf74c97259
   languageName: node
   linkType: hard
 
