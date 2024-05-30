@@ -3666,16 +3666,16 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-actions@npm:^8.0.0":
-  version: 8.1.3
-  resolution: "@storybook/addon-actions@npm:8.1.3"
+  version: 8.1.5
+  resolution: "@storybook/addon-actions@npm:8.1.5"
   dependencies:
-    "@storybook/core-events": 8.1.3
+    "@storybook/core-events": 8.1.5
     "@storybook/global": ^5.0.0
     "@types/uuid": ^9.0.1
     dequal: ^2.0.2
     polished: ^4.2.2
     uuid: ^9.0.0
-  checksum: a2b29321da92dcbe4c40ed55626acb31de20ab94c792ac64e8fa02711047542ea9ac580a0512faec5fda806cabba61ef90d1c12914d272e317a47f691271c603
+  checksum: bbb38b2695909993ebbc4103a5b15bcba20d6824a10696f60ff8fb0fa3b1d7a0191b6b7fa3af3b1d6d35090c166a8bb8fe9c309b168ec2e02e30b1758b86b9a1
   languageName: node
   linkType: hard
 
@@ -3711,13 +3711,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-events@npm:8.1.3":
-  version: 8.1.3
-  resolution: "@storybook/core-events@npm:8.1.3"
+"@storybook/core-events@npm:8.1.5":
+  version: 8.1.5
+  resolution: "@storybook/core-events@npm:8.1.5"
   dependencies:
     "@storybook/csf": ^0.1.7
     ts-dedent: ^2.0.0
-  checksum: eb33961dab9b214eecfe3da131bea20dd75ca5ac614e5fee45ccf936d37a1713e04e672d18f6d5538369675ea07a0c39bab3435c30a5688a0a5388b6238f1a15
+  checksum: 27007b6b8c6816378a815e74211d17eb686bd1c34701a78f0a024218924de08774d07b47304e222577c557e4bf6c335a6aa4086cd1500f4e297c0e206fef947f
   languageName: node
   linkType: hard
 
