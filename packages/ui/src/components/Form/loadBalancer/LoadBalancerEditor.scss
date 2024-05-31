@@ -1,3 +1,9 @@
-.load-balancer-editor {
-  margin-top: 24px;
+.loadbalancer-metadata-editor {
+  .loadbalancer-metadata-editor-card {
+    margin-bottom: 24px;
+  }
+
+  [data-testid='loadbalancer-config-card'] form {
+    margin-top: 24px;
+  }
 }
