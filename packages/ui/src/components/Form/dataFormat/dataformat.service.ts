@@ -68,7 +68,7 @@ export class DataFormatService {
     }
   }
 
-  private static getDefinitionFromModelName(
+  static getDefinitionFromModelName(
     dataFormatCatalogMap: Record<string, ICamelDataformatDefinition>,
     modelName: string,
   ): ICamelDataformatDefinition | undefined {

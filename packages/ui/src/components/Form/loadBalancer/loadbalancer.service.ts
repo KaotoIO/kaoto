@@ -68,7 +68,7 @@ export class LoadBalancerService {
     }
   }
 
-  private static getDefinitionFromModelName(
+  static getDefinitionFromModelName(
     loadBalancerCatalogMap: Record<string, ICamelLoadBalancerDefinition>,
     modelName: string,
   ): ICamelLoadBalancerDefinition | undefined {
