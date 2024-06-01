@@ -243,6 +243,7 @@ public class CamelCatalogProcessor {
             var processorFQCN = entry.getKey();
             var processorSchema = entry.getValue();
             var processorCatalog = catalogMap.get(processorFQCN);
+            List<String> required = new ArrayList<>();
 
             var camelYamlDslProperties = processorSchema.withObject("/properties").properties().stream().map(Map.Entry::getKey).sorted(
                     new CamelYamlDSLKeysComparator(processorCatalog.getOptions())
@@ -279,6 +280,9 @@ public class CamelCatalogProcessor {
                         && !propertySchema.has("$comment")) {
                     propertySchema.put("$comment", "class:" + catalogOp.getJavaType());
                 }
+                if (catalogOp.isRequired()) {
+                    required.add(propertyName);
+                }
 
                 sortedSchemaProperties.set(propertyName, propertySchema);
             }
@@ -286,6 +290,7 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(processorCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", processorSchema);
+            catalogTree.withObject("/propertiesSchema").set("required", jsonMapper.valueToTree(required));
             processorSchema.set("properties", sortedSchemaProperties);
             answer.set(processorCatalog.getName(), catalogTree);
         }
