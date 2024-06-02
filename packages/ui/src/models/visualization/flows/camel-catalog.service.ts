@@ -79,9 +79,19 @@ export class CamelCatalogService {
     }
 
     if (componentName.startsWith('kamelet:')) {
+      const definition = this.getComponent(CatalogKind.Kamelet, componentName.replace('kamelet:', ''));
+
+      if (definition) {
+        return {
+          catalogKind: CatalogKind.Kamelet,
+          definition,
+        };
+      }
+
+      // If the Kamelet is not found, we fallback to the Kamelet component
       return {
-        catalogKind: CatalogKind.Kamelet,
-        definition: this.getComponent(CatalogKind.Kamelet, componentName.replace('kamelet:', '')),
+        catalogKind: CatalogKind.Component,
+        definition: this.getComponent(CatalogKind.Component, 'kamelet'),
       };
     }
 

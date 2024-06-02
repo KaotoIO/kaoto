@@ -29,6 +29,12 @@ describe('CamelUriHelper', () => {
       { syntax: 'log:loggerName', uri: 'log:myLogger', result: { loggerName: 'myLogger' } },
       { syntax: 'log:loggerName', uri: 'log', result: {} },
       { syntax: 'log', uri: 'log:myLogger', result: {} },
+      {
+        syntax: 'kamelet:templateId/routeId',
+        uri: 'kamelet:MyTemplate/MyRouteId',
+        result: { templateId: 'MyTemplate', routeId: 'MyRouteId' },
+      },
+      { syntax: 'kamelet:templateId/routeId', uri: 'kamelet:MyTemplate', result: { templateId: 'MyTemplate' } },
       { syntax: 'as2:apiName/methodName', uri: 'as2', result: {} },
       {
         syntax: 'activemq:destinationType:destinationName',
@@ -142,6 +148,18 @@ describe('CamelUriHelper', () => {
 
   describe('getUriStringFromParameters', () => {
     it.each([
+      {
+        uri: 'kamelet:MyTemplate/MyRouteId',
+        syntax: 'kamelet:templateId/routeId',
+        parameters: { templateId: 'MyTemplate', routeId: 'MyRouteId' },
+        result: { uri: 'kamelet:MyTemplate/MyRouteId', parameters: {} },
+      },
+      {
+        uri: 'kamelet:MyTemplate',
+        syntax: 'kamelet:templateId/routeId',
+        parameters: { templateId: 'MyTemplate' },
+        result: { uri: 'kamelet:MyTemplate', parameters: {} },
+      },
       { uri: 'log', syntax: 'log', parameters: {}, result: { uri: 'log', parameters: {} } },
       {
         uri: 'timer',
