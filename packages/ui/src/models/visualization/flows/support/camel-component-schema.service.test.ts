@@ -393,7 +393,7 @@ describe('CamelComponentSchemaService', () => {
       };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
 
-      expect(actualContent).toEqual('kamelet:xyz');
+      expect(actualContent).toEqual('To call Kamelets');
     });
 
     it('should return the processor schema description', () => {

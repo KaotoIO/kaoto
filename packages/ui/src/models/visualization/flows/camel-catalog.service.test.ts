@@ -130,5 +130,19 @@ describe('CamelCatalogService', () => {
         definition: (kameletCatalogMap as Record<string, unknown>)['chuck-norris-source'],
       });
     });
+
+    it('should return the kamelet component for unknown kamelets', () => {
+      CamelCatalogService.setCatalogKey(
+        CatalogKind.Kamelet,
+        kameletCatalogMap as unknown as Record<string, IKameletDefinition>,
+      );
+
+      const lookup = CamelCatalogService.getCatalogLookup('kamelet:non-existing-kamelet');
+
+      expect(lookup).toEqual({
+        catalogKind: CatalogKind.Component,
+        definition: (componentCatalogMap as Record<string, unknown>).kamelet,
+      });
+    });
   });
 });
