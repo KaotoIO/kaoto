@@ -28,8 +28,8 @@ type DeleteSchemaProps = {
 
 export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
   const {
-    mappings,
-    setMappings,
+    mappingTree,
+    setMappingTree,
     sourceParameterMap,
     refreshSourceParameters,
     setSourceBodyDocument,
@@ -38,8 +38,8 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const cleanedMappings = MappingService.removeAllMappingsForDocument(mappings, documentType, documentId);
-    setMappings(cleanedMappings);
+    const cleanedMappings = MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId);
+    setMappingTree(cleanedMappings);
     const primitiveDoc = new PrimitiveDocument(documentType, documentId);
     switch (documentType) {
       case DocumentType.SOURCE_BODY:
@@ -58,8 +58,8 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
     closeModal,
     documentId,
     documentType,
-    mappings,
-    setMappings,
+    mappingTree,
+    setMappingTree,
     refreshSourceParameters,
     setSourceBodyDocument,
     setTargetBodyDocument,

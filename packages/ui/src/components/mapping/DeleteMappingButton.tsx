@@ -10,18 +10,18 @@ type DeleteMappingButtonProps = {
 };
 
 export const DeleteMappingButton: FunctionComponent<DeleteMappingButtonProps> = ({ mapping, onDelete }) => {
-  const { mappings, refreshMappings } = useDataMapper();
+  const { mappingTree, refreshMappingTree } = useDataMapper();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const index = mappings.indexOf(mapping);
+    const index = mappingTree.indexOf(mapping);
     if (index > -1) {
-      mappings.splice(index, 1);
-      refreshMappings();
+      mappingTree.splice(index, 1);
+      refreshMappingTree();
       closeModal();
       onDelete();
     }
-  }, [closeModal, mapping, mappings, onDelete, refreshMappings]);
+  }, [closeModal, mapping, mappingTree, onDelete, refreshMappingTree]);
 
   return (
     <>

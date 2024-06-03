@@ -11,15 +11,15 @@ import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructi
 export const ExportMappingFileDropdownItem: FunctionComponent<{
   onComplete: () => void;
 }> = ({ onComplete }) => {
-  const { mappings, sourceParameterMap } = useDataMapper();
+  const { mappingTree, sourceParameterMap } = useDataMapper();
   const [isModalOpen, setIsModalOpen] = useState<boolean>();
   const [serializedMappings, setSerializedMappings] = useState<string>();
 
   const handleMenuClick = useCallback(() => {
-    const serialized = MappingSerializerService.serialize(mappings, sourceParameterMap);
+    const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
     setSerializedMappings(serialized);
     setIsModalOpen(true);
-  }, [mappings, sourceParameterMap]);
+  }, [mappingTree, sourceParameterMap]);
 
   const handleModalClose = useCallback(() => {
     setSerializedMappings('');

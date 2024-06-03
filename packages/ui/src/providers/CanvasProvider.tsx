@@ -21,9 +21,8 @@ import {
 } from '@dnd-kit/core';
 import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { IField } from '../models';
-import { MappingService } from '../services/mapping.service';
-import { TransformationService } from '../services/transformation.service';
+import { MappingTreeItem } from '../models/mapping';
+import { DnDHandler } from './dnd/DnDHandler';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -35,12 +34,15 @@ export interface ICanvasContext {
   getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
   getAllNodePaths: () => string[];
+  getActiveHandler: () => DnDHandler | undefined;
+  setActiveHandler: (handler: DnDHandler | undefined) => void;
 }
 
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
 
 export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { mappings, refreshMappings } = useDataMapper();
+  const { mappingTree, refreshMappingTree } = useDataMapper();
+  const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>(undefined);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -56,35 +58,25 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
-  const [activeData, setActiveData] = useState<DataRef<IField> | null>(null);
+  const [activeData, setActiveData] = useState<DataRef<MappingTreeItem> | null>(null);
   const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
     new Map<string, MutableRefObject<NodeReference>>(),
   );
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveData(event.active.data as DataRef<IField>);
-  }, []);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      activeHandler && activeHandler.handleDragStart(event);
+      setActiveData(event.active.data as DataRef<MappingTreeItem>);
+    },
+    [activeHandler],
+  );
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const fromField = event.active.data.current as IField;
-      const toField = event.over?.data.current as IField;
-      const { existing, sourceField, targetField } = MappingService.validateNewFieldPairForMapping(
-        mappings,
-        fromField,
-        toField,
-      );
-      if (existing && sourceField) {
-        TransformationService.addField(existing.source, sourceField);
-        refreshMappings();
-      } else if (sourceField && targetField) {
-        const mapping = MappingService.createNewMapping(sourceField, targetField);
-        mappings.push(mapping);
-        refreshMappings();
-      }
+      activeHandler && activeHandler.handleDragEnd(event, mappingTree, refreshMappingTree);
       setActiveData(null);
     },
-    [mappings, refreshMappings],
+    [activeHandler, mappingTree, refreshMappingTree],
   );
 
   const setNodeReference = useCallback(
@@ -115,8 +107,10 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
       getNodeReference,
       reloadNodeReferences,
       getAllNodePaths,
+      getActiveHandler: () => activeHandler,
+      setActiveHandler,
     };
-  }, [setNodeReference, getNodeReference, reloadNodeReferences, getAllNodePaths]);
+  }, [setNodeReference, getNodeReference, reloadNodeReferences, getAllNodePaths, activeHandler]);
 
   return (
     <CanvasContext.Provider value={value}>

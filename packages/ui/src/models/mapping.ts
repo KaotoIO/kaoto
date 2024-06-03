@@ -1,5 +1,6 @@
 import { IField } from './document';
 import { Types } from './types';
+import { generateRandomId } from '../util';
 
 export interface IFunctionArgumentDefinition {
   name: string;
@@ -44,10 +45,6 @@ export interface IFieldItem extends IFunctionCallArgumentType {
   field: IField;
 }
 
-export interface ILiteralItem extends IFunctionCallArgumentType {
-  value: string | number;
-}
-
 export interface ITransformation {
   elements: ITransformationItem[];
 }
@@ -57,4 +54,46 @@ export interface IMapping {
   name: string;
   source: ITransformation;
   targetFields: IField[];
+}
+
+export abstract class MappingTreeItem {
+  id: string = generateRandomId('item');
+  children: MappingTreeItem[] = [];
+}
+
+export class FieldItem extends MappingTreeItem {
+  field?: IField;
+}
+
+export class Expression {
+  expression: string = '';
+}
+
+export class Predicate extends Expression {}
+
+export class IfItem extends MappingTreeItem {
+  test?: Predicate;
+}
+
+export class ChooseItem extends MappingTreeItem {
+  when: WhenItem[] = [];
+  otherwise?: OtherwiseItem;
+}
+
+export class WhenItem extends MappingTreeItem {
+  test?: Predicate;
+}
+
+export class OtherwiseItem extends MappingTreeItem {}
+
+export class ForEachItem extends MappingTreeItem {
+  select?: Expression;
+}
+
+export class ValueSelector extends MappingTreeItem {
+  select?: Expression;
+}
+
+export class MappingTree {
+  root?: MappingTreeItem;
 }

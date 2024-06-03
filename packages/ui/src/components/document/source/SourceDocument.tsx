@@ -12,15 +12,15 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 import { GripVerticalIcon } from '@patternfly/react-icons';
-import { IDocument, DocumentType, PrimitiveDocument } from '../../models/document';
-import { DocumentField } from './DocumentField';
-import { useCanvas } from '../../hooks/useCanvas';
-import { AttachSchemaButton } from './AttachSchemaButton';
-import { DetachSchemaButton } from './DetachSchemaButton';
-import { DeleteParameterButton } from './DeleteParameterButton';
-import { NodeContainer } from './NodeContainer';
-import { NodeReference } from '../../providers/CanvasProvider';
-import './Document.scss';
+import { IDocument, DocumentType, PrimitiveDocument } from '../../../models/document';
+import { SourceDocumentField } from './SourceDocumentField';
+import { useCanvas } from '../../../hooks/useCanvas';
+import { AttachSchemaButton } from '../AttachSchemaButton';
+import { DetachSchemaButton } from '../DetachSchemaButton';
+import { DeleteParameterButton } from '../DeleteParameterButton';
+import { NodeContainer } from '../NodeContainer';
+import { NodeReference } from '../../../providers/CanvasProvider';
+import '../Document.scss';
 
 export type DocumentProps = {
   documentType: DocumentType;
@@ -31,7 +31,7 @@ type DocumentImplProps = DocumentProps & {
   nodeId: string;
 };
 
-const PrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
+const SourcePrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   ({ documentType, model, nodeId }, forwardedRef) => {
     const ref = useRef<HTMLDivElement>(null);
     useImperativeHandle(forwardedRef, () => ({
@@ -77,7 +77,7 @@ const PrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   },
 );
 
-const StructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
+const SourceStructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   ({ documentType, model, nodeId }, forwardedRef) => {
     const { reloadNodeReferences } = useCanvas();
     const [isExpanded, setExpanded] = useState<boolean>(true);
@@ -133,7 +133,12 @@ const StructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
           <CardBody>
             <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
               {model.fields.map((field) => (
-                <DocumentField documentType={documentType} field={field} key={field.name} onToggle={handleOnToggle} />
+                <SourceDocumentField
+                  documentType={documentType}
+                  field={field}
+                  key={field.name}
+                  onToggle={handleOnToggle}
+                />
               ))}
             </Accordion>
           </CardBody>
@@ -143,7 +148,7 @@ const StructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
   },
 );
 
-export const Document: FunctionComponent<DocumentProps> = ({ documentType, model }) => {
+export const SourceDocument: FunctionComponent<DocumentProps> = ({ documentType, model }) => {
   const { getNodeReference, setNodeReference } = useCanvas();
   const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
   const fieldRefId = model.fieldIdentifier.toString();
@@ -152,8 +157,8 @@ export const Document: FunctionComponent<DocumentProps> = ({ documentType, model
   const nodeId = useMemo(() => model.documentId + '-' + Math.floor(Math.random() * 10000), [model.documentId]);
 
   return model instanceof PrimitiveDocument ? (
-    <PrimitiveDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
+    <SourcePrimitiveDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
   ) : (
-    <StructuredDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
+    <SourceStructuredDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
   );
 };

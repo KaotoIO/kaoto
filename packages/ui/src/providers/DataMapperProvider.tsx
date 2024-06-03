@@ -16,7 +16,7 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
-import { IMapping } from '../models/mapping';
+import { IMapping, MappingTree } from '../models/mapping';
 import { DocumentType, IDocument, PrimitiveDocument } from '../models/document';
 import { CanvasView } from '../models/view';
 export interface IDataMapperContext {
@@ -31,9 +31,9 @@ export interface IDataMapperContext {
   targetBodyDocument: IDocument;
   setTargetBodyDocument: (doc: IDocument) => void;
 
-  mappings: IMapping[];
-  refreshMappings(): void;
-  setMappings(mappings: IMapping[]): void;
+  mappingTree: MappingTree;
+  refreshMappingTree(): void;
+  setMappingTree(mappings: MappingTree): void;
   selectedMapping: IMapping | null;
   setSelectedMapping(mapping: IMapping | null): void;
 
@@ -53,7 +53,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
     new PrimitiveDocument(DocumentType.TARGET_BODY, 'Body'),
   );
-  const [mappings, setMappings] = useState<IMapping[]>([]);
+  const [mappingTree, setMappingTree] = useState<MappingTree>(new MappingTree());
   const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
   const [debug, setDebug] = useState<boolean>(false);
 
@@ -61,9 +61,11 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     setSourceParameterMap(new Map(sourceParameterMap));
   }, [sourceParameterMap]);
 
-  const refreshMappings = useCallback(() => {
-    setMappings([...mappings]);
-  }, [mappings]);
+  const refreshMappingTree = useCallback(() => {
+    const newMapping = new MappingTree();
+    newMapping.root = mappingTree.root;
+    setMappingTree(newMapping);
+  }, [mappingTree]);
 
   const handleSetSelectedMapping = useCallback((mapping: IMapping) => {
     setSelectedMapping(mapping ? { ...mapping } : null);
@@ -80,9 +82,9 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       setSourceBodyDocument,
       targetBodyDocument,
       setTargetBodyDocument,
-      mappings,
-      refreshMappings,
-      setMappings,
+      mappingTree,
+      refreshMappingTree,
+      setMappingTree,
       selectedMapping,
       setSelectedMapping: handleSetSelectedMapping,
       debug,
@@ -92,8 +94,8 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     activeView,
     refreshSourceParameters,
     loading,
-    mappings,
-    refreshMappings,
+    mappingTree,
+    refreshMappingTree,
     selectedMapping,
     sourceParameterMap,
     sourceBodyDocument,

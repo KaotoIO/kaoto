@@ -10,18 +10,23 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { useDataMapper } from '../../hooks';
-import { Document } from '../../components/document';
+import { SourceDocument } from '../../components/document';
 import { MappingLinksContainer } from '../../components/mapping/MappingLink';
 import { DocumentType } from '../../models/document';
 import './SourceTargetView.scss';
 import { useCanvas } from '../../hooks/useCanvas';
 import { SourcePanel } from './SourcePanel';
+import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
-  const { reloadNodeReferences } = useCanvas();
+  const { reloadNodeReferences, setActiveHandler } = useCanvas();
+
+  useEffect(() => {
+    setActiveHandler(new SourceTargetDnDHandler());
+  }, [setActiveHandler]);
 
   return (
     <Split className="source-target-view">
@@ -40,7 +45,7 @@ export const SourceTargetView: FunctionComponent = () => {
           <PanelMain onScroll={reloadNodeReferences} maxHeight="90%">
             <Stack className="source-target-view__target-panel-main">
               <StackItem>
-                <Document documentType={DocumentType.TARGET_BODY} model={targetBodyDocument} />
+                <SourceDocument documentType={DocumentType.TARGET_BODY} model={targetBodyDocument} />
               </StackItem>
             </Stack>
           </PanelMain>

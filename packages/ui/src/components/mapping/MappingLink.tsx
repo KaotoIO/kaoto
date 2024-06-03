@@ -1,6 +1,5 @@
 import { FunctionComponent, MutableRefObject, useCallback, useEffect, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
-import { IMapping } from '../../models';
 import { useDataMapper } from '../../hooks';
 import { NodeReference } from '../../providers/CanvasProvider';
 import { MappingService } from '../../services/mapping.service';
@@ -13,14 +12,14 @@ type LineCoord = {
 };
 
 type LineProps = LineCoord & {
-  mapping: IMapping;
+  sourceTreePath: string;
+  targetTreePath: string;
 };
 
-const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) => {
-  const { selectedMapping, setSelectedMapping } = useDataMapper();
+const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceTreePath, targetTreePath }) => {
   const [isOver, setIsOver] = useState<boolean>(false);
   const lineStyle = {
-    stroke: mapping === selectedMapping ? 'blue' : 'gray',
+    stroke: 'gray',
     strokeWidth: isOver ? 6 : 3,
   };
 
@@ -34,46 +33,38 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, mapping }) 
 
   return (
     <path
-      onClick={() => setSelectedMapping(mapping)}
+      onClick={() => {}}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       d={`M${x1},${y1},${x2},${y2}`}
       style={lineStyle}
     >
       <title>
-        Source: {JSON.stringify(MappingService.extractSourceFields(mapping.source).map((f) => f.fieldIdentifier))},
-        Target: {JSON.stringify(mapping.targetFields.map((f) => f.fieldIdentifier))}
+        Source: {sourceTreePath}, Target: {targetTreePath}
       </title>
     </path>
   );
 };
 
 export const MappingLinksContainer: FunctionComponent = () => {
-  const { mappings, selectedMapping } = useDataMapper();
-  const [linePropsList, setLinePropsList] = useState<LineProps[]>([]);
+  const { mappingTree, selectedMapping } = useDataMapper();
+  const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
 
-  const populateCoordFromFieldRef = useCallback(
-    (
-      coords: LineProps[],
-      mapping: IMapping,
-      sourceRef: MutableRefObject<NodeReference>,
-      targetRef: MutableRefObject<NodeReference>,
-    ) => {
+  const getCoordFromFieldRef = useCallback(
+    (sourceRef: MutableRefObject<NodeReference>, targetRef: MutableRefObject<NodeReference>) => {
       const sourceRect = sourceRef.current?.headerRef?.getBoundingClientRect();
       const targetRect = targetRef.current?.headerRef?.getBoundingClientRect();
       if (!sourceRect || !targetRect) {
         return;
       }
 
-      const lineProps = {
+      return {
         x1: sourceRect.right,
         y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2,
         x2: targetRect.left,
         y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2,
-        mapping,
       };
-      coords.push(lineProps);
     },
     [],
   );
@@ -108,24 +99,24 @@ export const MappingLinksContainer: FunctionComponent = () => {
   );
 
   const refreshLinks = useCallback(() => {
-    const answer: LineProps[] = mappings.reduce((acc, mapping) => {
-      for (const sourceField of MappingService.extractSourceFields(mapping.source)) {
-        for (const targetField of mapping.targetFields) {
-          const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
-          const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());
-          if (sourceClosestPath && targetClosestPath) {
-            const sourceFieldRef = getNodeReference(sourceClosestPath);
-            const targetFieldRef = getNodeReference(targetClosestPath);
-            !!sourceFieldRef &&
-              !!targetFieldRef &&
-              populateCoordFromFieldRef(acc, mapping, sourceFieldRef, targetFieldRef);
+    const answer: LineProps[] = MappingService.extractMappingLinks(mappingTree).reduce(
+      (acc, { sourceTreePath, targetTreePath }) => {
+        const sourceClosestPath = getClosestExpandedPath(sourceTreePath);
+        const targetClosestPath = getClosestExpandedPath(targetTreePath);
+        if (sourceClosestPath && targetClosestPath) {
+          const sourceFieldRef = getNodeReference(sourceClosestPath);
+          const targetFieldRef = getNodeReference(targetClosestPath);
+          if (sourceFieldRef && !!targetFieldRef) {
+            const coord = getCoordFromFieldRef(sourceFieldRef, targetFieldRef);
+            if (coord) acc.push({ ...coord, sourceTreePath, targetTreePath });
           }
         }
-      }
-      return acc;
-    }, [] as LineProps[]);
-    setLinePropsList(answer);
-  }, [getClosestExpandedPath, getNodeReference, mappings, populateCoordFromFieldRef]);
+        return acc;
+      },
+      [] as LineProps[],
+    );
+    setLineCoordList(answer);
+  }, [getClosestExpandedPath, getNodeReference, mappingTree, getCoordFromFieldRef]);
 
   useEffect(() => {
     refreshLinks();
@@ -148,14 +139,15 @@ export const MappingLinksContainer: FunctionComponent = () => {
       }}
     >
       <g z={0}>
-        {linePropsList.map((lineProps, index) => (
+        {lineCoordList.map((lineProps, index) => (
           <MappingLink
             key={index}
             x1={lineProps.x1}
             y1={lineProps.y1}
             x2={lineProps.x2}
             y2={lineProps.y2}
-            mapping={lineProps.mapping}
+            sourceTreePath={lineProps.sourceTreePath}
+            targetTreePath={lineProps.targetTreePath}
           />
         ))}
       </g>

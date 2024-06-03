@@ -36,8 +36,8 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   hasSchema = false,
 }) => {
   const {
-    mappings,
-    setMappings,
+    mappingTree,
+    setMappingTree,
     sourceParameterMap,
     refreshSourceParameters,
     setSourceBodyDocument,
@@ -53,11 +53,11 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       readFileAsString(file).then((content) => {
         const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
         if (hasSchema) {
-          const cleaned = MappingService.removeStaleMappingsForDocument(mappings, document);
-          setMappings(cleaned);
+          const cleaned = MappingService.removeStaleMappingsForDocument(mappingTree, document);
+          setMappingTree(cleaned);
         } else {
-          const cleaned = MappingService.removeAllMappingsForDocument(mappings, documentType, documentId);
-          setMappings(cleaned);
+          const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId);
+          setMappingTree(cleaned);
         }
         switch (documentType) {
           case DocumentType.SOURCE_BODY:
@@ -77,9 +77,9 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       documentId,
       documentType,
       hasSchema,
-      mappings,
+      mappingTree,
       refreshSourceParameters,
-      setMappings,
+      setMappingTree,
       setSourceBodyDocument,
       setTargetBodyDocument,
       sourceParameterMap,

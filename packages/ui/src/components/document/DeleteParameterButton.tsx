@@ -10,16 +10,16 @@ type DeleteParameterProps = {
 };
 
 export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({ parameterName }) => {
-  const { mappings, setMappings, sourceParameterMap, refreshSourceParameters } = useDataMapper();
+  const { mappingTree, setMappingTree, sourceParameterMap, refreshSourceParameters } = useDataMapper();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const cleaned = MappingService.removeAllMappingsForDocument(mappings, DocumentType.PARAM, parameterName);
-    setMappings(cleaned);
+    const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterName);
+    setMappingTree(cleaned);
     sourceParameterMap.delete(parameterName);
     refreshSourceParameters();
     closeModal();
-  }, [closeModal, mappings, parameterName, refreshSourceParameters, setMappings, sourceParameterMap]);
+  }, [closeModal, mappingTree, parameterName, refreshSourceParameters, setMappingTree, sourceParameterMap]);
 
   return (
     <>

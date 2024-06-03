@@ -4,7 +4,7 @@ import {
   IFunctionCall,
   IFunctionCallArgumentType,
   IMapping,
-  ITransformation,
+  ITransformation, MappingTree, MappingTreeItem,
 } from '../models/mapping';
 import { DocumentType, IDocument, IField } from '../models/document';
 import { DocumentService } from './document.service';
@@ -138,4 +138,24 @@ export class MappingService {
       }, [] as IMapping[]);
     }
   }
+
+  static wrapWithIf() {
+    alert('TODO');
+  }
+
+  static wrapWithChoose() {
+    alert('TODO');
+  }
+
+  static extractMappingLinks(mappings: MappingTree): {sourceTreePath: string, targetTreePath: string }[] {
+    mappings.root && mappings.root.reduce((acc, mapping) => {
+      for (const sourceField of MappingService.extractSourceFields(mapping.source)) {
+        for (const targetField of mapping.targetFields) {
+          const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
+          const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());
+
+        }
+      }
+    }, []);
+    return [{source, target}];
 }

@@ -27,10 +27,10 @@ type TransformationEditorProps = {
 };
 
 export const TransformationEditor: FunctionComponent<TransformationEditorProps> = ({ mapping }) => {
-  const { refreshMappings } = useDataMapper();
+  const { refreshMappingTree } = useDataMapper();
   const transformation = mapping?.source;
   const transformationExpression = TransformationService.toExpression(transformation);
-  const handleUpdate = useCallback(() => refreshMappings(), [refreshMappings]);
+  const handleUpdate = useCallback(() => refreshMappingTree(), [refreshMappingTree]);
   const handleExpressionChange = useCallback(
     (expression?: string) => {
       if (expression) {

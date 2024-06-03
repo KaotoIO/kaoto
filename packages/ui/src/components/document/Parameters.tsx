@@ -16,7 +16,7 @@ import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDataMapper, useToggle } from '../../hooks';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { DocumentType, PrimitiveDocument } from '../../models/document';
-import { Document } from './Document';
+import { SourceDocument } from './source/SourceDocument';
 import { useCanvas } from '../../hooks/useCanvas';
 import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/CanvasProvider';
@@ -159,7 +159,7 @@ export const Parameters: FunctionComponent = () => {
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
               <StackItem key={documentId}>
-                <Document documentType={DocumentType.PARAM} model={doc} />
+                <SourceDocument documentType={DocumentType.PARAM} model={doc} />
               </StackItem>
             ))}
           </Stack>
