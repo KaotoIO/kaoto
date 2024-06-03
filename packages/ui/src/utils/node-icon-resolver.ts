@@ -105,6 +105,7 @@ import servicenow from '../assets/components/servicenow.svg';
 import servlet from '../assets/components/servlet.png';
 import sftp from '../assets/components/sftp.svg';
 import slack from '../assets/components/slack.svg';
+import smooks from '../assets/components/smooks.png';
 import snmp from '../assets/components/snmp.png';
 import spring from '../assets/components/spring.svg';
 import splunk from '../assets/components/splunk.png';
@@ -532,6 +533,8 @@ export class NodeIconResolver {
         return generic_component;
       case 'slack':
         return slack;
+      case 'smooks':
+        return smooks;
       case 'smpp':
       case 'smpps':
         return generic_component;
