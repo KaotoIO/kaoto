@@ -2443,7 +2443,7 @@ __metadata:
     eslint-plugin-react-refresh: ^0.4.3
     eslint-plugin-storybook: ^0.8.0
     msw: ^2.0.2
-    msw-storybook-addon: ^1.10.0
+    msw-storybook-addon: ^2.0.0
     prettier: ^3.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -14662,14 +14662,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw-storybook-addon@npm:^1.10.0":
-  version: 1.10.0
-  resolution: "msw-storybook-addon@npm:1.10.0"
+"msw-storybook-addon@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "msw-storybook-addon@npm:2.0.2"
   dependencies:
     is-node-process: ^1.0.1
   peerDependencies:
-    msw: ">=0.35.0 <2.0.0"
-  checksum: d139c54bd18e4352caff1c087897d7bb5818d03aab89d147bc6f06a766988c97108420a7fa9ddc1509d8fd9c00579f8222adec184b5a82746be6de6e28508a4c
+    msw: ^2.0.0
+  checksum: 9097cac0a47c56a5d85537622152fe0a25ede6f4320f62c0f8a63ffc5c38af0d218905645f60001f5f1e13da467a39392edeefd5ccd202797d226ff995f676f4
   languageName: node
   linkType: hard
 
