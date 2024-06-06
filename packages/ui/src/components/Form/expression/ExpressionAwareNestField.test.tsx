@@ -1,11 +1,12 @@
-import { SchemaService } from '../schema.service';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AutoForm } from 'uniforms';
+import { CamelCatalogService, CatalogKind } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { SchemaService } from '../schema.service';
 import { ExpressionAwareNestField } from './ExpressionAwareNestField';
 
 describe('ExpressionAwareNestField', () => {
@@ -33,13 +34,8 @@ describe('ExpressionAwareNestField', () => {
   const schemaBridge = schemaService.getSchemaBridge(mockSchema);
 
   beforeAll(async () => {
-    const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (languageCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Language,
-      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
   });
 
   it('should render with a modal closed, open by click, then close by cancel button', () => {

@@ -1,6 +1,5 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { PropsWithChildren, useContext, useEffect } from 'react';
-import { act } from 'react-dom/test-utils';
 import { camelRouteYaml } from '../stubs/camel-route';
 import { EventNotifier } from '../utils';
 import { SourceCodeApiContext, SourceCodeContext, SourceCodeProvider } from './source-code.provider';

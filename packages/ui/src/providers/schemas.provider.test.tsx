@@ -1,5 +1,7 @@
-import catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
+import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { SchemasLoaderProvider } from './schemas.provider';
 
@@ -8,6 +10,12 @@ describe('SchemasLoaderProvider', () => {
   let getSchemasFilesMock: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
+  let catalogDefinition: CatalogDefinition;
+  const [catalogLibraryEntry] = catalogLibrary.definitions;
+
+  beforeAll(async () => {
+    catalogDefinition = (await import(`@kaoto/camel-catalog/${catalogLibraryEntry.fileName}`)).default;
+  });
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
@@ -15,7 +23,7 @@ describe('SchemasLoaderProvider', () => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
-            json: () => catalogIndex,
+            json: () => catalogDefinition,
             url: `http://localhost/${file}`,
           } as unknown as Response);
         };
@@ -34,11 +42,14 @@ describe('SchemasLoaderProvider', () => {
   });
 
   it('should start in loading mode', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="schemas-loaded">Loaded</span>
-        </SchemasLoaderProvider>,
+        <Provider>
+          <SchemasLoaderProvider>
+            <span data-testid="schemas-loaded">Loaded</span>
+          </SchemasLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -47,11 +58,14 @@ describe('SchemasLoaderProvider', () => {
 
   it('should stay in loading mode when there is an error', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="schemas-loaded">Loaded</span>
-        </SchemasLoaderProvider>,
+        <Provider>
+          <SchemasLoaderProvider>
+            <span data-testid="schemas-loaded">Loaded</span>
+          </SchemasLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -63,11 +77,14 @@ describe('SchemasLoaderProvider', () => {
   });
 
   it('should fetch the index.json catalog file', async () => {
+    const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="schemas-loaded">Loaded</span>
-        </SchemasLoaderProvider>,
+        <Provider>
+          <SchemasLoaderProvider>
+            <span data-testid="schemas-loaded">Loaded</span>
+          </SchemasLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -75,15 +92,18 @@ describe('SchemasLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/index.json`);
+    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`);
   });
 
   it('should fetch the subsequent schemas files', async () => {
+    const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="schemas-loaded">Loaded</span>
-        </SchemasLoaderProvider>,
+        <Provider>
+          <SchemasLoaderProvider>
+            <span data-testid="schemas-loaded">Loaded</span>
+          </SchemasLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -91,6 +111,9 @@ describe('SchemasLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(getSchemasFilesMock).toHaveBeenCalledWith(CatalogSchemaLoader.DEFAULT_CATALOG_PATH, catalogIndex.schemas);
+    expect(getSchemasFilesMock).toHaveBeenCalledWith(
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`,
+      catalogDefinition.schemas,
+    );
   });
 });

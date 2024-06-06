@@ -1,7 +1,8 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { Pipe } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import { pipeJson } from '../../../stubs/pipe';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
@@ -13,13 +14,14 @@ import { KameletSchemaService } from './support/kamelet-schema.service';
 describe('Pipe', () => {
   let pipeCR: Pipe;
   let pipeVisualEntity: PipeVisualEntity;
-  let kameletCatalogMap: Record<string, unknown>;
+  let kameletCatalogMap: Record<string, IKameletDefinition>;
 
   beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
     pipeVisualEntity = new PipeVisualEntity(pipeCR);
-    kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap as Record<string, IKameletDefinition>);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
   });
 
   describe('id', () => {

@@ -1,13 +1,15 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { camelFromJson } from '../../../stubs/camel-from';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../utils';
 import { SourceSchemaType } from '../../camel';
+import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../kamelets-catalog';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { KameletVisualEntity } from './kamelet-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
-import { CatalogKind } from '../../catalog-kind';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { KameletVisualEntity } from './kamelet-visual-entity';
 
 describe('KameletVisualEntity', () => {
   let kameletDef: IKameletDefinition;
@@ -83,13 +85,11 @@ describe('KameletVisualEntity', () => {
   });
 
   describe('getComponentSchema when querying the ROOT_PATH', () => {
-    let entityCatalogMap: Record<string, unknown>;
+    let entityCatalogMap: Record<string, ICamelProcessorDefinition>;
     beforeEach(async () => {
-      entityCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
-      CamelCatalogService.setCatalogKey(
-        CatalogKind.Entity,
-        entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
-      );
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      entityCatalogMap = catalogsMap.entitiesCatalog;
+      CamelCatalogService.setCatalogKey(CatalogKind.Entity, entityCatalogMap);
     });
 
     afterEach(() => {
@@ -99,8 +99,7 @@ describe('KameletVisualEntity', () => {
     it('should return the kamelet root schema when querying the ROOT_PATH', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
       expect(kamelet.getComponentSchema(ROOT_PATH)?.schema).toEqual(
-        ((entityCatalogMap as Record<string, unknown>).KameletConfiguration as Record<string, unknown>)
-          .propertiesSchema,
+        entityCatalogMap.KameletConfiguration.propertiesSchema,
       );
     });
   });

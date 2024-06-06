@@ -12,7 +12,7 @@ describe('useEntityContext', () => {
     (console.error as jest.Mock).mockRestore();
   });
 
-  it('should be return EntityContext', () => {
+  it('should return EntityContext', () => {
     const { result } = renderHook(() => useEntityContext(), { wrapper });
 
     expect(result.current).not.toBe(null);

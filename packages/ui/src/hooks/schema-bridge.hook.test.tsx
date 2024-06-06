@@ -18,7 +18,7 @@ describe('useSchemaBridgeContext', () => {
     (console.error as jest.Mock).mockRestore();
   });
 
-  it('should be return EntityContext', () => {
+  it('should return SchemaBridgeContext', () => {
     const { result } = renderHook(() => useSchemaBridgeContext(), { wrapper });
 
     expect(result.current).not.toBe(null);

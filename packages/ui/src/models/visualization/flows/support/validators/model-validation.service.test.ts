@@ -1,7 +1,6 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { IKameletDefinition } from '../../../../kamelets-catalog';
-import { ICamelComponentDefinition } from '../../../../camel-components-catalog';
-import { ICamelProcessorDefinition } from '../../../../camel-processors-catalog';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { CamelCatalogService } from '../../camel-catalog.service';
 import { CamelComponentSchemaService } from '../camel-component-schema.service';
@@ -33,22 +32,11 @@ describe('ModelValidationService', () => {
   };
 
   beforeAll(async () => {
-    const componentCatalogMap: Record<string, ICamelComponentDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file
-    );
-    const modelCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.models.file
-    );
-    const patternCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.patterns.file
-    );
-    const kameletsCatalogMap: Record<string, IKameletDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file
-    );
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, modelCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletsCatalogMap);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
   });
 
   describe('validateNodeStatus()', () => {

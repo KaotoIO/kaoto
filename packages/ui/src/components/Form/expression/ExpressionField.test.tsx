@@ -1,12 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { ExpressionField } from './ExpressionField';
-import { SchemaService } from '../schema.service';
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AutoForm } from 'uniforms';
+import { CamelCatalogService, CatalogKind } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
-import { act } from 'react-dom/test-utils';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
+import { SchemaService } from '../schema.service';
+import { ExpressionField } from './ExpressionField';
 
 const mockSchema = {
   title: 'Expression',
@@ -26,13 +27,9 @@ const schemaBridge = schemaService.getSchemaBridge(mockSchema);
 const mockOnChange = jest.fn();
 
 beforeAll(async () => {
-  const languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  delete (languageCatalog as any).default;
-  CamelCatalogService.setCatalogKey(
-    CatalogKind.Language,
-    languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-  );
+  const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+  const languageCatalog = catalogsMap.languageCatalog;
+  CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
 
   mockOnChange.mockClear();
 });

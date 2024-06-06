@@ -1,9 +1,10 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { CatalogKind, ICamelLanguageDefinition, KaotoSchemaDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { SchemaService } from '../schema.service';
@@ -13,13 +14,9 @@ describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
   let languageCatalog: Record<string, ICamelLanguageDefinition>;
   beforeAll(async () => {
-    languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (languageCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Language,
-      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    languageCatalog = catalogsMap.languageCatalog;
+    CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',

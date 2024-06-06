@@ -1,8 +1,8 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
-import { ICamelComponentDefinition } from '../../camel-components-catalog';
-import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
@@ -12,15 +12,10 @@ describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
 
   beforeAll(async () => {
-    const componentCatalogMap: Record<string, ICamelComponentDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file
-    );
-    const modelsCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-      '@kaoto/camel-catalog/' + catalogIndex.catalogs.models.file
-    );
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, modelsCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, modelsCatalogMap);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });
   afterAll(() => {
     CamelCatalogService.clearCatalogs();

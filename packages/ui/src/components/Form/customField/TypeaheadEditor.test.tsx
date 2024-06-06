@@ -1,6 +1,5 @@
 import { SelectOptionProps } from '@patternfly/react-core';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TypeaheadEditor } from './TypeaheadEditor';
 
 describe('TypeaheadField', () => {

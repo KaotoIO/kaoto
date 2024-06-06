@@ -1,6 +1,5 @@
-import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
-import { act } from 'react-dom/test-utils';
 import { SourceCodeContext, SourceCodeProvider } from '../../../../providers/source-code.provider';
 import { FlowClipboard } from './FlowClipboard';
 

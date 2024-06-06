@@ -1,6 +1,7 @@
 import { Text, TextVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { Loading } from '../components/Loading';
+import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { CamelCatalogIndex, KaotoSchemaDefinition } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
@@ -11,16 +12,24 @@ export const SchemasContext = createContext<Record<string, KaotoSchemaDefinition
 /**
  * Loader for the components schemas.
  */
-export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
-  const setSchema = useSchemasStore((state) => state.setSchema);
+export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
+  const runtimeContext = useRuntimeContext();
+  const { basePath, selectedCatalog } = runtimeContext;
+  const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
+  const setSchema = useSchemasStore((state) => state.setSchema);
   const [schemas, setSchemas] = useState<Record<string, KaotoSchemaDefinition>>({});
 
   useEffect(() => {
-    fetch(`${props.catalogUrl}/index.json`)
+    const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
+    fetch(indexFile)
+      .then((response) => {
+        setIsLoading(true);
+        return response;
+      })
       .then((response) => response.json())
       .then(async (catalogIndex: CamelCatalogIndex) => {
-        const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(props.catalogUrl, catalogIndex.schemas);
+        const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);
 
         const loadedSchemas = await Promise.all(schemaFilesPromise);
         const combinedSchemas = loadedSchemas.reduce(
@@ -44,7 +53,7 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren<{ catalo
         console.error(error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedCatalogIndexFile]);
 
   return (
     <SchemasContext.Provider value={schemas}>

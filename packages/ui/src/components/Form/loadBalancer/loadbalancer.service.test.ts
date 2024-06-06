@@ -1,17 +1,15 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CatalogKind, ICamelLoadBalancerDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { LoadBalancerService } from './loadbalancer.service';
 
 describe('LoadBalancerService', () => {
   beforeAll(async () => {
-    const loadbalancerCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (loadbalancerCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Loadbalancer,
-      loadbalancerCatalog as unknown as Record<string, ICamelLoadBalancerDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const loadbalancerCatalog = catalogsMap.loadbalancerCatalog;
+    CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, loadbalancerCatalog);
   });
 
   describe('getLoadBalancerMap', () => {

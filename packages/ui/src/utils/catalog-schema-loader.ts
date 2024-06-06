@@ -1,4 +1,4 @@
-import { Entry } from '@kaoto/camel-catalog/types';
+import { CatalogDefinitionEntry } from '@kaoto/camel-catalog/types';
 import { KaotoSchemaDefinition } from '../models';
 
 export class CatalogSchemaLoader {
@@ -13,9 +13,13 @@ export class CatalogSchemaLoader {
     return { body, uri: response.url };
   }
 
-  static getSchemasFiles(basePath: string, schemaFiles: Record<string, Entry>): Promise<KaotoSchemaDefinition>[] {
+  static getSchemasFiles(
+    indexPath: string,
+    schemaFiles: Record<string, CatalogDefinitionEntry>,
+  ): Promise<KaotoSchemaDefinition>[] {
     return Object.entries(schemaFiles).map(async ([name, schemaDef]) => {
-      const fetchedSchema = await this.fetchFile(`${basePath}/${schemaDef.file}`);
+      const file = `${this.getRelativeBasePath(indexPath)}/${schemaDef.file}`;
+      const fetchedSchema = await this.fetchFile(file);
       const tags = [];
 
       if (this.VISUAL_FLOWS.includes(name)) {
@@ -30,5 +34,9 @@ export class CatalogSchemaLoader {
         schema: fetchedSchema.body as KaotoSchemaDefinition['schema'],
       };
     });
+  }
+
+  static getRelativeBasePath(catalogIndexFile: string): string {
+    return catalogIndexFile.substring(0, catalogIndexFile.lastIndexOf('/'));
   }
 }

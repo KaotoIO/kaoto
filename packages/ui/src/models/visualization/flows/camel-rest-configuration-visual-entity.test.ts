@@ -1,7 +1,7 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { RestConfiguration } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
-import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -12,11 +12,8 @@ describe('CamelRestConfigurationVisualEntity', () => {
   let restConfigurationDef: { restConfiguration: RestConfiguration };
 
   beforeAll(async () => {
-    const entityCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Entity,
-      entityCatalogMap as unknown as Record<string, ICamelProcessorDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   afterAll(() => {

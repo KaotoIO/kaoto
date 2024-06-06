@@ -1,14 +1,22 @@
-import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { within } from '@testing-library/dom';
-import { fireEvent, render, screen } from '@testing-library/react';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { KaotoSchemaDefinition } from '../../models';
+import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { PipeErrorHandlerEditor } from './PipeErrorHandlerEditor';
 
 describe('PipeErrorHandlerEditor', () => {
-  let pipeErrorHandlerSchema: Record<string, unknown>;
+  let pipeErrorHandlerSchema: Record<string, KaotoSchemaDefinition['schema']>;
+
   beforeAll(async () => {
-    pipeErrorHandlerSchema = await import('@kaoto/camel-catalog/' + catalogIndex.schemas.PipeErrorHandler.file);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+
+    pipeErrorHandlerSchema = await import(
+      `${catalogsMap.catalogPath}${catalogsMap.catalogDefinition.schemas.PipeErrorHandler.file}`
+    );
   });
+
   it('should render', () => {
     const model = {
       log: {

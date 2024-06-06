@@ -1,4 +1,4 @@
-import { Entry, Index } from '@kaoto/camel-catalog/types';
+import { CatalogDefinitionEntry, CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from './camel-languages-catalog';
@@ -7,17 +7,17 @@ import { ICamelProcessorDefinition } from './camel-processors-catalog';
 import { CatalogKind } from './catalog-kind';
 import { IKameletDefinition } from './kamelets-catalog';
 
-export interface CamelCatalogIndex extends Omit<Index, 'catalogs'> {
+export interface CamelCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> {
   catalogs: {
-    models: Entry;
-    components: Entry;
-    languages: Entry;
-    dataformats: Entry;
-    kamelets: Entry;
-    kameletBoundaries: Entry;
-    patterns: Entry;
-    entities: Entry;
-    loadbalancers: Entry;
+    models: CatalogDefinitionEntry;
+    components: CatalogDefinitionEntry;
+    languages: CatalogDefinitionEntry;
+    dataformats: CatalogDefinitionEntry;
+    kamelets: CatalogDefinitionEntry;
+    kameletBoundaries: CatalogDefinitionEntry;
+    patterns: CatalogDefinitionEntry;
+    entities: CatalogDefinitionEntry;
+    loadbalancers: CatalogDefinitionEntry;
   };
 }
 

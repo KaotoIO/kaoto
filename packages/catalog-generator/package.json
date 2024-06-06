@@ -1,5 +1,5 @@
 {
-  "name": "@kaoto/catalog-generator",
+  "name": "@kaoto/camel-catalog",
   "version": "2.1.0-dev",
   "type": "commonjs",
   "description": "Camel Catalog and schemas for Kaoto",
@@ -14,7 +14,7 @@
     "./index.json": "./dist/camel-catalog/index.json",
     "./types": "./dist/types/index.ts",
     "./package.json": "./package.json",
-    "./*.json": "./dist/*.json"
+    "./*.json": "./dist/camel-catalog/*.json"
   },
   "scripts": {
     "build": "yarn clean && yarn build:mvn && yarn build:default:catalog && yarn build:ts",

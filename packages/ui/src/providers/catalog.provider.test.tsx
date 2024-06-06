@@ -1,8 +1,11 @@
-import catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { CamelCatalogService, CatalogKind } from '../models';
+import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
+import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
@@ -10,6 +13,14 @@ describe('CatalogLoaderProvider', () => {
   let setCatalogKeySpy: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
+  let catalogDefinition: CatalogDefinition;
+  const [catalogLibraryEntry] = catalogLibrary.definitions;
+  const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
+
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    catalogDefinition = catalogsMap.catalogDefinition;
+  });
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
@@ -17,7 +28,7 @@ describe('CatalogLoaderProvider', () => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
-            json: () => catalogIndex,
+            json: () => catalogDefinition,
             url: `http://localhost/${file}`,
           } as unknown as Response);
         };
@@ -41,11 +52,14 @@ describe('CatalogLoaderProvider', () => {
   });
 
   it('should start in loading mode', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -54,11 +68,14 @@ describe('CatalogLoaderProvider', () => {
 
   it('should stay in loading mode when there is an error', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -70,11 +87,14 @@ describe('CatalogLoaderProvider', () => {
   });
 
   it('should fetch the index.json catalog file', async () => {
+    const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -82,15 +102,18 @@ describe('CatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/index.json`);
+    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`);
   });
 
   it('should fetch the subsequent catalog files', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -99,34 +122,47 @@ describe('CatalogLoaderProvider', () => {
     });
 
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components`),
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
+      ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models`),
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
+      ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns`),
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
+      ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages`),
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
+      ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats`),
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
+      ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate`),
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelets-aggregate`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries`),
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelet-boundaries`),
     );
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -138,11 +174,14 @@ describe('CatalogLoaderProvider', () => {
   });
 
   it('should load the CamelCatalogService', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="catalogs-loaded">Loaded</span>
-        </CatalogLoaderProvider>,
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>,
       );
     });
 
@@ -154,33 +193,39 @@ describe('CatalogLoaderProvider', () => {
     setCatalogKeySpy.mock.calls.forEach((call) => {
       if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-components`,
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Component);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else if (
-        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-models`)
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
+        )
       ) {
         expect(call[0]).toEqual(CatalogKind.Processor);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else if (
-        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-patterns`)
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
+        )
       ) {
         expect(call[0]).toEqual(CatalogKind.Pattern);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else if (
-        Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-entities`)
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-entities`,
+        )
       ) {
         expect(call[0]).toEqual(CatalogKind.Entity);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-languages`,
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Language);
@@ -188,7 +233,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-dataformats`,
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Dataformat);
@@ -196,16 +241,22 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/camel-catalog-aggregate-loadbalancers`,
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-loadbalancers`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Loadbalancer);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
-      } else if (Object.keys(call[1])[0].includes(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelet-boundaries`)) {
+      } else if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelet-boundaries`,
+        )
+      ) {
         expect(call[0]).toEqual(CatalogKind.Kamelet);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        expect(Object.keys(call[1])[1]).toContain(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/kamelets-aggregate`);
+        expect(Object.keys(call[1])[1]).toContain(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelets-aggregate`,
+        );
         expect(Object.values(call[1])[1]).toEqual('dummy-data');
         count++;
       } else {

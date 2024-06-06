@@ -1,14 +1,16 @@
-import { MetadataEditor, StepExpressionEditor } from '@kaoto/kaoto';
 import {
+  CanvasNode,
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   IVisualizationNode,
   KaotoSchemaDefinition,
+  MetadataEditor,
+  RuntimeProvider,
   SchemasLoaderProvider,
+  StepExpressionEditor,
   VisualComponentSchema,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { CanvasNode } from './../canvas.models';
 
 const visualComponentSchema: VisualComponentSchema = {
   title: 'My Node',
@@ -36,11 +38,13 @@ const mockNode: CanvasNode = {
 };
 
 const EntitiesContextDecorator = (Story: StoryFn) => (
-  <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-    <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-      <Story />
-    </CatalogLoaderProvider>
-  </SchemasLoaderProvider>
+  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+    <SchemasLoaderProvider>
+      <CatalogLoaderProvider>
+        <Story />
+      </CatalogLoaderProvider>
+    </SchemasLoaderProvider>
+  </RuntimeProvider>
 );
 
 export default {

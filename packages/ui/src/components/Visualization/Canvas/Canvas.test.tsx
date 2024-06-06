@@ -1,5 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';

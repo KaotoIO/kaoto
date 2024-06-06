@@ -1,16 +1,22 @@
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
-import { resolve, join, basename } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 
 /**
  * Copy the built Kaoto Camel Catalog files into the assets/camel-catalog folder
  */
 async function copyCamelCatalogFiles(destinationFolder) {
   const { getCamelCatalogFiles } = await import('./get-camel-catalog-files.js');
-  const camelCatalogFiles = getCamelCatalogFiles();
+  const { basePath, files: camelCatalogFiles } = getCamelCatalogFiles();
 
   camelCatalogFiles.forEach((file) => {
-    const dest = resolve(join(destinationFolder, basename(file)));
+    const relativePath = relative(basePath, file);
+    const destDir = resolve(destinationFolder, dirname(relativePath));
 
+    if (!existsSync(destDir)) {
+      mkdirSync(destDir, { recursive: true });
+    }
+
+    const dest = resolve(destDir, basename(file));
     console.info('\t', `Copying '${file}' to '${dest}'`);
 
     copyFileSync(file, dest);
