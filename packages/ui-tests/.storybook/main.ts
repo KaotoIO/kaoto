@@ -26,9 +26,9 @@ const config: StorybookConfig = {
   docs: {
     autodocs: true,
   },
-  // Configures the static asset folder in Storybook 
-  // Requires the camel-catalog build
-  staticDirs: [{ from: '../../camel-catalog/dist', to: 'camel-catalog' }],
+  // Configures the static asset folder in> Storybook
+  // Requires the catalog-generator build
+  staticDirs: [{ from: '../../catalog-generator/dist/camel-catalog', to: 'camel-catalog' }],
   typescript: {
     check: false,
     checkOptions: {},

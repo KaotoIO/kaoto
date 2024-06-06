@@ -1,16 +1,24 @@
 import { Meta, StoryFn } from '@storybook/react';
-import { CatalogLoaderProvider, CatalogSchemaLoader, SchemasLoaderProvider, NewBeanModal } from '@kaoto/kaoto/testing';
+import {
+  CatalogLoaderProvider,
+  CatalogSchemaLoader,
+  SchemasLoaderProvider,
+  NewBeanModal,
+  RuntimeProvider,
+} from '@kaoto/kaoto/testing';
 
 export default {
   title: 'Canvas/NewBeanModal',
   component: NewBeanModal,
   decorators: [
     (Story: StoryFn) => (
-      <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <Story />
-        </CatalogLoaderProvider>
-      </SchemasLoaderProvider>
+      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <Story />
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
     ),
   ],
 } as Meta<typeof NewBeanModal>;

@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { readdirSync, existsSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { normalizePath } from 'vite';
@@ -38,10 +38,25 @@ export const getCamelCatalogFiles = () => {
     throw new Error(message.join('\n\n'));
   }
 
-  /** List all the JSON files in the Camel Catalog folder */
-  const jsonFiles = readdirSync(camelCatalogPath)
-    .filter((file) => file.endsWith('.json'))
-    .map((file) => normalizePath(join(camelCatalogPath, file)));
+  /** Recursively list all the JSON files in the Camel Catalog folder and subfolders */
+  const jsonFiles = [];
+  getFilesRecursively(camelCatalogPath, jsonFiles);
 
-  return jsonFiles;
+  return { basePath: camelCatalogPath, files: jsonFiles.filter((file) => file.endsWith('.json')) };
 };
+
+function getFilesRecursively(source, files) {
+  const exists = existsSync(source);
+  const stats = exists && statSync(source);
+  const isDirectory = exists && stats.isDirectory();
+
+  if (isDirectory) {
+    const directoryFiles = readdirSync(source);
+
+    for (const file of directoryFiles) {
+      getFilesRecursively(join(source, file), files);
+    }
+  } else {
+    files.push(source);
+  }
+}

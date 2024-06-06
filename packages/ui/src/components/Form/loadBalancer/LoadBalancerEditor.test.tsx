@@ -1,8 +1,10 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { fireEvent, render, screen, act } from '@testing-library/react';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { CatalogKind, ICamelLoadBalancerDefinition, KaotoSchemaDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerEditor } from './LoadBalancerEditor';
@@ -11,13 +13,9 @@ describe('LoadBalancerEditor', () => {
   let mockNode: CanvasNode;
   let loadbalancerCatalog: Record<string, ICamelLoadBalancerDefinition>;
   beforeEach(async () => {
-    loadbalancerCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (loadbalancerCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Loadbalancer,
-      loadbalancerCatalog as unknown as Record<string, ICamelLoadBalancerDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    loadbalancerCatalog = catalogsMap.loadbalancerCatalog;
+    CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, loadbalancerCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',

@@ -1,17 +1,14 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CatalogKind, ICamelDataformatDefinition, ICamelLanguageDefinition } from '../../../models';
 import { CamelCatalogService } from '../../../models/visualization/flows';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DataFormatService } from './dataformat.service';
 
 describe('DataFormatService', () => {
   beforeAll(async () => {
-    const dataformatCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (dataformatCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Dataformat,
-      dataformatCatalog as unknown as Record<string, ICamelDataformatDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
   });
 
   describe('getDataFormateMap', () => {

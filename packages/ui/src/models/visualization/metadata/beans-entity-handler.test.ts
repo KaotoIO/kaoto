@@ -1,9 +1,10 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
 import * as routeStub from '../../../stubs/camel-route';
 import * as kameletStub from '../../../stubs/kamelet-route';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CamelRouteResource, KameletResource, PipeResource } from '../../camel';
-import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from '../flows';
@@ -11,16 +12,12 @@ import { BeansEntityHandler } from './beans-entity-handler';
 
 describe('BeansEntityHandler', () => {
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (entitiesCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Entity,
-      entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   describe('should handle beans in CamelRouteResource', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let model: any;
     let beansHandler: BeansEntityHandler;
     beforeEach(() => {
@@ -73,6 +70,7 @@ describe('BeansEntityHandler', () => {
   });
 
   describe('should handle beans in KameletResource', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let model: any;
     let beansHandler: BeansEntityHandler;
     beforeEach(() => {

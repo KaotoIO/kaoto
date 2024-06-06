@@ -1,26 +1,29 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
+import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
+import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { CamelCatalogService } from './camel-catalog.service';
 
 describe('CamelCatalogService', () => {
-  let componentCatalogMap: Record<string, unknown>;
-  let dataformatsCatalogMap: Record<string, unknown>;
-  let languagesCatalogMap: Record<string, unknown>;
-  let loadbalancersMap: Record<string, unknown>;
-  let kameletCatalogMap: Record<string, unknown>;
+  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
+  let dataformatsCatalogMap: Record<string, ICamelDataformatDefinition>;
+  let languagesCatalogMap: Record<string, ICamelLanguageDefinition>;
+  let loadbalancersMap: Record<string, ICamelLoadBalancerDefinition>;
+  let kameletCatalogMap: Record<string, IKameletDefinition>;
+
   beforeEach(async () => {
-    componentCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.components.file);
-    dataformatsCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
-    languagesCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
-    loadbalancersMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.loadbalancers.file);
-    kameletCatalogMap = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.kamelets.file);
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Component,
-      componentCatalogMap as unknown as Record<string, ICamelComponentDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    componentCatalogMap = catalogsMap.componentCatalogMap;
+    dataformatsCatalogMap = catalogsMap.dataformatCatalog;
+    languagesCatalogMap = catalogsMap.languageCatalog;
+    loadbalancersMap = catalogsMap.loadbalancerCatalog;
+    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
   });
 
   afterEach(() => {

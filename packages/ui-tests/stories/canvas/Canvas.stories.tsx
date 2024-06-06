@@ -7,6 +7,7 @@ import {
   EntitiesProvider,
   KameletVisualEntity,
   PipeVisualEntity,
+  RuntimeProvider,
   SchemasLoaderProvider,
   SourceCodeProvider,
   VisibleFLowsContextResult,
@@ -48,13 +49,15 @@ const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson);
 const ContextDecorator = (Story: StoryFn) => (
   <SourceCodeProvider>
     <EntitiesProvider>
-      <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <CatalogTilesProvider>
-            <Story />
-          </CatalogTilesProvider>
-        </CatalogLoaderProvider>
-      </SchemasLoaderProvider>
+      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <CatalogTilesProvider>
+              <Story />
+            </CatalogTilesProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
     </EntitiesProvider>
   </SourceCodeProvider>
 );

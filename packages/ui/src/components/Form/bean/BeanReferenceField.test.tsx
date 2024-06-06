@@ -1,26 +1,22 @@
 import { AutoField, AutoForm } from '@kaoto-next/uniforms-patternfly';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { screen } from '@testing-library/dom';
-import { fireEvent, render } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render } from '@testing-library/react';
 import { EntitiesContextResult } from '../../../hooks';
+import { CamelCatalogService, CatalogKind } from '../../../models';
+import { BeansAwareResource, CamelRouteResource } from '../../../models/camel';
 import { BeansEntity } from '../../../models/visualization/metadata';
 import { EntitiesContext } from '../../../providers';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { SchemaService } from '../schema.service';
 import { BeanReferenceField } from './BeanReferenceField';
-import { BeansAwareResource, CamelRouteResource } from '../../../models/camel';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
 
 describe('BeanReferenceField', () => {
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (entitiesCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Entity,
-      entitiesCatalog as unknown as Record<string, ICamelProcessorDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   const mockSchema = {

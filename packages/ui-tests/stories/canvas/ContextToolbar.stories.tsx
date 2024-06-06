@@ -4,6 +4,7 @@ import {
   CatalogTilesProvider,
   ContextToolbar,
   EntitiesProvider,
+  RuntimeProvider,
   SchemasLoaderProvider,
   SourceCodeApiContext,
   SourceCodeProvider,
@@ -20,15 +21,17 @@ const EntitiesContextDecorator = (Story: StoryFn) => {
   return (
     <SourceCodeProvider>
       <EntitiesProvider>
-        <SchemasLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <CatalogLoaderProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-            <CatalogTilesProvider>
-              <VisibleFlowsProvider>
-                <Story />
-              </VisibleFlowsProvider>
-            </CatalogTilesProvider>
-          </CatalogLoaderProvider>
-        </SchemasLoaderProvider>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <CatalogTilesProvider>
+                <VisibleFlowsProvider>
+                  <Story />
+                </VisibleFlowsProvider>
+              </CatalogTilesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
       </EntitiesProvider>
     </SourceCodeProvider>
   );

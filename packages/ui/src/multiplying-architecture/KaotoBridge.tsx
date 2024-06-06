@@ -10,6 +10,7 @@ import { SourceCodeApiContext } from '../providers/source-code.provider';
 import { VisibleFlowsProvider } from '../providers/visible-flows.provider';
 import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
 import { EventNotifier } from '../utils';
+import { RuntimeProvider } from '../providers/runtime.provider';
 
 interface KaotoBridgeProps {
   /**
@@ -141,16 +142,18 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
   }, [props]);
 
   return (
-    <SchemasLoaderProvider catalogUrl={props.catalogUrl}>
-      <CatalogLoaderProvider catalogUrl={props.catalogUrl}>
-        <CatalogTilesProvider>
-          <VisibleFlowsProvider>
-            <CatalogModalProvider>
-              <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
-            </CatalogModalProvider>
-          </VisibleFlowsProvider>
-        </CatalogTilesProvider>
-      </CatalogLoaderProvider>
-    </SchemasLoaderProvider>
+    <RuntimeProvider catalogUrl={props.catalogUrl}>
+      <SchemasLoaderProvider>
+        <CatalogLoaderProvider>
+          <CatalogTilesProvider>
+            <VisibleFlowsProvider>
+              <CatalogModalProvider>
+                <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
+              </CatalogModalProvider>
+            </VisibleFlowsProvider>
+          </CatalogTilesProvider>
+        </CatalogLoaderProvider>
+      </SchemasLoaderProvider>
+    </RuntimeProvider>
   );
 });

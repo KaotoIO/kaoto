@@ -8,6 +8,7 @@ import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';
 import { FlowsMenu } from './Flows/FlowsMenu';
 import { NewEntity } from './NewEntity/NewEntity';
+import { RuntimeSelector } from './RuntimeSelector/RuntimeSelector';
 
 export const ContextToolbar: FunctionComponent = () => {
   const { currentSchemaType } = useContext(EntitiesContext)!;
@@ -34,8 +35,9 @@ export const ContextToolbar: FunctionComponent = () => {
     <ToolbarItem key="toolbar-clipboard">
       <FlowClipboard />
     </ToolbarItem>,
-    <ToolbarItem key={'toolbar-export-image'}>
+    <ToolbarItem key="toolbar-export-image">
       <FlowExportImage />
     </ToolbarItem>,
+    <RuntimeSelector key="runtime-selector" />,
   ]);
 };

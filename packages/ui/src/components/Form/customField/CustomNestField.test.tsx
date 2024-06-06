@@ -1,8 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
-
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AutoForm } from 'uniforms';
 import { CustomAutoFieldDetector } from '../CustomAutoField';
 import { SchemaService } from '../schema.service';

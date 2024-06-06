@@ -1,28 +1,35 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
+import { dirname, relative, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import packageJson from './package.json';
 import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files';
 import { getLastCommitInfo } from './scripts/get-last-commit-info';
-import packageJson from './package.json';
 
 // https://vitejs.dev/config/
+
 export default defineConfig(async () => {
+  const outDir = './dist';
   const lastCommitInfo = await getLastCommitInfo();
+  const { basePath, files: camelCatalogFiles } = getCamelCatalogFiles();
 
   return {
     plugins: [
       react(),
       viteStaticCopy({
-        targets: [
-          {
-            src: getCamelCatalogFiles(),
-            dest: 'camel-catalog',
+        targets: camelCatalogFiles.map((file) => {
+          const relativePath = relative(basePath, file);
+          const dest = './camel-catalog/' + dirname(relativePath);
+
+          return {
+            src: file,
+            dest,
             transform: (content, filename) => {
               return JSON.stringify(JSON.parse(content));
             },
-          },
-        ],
+          };
+        }),
       }),
     ],
     define: {
@@ -31,7 +38,7 @@ export default defineConfig(async () => {
       __KAOTO_VERSION: JSON.stringify(packageJson.version),
     },
     build: {
-      outDir: './dist',
+      outDir,
       sourcemap: true,
       emptyOutDir: true,
     },

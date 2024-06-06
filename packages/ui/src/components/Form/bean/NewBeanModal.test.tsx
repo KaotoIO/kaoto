@@ -1,15 +1,16 @@
-import { NewBeanModal } from './NewBeanModal';
-import { fireEvent, render } from '@testing-library/react';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { screen } from '@testing-library/dom';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render } from '@testing-library/react';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { NewBeanModal } from './NewBeanModal';
 
 describe('NewBeanModal', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let beanSchema: any;
   beforeAll(async () => {
-    const entitiesCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.entities.file);
-    beanSchema = entitiesCatalog.bean.propertiesSchema;
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    beanSchema = catalogsMap.entitiesCatalog.bean.propertiesSchema;
   });
 
   it('should render', async () => {

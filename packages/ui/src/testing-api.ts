@@ -1,6 +1,6 @@
 /** Internal components exported for testing only */
 export * from './layout';
-export * from './models/visualization';
+export * from './models';
 export * from './providers';
 export * from './utils';
 export * from './stubs';

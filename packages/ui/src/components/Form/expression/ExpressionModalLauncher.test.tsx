@@ -1,20 +1,17 @@
-import { ExpressionModalLauncher } from './ExpressionModalLauncher';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService, CatalogKind, ICamelLanguageDefinition } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { ExpressionModalLauncher } from './ExpressionModalLauncher';
 import { ExpressionService } from './expression.service';
 
 describe('ExpressionModalLauncher', () => {
   let languageCatalog: Record<string, ICamelLanguageDefinition>;
   beforeAll(async () => {
-    languageCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.languages.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (languageCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Language,
-      languageCatalog as unknown as Record<string, ICamelLanguageDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    languageCatalog = catalogsMap.languageCatalog;
+    CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
   });
 
   it('should render', () => {

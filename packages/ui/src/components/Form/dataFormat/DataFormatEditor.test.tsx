@@ -1,8 +1,10 @@
-import * as catalogIndex from '@kaoto/camel-catalog/index.json';
-import { fireEvent, render, screen, act } from '@testing-library/react';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { CatalogKind, ICamelDataformatDefinition, KaotoSchemaDefinition } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { DataFormatEditor } from './DataFormatEditor';
@@ -12,13 +14,9 @@ describe('DataFormatEditor', () => {
   let dataformatCatalog: Record<string, ICamelDataformatDefinition>;
   beforeEach(async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    dataformatCatalog = await import('@kaoto/camel-catalog/' + catalogIndex.catalogs.dataformats.file);
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    delete (dataformatCatalog as any).default;
-    CamelCatalogService.setCatalogKey(
-      CatalogKind.Dataformat,
-      dataformatCatalog as unknown as Record<string, ICamelDataformatDefinition>,
-    );
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    dataformatCatalog = catalogsMap.dataformatCatalog;
+    CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
       title: 'My Node',
