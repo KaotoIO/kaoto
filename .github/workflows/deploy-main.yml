@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: "🛰️ Setup Pages"
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: "🛰️ Download UI Dist"
         uses: actions/download-artifact@v4
