@@ -49,7 +49,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "eslint-plugin-storybook": "^0.8.0",
     "msw": "^2.0.2",
-    "msw-storybook-addon": "^1.10.0",
+    "msw-storybook-addon": "^2.0.0",
     "prettier": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
