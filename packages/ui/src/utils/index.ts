@@ -12,4 +12,5 @@ export * from './set-value';
 export * from './get-custom-schema-from-kamelet';
 export * from './update-kamelet-from-custom-schema';
 export * from './pipe-custom-schema';
+export * from './get-field-groups';
 export * from './weight-schema-properties';

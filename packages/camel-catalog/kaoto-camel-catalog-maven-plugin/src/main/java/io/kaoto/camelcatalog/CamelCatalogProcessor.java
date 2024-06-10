@@ -284,6 +284,7 @@ public class CamelCatalogProcessor {
                     required.add(propertyName);
                 }
 
+                propertySchema.put("group", catalogOp.getGroup());
                 sortedSchemaProperties.set(propertyName, propertySchema);
             }
 
