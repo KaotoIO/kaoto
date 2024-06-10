@@ -40,9 +40,9 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.selectReplaceNode('kafka-source');
-    cy.chooseFromCatalog('kamelet', 'aws-s3-cdc-source');
+    cy.chooseFromCatalog('kamelet', 'timer-source');
 
-    cy.checkNodeExist('aws-s3-cdc-source', 1);
+    cy.checkNodeExist('timer-source', 1);
     cy.checkNodeExist('kafka-source', 0);
 
     cy.selectReplaceNode('json-deserialize-action');
@@ -61,7 +61,7 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('json-deserialize-action', 0);
     cy.checkCodeSpanLine('kafka-source', 0);
     cy.checkCodeSpanLine('kafka-sink', 0);
-    cy.checkCodeSpanLine('aws-s3-cdc-source', 1);
+    cy.checkCodeSpanLine('timer-source', 1);
     cy.checkCodeSpanLine('log-action', 1);
     cy.checkCodeSpanLine('dropbox-sink', 1);
   });
