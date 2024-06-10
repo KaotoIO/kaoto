@@ -24,7 +24,7 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField, DocumentType, FieldIdentifier } from '../models/document';
+import { BaseDocument, BaseField, DocumentType } from '../models/document';
 import { Types } from '../models/types';
 
 export class XmlSchemaDocument extends BaseDocument {
@@ -55,10 +55,6 @@ export class XmlSchemaField extends BaseField {
     super();
     this.ownerDocument =
       this.parent instanceof XmlSchemaDocument ? this.parent : (this.parent as XmlSchemaField).ownerDocument;
-  }
-
-  get fieldIdentifier(): FieldIdentifier {
-    return FieldIdentifier.childOf(this.parent.fieldIdentifier, this.expression);
   }
 }
 

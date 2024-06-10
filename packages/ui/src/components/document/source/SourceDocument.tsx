@@ -21,144 +21,141 @@ import { DeleteParameterButton } from '../DeleteParameterButton';
 import { NodeContainer } from '../NodeContainer';
 import { NodeReference } from '../../../providers/CanvasProvider';
 import '../Document.scss';
+import { DocumentNodeData, FieldNodeData } from '../../../models/visualization';
+
+type DocumentImplProps = {
+  nodeData: DocumentNodeData;
+};
+
+const SourcePrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(({ nodeData }, forwardedRef) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useImperativeHandle(forwardedRef, () => ({
+    get headerRef() {
+      return ref.current;
+    },
+    get containerRef() {
+      return ref.current;
+    },
+  }));
+
+  const headerActiopns = useMemo(() => {
+    return (
+      <ActionList isIconList={true}>
+        <ActionListItem>
+          <AttachSchemaButton
+            documentType={nodeData.document.documentType}
+            documentId={nodeData.document.documentId}
+          ></AttachSchemaButton>
+        </ActionListItem>
+        {nodeData.document.documentType === DocumentType.PARAM && (
+          <ActionListItem>
+            <DeleteParameterButton parameterName={nodeData.document.documentId} />
+          </ActionListItem>
+        )}
+      </ActionList>
+    );
+  }, [nodeData.document.documentId, nodeData.document.documentType]);
+
+  return (
+    <Card id={nodeData.id} isCompact>
+      <NodeContainer nodeData={nodeData} ref={ref}>
+        <CardHeader actions={{ actions: headerActiopns, hasNoOffset: true }}>
+          <CardTitle>
+            <Split hasGutter>
+              <SplitItem>
+                <GripVerticalIcon />
+              </SplitItem>
+              <SplitItem>{nodeData.title}</SplitItem>
+            </Split>
+          </CardTitle>
+        </CardHeader>
+      </NodeContainer>
+    </Card>
+  );
+});
+
+const SourceStructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(({ nodeData }, forwardedRef) => {
+  const { reloadNodeReferences } = useCanvas();
+  const [isExpanded, setExpanded] = useState<boolean>(true);
+
+  const handleOnToggle = useCallback(() => {
+    reloadNodeReferences();
+  }, [reloadNodeReferences]);
+  const handleOnExpand = useCallback(() => {
+    setExpanded(!isExpanded);
+    reloadNodeReferences();
+  }, [isExpanded, reloadNodeReferences]);
+
+  const headerRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(forwardedRef, () => ({
+    get headerRef() {
+      return headerRef.current;
+    },
+    get containerRef() {
+      return headerRef.current;
+    },
+  }));
+
+  const headerActions = useMemo(() => {
+    return (
+      <ActionList isIconList={true}>
+        <ActionListItem>
+          <AttachSchemaButton
+            documentType={nodeData.document.documentType}
+            documentId={nodeData.document.documentId}
+            hasSchema={true}
+          ></AttachSchemaButton>
+        </ActionListItem>
+        <ActionListItem>
+          <DetachSchemaButton
+            documentType={nodeData.document.documentType}
+            documentId={nodeData.document.documentId}
+          ></DetachSchemaButton>
+        </ActionListItem>
+        {nodeData.document.documentType === DocumentType.PARAM && (
+          <ActionListItem>
+            <DeleteParameterButton parameterName={nodeData.document.documentId} />
+          </ActionListItem>
+        )}
+      </ActionList>
+    );
+  }, [nodeData.document.documentId, nodeData.document.documentType]);
+
+  return (
+    <Card id={nodeData.id} isExpanded={isExpanded} isCompact>
+      <NodeContainer ref={headerRef}>
+        <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
+          <CardTitle>{nodeData.title}</CardTitle>
+        </CardHeader>
+      </NodeContainer>
+      <CardExpandableContent>
+        <CardBody>
+          <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+            {nodeData.document.fields.map((field) => {
+              const fieldNodeData = new FieldNodeData(nodeData, field);
+              return <SourceDocumentField nodeData={fieldNodeData} key={fieldNodeData.id} onToggle={handleOnToggle} />;
+            })}
+          </Accordion>
+        </CardBody>
+      </CardExpandableContent>
+    </Card>
+  );
+});
 
 export type DocumentProps = {
-  documentType: DocumentType;
   model: IDocument;
 };
 
-type DocumentImplProps = DocumentProps & {
-  nodeId: string;
-};
-
-const SourcePrimitiveDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
-  ({ documentType, model, nodeId }, forwardedRef) => {
-    const ref = useRef<HTMLDivElement>(null);
-    useImperativeHandle(forwardedRef, () => ({
-      get headerRef() {
-        return ref.current;
-      },
-      get containerRef() {
-        return ref.current;
-      },
-    }));
-
-    const headerActiopns = useMemo(() => {
-      return (
-        <ActionList isIconList={true}>
-          <ActionListItem>
-            <AttachSchemaButton documentType={documentType} documentId={model.documentId}></AttachSchemaButton>
-          </ActionListItem>
-          {documentType === DocumentType.PARAM && (
-            <ActionListItem>
-              <DeleteParameterButton parameterName={model.documentId} />
-            </ActionListItem>
-          )}
-        </ActionList>
-      );
-    }, [documentType, model.documentId]);
-
-    return (
-      <Card id={nodeId} isCompact>
-        <NodeContainer dndId={nodeId} field={model as PrimitiveDocument} ref={ref}>
-          <CardHeader actions={{ actions: headerActiopns, hasNoOffset: true }}>
-            <CardTitle>
-              <Split hasGutter>
-                <SplitItem>
-                  <GripVerticalIcon />
-                </SplitItem>
-                <SplitItem>{model.name}</SplitItem>
-              </Split>
-            </CardTitle>
-          </CardHeader>
-        </NodeContainer>
-      </Card>
-    );
-  },
-);
-
-const SourceStructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps>(
-  ({ documentType, model, nodeId }, forwardedRef) => {
-    const { reloadNodeReferences } = useCanvas();
-    const [isExpanded, setExpanded] = useState<boolean>(true);
-
-    const handleOnToggle = useCallback(() => {
-      reloadNodeReferences();
-    }, [reloadNodeReferences]);
-    const handleOnExpand = useCallback(() => {
-      setExpanded(!isExpanded);
-      reloadNodeReferences();
-    }, [isExpanded, reloadNodeReferences]);
-
-    const headerRef = useRef<HTMLDivElement>(null);
-    useImperativeHandle(forwardedRef, () => ({
-      get headerRef() {
-        return headerRef.current;
-      },
-      get containerRef() {
-        return headerRef.current;
-      },
-    }));
-
-    const headerActions = useMemo(() => {
-      return (
-        <ActionList isIconList={true}>
-          <ActionListItem>
-            <AttachSchemaButton
-              documentType={documentType}
-              documentId={model.documentId}
-              hasSchema={true}
-            ></AttachSchemaButton>
-          </ActionListItem>
-          <ActionListItem>
-            <DetachSchemaButton documentType={documentType} documentId={model.documentId}></DetachSchemaButton>
-          </ActionListItem>
-          {documentType === DocumentType.PARAM && (
-            <ActionListItem>
-              <DeleteParameterButton parameterName={model.documentId} />
-            </ActionListItem>
-          )}
-        </ActionList>
-      );
-    }, [documentType, model]);
-
-    return (
-      <Card id={nodeId} isExpanded={isExpanded} isCompact>
-        <NodeContainer ref={headerRef}>
-          <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
-            <CardTitle>{model.name}</CardTitle>
-          </CardHeader>
-        </NodeContainer>
-        <CardExpandableContent>
-          <CardBody>
-            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {model.fields.map((field) => (
-                <SourceDocumentField
-                  documentType={documentType}
-                  field={field}
-                  key={field.name}
-                  onToggle={handleOnToggle}
-                />
-              ))}
-            </Accordion>
-          </CardBody>
-        </CardExpandableContent>
-      </Card>
-    );
-  },
-);
-
-export const SourceDocument: FunctionComponent<DocumentProps> = ({ documentType, model }) => {
+export const SourceDocument: FunctionComponent<DocumentProps> = ({ model }) => {
   const { getNodeReference, setNodeReference } = useCanvas();
   const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
-  const fieldRefId = model.fieldIdentifier.toString();
-  getNodeReference(fieldRefId) !== nodeReference && setNodeReference(fieldRefId, nodeReference);
-
-  const nodeId = useMemo(() => model.documentId + '-' + Math.floor(Math.random() * 10000), [model.documentId]);
+  const nodeData = new DocumentNodeData(model);
+  const nodeRefId = nodeData.path.toString();
+  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   return model instanceof PrimitiveDocument ? (
-    <SourcePrimitiveDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
+    <SourcePrimitiveDocumentImpl nodeData={nodeData} ref={nodeReference} />
   ) : (
-    <SourceStructuredDocumentImpl documentType={documentType} model={model} nodeId={nodeId} ref={nodeReference} />
+    <SourceStructuredDocumentImpl nodeData={nodeData} ref={nodeReference} />
   );
 };

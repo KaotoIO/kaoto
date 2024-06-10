@@ -13,68 +13,95 @@ import {
 } from '@patternfly/react-core';
 import { GripVerticalIcon } from '@patternfly/react-icons';
 import { DocumentType, IDocument, PrimitiveDocument } from '../../../models/document';
-import { TargetDocumentField } from './TargetDocumentField';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { AttachSchemaButton } from '../AttachSchemaButton';
 import { DetachSchemaButton } from '../DetachSchemaButton';
 import { NodeContainer } from '../NodeContainer';
 import { NodeReference } from '../../../providers/CanvasProvider';
 import '../Document.scss';
+import { useDataMapper } from '../../../hooks';
+
+import { DocumentNodeData } from '../../../models/visualization';
+import { TargetDocumentNode } from './TargetDocumentNode';
+import { NodeHelper } from './node-helper';
 
 export type TargetDocumentProps = {
   model: IDocument;
 };
 
-type TargetDocumentImplProps = TargetDocumentProps & {
-  nodeId: string;
+type TargetDocumentImplProps = {
+  nodeData: DocumentNodeData;
 };
 
-const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImplProps>(
-  ({ model, nodeId }, forwardedRef) => {
-    const ref = useRef<HTMLDivElement>(null);
-    useImperativeHandle(forwardedRef, () => ({
-      get headerRef() {
-        return ref.current;
-      },
-      get containerRef() {
-        return ref.current;
-      },
-    }));
+const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImplProps>(({ nodeData }, forwardedRef) => {
+  const { reloadNodeReferences } = useCanvas();
+  const [isExpanded, setExpanded] = useState<boolean>(true);
 
-    const headerActiopns = useMemo(() => {
-      return (
-        <ActionList isIconList={true}>
-          <ActionListItem>
-            <AttachSchemaButton
-              documentType={DocumentType.TARGET_BODY}
-              documentId={model.documentId}
-            ></AttachSchemaButton>
-          </ActionListItem>
-        </ActionList>
-      );
-    }, [model.documentId]);
+  const handleOnToggle = useCallback(() => {
+    reloadNodeReferences();
+  }, [reloadNodeReferences]);
+  const handleOnExpand = useCallback(() => {
+    setExpanded(!isExpanded);
+    reloadNodeReferences();
+  }, [isExpanded, reloadNodeReferences]);
 
+  const headerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(forwardedRef, () => ({
+    get headerRef() {
+      return headerRef.current;
+    },
+    get containerRef() {
+      return containerRef.current;
+    },
+  }));
+
+  const nodeDataChildren = NodeHelper.generateNodeDataChildren(nodeData);
+
+  const headerActiopns = useMemo(() => {
     return (
-      <Card id={nodeId} isCompact>
-        <NodeContainer dndId={nodeId} field={model as PrimitiveDocument} ref={ref}>
-          <CardHeader actions={{ actions: headerActiopns, hasNoOffset: true }}>
+      <ActionList isIconList={true}>
+        <ActionListItem>
+          <AttachSchemaButton
+            documentType={DocumentType.TARGET_BODY}
+            documentId={nodeData.document.documentId}
+          ></AttachSchemaButton>
+        </ActionListItem>
+      </ActionList>
+    );
+  }, [nodeData.document.documentId]);
+
+  return (
+    <Card id={nodeData.id} isCompact>
+      <div ref={containerRef}>
+        <NodeContainer nodeData={nodeData} ref={headerRef}>
+          <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActiopns, hasNoOffset: true }}>
             <CardTitle>
               <Split hasGutter>
                 <SplitItem>
                   <GripVerticalIcon />
                 </SplitItem>
-                <SplitItem>{model.name}</SplitItem>
+                <SplitItem>{nodeData.title}</SplitItem>
               </Split>
             </CardTitle>
           </CardHeader>
         </NodeContainer>
-      </Card>
-    );
-  },
-);
+        <CardExpandableContent>
+          <CardBody>
+            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+              {nodeDataChildren.map((nodeData) => (
+                <TargetDocumentNode nodeData={nodeData} key={nodeData.id} onToggle={handleOnToggle} />
+              ))}
+            </Accordion>
+          </CardBody>
+        </CardExpandableContent>
+      </div>
+    </Card>
+  );
+});
 
 const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImplProps>(
-  ({ model, nodeId }, forwardedRef) => {
+  ({ nodeData }, forwardedRef) => {
     const { reloadNodeReferences } = useCanvas();
     const [isExpanded, setExpanded] = useState<boolean>(true);
 
@@ -96,38 +123,40 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
       },
     }));
 
+    const nodeDataChildren = NodeHelper.generateNodeDataChildren(nodeData);
+
     const headerActions = useMemo(() => {
       return (
         <ActionList isIconList={true}>
           <ActionListItem>
             <AttachSchemaButton
               documentType={DocumentType.TARGET_BODY}
-              documentId={model.documentId}
+              documentId={nodeData.document.documentId}
               hasSchema={true}
             ></AttachSchemaButton>
           </ActionListItem>
           <ActionListItem>
             <DetachSchemaButton
               documentType={DocumentType.TARGET_BODY}
-              documentId={model.documentId}
+              documentId={nodeData.document.documentId}
             ></DetachSchemaButton>
           </ActionListItem>
         </ActionList>
       );
-    }, [model]);
+    }, [nodeData.document.documentId]);
 
     return (
-      <Card id={nodeId} isExpanded={isExpanded} isCompact>
+      <Card id={nodeData.id} isExpanded={isExpanded} isCompact>
         <NodeContainer ref={headerRef}>
           <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
-            <CardTitle>{model.name}</CardTitle>
+            <CardTitle>{nodeData.title}</CardTitle>
           </CardHeader>
         </NodeContainer>
         <CardExpandableContent>
           <CardBody>
             <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {model.fields.map((field) => (
-                <TargetDocumentField field={field} key={field.name} onToggle={handleOnToggle} />
+              {nodeDataChildren.map((nodeData) => (
+                <TargetDocumentNode nodeData={nodeData} key={nodeData.id} onToggle={handleOnToggle} />
               ))}
             </Accordion>
           </CardBody>
@@ -139,15 +168,15 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
 
 export const TargetDocument: FunctionComponent<TargetDocumentProps> = ({ model }) => {
   const { getNodeReference, setNodeReference } = useCanvas();
+  const { mappingTree } = useDataMapper();
   const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
-  const fieldRefId = model.fieldIdentifier.toString();
-  getNodeReference(fieldRefId) !== nodeReference && setNodeReference(fieldRefId, nodeReference);
-
-  const nodeId = useMemo(() => model.documentId + '-' + Math.floor(Math.random() * 10000), [model.documentId]);
+  const nodeData = new DocumentNodeData(model, mappingTree);
+  const nodeRefId = nodeData.path.toString();
+  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   return model instanceof PrimitiveDocument ? (
-    <TargetPrimitiveDocumentImpl model={model} nodeId={nodeId} ref={nodeReference} />
+    <TargetPrimitiveDocumentImpl nodeData={nodeData} ref={nodeReference} />
   ) : (
-    <TargetStructuredDocumentImpl model={model} nodeId={nodeId} ref={nodeReference} />
+    <TargetStructuredDocumentImpl nodeData={nodeData} ref={nodeReference} />
   );
 };

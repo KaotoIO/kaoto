@@ -17,8 +17,9 @@ import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMe
 
 import { Loading } from '../components/Loading';
 import { IMapping, MappingTree } from '../models/mapping';
-import { DocumentType, IDocument, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../models/document';
 import { CanvasView } from '../models/view';
+
 export interface IDataMapperContext {
   loading: boolean;
   activeView: CanvasView;
@@ -48,12 +49,14 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
   const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(DocumentType.SOURCE_BODY, 'Body'),
+    new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID),
   );
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(DocumentType.TARGET_BODY, 'Body'),
+    new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
-  const [mappingTree, setMappingTree] = useState<MappingTree>(new MappingTree());
+  const [mappingTree, setMappingTree] = useState<MappingTree>(
+    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
+  );
   const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
   const [debug, setDebug] = useState<boolean>(false);
 
@@ -62,7 +65,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   }, [sourceParameterMap]);
 
   const refreshMappingTree = useCallback(() => {
-    const newMapping = new MappingTree();
+    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     newMapping.root = mappingTree.root;
     setMappingTree(newMapping);
   }, [mappingTree]);

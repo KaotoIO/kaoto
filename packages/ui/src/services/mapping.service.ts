@@ -1,14 +1,20 @@
 import {
+  ConditionItem,
+  FieldItem,
   IFieldItem,
   IForEach,
   IFunctionCall,
   IFunctionCallArgumentType,
   IMapping,
-  ITransformation, MappingTree, MappingTreeItem,
+  ITransformation,
+  MappingTree,
+  MappingItem,
 } from '../models/mapping';
 import { DocumentType, IDocument, IField } from '../models/document';
 import { DocumentService } from './document.service';
 import { TransformationService } from './transformation.service';
+import { XPathParserService } from './xpath/xpath-parser.service';
+import { IMappingLink } from '../models/visualization';
 
 type MappingFieldPairReturnType = {
   existing?: IMapping;
@@ -52,12 +58,10 @@ export class MappingService {
     } as IMapping;
   }
 
-  static getMappingsFor(allMappings: IMapping[], field: IField) {
-    if (field.ownerDocument.documentType === DocumentType.TARGET_BODY) {
-      return allMappings.filter((m) => m.targetFields.indexOf(field) !== -1);
-    } else {
-      return allMappings.filter((m) => MappingService.isFieldInTransformation(m.source, field));
-    }
+  static getMappingsFor(mappingTree: MappingTree, field: IField) {
+    if (field.ownerDocument.documentType !== DocumentType.TARGET_BODY) return;
+    DocumentService.return;
+    allMappings.filter((m) => m.targetFields.indexOf(field) !== -1);
   }
 
   static extractSourceFields(transformation: ITransformation) {
@@ -88,55 +92,97 @@ export class MappingService {
     return MappingService.extractSourceFields(transformation).find((f) => f === field) !== undefined;
   }
 
-  static removeAllMappingsForDocument(allMappings: IMapping[], documentType: DocumentType, documentId: string) {
+  static removeAllMappingsForDocument(mappingTree: MappingTree, documentType: DocumentType, documentId: string) {
     if (documentType === DocumentType.TARGET_BODY) {
-      return allMappings.reduce((acc, mapping) => {
-        const staleField = mapping.targetFields.find(
-          (targetField) => targetField.fieldIdentifier.documentId === documentId,
-        );
-        if (!staleField) {
-          acc.push(mapping);
-        }
-        return acc;
-      }, [] as IMapping[]);
+      MappingService.doRemoveAllMappingsForTargetDocument(mappingTree, documentId);
     } else {
-      return allMappings.reduce((acc, mapping) => {
-        const staleField = MappingService.extractSourceFields(mapping.source).find(
-          (sourceField) =>
-            sourceField.fieldIdentifier.documentType === documentType &&
-            sourceField.fieldIdentifier.documentId === documentId,
-        );
-        if (!staleField) {
-          acc.push(mapping);
-        }
-        return acc;
-      }, [] as IMapping[]);
+      MappingService.doRemoveAllMappingsForSourceDocument(mappingTree, documentType, documentId);
     }
+    return mappingTree;
   }
 
-  static removeStaleMappingsForDocument(allMappings: IMapping[], document: IDocument) {
+  private static doRemoveAllMappingsForTargetDocument(item: MappingTree | MappingItem, documentId: string) {
+    item.children = item.children?.reduce((acc, child) => {
+      MappingService.doRemoveAllMappingsForTargetDocument(child, documentId);
+      if (child instanceof FieldItem && documentId !== child.field.ownerDocument.documentId) {
+        acc.push(child);
+      } else if (!('isCondition' in child) || child.children.length > 0) {
+        acc.push(child);
+      }
+      return acc;
+    }, [] as MappingItem[]);
+  }
+
+  private static doRemoveAllMappingsForSourceDocument(
+    item: MappingTree | MappingItem,
+    documentType: DocumentType,
+    documentId: string,
+  ) {
+    item.children = item.children?.reduce((acc, child) => {
+      MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentId);
+      if (
+        'expression' in child &&
+        !MappingService.hasStaleSourceDocument(child.expression as string, documentType, documentId)
+      ) {
+        acc.push(child);
+      }
+      return acc;
+    }, [] as MappingItem[]);
+  }
+
+  private static hasStaleSourceDocument(expression: string, documentType: DocumentType, documentId: string) {
+    const stalePath = XPathParserService.extractFieldPaths(expression).find((xpath) => {
+      const parsedPath = XPathParserService.parsePath(xpath);
+      return (
+        (documentType === DocumentType.SOURCE_BODY && !parsedPath.paramName) ||
+        (documentType === DocumentType.PARAM && parsedPath.paramName === documentId)
+      );
+    });
+    return !!stalePath;
+  }
+
+  static removeStaleMappingsForDocument(mappingTree: MappingTree, document: IDocument) {
     if (document.documentType === DocumentType.TARGET_BODY) {
-      return allMappings.reduce((acc, mapping) => {
-        const staleField = mapping.targetFields.find((targetField) => !DocumentService.hasField(document, targetField));
-        if (!staleField) {
-          acc.push(mapping);
-        }
-        return acc;
-      }, [] as IMapping[]);
+      MappingService.doRemoveStaleMappingsForTargetDocument(mappingTree, document);
     } else {
-      return allMappings.reduce((acc, mapping) => {
-        const staleField = MappingService.extractSourceFields(mapping.source).find(
-          (sourceField) =>
-            sourceField.ownerDocument.documentType === document.documentType &&
-            sourceField.ownerDocument.documentId === document.documentId &&
-            !DocumentService.hasField(document, sourceField),
-        );
-        if (!staleField) {
-          acc.push(mapping);
-        }
-        return acc;
-      }, [] as IMapping[]);
+      MappingService.doRemoveStaleMappingsForSourceDocument(mappingTree, document);
     }
+    return mappingTree;
+  }
+
+  private static doRemoveStaleMappingsForTargetDocument(item: MappingTree | MappingItem, document: IDocument) {
+    item.children = item.children?.reduce((acc, child) => {
+      MappingService.doRemoveStaleMappingsForTargetDocument(child, document);
+      if (child instanceof FieldItem && DocumentService.hasField(document, child.field)) {
+        acc.push(child);
+      } else if (!('isCondition' in child) || child.children.length > 0) {
+        acc.push(child);
+      }
+      return acc;
+    }, [] as MappingItem[]);
+  }
+
+  private static doRemoveStaleMappingsForSourceDocument(item: MappingTree | MappingItem, document: IDocument) {
+    item.children = item.children?.reduce((acc, child) => {
+      MappingService.doRemoveStaleMappingsForSourceDocument(child, document);
+      if ('expression' in child && !MappingService.hasStaleSourceField(child.expression as string, document)) {
+        acc.push(child);
+      }
+      return acc;
+    }, [] as MappingItem[]);
+  }
+
+  private static hasStaleSourceField(expression: string, document: IDocument) {
+    const stalePath = XPathParserService.extractFieldPaths(expression).find((xpath) => {
+      const parsedPath = XPathParserService.parsePath(xpath);
+      if (
+        (document.documentType === DocumentType.SOURCE_BODY && !parsedPath.paramName) ||
+        (document.documentType === DocumentType.PARAM && parsedPath.paramName === document.documentId)
+      ) {
+        return !DocumentService.getFieldFromPathSegments(document, parsedPath.segments);
+      }
+    });
+    return !!stalePath;
   }
 
   static wrapWithIf() {
@@ -147,15 +193,19 @@ export class MappingService {
     alert('TODO');
   }
 
-  static extractMappingLinks(mappings: MappingTree): {sourceTreePath: string, targetTreePath: string }[] {
-    mappings.root && mappings.root.reduce((acc, mapping) => {
-      for (const sourceField of MappingService.extractSourceFields(mapping.source)) {
-        for (const targetField of mapping.targetFields) {
-          const sourceClosestPath = getClosestExpandedPath(sourceField.fieldIdentifier.toString());
-          const targetClosestPath = getClosestExpandedPath(targetField.fieldIdentifier.toString());
-
-        }
-      }
-    }, []);
-    return [{source, target}];
+  static extractMappingLinks(item: MappingTree | MappingItem) {
+    const answer = [] as IMappingLink[];
+    if ('expression' in item) {
+      const targetPath = item.nodeIdentifier.toString();
+      XPathParserService.extractFieldPaths(item.expression as string).map((sourcePath) =>
+        answer.push({ sourceTreePath: sourcePath, targetTreePath: targetPath }),
+      );
+    }
+    if ('children' in item) {
+      item.children.map((child) => {
+        answer.push(...MappingService.extractMappingLinks(child));
+      });
+    }
+    return answer;
+  }
 }

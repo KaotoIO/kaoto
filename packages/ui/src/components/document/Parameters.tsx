@@ -159,7 +159,7 @@ export const Parameters: FunctionComponent = () => {
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
               <StackItem key={documentId}>
-                <SourceDocument documentType={DocumentType.PARAM} model={doc} />
+                <SourceDocument model={doc} />
               </StackItem>
             ))}
           </Stack>

@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/core';
 import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { MappingTreeItem } from '../models/mapping';
+import { MappingItem } from '../models/mapping';
 import { DnDHandler } from './dnd/DnDHandler';
 
 export interface NodeReference {
@@ -58,7 +58,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
-  const [activeData, setActiveData] = useState<DataRef<MappingTreeItem> | null>(null);
+  const [activeData, setActiveData] = useState<DataRef<MappingItem> | null>(null);
   const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
     new Map<string, MutableRefObject<NodeReference>>(),
   );
@@ -66,7 +66,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       activeHandler && activeHandler.handleDragStart(event);
-      setActiveData(event.active.data as DataRef<MappingTreeItem>);
+      setActiveData(event.active.data as DataRef<MappingItem>);
     },
     [activeHandler],
   );

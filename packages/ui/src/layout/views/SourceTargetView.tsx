@@ -12,13 +12,12 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect } from 'react';
 import { useDataMapper } from '../../hooks';
-import { SourceDocument } from '../../components/document';
 import { MappingLinksContainer } from '../../components/mapping/MappingLink';
-import { DocumentType } from '../../models/document';
 import './SourceTargetView.scss';
 import { useCanvas } from '../../hooks/useCanvas';
 import { SourcePanel } from './SourcePanel';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
+import { TargetDocument } from '../../components/document/target/TargetDocument';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
@@ -45,7 +44,7 @@ export const SourceTargetView: FunctionComponent = () => {
           <PanelMain onScroll={reloadNodeReferences} maxHeight="90%">
             <Stack className="source-target-view__target-panel-main">
               <StackItem>
-                <SourceDocument documentType={DocumentType.TARGET_BODY} model={targetBodyDocument} />
+                <TargetDocument model={targetBodyDocument} />
               </StackItem>
             </Stack>
           </PanelMain>

@@ -167,12 +167,6 @@ export class XPath2Parser extends CstParser implements XPathParser {
   });
 
   private ForExpr = this.RULE('ForExpr', () => {
-    this.SUBRULE(this.SimpleForClause);
-    this.CONSUME(Return);
-    this.SUBRULE(this.ExprSingle);
-  });
-
-  private SimpleForClause = this.RULE('SimpleForClause', () => {
     this.CONSUME(For);
     this.SUBRULE(this.VarRef);
     this.CONSUME(In);
@@ -183,6 +177,8 @@ export class XPath2Parser extends CstParser implements XPathParser {
       this.CONSUME2(In);
       this.SUBRULE2(this.ExprSingle);
     });
+    this.CONSUME(Return);
+    this.SUBRULE3(this.ExprSingle);
   });
 
   private QuantifiedExpr = this.RULE('QuantifiedExpr', () => {
@@ -231,9 +227,24 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE(this.RangeExpr);
     this.OPTION(() => {
       this.OR([
-        { ALT: () => this.SUBRULE(this.ValueComp) },
-        { ALT: () => this.SUBRULE(this.GeneralComp) },
-        { ALT: () => this.SUBRULE(this.NodeComp) },
+        // ValueComp
+        { ALT: () => this.CONSUME(Eq) },
+        { ALT: () => this.CONSUME(Ne) },
+        { ALT: () => this.CONSUME(Lt) },
+        { ALT: () => this.CONSUME(Le) },
+        { ALT: () => this.CONSUME(Gt) },
+        { ALT: () => this.CONSUME(Ge) },
+        // GeneralComp
+        { ALT: () => this.CONSUME(Equal) },
+        { ALT: () => this.CONSUME(NotEqual) },
+        { ALT: () => this.CONSUME(LessThan) },
+        { ALT: () => this.CONSUME(LessThanEqual) },
+        { ALT: () => this.CONSUME(GreaterThan) },
+        { ALT: () => this.CONSUME(GreaterThanEqual) },
+        // NodeComp
+        { ALT: () => this.CONSUME(Is) },
+        { ALT: () => this.CONSUME2(Precede) },
+        { ALT: () => this.CONSUME(Follow) },
         { ALT: () => this.SUBRULE2(this.RangeExpr) },
       ]);
     });
@@ -315,36 +326,6 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private GeneralComp = this.RULE('GeneralComp', () => {
-    this.OR([
-      { ALT: () => this.CONSUME(Equal) },
-      { ALT: () => this.CONSUME(NotEqual) },
-      { ALT: () => this.CONSUME(LessThan) },
-      { ALT: () => this.CONSUME(LessThanEqual) },
-      { ALT: () => this.CONSUME(GreaterThan) },
-      { ALT: () => this.CONSUME(GreaterThanEqual) },
-    ]);
-  });
-
-  private ValueComp = this.RULE('ValueComp', () => {
-    this.OR([
-      { ALT: () => this.CONSUME(Eq) },
-      { ALT: () => this.CONSUME(Ne) },
-      { ALT: () => this.CONSUME(Lt) },
-      { ALT: () => this.CONSUME(Le) },
-      { ALT: () => this.CONSUME(Gt) },
-      { ALT: () => this.CONSUME(Ge) },
-    ]);
-  });
-
-  private NodeComp = this.RULE('NodeComp', () => {
-    this.OR([
-      { ALT: () => this.CONSUME(Is) },
-      { ALT: () => this.CONSUME2(Precede) },
-      { ALT: () => this.CONSUME(Follow) },
-    ]);
-  });
-
   private PathExpr = this.RULE('PathExpr', () => {
     this.OR([
       {
@@ -363,91 +344,97 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
+  private ChildPathSegmentExpr = this.RULE('ChildPathSegmentExpr', () => {
+    this.OR([{ ALT: () => this.CONSUME(Slash) }, { ALT: () => this.CONSUME(DoubleSlash) }]);
+    this.SUBRULE2(this.StepExpr);
+  });
+
   private RelativePathExpr = this.RULE('RelativePathExpr', () => {
     this.SUBRULE(this.StepExpr);
-    this.MANY(() => {
-      this.OR([{ ALT: () => this.CONSUME(Slash) }, { ALT: () => this.CONSUME(DoubleSlash) }]);
-      this.SUBRULE2(this.StepExpr);
-    });
+    this.MANY(() => this.SUBRULE2(this.ChildPathSegmentExpr));
   });
 
   private StepExpr = this.RULE('StepExpr', () => {
-    this.OR([{ ALT: () => this.SUBRULE(this.FilterExpr) }, { ALT: () => this.SUBRULE(this.AxisStep) }]);
-  });
-
-  private AxisStep = this.RULE('AxisStep', () => {
-    this.OR([{ ALT: () => this.SUBRULE(this.ReverseStep) }, { ALT: () => this.SUBRULE(this.ForwardStep) }]);
-    this.SUBRULE(this.PredicateList);
-  });
-
-  private ForwardStep = this.RULE('ForwardStep', () => {
     this.OR([
+      { ALT: () => this.SUBRULE(this.FilterExpr) },
       {
         ALT: () => {
-          this.SUBRULE(this.ForwardAxis);
-          this.SUBRULE(this.NodeTest);
+          this.OR2([
+            { ALT: () => this.SUBRULE(this.ReverseStep) },
+            {
+              ALT: () => {
+                // ForwardStep
+                this.OR3([
+                  {
+                    ALT: () => {
+                      // ForwardAxis
+                      this.OR4([
+                        {
+                          ALT: () => {
+                            this.CONSUME(Child);
+                            this.CONSUME(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(Descendant);
+                            this.CONSUME2(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(Attribute);
+                            this.CONSUME3(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(Self);
+                            this.CONSUME4(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(DescendantOrSelf);
+                            this.CONSUME5(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(FollowingSibling);
+                            this.CONSUME6(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(Following);
+                            this.CONSUME7(DoubleColon);
+                          },
+                        },
+                        {
+                          ALT: () => {
+                            this.CONSUME(Namespace);
+                            this.CONSUME8(DoubleColon);
+                          },
+                        },
+                      ]);
+                      this.SUBRULE(this.NodeTest);
+                    },
+                  },
+                  {
+                    ALT: () => {
+                      this.OPTION(() => this.CONSUME(At));
+                      this.SUBRULE2(this.NodeTest);
+                    },
+                  },
+                ]);
+              },
+            },
+          ]);
+          this.SUBRULE(this.PredicateList);
         },
       },
-      { ALT: () => this.SUBRULE(this.AbbrevForwardStep) },
     ]);
-  });
-
-  private ForwardAxis = this.RULE('ForwardAxis', () => {
-    this.OR([
-      {
-        ALT: () => {
-          this.CONSUME(Child);
-          this.CONSUME(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(Descendant);
-          this.CONSUME2(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(Attribute);
-          this.CONSUME3(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(Self);
-          this.CONSUME4(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(DescendantOrSelf);
-          this.CONSUME5(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(FollowingSibling);
-          this.CONSUME6(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(Following);
-          this.CONSUME7(DoubleColon);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME(Namespace);
-          this.CONSUME8(DoubleColon);
-        },
-      },
-    ]);
-  });
-
-  private AbbrevForwardStep = this.RULE('AbbrevForwardStep', () => {
-    this.OPTION(() => this.CONSUME(At));
-    this.SUBRULE(this.NodeTest);
   });
 
   private ReverseStep = this.RULE('ReverseStep', () => {
@@ -525,21 +512,6 @@ export class XPath2Parser extends CstParser implements XPathParser {
   });
 
   private FilterExpr = this.RULE('FilterExpr', () => {
-    this.SUBRULE(this.PrimaryExpr);
-    this.SUBRULE(this.PredicateList);
-  });
-
-  private PredicateList = this.RULE('PredicateList', () => {
-    this.MANY(() => this.SUBRULE(this.Predicate));
-  });
-
-  private Predicate = this.RULE('Predicate', () => {
-    this.CONSUME(LSquare);
-    this.SUBRULE(this.Expr);
-    this.CONSUME(RSquare);
-  });
-
-  private PrimaryExpr = this.RULE('PrimaryExpr', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.Literal) },
       { ALT: () => this.SUBRULE(this.VarRef) },
@@ -547,6 +519,15 @@ export class XPath2Parser extends CstParser implements XPathParser {
       { ALT: () => this.CONSUME(ContextItemExpr) },
       { ALT: () => this.SUBRULE(this.FunctionCall) },
     ]);
+    this.SUBRULE(this.PredicateList);
+  });
+
+  private PredicateList = this.RULE('PredicateList', () => {
+    this.MANY(() => {
+      this.CONSUME(LSquare);
+      this.SUBRULE(this.Expr);
+      this.CONSUME(RSquare);
+    });
   });
 
   private Literal = this.RULE('Literal', () => {

@@ -1,21 +1,21 @@
 import { AccordionContent, AccordionItem, AccordionToggle, Split, SplitItem } from '@patternfly/react-core';
-import { FunctionComponent, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { DocumentType, IField } from '../../../models/document';
+import { FunctionComponent, useImperativeHandle, useRef, useState } from 'react';
+import { IField } from '../../../models/document';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { NodeContainer } from '../NodeContainer';
 import { AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import { NodeReference } from '../../../providers/CanvasProvider';
 import '../Document.scss';
+import { FieldNodeData } from '../../../models/visualization';
 
 type DocumentFieldProps = {
-  documentType: DocumentType;
-  field: IField;
+  nodeData: FieldNodeData;
   onToggle: () => void;
 };
 
-export const SourceDocumentField: FunctionComponent<DocumentFieldProps> = ({ documentType, field, onToggle }) => {
+export const SourceDocumentField: FunctionComponent<DocumentFieldProps> = ({ nodeData, onToggle }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
-  const dndId = useMemo(() => field.name + '-' + Math.floor(Math.random() * 10000), [field.name]);
+  const dndId = nodeData.id;
   const { getNodeReference, setNodeReference } = useCanvas();
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -28,55 +28,56 @@ export const SourceDocumentField: FunctionComponent<DocumentFieldProps> = ({ doc
       return containerRef.current;
     },
   }));
-  const fieldRefId = field.fieldIdentifier.toString();
-  getNodeReference(fieldRefId) !== nodeReference && setNodeReference(fieldRefId, nodeReference);
+  const nodeRefId = nodeData.path.toString();
+  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
-  return !field.fields || field.fields.length === 0 ? (
-    <NodeContainer dndId={dndId} field={field} ref={containerRef}>
-      <AccordionItem key={dndId}>
+  return !nodeData.field.fields || nodeData.field.fields.length === 0 ? (
+    <NodeContainer nodeData={nodeData} ref={containerRef}>
+      <AccordionItem key={nodeData.id}>
         <AccordionContent>
           <Split hasGutter>
             <SplitItem>
               <GripVerticalIcon />
             </SplitItem>
-            {field.maxOccurs > 1 && (
+            {nodeData.field.maxOccurs > 1 && (
               <SplitItem>
                 <LayerGroupIcon />
               </SplitItem>
             )}
-            {field.isAttribute && (
+            {nodeData.field.isAttribute && (
               <SplitItem>
                 <AtIcon />
               </SplitItem>
             )}
-            <SplitItem>{field.name}</SplitItem>
+            <SplitItem>{nodeData.title}</SplitItem>
             <SplitItem>&nbsp;</SplitItem>
           </Split>
         </AccordionContent>
       </AccordionItem>
     </NodeContainer>
   ) : (
-    <NodeContainer dndId={dndId} field={field} ref={containerRef}>
+    <NodeContainer nodeData={nodeData} ref={containerRef}>
       <AccordionItem key={dndId}>
         <div ref={headerRef}>
-          <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={field.expression}>
+          <AccordionToggle onClick={() => setIsExpanded(!isExpanded)} isExpanded={isExpanded} id={nodeData.id}>
             <Split hasGutter>
               <SplitItem>
                 <GripVerticalIcon />
               </SplitItem>
-              {field.maxOccurs > 1 && (
+              {nodeData.field.maxOccurs > 1 && (
                 <SplitItem>
                   <LayerGroupIcon />
                 </SplitItem>
               )}
-              <SplitItem isFilled>{field.name}</SplitItem>
+              <SplitItem isFilled>{nodeData.title}</SplitItem>
             </Split>
           </AccordionToggle>
         </div>
-        <AccordionContent isHidden={!isExpanded} id={field.expression}>
-          {field.fields.map((f: IField) => (
-            <SourceDocumentField documentType={documentType} key={f.expression} field={f} onToggle={onToggle} />
-          ))}
+        <AccordionContent isHidden={!isExpanded} id={nodeData.id}>
+          {nodeData.field.fields.map((f: IField) => {
+            const childNodeData = new FieldNodeData(nodeData, f);
+            return <SourceDocumentField nodeData={childNodeData} key={childNodeData.id} onToggle={onToggle} />;
+          })}
         </AccordionContent>
       </AccordionItem>
     </NodeContainer>

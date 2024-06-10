@@ -1,13 +1,13 @@
 import { DnDHandler } from './DnDHandler';
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { MappingTree, MappingTreeItem } from '../../models/mapping';
+import { MappingTree, MappingItem } from '../../models/mapping';
 import { MappingService } from '../../services/mapping.service';
 import { TransformationService } from '../../services/transformation.service';
 
 export class SourceTargetDnDHandler implements DnDHandler {
   handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): void {
-    const fromField = event.active.data.current as MappingTreeItem;
-    const toField = event.over?.data.current as MappingTreeItem;
+    const fromField = event.active.data.current as MappingItem;
+    const toField = event.over?.data.current as MappingItem;
     const { existing, sourceField, targetField } = MappingService.validateNewFieldPairForMapping(
       mappingTree,
       fromField,

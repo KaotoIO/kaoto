@@ -1,16 +1,15 @@
 import { CSSProperties, forwardRef, FunctionComponent, PropsWithChildren } from 'react';
-import { IField } from '../../models/document';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { NodeData } from '../../models/visualization';
 
-interface NodeContainerProps extends PropsWithChildren {
-  dndId?: string;
-  field?: IField;
-}
+type DnDContainerProps = PropsWithChildren & {
+  nodeData: NodeData;
+};
 
-const DnDContainer: FunctionComponent<NodeContainerProps> = ({ dndId, field, children }) => {
+const DnDContainer: FunctionComponent<DnDContainerProps> = ({ nodeData, children }) => {
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: 'droppable-' + dndId,
-    data: field,
+    id: 'droppable-' + nodeData.id,
+    data: nodeData,
   });
   const {
     attributes,
@@ -18,8 +17,8 @@ const DnDContainer: FunctionComponent<NodeContainerProps> = ({ dndId, field, chi
     setNodeRef: setDraggableNodeRef,
     transform,
   } = useDraggable({
-    id: 'draggable-' + dndId,
-    data: field,
+    id: 'draggable-' + nodeData.id,
+    data: nodeData,
   });
 
   const droppableStyle = {
@@ -36,24 +35,30 @@ const DnDContainer: FunctionComponent<NodeContainerProps> = ({ dndId, field, chi
     : undefined;
 
   return (
-    <div id={'droppable-' + dndId} ref={setDroppableNodeRef} style={droppableStyle}>
-      <div id={'draggable-' + dndId} ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
+    <div id={'droppable-' + nodeData.id} ref={setDroppableNodeRef} style={droppableStyle}>
+      <div
+        id={'draggable-' + nodeData.id}
+        ref={setDraggableNodeRef}
+        style={draggableStyle}
+        {...listeners}
+        {...attributes}
+      >
         {children}
       </div>
     </div>
   );
 };
 
-export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(
-  ({ children, dndId, field }, forwardedRef) => {
-    return dndId && field ? (
-      <div ref={forwardedRef}>
-        <DnDContainer dndId={dndId} field={field}>
-          {children}
-        </DnDContainer>
-      </div>
-    ) : (
-      <div ref={forwardedRef}>{children}</div>
-    );
-  },
-);
+type NodeContainerProps = PropsWithChildren & {
+  nodeData?: NodeData;
+};
+
+export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(({ children, nodeData }, forwardedRef) => {
+  return nodeData ? (
+    <div ref={forwardedRef}>
+      <DnDContainer nodeData={nodeData}>{children}</DnDContainer>
+    </div>
+  ) : (
+    <div ref={forwardedRef}>{children}</div>
+  );
+});

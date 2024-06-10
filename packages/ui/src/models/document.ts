@@ -12,10 +12,17 @@ export interface INamespace {
 
 export type IParentType = IDocument | IField;
 
+export enum DocumentType {
+  SOURCE_BODY = 'sourceBody',
+  TARGET_BODY = 'targetBody',
+  PARAM = 'param',
+}
+
+export const BODY_DOCUMENT_ID = 'Body';
+
 export interface IField {
   parent: IParentType;
   ownerDocument: IDocument;
-  fieldIdentifier: FieldIdentifier;
   name: string;
   expression: string;
   type: Types;
@@ -30,7 +37,6 @@ export interface IField {
 export interface IDocument {
   documentType: DocumentType;
   documentId: string;
-  fieldIdentifier: FieldIdentifier;
   name: string;
   schemaType: string;
   fields: IField[];
@@ -43,9 +49,6 @@ export abstract class BaseDocument implements IDocument {
   fields: IField[] = [];
   name: string = '';
   schemaType = '';
-  get fieldIdentifier(): FieldIdentifier {
-    return new FieldIdentifier(`${this.documentType}:${this.documentId}://`);
-  }
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
@@ -72,7 +75,6 @@ export class PrimitiveDocument extends BaseDocument implements IField {
 export abstract class BaseField implements IField {
   abstract parent: IParentType;
   abstract ownerDocument: IDocument;
-  abstract fieldIdentifier: FieldIdentifier;
   fields: IField[] = [];
   isAttribute: boolean = false;
   name: string = '';
@@ -82,39 +84,4 @@ export abstract class BaseField implements IField {
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
   namespaceURI: string | null = null;
-}
-
-export enum DocumentType {
-  SOURCE_BODY = 'sourceBody',
-  TARGET_BODY = 'targetBody',
-  PARAM = 'param',
-}
-
-export class FieldIdentifier {
-  documentType: DocumentType = DocumentType.SOURCE_BODY;
-  documentId: string = '';
-  pathSegments: string[] = [];
-
-  constructor(expression?: string) {
-    if (!expression) return;
-    const parts = expression.split('://');
-    if (parts.length < 2) return;
-    const index = parts[0].indexOf(':');
-    this.documentType = (index !== -1 ? parts[0].substring(0, index) : parts[0]) as DocumentType;
-    this.documentId = index !== -1 ? parts[0].substring(index + 1) : this.documentId;
-    this.pathSegments = parts[1].length > 0 ? parts[1].split('/') : [];
-  }
-
-  toString() {
-    const beforePath = `${this.documentType}:${this.documentId}://`;
-    return this.pathSegments.length > 0 ? `${beforePath}${this.pathSegments.join('/')}` : beforePath;
-  }
-
-  static childOf(parent: FieldIdentifier, childSegment: string) {
-    const answer = new FieldIdentifier();
-    answer.documentType = parent.documentType;
-    answer.documentId = parent.documentId;
-    answer.pathSegments = [...parent.pathSegments, childSegment];
-    return answer;
-  }
 }

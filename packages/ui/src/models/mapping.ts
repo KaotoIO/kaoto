@@ -56,44 +56,81 @@ export interface IMapping {
   targetFields: IField[];
 }
 
-export abstract class MappingTreeItem {
-  id: string = generateRandomId('item');
-  children: MappingTreeItem[] = [];
+export abstract class MappingItem {
+  constructor(public name: string) {}
+  id: string = generateRandomId(this.name);
+  children: MappingItem[] = [];
 }
 
-export class FieldItem extends MappingTreeItem {
-  field?: IField;
+export class FieldItem extends MappingItem {
+  constructor(public field: IField) {
+    super('field');
+  }
 }
 
-export class Expression {
-  expression: string = '';
+export interface ExpressionItem {
+  expression: string;
 }
 
-export class Predicate extends Expression {}
-
-export class IfItem extends MappingTreeItem {
-  test?: Predicate;
+export interface ConditionItem {
+  isCondition: true;
 }
 
-export class ChooseItem extends MappingTreeItem {
+export class IfItem extends MappingItem implements ExpressionItem, ConditionItem {
+  constructor() {
+    super('if');
+  }
+  isCondition = true as const;
+  expression = '';
+}
+
+export class ChooseItem extends MappingItem implements ConditionItem {
+  constructor() {
+    super('choose');
+  }
+  isCondition = true as const;
   when: WhenItem[] = [];
   otherwise?: OtherwiseItem;
 }
 
-export class WhenItem extends MappingTreeItem {
-  test?: Predicate;
+export class WhenItem extends MappingItem implements ExpressionItem, ConditionItem {
+  constructor() {
+    super('when');
+  }
+  isCondition = true as const;
+  expression = '';
 }
 
-export class OtherwiseItem extends MappingTreeItem {}
-
-export class ForEachItem extends MappingTreeItem {
-  select?: Expression;
+export class OtherwiseItem extends MappingItem implements ConditionItem {
+  constructor() {
+    super('otherwise');
+  }
+  isCondition = true as const;
 }
 
-export class ValueSelector extends MappingTreeItem {
-  select?: Expression;
+export class ForEachItem extends MappingItem implements ExpressionItem, ConditionItem {
+  constructor() {
+    super('for-each');
+  }
+  isCondition = true as const;
+  expression = '';
+}
+
+export class SortItem extends MappingItem implements ExpressionItem, ConditionItem {
+  constructor() {
+    super('sort');
+  }
+  isCondition = true as const;
+  expression = '';
+}
+
+export class ValueSelector extends MappingItem implements ExpressionItem {
+  constructor() {
+    super('value');
+  }
+  expression = '';
 }
 
 export class MappingTree {
-  root?: MappingTreeItem;
+  children: MappingItem[] = [];
 }

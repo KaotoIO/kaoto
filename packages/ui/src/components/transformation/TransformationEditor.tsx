@@ -13,8 +13,7 @@ import {
   TabTitleText,
 } from '@patternfly/react-core';
 import { ArrowRightIcon } from '@patternfly/react-icons';
-import { useDataMapper } from '../../hooks';
-import { IMapping } from '../../models/mapping';
+import { ExpressionItem } from '../../models/mapping';
 import { TransformationService } from '../../services/transformation.service';
 import { XPathParserService } from '../../services/xpath/xpath-parser.service';
 import { FunctionGroup } from '../../services/xpath/xpath-parser';
@@ -23,22 +22,21 @@ import { NodeContainer } from '../document/NodeContainer';
 import { XPathEditor } from './action/XPathEditor';
 
 type TransformationEditorProps = {
-  mapping: IMapping;
+  mapping: ExpressionItem;
+  onUpdate: () => void;
 };
 
-export const TransformationEditor: FunctionComponent<TransformationEditorProps> = ({ mapping }) => {
-  const { refreshMappingTree } = useDataMapper();
-  const transformation = mapping?.source;
+export const TransformationEditor: FunctionComponent<TransformationEditorProps> = ({ mapping, onUpdate }) => {
+  const transformation = mapping?.expression;
   const transformationExpression = TransformationService.toExpression(transformation);
-  const handleUpdate = useCallback(() => refreshMappingTree(), [refreshMappingTree]);
   const handleExpressionChange = useCallback(
     (expression?: string) => {
       if (expression) {
-        mapping.source = TransformationService.fromExpression(expression);
-        handleUpdate();
+        mapping.expression = expression;
+        onUpdate();
       }
     },
-    [handleUpdate, mapping],
+    [mapping, onUpdate],
   );
   const functionDefinitions = XPathParserService.getXPathFunctionDefinitions();
 
@@ -57,12 +55,7 @@ export const TransformationEditor: FunctionComponent<TransformationEditorProps> 
                 {Object.keys(functionDefinitions).map((value) => (
                   <MenuGroup key={value} label={value}>
                     {functionDefinitions[value as FunctionGroup].map((func, index) => (
-                      <NodeContainer
-                        key={value + '-' + index}
-                        dndId={'function-' + func.name}
-                        field={undefined}
-                        ref={undefined}
-                      >
+                      <NodeContainer key={value + '-' + index} nodeData={undefined} ref={undefined}>
                         <MenuItem key={`${value}-${index}`} description={func.description}>
                           {func.displayName}
                         </MenuItem>

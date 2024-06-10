@@ -2,7 +2,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { IMapping } from '../../models';
 import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
-import { useDataMapper, useToggle } from '../../hooks';
+import { useDataMapper, useToggle } from '../../../hooks';
 
 type DeleteMappingButtonProps = {
   mapping: IMapping;
