@@ -13,7 +13,7 @@ import { CustomLongTextField } from './customField/CustomLongTextField';
 import { PasswordField } from './customField/PasswordField';
 
 // Name of the properties that should load CustomLongTextField
-const CustomLongTextProps = ['Expression', 'Description'];
+const CustomLongTextProps = ['Expression', 'Description', 'Query'];
 
 /**
  * Custom AutoField that supports all the fields from Uniforms PatternFly
