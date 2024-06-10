@@ -98,4 +98,74 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('streamCache: true');
     cy.checkCodeSpanLine('trace: true');
   });
+
+  it('Canvas pipe container config', () => {
+    cy.uploadFixture('flows/pipe/basic.yaml');
+    cy.openDesignPage();
+
+    cy.get('[data-id^="pipe"] .pf-topology__group__label text').click({ force: true });
+
+    cy.get(`input[name="name"]`).clear();
+    cy.get(`input[name="name"]`).type('testName');
+
+    cy.expandWrappedSection('labels');
+    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
+    cy.get('[data-testid="labels--placeholder-name-input"]').should('not.be.disabled');
+    cy.get('[data-testid="labels--placeholder-name-input"]').click({ force: true });
+    cy.get('[data-testid="labels--placeholder-name-input"]').clear().type('labelsTest');
+
+    cy.get('[data-testid="labels--placeholder-value-input"]').should('not.be.disabled');
+    cy.get('[data-testid="labels--placeholder-value-input"]').click({ force: true });
+    cy.get('[data-testid="labels--placeholder-value-input"]').clear().type('labelsValue');
+    cy.get('[data-testid="labels--placeholder-property-edit-confirm--btn"]').click({ force: true });
+    cy.closeWrappedSection('labels');
+
+    cy.expandWrappedSection('annotations');
+    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
+    cy.get('[data-testid="annotations--placeholder-name-input"]').should('not.be.disabled');
+    cy.get('[data-testid="annotations--placeholder-name-input"]').click({ force: true });
+    cy.get('[data-testid="annotations--placeholder-name-input"]').clear().type('annotationsTest');
+
+    cy.get('[data-testid="annotations--placeholder-value-input"]').should('not.be.disabled');
+    cy.get('[data-testid="annotations--placeholder-value-input"]').click({ force: true });
+    cy.get('[data-testid="annotations--placeholder-value-input"]').clear().type('annotationsValue');
+    cy.get('[data-testid="annotations--placeholder-property-edit-confirm--btn"]').click({ force: true });
+    cy.closeWrappedSection('annotations');
+
+    cy.openSourceCode();
+
+    cy.checkCodeSpanLine('name: testName');
+    cy.checkCodeSpanLine('labels:');
+    cy.checkCodeSpanLine('labelsTest: labelsValue');
+    cy.checkCodeSpanLine('annotations:');
+    cy.checkCodeSpanLine('annotationsTest: annotationsValue');
+  });
+
+  it('Canvas route delete group button test', () => {
+    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openDesignPage();
+    cy.toggleRouteVisibility(1);
+
+    cy.get('[data-id^="route-4321"]')
+      .find('.pf-topology__group__label')
+      .find('.pf-topology__node__action-icon')
+      .eq(1)
+      .click();
+    cy.get('[data-testid="context-menu-container-remove"]').click();
+    cy.contains('button', 'Cancel').click();
+
+    cy.checkNodeExist('timer', 2);
+    cy.checkNodeExist('log', 2);
+
+    cy.get('[data-id^="route-4321"]')
+      .find('.pf-topology__group__label')
+      .find('.pf-topology__node__action-icon')
+      .eq(1)
+      .click();
+    cy.get('[data-testid="context-menu-container-remove"]').click();
+    cy.contains('button', 'Confirm').click();
+
+    cy.checkNodeExist('timer', 1);
+    cy.checkNodeExist('log', 1);
+  });
 });
