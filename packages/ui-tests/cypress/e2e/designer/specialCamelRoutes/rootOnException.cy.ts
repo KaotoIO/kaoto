@@ -1,4 +1,4 @@
-describe('Test for root containers', () => {
+describe('Test for root on exception container', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
@@ -33,6 +33,8 @@ describe('Test for root containers', () => {
       .find('.pf-topology__node__label')
       .find('.pf-topology__node__label__background')
       .click();
+    cy.selectInTypeaheadField('redeliveryPolicy.retriesExhaustedLogLevel', 'INFO');
+    cy.selectInTypeaheadField('redeliveryPolicy.retryAttemptedLogLevel', 'INFO');
 
     cy.get(`textarea[name="description"]`).clear().type('testDescription');
     cy.get(`input[name="onExceptionOccurredRef"]`).clear().type('testOnExceptionOccurredRef');
@@ -59,6 +61,22 @@ describe('Test for root containers', () => {
     cy.get(`input[name="redeliveryPolicy.redeliveryDelay"]`).clear().type('2000');
     cy.get(`input[name="redeliveryPolicy.retryAttemptedLogInterval"]`).clear().type('2');
     cy.get(`input[name="redeliveryPolicyRef"]`).clear().type('testRedeliveryPolicyRef');
+    cy.openExpressionModal('retryWhile');
+    cy.selectExpression('Constant');
+    cy.interactWithExpressinInputObject('expression', `retryWhile.constant`);
+    cy.interactWithExpressinInputObject('id', 'retryWhile.constantExpressionId');
+    cy.confirmExpressionModal();
+    cy.openExpressionModal('handled');
+    cy.selectExpression('Constant');
+    cy.interactWithExpressinInputObject('expression', `handled.constant`);
+    cy.interactWithExpressinInputObject('id', 'handled.constantExpressionId');
+    cy.confirmExpressionModal();
+    cy.openExpressionModal('continued');
+    cy.selectExpression('Constant');
+    cy.interactWithExpressinInputObject('expression', `continued.constant`);
+    cy.interactWithExpressinInputObject('id', 'continued.constantExpressionId');
+    cy.confirmExpressionModal();
+
     cy.openSourceCode();
 
     cy.checkCodeSpanLine('description: testDescription');
@@ -85,5 +103,18 @@ describe('Test for root containers', () => {
     cy.checkCodeSpanLine('redeliveryDelay: "2000"');
     cy.checkCodeSpanLine('retryAttemptedLogInterval: "2"');
     cy.checkCodeSpanLine('redeliveryPolicyRef: testRedeliveryPolicyRef');
+
+    cy.checkCodeSpanLine('retryWhile:');
+    cy.checkCodeSpanLine('id: retryWhile.constantExpressionId');
+    cy.checkCodeSpanLine('expression: retryWhile.constant');
+    cy.checkCodeSpanLine('handled:');
+    cy.checkCodeSpanLine('id: handled.constantExpressionId');
+    cy.checkCodeSpanLine('expression: handled.constant');
+    cy.checkCodeSpanLine('continued:');
+    cy.checkCodeSpanLine('id: continued.constantExpressionId');
+    cy.checkCodeSpanLine('expression: continued.constant');
+
+    cy.checkCodeSpanLine('retriesExhaustedLogLevel: INFO');
+    cy.checkCodeSpanLine('retryAttemptedLogLevel: INFO');
   });
 });

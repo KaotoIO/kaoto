@@ -47,16 +47,20 @@ declare global {
       checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
-      openExpressionModal(): Chainable<JQuery<Element>>;
+      openExpressionModal(expression: string): Chainable<JQuery<Element>>;
+      openExpressionModalBtn(): Chainable<JQuery<Element>>;
       confirmExpressionModal(): Chainable<JQuery<Element>>;
       cancelExpressionModal(): Chainable<JQuery<Element>>;
       selectExpression(expression: string): Chainable<JQuery<Element>>;
+      selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
+      addSingleProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
       deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
       configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
+      selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

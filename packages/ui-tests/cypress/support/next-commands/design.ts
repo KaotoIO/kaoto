@@ -114,8 +114,44 @@ Cypress.Commands.add('deleteBranch', (branchIndex) => {
   cy.get('[data-testid="confirmDeleteBranchDialog__btn"]').click();
 });
 
-Cypress.Commands.add('openExpressionModal', () => {
-  cy.get('[data-testid="launch-expression-modal-btn"]').should('be.visible').click();
+Cypress.Commands.add('openExpressionModalBtn', () => {
+  cy.get('[data-testid="launch-expression-modal-btn"]').scrollIntoView().should('be.visible').click();
+});
+
+Cypress.Commands.add('openExpressionModal', (expression: string) => {
+  cy.get(`[data-fieldname="${expression}"]`)
+    .scrollIntoView()
+    .within(() => {
+      cy.openExpressionModalBtn();
+    });
+});
+
+Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) => {
+  cy.get('[data-testid="new-entity-list-dropdown"]').click({ force: true });
+  if (subType) {
+    cy.get('ul.pf-v5-c-menu__list')
+      .should('exist')
+      .find(`[data-testid="new-entity-${type}"]`)
+      .should('exist')
+      .trigger('mouseover');
+  }
+  subType = subType ?? type;
+  cy.get(`[data-testid="new-entity-${subType}"] button.pf-v5-c-menu__item`).click({ force: true });
+});
+
+Cypress.Commands.add('addSingleProperty', (propertyName: string, key: string, value: string) => {
+  cy.get('label')
+    .contains(propertyName)
+    .parent()
+    .parent()
+    .parent()
+    .within(() => {
+      cy.get('[data-testid="list-add-field"]').click();
+      cy.get('input[label="Key"]').click();
+      cy.get('input[label="Key"]').type(key);
+      cy.get('input[label="Value"]').click();
+      cy.get('input[label="Value"]').type(value);
+    });
 });
 
 Cypress.Commands.add('confirmExpressionModal', () => {
@@ -165,4 +201,18 @@ Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: strin
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
   cy.get(`div[data-fieldname="${inputName}"] button[aria-label="Clear input value"]`).click();
+});
+
+Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
+  cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
+    cy.get('button.pf-v5-c-menu-toggle__button').click();
+  });
+  cy.get(`#select-typeahead-${value}`).click();
+});
+
+Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
+  cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
+    cy.get('button.pf-v5-c-menu-toggle__button').click();
+  });
+  cy.get(`#select-typeahead-${value}`).click();
 });

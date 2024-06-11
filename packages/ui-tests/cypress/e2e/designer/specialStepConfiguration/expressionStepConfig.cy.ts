@@ -8,7 +8,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
     cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
     cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
@@ -28,7 +28,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
@@ -41,7 +41,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkNodeExist('setHeader', 2);
 
     cy.openStepConfigurationTab('setHeader', 1);
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
     cy.interactWithConfigInputObject('resultType', 'java.lang.String');
@@ -51,7 +51,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openStepConfigurationTab('setHeader', 0);
 
     // Check the configured fields didn't disappear from the first node
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.checkConfigCheckboxObject('trim', true);
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.id');
@@ -59,7 +59,7 @@ describe('Tests for sidebar expression configuration', () => {
 
     // Check the configured fields didn't disappear from the second node
     cy.openStepConfigurationTab('setHeader', 0);
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.checkConfigCheckboxObject('trim', true);
     cy.checkConfigInputObject('resultType', 'java.lang.String');
     cy.checkConfigInputObject('expression', '.name');
@@ -77,7 +77,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
     cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
     cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
@@ -97,7 +97,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setBody expression
     cy.openStepConfigurationTab('setBody');
-    cy.openExpressionModal();
+    cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
     cy.interactWithExpressinInputObject('expression', `{{}{{}body.baz}}`);
     cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
