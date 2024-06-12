@@ -5,7 +5,7 @@
 export {};
 
 declare global {
-  type ActionType = 'append' | 'prepend' | 'replace' | 'insert' | 'insert-special' | 'delete';
+  type ActionType = 'append' | 'prepend' | 'replace' | 'insert' | 'insert-special' | 'delete' | 'disable';
 
   namespace Cypress {
     interface Chainable {
@@ -39,6 +39,7 @@ declare global {
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertSpecialNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
