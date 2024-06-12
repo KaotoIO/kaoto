@@ -1,4 +1,4 @@
-import { getValue } from '.';
+import { getValue } from './get-value';
 
 export const getFieldGroups = (fields: { [name: string]: unknown }) => {
   const propertiesArray = Object.entries(fields).reduce(
