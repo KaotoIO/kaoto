@@ -57,14 +57,14 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('log');
-    cy.get('.pf-topology-side-bar').should('be.visible');
+    cy.get('.pf-topology-resizable-side-bar').should('be.visible');
     cy.removeNodeByName('log');
-    cy.get('.pf-topology-side-bar').should('not.be.visible');
+    cy.get('.pf-topology-resizable-side-bar').should('not.exist');
 
     // Blocked by https://github.com/KaotoIO/kaoto/issues/527
     // cy.openStepConfigurationTab('timer');
-    // cy.get('.pf-topology-side-bar').should('be.visible');
+    // cy.get('.pf-topology-resizable-side-bar').should('be.visible');
     // cy.removeNodeByName('setHeader');
-    // cy.get('.pf-topology-side-bar').should('be.visible');
+    // cy.get('.pf-topology-resizable-side-bar').should('be.visible');
   });
 });
