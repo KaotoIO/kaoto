@@ -186,7 +186,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       controller.getGraph().fit(80);
-    }, 250);
+    }, 500);
     return () => {
       clearTimeout(timeoutId);
     };
@@ -201,6 +201,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
 
   return (
     <TopologyView
+      sideBarResizable={true}
       sideBarOpen={isSidebarOpen}
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={props.contextToolbar}

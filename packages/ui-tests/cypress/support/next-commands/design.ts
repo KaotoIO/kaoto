@@ -9,7 +9,7 @@ Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: numb
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
   cy.get('[data-testid="close-side-bar"]').click();
-  cy.get('.pf-topology-side-bar').should('be.hidden');
+  cy.get('.pf-topology-resizable-side-bar').should('not.exist');
 });
 
 Cypress.Commands.add('interactWithExpressinInputObject', (inputName: string, value?: string) => {
