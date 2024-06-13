@@ -1,5 +1,5 @@
 import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
-import { IMapping, ITransformation } from '../models/mapping';
+import { MappingItem, MappingTree } from '../models/mapping';
 import xmlFormat from 'xml-formatter';
 import { DocumentService } from './document.service';
 
@@ -16,10 +16,10 @@ export class MappingSerializerService {
     return new DOMParser().parseFromString(EMPTY_XSL, 'application/xml');
   }
 
-  static serialize(mappings: IMapping[], sourceParameterMap: Map<string, IDocument>): string {
+  static serialize(mappings: MappingTree, sourceParameterMap: Map<string, IDocument>): string {
     const xslt = MappingSerializerService.createNew();
     MappingSerializerService.populateParam(xslt, sourceParameterMap);
-    mappings.forEach((mapping) => {
+    mappings.children.forEach((mapping) => {
       MappingSerializerService.populateMapping(xslt, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
@@ -53,7 +53,7 @@ export class MappingSerializerService {
     });
   }
 
-  static populateMapping(xsltDocument: Document, mapping: IMapping) {
+  static populateMapping(xsltDocument: Document, mapping: MappingItem) {
     const source = mapping.source;
     const target = mapping.targetFields[0];
 
@@ -170,12 +170,10 @@ export class MappingSerializerService {
     }
   }
 
-  static deserialize(xslt: string): IMapping[] {
+  static deserialize(xslt: string): MappingTree {
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
     template.localName;
-    const answer: IMapping[] = [];
-
-    return answer;
+    return { children: [] };
   }
 }

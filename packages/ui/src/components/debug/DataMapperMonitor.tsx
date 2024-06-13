@@ -1,14 +1,13 @@
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useEffect } from 'react';
+import { MappingService } from '../../services/mapping.service';
 
 export const DataMapperMonitor = () => {
   const { mappingTree } = useDataMapper();
 
   useEffect(() => {
-    mappingTree.forEach((mapping) => {
-      console.log(
-        `Mapping: [source={${mapping.sourceFields.map((s) => s.fieldIdentifier + ', ')}}, target={${mapping.targetFields.map((t) => t.fieldIdentifier + ', ')}}]`,
-      );
+    MappingService.extractMappingLinks(mappingTree).forEach((mapping) => {
+      console.log(`Mapping: [source={${mapping.sourceNodePath}}, target={${mapping.targetNodePath}}]`);
     });
   }, [mappingTree]);
 

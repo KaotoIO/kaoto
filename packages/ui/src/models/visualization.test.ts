@@ -1,5 +1,6 @@
 import { DocumentType } from './document';
-import { NodePath } from './visualization';
+
+import { NodePath } from './path';
 
 describe('visualization.ts', () => {
   describe('NodeIdentifier', () => {

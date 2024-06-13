@@ -27,10 +27,16 @@ export class MappingService {
   }
 
   private static getConditionalFields(mapping: ConditionItem & MappingItem): IField[] {
-    if (mapping instanceof IfItem) {
-    } else if (mapping instanceof ChooseItem) {
-    } else if (mapping instanceof WhenItem) {
-    } else if (mapping instanceof OtherwiseItem) {
+    if (mapping instanceof ChooseItem) {
+      return [...mapping.when, mapping.otherwise].reduce((acc, branch) => {
+        branch && acc.push(...MappingService.getConditionalFields(branch));
+        return acc;
+      }, [] as IField[]);
+    } else if (mapping instanceof IfItem || mapping instanceof WhenItem || mapping instanceof OtherwiseItem) {
+      return mapping.children.reduce((acc, child) => {
+        child instanceof FieldItem && acc.push(child.field);
+        return acc;
+      }, [] as IField[]);
     } else {
       throw Error(`Unknown mapping item ${mapping.name}`);
     }
@@ -176,17 +182,24 @@ export class MappingService {
     }, mappingTree);
   }
 
-  static extractMappingLinks(item: MappingTree | MappingItem) {
+  static extractMappingLinks(item: MappingTree | MappingItem): IMappingLink[] {
     const answer = [] as IMappingLink[];
     if ('expression' in item) {
-      const targetPath = item.nodeIdentifier.toString();
+      const targetPath = item.path.toString();
       XPathService.extractFieldPaths(item.expression as string).map((sourcePath) =>
         answer.push({ sourceNodePath: sourcePath, targetNodePath: targetPath }),
       );
     }
     if ('children' in item) {
       item.children.map((child) => {
-        answer.push(...MappingService.extractMappingLinks(child));
+        if (child instanceof ValueSelector) {
+          const targetPath = child.path.toString();
+          XPathService.extractFieldPaths(child.expression as string).map((sourcePath) =>
+            answer.push({ sourceNodePath: sourcePath, targetNodePath: targetPath }),
+          );
+        } else {
+          answer.push(...MappingService.extractMappingLinks(child));
+        }
       });
     }
     return answer;

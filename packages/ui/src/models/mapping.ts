@@ -1,19 +1,28 @@
-import { IField } from './document';
-import { Types } from './types';
+import { DocumentType, IField } from './document';
 import { generateRandomId } from '../util';
+import { NodePath } from './path';
 
 export type MappingParentType = MappingTree | MappingItem;
 
 export class MappingTree {
+  constructor(documentType: DocumentType, documentId: string) {
+    this.path = NodePath.fromDocument(documentType, documentId);
+  }
   children: MappingItem[] = [];
+  path: NodePath;
 }
+
 export abstract class MappingItem {
   constructor(
     public parent: MappingParentType,
     public name: string,
-  ) {}
-  id: string = generateRandomId(this.name);
+  ) {
+    this.id = generateRandomId(this.name);
+    this.path = NodePath.childOf(parent.path, this.id);
+  }
+  id: string;
   children: MappingItem[] = [];
+  path: NodePath;
 }
 
 export class FieldItem extends MappingItem {
@@ -88,53 +97,4 @@ export class ValueSelector extends MappingItem implements ExpressionItem {
     super(parent, 'value');
   }
   expression = '';
-}
-
-/**
- * Old mapping models - to be eventually removed
- */
-
-export interface IFunctionArgumentDefinition {
-  name: string;
-  type: Types;
-  displayName: string;
-  description: string;
-  minOccurs: number;
-  maxOccurs: number;
-}
-
-export interface IFunctionDefinition {
-  name: string;
-  displayName: string;
-  description: string;
-  returnType: Types;
-  returnCollection?: boolean;
-  arguments: IFunctionArgumentDefinition[];
-}
-
-export interface ITransformationItem {
-  parent: ITransformationItem | ITransformation | IFunctionCallArgument;
-}
-
-export interface IForEach extends ITransformationItem {
-  collection: IField;
-  transformation: ITransformation;
-}
-
-export interface IFunctionCallArgumentType extends ITransformationItem {}
-
-export interface IFunctionCallArgument {
-  definition: IFunctionArgumentDefinition;
-  values: IFunctionCallArgumentType[];
-}
-
-export interface ITransformation {
-  elements: ITransformationItem[];
-}
-
-export interface IMapping {
-  id: string;
-  name: string;
-  source: ITransformation;
-  targetFields: IField[];
 }

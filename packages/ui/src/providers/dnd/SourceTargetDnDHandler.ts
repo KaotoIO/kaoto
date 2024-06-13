@@ -8,6 +8,7 @@ export class SourceTargetDnDHandler implements DnDHandler {
   handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): void {
     const fromNode = event.active.data.current as NodeData;
     const toNode = event.over?.data.current as NodeData;
+    if (!fromNode || !toNode) return;
     const { sourceNode, targetNode } = VisualizationService.testNodePair(fromNode, toNode);
     if (sourceNode && targetNode) {
       VisualizationService.engageMapping(mappingTree, sourceNode, targetNode);
