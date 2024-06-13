@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
       options: --user 1001
 
     steps:
@@ -69,7 +69,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
       options: --user 1001
 
     steps:
@@ -100,10 +100,10 @@ jobs:
           browser: firefox
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto/kaoto run preview
+          start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:4173'
+          wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -128,7 +128,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
       options: --user 1001
 
     steps:
@@ -159,10 +159,10 @@ jobs:
           browser: chrome
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto/kaoto run preview
+          start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:4173'
+          wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -187,7 +187,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1
+      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
       options: --user 1001
 
     steps:
@@ -218,10 +218,10 @@ jobs:
           browser: edge
           # we have already installed all dependencies above
           # install: false
-          start: yarn workspace @kaoto/kaoto run preview
+          start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
-          wait-on: 'http://localhost:4173'
+          wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}

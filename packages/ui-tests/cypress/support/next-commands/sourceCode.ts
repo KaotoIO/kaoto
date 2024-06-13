@@ -16,11 +16,11 @@ Cypress.Commands.add('editorAddText', (line, text) => {
     .click()
     .type(`${line}` + '{enter}');
   // insert new line, so the new text can be added
-  cy.focused().type('{enter}{upArrow}', { delay: 1 });
+  cy.focused().type('{enter}{upArrow}', { force: true, delay: 1 });
   text.split('\n').forEach((lineToWrite) => {
-    cy.focused().type('{enter}{enter}{upArrow}', { delay: 1 });
-    cy.focused().type('{ctrl}{l}', { delay: 1 });
-    cy.focused().type(lineToWrite, { delay: 1 });
+    cy.focused().type('{enter}{enter}{upArrow}', { force: true, delay: 1 });
+    cy.focused().type('{ctrl}{l}', { force: true, delay: 1 });
+    cy.focused().type(lineToWrite, { force: true, delay: 1 });
   });
 });
 
@@ -48,7 +48,7 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
 
   // Delete the line as many times as specified
   for (let i = 0; i < repeatCount; i++) {
-    cy.focused().type('{ctrl}{shift}{k}', { delay: 1 });
+    cy.focused().type('{ctrl}{shift}{k}', { force: true, delay: 1 });
   }
 });
 
