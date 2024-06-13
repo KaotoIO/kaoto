@@ -1,27 +1,20 @@
 import { DnDHandler } from './DnDHandler';
-import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { MappingTree, MappingItem } from '../../models/mapping';
-import { MappingService } from '../../services/mapping.service';
-import { TransformationService } from '../../services/transformation.service';
+import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { MappingTree } from '../../models/mapping';
+import { NodeData } from '../../models/visualization';
+import { VisualizationService } from '../../services/visualization.service';
 
 export class SourceTargetDnDHandler implements DnDHandler {
   handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): void {
-    const fromField = event.active.data.current as MappingItem;
-    const toField = event.over?.data.current as MappingItem;
-    const { existing, sourceField, targetField } = MappingService.validateNewFieldPairForMapping(
-      mappingTree,
-      fromField,
-      toField,
-    );
-    if (existing && sourceField) {
-      TransformationService.addField(existing.source, sourceField);
-      onUpdate();
-    } else if (sourceField && targetField) {
-      const mapping = MappingService.createNewMapping(sourceField, targetField);
-      mappingTree.push(mapping);
+    const fromNode = event.active.data.current as NodeData;
+    const toNode = event.over?.data.current as NodeData;
+    const { sourceNode, targetNode } = VisualizationService.testNodePair(fromNode, toNode);
+    if (sourceNode && targetNode) {
+      VisualizationService.engageMapping(mappingTree, sourceNode, targetNode);
       onUpdate();
     }
   }
 
-  handleDragStart(event: DragStartEvent): void {}
+  handleDragOver(_event: DragOverEvent): void {}
+  handleDragStart(_event: DragStartEvent): void {}
 }

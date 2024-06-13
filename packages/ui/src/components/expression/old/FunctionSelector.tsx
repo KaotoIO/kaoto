@@ -17,7 +17,7 @@ import {
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { XPathParserService } from '../../../services/xpath/xpath-parser.service';
+import { XPathService } from '../../../services/xpath/xpath.service';
 import { FunctionGroup } from '../../../services/xpath/xpath-parser';
 import { IFunctionDefinition } from '../../../models/mapping';
 
@@ -27,7 +27,7 @@ type FunctionOptionProps = SelectOptionProps & {
   descriptionString: string;
   functionDefinition: IFunctionDefinition;
 };
-const functionDefinitions = XPathParserService.getXPathFunctionDefinitions();
+const functionDefinitions = XPathService.getXPathFunctionDefinitions();
 const allFunctionOptions = Object.keys(functionDefinitions).reduce((acc, value) => {
   return functionDefinitions[value as FunctionGroup].reduce((acc2, func) => {
     acc2.push({

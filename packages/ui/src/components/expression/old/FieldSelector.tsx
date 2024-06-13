@@ -1,4 +1,4 @@
-import { IField } from '../../../models';
+import { IField } from '../../../models/document';
 import { FunctionComponent, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,

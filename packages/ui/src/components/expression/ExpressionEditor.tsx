@@ -1,4 +1,4 @@
-import { FunctionComponent, MouseEvent, useCallback, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Bullseye,
   Button,
@@ -14,21 +14,30 @@ import {
 } from '@patternfly/react-core';
 import { ArrowRightIcon } from '@patternfly/react-icons';
 import { ExpressionItem } from '../../models/mapping';
-import { TransformationService } from '../../services/transformation.service';
-import { XPathParserService } from '../../services/xpath/xpath-parser.service';
+import { XPathService } from '../../services/xpath/xpath.service';
 import { FunctionGroup } from '../../services/xpath/xpath-parser';
 import { SourcePanel } from '../../layout/views/SourcePanel';
 import { NodeContainer } from '../document/NodeContainer';
-import { XPathEditor } from './action/XPathEditor';
+import { XPathEditor } from './monaco/XPathEditor';
+import { TransformationEditorDnDHandler } from '../../providers/dnd/TransformationEditorDnDHandler';
+import { useCanvas } from '../../hooks/useCanvas';
 
 type TransformationEditorProps = {
   mapping: ExpressionItem;
   onUpdate: () => void;
 };
 
-export const TransformationEditor: FunctionComponent<TransformationEditorProps> = ({ mapping, onUpdate }) => {
-  const transformation = mapping?.expression;
-  const transformationExpression = TransformationService.toExpression(transformation);
+export const ExpressionEditor: FunctionComponent<TransformationEditorProps> = ({ mapping, onUpdate }) => {
+  const dndHandler = useMemo(() => new TransformationEditorDnDHandler(), []);
+  const { setActiveHandler } = useCanvas();
+  useEffect(() => {
+    setActiveHandler(dndHandler);
+    return () => {
+      setActiveHandler(undefined);
+    };
+  }, [dndHandler, setActiveHandler]);
+
+  const transformationExpression = mapping?.expression;
   const handleExpressionChange = useCallback(
     (expression?: string) => {
       if (expression) {
@@ -38,7 +47,7 @@ export const TransformationEditor: FunctionComponent<TransformationEditorProps> 
     },
     [mapping, onUpdate],
   );
-  const functionDefinitions = XPathParserService.getXPathFunctionDefinitions();
+  const functionDefinitions = XPathService.getXPathFunctionDefinitions();
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const handleTabClick = (_event: MouseEvent, tabIndex: string | number) => {

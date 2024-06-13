@@ -54,9 +54,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
     new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
-  const [mappingTree, setMappingTree] = useState<MappingTree>(
-    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
-  );
+  const [mappingTree, setMappingTree] = useState<MappingTree>(new MappingTree());
   const [selectedMapping, setSelectedMapping] = useState<IMapping | null>(null);
   const [debug, setDebug] = useState<boolean>(false);
 
@@ -65,8 +63,8 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   }, [sourceParameterMap]);
 
   const refreshMappingTree = useCallback(() => {
-    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-    newMapping.root = mappingTree.root;
+    const newMapping = new MappingTree();
+    newMapping.children = mappingTree.children;
     setMappingTree(newMapping);
   }, [mappingTree]);
 

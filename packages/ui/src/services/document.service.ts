@@ -11,11 +11,18 @@ export class DocumentService {
   }
 
   static hasField(document: IDocument, field: IField) {
-    return (
-      document.documentType === field.ownerDocument.documentType &&
-      document.documentId === field.ownerDocument.documentId &&
-      !!DocumentService.getFieldFromPathSegments(document, field?.fieldIdentifier.pathSegments)
-    );
+    if (
+      document.documentType !== field.ownerDocument.documentType ||
+      document.documentId !== field.ownerDocument.documentId
+    )
+      return false;
+    if (document instanceof PrimitiveDocument && document === field) return true;
+
+    return DocumentService.isDescendant(document, field);
+  }
+
+  static isDescendant(parent: IField | IDocument, child: IField): boolean {
+    return !!parent.fields.find((f) => f === child || DocumentService.isDescendant(f, child));
   }
 
   static getFieldFromPathSegments(document: IDocument, pathSegments: string[]) {

@@ -1,31 +1,34 @@
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { FunctionGroup, XPathParserResult } from './xpath-parser';
 import { IFunctionDefinition } from '../../models/mapping';
+import { DocumentType } from '../../models/document';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstElement, CstNode } from 'chevrotain';
+import { IField, PrimitiveDocument } from '../../models/document';
+import { DocumentService } from '../document.service';
 
-export class XPathParserService {
+export class XPathService {
   static parser = new XPath2Parser();
   static functions = XPATH_2_0_FUNCTIONS;
 
   static parse(xpath: string): XPathParserResult {
-    return XPathParserService.parser.parseXPath(xpath);
+    return XPathService.parser.parseXPath(xpath);
   }
 
   static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {
-    return XPathParserService.functions;
+    return XPathService.functions;
   }
 
   static getXPathFunctionNames(): string[] {
-    return Object.values(XPathParserService.getXPathFunctionDefinitions()).reduce((acc, functions) => {
+    return Object.values(XPathService.getXPathFunctionDefinitions()).reduce((acc, functions) => {
       acc.push(...functions.map((f) => f.name));
       return acc;
     }, [] as string[]);
   }
 
   static getMonacoXPathLanguageMetadata() {
-    monacoXPathLanguageMetadata.tokensProvider.actions = XPathParserService.getXPathFunctionNames();
+    monacoXPathLanguageMetadata.tokensProvider.actions = XPathService.getXPathFunctionNames();
     return monacoXPathLanguageMetadata;
   }
 
@@ -41,21 +44,14 @@ export class XPathParserService {
   private static pathExprToString(node: CstNode) {
     let answer = 'Slash' in node.children ? '/' : 'DoubleSlash' in node.children ? '//' : '';
     if (!('children' in node.children.RelativePathExpr[0])) return answer;
-    const relativePathExpr = XPathParserService.getNode(node, ['RelativePathExpr']);
+    const relativePathExpr = XPathService.getNode(node, ['RelativePathExpr']);
     if (!relativePathExpr) return answer;
-    const varName = XPathParserService.getNode(relativePathExpr, [
-      'StepExpr',
-      'FilterExpr',
-      'VarRef',
-      'QName',
-      'NCName',
-    ]);
+    const varName = XPathService.getNode(relativePathExpr, ['StepExpr', 'FilterExpr', 'VarRef', 'QName', 'NCName']);
     if (varName && 'image' in varName) {
       answer += '$' + varName.image;
     } else {
       const ncName =
-        relativePathExpr &&
-        XPathParserService.getNode(relativePathExpr, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
+        relativePathExpr && XPathService.getNode(relativePathExpr, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
       if (ncName && 'image' in ncName) answer += ncName.image;
     }
     const following =
@@ -63,7 +59,7 @@ export class XPathParserService {
     return following
       ? following.reduce((acc, value) => {
           acc += '/';
-          const ncName = XPathParserService.getNode(value, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
+          const ncName = XPathService.getNode(value, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
           if (ncName && 'image' in ncName) acc += ncName.image;
           return acc;
         }, answer)
@@ -71,24 +67,24 @@ export class XPathParserService {
   }
 
   static extractFieldPaths(expression: string) {
-    const parsed = XPathParserService.parse(expression);
-    const paths = XPathParserService.collectPathExpressions(parsed.cst);
-    return paths.map((node) => XPathParserService.pathExprToString(node));
+    const parsed = XPathService.parse(expression);
+    const paths = XPathService.collectPathExpressions(parsed.cst);
+    return paths.map((node) => XPathService.pathExprToString(node));
   }
 
   private static collectPathExpressions(node: CstNode) {
     const answer: CstNode[] = [];
     if (node.name === 'PathExpr') {
-      answer.push(...XPathParserService.extractPathExprNode(node));
+      answer.push(...XPathService.extractPathExprNode(node));
       return answer;
     }
     return Object.entries(node.children).reduce((acc, [key, value]) => {
       if (key === 'PathExpr') {
-        acc.push(...XPathParserService.extractPathExprNode(value[0] as CstNode));
+        acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
       } else {
         value.map((child) => {
           if ('children' in child) {
-            acc.push(...XPathParserService.collectPathExpressions(child));
+            acc.push(...XPathService.collectPathExpressions(child));
           }
         });
       }
@@ -98,7 +94,7 @@ export class XPathParserService {
 
   private static extractPathExprNode(pathExprNode: CstNode) {
     // Extract arguments in FunctionCall
-    const functionCall = XPathParserService.getNode(pathExprNode, [
+    const functionCall = XPathService.getNode(pathExprNode, [
       'RelativePathExpr',
       'StepExpr',
       'FilterExpr',
@@ -106,7 +102,7 @@ export class XPathParserService {
     ]);
     if (functionCall && 'children' in functionCall) {
       return functionCall.children.ExprSingle.flatMap((arg) =>
-        'children' in arg ? XPathParserService.collectPathExpressions(arg) : [],
+        'children' in arg ? XPathService.collectPathExpressions(arg) : [],
       );
     }
     return [pathExprNode];
@@ -119,5 +115,16 @@ export class XPathParserService {
       paramName: path.substring(0, pos),
       segments: pos !== -1 ? path.substring(pos + 1).split('/') : [],
     };
+  }
+
+  static addSource(expression: string, source: PrimitiveDocument | IField): string {
+    const sourceXPath = XPathService.toXPath(source);
+    return expression ? `${expression}, ${sourceXPath}` : sourceXPath;
+  }
+
+  static toXPath(source: PrimitiveDocument | IField): string {
+    const doc = source.ownerDocument;
+    const prefix = doc.documentType === DocumentType.PARAM ? `$${doc.documentId}` : '';
+    return DocumentService.getFieldStack(source).reduce((acc, field) => acc + `/${field.name}`, prefix);
   }
 }

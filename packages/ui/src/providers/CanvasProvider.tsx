@@ -11,6 +11,7 @@ import {
   DataRef,
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   KeyboardSensor,
@@ -20,9 +21,9 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { Label } from '@patternfly/react-core';
-import { useDataMapper } from '../hooks/useDataMapper';
-import { MappingItem } from '../models/mapping';
+import { useDataMapper } from '../hooks';
 import { DnDHandler } from './dnd/DnDHandler';
+import { NodeData } from '../models/visualization';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -34,6 +35,7 @@ export interface ICanvasContext {
   getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
   getAllNodePaths: () => string[];
+  setDefaultHandler: (handler: DnDHandler | undefined) => void;
   getActiveHandler: () => DnDHandler | undefined;
   setActiveHandler: (handler: DnDHandler | undefined) => void;
 }
@@ -42,6 +44,7 @@ export const CanvasContext = createContext<ICanvasContext | undefined>(undefined
 
 export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const { mappingTree, refreshMappingTree } = useDataMapper();
+  const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>(undefined);
   const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>(undefined);
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -58,7 +61,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
-  const [activeData, setActiveData] = useState<DataRef<MappingItem> | null>(null);
+  const [activeData, setActiveData] = useState<DataRef<NodeData> | null>(null);
   const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
     new Map<string, MutableRefObject<NodeReference>>(),
   );
@@ -66,7 +69,14 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       activeHandler && activeHandler.handleDragStart(event);
-      setActiveData(event.active.data as DataRef<MappingItem>);
+      setActiveData(event.active.data as DataRef<NodeData>);
+    },
+    [activeHandler],
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      activeHandler && activeHandler.handleDragOver(event);
     },
     [activeHandler],
   );
@@ -101,23 +111,39 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     return Array.from(nodeReferenceMap.keys());
   }, [nodeReferenceMap]);
 
+  const handleSetDefaultHandler = useCallback(
+    (handler: DnDHandler | undefined) => {
+      if (!activeHandler) setActiveHandler(handler);
+      setDefaultHandler(handler);
+    },
+    [activeHandler, setDefaultHandler],
+  );
+
+  const handleSetActiveHandler = useCallback(
+    (handler: DnDHandler | undefined) => {
+      setActiveHandler(handler ? handler : defaultHandler);
+    },
+    [defaultHandler],
+  );
+
   const value: ICanvasContext = useMemo(() => {
     return {
       setNodeReference,
       getNodeReference,
       reloadNodeReferences,
       getAllNodePaths,
+      setDefaultHandler: handleSetDefaultHandler,
       getActiveHandler: () => activeHandler,
-      setActiveHandler,
+      setActiveHandler: handleSetActiveHandler,
     };
   }, [setNodeReference, getNodeReference, reloadNodeReferences, getAllNodePaths, activeHandler]);
 
   return (
     <CanvasContext.Provider value={value}>
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
         {props.children}
         <DragOverlay dropAnimation={null}>
-          <Label>{activeData?.current?.expression ? activeData.current.expression : 'dragging...'}</Label>
+          <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
         </DragOverlay>
       </DndContext>
     </CanvasContext.Provider>

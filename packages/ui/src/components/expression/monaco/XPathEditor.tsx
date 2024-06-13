@@ -2,7 +2,7 @@ import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useEffect, u
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import './XPathEditor.scss';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
-import { XPathParserService } from '../../../services/xpath/xpath-parser.service';
+import { XPathService } from '../../../services/xpath/xpath.service';
 
 type XPathEditorProps = {
   expression: string;
@@ -12,7 +12,7 @@ type XPathEditorProps = {
 export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ expression, onChange }) => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
-  const xpathLanguage = XPathParserService.getMonacoXPathLanguageMetadata();
+  const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();
 
   useEffect(() => {
     if (monacoEl) {
@@ -26,11 +26,13 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ expression, o
         const themeName = 'datamapperTheme';
         monaco.editor.defineTheme(themeName, xpathEditorTheme);
 
-        return monaco.editor.create(monacoEl.current!, {
+        const newEditor = monaco.editor.create(monacoEl.current!, {
           ...xpathEditorConstrufctionOption,
           theme: themeName,
           value: expression,
         });
+        newEditor.onDidChangeModelContent((_e) => onChange(newEditor.getModel()?.getValue()));
+        return newEditor;
       });
     }
 
@@ -38,6 +40,7 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ expression, o
   }, [
     editor,
     expression,
+    onChange,
     xpathLanguage.completionItemProvider,
     xpathLanguage.id,
     xpathLanguage.languageConfiguration,

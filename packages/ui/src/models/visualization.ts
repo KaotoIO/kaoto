@@ -39,7 +39,10 @@ export interface NodeData {
   title: string;
   id: string;
   path: NodePath;
+  isSource: boolean;
 }
+
+export type SourceNodeDataType = DocumentNodeData | FieldNodeData;
 
 export class DocumentNodeData implements NodeData {
   constructor(document: IDocument, mappingTree?: MappingTree) {
@@ -48,6 +51,7 @@ export class DocumentNodeData implements NodeData {
     this.path = NodePath.fromDocument(document.documentType, document.documentId);
     this.document = document;
     this.mappingTree = mappingTree;
+    this.isSource = document.documentType !== DocumentType.TARGET_BODY;
   }
 
   document: IDocument;
@@ -55,55 +59,44 @@ export class DocumentNodeData implements NodeData {
   title: string;
   id: string;
   path: NodePath;
+  isSource: boolean;
 }
 
 export class FieldNodeData implements NodeData {
   constructor(
     public parent: NodeData,
-    field: IField,
-    mapping?: MappingItem,
+    public field: IField,
+    public mapping?: MappingItem,
   ) {
     this.title = field.expression;
     this.id = generateRandomId('field', 4);
     this.path = NodePath.childOf(parent.path, this.id);
-    this.field = field;
-    if (mapping && 'expression' in mapping) this.expression = mapping.expression as string;
+    this.isSource = field.ownerDocument.documentType !== DocumentType.TARGET_BODY;
   }
 
   title: string;
   id: string;
   path: NodePath;
-  field: IField;
-  expression?: string;
+  isSource: boolean;
 }
 
 export class ConditionNodeData implements NodeData {
   constructor(
     public parent: NodeData,
-    public mapping?: MappingItem,
+    public mapping: MappingItem,
   ) {
-    this.title = mapping?.name ?? 'condition-unknown';
-    this.id = mapping?.id ?? generateRandomId('condition-unknown');
+    this.title = mapping.name ?? 'Unknown condition';
+    this.id = mapping.id ?? generateRandomId('Unknown condition');
     this.path = NodePath.childOf(parent.path, this.id);
   }
 
   title: string;
   id: string;
   path: NodePath;
-}
-
-export class ExpressionNodeData extends ConditionNodeData {
-  constructor(
-    public parent: NodeData,
-    public mapping?: MappingItem,
-  ) {
-    super(parent, mapping);
-    if (mapping && 'expression' in mapping) this.expression = mapping.expression as string;
-  }
-  expression?: string;
+  isSource = false;
 }
 
 export interface IMappingLink {
-  sourceTreePath: string;
-  targetTreePath: string;
+  sourceNodePath: string;
+  targetNodePath: string;
 }

@@ -12,11 +12,11 @@ type LineCoord = {
 };
 
 type LineProps = LineCoord & {
-  sourceTreePath: string;
-  targetTreePath: string;
+  sourceNodePath: string;
+  targetNodePath: string;
 };
 
-const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceTreePath, targetTreePath }) => {
+const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodePath, targetNodePath }) => {
   const [isOver, setIsOver] = useState<boolean>(false);
   const lineStyle = {
     stroke: 'gray',
@@ -40,7 +40,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceTreeP
       style={lineStyle}
     >
       <title>
-        Source: {sourceTreePath}, Target: {targetTreePath}
+        Source: {sourceNodePath}, Target: {targetNodePath}
       </title>
     </path>
   );
@@ -100,15 +100,15 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   const refreshLinks = useCallback(() => {
     const answer: LineProps[] = MappingService.extractMappingLinks(mappingTree).reduce(
-      (acc, { sourceTreePath, targetTreePath }) => {
-        const sourceClosestPath = getClosestExpandedPath(sourceTreePath);
-        const targetClosestPath = getClosestExpandedPath(targetTreePath);
+      (acc, { sourceNodePath, targetNodePath }) => {
+        const sourceClosestPath = getClosestExpandedPath(sourceNodePath);
+        const targetClosestPath = getClosestExpandedPath(targetNodePath);
         if (sourceClosestPath && targetClosestPath) {
           const sourceFieldRef = getNodeReference(sourceClosestPath);
           const targetFieldRef = getNodeReference(targetClosestPath);
           if (sourceFieldRef && !!targetFieldRef) {
             const coord = getCoordFromFieldRef(sourceFieldRef, targetFieldRef);
-            if (coord) acc.push({ ...coord, sourceTreePath, targetTreePath });
+            if (coord) acc.push({ ...coord, sourceNodePath: sourceNodePath, targetNodePath: targetNodePath });
           }
         }
         return acc;
@@ -146,8 +146,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
             y1={lineProps.y1}
             x2={lineProps.x2}
             y2={lineProps.y2}
-            sourceTreePath={lineProps.sourceTreePath}
-            targetTreePath={lineProps.targetTreePath}
+            sourceNodePath={lineProps.sourceNodePath}
+            targetNodePath={lineProps.targetNodePath}
           />
         ))}
       </g>

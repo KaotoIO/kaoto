@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect } from 'react';
 import { useDataMapper } from '../../hooks';
-import { MappingLinksContainer } from '../../components/mapping/MappingLink';
+import { MappingLinksContainer } from './MappingLink';
 import './SourceTargetView.scss';
 import { useCanvas } from '../../hooks/useCanvas';
 import { SourcePanel } from './SourcePanel';

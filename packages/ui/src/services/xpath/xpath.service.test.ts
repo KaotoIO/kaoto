@@ -1,36 +1,36 @@
-import { XPathParserService } from './xpath-parser.service';
+import { XPathService } from './XPathService';
 import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
 
-describe('XPathParserService', () => {
+describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
-    const gastProd = XPathParserService.parser.getSerializedGastProductions();
+    const gastProd = XPathService.parser.getSerializedGastProductions();
     const html = createSyntaxDiagramsCode(gastProd);
     fs.writeFileSync('dist/syntax-diagram.html', html);
   });
 
   describe('parse()', () => {
     it('should parse a field path', () => {
-      const result = XPathParserService.parse('/aaa/bbb/ccc');
+      const result = XPathService.parse('/aaa/bbb/ccc');
       expect(result.cst).toBeDefined();
     });
   });
 
   describe('extractFieldPaths()', () => {
     it('extract field', () => {
-      const paths = XPathParserService.extractFieldPaths('/aaa/bbb/ccc');
+      const paths = XPathService.extractFieldPaths('/aaa/bbb/ccc');
       expect(paths.length).toEqual(1);
       expect(paths[0]).toEqual('/aaa/bbb/ccc');
     });
 
     it('extract param field', () => {
-      const paths = XPathParserService.extractFieldPaths('$param1/aaa/bbb/ccc');
+      const paths = XPathService.extractFieldPaths('$param1/aaa/bbb/ccc');
       expect(paths.length).toEqual(1);
       expect(paths[0]).toEqual('$param1/aaa/bbb/ccc');
     });
 
     it('extract fields from function calls', () => {
-      const paths = XPathParserService.extractFieldPaths(
+      const paths = XPathService.extractFieldPaths(
         'concatenate(/aaa/bbb/ccc, upper-case(aaa/bbb/ddd), lower-case($param1/eee/fff))',
       );
       expect(paths.length).toEqual(3);

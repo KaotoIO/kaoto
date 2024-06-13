@@ -20,7 +20,7 @@ describe('MappingService', () => {
   describe('validateFieldPairForNewMapping()', () => {
     it('validate mapping', () => {
       const mapping = MappingService.createNewMapping(sourceDoc.fields[0], targetDoc.fields[0]);
-      const validated = MappingService.validateNewFieldPairForMapping(
+      const validated = MappingService.validateNodePairForMapping(
         [mapping],
         sourceDoc.fields[0].fields[0],
         targetDoc.fields[0].fields[0],
@@ -34,14 +34,10 @@ describe('MappingService', () => {
     });
     it('invalidate duplicate mapping', () => {
       const mapping = MappingService.createNewMapping(sourceDoc.fields[0], targetDoc.fields[0]);
-      let validated = MappingService.validateNewFieldPairForMapping(
-        [mapping],
-        sourceDoc.fields[0],
-        targetDoc.fields[0],
-      );
+      let validated = MappingService.validateNodePairForMapping([mapping], sourceDoc.fields[0], targetDoc.fields[0]);
       expect(validated.sourceField).toBeUndefined();
       expect(validated.targetField).toBeUndefined();
-      validated = MappingService.validateNewFieldPairForMapping([mapping], targetDoc.fields[0], sourceDoc.fields[0]);
+      validated = MappingService.validateNodePairForMapping([mapping], targetDoc.fields[0], sourceDoc.fields[0]);
       expect(validated.sourceField).toBeUndefined();
       expect(validated.targetField).toBeUndefined();
     });
@@ -59,7 +55,7 @@ describe('MappingService', () => {
     it('', () => {
       const mapping1 = MappingService.createNewMapping(sourceDoc.fields[0].fields[0], targetDoc.fields[0].fields[0]);
       const mapping2 = MappingService.createNewMapping(sourceDoc.fields[0].fields[1], targetDoc.fields[0].fields[1]);
-      const found = MappingService.getMappingsFor([mapping1, mapping2], sourceDoc.fields[0].fields[1]);
+      const found = MappingService.getAllMappingsFor([mapping1, mapping2], sourceDoc.fields[0].fields[1]);
       expect(found.length).toEqual(1);
       expect((found[0].source.elements[0] as IFieldItem).field.fieldIdentifier.toString()).toEqual(
         sourceDoc.fields[0].fields[1].fieldIdentifier.toString(),

@@ -8,7 +8,8 @@ import '../Document.scss';
 import { TargetFieldActions } from './TargetFieldActions';
 
 import { NodeData } from '../../../models/visualization';
-import { NodeHelper } from './node-helper';
+
+import { VisualizationService } from '../../../services/visualization.service';
 
 type TargetDocumentNodeProps = {
   nodeData: NodeData;
@@ -33,9 +34,9 @@ export const TargetDocumentNode: FunctionComponent<TargetDocumentNodeProps> = ({
   const nodeRefId = nodeData.path.toString();
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
-  const isCollection = NodeHelper.isCollectionField(nodeData);
-  const isAttribute = NodeHelper.isAttributeField(nodeData);
-  const nodeDataChildren = NodeHelper.generateNodeDataChildren(nodeData);
+  const isCollection = VisualizationService.isCollectionField(nodeData);
+  const isAttribute = VisualizationService.isAttributeField(nodeData);
+  const nodeDataChildren = VisualizationService.generateNodeDataChildren(nodeData);
 
   return nodeDataChildren.length === 0 ? (
     <NodeContainer nodeData={nodeData} ref={containerRef}>

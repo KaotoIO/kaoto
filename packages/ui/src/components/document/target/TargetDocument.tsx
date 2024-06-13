@@ -23,11 +23,9 @@ import { useDataMapper } from '../../../hooks';
 
 import { DocumentNodeData } from '../../../models/visualization';
 import { TargetDocumentNode } from './TargetDocumentNode';
-import { NodeHelper } from './node-helper';
 
-export type TargetDocumentProps = {
-  model: IDocument;
-};
+import { VisualizationService } from '../../../services/visualization.service';
+import { TargetPrimitiveDocumentActions } from './TargetPrimitiveDocumentActions';
 
 type TargetDocumentImplProps = {
   nodeData: DocumentNodeData;
@@ -56,7 +54,7 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
     },
   }));
 
-  const nodeDataChildren = NodeHelper.generateNodeDataChildren(nodeData);
+  const nodeDataChildren = VisualizationService.generatePrimitiveDocumentChildren(nodeData);
 
   const headerActiopns = useMemo(() => {
     return (
@@ -82,6 +80,10 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
                   <GripVerticalIcon />
                 </SplitItem>
                 <SplitItem>{nodeData.title}</SplitItem>
+                <SplitItem>&nbsp;</SplitItem>
+                <SplitItem>
+                  <TargetPrimitiveDocumentActions nodeData={nodeData} />
+                </SplitItem>
               </Split>
             </CardTitle>
           </CardHeader>
@@ -89,8 +91,8 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
         <CardExpandableContent>
           <CardBody>
             <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {nodeDataChildren.map((nodeData) => (
-                <TargetDocumentNode nodeData={nodeData} key={nodeData.id} onToggle={handleOnToggle} />
+              {nodeDataChildren.map((child) => (
+                <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
               ))}
             </Accordion>
           </CardBody>
@@ -123,7 +125,7 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
       },
     }));
 
-    const nodeDataChildren = NodeHelper.generateNodeDataChildren(nodeData);
+    const nodeDataChildren = VisualizationService.generateStructuredDocumentChildren(nodeData);
 
     const headerActions = useMemo(() => {
       return (
@@ -155,8 +157,8 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
         <CardExpandableContent>
           <CardBody>
             <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {nodeDataChildren.map((nodeData) => (
-                <TargetDocumentNode nodeData={nodeData} key={nodeData.id} onToggle={handleOnToggle} />
+              {nodeDataChildren.map((child) => (
+                <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
               ))}
             </Accordion>
           </CardBody>
@@ -165,6 +167,10 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
     );
   },
 );
+
+export type TargetDocumentProps = {
+  model: IDocument;
+};
 
 export const TargetDocument: FunctionComponent<TargetDocumentProps> = ({ model }) => {
   const { getNodeReference, setNodeReference } = useCanvas();
