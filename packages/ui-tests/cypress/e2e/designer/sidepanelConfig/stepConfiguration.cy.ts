@@ -9,6 +9,8 @@ describe('Tests for Design page', () => {
     // Configure timer - source step
     cy.openStepConfigurationTab('timer-source');
     cy.interactWithConfigInputObject('period', '3000');
+    cy.interactWithConfigInputObject('message', 'test message');
+    cy.get(`input[name="message"]`).clear();
     cy.closeStepConfigurationTab();
 
     // Configure kafka-sink step
@@ -23,6 +25,7 @@ describe('Tests for Design page', () => {
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
     cy.checkCodeSpanLine('period: "3000"');
+    cy.checkCodeSpanLine('message: ""', 0);
     cy.checkCodeSpanLine('topic: topicname');
     cy.checkCodeSpanLine('bootstrapServers: bootstrap');
     cy.checkCodeSpanLine('securityProtocol: security');
