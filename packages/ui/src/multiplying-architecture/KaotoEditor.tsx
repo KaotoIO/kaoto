@@ -1,7 +1,7 @@
 import { Icon, Tab, TabTitleIcon, TabTitleText, Tabs, TabsProps } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { useContext, useState } from 'react';
-import camelIcon from '../assets/camel.svg';
+import camelIcon from '../assets/logo-kaoto.svg';
 import bean from '../assets/eip/bean.png';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { BeansPage } from '../pages/Beans/BeansPage';
