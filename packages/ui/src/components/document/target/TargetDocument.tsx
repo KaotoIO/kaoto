@@ -55,6 +55,7 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
   }));
 
   const nodeDataChildren = VisualizationService.generatePrimitiveDocumentChildren(nodeData);
+  const hasChildren = nodeDataChildren.length > 0;
 
   const headerActiopns = useMemo(() => {
     return (
@@ -70,10 +71,13 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
   }, [nodeData.document.documentId]);
 
   return (
-    <Card id={nodeData.id} isCompact>
+    <Card id={nodeData.id} isExpanded={isExpanded} isCompact>
       <div ref={containerRef}>
         <NodeContainer nodeData={nodeData} ref={headerRef}>
-          <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActiopns, hasNoOffset: true }}>
+          <CardHeader
+            onExpand={hasChildren ? handleOnExpand : undefined}
+            actions={{ actions: headerActiopns, hasNoOffset: true }}
+          >
             <CardTitle>
               <Split hasGutter>
                 <SplitItem>
@@ -88,15 +92,17 @@ const TargetPrimitiveDocumentImpl = forwardRef<NodeReference, TargetDocumentImpl
             </CardTitle>
           </CardHeader>
         </NodeContainer>
-        <CardExpandableContent>
-          <CardBody>
-            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {nodeDataChildren.map((child) => (
-                <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
-              ))}
-            </Accordion>
-          </CardBody>
-        </CardExpandableContent>
+        {hasChildren && (
+          <CardExpandableContent>
+            <CardBody>
+              <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+                {nodeDataChildren.map((child) => (
+                  <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
+                ))}
+              </Accordion>
+            </CardBody>
+          </CardExpandableContent>
+        )}
       </div>
     </Card>
   );
@@ -126,6 +132,7 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
     }));
 
     const nodeDataChildren = VisualizationService.generateStructuredDocumentChildren(nodeData);
+    const hasChildren = nodeDataChildren.length > 0;
 
     const headerActions = useMemo(() => {
       return (
@@ -150,19 +157,24 @@ const TargetStructuredDocumentImpl = forwardRef<NodeReference, TargetDocumentImp
     return (
       <Card id={nodeData.id} isExpanded={isExpanded} isCompact>
         <NodeContainer ref={headerRef}>
-          <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
+          <CardHeader
+            onExpand={hasChildren ? handleOnExpand : undefined}
+            actions={{ actions: headerActions, hasNoOffset: true }}
+          >
             <CardTitle>{nodeData.title}</CardTitle>
           </CardHeader>
         </NodeContainer>
-        <CardExpandableContent>
-          <CardBody>
-            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-              {nodeDataChildren.map((child) => (
-                <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
-              ))}
-            </Accordion>
-          </CardBody>
-        </CardExpandableContent>
+        {hasChildren && (
+          <CardExpandableContent>
+            <CardBody>
+              <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+                {nodeDataChildren.map((child) => (
+                  <TargetDocumentNode nodeData={child} key={child.id} onToggle={handleOnToggle} />
+                ))}
+              </Accordion>
+            </CardBody>
+          </CardExpandableContent>
+        )}
       </Card>
     );
   },

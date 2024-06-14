@@ -47,12 +47,16 @@ export class XPathService {
     const relativePathExpr = XPathService.getNode(node, ['RelativePathExpr']);
     if (!relativePathExpr) return answer;
     const varName = XPathService.getNode(relativePathExpr, ['StepExpr', 'FilterExpr', 'VarRef', 'QName', 'NCName']);
+    const contextItem = XPathService.getNode(relativePathExpr, ['StepExpr', 'FilterExpr', 'ContextItemExpr']);
+    const ncName = XPathService.getNode(relativePathExpr, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
     if (varName && 'image' in varName) {
       answer += '$' + varName.image;
+    } else if (contextItem && 'image' in contextItem) {
+      answer += contextItem.image;
+    } else if (ncName && 'image' in ncName) {
+      answer += ncName.image;
     } else {
-      const ncName =
-        relativePathExpr && XPathService.getNode(relativePathExpr, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
-      if (ncName && 'image' in ncName) answer += ncName.image;
+      throw Error('Unknown RelativePathExpr: ' + relativePathExpr);
     }
     const following =
       relativePathExpr && 'children' in relativePathExpr && relativePathExpr.children.ChildPathSegmentExpr;
@@ -68,6 +72,7 @@ export class XPathService {
 
   static extractFieldPaths(expression: string) {
     const parsed = XPathService.parse(expression);
+    if (!parsed.cst) return [];
     const paths = XPathService.collectPathExpressions(parsed.cst);
     return paths.map((node) => XPathService.pathExprToString(node));
   }
@@ -109,10 +114,11 @@ export class XPathService {
   }
 
   static parsePath(path: string) {
+    if (path === '.') return { segments: [] };
     if (!path.startsWith('$')) return { segments: path.split('/') };
     const pos = path.indexOf('/');
     return {
-      paramName: path.substring(0, pos),
+      paramName: pos !== -1 ? path.substring(1, pos) : path.substring(1),
       segments: pos !== -1 ? path.substring(pos + 1).split('/') : [],
     };
   }
@@ -125,6 +131,7 @@ export class XPathService {
   static toXPath(source: PrimitiveDocument | IField): string {
     const doc = source.ownerDocument;
     const prefix = doc.documentType === DocumentType.PARAM ? `$${doc.documentId}` : '';
-    return DocumentService.getFieldStack(source).reduce((acc, field) => acc + `/${field.name}`, prefix);
+    const xpath = DocumentService.getFieldStack(source).reduce((acc, field) => acc + `/${field.name}`, prefix);
+    return xpath ? xpath : '.';
   }
 }

@@ -96,6 +96,8 @@ const SourceStructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps
     },
   }));
 
+  const hasChildren = nodeData.document.fields.length > 0;
+
   const headerActions = useMemo(() => {
     return (
       <ActionList isIconList={true}>
@@ -124,20 +126,27 @@ const SourceStructuredDocumentImpl = forwardRef<NodeReference, DocumentImplProps
   return (
     <Card id={nodeData.id} isExpanded={isExpanded} isCompact>
       <NodeContainer ref={headerRef}>
-        <CardHeader onExpand={handleOnExpand} actions={{ actions: headerActions, hasNoOffset: true }}>
+        <CardHeader
+          onExpand={hasChildren ? handleOnExpand : undefined}
+          actions={{ actions: headerActions, hasNoOffset: true }}
+        >
           <CardTitle>{nodeData.title}</CardTitle>
         </CardHeader>
       </NodeContainer>
-      <CardExpandableContent>
-        <CardBody>
-          <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
-            {nodeData.document.fields.map((field) => {
-              const fieldNodeData = new FieldNodeData(nodeData, field);
-              return <SourceDocumentField nodeData={fieldNodeData} key={fieldNodeData.id} onToggle={handleOnToggle} />;
-            })}
-          </Accordion>
-        </CardBody>
-      </CardExpandableContent>
+      {hasChildren && (
+        <CardExpandableContent>
+          <CardBody>
+            <Accordion togglePosition={'start'} isBordered={true} asDefinitionList={false} onClick={handleOnToggle}>
+              {nodeData.document.fields.map((field) => {
+                const fieldNodeData = new FieldNodeData(nodeData, field);
+                return (
+                  <SourceDocumentField nodeData={fieldNodeData} key={fieldNodeData.id} onToggle={handleOnToggle} />
+                );
+              })}
+            </Accordion>
+          </CardBody>
+        </CardExpandableContent>
+      )}
     </Card>
   );
 });

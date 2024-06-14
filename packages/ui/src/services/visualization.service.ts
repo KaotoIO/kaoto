@@ -105,7 +105,8 @@ export class VisualizationService {
   }
 
   static deleteMappingItem(nodeData: NodeData) {
-    if ('mapping' in nodeData) nodeData.mapping = undefined;
+    if ('mapping' in nodeData) MappingService.deleteMappingItem(nodeData.mapping as MappingItem);
+    else if ('mappingTree' in nodeData) MappingService.deleteMappingItem(nodeData.mappingTree as MappingTree);
   }
 
   static applyIf(nodeData: NodeData) {

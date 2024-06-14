@@ -1,6 +1,7 @@
 import { DocumentType, IField } from './document';
 import { generateRandomId } from '../util';
 import { NodePath } from './path';
+import { Types } from './types';
 
 export type MappingParentType = MappingTree | MappingItem;
 
@@ -97,4 +98,22 @@ export class ValueSelector extends MappingItem implements ExpressionItem {
     super(parent, 'value');
   }
   expression = '';
+}
+
+export interface IFunctionDefinition {
+  name: string;
+  displayName: string;
+  description: string;
+  returnType: Types;
+  returnCollection?: boolean;
+  arguments: IFunctionArgumentDefinition[];
+}
+
+export interface IFunctionArgumentDefinition {
+  name: string;
+  type: Types;
+  displayName: string;
+  description: string;
+  minOccurs: number;
+  maxOccurs: number;
 }

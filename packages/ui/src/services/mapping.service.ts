@@ -8,11 +8,13 @@ import {
   ConditionItem,
   IfItem,
   ValueSelector,
+  MappingParentType,
 } from '../models/mapping';
-import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID, DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
 import { IMappingLink } from '../models/visualization';
+import { NodePath } from '../models/path';
 
 export class MappingService {
   static filterMappingsForField(mappings: MappingItem[], field: IField): MappingItem[] {
@@ -182,6 +184,20 @@ export class MappingService {
     }, mappingTree);
   }
 
+  static deleteMappingItem(item: MappingParentType) {
+    if (item.children) {
+      item.children = item.children.filter((child) => !(child instanceof ValueSelector)) as ValueSelector[];
+    }
+    item instanceof MappingItem && MappingService.deleteFromParent(item);
+  }
+
+  private static deleteFromParent(item: MappingItem) {
+    item.parent.children = item.parent.children.filter((child) => child !== item);
+    item.parent instanceof MappingItem &&
+      item.parent.children.length === 0 &&
+      MappingService.deleteFromParent(item.parent);
+  }
+
   static extractMappingLinks(item: MappingTree | MappingItem): IMappingLink[] {
     const answer = [] as IMappingLink[];
     if ('expression' in item) {
@@ -193,10 +209,15 @@ export class MappingService {
     if ('children' in item) {
       item.children.map((child) => {
         if (child instanceof ValueSelector) {
-          const targetPath = child.path.toString();
-          XPathService.extractFieldPaths(child.expression as string).map((sourcePath) =>
-            answer.push({ sourceNodePath: sourcePath, targetNodePath: targetPath }),
-          );
+          const targetPath = item.path.toString();
+          XPathService.extractFieldPaths(child.expression as string).forEach((sourcePath) => {
+            const { paramName, segments } = XPathService.parsePath(sourcePath);
+            const documentType = paramName ? DocumentType.PARAM : DocumentType.SOURCE_BODY;
+            const documentId = paramName ? paramName : BODY_DOCUMENT_ID;
+            const nodePath = NodePath.fromDocument(documentType, documentId);
+            nodePath.pathSegments = segments;
+            answer.push({ sourceNodePath: nodePath.toString(), targetNodePath: targetPath });
+          });
         } else {
           answer.push(...MappingService.extractMappingLinks(child));
         }
