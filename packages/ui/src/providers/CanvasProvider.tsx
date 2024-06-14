@@ -24,6 +24,8 @@ import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks';
 import { DnDHandler } from './dnd/DnDHandler';
 import { NodeData } from '../models/visualization';
+import { NodePath } from '../models/path';
+import { DocumentType } from '../models/document';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -34,6 +36,7 @@ export interface ICanvasContext {
   setNodeReference: (path: string, ref: MutableRefObject<NodeReference>) => void;
   getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
+  clearNodeReferencesForDocument: (documentType: DocumentType, documentId: string) => void;
   getAllNodePaths: () => string[];
   setDefaultHandler: (handler: DnDHandler | undefined) => void;
   getActiveHandler: () => DnDHandler | undefined;
@@ -107,6 +110,16 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     setNodeReferenceMap(new Map(nodeReferenceMap));
   }, [nodeReferenceMap]);
 
+  const clearNodeReferencesForDocument = useCallback(
+    (documentType: DocumentType, documentId: string) => {
+      const pathPrefix = NodePath.fromDocument(documentType, documentId).toString();
+      Object.keys(nodeReferenceMap)
+        .filter((key) => key.startsWith(pathPrefix))
+        .forEach((key) => nodeReferenceMap.delete(key));
+    },
+    [nodeReferenceMap],
+  );
+
   const getAllNodePaths = useCallback(() => {
     return Array.from(nodeReferenceMap.keys());
   }, [nodeReferenceMap]);
@@ -131,6 +144,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
       setNodeReference,
       getNodeReference,
       reloadNodeReferences,
+      clearNodeReferencesForDocument,
       getAllNodePaths,
       setDefaultHandler: handleSetDefaultHandler,
       getActiveHandler: () => activeHandler,

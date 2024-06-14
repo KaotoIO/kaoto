@@ -185,11 +185,12 @@ export type TargetDocumentProps = {
 };
 
 export const TargetDocument: FunctionComponent<TargetDocumentProps> = ({ model }) => {
-  const { getNodeReference, setNodeReference } = useCanvas();
+  const { getNodeReference, setNodeReference, clearNodeReferencesForDocument } = useCanvas();
   const { mappingTree } = useDataMapper();
   const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
   const nodeData = new DocumentNodeData(model, mappingTree);
   const nodeRefId = nodeData.path.toString();
+  clearNodeReferencesForDocument(model.documentType, model.documentId);
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   return model instanceof PrimitiveDocument ? (
