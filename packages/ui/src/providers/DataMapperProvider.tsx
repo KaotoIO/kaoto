@@ -17,8 +17,9 @@ import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMe
 
 import { Loading } from '../components/Loading';
 import { MappingTree } from '../models/mapping';
-import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/document';
 import { CanvasView } from '../models/view';
+import { DocumentType } from '../models/path';
 
 export interface IDataMapperContext {
   loading: boolean;

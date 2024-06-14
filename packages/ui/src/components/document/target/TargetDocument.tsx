@@ -12,7 +12,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 import { GripVerticalIcon } from '@patternfly/react-icons';
-import { DocumentType, IDocument, PrimitiveDocument } from '../../../models/document';
+import { IDocument, PrimitiveDocument } from '../../../models/document';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { AttachSchemaButton } from '../AttachSchemaButton';
 import { DetachSchemaButton } from '../DetachSchemaButton';
@@ -26,6 +26,7 @@ import { TargetDocumentNode } from './TargetDocumentNode';
 
 import { VisualizationService } from '../../../services/visualization.service';
 import { TargetPrimitiveDocumentActions } from './TargetPrimitiveDocumentActions';
+import { DocumentType } from '../../../models/path';
 
 type TargetDocumentImplProps = {
   nodeData: DocumentNodeData;

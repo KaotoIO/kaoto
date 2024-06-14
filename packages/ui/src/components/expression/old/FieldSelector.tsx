@@ -48,10 +48,10 @@ export const FieldSelector: FunctionComponent<FieldSelectorProps> = ({ onSubmit 
     const allSourceFields = DocumentService.getAllFields(sourceBodyDocument, sourceParameterMap);
     const updatedAllFieldOptions = allSourceFields.map((field) => {
       return {
-        value: field.fieldIdentifier.toString(),
-        children: field.fieldIdentifier.toString(),
-        documentId: field.fieldIdentifier.documentId,
-        documentType: field.fieldIdentifier.documentType,
+        value: field.expression,
+        children: field.expression,
+        documentId: field.ownerDocument.documentId,
+        documentType: field.ownerDocument.documentType,
         fieldDefinition: field,
       } as FieldOptionProps;
     });

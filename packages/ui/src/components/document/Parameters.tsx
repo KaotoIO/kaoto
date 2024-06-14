@@ -15,11 +15,12 @@ import {
 import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useDataMapper, useToggle } from '../../hooks';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
-import { DocumentType, PrimitiveDocument } from '../../models/document';
+import { PrimitiveDocument } from '../../models/document';
 import { SourceDocument } from './source/SourceDocument';
 import { useCanvas } from '../../hooks/useCanvas';
 import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/CanvasProvider';
+import { DocumentType } from '../../models/path';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;

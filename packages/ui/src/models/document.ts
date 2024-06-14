@@ -1,4 +1,5 @@
 import { Types } from './types';
+import { DocumentType, NodePath } from './path';
 
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
@@ -11,12 +12,6 @@ export interface INamespace {
 }
 
 export type IParentType = IDocument | IField;
-
-export enum DocumentType {
-  SOURCE_BODY = 'sourceBody',
-  TARGET_BODY = 'targetBody',
-  PARAM = 'param',
-}
 
 export const BODY_DOCUMENT_ID = 'Body';
 
@@ -41,14 +36,20 @@ export interface IDocument {
   schemaType: string;
   fields: IField[];
   namespaces?: INamespace[];
+  path: NodePath;
 }
 
 export abstract class BaseDocument implements IDocument {
-  documentType: DocumentType = DocumentType.SOURCE_BODY;
-  documentId: string = '';
+  constructor(
+    public documentType: DocumentType,
+    public documentId: string,
+  ) {
+    this.path = NodePath.fromDocument(documentType, documentId);
+  }
   fields: IField[] = [];
   name: string = '';
   schemaType = '';
+  path: NodePath;
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
@@ -61,14 +62,13 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   namespaceURI: string | null = null;
   parent: IParentType = this;
   type = Types.AnyType;
+  path: NodePath;
 
-  constructor(
-    public documentType: DocumentType,
-    public documentId: string,
-  ) {
-    super();
+  constructor(documentType: DocumentType, documentId: string) {
+    super(documentType, documentId);
     this.name = this.documentId;
     this.expression = this.documentId;
+    this.path = NodePath.fromDocument(documentType, documentId);
   }
 }
 

@@ -24,15 +24,21 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaUse,
 } from '@datamapper-poc/xml-schema-ts';
-import { BaseDocument, BaseField, DocumentType } from '../models/document';
+import { BaseDocument, BaseField } from '../models/document';
 import { Types } from '../models/types';
+import { DocumentType, NodePath } from '../models/path';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
   fields: XmlSchemaField[] = [];
 
-  constructor(public xmlSchema: XmlSchema) {
-    super();
+  constructor(
+    public xmlSchema: XmlSchema,
+    documentType: DocumentType,
+    documentId: string,
+  ) {
+    super(documentType, documentId);
+    this.name = documentId;
     if (this.xmlSchema.getElements().size == 0) {
       throw Error("There's no top level Element in the schema");
     }
@@ -50,27 +56,28 @@ export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = null;
   namespacePrefix: string | null = null;
+  path: NodePath;
 
-  constructor(public parent: XmlSchemaParentType) {
+  constructor(
+    public parent: XmlSchemaParentType,
+    public expression: string,
+  ) {
     super();
     this.ownerDocument =
       this.parent instanceof XmlSchemaDocument ? this.parent : (this.parent as XmlSchemaField).ownerDocument;
+    this.path = NodePath.childOf(parent.path, this.expression);
   }
 }
 
 export class XmlSchemaDocumentService {
-  static parseXmlSchema(content: string): XmlSchemaDocument {
+  static parseXmlSchema(content: string): XmlSchema {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(content, () => {});
-    return new XmlSchemaDocument(xmlSchema);
+    return collection.read(content, () => {});
   }
 
   static createXmlSchemaDocument(documentType: DocumentType, documentId: string, content: string) {
-    const doc = XmlSchemaDocumentService.parseXmlSchema(content);
-    doc.name = documentId;
-    doc.documentType = documentType;
-    doc.documentId = documentId;
-    return doc;
+    const schema = XmlSchemaDocumentService.parseXmlSchema(content);
+    return new XmlSchemaDocument(schema, documentType, documentId);
   }
 
   static getFirstElement(xmlSchema: XmlSchema) {
@@ -101,9 +108,9 @@ export class XmlSchemaDocumentService {
    * @param element
    */
   static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
-    const field: XmlSchemaField = new XmlSchemaField(parent);
+    const expression = element.getWireName()!.getLocalPart()!;
+    const field: XmlSchemaField = new XmlSchemaField(parent, expression);
     field.name = element.getWireName()!.getLocalPart()!;
-    field.expression = field.name;
     field.namespaceURI = element.getWireName()!.getNamespaceURI();
     field.namespacePrefix = element.getWireName()!.getPrefix();
     field.defaultValue = element.defaultValue || element.fixedValue;
@@ -153,10 +160,11 @@ export class XmlSchemaDocumentService {
    * @param attr
    */
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
-    const field = new XmlSchemaField(parent);
+    const name = attr.getWireName()!.getLocalPart()!;
+    const expression = '@' + name;
+    const field = new XmlSchemaField(parent, expression);
     field.isAttribute = true;
-    field.name = attr.getWireName()!.getLocalPart()!;
-    field.expression = '@' + field.name;
+    field.name = name;
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();

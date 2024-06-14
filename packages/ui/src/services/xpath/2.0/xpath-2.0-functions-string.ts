@@ -1,5 +1,5 @@
 import { Types } from '../../../models/types';
-import { IFunctionDefinition } from '../../../models';
+import { IFunctionDefinition } from '../../../models/mapping';
 
 /**
  * 7.4 String - https://www.w3.org/TR/2010/REC-xpath-functions-20101214/#string-value-functions

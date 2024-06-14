@@ -1,4 +1,4 @@
-import { IFunctionDefinition } from '../../../models';
+import { IFunctionDefinition } from '../../../models/mapping';
 import { FunctionGroup } from '../xpath-parser';
 import { numericFunctions } from './xpath-2.0-functions-numeric';
 import { patternMatchingFunctions, stringFunctions, substringMatchingFunctions } from './xpath-2.0-functions-string';

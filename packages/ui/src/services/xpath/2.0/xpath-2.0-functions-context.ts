@@ -1,4 +1,4 @@
-import { IFunctionDefinition } from '../../../models';
+import { IFunctionDefinition } from '../../../models/mapping';
 import { Types } from '../../../models/types';
 
 /**

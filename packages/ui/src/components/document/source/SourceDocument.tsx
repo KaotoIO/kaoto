@@ -12,7 +12,7 @@ import {
   SplitItem,
 } from '@patternfly/react-core';
 import { GripVerticalIcon } from '@patternfly/react-icons';
-import { IDocument, DocumentType, PrimitiveDocument } from '../../../models/document';
+import { IDocument, PrimitiveDocument } from '../../../models/document';
 import { SourceDocumentField } from './SourceDocumentField';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { AttachSchemaButton } from '../AttachSchemaButton';
@@ -22,6 +22,7 @@ import { NodeContainer } from '../NodeContainer';
 import { NodeReference } from '../../../providers/CanvasProvider';
 import '../Document.scss';
 import { DocumentNodeData, FieldNodeData } from '../../../models/visualization';
+import { DocumentType } from '../../../models/path';
 
 type DocumentImplProps = {
   nodeData: DocumentNodeData;

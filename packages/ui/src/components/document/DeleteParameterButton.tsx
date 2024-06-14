@@ -3,7 +3,8 @@ import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { useDataMapper, useToggle } from '../../hooks';
 import { MappingService } from '../../services/mapping.service';
-import { DocumentType } from '../../models/document';
+
+import { DocumentType } from '../../models/path';
 
 type DeleteParameterProps = {
   parameterName: string;

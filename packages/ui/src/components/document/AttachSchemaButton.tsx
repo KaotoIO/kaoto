@@ -21,8 +21,8 @@ import { useFilePicker } from 'react-sage';
 import { readFileAsString } from '../../util';
 import { XmlSchemaDocumentService } from '../../services';
 import { useDataMapper } from '../../hooks';
-import { DocumentType } from '../../models/document';
 import { MappingService } from '../../services/mapping.service';
+import { DocumentType } from '../../models/path';
 
 type AttachSchemaProps = {
   documentType: DocumentType;

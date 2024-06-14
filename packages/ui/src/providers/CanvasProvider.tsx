@@ -24,8 +24,7 @@ import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks';
 import { DnDHandler } from './dnd/DnDHandler';
 import { NodeData } from '../models/visualization';
-import { NodePath } from '../models/path';
-import { DocumentType } from '../models/document';
+import { DocumentType, NodePath } from '../models/path';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -150,7 +149,16 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
       getActiveHandler: () => activeHandler,
       setActiveHandler: handleSetActiveHandler,
     };
-  }, [setNodeReference, getNodeReference, reloadNodeReferences, getAllNodePaths, activeHandler]);
+  }, [
+    setNodeReference,
+    getNodeReference,
+    reloadNodeReferences,
+    clearNodeReferencesForDocument,
+    getAllNodePaths,
+    handleSetDefaultHandler,
+    handleSetActiveHandler,
+    activeHandler,
+  ]);
 
   return (
     <CanvasContext.Provider value={value}>

@@ -1,12 +1,12 @@
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { FunctionGroup, XPathParserResult } from './xpath-parser';
 import { IFunctionDefinition } from '../../models/mapping';
-import { DocumentType } from '../../models/document';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstElement, CstNode } from 'chevrotain';
 import { IField, PrimitiveDocument } from '../../models/document';
 import { DocumentService } from '../document.service';
+import { DocumentType } from '../../models/path';
 
 export class XPathService {
   static parser = new XPath2Parser();

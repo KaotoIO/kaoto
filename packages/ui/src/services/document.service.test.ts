@@ -1,7 +1,7 @@
 import { DocumentService } from './document.service';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { DocumentType } from '../models';
 import * as fs from 'fs';
+import { DocumentType } from '../models/path';
 
 describe('DocumentService', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
@@ -36,7 +36,7 @@ describe('DocumentService', () => {
 
   describe('getFieldFromPathExpression()', () => {
     it('', () => {
-      const pathExpression = '/' + sourceDoc.fields[0].fields[2].fieldIdentifier.pathSegments.join('/');
+      const pathExpression = '/' + sourceDoc.fields[0].fields[2].path.pathSegments.join('/');
       const field = DocumentService.getFieldFromPathExpression(sourceDoc, pathExpression);
       expect(field?.name).toEqual('ShipTo');
     });
@@ -44,7 +44,7 @@ describe('DocumentService', () => {
 
   describe('getFieldFromPathSegments()', () => {
     it('', () => {
-      const pathSegments = sourceDoc.fields[0].fields[2].fieldIdentifier.pathSegments;
+      const pathSegments = sourceDoc.fields[0].fields[2].path.pathSegments;
       const field = DocumentService.getFieldFromPathSegments(sourceDoc, pathSegments);
       expect(field?.name).toEqual('ShipTo');
     });

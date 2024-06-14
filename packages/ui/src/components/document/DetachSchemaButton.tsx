@@ -18,8 +18,9 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
 import { useDataMapper, useToggle } from '../../hooks';
-import { DocumentType, PrimitiveDocument } from '../../models/document';
+import { PrimitiveDocument } from '../../models/document';
 import { MappingService } from '../../services/mapping.service';
+import { DocumentType } from '../../models/path';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;

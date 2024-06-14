@@ -1,6 +1,6 @@
-import { DocumentType, IField } from './document';
+import { IField } from './document';
 import { generateRandomId } from '../util';
-import { NodePath } from './path';
+import { DocumentType, NodePath } from './path';
 import { Types } from './types';
 
 export type MappingParentType = MappingTree | MappingItem;

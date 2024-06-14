@@ -1,4 +1,4 @@
-import { XPathService } from './XPathService';
+import { XPathService } from './xpath.service';
 import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
 

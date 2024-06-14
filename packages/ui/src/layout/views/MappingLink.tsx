@@ -47,7 +47,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
 };
 
 export const MappingLinksContainer: FunctionComponent = () => {
-  const { mappingTree, selectedMapping } = useDataMapper();
+  const { mappingTree } = useDataMapper();
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
 
@@ -126,7 +126,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
       window.removeEventListener('resize', refreshLinks);
       window.removeEventListener('scroll', refreshLinks);
     };
-  }, [refreshLinks, selectedMapping]);
+  }, [refreshLinks]);
 
   return (
     <svg

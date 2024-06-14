@@ -1,7 +1,7 @@
-import { DocumentType, IDocument, IField } from './document';
+import { IDocument, IField } from './document';
 import { FieldItem, MappingItem, MappingTree } from './mapping';
 import { generateRandomId } from '../util';
-import { NodePath } from './path';
+import { DocumentType, NodePath } from './path';
 
 export interface NodeData {
   title: string;

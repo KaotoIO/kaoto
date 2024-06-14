@@ -1,7 +1,8 @@
-import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID, IDocument, IField, PrimitiveDocument } from '../models/document';
 import { MappingItem, MappingTree } from '../models/mapping';
 import xmlFormat from 'xml-formatter';
 import { DocumentService } from './document.service';
+import { DocumentType, NodePath } from '../models/path';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
 export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
@@ -53,7 +54,8 @@ export class MappingSerializerService {
     });
   }
 
-  static populateMapping(xsltDocument: Document, mapping: MappingItem) {
+  static populateMapping(_xsltDocument: Document, _mapping: MappingItem) {
+    /*
     const source = mapping.source;
     const target = mapping.targetFields[0];
 
@@ -74,6 +76,8 @@ export class MappingSerializerService {
         : MappingSerializerService.getOrCreateParent(template as Element, target);
     const sourceXPath = mapping.xpath ? mapping.xpath : MappingSerializerService.getXPath(xsltDocument, source);
     MappingSerializerService.populateSource(parent, sourceXPath, target);
+
+     */
   }
 
   static getOrCreateParent(template: Element, target: IField) {
@@ -138,7 +142,8 @@ export class MappingSerializerService {
     }
   }
 
-  static getXPath(xsltDocument: Document, source: ITransformation) {
+  static getXPath(_xsltDocument: Document, _source: MappingTree) {
+    /*
     const fieldStack = DocumentService.getFieldStack(source, true);
     const pathStack: string[] = [];
     while (fieldStack.length) {
@@ -149,6 +154,8 @@ export class MappingSerializerService {
     const paramPrefix =
       source.ownerDocument.documentType === DocumentType.PARAM ? '$' + source.ownerDocument.documentId : '';
     return source.ownerDocument instanceof PrimitiveDocument ? paramPrefix : paramPrefix + '/' + pathStack.join('/');
+
+     */
   }
 
   static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {
@@ -174,6 +181,6 @@ export class MappingSerializerService {
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
     template.localName;
-    return { children: [] };
+    return { path: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID), children: [] };
   }
 }

@@ -1,4 +1,8 @@
-import { DocumentType } from './document';
+export enum DocumentType {
+  SOURCE_BODY = 'sourceBody',
+  TARGET_BODY = 'targetBody',
+  PARAM = 'param',
+}
 
 export class NodePath {
   documentType: DocumentType = DocumentType.SOURCE_BODY;

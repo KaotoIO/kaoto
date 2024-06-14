@@ -1,12 +1,17 @@
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 import * as fs from 'fs';
-import { DocumentType } from '../models';
+import { BODY_DOCUMENT_ID } from '../models/document';
+import { DocumentType } from '../models/path';
 
 describe('XmlSchemaDocumentService', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
 
   it('should parse the xml schema', () => {
-    const document = XmlSchemaDocumentService.parseXmlSchema(orderXsd);
+    const document = XmlSchemaDocumentService.createXmlSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      BODY_DOCUMENT_ID,
+      orderXsd,
+    );
     expect(document).toBeDefined();
     const shipOrder = XmlSchemaDocumentService.getFirstElement(document.xmlSchema);
     const fields: XmlSchemaField[] = [];

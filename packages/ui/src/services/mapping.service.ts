@@ -10,11 +10,11 @@ import {
   ValueSelector,
   MappingParentType,
 } from '../models/mapping';
-import { BODY_DOCUMENT_ID, DocumentType, IDocument, IField, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID, IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
 import { IMappingLink } from '../models/visualization';
-import { NodePath } from '../models/path';
+import { DocumentType, NodePath } from '../models/path';
 
 export class MappingService {
   static filterMappingsForField(mappings: MappingItem[], field: IField): MappingItem[] {
