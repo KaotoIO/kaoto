@@ -143,6 +143,17 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
   cy.get(`[data-testid="new-entity-${subType}"] button.pf-v5-c-menu__item`).click({ force: true });
 });
 
+Cypress.Commands.add('addProperty', (propertyName: string) => {
+  cy.get('label')
+    .contains(propertyName)
+    .parent()
+    .parent()
+    .parent()
+    .within(() => {
+      cy.get('[data-testid="list-add-field"]').click();
+    });
+});
+
 Cypress.Commands.add('addSingleProperty', (propertyName: string, key: string, value: string) => {
   cy.get('label')
     .contains(propertyName)
@@ -205,13 +216,6 @@ Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: strin
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
   cy.get(`div[data-fieldname="${inputName}"] button[aria-label="Clear input value"]`).click();
-});
-
-Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
-  cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
-    cy.get('button.pf-v5-c-menu-toggle__button').click();
-  });
-  cy.get(`#select-typeahead-${value}`).click();
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {

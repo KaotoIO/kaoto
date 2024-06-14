@@ -52,26 +52,25 @@ describe('Test for camel route root containers configuration', () => {
       .find('.pf-topology__group__label')
       .find('.pf-topology__node__label__background')
       .click();
-
-    cy.get(`textarea[name="description"]`).clear().type('test.description');
-    cy.get(`input[name="group"]`).clear().type('test.group');
-    cy.get(`textarea[name="inputType.description"]`).clear().type('test.inputType.description');
-    cy.get(`input[name="inputType.id"]`).clear().type('test.inputType.id');
-    cy.get(`input[name="inputType.urn"]`).clear().type('test.inputType.urn');
-    cy.get(`input[name="inputType.validate"]`).check();
-    cy.get(`input[name="logMask"]`).check();
-    cy.get(`input[name="messageHistory"]`).check();
-    cy.get(`input[name="nodePrefixId"]`).clear().type('test.nodePrefixId');
-    cy.get(`textarea[name="outputType.description"]`).clear().type('test.outputType.description');
-    cy.get(`input[name="outputType.id"]`).clear().type('test.outputType.id');
-    cy.get(`input[name="outputType.urn"]`).clear().type('test.outputType.urn');
-    cy.get(`input[name="outputType.validate"]`).check();
-    cy.get(`input[name="precondition"]`).clear().type('test.precondition');
-    cy.get(`input[name="routeConfigurationId"]`).clear().type('test.routeConfigurationId');
-    cy.get(`input[name="routePolicy"]`).clear().type('test.routePolicy');
-    cy.get(`input[name="startupOrder"]`).clear().type('test.startupOrder');
-    cy.get(`input[name="streamCache"]`).check();
-    cy.get(`input[name="trace"]`).check();
+    cy.interactWithConfigInputObject('description', 'test.description');
+    cy.interactWithConfigInputObject('group', 'test.group');
+    cy.interactWithConfigInputObject('inputType.description', 'test.inputType.description');
+    cy.interactWithConfigInputObject('inputType.id', 'test.inputType.id');
+    cy.interactWithConfigInputObject('inputType.urn', 'test.inputType.urn');
+    cy.interactWithConfigInputObject('inputType.validate');
+    cy.interactWithConfigInputObject('logMask');
+    cy.interactWithConfigInputObject('messageHistory');
+    cy.interactWithConfigInputObject('nodePrefixId', 'test.nodePrefixId');
+    cy.interactWithConfigInputObject('outputType.description', 'test.outputType.description');
+    cy.interactWithConfigInputObject('outputType.id', 'test.outputType.id');
+    cy.interactWithConfigInputObject('outputType.urn', 'test.outputType.urn');
+    cy.interactWithConfigInputObject('outputType.validate');
+    cy.interactWithConfigInputObject('precondition', 'test.precondition');
+    cy.interactWithConfigInputObject('routeConfigurationId', 'test.routeConfigurationId');
+    cy.interactWithConfigInputObject('routePolicy', 'test.routePolicy');
+    cy.interactWithConfigInputObject('startupOrder', 'test.startupOrder');
+    cy.interactWithConfigInputObject('streamCache');
+    cy.interactWithConfigInputObject('trace');
 
     cy.openSourceCode();
 
@@ -97,6 +96,48 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('startupOrder: test.startupOrder');
     cy.checkCodeSpanLine('streamCache: true');
     cy.checkCodeSpanLine('trace: true');
+  });
+
+  it('Canvas kamelet container config', () => {
+    cy.uploadFixture('flows/kamelet/basic.yaml');
+    cy.openDesignPage();
+
+    cy.get('[data-id^="eip-action"]')
+      .find('.pf-topology__group__label')
+      .find('.pf-topology__node__label__background')
+      .click();
+
+    cy.interactWithConfigInputObject('name', 'test.name');
+    cy.interactWithConfigInputObject('title', 'test.title');
+    cy.interactWithConfigInputObject('description', 'test.description');
+    cy.selectInTypeaheadField('type', 'sink');
+    cy.interactWithConfigInputObject('icon', 'test.icon');
+    cy.interactWithConfigInputObject('supportLevel', 'test.supportLevel');
+    cy.interactWithConfigInputObject('catalogVersion', 'test.catalogVersion');
+    cy.interactWithConfigInputObject('provider', 'test.provider');
+    cy.interactWithConfigInputObject('group', 'test.group');
+    cy.interactWithConfigInputObject('namespace', 'test.namespace');
+    cy.interactWithConfigInputObject('kameletProperties.0.name', 'test.properties.name');
+    cy.interactWithConfigInputObject('kameletProperties.0.title', 'test.properties.title');
+    cy.interactWithConfigInputObject('kameletProperties.0.description', 'test.properties.description');
+    cy.interactWithConfigInputObject('kameletProperties.0.default', '1000');
+    cy.addProperty('X-descriptors');
+    cy.interactWithConfigInputObject('kameletProperties.0.x-descriptors.0', 'test.x-descriptors');
+
+    cy.openSourceCode();
+
+    cy.checkCodeSpanLine('name: test.name');
+    cy.checkCodeSpanLine('title: test.title');
+    cy.checkCodeSpanLine('camel.apache.org/kamelet.icon: test.icon');
+    cy.checkCodeSpanLine('camel.apache.org/kamelet.support.level: test.supportLevel');
+    cy.checkCodeSpanLine('camel.apache.org/kamelet.type: sink');
+    cy.checkCodeSpanLine('camel.apache.org/catalog.version: test.catalogVersion');
+    cy.checkCodeSpanLine('camel.apache.org/provider: test.provider');
+    cy.checkCodeSpanLine('camel.apache.org/kamelet.group: test.group');
+    cy.checkCodeSpanLine('camel.apache.org/kamelet.namespace: test.namespace');
+    cy.checkCodeSpanLine('description: test.description');
+    cy.checkCodeSpanLine('x-descriptors:');
+    cy.checkCodeSpanLine('- test.x-descriptors');
   });
 
   it('Canvas pipe container config', () => {

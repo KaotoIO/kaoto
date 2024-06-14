@@ -54,7 +54,8 @@ declare global {
       cancelExpressionModal(): Chainable<JQuery<Element>>;
       selectExpression(expression: string): Chainable<JQuery<Element>>;
       selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
-      addSingleProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
+      addProperty(propertyName: string): Chainable<JQuery<Element>>;
+      addSingleKVProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
       deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
