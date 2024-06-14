@@ -138,11 +138,13 @@ export class NodeIconResolver {
       return this.getUnknownIcon();
     }
 
-    if (elementName.startsWith('kamelet') || type === NodeIconType.Kamelet) {
+    if (elementName.startsWith('kamelet:')) {
       return this.getKameletIcon(elementName) ?? this.getUnknownIcon();
     }
 
     switch (type) {
+      case NodeIconType.Kamelet:
+        return this.getDefaultCamelIcon();
       case NodeIconType.Component:
         return this.getComponentIcon(elementName) ?? this.getDefaultCamelIcon();
       case NodeIconType.EIP:

@@ -1,0 +1,16 @@
+# camel-k: dependency=camel:aws-secrets-manager
+
+- route:
+    from:
+      uri: "kamelet:timer-source"
+      parameters:
+        period: 10000
+        message: 'test'
+      steps:
+        - to: 
+            uri: "https://finnhub.io/api/v1/quote?symbol=AAPL&token={{aws:finnhub-token}}"
+        - to: 
+            uri: "kamelet:log-sink"
+            parameters:
+              showStreams: true
+              showHeaders: true
