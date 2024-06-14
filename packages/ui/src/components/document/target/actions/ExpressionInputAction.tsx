@@ -1,5 +1,5 @@
 import { ExpressionItem } from '../../../../models/mapping';
-import { FormEvent, FunctionComponent, useCallback } from 'react';
+import { FormEvent, FunctionComponent, KeyboardEvent, useCallback } from 'react';
 import { ActionListGroup, ActionListItem, InputGroup, InputGroupItem, TextInput } from '@patternfly/react-core';
 
 type ExpressionInputProps = {
@@ -17,6 +17,10 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
     [mapping, onUpdate],
   );
 
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    event.stopPropagation();
+  }, []);
+
   return (
     <ActionListGroup key="transformation-expression-input">
       <ActionListItem>
@@ -28,6 +32,7 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
               type="text"
               value={mapping.expression as string}
               onChange={handleExpressionChange}
+              onKeyDown={handleKeyDown}
             />
           </InputGroupItem>
         </InputGroup>
