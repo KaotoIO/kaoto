@@ -56,8 +56,12 @@ export class ChooseItem extends MappingItem implements ConditionItem {
     super(parent, 'choose');
   }
   isCondition = true as const;
-  when: WhenItem[] = [];
-  otherwise?: OtherwiseItem;
+  get when() {
+    return this.children.filter((c) => c instanceof WhenItem) as WhenItem[];
+  }
+  get otherwise() {
+    return this.children.find((c) => c instanceof OtherwiseItem) as OtherwiseItem;
+  }
 }
 
 export class WhenItem extends MappingItem implements ExpressionItem, ConditionItem {

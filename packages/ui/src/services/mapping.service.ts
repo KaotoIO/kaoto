@@ -138,11 +138,13 @@ export class MappingService {
   }
 
   static addWhen(item: ChooseItem) {
-    item.when.push(new WhenItem(item));
+    item.children.push(new WhenItem(item));
   }
 
   static addOtherwise(item: ChooseItem) {
-    item.otherwise = new OtherwiseItem(item);
+    const newChildren = item.children.filter((c) => !(c instanceof OtherwiseItem));
+    newChildren.push(new OtherwiseItem(item));
+    item.children = newChildren;
   }
 
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {

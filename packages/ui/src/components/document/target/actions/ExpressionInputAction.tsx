@@ -8,16 +8,17 @@ type ExpressionInputProps = {
 };
 export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({ mapping, onUpdate }) => {
   const handleExpressionChange = useCallback(
-    (_event: FormEvent, value: string) => {
+    (event: FormEvent, value: string) => {
       if (mapping) {
         mapping.expression = value;
         onUpdate();
       }
+      event.stopPropagation();
     },
     [mapping, onUpdate],
   );
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+  const handleStopPropagation = useCallback((event: KeyboardEvent | FormEvent) => {
     event.stopPropagation();
   }, []);
 
@@ -32,7 +33,9 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
               type="text"
               value={mapping.expression as string}
               onChange={handleExpressionChange}
-              onKeyDown={handleKeyDown}
+              onKeyDown={handleStopPropagation}
+              onClick={handleStopPropagation}
+              onSelect={handleStopPropagation}
             />
           </InputGroupItem>
         </InputGroup>

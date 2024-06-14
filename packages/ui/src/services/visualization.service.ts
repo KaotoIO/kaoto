@@ -53,6 +53,8 @@ export class VisualizationService {
           if (mapping instanceof FieldItem) {
             const fieldNodeData = new FieldNodeData(parent, field, mapping);
             acc.push(fieldNodeData);
+          } else if (mapping instanceof ChooseItem) {
+            acc.push(new ConditionNodeData(parent, mapping));
           } else {
             acc.push(new ConditionNodeData(parent, mapping));
           }
