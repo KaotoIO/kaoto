@@ -185,10 +185,12 @@ export class MappingService {
   }
 
   static deleteMappingItem(item: MappingParentType) {
-    if (item.children) {
+    if (item instanceof FieldItem && item.children) {
       item.children = item.children.filter((child) => !(child instanceof ValueSelector)) as ValueSelector[];
+      item.children.length === 0 && MappingService.deleteFromParent(item);
+    } else {
+      item instanceof MappingItem && MappingService.deleteFromParent(item);
     }
-    item instanceof MappingItem && MappingService.deleteFromParent(item);
   }
 
   private static deleteFromParent(item: MappingItem) {

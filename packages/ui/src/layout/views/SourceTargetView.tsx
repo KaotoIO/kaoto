@@ -21,11 +21,11 @@ import { TargetDocument } from '../../components/document/target/TargetDocument'
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
-  const { reloadNodeReferences, setActiveHandler } = useCanvas();
+  const { reloadNodeReferences, setDefaultHandler } = useCanvas();
 
   useEffect(() => {
-    setActiveHandler(new SourceTargetDnDHandler());
-  }, [setActiveHandler]);
+    setDefaultHandler(new SourceTargetDnDHandler());
+  }, [setDefaultHandler]);
 
   return (
     <Split className="source-target-view">

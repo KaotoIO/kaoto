@@ -63,7 +63,10 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
 
   const refreshMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-    newMapping.children = mappingTree.children;
+    newMapping.children = mappingTree.children.map((child) => {
+      child.parent = newMapping;
+      return child;
+    });
     setMappingTree(newMapping);
   }, [mappingTree]);
 

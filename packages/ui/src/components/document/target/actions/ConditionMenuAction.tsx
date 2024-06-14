@@ -58,6 +58,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
         )}
         isOpen={isActionMenuOpen}
         onOpenChange={(isOpen: boolean) => setIsActionMenuOpen(isOpen)}
+        zIndex={100}
       >
         <DropdownList>
           {allowForEach && (
@@ -70,9 +71,6 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           </DropdownItem>
           <DropdownItem key="choose" value="choose">
             Apply <q>choose</q>
-          </DropdownItem>
-          <DropdownItem key="sort" value="sort">
-            Apply <q>sort</q>
           </DropdownItem>
         </DropdownList>
       </Dropdown>
