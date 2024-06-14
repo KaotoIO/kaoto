@@ -10,6 +10,7 @@ import {
   MenuToggleElement,
 } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons';
+import './TargetFieldActions.scss';
 
 type ConditionMenuProps = {
   nodeData: NodeData;
@@ -44,6 +45,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
   return (
     <ActionListGroup key="transformation-actions">
       <Dropdown
+        className="target-field-actions__condition-menu-dropdown"
         onSelect={onSelectAction}
         toggle={(toggleRef: Ref<MenuToggleElement>) => (
           <MenuToggle

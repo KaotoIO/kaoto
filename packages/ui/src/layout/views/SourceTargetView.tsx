@@ -41,7 +41,7 @@ export const SourceTargetView: FunctionComponent = () => {
               <Text component={TextVariants.h3}>Target</Text>
             </TextContent>
           </PanelHeader>
-          <PanelMain onScroll={reloadNodeReferences} maxHeight="90%">
+          <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
             <Stack className="source-target-view__target-panel-main">
               <StackItem>
                 <TargetDocument model={targetBodyDocument} />
