@@ -18,11 +18,11 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
 import { useFilePicker } from 'react-sage';
-import { readFileAsString } from '../../util';
-import { XmlSchemaDocumentService } from '../../services';
-import { useDataMapper } from '../../hooks';
-import { MappingService } from '../../services/mapping.service';
-import { DocumentType } from '../../models/path';
+import { readFileAsString } from '../../../util';
+import { XmlSchemaDocumentService } from '../../../services';
+import { useDataMapper } from '../../../hooks';
+import { MappingService } from '../../../services/mapping.service';
+import { DocumentType } from '../../../models/path';
 
 type AttachSchemaProps = {
   documentType: DocumentType;

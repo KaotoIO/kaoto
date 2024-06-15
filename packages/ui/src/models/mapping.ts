@@ -31,7 +31,7 @@ export class FieldItem extends MappingItem {
     public parent: MappingParentType,
     public field: IField,
   ) {
-    super(parent, 'field');
+    super(parent, 'field-' + field.name);
   }
 }
 

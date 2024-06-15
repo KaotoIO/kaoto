@@ -187,17 +187,12 @@ export class MappingService {
   }
 
   static deleteMappingItem(item: MappingParentType) {
-    if ((item instanceof FieldItem || item instanceof MappingTree) && item.children) {
-      item.children = item.children.filter((child) => !(child instanceof ValueSelector)) as ValueSelector[];
-      item instanceof MappingItem && item.children.length === 0 && MappingService.deleteFromParent(item);
-    } else {
-      item instanceof MappingItem && MappingService.deleteFromParent(item);
-    }
+    item instanceof MappingItem && MappingService.deleteFromParent(item);
   }
 
   private static deleteFromParent(item: MappingItem) {
     item.parent.children = item.parent.children.filter((child) => child !== item);
-    item.parent instanceof MappingItem &&
+    item.parent instanceof FieldItem &&
       item.parent.children.length === 0 &&
       MappingService.deleteFromParent(item.parent);
   }

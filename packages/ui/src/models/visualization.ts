@@ -1,5 +1,5 @@
 import { IDocument, IField } from './document';
-import { FieldItem, MappingItem, MappingTree } from './mapping';
+import { FieldItem, MappingItem, MappingParentType, MappingTree } from './mapping';
 import { generateRandomId } from '../util';
 import { DocumentType, NodePath } from './path';
 
@@ -8,6 +8,7 @@ export interface NodeData {
   id: string;
   path: NodePath;
   isSource: boolean;
+  mapping?: MappingParentType;
 }
 
 export type SourceNodeDataType = DocumentNodeData | FieldNodeData;
@@ -18,12 +19,12 @@ export class DocumentNodeData implements NodeData {
     this.id = `doc-${document.documentType}-${document.documentId}`;
     this.path = NodePath.fromDocument(document.documentType, document.documentId);
     this.document = document;
-    this.mappingTree = mappingTree;
+    this.mapping = mappingTree;
     this.isSource = document.documentType !== DocumentType.TARGET_BODY;
   }
 
   document: IDocument;
-  mappingTree?: MappingTree;
+  mapping?: MappingTree;
   title: string;
   id: string;
   path: NodePath;
@@ -37,7 +38,7 @@ export class FieldNodeData implements NodeData {
     public mapping?: FieldItem,
   ) {
     this.title = field.expression;
-    this.id = generateRandomId('field', 4);
+    this.id = mapping ? mapping.id : generateRandomId('field-' + field.name, 4);
     this.path = NodePath.childOf(parent.path, this.id);
     this.isSource = field.ownerDocument.documentType !== DocumentType.TARGET_BODY;
   }
@@ -48,7 +49,7 @@ export class FieldNodeData implements NodeData {
   isSource: boolean;
 }
 
-export class ConditionNodeData implements NodeData {
+export class MappingNodeData implements NodeData {
   constructor(
     public parent: NodeData,
     public mapping: MappingItem,

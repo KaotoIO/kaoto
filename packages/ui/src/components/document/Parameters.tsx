@@ -16,11 +16,11 @@ import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDataMapper, useToggle } from '../../hooks';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { PrimitiveDocument } from '../../models/document';
-import { SourceDocument } from './source/SourceDocument';
 import { useCanvas } from '../../hooks/useCanvas';
 import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/CanvasProvider';
 import { DocumentType } from '../../models/path';
+import { SourceDocument } from './SourceDocument';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -160,7 +160,7 @@ export const Parameters: FunctionComponent = () => {
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
               <StackItem key={documentId}>
-                <SourceDocument model={doc} />
+                <SourceDocument document={doc} />
               </StackItem>
             ))}
           </Stack>

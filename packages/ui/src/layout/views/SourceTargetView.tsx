@@ -17,7 +17,7 @@ import './SourceTargetView.scss';
 import { useCanvas } from '../../hooks/useCanvas';
 import { SourcePanel } from './SourcePanel';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
-import { TargetDocument } from '../../components/document/target/TargetDocument';
+import { TargetDocument } from '../../components/document/TargetDocument';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
@@ -44,7 +44,7 @@ export const SourceTargetView: FunctionComponent = () => {
           <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
             <Stack className="source-target-view__target-panel-main">
               <StackItem>
-                <TargetDocument model={targetBodyDocument} />
+                <TargetDocument document={targetBodyDocument} />
               </StackItem>
             </Stack>
           </PanelMain>

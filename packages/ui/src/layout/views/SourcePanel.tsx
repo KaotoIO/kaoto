@@ -9,10 +9,10 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import { SourceDocument } from '../../components/document';
 import { Parameters } from '../../components/document/Parameters';
 import { useDataMapper } from '../../hooks';
 import { useCanvas } from '../../hooks/useCanvas';
+import { SourceDocument } from '../../components/document/SourceDocument';
 
 export const SourcePanel: FunctionComponent = () => {
   const { sourceBodyDocument } = useDataMapper();
@@ -32,7 +32,7 @@ export const SourcePanel: FunctionComponent = () => {
           </StackItem>
           <StackItem>&nbsp;</StackItem>
           <StackItem key={sourceBodyDocument.name}>
-            <SourceDocument model={sourceBodyDocument} />
+            <SourceDocument document={sourceBodyDocument} />
           </StackItem>
         </Stack>
       </PanelMain>

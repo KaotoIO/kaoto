@@ -17,10 +17,10 @@ import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
-import { useDataMapper, useToggle } from '../../hooks';
-import { PrimitiveDocument } from '../../models/document';
-import { MappingService } from '../../services/mapping.service';
-import { DocumentType } from '../../models/path';
+import { useDataMapper, useToggle } from '../../../hooks';
+import { PrimitiveDocument } from '../../../models/document';
+import { MappingService } from '../../../services/mapping.service';
+import { DocumentType } from '../../../models/path';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
