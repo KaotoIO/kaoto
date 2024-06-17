@@ -17,7 +17,7 @@ const selectedNode: CanvasNode = {
   id: 'log-sink-6839',
   label: 'log-sink',
   parentNode: undefined,
-  shape: 'ellipse',
+  shape: 'rect',
   type: 'node',
   data: {
     vizNode: {
@@ -58,7 +58,7 @@ const selectedNode: CanvasNode = {
         } as VisualComponentSchema;
       },
       getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
-    } as IVisualizationNode,
+    } as unknown as IVisualizationNode,
   },
 };
 
@@ -81,7 +81,7 @@ const unknownSelectedNode: CanvasNode = {
         } as VisualComponentSchema;
       },
       getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
-    } as IVisualizationNode,
+    } as unknown as IVisualizationNode,
   },
 };
 
