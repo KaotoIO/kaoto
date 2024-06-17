@@ -37,7 +37,7 @@ export class FieldNodeData implements NodeData {
     public field: IField,
     public mapping?: FieldItem,
   ) {
-    this.title = field.expression;
+    this.title = field.name;
     this.id = mapping ? mapping.id : generateRandomId('field-' + field.name, 4);
     this.path = NodePath.childOf(parent.path, this.id);
     this.isSource = field.ownerDocument.documentType !== DocumentType.TARGET_BODY;
