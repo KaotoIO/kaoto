@@ -23,20 +23,20 @@
   },
   "devDependencies": {
     "@kaoto/kaoto": "workspace:*",
-    "@storybook/addon-essentials": "^7.2.3",
-    "@storybook/addon-interactions": "^7.2.3",
-    "@storybook/addon-links": "^7.2.3",
-    "@storybook/addon-onboarding": "^1.0.8",
-    "@storybook/blocks": "^7.2.3",
-    "@storybook/channels": "^7.4.0",
-    "@storybook/components": "^7.4.0",
-    "@storybook/core-events": "^7.4.0",
-    "@storybook/manager-api": "^7.4.0",
-    "@storybook/preview-api": "^7.4.0",
-    "@storybook/react": "^7.4.0",
-    "@storybook/react-vite": "^7.2.3",
+    "@storybook/addon-essentials": "^8.0.0",
+    "@storybook/addon-interactions": "^8.0.0",
+    "@storybook/addon-links": "^8.0.0",
+    "@storybook/addon-onboarding": "^8.0.0",
+    "@storybook/blocks": "^8.0.0",
+    "@storybook/channels": "^8.0.0",
+    "@storybook/components": "^8.0.0",
+    "@storybook/core-events": "^8.0.0",
+    "@storybook/manager-api": "^8.0.0",
+    "@storybook/preview-api": "^8.0.0",
+    "@storybook/react": "^8.0.0",
+    "@storybook/react-vite": "^8.0.0",
     "@storybook/testing-library": "^0.2.0",
-    "@storybook/theming": "^7.4.0",
+    "@storybook/theming": "^8.0.0",
     "chromatic": "^11.0.0",
     "cypress": "^13.11.0",
     "cypress-file-upload": "^5.0.8",
@@ -61,7 +61,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "storybook": "^7.2.3"
+    "storybook": "^8.0.0"
   },
   "eslintConfig": {
     "extends": [
