@@ -18,7 +18,6 @@
  */
 
 import { Card, CardBody, CardHeader, CardTitle, ExpandableSection, capitalize } from '@patternfly/react-core';
-import { useMemo } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 import { getFieldGroups } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
@@ -43,9 +42,7 @@ export const CustomNestField = connectField(
     disabled,
     ...props
   }: CustomNestFieldProps) => {
-    const propertiesArray = useMemo(() => {
-      return getFieldGroups(props.properties ?? {});
-    }, [props.properties]);
+    const propertiesArray = getFieldGroups(props.properties ?? {});
 
     return (
       <Card className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
@@ -64,7 +61,7 @@ export const CustomNestField = connectField(
             <ExpandableSection
               key={`${groupName}-section-toggle`}
               toggleText={capitalize(`${groupName} properties`)}
-              toggleId="expandable-section-toggle"
+              toggleId={`${groupName}-expandable-section-toggle`}
               contentId="expandable-section-content"
             >
               <CardBody>
