@@ -1,5 +1,5 @@
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
-import { ComponentType, createElement, useMemo } from 'react';
+import { ComponentType, createElement } from 'react';
 import { useForm } from 'uniforms';
 import { KaotoSchemaDefinition } from '../../models';
 import { Card, CardBody, ExpandableSection, capitalize } from '@patternfly/react-core';
@@ -24,19 +24,17 @@ export function CustomAutoFields({
   const { schema } = useForm();
   const rootField = schema.getField('');
 
+  /** Special handling for oneOf schemas */
+  if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
+    return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
+  }
+
   const actualFields = (fields ?? schema.getSubfields()).filter((field) => !omitFields!.includes(field));
   const actualFieldsSchema = actualFields.reduce((acc: { [name: string]: unknown }, name) => {
     acc[name] = schema.getField(name);
     return acc;
   }, {});
-  const propertiesArray = useMemo(() => {
-    return getFieldGroups(actualFieldsSchema);
-  }, [actualFieldsSchema]);
-
-  /** Special handling for oneOf schemas */
-  if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
-    return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
-  }
+  const propertiesArray = getFieldGroups(actualFieldsSchema);
 
   return createElement(
     element,
@@ -48,10 +46,10 @@ export function CustomAutoFields({
 
       {Object.entries(propertiesArray.groups).map(([groupName, groupFields]) => (
         <ExpandableSection
-          key={`${groupName}-section-toggle`}
+          key={`processor-${groupName}-section-toggle`}
           toggleText={capitalize(`${CatalogKind.Processor} ${groupName} properties`)}
-          toggleId="expandable-section-toggle"
-          contentId="expandable-section-content"
+          toggleId={`processor-${groupName}-expandable-section-toggle`}
+          contentId="processor-expandable-section-content"
         >
           <Card className="nest-field-card">
             <CardBody className="nest-field-card-body">
