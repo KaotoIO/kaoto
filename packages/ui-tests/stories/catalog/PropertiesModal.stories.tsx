@@ -12,7 +12,7 @@ export default {
 } as Meta<typeof PropertiesModal>;
 
 const Template: StoryFn<typeof PropertiesModal> = (args) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const handleClose = () => setIsModalOpen(!isModalOpen);
   return (
     <>
