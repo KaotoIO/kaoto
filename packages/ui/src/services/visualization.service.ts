@@ -49,6 +49,8 @@ export class VisualizationService {
   }
 
   private static doGenerateNodeDataFromFields(parent: NodeData, fields: IField[], mappings?: MappingItem[]) {
+    const answer: NodeData[] =
+      mappings?.filter((m) => m instanceof ValueSelector).map((m) => new MappingNodeData(parent, m)) ?? [];
     return fields.reduce((acc, field) => {
       const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
       if (mappingsForField.length === 0) {
@@ -68,7 +70,7 @@ export class VisualizationService {
           }
         });
       return acc;
-    }, [] as NodeData[]);
+    }, answer);
   }
 
   private static isExistingMapping(nodes: NodeData[], mapping: MappingItem) {

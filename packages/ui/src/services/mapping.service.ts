@@ -179,7 +179,7 @@ export class MappingService {
 
   static createFieldItem(mappingTree: MappingTree, targetField: IField): FieldItem | MappingTree {
     const fieldStack = DocumentService.getFieldStack(targetField, true);
-    return fieldStack.reduce((mapping: MappingTree | MappingItem, field) => {
+    return fieldStack.reduceRight((mapping: MappingTree | MappingItem, field) => {
       const fieldItem = new FieldItem(mapping, field);
       mapping.children.push(fieldItem);
       return fieldItem;

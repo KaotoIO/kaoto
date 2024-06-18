@@ -41,19 +41,4 @@ export class DocumentService {
   static getFieldFromPathExpression(document: IDocument, pathExpression: string) {
     return DocumentService.getFieldFromPathSegments(document, pathExpression.split('/'));
   }
-
-  static getAllFields(bodyDocument: IDocument, parameterMap: Map<string, IDocument>) {
-    return [bodyDocument, ...parameterMap.values()].reduce((acc, doc) => {
-      doc instanceof PrimitiveDocument ? acc.push(doc) : DocumentService.populateChildren(acc, doc.fields);
-      return acc;
-    }, [] as IField[]);
-  }
-
-  private static populateChildren(answer: IField[], fields: IField[]) {
-    return fields.reduce((acc, field) => {
-      acc.push(field);
-      DocumentService.populateChildren(acc, field.fields);
-      return acc;
-    }, answer);
-  }
 }
