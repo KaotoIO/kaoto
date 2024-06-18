@@ -131,7 +131,10 @@ export class XPathService {
   static toXPath(source: PrimitiveDocument | IField): string {
     const doc = source.ownerDocument;
     const prefix = doc.documentType === DocumentType.PARAM ? `$${doc.documentId}` : '';
-    const xpath = DocumentService.getFieldStack(source).reduce((acc, field) => acc + `/${field.name}`, prefix);
+    const xpath = DocumentService.getFieldStack(source, true).reduceRight(
+      (acc, field) => acc + `/${field.name}`,
+      prefix,
+    );
     return xpath ? xpath : '.';
   }
 }
