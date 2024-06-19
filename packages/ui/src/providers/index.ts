@@ -5,4 +5,5 @@ export * from './source-code.provider';
 export * from './catalog.provider';
 export * from './catalog-tiles.provider';
 export * from './delete-modal.provider';
+export * from './filtered-field.provider';
 export * from './catalog-modal.provider';

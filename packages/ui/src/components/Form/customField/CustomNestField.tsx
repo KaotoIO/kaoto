@@ -17,11 +17,14 @@
  * under the License.
  */
 
-import { Card, CardBody, CardHeader, CardTitle, ExpandableSection, capitalize } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
+import { useContext } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 import { getFieldGroups } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
 import './CustomNestField.scss';
+import { FilteredFieldContext } from '../../../providers';
+import { CustomExpandableSection } from './CustomExpandableSection';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
@@ -42,7 +45,14 @@ export const CustomNestField = connectField(
     disabled,
     ...props
   }: CustomNestFieldProps) => {
-    const propertiesArray = getFieldGroups(props.properties ?? {});
+    const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
+    const filteredProperties = Object.entries(props.properties ?? {}).filter((field) =>
+      field[0].toLowerCase().includes(filteredFieldText.toLowerCase()),
+    );
+    const actualProperties = Object.fromEntries(filteredProperties);
+    const propertiesArray = getFieldGroups(actualProperties);
+
+    if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (
       <Card className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
@@ -58,18 +68,17 @@ export const CustomNestField = connectField(
         {Object.entries(propertiesArray.groups)
           .sort((a, b) => (a[0] === 'advanced' ? 1 : b[0] === 'advanced' ? -1 : 0))
           .map(([groupName, groupFields]) => (
-            <ExpandableSection
+            <CustomExpandableSection
               key={`${groupName}-section-toggle`}
-              toggleText={capitalize(`${groupName} properties`)}
-              toggleId={`${groupName}-expandable-section-toggle`}
-              contentId="expandable-section-content"
+              groupName={groupName}
+              isGroupExpanded={isGroupExpanded}
             >
               <CardBody>
                 {groupFields.map((field) => (
                   <CustomAutoField key={field} name={field} />
                 ))}
               </CardBody>
-            </ExpandableSection>
+            </CustomExpandableSection>
           ))}
       </Card>
     );

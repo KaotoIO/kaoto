@@ -50,8 +50,8 @@ Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number)
 });
 
 Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
-  cy.get('.pf-v5-c-text-input-group__text-input').click();
-  cy.get('.pf-v5-c-text-input-group__text-input').type(name);
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).click();
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).type(name);
   cy.get(`#${name}`).should('be.visible').click();
   // wait for the canvas rerender
   cy.wait(1000);
