@@ -23,6 +23,8 @@ export class MappingService {
     return mappings.filter((mapping) => {
       if (mapping instanceof FieldItem) {
         return mapping.field === field;
+      } else if (mapping instanceof ValueSelector) {
+        return false;
       } else {
         return MappingService.getConditionalFields(mapping as ConditionItem & MappingItem).includes(field);
       }
@@ -135,13 +137,17 @@ export class MappingService {
     return !!stalePath;
   }
 
+  static wrapWithItem(wrapped: MappingItem, wrapper: MappingItem) {
+    wrapper.children.push(wrapped);
+    wrapped.parent.children = wrapped.parent.children.filter((m) => m !== wrapped);
+    wrapped.parent.children.push(wrapper);
+    wrapped.parent = wrapper;
+  }
+
   static wrapWithForEach(mappingTree: MappingTree, field: IField) {
     const fieldItem = MappingService.getOrCreateFieldItem(mappingTree, field) as FieldItem;
-    const parent = fieldItem.parent;
-    const forEach = new ForEachItem(parent, field);
-    parent.children = parent.children.filter((c) => c !== fieldItem);
-    parent.children.push(forEach);
-    fieldItem.parent = forEach;
+    const forEach = new ForEachItem(fieldItem.parent, field);
+    MappingService.wrapWithItem(fieldItem, forEach);
   }
 
   static addWhen(item: ChooseItem) {
@@ -210,6 +216,8 @@ export class MappingService {
   }
 
   static sortMappingItem(left: MappingItem, right: MappingItem) {
+    if (left instanceof ValueSelector) return -1;
+    if (right instanceof ValueSelector) return 1;
     if (left instanceof WhenItem) return right instanceof OtherwiseItem ? -1 : 0;
     if (right instanceof WhenItem) return left instanceof OtherwiseItem ? 1 : 0;
     return 0;

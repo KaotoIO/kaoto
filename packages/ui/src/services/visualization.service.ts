@@ -49,7 +49,7 @@ export class VisualizationService {
     return VisualizationService.doGenerateNodeDataFromFields(
       document,
       document.document.fields,
-      document instanceof TargetDocumentNodeData ? document.mapping?.children : undefined,
+      document instanceof TargetDocumentNodeData ? document.mappingTree.children : undefined,
     );
   }
 
@@ -101,9 +101,8 @@ export class VisualizationService {
         parent.field.fields,
         parent instanceof TargetFieldNodeData ? parent.mapping?.children : undefined,
       );
-    } else {
-      throw Error(`Unknown NodeData: ${parent.id}`);
     }
+    return [];
   }
 
   private static createNodeDataFromMappingItem(parent: TargetNodeData, item: MappingItem): NodeData {
@@ -140,7 +139,13 @@ export class VisualizationService {
   static allowIfChoose(nodeData: TargetNodeData) {
     if (nodeData instanceof MappingNodeData) {
       const mapping = nodeData.mapping;
-      if (mapping instanceof ValueSelector || mapping instanceof WhenItem || mapping instanceof OtherwiseItem)
+      if (
+        mapping instanceof ValueSelector ||
+        mapping instanceof WhenItem ||
+        mapping instanceof OtherwiseItem ||
+        mapping instanceof IfItem ||
+        mapping instanceof ChooseItem
+      )
         return false;
     }
     return true;
@@ -204,16 +209,16 @@ export class VisualizationService {
   }
 
   private static doApplyCondition(nodeData: TargetNodeData, createItem: (parent: MappingParentType) => MappingItem) {
-    if (nodeData instanceof TargetDocumentNodeData && nodeData.mapping) {
-      nodeData.mapping.children.push(createItem(nodeData.mapping));
-    } else if ((nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) && nodeData.mapping) {
-      const item = createItem(nodeData.mapping.parent);
-      item.children.push(nodeData.mapping);
-      nodeData.mapping.parent.children = nodeData.mapping.parent.children.filter((m) => m !== nodeData.mapping);
-      nodeData.mapping.parent.children.push(item);
-      nodeData.mapping.parent = item;
-    } else {
-      throw Error(`Unsupported: ${nodeData.title}`);
+    if (nodeData instanceof TargetDocumentNodeData) {
+      nodeData.mappingTree.children.push(createItem(nodeData.mappingTree));
+    } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
+      const mapping = nodeData.mapping
+        ? nodeData.mapping
+        : nodeData instanceof TargetFieldNodeData
+          ? (MappingService.getOrCreateFieldItem(nodeData.mappingTree, nodeData.field) as FieldItem)
+          : undefined;
+      if (!mapping) return;
+      MappingService.wrapWithItem(mapping, createItem(mapping.parent));
     }
   }
 
@@ -235,8 +240,6 @@ export class VisualizationService {
       MappingService.mapToDocument(mappingTree, sourceItem);
     } else if (targetNode instanceof TargetFieldNodeData) {
       MappingService.mapToField(targetNode.field, mappingTree, targetNode.mapping, sourceItem);
-    } else {
-      throw Error(`Unsupported: ${targetNode.title}`);
     }
   }
 }

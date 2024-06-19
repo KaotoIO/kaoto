@@ -159,8 +159,7 @@ export class XmlSchemaDocumentService {
    */
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
     const name = attr.getWireName()!.getLocalPart()!;
-    const expression = '@' + name;
-    const field = new XmlSchemaField(parent, expression, true);
+    const field = new XmlSchemaField(parent, name, true);
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
