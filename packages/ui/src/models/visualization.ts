@@ -1,6 +1,5 @@
-import { IDocument, IField } from './document';
+import { IDocument, IField, PrimitiveDocument } from './document';
 import { FieldItem, MappingItem, MappingParentType, MappingTree } from './mapping';
-import { generateRandomId } from '../util';
 import { DocumentType, NodePath } from './path';
 
 export interface NodeData {
@@ -8,61 +7,94 @@ export interface NodeData {
   id: string;
   path: NodePath;
   isSource: boolean;
+  isPrimitive: boolean;
+}
+
+export interface TargetNodeData extends NodeData {
+  mappingTree: MappingTree;
   mapping?: MappingParentType;
 }
 
 export type SourceNodeDataType = DocumentNodeData | FieldNodeData;
+export type TargetNodeDataType = TargetDocumentNodeData | TargetFieldNodeData;
 
 export class DocumentNodeData implements NodeData {
-  constructor(document: IDocument, mappingTree?: MappingTree) {
+  constructor(document: IDocument) {
     this.title = document.documentId;
     this.id = `doc-${document.documentType}-${document.documentId}`;
     this.path = NodePath.fromDocument(document.documentType, document.documentId);
     this.document = document;
-    this.mapping = mappingTree;
     this.isSource = document.documentType !== DocumentType.TARGET_BODY;
+    this.isPrimitive = document instanceof PrimitiveDocument;
   }
 
   document: IDocument;
-  mapping?: MappingTree;
   title: string;
   id: string;
   path: NodePath;
   isSource: boolean;
+  isPrimitive: boolean;
+}
+
+export class TargetDocumentNodeData extends DocumentNodeData implements TargetNodeData {
+  constructor(document: IDocument, mappingTree: MappingTree) {
+    super(document);
+    this.mappingTree = mappingTree;
+    this.mapping = mappingTree;
+  }
+  mappingTree: MappingTree;
+  mapping: MappingTree;
 }
 
 export class FieldNodeData implements NodeData {
   constructor(
     public parent: NodeData,
     public field: IField,
-    public mapping?: FieldItem,
   ) {
     this.title = field.name;
-    this.id = mapping ? mapping.id : generateRandomId('field-' + field.name, 4);
+    this.id = field.id;
     this.path = NodePath.childOf(parent.path, this.id);
-    this.isSource = field.ownerDocument.documentType !== DocumentType.TARGET_BODY;
+    this.isSource = parent.isSource;
+    this.isPrimitive = parent.isPrimitive;
   }
 
   title: string;
   id: string;
   path: NodePath;
   isSource: boolean;
+  isPrimitive: boolean;
 }
 
-export class MappingNodeData implements NodeData {
+export class TargetFieldNodeData extends FieldNodeData implements TargetNodeData {
   constructor(
-    public parent: NodeData,
+    public parent: TargetNodeData,
+    public field: IField,
+    public mapping?: FieldItem,
+  ) {
+    super(parent, field);
+    this.mappingTree = parent.mappingTree;
+  }
+  mappingTree: MappingTree;
+}
+
+export class MappingNodeData implements TargetNodeData {
+  constructor(
+    public parent: TargetNodeData,
     public mapping: MappingItem,
   ) {
     this.title = mapping.name;
     this.id = mapping.id;
     this.path = NodePath.childOf(parent.path, this.id);
+    this.isPrimitive = parent.isPrimitive;
+    this.mappingTree = parent.mappingTree;
   }
 
   title: string;
   id: string;
   path: NodePath;
   isSource = false;
+  isPrimitive: boolean;
+  mappingTree: MappingTree;
 }
 
 export interface IMappingLink {

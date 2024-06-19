@@ -1,5 +1,6 @@
 import { Types } from './types';
 import { DocumentType, NodePath } from './path';
+import { generateRandomId } from '../util';
 
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
@@ -18,6 +19,7 @@ export const BODY_DOCUMENT_ID = 'Body';
 export interface IField {
   parent: IParentType;
   ownerDocument: IDocument;
+  id: string;
   name: string;
   expression: string;
   type: Types;
@@ -53,6 +55,14 @@ export abstract class BaseDocument implements IDocument {
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
+  constructor(documentType: DocumentType, documentId: string) {
+    super(documentType, documentId);
+    this.name = this.documentId;
+    this.id = this.documentId;
+    this.expression = this.documentId;
+    this.path = NodePath.fromDocument(documentType, documentId);
+  }
+
   ownerDocument = this;
   defaultValue: string | null = null;
   expression: string = '';
@@ -63,21 +73,21 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   parent: IParentType = this;
   type = Types.AnyType;
   path: NodePath;
-
-  constructor(documentType: DocumentType, documentId: string) {
-    super(documentType, documentId);
-    this.name = this.documentId;
-    this.expression = this.documentId;
-    this.path = NodePath.fromDocument(documentType, documentId);
-  }
+  id: string;
 }
 
 export abstract class BaseField implements IField {
-  abstract parent: IParentType;
-  abstract ownerDocument: IDocument;
+  constructor(
+    public parent: IParentType,
+    public ownerDocument: IDocument,
+    public name: string,
+  ) {
+    this.id = generateRandomId(`field-${this.name}-`, 4);
+  }
+
+  id: string;
   fields: IField[] = [];
   isAttribute: boolean = false;
-  name: string = '';
   expression: string = '';
   type = Types.AnyType;
   minOccurs: number = DEFAULT_MIN_OCCURS;

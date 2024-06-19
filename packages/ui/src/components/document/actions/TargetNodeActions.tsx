@@ -1,23 +1,20 @@
 import { ActionListGroup } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, KeyboardEvent, useCallback } from 'react';
 import { ExpressionInputAction } from './ExpressionInputAction';
-import { DeleteItemAction } from './DeleteItemAction';
+import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { ConditionMenuAction } from './ConditionMenuAction';
 import { ExpressionEditorAction } from './ExpressionEditorAction';
-import { ExpressionItem } from '../../../models/mapping';
-import { MappingNodeData, NodeData } from '../../../models/visualization';
+import { TargetNodeData } from '../../../models/visualization';
+import { VisualizationService } from '../../../services/visualization.service';
 
 type TargetNodeActionsProps = {
-  nodeData: NodeData;
+  nodeData: TargetNodeData;
   onUpdate: () => void;
 };
 
 export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ nodeData, onUpdate }) => {
-  const expressionItem =
-    'mapping' in nodeData && nodeData.mapping && 'expression' in nodeData.mapping
-      ? (nodeData.mapping as ExpressionItem)
-      : undefined;
-  const isDeletable = nodeData instanceof MappingNodeData;
+  const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
+  const isDeletable = VisualizationService.isDeletableNode(nodeData);
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
     event.stopPropagation();
   }, []);
@@ -35,7 +32,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ n
         </>
       )}
       <ConditionMenuAction nodeData={nodeData} onUpdate={onUpdate} />
-      {isDeletable && <DeleteItemAction nodeData={nodeData} onDelete={onUpdate} />}
+      {isDeletable && <DeleteMappingItemAction nodeData={nodeData} onDelete={onUpdate} />}
     </ActionListGroup>
   );
 };

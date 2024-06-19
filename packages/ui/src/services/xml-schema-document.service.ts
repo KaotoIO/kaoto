@@ -52,7 +52,6 @@ export class XmlSchemaDocument extends BaseDocument {
 type XmlSchemaParentType = XmlSchemaDocument | XmlSchemaField;
 
 export class XmlSchemaField extends BaseField {
-  ownerDocument: XmlSchemaDocument;
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = null;
   namespacePrefix: string | null = null;
@@ -60,11 +59,11 @@ export class XmlSchemaField extends BaseField {
 
   constructor(
     public parent: XmlSchemaParentType,
-    public expression: string,
+    public name: string,
+    public isAttribute: boolean,
   ) {
-    super();
-    this.ownerDocument =
-      this.parent instanceof XmlSchemaDocument ? this.parent : (this.parent as XmlSchemaField).ownerDocument;
+    super(parent, parent instanceof XmlSchemaDocument ? parent : (parent as XmlSchemaField).ownerDocument, name);
+    this.expression = isAttribute ? '@' + name : name;
     this.path = NodePath.childOf(parent.path, this.expression);
   }
 }
@@ -108,9 +107,8 @@ export class XmlSchemaDocumentService {
    * @param element
    */
   static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
-    const expression = element.getWireName()!.getLocalPart()!;
-    const field: XmlSchemaField = new XmlSchemaField(parent, expression);
-    field.name = element.getWireName()!.getLocalPart()!;
+    const name = element.getWireName()!.getLocalPart()!;
+    const field: XmlSchemaField = new XmlSchemaField(parent, name, false);
     field.namespaceURI = element.getWireName()!.getNamespaceURI();
     field.namespacePrefix = element.getWireName()!.getPrefix();
     field.defaultValue = element.defaultValue || element.fixedValue;
@@ -162,9 +160,7 @@ export class XmlSchemaDocumentService {
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
     const name = attr.getWireName()!.getLocalPart()!;
     const expression = '@' + name;
-    const field = new XmlSchemaField(parent, expression);
-    field.isAttribute = true;
-    field.name = name;
+    const field = new XmlSchemaField(parent, expression, true);
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();

@@ -2,15 +2,15 @@ import { FunctionComponent, useCallback } from 'react';
 import { ActionListItem, Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { useToggle } from '../../../hooks';
-import { NodeData } from '../../../models/visualization';
+import { TargetNodeData } from '../../../models/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 
 type DeleteItemProps = {
-  nodeData: NodeData;
+  nodeData: TargetNodeData;
   onDelete: () => void;
 };
 
-export const DeleteItemAction: FunctionComponent<DeleteItemProps> = ({ nodeData, onDelete }) => {
+export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ nodeData, onDelete }) => {
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {

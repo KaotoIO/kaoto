@@ -2,6 +2,7 @@ import { IDocument, IField, PrimitiveDocument } from '../models/document';
 
 export class DocumentService {
   static getFieldStack(field: IField, includeItself: boolean = false) {
+    if (field instanceof PrimitiveDocument) return [];
     const fieldStack: IField[] = [];
     if (includeItself) fieldStack.push(field);
     for (let next = field.parent; 'parent' in next && next !== next.parent; next = (next as IField).parent) {

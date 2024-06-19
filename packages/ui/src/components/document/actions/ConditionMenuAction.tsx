@@ -1,5 +1,5 @@
 import { FunctionComponent, Ref, MouseEvent, useCallback, useState } from 'react';
-import { FieldNodeData, MappingNodeData, NodeData } from '../../../models/visualization';
+import { MappingNodeData, TargetFieldNodeData, TargetNodeData } from '../../../models/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 import {
   ActionListItem,
@@ -12,16 +12,17 @@ import {
 import { EllipsisVIcon } from '@patternfly/react-icons';
 import { ChooseItem } from '../../../models/mapping';
 import { MappingService } from '../../../services/mapping.service';
+import { useDataMapper } from '../../../hooks';
 
 type ConditionMenuProps = {
-  nodeData: NodeData;
+  nodeData: TargetNodeData;
   onUpdate: () => void;
 };
 
 export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
   const onToggleActionMenu = useCallback(() => setIsActionMenuOpen(!isActionMenuOpen), [isActionMenuOpen]);
-
+  const { mappingTree } = useDataMapper();
   const allowIfChoose = VisualizationService.allowIfChoose(nodeData);
   const allowForEach = VisualizationService.allowForEach(nodeData);
   const isChooseNode = nodeData instanceof MappingNodeData && nodeData.mapping instanceof ChooseItem;
@@ -43,7 +44,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           VisualizationService.applyChoose(nodeData);
           break;
         case 'foreach':
-          VisualizationService.applyForEach(nodeData as FieldNodeData);
+          MappingService.wrapWithForEach(mappingTree, (nodeData as TargetFieldNodeData).field);
           break;
         case 'when':
           MappingService.addWhen(nodeData.mapping as ChooseItem);
@@ -55,7 +56,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
       onUpdate();
       setIsActionMenuOpen(false);
     },
-    [nodeData, onUpdate],
+    [mappingTree, nodeData, onUpdate],
   );
 
   return (
@@ -81,7 +82,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           <DropdownList>
             {allowValueSelector && (
               <DropdownItem key="selector" value="selector" isDisabled={hasValueSelector}>
-                Add value selector
+                Add selector expression
               </DropdownItem>
             )}
             {isChooseNode ? (

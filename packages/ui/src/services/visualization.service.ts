@@ -4,9 +4,14 @@ import {
   FieldNodeData,
   NodeData,
   SourceNodeDataType,
+  TargetDocumentNodeData,
+  TargetNodeData,
+  TargetFieldNodeData,
+  TargetNodeDataType,
 } from '../models/visualization';
 import {
   ChooseItem,
+  ExpressionItem,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -22,21 +27,21 @@ import { MappingService } from './mapping.service';
 
 type MappingNodePairType = {
   sourceNode?: SourceNodeDataType;
-  targetNode?: NodeData;
+  targetNode?: TargetNodeDataType;
 };
 
 export class VisualizationService {
   static generateNodeDataChildren(nodeData: NodeData) {
     const isDocument = nodeData instanceof DocumentNodeData;
-    const isPrimitive = isDocument && nodeData.document instanceof PrimitiveDocument;
-    return isPrimitive
-      ? VisualizationService.generatePrimitiveDocumentChildren(nodeData)
-      : isDocument
-        ? VisualizationService.generateStructuredDocumentChildren(nodeData)
-        : VisualizationService.generateNonDocumentNodeDataChildren(nodeData);
+    const isPrimitive = nodeData.isPrimitive;
+    return isDocument
+      ? isPrimitive
+        ? VisualizationService.generatePrimitiveDocumentChildren(nodeData)
+        : VisualizationService.generateStructuredDocumentChildren(nodeData)
+      : VisualizationService.generateNonDocumentNodeDataChildren(nodeData);
   }
   static generatePrimitiveDocumentChildren(document: DocumentNodeData): NodeData[] {
-    if (!document.mapping?.children) return [];
+    if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children.map((child) => new MappingNodeData(document, child));
   }
 
@@ -44,61 +49,67 @@ export class VisualizationService {
     return VisualizationService.doGenerateNodeDataFromFields(
       document,
       document.document.fields,
-      document.mapping?.children,
+      document instanceof TargetDocumentNodeData ? document.mapping?.children : undefined,
     );
   }
 
   private static doGenerateNodeDataFromFields(parent: NodeData, fields: IField[], mappings?: MappingItem[]) {
-    const answer: NodeData[] =
-      mappings?.filter((m) => m instanceof ValueSelector).map((m) => new MappingNodeData(parent, m)) ?? [];
+    const answer: NodeData[] = [];
+    if (parent.isPrimitive) {
+      mappings
+        ?.filter((m) => m instanceof ValueSelector)
+        .forEach((m) => answer.push(new MappingNodeData(parent as TargetNodeData, m)));
+    }
     return fields.reduce((acc, field) => {
       const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
       if (mappingsForField.length === 0) {
-        const fieldNodeData = new FieldNodeData(parent, field);
+        const fieldNodeData = parent.isSource
+          ? new FieldNodeData(parent, field)
+          : new TargetFieldNodeData(parent as TargetNodeData, field);
         acc.push(fieldNodeData);
         return acc;
       }
       mappingsForField
-        .filter((mapping) => !VisualizationService.isExistingMapping(acc, mapping))
-        .sort((left, right) => VisualizationService.sortMappingItem(left, right))
+        .filter((mapping) => !VisualizationService.isExistingMapping(acc as TargetNodeData[], mapping))
+        .sort((left, right) => MappingService.sortMappingItem(left, right))
         .forEach((mapping) => {
           if (mapping instanceof FieldItem) {
-            const fieldNodeData = new FieldNodeData(parent, field, mapping);
+            const fieldNodeData = new TargetFieldNodeData(parent as TargetNodeData, field, mapping);
             acc.push(fieldNodeData);
           } else {
-            acc.push(new MappingNodeData(parent, mapping));
+            acc.push(new MappingNodeData(parent as TargetNodeData, mapping));
           }
         });
       return acc;
     }, answer);
   }
 
-  private static isExistingMapping(nodes: NodeData[], mapping: MappingItem) {
+  private static isExistingMapping(nodes: TargetNodeData[], mapping: MappingItem) {
     return nodes.find((node) => 'mapping' in node && node.mapping === mapping);
-  }
-
-  private static sortMappingItem(left: MappingItem, right: MappingItem) {
-    if (left instanceof WhenItem) return right instanceof OtherwiseItem ? -1 : 0;
-    if (right instanceof WhenItem) return left instanceof OtherwiseItem ? 1 : 0;
-    return 0;
   }
 
   static generateNonDocumentNodeDataChildren(parent: NodeData): NodeData[] {
     if (parent instanceof MappingNodeData) {
       return parent.mapping?.children
         ? parent.mapping.children
-            .sort((left, right) => VisualizationService.sortMappingItem(left, right))
+            .sort((left, right) => MappingService.sortMappingItem(left, right))
             .map((m) => VisualizationService.createNodeDataFromMappingItem(parent, m))
         : [];
     } else if (parent instanceof FieldNodeData) {
-      return VisualizationService.doGenerateNodeDataFromFields(parent, parent.field.fields, parent.mapping?.children);
+      return VisualizationService.doGenerateNodeDataFromFields(
+        parent,
+        parent.field.fields,
+        parent instanceof TargetFieldNodeData ? parent.mapping?.children : undefined,
+      );
     } else {
       throw Error(`Unknown NodeData: ${parent.id}`);
     }
   }
 
-  private static createNodeDataFromMappingItem(parent: NodeData, item: MappingItem): NodeData {
-    return item instanceof FieldItem ? new FieldNodeData(parent, item.field, item) : new MappingNodeData(parent, item);
+  private static createNodeDataFromMappingItem(parent: TargetNodeData, item: MappingItem): NodeData {
+    return item instanceof FieldItem
+      ? new TargetFieldNodeData(parent, item.field, item)
+      : new MappingNodeData(parent, item);
   }
 
   static testNodePair(fromNode: NodeData, toNode: NodeData): MappingNodePairType {
@@ -106,8 +117,16 @@ export class VisualizationService {
     if ((fromNode.isSource && toNode.isSource) || (!fromNode.isSource && !toNode.isSource)) return answer;
 
     const sourceNode = (fromNode.isSource ? fromNode : toNode) as SourceNodeDataType;
-    const targetNode = fromNode.isSource ? toNode : fromNode;
+    const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeDataType;
     return { sourceNode, targetNode };
+  }
+
+  static isDocumentNode(nodeData: NodeData) {
+    return nodeData instanceof DocumentNodeData;
+  }
+
+  static isPrimitiveDocumentNode(nodeData: NodeData) {
+    return nodeData instanceof DocumentNodeData && nodeData.document instanceof PrimitiveDocument;
   }
 
   static isCollectionField(nodeData: NodeData) {
@@ -118,7 +137,7 @@ export class VisualizationService {
     return nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
   }
 
-  static allowIfChoose(nodeData: NodeData) {
+  static allowIfChoose(nodeData: TargetNodeData) {
     if (nodeData instanceof MappingNodeData) {
       const mapping = nodeData.mapping;
       if (mapping instanceof ValueSelector || mapping instanceof WhenItem || mapping instanceof OtherwiseItem)
@@ -127,43 +146,67 @@ export class VisualizationService {
     return true;
   }
 
-  static allowForEach(nodeData: NodeData) {
-    return nodeData instanceof FieldNodeData && VisualizationService.isCollectionField(nodeData);
+  static allowForEach(nodeData: TargetNodeData) {
+    return nodeData instanceof TargetFieldNodeData && VisualizationService.isCollectionField(nodeData);
   }
 
-  static isValueSelectorNode(nodeData: NodeData) {
+  static isForEachNode(nodeData: TargetNodeData) {
+    return nodeData instanceof MappingNodeData && nodeData.mapping instanceof ForEachItem;
+  }
+
+  static isValueSelectorNode(nodeData: TargetNodeData) {
     return nodeData instanceof MappingNodeData && nodeData.mapping instanceof ValueSelector;
   }
 
-  static allowValueSelector(nodeData: NodeData) {
-    const isChooseNode = nodeData instanceof MappingNodeData && nodeData.mapping instanceof ChooseItem;
-    const isValueSelector = nodeData instanceof MappingNodeData && nodeData.mapping instanceof ValueSelector;
-    return !isChooseNode && !isValueSelector;
+  static isChooseNode(nodeData: TargetNodeData) {
+    return nodeData instanceof MappingNodeData && nodeData.mapping instanceof ChooseItem;
   }
 
-  static hasValueSelector(nodeData: NodeData) {
-    return !!(
-      (nodeData instanceof MappingNodeData && nodeData.mapping.children.find((c) => c instanceof ValueSelector)) ||
-      (nodeData instanceof DocumentNodeData && nodeData.mapping?.children.find((c) => c instanceof ValueSelector))
+  static isDeletableNode(nodeData: TargetNodeData) {
+    if (nodeData instanceof MappingNodeData) return true;
+    return VisualizationService.getFieldValueSelector(nodeData) !== undefined;
+  }
+
+  static getExpressionItemForNode(nodeData: TargetNodeData) {
+    if (!nodeData.mapping) return;
+    if ('expression' in nodeData.mapping) return nodeData.mapping as ExpressionItem;
+    return VisualizationService.getFieldValueSelector(nodeData);
+  }
+
+  private static getFieldValueSelector(nodeData: TargetNodeData) {
+    if (nodeData.mapping instanceof FieldItem) {
+      return nodeData.mapping.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+    }
+  }
+
+  static allowValueSelector(nodeData: TargetNodeData) {
+    return (
+      !VisualizationService.isChooseNode(nodeData) &&
+      !VisualizationService.isValueSelectorNode(nodeData) &&
+      !VisualizationService.isForEachNode(nodeData)
     );
   }
 
-  static deleteMappingItem(nodeData: NodeData) {
+  static hasValueSelector(nodeData: TargetNodeData) {
+    return !!nodeData.mapping?.children.find((c) => c instanceof ValueSelector);
+  }
+
+  static deleteMappingItem(nodeData: TargetNodeData) {
     if ('mapping' in nodeData && nodeData.mapping) MappingService.deleteMappingItem(nodeData.mapping);
   }
 
-  static applyIf(nodeData: NodeData) {
+  static applyIf(nodeData: TargetNodeData) {
     VisualizationService.doApplyCondition(nodeData, (parent) => new IfItem(parent));
   }
 
-  static applyChoose(nodeData: NodeData) {
+  static applyChoose(nodeData: TargetNodeData) {
     VisualizationService.doApplyCondition(nodeData, (parent) => new ChooseItem(parent));
   }
 
-  private static doApplyCondition(nodeData: NodeData, createItem: (parent: MappingParentType) => MappingItem) {
-    if (nodeData instanceof DocumentNodeData && nodeData.mapping) {
+  private static doApplyCondition(nodeData: TargetNodeData, createItem: (parent: MappingParentType) => MappingItem) {
+    if (nodeData instanceof TargetDocumentNodeData && nodeData.mapping) {
       nodeData.mapping.children.push(createItem(nodeData.mapping));
-    } else if ((nodeData instanceof MappingNodeData || nodeData instanceof FieldNodeData) && nodeData.mapping) {
+    } else if ((nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) && nodeData.mapping) {
       const item = createItem(nodeData.mapping.parent);
       item.children.push(nodeData.mapping);
       nodeData.mapping.parent.children = nodeData.mapping.parent.children.filter((m) => m !== nodeData.mapping);
@@ -174,34 +217,23 @@ export class VisualizationService {
     }
   }
 
-  static isForEachNode(nodeData: NodeData) {
-    return nodeData instanceof MappingNodeData && nodeData.mapping instanceof ForEachItem;
+  static applyValueSelector(nodeData: TargetNodeData) {
+    const mapping =
+      nodeData instanceof TargetFieldNodeData && !nodeData.mapping
+        ? MappingService.getOrCreateFieldItem(nodeData.mappingTree, nodeData.field)
+        : nodeData.mapping;
+    if (!mapping) return;
+    const existing = mapping.children.find((c) => c instanceof ValueSelector);
+    if (!existing) mapping.children.push(new ValueSelector(mapping));
   }
 
-  static applyForEach(nodeData: FieldNodeData) {
-    const target = VisualizationService.isForEachNode(nodeData.parent)
-      ? (nodeData.parent as MappingNodeData).parent
-      : nodeData.parent;
-    if (target.mapping) {
-      target.mapping.children.push(new ForEachItem(target.mapping, nodeData.field));
-    } else {
-      throw Error(`Unsupported: ${nodeData.title}`);
-    }
-  }
-
-  static applyValueSelector(nodeData: NodeData) {
-    if (!nodeData.mapping) return;
-    const existing = nodeData.mapping.children.find((c) => c instanceof ValueSelector);
-    if (!existing) nodeData.mapping.children.push(new ValueSelector(nodeData.mapping));
-  }
-
-  static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: NodeData) {
+  static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData) {
     const sourceItem = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
     if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceItem);
-    } else if (targetNode instanceof DocumentNodeData) {
+    } else if (targetNode instanceof TargetDocumentNodeData) {
       MappingService.mapToDocument(mappingTree, sourceItem);
-    } else if (targetNode instanceof FieldNodeData) {
+    } else if (targetNode instanceof TargetFieldNodeData) {
       MappingService.mapToField(targetNode.field, mappingTree, targetNode.mapping, sourceItem);
     } else {
       throw Error(`Unsupported: ${targetNode.title}`);

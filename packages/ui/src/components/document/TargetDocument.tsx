@@ -1,7 +1,7 @@
-import { IDocument, PrimitiveDocument } from '../../models/document';
+import { IDocument } from '../../models/document';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { useDataMapper } from '../../hooks';
-import { DocumentNodeData, FieldNodeData, MappingNodeData, NodeData } from '../../models/visualization';
+import { MappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/visualization';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { NodeContainer } from './NodeContainer';
 import { Label, Split, SplitItem, Title } from '@patternfly/react-core';
@@ -18,13 +18,13 @@ type DocumentProps = {
 
 export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) => {
   const { mappingTree } = useDataMapper();
-  const nodeData = new DocumentNodeData(document, mappingTree);
+  const nodeData = new TargetDocumentNodeData(document, mappingTree);
 
   return <TargetDocumentNode nodeData={nodeData} />;
 };
 
 type DocumentNodeProps = {
-  nodeData: NodeData;
+  nodeData: TargetNodeData;
 };
 
 const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) => {
@@ -33,12 +33,12 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
     setCollapsed(!collapsed);
   };
 
-  const isDocument = nodeData instanceof DocumentNodeData;
-  const isPrimitive = isDocument && nodeData.document instanceof PrimitiveDocument;
-  const children = VisualizationService.generateNodeDataChildren(nodeData);
+  const isDocument = VisualizationService.isDocumentNode(nodeData);
+  const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
+  const children = VisualizationService.generateNodeDataChildren(nodeData) as TargetNodeData[];
   const hasChildren = children.length > 0;
-  const isCollectionField = nodeData instanceof FieldNodeData && nodeData.field.maxOccurs > 1;
-  const isAttributeField = nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
+  const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isAttributeField = VisualizationService.isAttributeField(nodeData);
 
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +98,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
               <SplitItem>
                 {showNodeActions && <TargetNodeActions nodeData={nodeData} onUpdate={handleUpdate} />}
               </SplitItem>
-              <SplitItem>{isDocument && <DocumentActions nodeData={nodeData} />}</SplitItem>
+              <SplitItem>{isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} />}</SplitItem>
             </Split>
           </NodeContainer>
         </div>

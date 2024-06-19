@@ -9,6 +9,7 @@ import {
   IfItem,
   ValueSelector,
   MappingParentType,
+  ForEachItem,
 } from '../models/mapping';
 import { BODY_DOCUMENT_ID, IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
@@ -34,7 +35,12 @@ export class MappingService {
         branch && acc.push(...MappingService.getConditionalFields(branch));
         return acc;
       }, [] as IField[]);
-    } else if (mapping instanceof IfItem || mapping instanceof WhenItem || mapping instanceof OtherwiseItem) {
+    } else if (
+      mapping instanceof IfItem ||
+      mapping instanceof WhenItem ||
+      mapping instanceof OtherwiseItem ||
+      mapping instanceof ForEachItem
+    ) {
       return mapping.children.reduce((acc, child) => {
         child instanceof FieldItem && acc.push(child.field);
         return acc;
@@ -46,23 +52,15 @@ export class MappingService {
 
   static removeAllMappingsForDocument(mappingTree: MappingTree, documentType: DocumentType, documentId: string) {
     if (documentType === DocumentType.TARGET_BODY) {
-      MappingService.doRemoveAllMappingsForTargetDocument(mappingTree, documentId);
+      MappingService.doRemoveAllMappingsForTargetDocument(mappingTree);
     } else {
       MappingService.doRemoveAllMappingsForSourceDocument(mappingTree, documentType, documentId);
     }
     return mappingTree;
   }
 
-  private static doRemoveAllMappingsForTargetDocument(item: MappingTree | MappingItem, documentId: string) {
-    item.children = item.children?.reduce((acc, child) => {
-      MappingService.doRemoveAllMappingsForTargetDocument(child, documentId);
-      if (child instanceof FieldItem && documentId !== child.field.ownerDocument.documentId) {
-        acc.push(child);
-      } else if (!('isCondition' in child) || child.children.length > 0) {
-        acc.push(child);
-      }
-      return acc;
-    }, [] as MappingItem[]);
+  private static doRemoveAllMappingsForTargetDocument(mappingTree: MappingTree) {
+    mappingTree.children = [];
   }
 
   private static doRemoveAllMappingsForSourceDocument(
@@ -137,6 +135,15 @@ export class MappingService {
     return !!stalePath;
   }
 
+  static wrapWithForEach(mappingTree: MappingTree, field: IField) {
+    const fieldItem = MappingService.getOrCreateFieldItem(mappingTree, field) as FieldItem;
+    const parent = fieldItem.parent;
+    const forEach = new ForEachItem(parent, field);
+    parent.children = parent.children.filter((c) => c !== fieldItem);
+    parent.children.push(forEach);
+    fieldItem.parent = forEach;
+  }
+
   static addWhen(item: ChooseItem) {
     item.children.push(new WhenItem(item));
   }
@@ -168,7 +175,7 @@ export class MappingService {
     item: MappingItem | undefined,
     source: PrimitiveDocument | IField,
   ) {
-    const targetFieldItem = item ? item : MappingService.createFieldItem(mappingTree, targetField);
+    const targetFieldItem = item ? item : MappingService.getOrCreateFieldItem(mappingTree, targetField);
     let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
       valueSelector = new ValueSelector(targetFieldItem);
@@ -177,12 +184,17 @@ export class MappingService {
     valueSelector.expression = XPathService.addSource(valueSelector.expression, source);
   }
 
-  static createFieldItem(mappingTree: MappingTree, targetField: IField): FieldItem | MappingTree {
+  static getOrCreateFieldItem(mappingTree: MappingTree, targetField: IField): FieldItem | MappingTree {
     const fieldStack = DocumentService.getFieldStack(targetField, true);
     return fieldStack.reduceRight((mapping: MappingTree | MappingItem, field) => {
-      const fieldItem = new FieldItem(mapping, field);
-      mapping.children.push(fieldItem);
-      return fieldItem;
+      const existing = mapping.children.find((c) => c instanceof FieldItem && c.field === field) as FieldItem;
+      if (existing) {
+        return existing;
+      } else {
+        const fieldItem = new FieldItem(mapping, field);
+        mapping.children.push(fieldItem);
+        return fieldItem;
+      }
     }, mappingTree);
   }
 
@@ -195,6 +207,12 @@ export class MappingService {
     item.parent instanceof FieldItem &&
       item.parent.children.length === 0 &&
       MappingService.deleteFromParent(item.parent);
+  }
+
+  static sortMappingItem(left: MappingItem, right: MappingItem) {
+    if (left instanceof WhenItem) return right instanceof OtherwiseItem ? -1 : 0;
+    if (right instanceof WhenItem) return left instanceof OtherwiseItem ? 1 : 0;
+    return 0;
   }
 
   static extractMappingLinks(item: MappingTree | MappingItem): IMappingLink[] {

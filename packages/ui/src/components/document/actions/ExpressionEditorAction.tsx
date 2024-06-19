@@ -1,4 +1,4 @@
-import { NodeData } from '../../../models/visualization';
+import { TargetNodeData } from '../../../models/visualization';
 import { ExpressionItem } from '../../../models/mapping';
 import { FunctionComponent, useCallback, useState } from 'react';
 import { ActionListItem, Button, Modal, ModalVariant } from '@patternfly/react-core';
@@ -6,7 +6,7 @@ import { PencilAltIcon } from '@patternfly/react-icons';
 import { ExpressionEditor } from '../../expression/ExpressionEditor';
 
 type ExpressionEditorProps = {
-  nodeData: NodeData;
+  nodeData: TargetNodeData;
   mapping: ExpressionItem;
   onUpdate: () => void;
 };
