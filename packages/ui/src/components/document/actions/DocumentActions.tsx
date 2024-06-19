@@ -20,7 +20,11 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ nodeD
   return (
     <ActionListGroup key={`document-actions-${documentType}-${documentId}`} onClick={handleStopPropagation}>
       <ActionListItem>
-        <AttachSchemaButton documentType={documentType} documentId={documentId} hasSchema={true}></AttachSchemaButton>
+        <AttachSchemaButton
+          documentType={documentType}
+          documentId={documentId}
+          hasSchema={!nodeData.isPrimitive}
+        ></AttachSchemaButton>
       </ActionListItem>
       <ActionListItem>
         <DetachSchemaButton documentType={documentType} documentId={documentId}></DetachSchemaButton>

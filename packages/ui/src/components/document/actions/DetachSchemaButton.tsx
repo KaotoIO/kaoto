@@ -21,6 +21,7 @@ import { useDataMapper, useToggle } from '../../../hooks';
 import { PrimitiveDocument } from '../../../models/document';
 import { MappingService } from '../../../services/mapping.service';
 import { DocumentType } from '../../../models/path';
+import { useCanvas } from '../../../hooks/useCanvas';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -36,6 +37,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
     setSourceBodyDocument,
     setTargetBodyDocument,
   } = useDataMapper();
+  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
@@ -54,17 +56,21 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
         refreshSourceParameters();
         break;
     }
+    clearNodeReferencesForDocument(documentType, documentId);
+    reloadNodeReferences();
     closeModal();
   }, [
-    closeModal,
-    documentId,
-    documentType,
     mappingTree,
+    documentType,
+    documentId,
     setMappingTree,
-    refreshSourceParameters,
+    clearNodeReferencesForDocument,
+    reloadNodeReferences,
+    closeModal,
     setSourceBodyDocument,
     setTargetBodyDocument,
     sourceParameterMap,
+    refreshSourceParameters,
   ]);
 
   return (

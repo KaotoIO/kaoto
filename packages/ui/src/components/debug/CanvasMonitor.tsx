@@ -31,7 +31,7 @@ export const CanvasMonitor: FunctionComponent = () => {
   const { getAllNodePaths, reloadNodeReferences } = useCanvas();
   useEffect(() => {
     console.log(
-      'Field References: [' +
+      'Node References: [' +
         getAllNodePaths()
           .map((p) => p + '\n')
           .toString() +

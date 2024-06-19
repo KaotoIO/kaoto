@@ -5,6 +5,7 @@ import { useDataMapper, useToggle } from '../../../hooks';
 import { MappingService } from '../../../services/mapping.service';
 
 import { DocumentType } from '../../../models/path';
+import { useCanvas } from '../../../hooks/useCanvas';
 
 type DeleteParameterProps = {
   parameterName: string;
@@ -12,6 +13,7 @@ type DeleteParameterProps = {
 
 export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({ parameterName }) => {
   const { mappingTree, setMappingTree, sourceParameterMap, refreshSourceParameters } = useDataMapper();
+  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
@@ -19,8 +21,19 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
     setMappingTree(cleaned);
     sourceParameterMap.delete(parameterName);
     refreshSourceParameters();
+    clearNodeReferencesForDocument(DocumentType.PARAM, parameterName);
+    reloadNodeReferences();
     closeModal();
-  }, [closeModal, mappingTree, parameterName, refreshSourceParameters, setMappingTree, sourceParameterMap]);
+  }, [
+    clearNodeReferencesForDocument,
+    closeModal,
+    mappingTree,
+    parameterName,
+    refreshSourceParameters,
+    reloadNodeReferences,
+    setMappingTree,
+    sourceParameterMap,
+  ]);
 
   return (
     <>

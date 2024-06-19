@@ -112,7 +112,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const clearNodeReferencesForDocument = useCallback(
     (documentType: DocumentType, documentId: string) => {
       const pathPrefix = NodePath.fromDocument(documentType, documentId).toString();
-      Object.keys(nodeReferenceMap)
+      Array.from(nodeReferenceMap.keys())
         .filter((key) => key.startsWith(pathPrefix))
         .forEach((key) => nodeReferenceMap.delete(key));
     },

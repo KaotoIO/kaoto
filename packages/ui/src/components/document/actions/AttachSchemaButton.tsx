@@ -23,6 +23,7 @@ import { XmlSchemaDocumentService } from '../../../services';
 import { useDataMapper } from '../../../hooks';
 import { MappingService } from '../../../services/mapping.service';
 import { DocumentType } from '../../../models/path';
+import { useCanvas } from '../../../hooks/useCanvas';
 
 type AttachSchemaProps = {
   documentType: DocumentType;
@@ -43,6 +44,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setSourceBodyDocument,
     setTargetBodyDocument,
   } = useDataMapper();
+  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
   });
@@ -71,14 +73,18 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
             refreshSourceParameters();
             break;
         }
+        clearNodeReferencesForDocument(documentType, documentId);
+        reloadNodeReferences();
       });
     },
     [
+      clearNodeReferencesForDocument,
       documentId,
       documentType,
       hasSchema,
       mappingTree,
       refreshSourceParameters,
+      reloadNodeReferences,
       setMappingTree,
       setSourceBodyDocument,
       setTargetBodyDocument,
