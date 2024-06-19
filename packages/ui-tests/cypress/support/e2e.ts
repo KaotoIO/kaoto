@@ -16,6 +16,7 @@
 // Import commands.js using ES2015 syntax:
 import './next-commands/default';
 import './next-commands/sourceCode';
+import './next-commands/nodeConfiguration';
 import './next-commands/design';
 import './next-commands/metadata';
 
