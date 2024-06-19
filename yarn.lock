@@ -3517,8 +3517,8 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-knobs@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@storybook/addon-knobs@npm:8.0.0"
+  version: 8.0.1
+  resolution: "@storybook/addon-knobs@npm:8.0.1"
   dependencies:
     copy-to-clipboard: ^3.3.3
     core-js: ^3.29.0
@@ -3532,9 +3532,9 @@ __metadata:
     react-lifecycles-compat: ^3.0.4
     react-select: ^5.7.0
   peerDependencies:
-    "@storybook/api": ^8.0.0
     "@storybook/components": ^8.0.0
     "@storybook/core-events": ^8.0.0
+    "@storybook/manager-api": ^8.0.0
     "@storybook/theming": ^8.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -3543,7 +3543,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: fdebdec1583a7c108030936ef8019a5c9390160d1f6451e9c78d9abdbc30d6f4ffdbfc45f5020229e648bf2bacc8fd9986d16c86433e665122970ddf74c97259
+  checksum: 6540d0339aee2c4e5a16db467a04c8757822c676709af608cb086b3a04617113f4fd7cf218f2d10b6933e069927c8501eb8255e1fa54e8789f0b2e350f9cdec0
   languageName: node
   linkType: hard
 
