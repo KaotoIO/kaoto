@@ -48,6 +48,23 @@ Cypress.Commands.add('openPipeErrorHandler', () => {
   cy.get('[data-testid="Pipe ErrorHandler"]').click();
 });
 
+Cypress.Commands.add('openTopbarKebabMenu', () => {
+  cy.get('div.pf-v5-c-masthead__content').within(() => {
+    cy.get('button.pf-v5-c-menu-toggle').click();
+  });
+});
+
+Cypress.Commands.add('openAboutModal', () => {
+  cy.openTopbarKebabMenu();
+  cy.get('button#about').click();
+});
+
+Cypress.Commands.add('closeAboutModal', () => {
+  cy.get('.pf-v5-c-about-modal-box').within(() => {
+    cy.get('button.pf-v5-c-button.pf-m-plain').click();
+  });
+});
+
 Cypress.Commands.add('openCatalog', () => {
   cy.get('[data-testid="Catalog"]').click();
   cy.get('[data-testid="component-catalog-tab"]').should('be.visible');
