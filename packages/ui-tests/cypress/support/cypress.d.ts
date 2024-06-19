@@ -29,11 +29,6 @@ declare global {
       showAllRoutes(): Chainable<JQuery<Element>>;
       // design
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
-      interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      interactWithExpressinInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      interactWithDataformatInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
-      checkConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
@@ -47,22 +42,28 @@ declare global {
       checkNodeExist(inputName: string, nodesCount: number): Chainable<JQuery<Element>>;
       checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
-      selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
-      openExpressionModal(expression: string): Chainable<JQuery<Element>>;
+      selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
+      chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
+      // nodeConfiguration
+      interactWithExpressinInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
+      interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
+      interactWithDataformatInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
+      checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
+      checkConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       openExpressionModalBtn(): Chainable<JQuery<Element>>;
+      openExpressionModal(expression: string): Chainable<JQuery<Element>>;
+      selectExpression(expression: string): Chainable<JQuery<Element>>;
       confirmExpressionModal(): Chainable<JQuery<Element>>;
       cancelExpressionModal(): Chainable<JQuery<Element>>;
-      selectExpression(expression: string): Chainable<JQuery<Element>>;
-      selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
+      selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
+      configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
+      configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
+      selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
+      selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
+      configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
+      deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
       addProperty(propertyName: string): Chainable<JQuery<Element>>;
       addSingleKVProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
-      configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
-      configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
-      deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
-      configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
-      chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
-      selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
-      selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

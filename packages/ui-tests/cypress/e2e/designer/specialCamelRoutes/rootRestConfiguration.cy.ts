@@ -3,7 +3,7 @@ describe('Test for root on rest configuration container', () => {
     cy.openHomePage();
   });
 
-  it('Root onException config', () => {
+  it('Root rest configuration', () => {
     cy.selectCamelRouteType('Rest', 'restConfiguration');
 
     cy.get('[data-id^="restConfiguration"]')
@@ -34,12 +34,12 @@ describe('Test for root on rest configuration container', () => {
     cy.interactWithConfigInputObject('jsonDataFormat', 'testJsonDataFormat');
     cy.interactWithConfigInputObject('xmlDataFormat', 'testXmlDataFormat');
 
-    cy.addSingleProperty('Component Property', 'componentTestKey', 'componentTestValue');
-    cy.addSingleProperty('Endpoint Property', 'endpointTestKey', 'endpointTestValue');
-    cy.addSingleProperty('Consumer Property', 'consumerTestKey', 'consumerTestValue');
-    cy.addSingleProperty('Data Format Property', 'dataFormatTestKey', 'dataFormatTestValue');
-    cy.addSingleProperty('Api Property', 'apiTestKey', 'apiTestValue');
-    cy.addSingleProperty('Cors Headers', 'corsHeadersTestKey', 'corsHeadersTestValue');
+    cy.addSingleKVProperty('Component Property', 'componentTestKey', 'componentTestValue');
+    cy.addSingleKVProperty('Endpoint Property', 'endpointTestKey', 'endpointTestValue');
+    cy.addSingleKVProperty('Consumer Property', 'consumerTestKey', 'consumerTestValue');
+    cy.addSingleKVProperty('Data Format Property', 'dataFormatTestKey', 'dataFormatTestValue');
+    cy.addSingleKVProperty('Api Property', 'apiTestKey', 'apiTestValue');
+    cy.addSingleKVProperty('Cors Headers', 'corsHeadersTestKey', 'corsHeadersTestValue');
 
     cy.openSourceCode();
 
