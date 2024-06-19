@@ -71,8 +71,8 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkCodeSpanLine('expression: .name', 1);
   });
 
-  // Blocked by: https://github.com/KaotoIO/kaoto/issues/904
-  it.skip('Design - expression configuration with switching type', () => {
+  // reproducer for: https://github.com/KaotoIO/kaoto/issues/904
+  it('Design - expression configuration with switching type', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     // Configure setHeader expression
@@ -80,16 +80,20 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
     cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
-    cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
-    cy.interactWithExpressinInputObject('resultType', 'java.lang.String');
+    cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
+      cy.get('textarea[name="expression"]').should('have.value', '{{header.baz}}');
+    });
     cy.selectExpression('Constant');
+    cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
+      cy.get('textarea[name="expression"]').should('not.have.value', '{{header.baz}}');
+    });
+
     cy.confirmExpressionModal();
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('expression: "{{header.baz}}"', 1);
-    cy.checkCodeSpanLine('id: constantExpressionId', 1);
-    cy.checkCodeSpanLine('resultType: java.lang.String', 1);
+    cy.checkCodeSpanLine('constant: {}', 1);
+    cy.checkCodeSpanLine('expression: "{{header.baz}}"', 0);
   });
 
   it('Design - sidebar expression configuration in Kamelet', () => {
