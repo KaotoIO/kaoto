@@ -1,11 +1,13 @@
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
-import { ComponentType, createElement } from 'react';
+import { ComponentType, createElement, useContext } from 'react';
 import { useForm } from 'uniforms';
 import { KaotoSchemaDefinition } from '../../models';
-import { Card, CardBody, ExpandableSection, capitalize } from '@patternfly/react-core';
+import { Card, CardBody } from '@patternfly/react-core';
 import { getFieldGroups } from '../../utils';
 import { CatalogKind } from '../../models';
+import { FilteredFieldContext } from '../../providers';
 import './CustomAutoFields.scss';
+import { CustomExpandableSection } from './customField/CustomExpandableSection';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -23,13 +25,18 @@ export function CustomAutoFields({
 }: AutoFieldsProps) {
   const { schema } = useForm();
   const rootField = schema.getField('');
+  const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
 
   /** Special handling for oneOf schemas */
   if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
     return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
   }
 
-  const actualFields = (fields ?? schema.getSubfields()).filter((field) => !omitFields!.includes(field));
+  const actualFields = (fields ?? schema.getSubfields()).filter(
+    (field) =>
+      !omitFields!.includes(field) &&
+      (field === 'parameters' || field.toLowerCase().includes(filteredFieldText.toLowerCase())),
+  );
   const actualFieldsSchema = actualFields.reduce((acc: { [name: string]: unknown }, name) => {
     acc[name] = schema.getField(name);
     return acc;
@@ -45,11 +52,10 @@ export function CustomAutoFields({
       ))}
 
       {Object.entries(propertiesArray.groups).map(([groupName, groupFields]) => (
-        <ExpandableSection
-          key={`processor-${groupName}-section-toggle`}
-          toggleText={capitalize(`${CatalogKind.Processor} ${groupName} properties`)}
-          toggleId={`processor-${groupName}-expandable-section-toggle`}
-          contentId="processor-expandable-section-content"
+        <CustomExpandableSection
+          key={`${CatalogKind.Processor}-${groupName}-section-toggle`}
+          groupName={CatalogKind.Processor + ' ' + groupName}
+          isGroupExpanded={isGroupExpanded}
         >
           <Card className="nest-field-card">
             <CardBody className="nest-field-card-body">
@@ -58,7 +64,7 @@ export function CustomAutoFields({
               ))}
             </CardBody>
           </Card>
-        </ExpandableSection>
+        </CustomExpandableSection>
       ))}
     </>,
   );

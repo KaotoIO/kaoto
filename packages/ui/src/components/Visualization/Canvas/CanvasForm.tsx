@@ -1,6 +1,6 @@
-import { Card, CardBody, CardHeader } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader, SearchInput } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { VisibleFlowsContext } from '../../../providers';
+import { VisibleFlowsContext, FilteredFieldContext } from '../../../providers';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
 import { isDefined, setValue } from '../../../utils';
@@ -22,6 +22,7 @@ interface CanvasFormProps {
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
+  const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
   const formRef = useRef<CustomAutoFormRef>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const flowIdRef = useRef<string | undefined>(undefined);
@@ -90,6 +91,13 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Card className="canvas-form">
         <CardHeader>
+          <SearchInput
+            className="filter-fields"
+            placeholder="Find properties by name"
+            value={filteredFieldText}
+            onChange={onFilterChange}
+            onClear={onFilterChange}
+          />
           <CanvasFormHeader
             nodeId={props.selectedNode.id}
             title={title}
