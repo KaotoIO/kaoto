@@ -58,11 +58,10 @@ public class GenerateCommandOptions {
         options.addOption(verboseOption);
 
         ConfigBean configBean = new ConfigBean();
-        CommandLineParser parser = new DefaultParser();
 
-        CommandLine cmd = null;
         try {
-            cmd = parser.parse(options, args);
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
             configBean.setOutputFolder(Util.getNormalizedFolder(cmd.getOptionValue(outputOption.getOpt())));
             configBean.setCatalogsName(cmd.getOptionValue(catalogsNameOption.getOpt()));
             configBean.setKameletsVersion(cmd.getOptionValue(kameletsVersionOption.getOpt()));
@@ -76,7 +75,6 @@ public class GenerateCommandOptions {
             }
         } catch (ParseException e) {
             LOGGER.severe("Missing required options");
-            e.printStackTrace();
             printHelpAndExit();
         }
 

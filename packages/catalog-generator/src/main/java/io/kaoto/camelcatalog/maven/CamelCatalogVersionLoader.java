@@ -34,7 +34,7 @@ import io.kaoto.camelcatalog.model.MavenCoordinates;
 
 public class CamelCatalogVersionLoader {
     private static final Logger LOGGER = Logger.getLogger(CamelCatalogVersionLoader.class.getName());
-    private final KaotoMavenVersionManager KAOTO_VERSION_MANAGER = new KaotoMavenVersionManager();
+    private final KaotoMavenVersionManager kaotoVersionManager = new KaotoMavenVersionManager();
     private final CamelCatalog camelCatalog = new DefaultCamelCatalog(false);
     private final Map<String, String> kameletBoundaries = new HashMap<>();
     private final Map<String, String> kamelets = new HashMap<>();
@@ -48,8 +48,8 @@ public class CamelCatalogVersionLoader {
     public CamelCatalogVersionLoader(CatalogRuntime runtime, boolean verbose) {
         this.runtime = runtime;
         this.verbose = verbose;
-        KAOTO_VERSION_MANAGER.setLog(verbose);
-        camelCatalog.setVersionManager(KAOTO_VERSION_MANAGER);
+        kaotoVersionManager.setLog(verbose);
+        camelCatalog.setVersionManager(kaotoVersionManager);
     }
 
     public CatalogRuntime getRuntime() {
@@ -115,7 +115,7 @@ public class CamelCatalogVersionLoader {
         MavenCoordinates mavenCoordinates = getYamlDslMavenCoordinates(runtime, yamlDSLModel);
         loadDependencyInClasspath(mavenCoordinates);
 
-        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+        ClassLoader classLoader = kaotoVersionManager.getClassLoader();
         URL resourceURL = classLoader.getResource(Constants.CAMEL_YAML_DSL_ARTIFACT);
         if (resourceURL == null) {
             return false;
@@ -174,7 +174,7 @@ public class CamelCatalogVersionLoader {
                 version);
         boolean areCamelKCRDsLoaded = loadDependencyInClasspath(mavenCoordinates);
 
-        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+        ClassLoader classLoader = kaotoVersionManager.getClassLoader();
 
         for (String crd : Constants.CAMEL_K_CRDS_ARTIFACTS) {
             URL resourceURL = classLoader.getResource(crd);
@@ -201,16 +201,16 @@ public class CamelCatalogVersionLoader {
     }
 
     private void configureRepositories(String version) {
-        if (KAOTO_VERSION_MANAGER.repositories.get("central") == null)
-            KAOTO_VERSION_MANAGER.addMavenRepository("central", "https://repo1.maven.org/maven2/");
+        if (kaotoVersionManager.repositories.get("central") == null)
+            kaotoVersionManager.addMavenRepository("central", "https://repo1.maven.org/maven2/");
 
-        if (version.contains("redhat") && KAOTO_VERSION_MANAGER.repositories.get("maven.redhat.ga") == null)
-            KAOTO_VERSION_MANAGER.addMavenRepository("maven.redhat.ga", "https://maven.repository.redhat.com/ga/");
+        if (version.contains("redhat") && kaotoVersionManager.repositories.get("maven.redhat.ga") == null)
+            kaotoVersionManager.addMavenRepository("maven.redhat.ga", "https://maven.repository.redhat.com/ga/");
     }
 
     private void loadResourcesFromFolderAsString(String resourceFolderName, Map<String, String> filesMap,
             String fileSuffix) {
-        ClassLoader classLoader = KAOTO_VERSION_MANAGER.getClassLoader();
+        ClassLoader classLoader = kaotoVersionManager.getClassLoader();
 
         try {
             Iterator<URL> it = classLoader.getResources(resourceFolderName).asIterator();

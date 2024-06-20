@@ -123,7 +123,7 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
         } catch (Throwable e) {
             if (getLog()) {
                 LOGGER.log(Level.WARNING,
-                        String.format("Cannot resolve artifact {} due to {}", gav, e.getMessage()), e);
+                        String.format("Error resolving artifact {} due to {}", gav, e.getMessage()), e);
             }
         }
 
@@ -147,31 +147,24 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
     }
 
     private InputStream doGetResourceAsStream(String name, String version) {
-        if (version == null) {
-            return null;
-        }
+        if (version != null) {
+            try {
+                Enumeration<URL> urls = getClassLoader().getResources(name);
+                while (urls.hasMoreElements()) {
+                    URL url = urls.nextElement();
+                    if (url.getPath().contains(version)) {
+                        return url.openStream();
+                    }
+                }
+                
+            } catch (IOException e) {
+                if (getLog()) {
+                    LOGGER.log(Level.WARNING, String.format("Cannot open resource {} and version {} due {}", name, version,
+                            e.getMessage(), e));
 
-        try {
-            URL found = null;
-            Enumeration<URL> urls = getClassLoader().getResources(name);
-            while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
-                if (url.getPath().contains(version)) {
-                    found = url;
-                    break;
                 }
             }
-            if (found != null) {
-                return found.openStream();
-            }
-        } catch (IOException e) {
-            if (getLog()) {
-                LOGGER.log(Level.WARNING, String.format("Cannot open resource {} and version {} due {}", name, version,
-                        e.getMessage(), e));
-
-            }
         }
-
         return null;
     }
 }
