@@ -41,7 +41,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           VisualizationService.applyIf(nodeData);
           break;
         case 'choose':
-          VisualizationService.applyChoose(nodeData);
+          VisualizationService.applyChooseWhenOtherwise(nodeData);
           break;
         case 'foreach':
           MappingService.wrapWithForEach(mappingTree, (nodeData as TargetFieldNodeData).field);
@@ -107,7 +107,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
                       Wrap with <q>if</q>
                     </DropdownItem>
                     <DropdownItem key="choose" value="choose">
-                      Wrap with <q>choose</q>
+                      Wrap with <q>choose-when-otherwise</q>
                     </DropdownItem>
                   </>
                 )}

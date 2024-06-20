@@ -151,14 +151,41 @@ export class MappingService {
     MappingService.wrapWithItem(fieldItem, forEach);
   }
 
+  static wrapWithIf(wrapped: MappingItem) {
+    MappingService.wrapWithItem(wrapped, new IfItem(wrapped.parent));
+  }
+
+  static wrapWithChooseWhenOtherwise(wrapped: MappingItem) {
+    const parent = wrapped.parent;
+    MappingService.addChooseWhenOtherwise(parent, wrapped);
+    parent.children = parent.children.filter((c) => c !== wrapped);
+  }
+
+  static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {
+    const chooseItem = new ChooseItem(parent, mapping && mapping instanceof FieldItem ? mapping.field : undefined);
+    parent.children.push(chooseItem);
+    const whenItem = MappingService.addWhen(chooseItem);
+    if (mapping) {
+      whenItem.children = [mapping];
+      mapping.parent = whenItem;
+    }
+    MappingService.addOtherwise(chooseItem);
+  }
+
   static addWhen(item: ChooseItem) {
-    item.children.push(new WhenItem(item));
+    const whenItem = new WhenItem(item);
+    item.field && whenItem.children.push(new FieldItem(whenItem, item.field));
+    item.children.push(whenItem);
+    return whenItem;
   }
 
   static addOtherwise(item: ChooseItem) {
     const newChildren = item.children.filter((c) => !(c instanceof OtherwiseItem));
-    newChildren.push(new OtherwiseItem(item));
+    const otherwiseItem = new OtherwiseItem(item);
+    item.field && otherwiseItem.children.push(new FieldItem(otherwiseItem, item.field));
+    newChildren.push(otherwiseItem);
     item.children = newChildren;
+    return otherwiseItem;
   }
 
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {

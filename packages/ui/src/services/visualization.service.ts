@@ -16,7 +16,6 @@ import {
   ForEachItem,
   IfItem,
   MappingItem,
-  MappingParentType,
   MappingTree,
   OtherwiseItem,
   ValueSelector,
@@ -201,16 +200,8 @@ export class VisualizationService {
   }
 
   static applyIf(nodeData: TargetNodeData) {
-    VisualizationService.doApplyCondition(nodeData, (parent) => new IfItem(parent));
-  }
-
-  static applyChoose(nodeData: TargetNodeData) {
-    VisualizationService.doApplyCondition(nodeData, (parent) => new ChooseItem(parent));
-  }
-
-  private static doApplyCondition(nodeData: TargetNodeData, createItem: (parent: MappingParentType) => MappingItem) {
     if (nodeData instanceof TargetDocumentNodeData) {
-      nodeData.mappingTree.children.push(createItem(nodeData.mappingTree));
+      nodeData.mappingTree.children.push(new IfItem(nodeData.mappingTree));
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       const mapping = nodeData.mapping
         ? nodeData.mapping
@@ -218,7 +209,26 @@ export class VisualizationService {
           ? (MappingService.getOrCreateFieldItem(nodeData.mappingTree, nodeData.field) as FieldItem)
           : undefined;
       if (!mapping) return;
-      MappingService.wrapWithItem(mapping, createItem(mapping.parent));
+      MappingService.wrapWithIf(mapping);
+    }
+  }
+
+  static applyChooseWhenOtherwise(nodeData: TargetNodeData) {
+    if (nodeData instanceof TargetDocumentNodeData) {
+      if (nodeData.mappingTree.children.find((c) => c instanceof ChooseItem)) return;
+
+      const existingValueSelector = nodeData.mappingTree.children.find((c) => c instanceof ValueSelector);
+      MappingService.addChooseWhenOtherwise(nodeData.mappingTree, existingValueSelector);
+    } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
+      if (nodeData.mapping?.children.find((c) => c instanceof ChooseItem)) return;
+
+      const mapping = nodeData.mapping
+        ? nodeData.mapping
+        : nodeData instanceof TargetFieldNodeData
+          ? (MappingService.getOrCreateFieldItem(nodeData.mappingTree, nodeData.field) as FieldItem)
+          : undefined;
+      if (!mapping) return;
+      MappingService.wrapWithChooseWhenOtherwise(mapping);
     }
   }
 

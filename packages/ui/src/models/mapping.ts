@@ -61,7 +61,10 @@ export class IfItem extends ExpressionItem {
 }
 
 export class ChooseItem extends ConditionItem {
-  constructor(public parent: MappingParentType) {
+  constructor(
+    public parent: MappingParentType,
+    public field?: IField,
+  ) {
     super(parent, 'choose');
   }
   get when() {
