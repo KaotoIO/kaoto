@@ -17,13 +17,12 @@ export abstract class MappingItem {
   constructor(
     public parent: MappingParentType,
     public name: string,
-  ) {
-    this.id = generateRandomId(this.name);
-    this.path = NodePath.childOf(parent.path, this.id);
-  }
-  id: string;
+    public id: string,
+  ) {}
   children: MappingItem[] = [];
-  path: NodePath;
+  get path(): NodePath {
+    return NodePath.childOf(this.parent.path, this.id);
+  }
 }
 
 export class FieldItem extends MappingItem {
@@ -31,31 +30,40 @@ export class FieldItem extends MappingItem {
     public parent: MappingParentType,
     public field: IField,
   ) {
-    super(parent, 'field-' + field.name);
+    super(parent, 'field-' + field.name, field.id);
   }
 }
 
-export interface ExpressionItem {
-  expression: string;
-}
-
-export interface ConditionItem {
-  isCondition: true;
-}
-
-export class IfItem extends MappingItem implements ExpressionItem, ConditionItem {
-  constructor(public parent: MappingParentType) {
-    super(parent, 'if');
+export abstract class ConditionItem extends MappingItem {
+  constructor(
+    public parent: MappingParentType,
+    public name: string,
+  ) {
+    super(parent, name, generateRandomId(name, 4));
   }
-  isCondition = true as const;
+  readonly isCondition = true;
+}
+
+export abstract class ExpressionItem extends ConditionItem {
+  constructor(
+    public parent: MappingParentType,
+    public name: string,
+  ) {
+    super(parent, name);
+  }
   expression = '';
 }
 
-export class ChooseItem extends MappingItem implements ConditionItem {
+export class IfItem extends ExpressionItem {
+  constructor(public parent: MappingParentType) {
+    super(parent, 'if');
+  }
+}
+
+export class ChooseItem extends ConditionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'choose');
   }
-  isCondition = true as const;
   get when() {
     return this.children.filter((c) => c instanceof WhenItem) as WhenItem[];
   }
@@ -64,22 +72,19 @@ export class ChooseItem extends MappingItem implements ConditionItem {
   }
 }
 
-export class WhenItem extends MappingItem implements ExpressionItem, ConditionItem {
+export class WhenItem extends ExpressionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'when');
   }
-  isCondition = true as const;
-  expression = '';
 }
 
-export class OtherwiseItem extends MappingItem implements ConditionItem {
+export class OtherwiseItem extends ConditionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'otherwise');
   }
-  isCondition = true as const;
 }
 
-export class ForEachItem extends MappingItem implements ExpressionItem, ConditionItem {
+export class ForEachItem extends ExpressionItem {
   constructor(
     public parent: MappingParentType,
     field: IField,
@@ -87,8 +92,6 @@ export class ForEachItem extends MappingItem implements ExpressionItem, Conditio
     super(parent, 'for-each');
     this.children.push(new FieldItem(this, field));
   }
-  isCondition = true as const;
-  expression = '';
   sortItems: SortItem[] = [];
 }
 
@@ -97,11 +100,10 @@ export class SortItem {
   order: 'ascending' | 'descending' = 'ascending';
 }
 
-export class ValueSelector extends MappingItem implements ExpressionItem {
+export class ValueSelector extends ExpressionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'value');
   }
-  expression = '';
 }
 
 export interface IFunctionDefinition {

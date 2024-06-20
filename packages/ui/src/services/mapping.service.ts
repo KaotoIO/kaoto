@@ -10,12 +10,13 @@ import {
   ValueSelector,
   MappingParentType,
   ForEachItem,
+  ExpressionItem,
 } from '../models/mapping';
-import { BODY_DOCUMENT_ID, IDocument, IField, PrimitiveDocument } from '../models/document';
+import { IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
 import { IMappingLink } from '../models/visualization';
-import { DocumentType, NodePath } from '../models/path';
+import { DocumentType } from '../models/path';
 
 export class MappingService {
   static filterMappingsForField(mappings: MappingItem[], field: IField): MappingItem[] {
@@ -201,7 +202,7 @@ export class MappingService {
         mapping.children.push(fieldItem);
         return fieldItem;
       }
-    }, mappingTree);
+    }, mappingTree) as MappingTree | FieldItem;
   }
 
   static deleteMappingItem(item: MappingParentType) {
@@ -223,31 +224,48 @@ export class MappingService {
     return 0;
   }
 
-  static extractMappingLinks(item: MappingTree | MappingItem): IMappingLink[] {
+  static extractMappingLinks(
+    item: MappingTree | MappingItem,
+    sourceParameterMap: Map<string, IDocument>,
+    sourceBody: IDocument,
+  ): IMappingLink[] {
     const answer = [] as IMappingLink[];
-    if ('expression' in item) {
-      const targetPath = item.path.toString();
-      XPathService.extractFieldPaths(item.expression as string).map((sourcePath) =>
-        answer.push({ sourceNodePath: sourcePath, targetNodePath: targetPath }),
+    const targetNodePath = item.path.toString();
+    if (item instanceof ExpressionItem) {
+      answer.push(
+        ...MappingService.doExtractMappingLinks(item.expression, targetNodePath, sourceParameterMap, sourceBody),
       );
     }
     if ('children' in item) {
       item.children.map((child) => {
-        if (child instanceof ValueSelector) {
-          const targetPath = item.path.toString();
-          XPathService.extractFieldPaths(child.expression as string).forEach((sourcePath) => {
-            const { paramName, segments } = XPathService.parsePath(sourcePath);
-            const documentType = paramName ? DocumentType.PARAM : DocumentType.SOURCE_BODY;
-            const documentId = paramName ? paramName : BODY_DOCUMENT_ID;
-            const nodePath = NodePath.fromDocument(documentType, documentId);
-            nodePath.pathSegments = segments;
-            answer.push({ sourceNodePath: nodePath.toString(), targetNodePath: targetPath });
-          });
+        if (
+          item instanceof FieldItem &&
+          !(item.field.ownerDocument instanceof PrimitiveDocument) &&
+          child instanceof ValueSelector
+        ) {
+          answer.push(
+            ...MappingService.doExtractMappingLinks(child.expression, targetNodePath, sourceParameterMap, sourceBody),
+          );
         } else {
-          answer.push(...MappingService.extractMappingLinks(child));
+          answer.push(...MappingService.extractMappingLinks(child, sourceParameterMap, sourceBody));
         }
       });
     }
     return answer;
+  }
+
+  private static doExtractMappingLinks(
+    sourceXPath: string,
+    targetNodePath: string,
+    sourceParameterMap: Map<string, IDocument>,
+    sourceBody: IDocument,
+  ) {
+    return XPathService.extractFieldPaths(sourceXPath).reduce((acc, xpath) => {
+      const { paramName, segments } = XPathService.parsePath(xpath);
+      const document = paramName ? sourceParameterMap.get(paramName) : sourceBody;
+      const sourcePath = document && DocumentService.getFieldFromPathSegments(document, segments)?.path;
+      sourcePath && acc.push({ sourceNodePath: sourcePath.toString(), targetNodePath: targetNodePath });
+      return acc;
+    }, [] as IMappingLink[]);
   }
 }

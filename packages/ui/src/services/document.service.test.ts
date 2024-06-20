@@ -36,7 +36,7 @@ describe('DocumentService', () => {
 
   describe('getFieldFromPathExpression()', () => {
     it('', () => {
-      const pathExpression = '/' + sourceDoc.fields[0].fields[2].path.pathSegments.join('/');
+      const pathExpression = '/ShipOrder/ShipTo';
       const field = DocumentService.getFieldFromPathExpression(sourceDoc, pathExpression);
       expect(field?.name).toEqual('ShipTo');
     });
@@ -44,7 +44,7 @@ describe('DocumentService', () => {
 
   describe('getFieldFromPathSegments()', () => {
     it('', () => {
-      const pathSegments = sourceDoc.fields[0].fields[2].path.pathSegments;
+      const pathSegments = ['ShipOrder', 'ShipTo'];
       const field = DocumentService.getFieldFromPathSegments(sourceDoc, pathSegments);
       expect(field?.name).toEqual('ShipTo');
     });

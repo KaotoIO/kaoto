@@ -26,7 +26,7 @@ import {
 } from '@datamapper-poc/xml-schema-ts';
 import { BaseDocument, BaseField } from '../models/document';
 import { Types } from '../models/types';
-import { DocumentType, NodePath } from '../models/path';
+import { DocumentType } from '../models/path';
 
 export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
@@ -55,7 +55,6 @@ export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = null;
   namespacePrefix: string | null = null;
-  path: NodePath;
 
   constructor(
     public parent: XmlSchemaParentType,
@@ -64,7 +63,6 @@ export class XmlSchemaField extends BaseField {
   ) {
     super(parent, parent instanceof XmlSchemaDocument ? parent : (parent as XmlSchemaField).ownerDocument, name);
     this.expression = isAttribute ? '@' + name : name;
-    this.path = NodePath.childOf(parent.path, this.expression);
   }
 }
 

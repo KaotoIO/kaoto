@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { MappingService } from '../../services/mapping.service';
 
 export const DataMapperMonitor = () => {
-  const { mappingTree } = useDataMapper();
+  const { mappingTree, sourceParameterMap, sourceBodyDocument } = useDataMapper();
 
   useEffect(() => {
-    MappingService.extractMappingLinks(mappingTree).forEach((mapping) => {
+    MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument).forEach((mapping) => {
       console.log(`Mapping: [source={${mapping.sourceNodePath}}, target={${mapping.targetNodePath}}]`);
     });
-  }, [mappingTree]);
+  }, [mappingTree, sourceBodyDocument, sourceParameterMap]);
 
   return <></>;
 };

@@ -59,13 +59,13 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
     );
 
   return (
-    <div className={isDocument ? 'node-container__document' : 'node-container'}>
-      <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div
-          className={isDocument ? 'node-header__document' : 'node-header'}
-          onClick={hasChildren ? onClick : undefined}
-        >
-          <NodeContainer ref={headerRef} nodeData={nodeData}>
+    <NodeContainer ref={containerRef} nodeData={nodeData}>
+      <div className={isDocument ? 'node-container__document' : 'node-container'}>
+        <NodeContainer ref={headerRef} nodeData={nodeData}>
+          <div
+            className={isDocument ? 'node-header__document' : 'node-header'}
+            onClick={hasChildren ? onClick : undefined}
+          >
             <Split hasGutter>
               <SplitItem>
                 {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
@@ -86,8 +86,8 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
               <SplitItem isFilled>{nodeTitle}</SplitItem>
               <SplitItem>{isDocument && <DocumentActions nodeData={nodeData} />}</SplitItem>
             </Split>
-          </NodeContainer>
-        </div>
+          </div>
+        </NodeContainer>
         {hasChildren && !collapsed && (
           <div className={isDocument ? 'node-children__document' : 'node-children'}>
             {children.map((child) => (
@@ -95,7 +95,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
             ))}
           </div>
         )}
-      </NodeContainer>
-    </div>
+      </div>
+    </NodeContainer>
   );
 };

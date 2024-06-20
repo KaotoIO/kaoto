@@ -47,7 +47,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
 };
 
 export const MappingLinksContainer: FunctionComponent = () => {
-  const { mappingTree } = useDataMapper();
+  const { mappingTree, sourceBodyDocument, sourceParameterMap } = useDataMapper();
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
 
@@ -99,24 +99,32 @@ export const MappingLinksContainer: FunctionComponent = () => {
   );
 
   const refreshLinks = useCallback(() => {
-    const answer: LineProps[] = MappingService.extractMappingLinks(mappingTree).reduce(
-      (acc, { sourceNodePath, targetNodePath }) => {
-        const sourceClosestPath = getClosestExpandedPath(sourceNodePath);
-        const targetClosestPath = getClosestExpandedPath(targetNodePath);
-        if (sourceClosestPath && targetClosestPath) {
-          const sourceFieldRef = getNodeReference(sourceClosestPath);
-          const targetFieldRef = getNodeReference(targetClosestPath);
-          if (sourceFieldRef && !!targetFieldRef) {
-            const coord = getCoordFromFieldRef(sourceFieldRef, targetFieldRef);
-            if (coord) acc.push({ ...coord, sourceNodePath: sourceNodePath, targetNodePath: targetNodePath });
-          }
+    const answer: LineProps[] = MappingService.extractMappingLinks(
+      mappingTree,
+      sourceParameterMap,
+      sourceBodyDocument,
+    ).reduce((acc, { sourceNodePath, targetNodePath }) => {
+      const sourceClosestPath = getClosestExpandedPath(sourceNodePath);
+      const targetClosestPath = getClosestExpandedPath(targetNodePath);
+      if (sourceClosestPath && targetClosestPath) {
+        const sourceFieldRef = getNodeReference(sourceClosestPath);
+        const targetFieldRef = getNodeReference(targetClosestPath);
+        if (sourceFieldRef && !!targetFieldRef) {
+          const coord = getCoordFromFieldRef(sourceFieldRef, targetFieldRef);
+          if (coord) acc.push({ ...coord, sourceNodePath: sourceNodePath, targetNodePath: targetNodePath });
         }
-        return acc;
-      },
-      [] as LineProps[],
-    );
+      }
+      return acc;
+    }, [] as LineProps[]);
     setLineCoordList(answer);
-  }, [getClosestExpandedPath, getNodeReference, mappingTree, getCoordFromFieldRef]);
+  }, [
+    mappingTree,
+    sourceParameterMap,
+    sourceBodyDocument,
+    getClosestExpandedPath,
+    getNodeReference,
+    getCoordFromFieldRef,
+  ]);
 
   useEffect(() => {
     refreshLinks();

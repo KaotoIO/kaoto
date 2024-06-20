@@ -21,6 +21,7 @@ export interface IField {
   ownerDocument: IDocument;
   id: string;
   name: string;
+  path: NodePath;
   expression: string;
   type: Types;
   fields: IField[];
@@ -82,10 +83,12 @@ export abstract class BaseField implements IField {
     public ownerDocument: IDocument,
     public name: string,
   ) {
-    this.id = generateRandomId(`field-${this.name}-`, 4);
+    this.id = generateRandomId(`field-${this.name}`, 4);
+    this.path = NodePath.childOf(parent.path, this.id);
   }
 
   id: string;
+  path: NodePath;
   fields: IField[] = [];
   isAttribute: boolean = false;
   expression: string = '';

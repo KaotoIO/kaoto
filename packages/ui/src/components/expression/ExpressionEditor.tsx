@@ -19,7 +19,7 @@ import { FunctionGroup } from '../../services/xpath/xpath-parser';
 import { SourcePanel } from '../../layout/views/SourcePanel';
 import { NodeContainer } from '../document/NodeContainer';
 import { XPathEditor } from './monaco/XPathEditor';
-import { TransformationEditorDnDHandler } from '../../providers/dnd/TransformationEditorDnDHandler';
+import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
 import { useCanvas } from '../../hooks/useCanvas';
 
 type TransformationEditorProps = {
@@ -28,7 +28,7 @@ type TransformationEditorProps = {
 };
 
 export const ExpressionEditor: FunctionComponent<TransformationEditorProps> = ({ mapping, onUpdate }) => {
-  const dndHandler = useMemo(() => new TransformationEditorDnDHandler(), []);
+  const dndHandler = useMemo(() => new ExpressionEditorDnDHandler(), []);
   const { setActiveHandler } = useCanvas();
   useEffect(() => {
     setActiveHandler(dndHandler);
