@@ -24,7 +24,7 @@
     <version.junit>5.10.2</version.junit>
     <version.kubernetes-model>6.10.0</version.kubernetes-model>
     <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
-    <version.maven-surefire-plugin>3.2.5</version.maven-surefire-plugin>
+    <version.maven-surefire-plugin>3.3.0</version.maven-surefire-plugin>
   </properties>
   <dependencies>
     <dependency>
