@@ -1840,7 +1840,7 @@ __metadata:
     jest-environment-jsdom: ^29.7.0
     loglevel: ^1.9.1
     madge: ^7.0.0
-    monaco-editor: ^0.49.0
+    monaco-editor: ^0.50.0
     pako: ^2.1.0
     prettier: ^3.2.5
     react: ^18.2.0
@@ -10121,10 +10121,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.49.0":
-  version: 0.49.0
-  resolution: "monaco-editor@npm:0.49.0"
-  checksum: 133b41b2b32d120ff6bc12d68a72501c90ff6de2e15e915a44c25f3f3ab29d164bd94ba501e13329e855b3000bd035319b01be122e76ab7f3fab6731cf0a323c
+"monaco-editor@npm:^0.50.0":
+  version: 0.50.0
+  resolution: "monaco-editor@npm:0.50.0"
+  checksum: 841b047c89060bcd5e8864c671389f7cda322bd8372663ea71f42eb3d780edbbabc41b151791629fec04bbf3c53b407eb9e5b0829ef95292103d685df0994147
   languageName: node
   linkType: hard
 
