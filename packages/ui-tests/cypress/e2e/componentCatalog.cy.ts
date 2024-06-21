@@ -54,8 +54,8 @@ describe('Catalog related tests', () => {
     cy.openCatalog();
     cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'false');
     cy.get('#toggle-layout-button-Gallery').click();
-    cy.get('[data-testid="processor-catalog-tab"]').click();
-    cy.get('[data-testid="kamelet-catalog-tab"]').click();
+    cy.get('[data-testid="processor-catalog-tab"]').click({ force: true });
+    cy.get('[data-testid="kamelet-catalog-tab"]').click({ force: true });
     cy.get('#toggle-layout-button-Gallery').should('have.attr', 'aria-pressed', 'true');
   });
 });
