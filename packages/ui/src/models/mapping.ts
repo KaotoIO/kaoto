@@ -1,6 +1,6 @@
 import { IField } from './document';
 import { generateRandomId } from '../util';
-import { DocumentType, NodePath } from './path';
+import { DocumentType, NodePath, Path } from './path';
 import { Types } from './types';
 
 export type MappingParentType = MappingTree | MappingItem;
@@ -11,6 +11,7 @@ export class MappingTree {
   }
   children: MappingItem[] = [];
   path: NodePath;
+  contextPath?: Path;
 }
 
 export abstract class MappingItem {
@@ -22,6 +23,9 @@ export abstract class MappingItem {
   children: MappingItem[] = [];
   get path(): NodePath {
     return NodePath.childOf(this.parent.path, this.id);
+  }
+  get contextPath(): Path | undefined {
+    return this.parent.contextPath;
   }
 }
 
@@ -88,12 +92,11 @@ export class OtherwiseItem extends ConditionItem {
 }
 
 export class ForEachItem extends ExpressionItem {
-  constructor(
-    public parent: MappingParentType,
-    field: IField,
-  ) {
+  constructor(public parent: MappingParentType) {
     super(parent, 'for-each');
-    this.children.push(new FieldItem(this, field));
+  }
+  get contextPath() {
+    return new Path(this.expression, this.parent.contextPath);
   }
   sortItems: SortItem[] = [];
 }

@@ -113,16 +113,6 @@ export class XPathService {
     return [pathExprNode];
   }
 
-  static parsePath(path: string) {
-    if (path === '.') return { segments: [] };
-    if (!path.startsWith('$')) return { segments: path.split('/') };
-    const pos = path.indexOf('/');
-    return {
-      paramName: pos !== -1 ? path.substring(1, pos) : path.substring(1),
-      segments: pos !== -1 ? path.substring(pos + 1).split('/') : [],
-    };
-  }
-
   static addSource(expression: string, source: PrimitiveDocument | IField): string {
     const sourceXPath = XPathService.toXPath(source);
     return expression ? `${expression}, ${sourceXPath}` : sourceXPath;

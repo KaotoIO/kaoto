@@ -16,7 +16,7 @@ import { IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
 import { IMappingLink } from '../models/visualization';
-import { DocumentType } from '../models/path';
+import { DocumentType, Path } from '../models/path';
 
 export class MappingService {
   static filterMappingsForField(mappings: MappingItem[], field: IField): MappingItem[] {
@@ -71,10 +71,10 @@ export class MappingService {
     documentType: DocumentType,
     documentId: string,
   ) {
-    item.children = item.children?.reduce((acc, child) => {
+    item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentId);
       if (
-        'expression' in child &&
+        !(child instanceof ExpressionItem) ||
         !MappingService.hasStaleSourceDocument(child.expression as string, documentType, documentId)
       ) {
         acc.push(child);
@@ -85,10 +85,10 @@ export class MappingService {
 
   private static hasStaleSourceDocument(expression: string, documentType: DocumentType, documentId: string) {
     const stalePath = XPathService.extractFieldPaths(expression).find((xpath) => {
-      const parsedPath = XPathService.parsePath(xpath);
+      const parsedPath = new Path(xpath);
       return (
-        (documentType === DocumentType.SOURCE_BODY && !parsedPath.paramName) ||
-        (documentType === DocumentType.PARAM && parsedPath.paramName === documentId)
+        (documentType === DocumentType.SOURCE_BODY && !parsedPath.parameterName) ||
+        (documentType === DocumentType.PARAM && parsedPath.parameterName === documentId)
       );
     });
     return !!stalePath;
@@ -104,7 +104,7 @@ export class MappingService {
   }
 
   private static doRemoveStaleMappingsForTargetDocument(item: MappingTree | MappingItem, document: IDocument) {
-    item.children = item.children?.reduce((acc, child) => {
+    item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForTargetDocument(child, document);
       if (child instanceof FieldItem && DocumentService.hasField(document, child.field)) {
         acc.push(child);
@@ -116,7 +116,7 @@ export class MappingService {
   }
 
   private static doRemoveStaleMappingsForSourceDocument(item: MappingTree | MappingItem, document: IDocument) {
-    item.children = item.children?.reduce((acc, child) => {
+    item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForSourceDocument(child, document);
       if ('expression' in child && !MappingService.hasStaleSourceField(child.expression as string, document)) {
         acc.push(child);
@@ -127,12 +127,12 @@ export class MappingService {
 
   private static hasStaleSourceField(expression: string, document: IDocument) {
     const stalePath = XPathService.extractFieldPaths(expression).find((xpath) => {
-      const parsedPath = XPathService.parsePath(xpath);
+      const parsedPath = new Path(xpath);
       if (
-        (document.documentType === DocumentType.SOURCE_BODY && !parsedPath.paramName) ||
-        (document.documentType === DocumentType.PARAM && parsedPath.paramName === document.documentId)
+        (document.documentType === DocumentType.SOURCE_BODY && !parsedPath.parameterName) ||
+        (document.documentType === DocumentType.PARAM && parsedPath.parameterName === document.documentId)
       ) {
-        return !DocumentService.getFieldFromPathSegments(document, parsedPath.segments);
+        return !DocumentService.getFieldFromPathSegments(document, parsedPath.pathSegments);
       }
     });
     return !!stalePath;
@@ -147,7 +147,7 @@ export class MappingService {
 
   static wrapWithForEach(mappingTree: MappingTree, field: IField) {
     const fieldItem = MappingService.getOrCreateFieldItem(mappingTree, field) as FieldItem;
-    const forEach = new ForEachItem(fieldItem.parent, field);
+    const forEach = new ForEachItem(fieldItem.parent);
     MappingService.wrapWithItem(fieldItem, forEach);
   }
 
@@ -288,10 +288,10 @@ export class MappingService {
     sourceBody: IDocument,
   ) {
     return XPathService.extractFieldPaths(sourceXPath).reduce((acc, xpath) => {
-      const { paramName, segments } = XPathService.parsePath(xpath);
-      const document = paramName ? sourceParameterMap.get(paramName) : sourceBody;
-      const sourcePath = document && DocumentService.getFieldFromPathSegments(document, segments)?.path;
-      sourcePath && acc.push({ sourceNodePath: sourcePath.toString(), targetNodePath: targetNodePath });
+      const path = new Path(xpath);
+      const document = path.parameterName ? sourceParameterMap.get(path.parameterName) : sourceBody;
+      const sourceNodePath = document && DocumentService.getFieldFromPathSegments(document, path.pathSegments)?.path;
+      sourceNodePath && acc.push({ sourceNodePath: sourceNodePath.toString(), targetNodePath: targetNodePath });
       return acc;
     }, [] as IMappingLink[]);
   }

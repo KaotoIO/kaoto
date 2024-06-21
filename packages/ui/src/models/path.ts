@@ -36,3 +36,45 @@ export class NodePath {
     return answer;
   }
 }
+
+export class Path {
+  constructor(
+    public expression: string,
+    public parent?: Path,
+  ) {
+    this.isRelative = true;
+    let remainingExpression = this.expression;
+    if (remainingExpression.startsWith('/')) {
+      this.isRelative = false;
+      remainingExpression = remainingExpression.substring(1);
+    }
+    if (remainingExpression.endsWith('/'))
+      remainingExpression = remainingExpression.substring(0, remainingExpression.length - 1);
+    if (remainingExpression.startsWith('$')) {
+      this.isRelative = false;
+      const pos = remainingExpression.indexOf('/');
+      this.parameterName = pos !== -1 ? remainingExpression.substring(1, pos) : remainingExpression.substring(1);
+      remainingExpression = pos !== -1 ? remainingExpression.substring(pos + 1) : '';
+    }
+    this.pathSegments = remainingExpression.split('/');
+  }
+
+  toString() {
+    const prefix = this.parameterName ? `$${this.parameterName}/` : this.isRelative ? '' : '/';
+    return this.pathSegments.length > 0 ? `${prefix}${this.pathSegments.join('/')}` : prefix;
+  }
+
+  toAbsolutePathString(): string {
+    return this.isRelative ? this.parent?.toAbsolutePathString() + '/' + this.toString() : this.toString();
+  }
+
+  child(segment: string) {
+    if (segment.startsWith('/')) segment = segment.substring(1);
+    if (segment.endsWith('/')) segment = segment.substring(0, segment.length - 1);
+    return new NodePath(this.toString() + '/' + segment);
+  }
+
+  isRelative: boolean;
+  parameterName?: string;
+  pathSegments: string[];
+}
