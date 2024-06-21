@@ -7,6 +7,7 @@ import {
   SearchInput,
   ToggleGroup,
   ToggleGroupItem,
+  Tooltip,
   capitalize,
 } from '@patternfly/react-core';
 import { TimesCircleIcon } from '@patternfly/react-icons';
@@ -97,17 +98,19 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
         <FormGroup label="Layout" fieldId="layout">
           <ToggleGroup aria-label="Change layout">
             {props.layouts.map((key) => (
-              <ToggleGroupItem
-                icon={<CatalogLayoutIcon key={key} layout={key} />}
-                key={key}
-                data-testid={`toggle-layout-button-${key}`}
-                buttonId={`toggle-layout-button-${key}`}
-                aria-label={`toggle-layout-button-${key}`}
-                isSelected={props.activeLayout === key}
-                onChange={() => {
-                  props.setActiveLayout(key);
-                }}
-              />
+              <Tooltip aria-label="Layout toggle Tooltip" content={<p>Display elements with a {key} view</p>}>
+                <ToggleGroupItem
+                  icon={<CatalogLayoutIcon key={key} layout={key} />}
+                  key={key}
+                  data-testid={`toggle-layout-button-${key}`}
+                  buttonId={`toggle-layout-button-${key}`}
+                  aria-label={`toggle-layout-button-${key}`}
+                  isSelected={props.activeLayout === key}
+                  onChange={() => {
+                    props.setActiveLayout(key);
+                  }}
+                />
+              </Tooltip>
             ))}
           </ToggleGroup>
         </FormGroup>
