@@ -3766,7 +3766,7 @@ __metadata:
     "@types/node": ^20.0.0
     "@types/react": ^18.2.25
     "@types/react-dom": ^18.2.10
-    "@types/uuid": ^9.0.2
+    "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^7.0.0
     "@typescript-eslint/parser": ^7.0.0
     "@vitejs/plugin-react": ^4.0.3
@@ -7321,17 +7321,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@types/uuid@npm:10.0.0"
+  checksum: e3958f8b0fe551c86c14431f5940c3470127293280830684154b91dc7eb3514aeb79fe3216968833cf79d4d1c67f580f054b5be2cd562bebf4f728913e73e944
+  languageName: node
+  linkType: hard
+
 "@types/uuid@npm:^9.0.1":
   version: 9.0.8
   resolution: "@types/uuid@npm:9.0.8"
   checksum: b8c60b7ba8250356b5088302583d1704a4e1a13558d143c549c408bf8920535602ffc12394ede77f8a8083511b023704bc66d1345792714002bfa261b17c5275
-  languageName: node
-  linkType: hard
-
-"@types/uuid@npm:^9.0.2":
-  version: 9.0.3
-  resolution: "@types/uuid@npm:9.0.3"
-  checksum: 3dde198defd71c067dd14b3050a8fe6d1ead5fe94ec318472e2c30a399d13f18941fe66cffabdcac7267177c9de2f975fdee6f0cc87cde610a2578e1ce4cc3af
   languageName: node
   linkType: hard
 
