@@ -1,7 +1,6 @@
 import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
-import * as monaco from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
-import { FunctionComponent, Ref, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, MutableRefObject, Ref, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
 import { SourceSchemaType, sourceSchemaConfig } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
@@ -18,34 +17,33 @@ interface SourceCodeProps {
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const entityContext = useContext(EntitiesContext);
+  const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
+  const currentSchema = sourceSchemaConfig.config[schemaType].schema;
+  const monacoYamlHandlerRef: MutableRefObject<ReturnType<typeof configureMonacoYaml> | undefined> = useRef(undefined);
 
-  useEffect(() => {
-    const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
-    const currentSchema = sourceSchemaConfig.config[schemaType].schema;
-    let monacoYamlHandler: ReturnType<typeof configureMonacoYaml> | undefined;
+  const editorProps: Ref<CodeEditorProps['editorProps']> = useRef({
+    beforeMount: (monaco) => {
+      if (currentSchema) {
+        const monacoYamlHandler = configureMonacoYaml(monaco, {
+          enableSchemaRequest: true,
+          hover: true,
+          completion: true,
+          validate: true,
+          format: true,
+          schemas: [
+            {
+              schema: currentSchema.schema,
+              uri: currentSchema.uri,
+              fileMatch: ['*'],
+            },
+          ],
+        });
 
-    if (currentSchema) {
-      monacoYamlHandler = configureMonacoYaml(monaco, {
-        enableSchemaRequest: true,
-        hover: true,
-        completion: true,
-        validate: true,
-        format: true,
-        schemas: [
-          {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            schema: currentSchema.schema as any,
-            uri: currentSchema.uri,
-            fileMatch: ['*'],
-          },
-        ],
-      });
-    }
-
-    return () => {
-      monacoYamlHandler?.dispose();
-    };
-  }, [entityContext?.currentSchemaType]);
+        /** Capturing the monacoYamlHandlerRef so we can dispose it when unmounting this component */
+        monacoYamlHandlerRef.current = monacoYamlHandler;
+      }
+    },
+  });
 
   const handleEditorDidMount: EditorDidMount = useCallback((editor) => {
     editorRef.current = editor;
@@ -81,6 +79,16 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
     ];
   }, []);
 
+  useEffect(() => {
+    /**
+     * This useEffect acts as an unmount hook for the CodeEditor component
+     * It disposes the monacoYamlHandlerRef.current when the component is unmounted
+     */
+    return () => {
+      monacoYamlHandlerRef.current?.dispose();
+    };
+  }, []);
+
   return (
     <CodeEditor
       className="source-code-editor"
@@ -97,6 +105,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
       onCodeChange={props.onCodeChange}
       customControls={customControls}
       language={Language.yaml}
+      editorProps={editorProps.current!}
       options={options.current!}
       onEditorDidMount={handleEditorDidMount}
     />
