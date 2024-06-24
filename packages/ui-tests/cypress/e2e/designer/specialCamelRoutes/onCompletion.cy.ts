@@ -15,7 +15,7 @@ describe('Test for onCompletion configuration container', () => {
     cy.interactWithConfigInputObject('onCompleteOnly');
     cy.interactWithConfigInputObject('onFailureOnly');
 
-    cy.get('#processor-advanced-expandable-section-toggle').click();
+    cy.contains('button', 'Processor advanced properties').click();
     cy.selectInTypeaheadField('mode', 'BeforeConsumer');
     cy.interactWithConfigInputObject('parallelProcessing');
     cy.interactWithConfigInputObject('useOriginalMessage');
