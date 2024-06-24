@@ -216,6 +216,34 @@ describe('CanvasForm', () => {
     expect(camelRouteVisualEntity.route.description).toBeUndefined();
   });
 
+  it("should serialize empty strings(with space characters) `' '` as `undefined`", async () => {
+    const flowId = camelRouteVisualEntity.id;
+    const dispatchSpy = jest.fn();
+    const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
+    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    selectedNode = nodes[nodes.length - 1];
+
+    render(
+      <EntitiesProvider>
+        <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
+          <CanvasForm selectedNode={selectedNode} />
+        </VisibleFlowsContext.Provider>
+      </EntitiesProvider>,
+    );
+
+    const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
+    act(() => {
+      fireEvent.change(idField, { target: { value: ' ' } });
+    });
+
+    const closeSideBarButton = screen.getByTestId('close-side-bar');
+    act(() => {
+      fireEvent.click(closeSideBarButton);
+    });
+
+    expect(camelRouteVisualEntity.route.description).toBeUndefined();
+  });
+
   it('should allow consumers to update the Camel Route ID', async () => {
     const flowId = camelRouteVisualEntity.id;
     const newName = 'MyNewId';
