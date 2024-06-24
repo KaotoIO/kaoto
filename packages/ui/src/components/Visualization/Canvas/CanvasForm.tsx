@@ -55,7 +55,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       }
 
       let updatedValue = value;
-      if (value === '') {
+      if (typeof value === 'string' && value.trim() === '') {
         updatedValue = undefined;
       }
 
