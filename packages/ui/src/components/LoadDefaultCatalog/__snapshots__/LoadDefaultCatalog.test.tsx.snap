@@ -1,0 +1,287 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadDefaultCatalog should render correctly 1`] = `
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div
+      id="simple-zustand-devtools-Schemas Store"
+    />
+    <div>
+      <div
+        class="pf-v5-l-bullseye"
+      >
+        <div
+          class="pf-v5-c-empty-state pf-m-lg"
+          data-testid="load-default-catalog"
+        >
+          <div
+            class="pf-v5-c-empty-state__content"
+          >
+            <div
+              class="pf-v5-c-empty-state__header"
+            >
+              <div
+                class="pf-v5-c-empty-state__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v5-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  width="1em"
+                >
+                  <path
+                    d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                  />
+                </svg>
+              </div>
+              <div
+                class="pf-v5-c-empty-state__title"
+              >
+                <h4
+                  class="pf-v5-c-empty-state__title-text"
+                >
+                  The Catalog couldn't be loaded
+                </h4>
+              </div>
+            </div>
+            <div
+              class="pf-v5-c-empty-state__body"
+            />
+            <div
+              class="pf-v5-c-empty-state__footer"
+            >
+              <div
+                class="pf-v5-c-empty-state__actions"
+              >
+                <button
+                  aria-disabled="false"
+                  class="pf-v5-c-button pf-m-primary"
+                  data-ouia-component-id="OUIA-Generated-Button-primary-1"
+                  data-ouia-component-type="PF5/Button"
+                  data-ouia-safe="true"
+                  type="button"
+                >
+                  Reload with default Catalog
+                </button>
+              </div>
+              <div
+                class="pf-v5-c-expandable-section"
+              >
+                <button
+                  aria-controls="expandable-section-content"
+                  class="pf-v5-c-expandable-section__toggle"
+                  id="expandable-section-toggle"
+                  type="button"
+                >
+                  <span
+                    class="pf-v5-c-expandable-section__toggle-icon"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v5-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 256 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                      />
+                    </svg>
+                  </span>
+                  <span
+                    class="pf-v5-c-expandable-section__toggle-text"
+                  >
+                    Error details
+                  </span>
+                </button>
+                <div
+                  aria-labelledby="expandable-section-toggle"
+                  class="pf-v5-c-expandable-section__content"
+                  hidden=""
+                  id="expandable-section-content"
+                  role="region"
+                >
+                  <code>
+                    <pre>
+                      "Test error message"
+                    </pre>
+                  </code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-v5-l-bullseye"
+    >
+      <div
+        class="pf-v5-c-empty-state pf-m-lg"
+        data-testid="load-default-catalog"
+      >
+        <div
+          class="pf-v5-c-empty-state__content"
+        >
+          <div
+            class="pf-v5-c-empty-state__header"
+          >
+            <div
+              class="pf-v5-c-empty-state__icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="pf-v5-svg"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                viewBox="0 0 512 512"
+                width="1em"
+              >
+                <path
+                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                />
+              </svg>
+            </div>
+            <div
+              class="pf-v5-c-empty-state__title"
+            >
+              <h4
+                class="pf-v5-c-empty-state__title-text"
+              >
+                The Catalog couldn't be loaded
+              </h4>
+            </div>
+          </div>
+          <div
+            class="pf-v5-c-empty-state__body"
+          />
+          <div
+            class="pf-v5-c-empty-state__footer"
+          >
+            <div
+              class="pf-v5-c-empty-state__actions"
+            >
+              <button
+                aria-disabled="false"
+                class="pf-v5-c-button pf-m-primary"
+                data-ouia-component-id="OUIA-Generated-Button-primary-1"
+                data-ouia-component-type="PF5/Button"
+                data-ouia-safe="true"
+                type="button"
+              >
+                Reload with default Catalog
+              </button>
+            </div>
+            <div
+              class="pf-v5-c-expandable-section"
+            >
+              <button
+                aria-controls="expandable-section-content"
+                class="pf-v5-c-expandable-section__toggle"
+                id="expandable-section-toggle"
+                type="button"
+              >
+                <span
+                  class="pf-v5-c-expandable-section__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v5-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+                <span
+                  class="pf-v5-c-expandable-section__toggle-text"
+                >
+                  Error details
+                </span>
+              </button>
+              <div
+                aria-labelledby="expandable-section-toggle"
+                class="pf-v5-c-expandable-section__content"
+                hidden=""
+                id="expandable-section-content"
+                role="region"
+              >
+                <code>
+                  <pre>
+                    "Test error message"
+                  </pre>
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;

@@ -33,6 +33,10 @@ export const router = createHashRouter([
         path: Links.PipeErrorHandler,
         lazy: async () => import('./pages/PipeErrorHandler'),
       },
+      {
+        path: Links.Settings,
+        lazy: async () => import('./pages/Settings'),
+      },
     ],
   },
 ]);

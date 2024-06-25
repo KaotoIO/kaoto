@@ -3,7 +3,7 @@ import { KaotoSchemaDefinition } from '../models';
 
 export class CatalogSchemaLoader {
   /** The `.` is required to support relative routes in GitHub pages */
-  static readonly DEFAULT_CATALOG_PATH = './camel-catalog';
+  static readonly DEFAULT_CATALOG_PATH = './camel-catalog/index.json';
   static readonly VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
 
   static async fetchFile<T>(file: string): Promise<{ body: T; uri: string }> {

@@ -4,4 +4,5 @@ export const enum LocalStorageKeys {
   CanvasLayout = 'canvasLayout',
   NavigationExpanded = 'navigationExpanded',
   SelectedCatalog = 'selectedCatalog',
+  Settings = 'settings',
 }

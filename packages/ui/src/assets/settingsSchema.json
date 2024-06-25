@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "description": "JSON Schema for Kaoto configuration",
+  "properties": {
+    "catalogUrl": {
+      "title": "Camel Catalog URL",
+      "description": "URL that points to the `index.json` file from the Kaoto Camel Catalog. Leave it empty to use the embedded catalog.",
+      "default": "<empty string>",
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

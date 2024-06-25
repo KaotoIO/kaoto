@@ -13,9 +13,11 @@ import { SourceCodeProvider } from '../providers/source-code.provider';
 import { KaotoBridge } from './KaotoBridge';
 import { KaotoEditor } from './KaotoEditor';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { CatalogSchemaLoader } from '../utils';
 
 export class KaotoEditorApp implements Editor {
   private readonly editorRef: RefObject<EditorApi>;
+  private readonly catalogUrl: string;
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
@@ -25,6 +27,7 @@ export class KaotoEditorApp implements Editor {
     private readonly initArgs: EditorInitArgs,
   ) {
     this.editorRef = createRef<EditorApi>();
+    this.catalogUrl = `${this.initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_PATH.replace('.', '')}`;
   }
 
   async getElementPosition() {
@@ -90,7 +93,7 @@ export class KaotoEditorApp implements Editor {
             onStateControlCommandUpdate={(command) =>
               this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command)
             }
-            catalogUrl={`${this.initArgs.resourcesPathPrefix}/camel-catalog`}
+            catalogUrl={this.catalogUrl}
           >
             <KaotoEditor />
           </KaotoBridge>
