@@ -35,6 +35,7 @@ export interface ICanvasContext {
   setNodeReference: (path: string, ref: MutableRefObject<NodeReference>) => void;
   getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
+  clearNodeReferencesForPath: (path: string) => void;
   clearNodeReferencesForDocument: (documentType: DocumentType, documentId: string) => void;
   getAllNodePaths: () => string[];
   setDefaultHandler: (handler: DnDHandler | undefined) => void;
@@ -46,8 +47,8 @@ export const CanvasContext = createContext<ICanvasContext | undefined>(undefined
 
 export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const { mappingTree, refreshMappingTree } = useDataMapper();
-  const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>(undefined);
-  const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>(undefined);
+  const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>();
+  const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>();
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -109,6 +110,15 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     setNodeReferenceMap(new Map(nodeReferenceMap));
   }, [nodeReferenceMap]);
 
+  const clearNodeReferencesForPath = useCallback(
+    (path: string) => {
+      Array.from(nodeReferenceMap.keys())
+        .filter((key) => key.startsWith(path))
+        .forEach((key) => nodeReferenceMap.delete(key));
+    },
+    [nodeReferenceMap],
+  );
+
   const clearNodeReferencesForDocument = useCallback(
     (documentType: DocumentType, documentId: string) => {
       const pathPrefix = NodePath.fromDocument(documentType, documentId).toString();
@@ -143,6 +153,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
       setNodeReference,
       getNodeReference,
       reloadNodeReferences,
+      clearNodeReferencesForPath,
       clearNodeReferencesForDocument,
       getAllNodePaths,
       setDefaultHandler: handleSetDefaultHandler,
@@ -153,6 +164,7 @@ export const CanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
     setNodeReference,
     getNodeReference,
     reloadNodeReferences,
+    clearNodeReferencesForPath,
     clearNodeReferencesForDocument,
     getAllNodePaths,
     handleSetDefaultHandler,

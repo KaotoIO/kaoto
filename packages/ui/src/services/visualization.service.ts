@@ -11,6 +11,7 @@ import {
 } from '../models/visualization';
 import {
   ChooseItem,
+  ConditionItem,
   ExpressionItem,
   FieldItem,
   ForEachItem,
@@ -196,7 +197,11 @@ export class VisualizationService {
   }
 
   static deleteMappingItem(nodeData: TargetNodeData) {
-    if ('mapping' in nodeData && nodeData.mapping) MappingService.deleteMappingItem(nodeData.mapping);
+    if ('mapping' in nodeData && nodeData.mapping) {
+      if (nodeData.mapping instanceof ConditionItem) {
+      }
+      MappingService.deleteMappingItem(nodeData.mapping);
+    }
   }
 
   static applyIf(nodeData: TargetNodeData) {
