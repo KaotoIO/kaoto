@@ -24,6 +24,7 @@ import { ExpressionModalLauncher } from './ExpressionModalLauncher';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
 import { ExpressionService } from './expression.service';
+import { getSerializedModel } from '../../../utils';
 
 export type NestFieldProps = HTMLFieldProps<object, HTMLDivElement, { helperText?: string; itemProps?: object }>;
 
@@ -64,7 +65,7 @@ export const ExpressionAwareNestField = connectField(
       (languageName: string, model: any) => {
         const language = ExpressionService.getDefinitionFromModelName(languageCatalogMap, languageName);
         setPreparedLanguage(language);
-        setPreparedModel(model);
+        setPreparedModel(getSerializedModel(model));
       },
       [languageCatalogMap],
     );

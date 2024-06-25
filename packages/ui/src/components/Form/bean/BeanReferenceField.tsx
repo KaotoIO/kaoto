@@ -18,6 +18,7 @@ import { wrapField } from '@kaoto-next/uniforms-patternfly';
 import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { NewBeanModal } from './NewBeanModal';
 import { BeansEntityHandler } from '../../../models/visualization/metadata/beans-entity-handler';
+import { getSerializedModel } from '../../../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type BeanReferenceFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -109,7 +110,6 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
       // eslint-disable-next-line no-console
-
       if (value) {
         if (value === createNewWithNameValue) {
           setIsNewBeanModalOpen(true);
@@ -218,7 +218,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
 
   const handleCreateBean = useCallback(
     (model: BeanFactory) => {
-      beansHandler.addNewBean(model);
+      beansHandler.addNewBean(getSerializedModel(model as unknown as Record<string, unknown>));
 
       const beanRef = beansHandler.getReferenceFromName(model.name);
       onSelect(undefined, beanRef);
