@@ -4,6 +4,7 @@ import { HTMLFieldProps, connectField } from 'uniforms';
 import { ICamelLanguageDefinition } from '../../../models';
 import { ExpressionModalLauncher } from './ExpressionModalLauncher';
 import { ExpressionService } from './expression.service';
+import { getSerializedModel } from '../../../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExpressionFieldProps = HTMLFieldProps<any, HTMLDivElement>;
@@ -32,7 +33,7 @@ const ExpressionFieldComponent = (props: ExpressionFieldProps) => {
     (languageName: string, model: Record<string, unknown>) => {
       const language = ExpressionService.getDefinitionFromModelName(languageCatalogMap, languageName);
       setPreparedLanguage(language);
-      setPreparedModel(model);
+      setPreparedModel(getSerializedModel(model));
     },
     [languageCatalogMap],
   );

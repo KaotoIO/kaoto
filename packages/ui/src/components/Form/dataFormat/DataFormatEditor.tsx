@@ -12,6 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
+import { getSerializedModel } from '../../../utils';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
@@ -69,7 +70,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
         dataFormatCatalogMap,
         model,
         selectedDataFormatOption ? selectedDataFormatOption!.name : '',
-        newDataFormatModel,
+        getSerializedModel(newDataFormatModel),
       );
       props.selectedNode.data?.vizNode?.updateModel(model);
       entitiesContext?.updateSourceCodeFromEntities();

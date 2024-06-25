@@ -5,6 +5,7 @@ import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { ExpressionService } from '..//expression/expression.service';
 import { ExpressionModalLauncher } from '../expression/ExpressionModalLauncher';
+import { getSerializedModel } from '../../../utils';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
@@ -42,7 +43,7 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
     (selectedLanguage: string, newExpressionModel: Record<string, unknown>) => {
       const language = ExpressionService.getDefinitionFromModelName(languageCatalogMap, selectedLanguage);
       setPreparedLanguage(language);
-      setPreparedModel(newExpressionModel);
+      setPreparedModel(getSerializedModel(newExpressionModel));
     },
     [languageCatalogMap],
   );

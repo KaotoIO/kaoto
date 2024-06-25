@@ -12,6 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
+import { getSerializedModel } from '../../../utils';
 
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
@@ -69,7 +70,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
         loadBalancerCatalogMap,
         model,
         selectedLoadBalancerOption ? selectedLoadBalancerOption!.name : '',
-        newLoadBalancerModel,
+        getSerializedModel(newLoadBalancerModel),
       );
       props.selectedNode.data?.vizNode?.updateModel(model);
       entitiesContext?.updateSourceCodeFromEntities();
