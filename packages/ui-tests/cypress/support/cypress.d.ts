@@ -53,7 +53,9 @@ declare global {
       checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
-      interactWithExpressinInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
+      interactWithExpressionInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
+      addExpressionResultType(value: string): Chainable<JQuery<Element>>;
+      checkExpressionResultType(value: string): Chainable<JQuery<Element>>;
       interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithDataformatInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;

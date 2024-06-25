@@ -172,6 +172,7 @@ export const TypeaheadField = connectField((props: TypeaheadProps) => {
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
           id="create-typeahead-select-input"
+          data-testid="create-typeahead-select-input"
           autoComplete="off"
           innerRef={textInputRef}
           placeholder="Select an option"
