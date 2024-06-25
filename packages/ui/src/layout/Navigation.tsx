@@ -79,4 +79,5 @@ const navElements: NavElements = [
   { title: 'Metadata', to: Links.Metadata },
   { title: 'Pipe ErrorHandler', to: Links.PipeErrorHandler },
   { title: 'Catalog', to: Links.Catalog },
+  { title: 'Settings', to: Links.Settings },
 ];

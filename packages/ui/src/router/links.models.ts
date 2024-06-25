@@ -6,6 +6,7 @@ export const enum Links {
   Metadata = '/metadata',
   PipeErrorHandler = '/pipe-error-handler',
   Catalog = '/catalog',
+  Settings = '/settings',
 }
 
 export const enum ExternalLinks {

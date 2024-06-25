@@ -1,8 +1,9 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { Text, TextVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useMemo, useState } from 'react';
+import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
-import { LocalStorageKeys } from '../models';
+import { LoadingStatus, LocalStorageKeys } from '../models';
 import { isDefined } from '../utils';
 
 export interface IRuntimeContext {
@@ -18,7 +19,8 @@ export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefin
  * Loader for the available Catalog library.
  */
 export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
+  const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
   let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
 
@@ -29,51 +31,65 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   }
 
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
+  const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
 
   useEffect(() => {
-    fetch(`${props.catalogUrl}/index.json`)
-      .then((response) => response.json())
+    fetch(props.catalogUrl)
+      .then((response) => {
+        setLoadingStatus(LoadingStatus.Loading);
+        return response.json();
+      })
       .then((catalogLibrary: CatalogLibrary) => {
-        setCatalogLibrary(catalogLibrary);
-
-        const isCatalogFound =
-          isDefined(selectedCatalog) && catalogLibrary.definitions.some((c) => c.name === selectedCatalog?.name);
-
-        if (!isCatalogFound) {
-          setSelectedCatalog(catalogLibrary.definitions[0]);
+        let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
+        if (isDefined(selectedCatalog)) {
+          catalogLibraryEntry = catalogLibrary.definitions.find((c) => c.name === selectedCatalog.name);
         }
+        if (!isDefined(catalogLibraryEntry)) {
+          catalogLibraryEntry = catalogLibrary.definitions[0];
+        }
+
+        setCatalogLibrary(catalogLibrary);
+        setSelectedCatalog(catalogLibraryEntry);
       })
       .then(() => {
-        setIsLoading(false);
+        setLoadingStatus(LoadingStatus.Loaded);
       })
       .catch((error) => {
-        /** TODO: Provide a friendly error message */
-        console.error(error);
+        setErrorMessage(error.message);
+        setLoadingStatus(LoadingStatus.Error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({
-      basePath: props.catalogUrl,
+      basePath,
       catalogLibrary,
       selectedCatalog,
       setSelectedCatalog,
     }),
-    [catalogLibrary, props.catalogUrl, selectedCatalog],
+    [basePath, catalogLibrary, selectedCatalog],
   );
 
   return (
     <RuntimeContext.Provider value={runtimeContext}>
-      {isLoading ? (
+      {loadingStatus === LoadingStatus.Loading && (
         <Loading>
           <Text data-testid="loading-library" component={TextVariants.h3}>
             Loading Library...
           </Text>
         </Loading>
-      ) : (
-        props.children
       )}
+
+      {loadingStatus === LoadingStatus.Error && (
+        <LoadDefaultCatalog errorMessage={errorMessage}>
+          Some catalog library files might not be available.
+          <br />
+          Please try to reload the page or load the default Catalog.
+        </LoadDefaultCatalog>
+      )}
+
+      {loadingStatus === LoadingStatus.Loaded && props.children}
     </RuntimeContext.Provider>
   );
 };

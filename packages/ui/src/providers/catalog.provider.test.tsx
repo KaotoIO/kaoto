@@ -6,6 +6,7 @@ import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
 import { getFirstCatalogMap } from '../stubs/test-load-catalog';
+import { ReloadContext } from './reload.context';
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
@@ -66,16 +67,18 @@ describe('CatalogLoaderProvider', () => {
     expect(screen.getByTestId('loading-catalogs')).toBeInTheDocument();
   });
 
-  it('should stay in loading mode when there is an error', async () => {
+  it('should stay in Error mode when there is an error', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
+        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+          <Provider>
+            <CatalogLoaderProvider>
+              <span data-testid="catalogs-loaded">Loaded</span>
+            </CatalogLoaderProvider>
+          </Provider>
+        </ReloadContext.Provider>,
       );
     });
 
@@ -83,7 +86,7 @@ describe('CatalogLoaderProvider', () => {
       fetchReject();
     });
 
-    expect(screen.getByTestId('loading-catalogs')).toBeInTheDocument();
+    expect(screen.getByText(/Some catalog files might not be available./)).toBeInTheDocument();
   });
 
   it('should fetch the index.json catalog file', async () => {

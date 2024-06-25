@@ -1,8 +1,9 @@
 import { Text, TextVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
+import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, CatalogKind, ComponentsCatalog } from '../models';
+import { CamelCatalogIndex, CatalogKind, ComponentsCatalog, LoadingStatus } from '../models';
 import { CamelCatalogService } from '../models/visualization/flows';
 import { CatalogSchemaLoader } from '../utils';
 
@@ -12,7 +13,8 @@ export const CatalogContext = createContext<typeof CamelCatalogService>(CamelCat
  * Loader for the components catalog.
  */
 export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
+  const [errorMessage, setErrorMessage] = useState('');
   const runtimeContext = useRuntimeContext();
   const { basePath, selectedCatalog } = runtimeContext;
   const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
@@ -22,7 +24,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
     const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(indexFile);
     fetch(indexFile)
       .then((response) => {
-        setIsLoading(true);
+        setLoadingStatus(LoadingStatus.Loading);
         return response;
       })
       .then((response) => response.json())
@@ -96,26 +98,34 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
       })
       .then(() => {
-        setIsLoading(false);
+        setLoadingStatus(LoadingStatus.Loaded);
       })
       .catch((error) => {
-        /** TODO: Provide a friendly error message */
-        console.error(error);
+        setErrorMessage(error.message);
+        setLoadingStatus(LoadingStatus.Error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCatalogIndexFile]);
 
   return (
     <CatalogContext.Provider value={CamelCatalogService}>
-      {isLoading ? (
+      {loadingStatus === LoadingStatus.Loading && (
         <Loading>
           <Text data-testid="loading-catalogs" component={TextVariants.h3}>
             Loading Catalogs...
           </Text>
         </Loading>
-      ) : (
-        props.children
       )}
+
+      {loadingStatus === LoadingStatus.Error && (
+        <LoadDefaultCatalog errorMessage={errorMessage}>
+          Some catalog files might not be available.
+          <br />
+          Please try to reload the page or load the default Catalog.
+        </LoadDefaultCatalog>
+      )}
+
+      {loadingStatus === LoadingStatus.Loaded && props.children}
     </CatalogContext.Provider>
   );
 };

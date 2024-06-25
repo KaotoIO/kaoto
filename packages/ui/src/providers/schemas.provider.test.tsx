@@ -3,6 +3,7 @@ import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
+import { ReloadContext } from './reload.context';
 import { SchemasLoaderProvider } from './schemas.provider';
 
 describe('SchemasLoaderProvider', () => {
@@ -56,16 +57,18 @@ describe('SchemasLoaderProvider', () => {
     expect(screen.getByTestId('loading-schemas')).toBeInTheDocument();
   });
 
-  it('should stay in loading mode when there is an error', async () => {
+  it('should stay in Error mode when there is an error', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <Provider>
-          <SchemasLoaderProvider>
-            <span data-testid="schemas-loaded">Loaded</span>
-          </SchemasLoaderProvider>
-        </Provider>,
+        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+          <Provider>
+            <SchemasLoaderProvider>
+              <span data-testid="schemas-loaded">Loaded</span>
+            </SchemasLoaderProvider>
+          </Provider>
+        </ReloadContext.Provider>,
       );
     });
 
@@ -73,7 +76,7 @@ describe('SchemasLoaderProvider', () => {
       fetchReject();
     });
 
-    expect(screen.getByTestId('loading-schemas')).toBeInTheDocument();
+    expect(screen.getByText(/Some schema files might not be available./)).toBeInTheDocument();
   });
 
   it('should fetch the index.json catalog file', async () => {
