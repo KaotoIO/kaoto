@@ -10,11 +10,10 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openStepConfigurationTab('setHeader');
     cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
-    cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
-    cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
-    cy.interactWithExpressinInputObject('resultType', 'java.lang.String');
+    cy.interactWithExpressionInputObject('expression', `{{}{{}header.baz}}`);
+    cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
+    cy.addExpressionResultType('java.lang.String');
     cy.confirmExpressionModal();
-
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
     cy.checkCodeSpanLine('expression: "{{header.baz}}"', 1);
@@ -31,7 +30,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openExpressionModalBtn();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
-    cy.interactWithConfigInputObject('resultType', 'java.lang.String');
+    cy.addExpressionResultType('java.lang.String');
     cy.interactWithConfigInputObject('trim');
     cy.confirmExpressionModal();
 
@@ -44,7 +43,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openExpressionModalBtn();
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
-    cy.interactWithConfigInputObject('resultType', 'java.lang.String');
+    cy.addExpressionResultType('java.lang.String');
     cy.interactWithConfigInputObject('trim');
     cy.confirmExpressionModal();
 
@@ -53,7 +52,7 @@ describe('Tests for sidebar expression configuration', () => {
     // Check the configured fields didn't disappear from the first node
     cy.openExpressionModalBtn();
     cy.checkConfigCheckboxObject('trim', true);
-    cy.checkConfigInputObject('resultType', 'java.lang.String');
+    cy.checkExpressionResultType('java.lang.String');
     cy.checkConfigInputObject('expression', '.id');
     cy.cancelExpressionModal();
 
@@ -61,7 +60,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openStepConfigurationTab('setHeader', 0);
     cy.openExpressionModalBtn();
     cy.checkConfigCheckboxObject('trim', true);
-    cy.checkConfigInputObject('resultType', 'java.lang.String');
+    cy.addExpressionResultType('java.lang.String');
     cy.checkConfigInputObject('expression', '.name');
     cy.cancelExpressionModal();
 
@@ -79,7 +78,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openStepConfigurationTab('setHeader');
     cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
-    cy.interactWithExpressinInputObject('expression', `{{}{{}header.baz}}`);
+    cy.interactWithExpressionInputObject('expression', `{{}{{}header.baz}}`);
     cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
       cy.get('textarea[name="expression"]').should('have.value', '{{header.baz}}');
     });
@@ -103,9 +102,9 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openStepConfigurationTab('setBody');
     cy.openExpressionModalBtn();
     cy.selectExpression('Simple');
-    cy.interactWithExpressinInputObject('expression', `{{}{{}body.baz}}`);
-    cy.interactWithExpressinInputObject('id', 'simpleExpressionId');
-    cy.interactWithExpressinInputObject('resultType', 'java.lang.String');
+    cy.interactWithExpressionInputObject('expression', `{{}{{}body.baz}}`);
+    cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
+    cy.addExpressionResultType('java.lang.String');
     cy.confirmExpressionModal();
 
     // CHECK they are reflected in the code editor

@@ -1,6 +1,21 @@
-Cypress.Commands.add('interactWithExpressinInputObject', (inputName: string, value?: string) => {
+Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string) => {
   cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
     cy.interactWithConfigInputObject(inputName, value);
+  });
+});
+
+Cypress.Commands.add('addExpressionResultType', (value: string) => {
+  cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
+    cy.get('[data-fieldname="resultType"]').within(() => {
+      cy.get(`input.pf-v5-c-text-input-group__text-input`).clear();
+      cy.get(`input.pf-v5-c-text-input-group__text-input`).type(value).type('{enter}');
+    });
+  });
+});
+
+Cypress.Commands.add('checkExpressionResultType', (value: string) => {
+  cy.get('[data-fieldname="resultType"]').within(() => {
+    cy.get(`input.pf-v5-c-text-input-group__text-input`).should('have.value', value);
   });
 });
 
@@ -42,6 +57,7 @@ Cypress.Commands.add('openExpressionModal', (expression: string) => {
 
 Cypress.Commands.add('selectExpression', (expression: string) => {
   cy.get('div[data-ouia-component-id="ExpressionModal"] button.pf-v5-c-menu-toggle__button')
+    .eq(0)
     .should('be.visible')
     .click();
   const regex = new RegExp(`^${expression}$`);
