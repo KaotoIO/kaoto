@@ -120,3 +120,9 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
       cy.get('input[label="Value"]').type(value);
     });
 });
+
+Cypress.Commands.add('filterFields', (filter: string) => {
+  cy.get('[data-testid="filter-fields"]').within(() => {
+    cy.get('input.pf-v5-c-text-input-group__text-input').type(filter);
+  });
+});

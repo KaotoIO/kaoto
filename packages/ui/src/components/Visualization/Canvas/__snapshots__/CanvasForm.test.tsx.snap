@@ -17,6 +17,7 @@ exports[`CanvasForm should render 1`] = `
       >
         <div
           class="pf-v5-c-text-input-group filter-fields"
+          data-testid="filter-fields"
         >
           <div
             class="pf-v5-c-text-input-group__main pf-m-icon"
@@ -505,6 +506,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
       >
         <div
           class="pf-v5-c-text-input-group filter-fields"
+          data-testid="filter-fields"
         >
           <div
             class="pf-v5-c-text-input-group__main pf-m-icon"
@@ -703,6 +705,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
       >
         <div
           class="pf-v5-c-text-input-group filter-fields"
+          data-testid="filter-fields"
         >
           <div
             class="pf-v5-c-text-input-group__main pf-m-icon"
