@@ -94,6 +94,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
           <SearchInput
             className="filter-fields"
             placeholder="Find properties by name"
+            data-testid="filter-fields"
             value={filteredFieldText}
             onChange={onFilterChange}
             onClear={onFilterChange}
