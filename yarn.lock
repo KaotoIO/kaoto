@@ -1687,6 +1687,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dagrejs/dagre@npm:1.1.2":
+  version: 1.1.2
+  resolution: "@dagrejs/dagre@npm:1.1.2"
+  dependencies:
+    "@dagrejs/graphlib": 2.2.2
+  checksum: 70d0d746be64efe7f09d18c123f0a9a83339e46b3817d56effd76530795b78838ea5ed862a92897c90643403c9181723a79768bb8b8f3e0f65139393e95027cf
+  languageName: node
+  linkType: hard
+
+"@dagrejs/graphlib@npm:2.2.2":
+  version: 2.2.2
+  resolution: "@dagrejs/graphlib@npm:2.2.2"
+  checksum: ceb833f350a9b984dc8557bd9f4a4304e3fe7a9293295313e63f8b94a2808c8dac51cfd6bd3a17c26260507440d0c6025bfa7eb24eb8ce7eda211119929f5216
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.3":
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
@@ -2617,7 +2633,7 @@ __metadata:
     "@patternfly/react-core": 5.3.3
     "@patternfly/react-icons": 5.3.2
     "@patternfly/react-table": 5.3.3
-    "@patternfly/react-topology": 5.3.0
+    "@patternfly/react-topology": 5.4.0-prerelease.10
     "@testing-library/dom": ^10.0.0
     "@testing-library/jest-dom": ^6.0.0
     "@testing-library/react": ^16.0.0
@@ -3473,19 +3489,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-topology@npm:5.3.0":
-  version: 5.3.0
-  resolution: "@patternfly/react-topology@npm:5.3.0"
+"@patternfly/react-topology@npm:5.4.0-prerelease.10":
+  version: 5.4.0-prerelease.10
+  resolution: "@patternfly/react-topology@npm:5.4.0-prerelease.10"
   dependencies:
+    "@dagrejs/dagre": 1.1.2
     "@patternfly/react-core": ^5.1.1
     "@patternfly/react-icons": ^5.1.1
     "@patternfly/react-styles": ^5.1.1
     "@types/d3": ^7.4.0
     "@types/d3-force": ^1.2.1
-    "@types/dagre": 0.7.42
     "@types/react-measure": ^2.0.6
     d3: ^7.8.0
-    dagre: 0.8.2
     mobx: ^6.9.0
     mobx-react: ^7.6.0
     point-in-svg-path: ^1.0.1
@@ -3496,7 +3511,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: f0d4f0a3bcb371a94e7ca20e996119cfd448791baa974e8d3c246f0484be062ccaec215ce71ef3a7917faf1b30cffda7785ebb81d97ca8ea7ee9b12d79bf0b73
+  checksum: 3ae348a86593ef5aeddac9cf1339f103b023c05a5ef1e9112b7a459e5b59d75dfc8047b9f0e4c91af4e34abd4fded8d093e92cf98088b78508963ea68986493d
   languageName: node
   linkType: hard
 
@@ -5600,13 +5615,6 @@ __metadata:
     "@types/d3-transition": "*"
     "@types/d3-zoom": "*"
   checksum: 12234aa093c8661546168becdd8956e892b276f525d96f65a7b32fed886fc6a569fe5a1171bff26fef2a5663960635f460c9504a6f2d242ba281a2b6c8c6465c
-  languageName: node
-  linkType: hard
-
-"@types/dagre@npm:0.7.42":
-  version: 0.7.42
-  resolution: "@types/dagre@npm:0.7.42"
-  checksum: c63a0e9155df7d00b4e3bd5a781a69a958cf7281d2fec90cbea0e553841cd41bef3b35c749b1b481811ac7d81d25eb8a8366ea17ac647a907828e399ccdce82d
   languageName: node
   linkType: hard
 
@@ -8723,16 +8731,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dagre@npm:0.8.2":
-  version: 0.8.2
-  resolution: "dagre@npm:0.8.2"
-  dependencies:
-    graphlib: ^2.1.5
-    lodash: ^4.17.4
-  checksum: 5a0446354610d423152badf34d0870a23382a8d224e158522840513dc095bf60fbc45132f9093a5bb348597be9967a46a21f3729af1a6d8d4d98d73ed8825fa4
-  languageName: node
-  linkType: hard
-
 "dargs@npm:^8.0.0":
   version: 8.1.0
   resolution: "dargs@npm:8.1.0"
@@ -11193,15 +11191,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphlib@npm:^2.1.5":
-  version: 2.1.8
-  resolution: "graphlib@npm:2.1.8"
-  dependencies:
-    lodash: ^4.17.15
-  checksum: 1e0db4dea1c8187d59103d5582ecf32008845ebe2103959a51d22cb6dae495e81fb9263e22c922bca3aaecb56064a45cd53424e15a4626cfb5a0c52d0aff61a8
-  languageName: node
-  linkType: hard
-
 "graphql@npm:^16.8.1":
   version: 16.8.2
   resolution: "graphql@npm:16.8.2"
@@ -13406,7 +13395,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.0.0, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:~4.17.15":
+"lodash@npm:^4.0.0, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.21, lodash@npm:~4.17.15":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
