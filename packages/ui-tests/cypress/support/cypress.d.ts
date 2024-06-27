@@ -11,6 +11,7 @@ declare global {
     interface Chainable {
       // default
       openHomePage(): Chainable<JQuery<Element>>;
+      waitSchemasLoading(): Chainable<JQuery<Element>>;
       openTopbarKebabMenu(): Chainable<JQuery<Element>>;
       openAboutModal(): Chainable<JQuery<Element>>;
       closeAboutModal(): Chainable<JQuery<Element>>;
@@ -19,6 +20,7 @@ declare global {
       openSourceCode(): Chainable<JQuery<Element>>;
       openBeans(): Chainable<JQuery<Element>>;
       openMetadata(): Chainable<JQuery<Element>>;
+      openSettings(): Chainable<JQuery<Element>>;
       openPipeErrorHandler(): Chainable<JQuery<Element>>;
       openCatalog(): Chainable<JQuery<Element>>;
       addNewRoute(): Chainable<JQuery<Element>>;
@@ -46,6 +48,9 @@ declare global {
       checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
+      selectRuntimeVersion(type: string): Chainable<JQuery<Element>>;
+      hoverOnRuntime(type: string): Chainable<JQuery<Element>>;
+      checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
       interactWithExpressinInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;

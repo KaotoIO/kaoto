@@ -100,3 +100,29 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
   subType = subType ?? type;
   cy.get(`[data-testid="new-entity-${subType}"] button.pf-v5-c-menu__item`).click({ force: true });
 });
+
+Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
+  cy.hoverOnRuntime(type);
+  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v5-c-menu__item`).click({ force: true });
+  cy.waitSchemasLoading();
+
+  cy.get('[data-testid="visualization-empty-state"]').should('exist');
+  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
+});
+
+Cypress.Commands.add('hoverOnRuntime', (type: string) => {
+  cy.get('[data-testid="runtime-selector-list-dropdown"]').click({ force: true });
+  cy.get('ul.pf-v5-c-menu__list')
+    .should('exist')
+    .find(`[data-testid="runtime-selector-${type}"]`)
+    .should('exist')
+    .trigger('mouseover');
+});
+
+Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
+  cy.get('.pf-v5-c-card__title-text')
+    .eq(0)
+    .within(() => {
+      cy.get('.pf-v5-c-label__text').should('contain', version);
+    });
+});
