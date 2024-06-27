@@ -7,10 +7,10 @@ export type MappingParentType = MappingTree | MappingItem;
 
 export class MappingTree {
   constructor(documentType: DocumentType, documentId: string) {
-    this.path = NodePath.fromDocument(documentType, documentId);
+    this.nodePath = NodePath.fromDocument(documentType, documentId);
   }
   children: MappingItem[] = [];
-  path: NodePath;
+  nodePath: NodePath;
   contextPath?: Path;
 }
 
@@ -21,8 +21,8 @@ export abstract class MappingItem {
     public id: string,
   ) {}
   children: MappingItem[] = [];
-  get path(): NodePath {
-    return NodePath.childOf(this.parent.path, this.id);
+  get nodePath(): NodePath {
+    return NodePath.childOf(this.parent.nodePath, this.id);
   }
   get contextPath(): Path | undefined {
     return this.parent.contextPath;

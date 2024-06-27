@@ -181,6 +181,6 @@ export class MappingSerializerService {
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
     template.localName;
-    return { path: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID), children: [] };
+    return { nodePath: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID), children: [] };
   }
 }

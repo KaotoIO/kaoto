@@ -113,9 +113,8 @@ export class XPathService {
     return [pathExprNode];
   }
 
-  static addSource(expression: string, source: PrimitiveDocument | IField): string {
-    const sourceXPath = XPathService.toXPath(source);
-    return expression ? `${expression}, ${sourceXPath}` : sourceXPath;
+  static addSource(expression: string, source: string): string {
+    return expression ? `${expression}, ${source}` : source;
   }
 
   static toXPath(source: PrimitiveDocument | IField): string {

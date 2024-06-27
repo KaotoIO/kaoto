@@ -12,7 +12,6 @@ import {
 import { EllipsisVIcon } from '@patternfly/react-icons';
 import { ChooseItem } from '../../../models/mapping';
 import { MappingService } from '../../../services/mapping.service';
-import { useDataMapper } from '../../../hooks';
 
 type ConditionMenuProps = {
   nodeData: TargetNodeData;
@@ -22,7 +21,6 @@ type ConditionMenuProps = {
 export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
   const onToggleActionMenu = useCallback(() => setIsActionMenuOpen(!isActionMenuOpen), [isActionMenuOpen]);
-  const { mappingTree } = useDataMapper();
   const allowIfChoose = VisualizationService.allowIfChoose(nodeData);
   const allowForEach = VisualizationService.allowForEach(nodeData);
   const isChooseNode = nodeData instanceof MappingNodeData && nodeData.mapping instanceof ChooseItem;
@@ -44,7 +42,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           VisualizationService.applyChooseWhenOtherwise(nodeData);
           break;
         case 'foreach':
-          MappingService.wrapWithForEach(mappingTree, (nodeData as TargetFieldNodeData).field);
+          VisualizationService.applyForEach(nodeData as TargetFieldNodeData);
           break;
         case 'when':
           MappingService.addWhen(nodeData.mapping as ChooseItem);
@@ -56,7 +54,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
       onUpdate();
       setIsActionMenuOpen(false);
     },
-    [mappingTree, nodeData, onUpdate],
+    [nodeData, onUpdate],
   );
 
   return (

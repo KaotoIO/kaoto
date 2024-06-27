@@ -18,7 +18,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
 
   const onConfirmDelete = useCallback(() => {
     if (nodeData.mapping && nodeData.mapping instanceof ConditionItem) {
-      clearNodeReferencesForPath(nodeData.mapping.path.toString());
+      clearNodeReferencesForPath(nodeData.mapping.nodePath.toString());
       reloadNodeReferences();
     }
     VisualizationService.deleteMappingItem(nodeData);

@@ -27,17 +27,17 @@ export class MappingService {
       } else if (mapping instanceof ValueSelector) {
         return false;
       } else {
-        return MappingService.getConditionalFields(mapping as ConditionItem & MappingItem).includes(field);
+        return MappingService.getConditionalFields(mapping as ConditionItem).includes(field);
       }
     });
   }
 
-  private static getConditionalFields(mapping: ConditionItem & MappingItem): IField[] {
+  private static getConditionalFieldItems(mapping: ConditionItem): FieldItem[] {
     if (mapping instanceof ChooseItem) {
       return [...mapping.when, mapping.otherwise].reduce((acc, branch) => {
-        branch && acc.push(...MappingService.getConditionalFields(branch));
+        branch && acc.push(...MappingService.getConditionalFieldItems(branch));
         return acc;
-      }, [] as IField[]);
+      }, [] as FieldItem[]);
     } else if (
       mapping instanceof IfItem ||
       mapping instanceof WhenItem ||
@@ -45,12 +45,15 @@ export class MappingService {
       mapping instanceof ForEachItem
     ) {
       return mapping.children.reduce((acc, child) => {
-        child instanceof FieldItem && acc.push(child.field);
+        child instanceof FieldItem && acc.push(child);
         return acc;
-      }, [] as IField[]);
-    } else {
-      throw Error(`Unknown mapping item ${mapping.name}`);
+      }, [] as FieldItem[]);
     }
+    return [];
+  }
+
+  private static getConditionalFields(mapping: ConditionItem): IField[] {
+    return MappingService.getConditionalFieldItems(mapping).map((item) => item.field);
   }
 
   static removeAllMappingsForDocument(mappingTree: MappingTree, documentType: DocumentType, documentId: string) {
@@ -145,10 +148,8 @@ export class MappingService {
     wrapped.parent = wrapper;
   }
 
-  static wrapWithForEach(mappingTree: MappingTree, field: IField) {
-    const fieldItem = MappingService.getOrCreateFieldItem(mappingTree, field) as FieldItem;
-    const forEach = new ForEachItem(fieldItem.parent);
-    MappingService.wrapWithItem(fieldItem, forEach);
+  static wrapWithForEach(wrapped: MappingItem) {
+    MappingService.wrapWithItem(wrapped, new ForEachItem(wrapped.parent));
   }
 
   static wrapWithIf(wrapped: MappingItem) {
@@ -189,9 +190,20 @@ export class MappingService {
   }
 
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {
-    if ('expression' in condition) {
-      condition.expression = XPathService.addSource(condition.expression as string, source);
+    const absPath = XPathService.toXPath(source);
+    const relativePath = MappingService.getRelativePath(condition, absPath);
+    if (condition instanceof ForEachItem) {
+      condition.expression = relativePath;
+    } else if (condition instanceof ExpressionItem) {
+      condition.expression = XPathService.addSource(condition.expression as string, relativePath);
     }
+  }
+
+  private static getRelativePath(condition: MappingItem, absPath: string): string {
+    const parentPath = condition.parent.contextPath?.toAbsolutePathString();
+    if (!parentPath) return absPath;
+    const index = absPath.indexOf(parentPath);
+    return index == -1 ? absPath : absPath.substring(index + parentPath.length + 1);
   }
 
   static mapToDocument(mappingTree: MappingTree, source: PrimitiveDocument | IField) {
@@ -200,36 +212,19 @@ export class MappingService {
       valueSelector = new ValueSelector(mappingTree);
       mappingTree.children.push(valueSelector);
     }
-    valueSelector.expression = XPathService.addSource(valueSelector.expression, source);
+    const path = XPathService.toXPath(source);
+    valueSelector.expression = XPathService.addSource(valueSelector.expression, path);
   }
 
-  static mapToField(
-    targetField: IField,
-    mappingTree: MappingTree,
-    item: MappingItem | undefined,
-    source: PrimitiveDocument | IField,
-  ) {
-    const targetFieldItem = item ? item : MappingService.getOrCreateFieldItem(mappingTree, targetField);
+  static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
     let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
       valueSelector = new ValueSelector(targetFieldItem);
       targetFieldItem.children.push(valueSelector);
     }
-    valueSelector.expression = XPathService.addSource(valueSelector.expression, source);
-  }
-
-  static getOrCreateFieldItem(mappingTree: MappingTree, targetField: IField): FieldItem | MappingTree {
-    const fieldStack = DocumentService.getFieldStack(targetField, true);
-    return fieldStack.reduceRight((mapping: MappingTree | MappingItem, field) => {
-      const existing = mapping.children.find((c) => c instanceof FieldItem && c.field === field) as FieldItem;
-      if (existing) {
-        return existing;
-      } else {
-        const fieldItem = new FieldItem(mapping, field);
-        mapping.children.push(fieldItem);
-        return fieldItem;
-      }
-    }, mappingTree) as MappingTree | FieldItem;
+    const absPath = XPathService.toXPath(source);
+    const relativePath = MappingService.getRelativePath(valueSelector, absPath);
+    valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
   }
 
   static deleteMappingItem(item: MappingParentType) {
@@ -257,7 +252,7 @@ export class MappingService {
     sourceBody: IDocument,
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
-    const targetNodePath = item.path.toString();
+    const targetNodePath = item.nodePath.toString();
     if (item instanceof ExpressionItem) {
       answer.push(
         ...MappingService.doExtractMappingLinks(item.expression, targetNodePath, sourceParameterMap, sourceBody),

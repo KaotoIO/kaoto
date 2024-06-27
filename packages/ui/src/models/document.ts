@@ -64,7 +64,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
     this.path = NodePath.fromDocument(documentType, documentId);
   }
 
-  ownerDocument = this;
+  ownerDocument: IDocument = this;
   defaultValue: string | null = null;
   expression: string = '';
   isAttribute: boolean = false;
