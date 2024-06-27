@@ -4,7 +4,8 @@ import { FunctionComponent, PropsWithChildren, createContext, useEffect, useMemo
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { LoadingStatus, LocalStorageKeys } from '../models';
-import { isDefined } from '../utils';
+import { CatalogSchemaLoader, isDefined } from '../utils';
+import { LocalStorageSettingsAdapter } from '../models/settings/localstorage-settings-adapter';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -31,10 +32,18 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   }
 
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
-  const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
+  const settingsAdapter = new LocalStorageSettingsAdapter();
+  const settingsCatalogUrl = settingsAdapter.getSettings().catalogUrl;
+  let catalogUrl;
+  if (isDefined(settingsCatalogUrl) && settingsCatalogUrl !== '') {
+    catalogUrl = settingsCatalogUrl;
+  } else {
+    catalogUrl = `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}`;
+  }
+  const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
 
   useEffect(() => {
-    fetch(props.catalogUrl)
+    fetch(catalogUrl)
       .then((response) => {
         setLoadingStatus(LoadingStatus.Loading);
         return response.json();
