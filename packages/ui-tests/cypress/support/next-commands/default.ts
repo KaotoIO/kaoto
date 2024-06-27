@@ -1,16 +1,20 @@
 Cypress.Commands.add('openHomePage', () => {
   const url = Cypress.config().baseUrl;
   cy.visit(url!);
+  cy.waitSchemasLoading();
+
+  cy.get('[data-testid="visualization-empty-state"]').should('exist');
+  // Wait for the element to become visible
+  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
+});
+
+Cypress.Commands.add('waitSchemasLoading', () => {
   // Wait for the loading schemas to disappear
   cy.get('[data-testid="loading-schemas"]').should('be.visible');
   cy.get('[data-testid="loading-schemas"]').should('not.exist');
   // Wait for the loading connectors to disappear
   cy.get('[data-testid="loading-catalogs"]').should('be.visible');
   cy.get('[data-testid="loading-catalogs"]').should('not.exist');
-
-  cy.get('[data-testid="visualization-empty-state"]').should('exist');
-  // Wait for the element to become visible
-  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
 });
 
 Cypress.Commands.add('expandVisualization', () => {
@@ -52,6 +56,11 @@ Cypress.Commands.add('openTopbarKebabMenu', () => {
   cy.get('div.pf-v5-c-masthead__content').within(() => {
     cy.get('button.pf-v5-c-menu-toggle').click();
   });
+});
+
+Cypress.Commands.add('openSettings', () => {
+  cy.openTopbarKebabMenu();
+  cy.get('[data-testid="settings-link"]').click();
 });
 
 Cypress.Commands.add('openAboutModal', () => {
