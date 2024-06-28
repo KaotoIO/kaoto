@@ -59,7 +59,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
       // When no options are found after filtering, display 'No results found'
       if (!newSelectOptions.length) {
         newSelectOptions = [
-          { isDisabled: false, children: `No results found for "${filterValue}"`, value: 'no results' },
+          { isDisabled: true, children: `No results found for "${filterValue}"`, value: 'no results' },
         ];
       }
       // Open the menu when the input value changes and the new value is not empty
