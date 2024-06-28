@@ -2,15 +2,16 @@ import { ChannelType, EditorApi, StateControlCommand } from '@kie-tools-core/edi
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { PropsWithChildren, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef } from 'react';
+import { useReload } from '../hooks/reload.hook';
 import { CatalogModalProvider } from '../providers/catalog-modal.provider';
 import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
+import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
+import { RuntimeProvider } from '../providers/runtime.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
 import { SourceCodeApiContext } from '../providers/source-code.provider';
 import { VisibleFlowsProvider } from '../providers/visible-flows.provider';
-import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
 import { EventNotifier } from '../utils';
-import { RuntimeProvider } from '../providers/runtime.provider';
 
 interface KaotoBridgeProps {
   /**
@@ -52,6 +53,7 @@ interface KaotoBridgeProps {
 }
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>((props, forwardedRef) => {
+  const ReloadProvider = useReload();
   const eventNotifier = EventNotifier.getInstance();
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
   const sourceCodeRef = useRef<string>('');
@@ -142,18 +144,20 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
   }, [props]);
 
   return (
-    <RuntimeProvider catalogUrl={props.catalogUrl}>
-      <SchemasLoaderProvider>
-        <CatalogLoaderProvider>
-          <CatalogTilesProvider>
-            <VisibleFlowsProvider>
-              <CatalogModalProvider>
-                <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
-              </CatalogModalProvider>
-            </VisibleFlowsProvider>
-          </CatalogTilesProvider>
-        </CatalogLoaderProvider>
-      </SchemasLoaderProvider>
-    </RuntimeProvider>
+    <ReloadProvider>
+      <RuntimeProvider catalogUrl={props.catalogUrl}>
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <CatalogTilesProvider>
+              <VisibleFlowsProvider>
+                <CatalogModalProvider>
+                  <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
+                </CatalogModalProvider>
+              </VisibleFlowsProvider>
+            </CatalogTilesProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
+    </ReloadProvider>
   );
 });
