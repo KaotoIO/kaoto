@@ -109,4 +109,22 @@ describe('TypeaheadField', () => {
     expect(inputElement).toHaveValue('');
     expect(mockOnChange).toHaveBeenCalledWith(undefined, {});
   });
+
+  it('should be disabled when there are no matching elements', async () => {
+    render(
+      <TypeaheadEditor
+        selectOptions={initialDataFormatOptions}
+        title="Test"
+        selected={undefined}
+        selectedModel={undefined}
+        selectedSchema={undefined}
+        selectionOnChange={mockOnChange}
+      />,
+    );
+    const inputElement = screen.getByRole('combobox');
+    await act(async () => {
+      fireEvent.change(inputElement, { target: { value: 'no-matching-elements' } });
+    });
+    expect(screen.getByText('No results found for "no-matching-elements"').closest('button')).toBeDisabled();
+  });
 });
