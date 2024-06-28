@@ -1,8 +1,8 @@
 import { Icon, Tab, TabTitleIcon, TabTitleText, Tabs, TabsProps } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import { useContext, useState } from 'react';
-import camelIcon from '../assets/logo-kaoto.svg';
+import { useContext, useMemo, useRef, useState } from 'react';
 import bean from '../assets/eip/bean.png';
+import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { BeansPage } from '../pages/Beans/BeansPage';
 import { MetadataPage } from '../pages/Metadata/MetadataPage';
@@ -33,15 +33,30 @@ export const KaotoEditor = () => {
   };
   const entitiesContext = useContext(EntitiesContext);
   const resource = entitiesContext?.camelResource;
+  const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
 
-  if (!resource) {
-    return null;
-  }
+  const availableTabs = useMemo(() => {
+    if (!resource) {
+      return {
+        design: false,
+        beans: false,
+        metadata: false,
+        errorHandler: false,
+      };
+    }
+
+    return {
+      design: SCHEMA_TABS[resource.getType()].indexOf(TabList.Design) >= 0,
+      beans: SCHEMA_TABS[resource.getType()].indexOf(TabList.Beans) >= 0,
+      metadata: SCHEMA_TABS[resource.getType()].indexOf(TabList.Metadata) >= 0,
+      errorHandler: SCHEMA_TABS[resource.getType()].indexOf(TabList.ErrorHandler) >= 0,
+    };
+  }, [resource]);
 
   return (
     <div className="shell" data-envelope-context="vscode">
       <Tabs
-        inset={{ default: 'insetSm' }}
+        inset={inset.current}
         isBox
         unmountOnExit
         activeKey={activeTabKey}
@@ -49,74 +64,81 @@ export const KaotoEditor = () => {
         aria-label="Tabs in the Kaoto editor"
         role="region"
       >
-        <Tab
-          isHidden={SCHEMA_TABS[resource.getType()].indexOf(TabList.Design) === -1}
-          eventKey={TabList.Design}
-          className="shell__tab-content_design-canvas"
-          title={
-            <>
-              <TabTitleIcon>
-                <Icon>
-                  <img src={camelIcon} alt="Camel icon" />
-                </Icon>
-              </TabTitleIcon>
-              <TabTitleText>Design</TabTitleText>
-            </>
-          }
-          aria-label="Design canvas"
-        >
-          <DesignTab />
-        </Tab>
-        <Tab
-          eventKey={TabList.Beans}
-          isHidden={SCHEMA_TABS[resource.getType()].indexOf(TabList.Beans) === -1}
-          className="shell__tab-content"
-          title={
-            <>
-              <TabTitleIcon>
-                <Icon>
-                  <img src={bean} />
-                </Icon>
-              </TabTitleIcon>
-              <TabTitleText>Beans</TabTitleText>
-            </>
-          }
-          aria-label="Beans editor"
-        >
-          <BeansPage />
-        </Tab>
-        <Tab
-          eventKey={TabList.Metadata}
-          isHidden={SCHEMA_TABS[resource.getType()].indexOf(TabList.Metadata) === -1}
-          className="shell__tab-content"
-          title={
-            <>
-              <TabTitleIcon>
-                <CodeIcon />
-              </TabTitleIcon>
-              <TabTitleText>Metadata</TabTitleText>
-            </>
-          }
-          aria-label="Metadata editor"
-        >
-          <MetadataPage />
-        </Tab>
-        <Tab
-          eventKey={TabList.ErrorHandler}
-          isHidden={SCHEMA_TABS[resource.getType()].indexOf(TabList.ErrorHandler) === -1}
-          className="shell__tab-content"
-          title={
-            <>
-              <TabTitleIcon>
-                <ExclamationCircleIcon />
-              </TabTitleIcon>
-              <TabTitleText>Error Handler</TabTitleText>
-            </>
-          }
-          aria-label="Error Handler editor"
-        >
-          <PipeErrorHandlerPage />
-        </Tab>
+        {availableTabs.design && (
+          <Tab
+            eventKey={TabList.Design}
+            className="shell__tab-content_design-canvas"
+            title={
+              <>
+                <TabTitleIcon>
+                  <Icon>
+                    <img src={camelIcon} alt="Camel icon" />
+                  </Icon>
+                </TabTitleIcon>
+                <TabTitleText>Design</TabTitleText>
+              </>
+            }
+            aria-label="Design canvas"
+          >
+            <DesignTab />
+          </Tab>
+        )}
+
+        {availableTabs.beans && (
+          <Tab
+            eventKey={TabList.Beans}
+            className="shell__tab-content"
+            title={
+              <>
+                <TabTitleIcon>
+                  <Icon>
+                    <img src={bean} />
+                  </Icon>
+                </TabTitleIcon>
+                <TabTitleText>Beans</TabTitleText>
+              </>
+            }
+            aria-label="Beans editor"
+          >
+            <BeansPage />
+          </Tab>
+        )}
+
+        {availableTabs.metadata && (
+          <Tab
+            eventKey={TabList.Metadata}
+            className="shell__tab-content"
+            title={
+              <>
+                <TabTitleIcon>
+                  <CodeIcon />
+                </TabTitleIcon>
+                <TabTitleText>Metadata</TabTitleText>
+              </>
+            }
+            aria-label="Metadata editor"
+          >
+            <MetadataPage />
+          </Tab>
+        )}
+
+        {availableTabs.errorHandler && (
+          <Tab
+            eventKey={TabList.ErrorHandler}
+            className="shell__tab-content"
+            title={
+              <>
+                <TabTitleIcon>
+                  <ExclamationCircleIcon />
+                </TabTitleIcon>
+                <TabTitleText>Error Handler</TabTitleText>
+              </>
+            }
+            aria-label="Error Handler editor"
+          >
+            <PipeErrorHandlerPage />
+          </Tab>
+        )}
       </Tabs>
     </div>
   );
