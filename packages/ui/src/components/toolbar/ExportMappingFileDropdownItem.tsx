@@ -48,7 +48,7 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
   return (
     <>
       <DropdownItem icon={<ExportIcon />} onClick={handleMenuClick} data-testid="export-mappings-button">
-        Export the current mappings (.xsl)
+        Export current mappings (.xsl)
       </DropdownItem>
       <Modal
         variant="large"

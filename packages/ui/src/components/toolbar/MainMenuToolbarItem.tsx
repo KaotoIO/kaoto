@@ -2,6 +2,7 @@ import { FunctionComponent } from 'react';
 import { useToggle } from '../../hooks';
 import { Dropdown, DropdownList, MenuToggle, ToolbarItem } from '@patternfly/react-core';
 import { ExportMappingFileDropdownItem } from './ExportMappingFileDropdownItem';
+import { ImportMappingFileDropdownItem } from './ImportMappingFileDropdownItem';
 
 export const MainMenuToolbarItem: FunctionComponent = () => {
   const { state: isOpen, toggle: onToggle, toggleOff } = useToggle(false);
@@ -18,6 +19,7 @@ export const MainMenuToolbarItem: FunctionComponent = () => {
         isPlain={true}
       >
         <DropdownList data-testid={'main-menu-dropdownlist'}>
+          <ImportMappingFileDropdownItem onComplete={toggleOff} key={'import-mapping'} />
           <ExportMappingFileDropdownItem onComplete={toggleOff} key={'export-mapping'} />
         </DropdownList>
       </Dropdown>

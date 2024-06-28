@@ -177,7 +177,8 @@ export class MappingSerializerService {
     }
   }
 
-  static deserialize(xslt: string): MappingTree {
+  static deserialize(mappingTree: MappingTree, xslt: string): MappingTree {
+    mappingTree.children = [];
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
     template.localName;
