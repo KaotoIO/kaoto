@@ -14,7 +14,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, ReactElement } from 'react';
+import { FunctionComponent, ReactElement, useContext } from 'react';
 import { AddStepMode } from '../../../models/visualization/base-visual-entity';
 import { CanvasDefaults } from '../Canvas/canvas.defaults';
 import { CanvasNode } from '../Canvas/canvas.models';
@@ -26,6 +26,7 @@ import { ItemDisableStep } from './ItemDisableStep';
 import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 import { doTruncateLabel } from '../../../utils/truncate-label';
+import { SettingsContext } from '../../../providers';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -34,7 +35,8 @@ const noopFn = () => {};
 
 const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...rest }) => {
   const vizNode = element.getData()?.vizNode;
-  const label = vizNode?.getNodeLabel();
+  const settingsAdapter = useContext(SettingsContext);
+  const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
   const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
   const tooltipContent = vizNode?.getTooltipContent();
   const statusDecoratorTooltip = vizNode?.getNodeValidationText();

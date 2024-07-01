@@ -4,6 +4,6 @@ exports[`SettingsProvider should render 1`] = `
 <p
   data-testid="settings"
 >
-  {"catalogUrl":""}
+  {"catalogUrl":"","nodeLabel":"description"}
 </p>
 `;

@@ -33,13 +33,14 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return this.id;
   }
 
-  getNodeLabel(path?: string): string {
+  getNodeLabel(path?: string, labelType?: string): string {
     if (!path) return '';
 
     const componentModel = getValue(this.route, path);
     const label = CamelComponentSchemaService.getNodeLabel(
       CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
       componentModel,
+      labelType,
     );
 
     return label;
