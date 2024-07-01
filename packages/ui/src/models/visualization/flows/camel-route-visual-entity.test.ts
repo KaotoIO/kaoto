@@ -89,9 +89,9 @@ describe('Camel Route', () => {
       const getNodeLabelSpy = jest.spyOn(CamelComponentSchemaService, 'getNodeLabel');
       jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
 
-      const label = camelEntity.getNodeLabel('from');
+      const label = camelEntity.getNodeLabel('from', 'id');
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from);
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from, 'id');
       expect(label).toEqual('timer');
     });
   });

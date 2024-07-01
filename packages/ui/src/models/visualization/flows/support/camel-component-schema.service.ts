@@ -66,8 +66,8 @@ export class CamelComponentSchemaService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getNodeLabel(camelElementLookup: ICamelElementLookupResult, definition?: any): string {
-    if (typeof definition?.description === 'string' && definition.description !== '') {
+  static getNodeLabel(camelElementLookup: ICamelElementLookupResult, definition?: any, labelType?: string): string {
+    if (typeof definition?.description === 'string' && labelType !== 'id' && definition.description !== '') {
       return definition.description;
     }
 
