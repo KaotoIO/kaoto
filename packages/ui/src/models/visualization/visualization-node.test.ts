@@ -41,9 +41,9 @@ describe('VisualizationNode', () => {
       } as unknown as BaseVisualCamelEntity;
 
       node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
-      const label = node.getNodeLabel();
+      const label = node.getNodeLabel('id');
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path);
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, 'id');
       expect(label).toEqual('test-label');
     });
 

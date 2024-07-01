@@ -11,7 +11,7 @@ describe('LocalStorageSettingsAdapter', () => {
 
   it('should save and retrieve settings', () => {
     const adapter = new LocalStorageSettingsAdapter();
-    const newSettings: SettingsModel = { catalogUrl: 'http://example.com' };
+    const newSettings: SettingsModel = { catalogUrl: 'http://example.com', nodeLabel: 'description' };
 
     adapter.saveSettings(newSettings);
 
@@ -30,7 +30,7 @@ describe('LocalStorageSettingsAdapter', () => {
     const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
 
     const adapter = new LocalStorageSettingsAdapter();
-    const newSettings: SettingsModel = { catalogUrl: 'http://example.com' };
+    const newSettings: SettingsModel = { catalogUrl: 'http://example.com', nodeLabel: 'description' };
 
     adapter.saveSettings(newSettings);
 
