@@ -43,10 +43,9 @@ describe('ExpressionEditor', () => {
     const dropdown = screen.getAllByTestId('typeahead-select-input').filter((input) => input.innerHTML.includes('JQ'));
     expect(dropdown).toHaveLength(1);
     const resultTypeInput = screen
-      .getAllByRole('textbox')
-      .filter((textbox) => textbox.getAttribute('label') === 'Result Type');
+      .getAllByTestId('create-typeahead-select-input')
+      .filter((input) => input.innerHTML.includes('string'));
     expect(resultTypeInput).toHaveLength(1);
-    expect(resultTypeInput[0].getAttribute('value')).toEqual('string');
     const sourceInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Source');
     expect(sourceInput).toHaveLength(1);
     expect(sourceInput[0].getAttribute('value')).toEqual('');
@@ -70,7 +69,7 @@ describe('ExpressionEditor', () => {
         onChangeExpressionModel={onChangeMock}
       ></ExpressionEditor>,
     );
-    const inputElement = screen.getByRole('combobox');
+    const inputElement = screen.getAllByRole('combobox')[0];
     await act(async () => {
       fireEvent.change(inputElement, { target: { value: 'JQ' } });
     });

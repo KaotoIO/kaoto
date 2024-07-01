@@ -37,7 +37,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
   );
 
   const languageSchema = useMemo(() => {
-    return language && ExpressionService.getLanguageSchema(language);
+    return language && ExpressionService.getLanguageSchema(ExpressionService.setStepExpressionResultType(language));
   }, [language]);
 
   const handleOnChange = useCallback(

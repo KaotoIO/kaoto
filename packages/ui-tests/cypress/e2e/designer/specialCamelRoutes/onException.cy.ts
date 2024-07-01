@@ -63,18 +63,18 @@ describe('Test for root on exception container', () => {
     cy.get(`input[name="redeliveryPolicyRef"]`).clear().type('testRedeliveryPolicyRef');
     cy.openExpressionModal('retryWhile');
     cy.selectExpression('Constant');
-    cy.interactWithExpressinInputObject('expression', `retryWhile.constant`);
-    cy.interactWithExpressinInputObject('id', 'retryWhile.constantExpressionId');
+    cy.interactWithExpressionInputObject('expression', `retryWhile.constant`);
+    cy.interactWithExpressionInputObject('id', 'retryWhile.constantExpressionId');
     cy.confirmExpressionModal();
     cy.openExpressionModal('handled');
     cy.selectExpression('Constant');
-    cy.interactWithExpressinInputObject('expression', `handled.constant`);
-    cy.interactWithExpressinInputObject('id', 'handled.constantExpressionId');
+    cy.interactWithExpressionInputObject('expression', `handled.constant`);
+    cy.interactWithExpressionInputObject('id', 'handled.constantExpressionId');
     cy.confirmExpressionModal();
     cy.openExpressionModal('continued');
     cy.selectExpression('Constant');
-    cy.interactWithExpressinInputObject('expression', `continued.constant`);
-    cy.interactWithExpressinInputObject('id', 'continued.constantExpressionId');
+    cy.interactWithExpressionInputObject('expression', `continued.constant`);
+    cy.interactWithExpressionInputObject('id', 'continued.constantExpressionId');
     cy.confirmExpressionModal();
 
     cy.openSourceCode();

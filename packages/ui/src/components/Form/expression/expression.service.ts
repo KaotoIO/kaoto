@@ -145,6 +145,22 @@ export class ExpressionService {
   }
 
   /**
+   * Set the result type property to enum of common result types.
+   *
+   * @param language
+   * @returns
+   */
+  static setStepExpressionResultType(language: ICamelLanguageDefinition): ICamelLanguageDefinition {
+    if (language.propertiesSchema?.properties?.resultType) {
+      language.propertiesSchema.properties.resultType = {
+        ...language.propertiesSchema.properties.resultType,
+        enum: ['java.lang.String', 'java.lang.Boolean', 'java.lang.Integer', 'java.lang.Double', 'java.lang.Float'],
+      };
+    }
+    return language;
+  }
+
+  /**
    * Parse the property expression model from the parent parameter model object.
    * @param languageCatalogMap The language catalog map to use as a dictionary.
    * @param parentModel The parent parameter model object which is an expression type. For example `completionPredicate` parameter contents of `aggregate` EIP.
