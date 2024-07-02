@@ -43,6 +43,7 @@ public class CamelCatalogProcessor {
     private static final String TO_DYNAMIC_DEFINITION = "org.apache.camel.model.ToDynamicDefinition";
     private static final String SET_HEADERS_DEFINITION = "org.apache.camel.model.SetHeadersDefinition";
     private static final String SET_VARIABLES_DEFINITION = "org.apache.camel.model.SetVariablesDefinition";
+    private static final String LOG_DEFINITION = "org.apache.camel.model.LogDefinition";
     private final ObjectMapper jsonMapper;
     private final CamelCatalog camelCatalog;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
@@ -308,6 +309,9 @@ public class CamelCatalogProcessor {
                     propertySchema.put("description", "Variables to set");
                     sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
+                }
+                if (LOG_DEFINITION.equals(processorFQCN) && "message".equals(propertyName)) {
+                    propertySchema.put("default", "${body}");
                 }
 
                 var catalogOpOptional = processorCatalog.getOptions().stream()

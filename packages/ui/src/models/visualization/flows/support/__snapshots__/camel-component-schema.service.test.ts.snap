@@ -653,6 +653,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "type": "string",
       },
       "message": {
+        "default": "\${body}",
         "description": "Sets the log message (uses simple language)",
         "group": "common",
         "title": "Message",
@@ -793,6 +794,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "type": "string",
       },
       "message": {
+        "default": "\${body}",
         "description": "Sets the log message (uses simple language)",
         "group": "common",
         "title": "Message",
