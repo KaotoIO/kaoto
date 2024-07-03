@@ -20,11 +20,13 @@
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
 import { useContext } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
-import { getFieldGroups } from '../../../utils';
+import { getFieldGroups, getValue } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
 import './CustomNestField.scss';
-import { FilteredFieldContext } from '../../../providers';
+import { useForm } from 'uniforms';
+import { FilteredFieldContext, FormTypeContext } from '../../../providers';
 import { CustomExpandableSection } from './CustomExpandableSection';
+import { getNonDefaultSchema } from '../../../utils/get-non-default-schema';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
@@ -45,10 +47,23 @@ export const CustomNestField = connectField(
     disabled,
     ...props
   }: CustomNestFieldProps) => {
+    const { loadNonDefaultFieldsOnly } = useContext(FormTypeContext);
     const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
-    const filteredProperties = Object.entries(props.properties ?? {}).filter((field) =>
+    const { model } = useForm();
+    let fieldsToProcess = Object.keys(props.properties ?? {});
+    if (loadNonDefaultFieldsOnly) {
+      const nonDefaultsFields = getNonDefaultSchema(props.properties ?? {}, model.parameters as Record<string, any>);
+      fieldsToProcess = nonDefaultsFields;
+    }
+    const actualFieldsSchema = fieldsToProcess.reduce((acc: { [name: string]: unknown }, name) => {
+      acc[name] = getValue(props.properties, name);
+      return acc;
+    }, {});
+
+    const filteredProperties = Object.entries(actualFieldsSchema).filter((field) =>
       field[0].toLowerCase().includes(filteredFieldText.toLowerCase()),
     );
+
     const actualProperties = Object.fromEntries(filteredProperties);
     const propertiesArray = getFieldGroups(actualProperties);
 

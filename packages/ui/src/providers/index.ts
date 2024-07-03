@@ -10,4 +10,5 @@ export * from './runtime.provider';
 export * from './schema-bridge.provider';
 export * from './schemas.provider';
 export * from './source-code.provider';
+export * from './form-type.provider';
 export * from './visible-flows.provider';
