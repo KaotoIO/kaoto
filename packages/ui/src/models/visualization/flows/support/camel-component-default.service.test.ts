@@ -37,6 +37,16 @@ describe('CamelComponentDefaultService', () => {
       expect(doTryDefault.doTry?.doCatch?.[0].exception).toHaveLength(1);
     });
 
+    it('should return the default value for a log processor', () => {
+      const logDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'log',
+      } as DefinedComponent) as any;
+      expect(logDefault.log).toBeDefined();
+      expect((logDefault.log.id as string).startsWith('log-')).toBeTruthy();
+      expect(logDefault.log.message).toEqual('${body}');
+    });
+
     it('should return the default value for a doCatch processor', () => {
       const doCatchDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
         type: 'processor',
