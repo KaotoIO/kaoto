@@ -115,6 +115,13 @@ export class CamelComponentDefaultService {
                 message: "\${body}"
         `);
 
+      case 'log':
+        return parse(`
+        log:
+          id: ${getCamelRandomId('log')}
+          message: "\${body}"
+        `);
+
       case 'doCatch':
         return parse(`
           id: ${getCamelRandomId('doCatch')}
