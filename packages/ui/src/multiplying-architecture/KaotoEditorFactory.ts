@@ -13,13 +13,12 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
     envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
     initArgs: EditorInitArgs,
   ): Promise<Editor> {
-    let catalogUrl;
-    const catalogUrlFromChannelApi = await envelopeContext.channelApi.requests.getCatalogURL();
-    if (isDefined(catalogUrlFromChannelApi)) {
-      catalogUrl = catalogUrlFromChannelApi;
-    } else {
+    let catalogUrl = await envelopeContext.channelApi.requests.getCatalogURL();
+
+    if (!isDefined(catalogUrl) || catalogUrl === '') {
       catalogUrl = `${initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_PATH.replace('.', '')}`;
     }
+
     return Promise.resolve(new KaotoEditorApp(envelopeContext, initArgs, catalogUrl));
   }
 }
