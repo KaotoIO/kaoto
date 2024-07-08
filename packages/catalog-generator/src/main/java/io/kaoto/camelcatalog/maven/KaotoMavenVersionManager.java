@@ -83,7 +83,7 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
             String gav = String.format("%s:%s:%s", groupId, artifactId, version);
 
             boolean useSnapshots = version.endsWith("SNAPSHOT");
-            resolve(mavenDownloader, gav, useSnapshots, false);
+            resolve(mavenDownloader, gav, useSnapshots, true);
 
             if (artifactId.contains("catalog")) {
                 this.version = version;
@@ -156,7 +156,7 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
                         return url.openStream();
                     }
                 }
-                
+
             } catch (IOException e) {
                 if (getLog()) {
                     LOGGER.log(Level.WARNING, String.format("Cannot open resource {} and version {} due {}", name, version,

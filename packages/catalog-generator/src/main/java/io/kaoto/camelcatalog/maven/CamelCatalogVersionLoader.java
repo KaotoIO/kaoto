@@ -35,7 +35,7 @@ import io.kaoto.camelcatalog.model.MavenCoordinates;
 public class CamelCatalogVersionLoader {
     private static final Logger LOGGER = Logger.getLogger(CamelCatalogVersionLoader.class.getName());
     private final KaotoMavenVersionManager kaotoVersionManager = new KaotoMavenVersionManager();
-    private final CamelCatalog camelCatalog = new DefaultCamelCatalog(false);
+    private final CamelCatalog camelCatalog = new DefaultCamelCatalog(true);
     private final Map<String, String> kameletBoundaries = new HashMap<>();
     private final Map<String, String> kamelets = new HashMap<>();
     private final List<String> camelKCRDs = new ArrayList<>();
@@ -288,10 +288,9 @@ public class CamelCatalogVersionLoader {
     private MavenCoordinates getYamlDslMavenCoordinates(CatalogRuntime runtime, OtherModel yamlDSLModel) {
         switch (runtime) {
             case Quarkus:
-                String version = yamlDSLModel.getMetadata().get("camelVersion").toString();
-                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG, Constants.CAMEL_YAML_DSL_PACKAGE, version);
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".quarkus", "camel-quarkus-yaml-dsl", yamlDSLModel.getVersion());
             case SpringBoot:
-                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG, Constants.CAMEL_YAML_DSL_PACKAGE,
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".springboot", "camel-yaml-dsl-starter",
                         yamlDSLModel.getVersion());
             default:
                 return new MavenCoordinates(Constants.APACHE_CAMEL_ORG,
@@ -303,7 +302,7 @@ public class CamelCatalogVersionLoader {
     /*
      * This method is used to load a dependency in the classpath. This is a
      * workaround
-     * to load dependencies that are not in the classpath, while the Kamel Catalog
+     * to load dependencies that are not in the classpath, while the Camel Catalog
      * exposes a method to load dependencies in the classpath.
      */
     private boolean loadDependencyInClasspath(MavenCoordinates mavenCoordinates) {
