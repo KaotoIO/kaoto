@@ -81,9 +81,10 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
         try {
             MavenDownloader mavenDownloader = downloader;
             String gav = String.format("%s:%s:%s", groupId, artifactId, version);
+            boolean shouldFetchTransitive = artifactId.contains("yaml");
+            boolean shouldUseSnapshots = version.endsWith("SNAPSHOT");
 
-            boolean useSnapshots = version.endsWith("SNAPSHOT");
-            resolve(mavenDownloader, gav, useSnapshots, true);
+            resolve(mavenDownloader, gav, shouldUseSnapshots, shouldFetchTransitive);
 
             if (artifactId.contains("catalog")) {
                 this.version = version;
@@ -159,8 +160,9 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
 
             } catch (IOException e) {
                 if (getLog()) {
-                    LOGGER.log(Level.WARNING, String.format("Cannot open resource {} and version {} due {}", name, version,
-                            e.getMessage(), e));
+                    LOGGER.log(Level.WARNING,
+                            String.format("Cannot open resource {} and version {} due {}", name, version,
+                                    e.getMessage(), e));
 
                 }
             }
