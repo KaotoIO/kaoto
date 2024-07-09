@@ -6,7 +6,13 @@ import { useDataMapper } from '../../hooks';
 import { useFilePicker } from 'react-sage';
 import { readFileAsString } from '../../util';
 
-export const ImportMappingFileDropdownItem: FunctionComponent = () => {
+type ImportMappingFileDropdownItemProps = {
+  onComplete: () => void;
+};
+
+export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileDropdownItemProps> = ({
+  onComplete,
+}) => {
   const { mappingTree, refreshMappingTree } = useDataMapper();
 
   const { files, onClick, HiddenFileInput } = useFilePicker({
@@ -20,9 +26,10 @@ export const ImportMappingFileDropdownItem: FunctionComponent = () => {
         MappingSerializerService.deserialize(mappingTree, content);
         refreshMappingTree();
         alert('TODO');
+        onComplete();
       });
     },
-    [mappingTree, refreshMappingTree],
+    [mappingTree, onComplete, refreshMappingTree],
   );
 
   useEffect(() => {
