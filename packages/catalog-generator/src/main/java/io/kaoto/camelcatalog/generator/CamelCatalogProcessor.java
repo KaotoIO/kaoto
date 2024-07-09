@@ -34,6 +34,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.kaoto.camelcatalog.model.CatalogRuntime;
+
 /**
  * Customize Camel Catalog for Kaoto.
  */
@@ -46,13 +48,15 @@ public class CamelCatalogProcessor {
     private final ObjectMapper jsonMapper;
     private final CamelCatalog camelCatalog;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
+    private final CatalogRuntime runtime;
     private boolean verbose;
 
     public CamelCatalogProcessor(CamelCatalog camelCatalog, ObjectMapper jsonMapper,
-            CamelYamlDslSchemaProcessor schemaProcessor, boolean verbose) {
+            CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
         this.jsonMapper = jsonMapper;
         this.camelCatalog = camelCatalog;
         this.schemaProcessor = schemaProcessor;
+        this.runtime = runtime;
         this.verbose = verbose;
     }
 
@@ -95,6 +99,25 @@ public class CamelCatalogProcessor {
                         var json = JsonMapper.asJsonObject(model).toJson();
                         var catalogNode = (ObjectNode) jsonMapper.readTree(json);
                         generatePropertiesSchema(catalogNode);
+
+                        ObjectNode componentDefinition = catalogNode.withObject("/component");
+                        String componentVersion = model.getVersion();
+
+                        /**
+                         * Quarkus has a different versioning scheme, therefore we need to get the Camel
+                         * version from the debug model and combine it with the component version
+                         */
+                        if (runtime == CatalogRuntime.Quarkus) {
+                            String camelVersion = camelCatalog.model(Kind.other, "debug").getMetadata()
+                                    .get("camelVersion").toString();
+                            componentVersion = String.format("%s (CEQ %s)", camelVersion, model.getVersion());
+                        }
+
+                        componentDefinition.put("version", componentVersion);
+                        if (componentVersion.contains("redhat")) {
+                            componentDefinition.put("provider",  "Red Hat");
+                        }
+
                         answer.set(name, catalogNode);
                     } catch (Exception e) {
                         if (verbose) {

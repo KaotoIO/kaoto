@@ -231,7 +231,7 @@ public class CatalogGeneratorBuilder {
 
         private void processCatalog(CamelYamlDslSchemaProcessor schemaProcessor, CatalogDefinition index) {
             var catalogProcessor = new CamelCatalogProcessor(camelCatalogVersionLoader.getCamelCatalog(), jsonMapper,
-                    schemaProcessor, verbose);
+                    schemaProcessor, runtime, verbose);
             try {
                 var catalogMap = catalogProcessor.processCatalog();
                 catalogMap.forEach((name, catalog) -> {
