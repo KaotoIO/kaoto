@@ -13712,11 +13712,11 @@ __metadata:
   linkType: hard
 
 "xml-formatter@npm:^3.6.2":
-  version: 3.6.2
-  resolution: "xml-formatter@npm:3.6.2"
+  version: 3.6.3
+  resolution: "xml-formatter@npm:3.6.3"
   dependencies:
-    xml-parser-xo: ^4.1.0
-  checksum: 6ca632b136d47f68b12be88e5543f859cdc754c9e1c1386c68b8c7803f9b894c8ec19f51bdcbfa957d782358aa19778b2ef46702f4120a78920661b683033290
+    xml-parser-xo: ^4.1.2
+  checksum: e4c6927d30de9e82f69ea1752d93b9e31e5eb308c2261e039272a04cdf1120a03cf01aea5cbb01c4197a1dee9dc67b04bf91a24acd6a1abe52b4fcb7ac843086
   languageName: node
   linkType: hard
 
@@ -13727,10 +13727,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-parser-xo@npm:^4.1.0":
-  version: 4.1.1
-  resolution: "xml-parser-xo@npm:4.1.1"
-  checksum: f726f4416d501eb9b197a7a34178aeaee9ba9a53babf61e78265240f8a6f44bd099a15c76d2610a9519c9d1dcc812bb773ae8a00df39019f911f24e1ecff0cdf
+"xml-parser-xo@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "xml-parser-xo@npm:4.1.2"
+  checksum: 732aaeb54e01bf21036a7f711147dceb693a2042b657ffd98166abb4c124946b3e41f2d3e5f3571398cedde7fbd99b346821c4d44d5fed5f86bac506c8a06a2a
   languageName: node
   linkType: hard
 
