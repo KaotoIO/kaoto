@@ -1,3 +1,4 @@
+.vscode/settings.json
 target/
 .idea/
 dependency-reduced-pom.xml
