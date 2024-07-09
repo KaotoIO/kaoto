@@ -3166,11 +3166,11 @@ __metadata:
   linkType: hard
 
 "@patternfly/react-code-editor@npm:^5.2.3":
-  version: 5.3.3
-  resolution: "@patternfly/react-code-editor@npm:5.3.3"
+  version: 5.3.4
+  resolution: "@patternfly/react-code-editor@npm:5.3.4"
   dependencies:
     "@monaco-editor/react": ^4.6.0
-    "@patternfly/react-core": ^5.3.3
+    "@patternfly/react-core": ^5.3.4
     "@patternfly/react-icons": ^5.3.2
     "@patternfly/react-styles": ^5.3.1
     react-dropzone: 14.2.3
@@ -3178,13 +3178,13 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: aab024e365402f74b7efa4a65849b728464093825c4dc631d94c73525db7c1b2067c3eb076cec1229d91181f2c18d7d01c03555cb927faf40a54cb3921480e0f
+  checksum: 7f01e63a70441ada29756640aeeee04e47458fe625d6cf01b69bdfb48a8cef2df4385bfc25f6e6c5ee076efe192030a7ce6d6bb83a6d13dddf8d8f4ee7dd52b8
   languageName: node
   linkType: hard
 
-"@patternfly/react-core@npm:^5.1.1, @patternfly/react-core@npm:^5.1.2, @patternfly/react-core@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "@patternfly/react-core@npm:5.3.3"
+"@patternfly/react-core@npm:^5.1.1, @patternfly/react-core@npm:^5.1.2, @patternfly/react-core@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "@patternfly/react-core@npm:5.3.4"
   dependencies:
     "@patternfly/react-icons": ^5.3.2
     "@patternfly/react-styles": ^5.3.1
@@ -3195,7 +3195,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 5af2b78ec3b5f7e56d28e150a5596b02cbc87cc1da7c6cb08517768ea165a2489847c4511cf1bc06411d7609da74c0144e0e0897171ac7d355624a576d471cc7
+  checksum: 72c37cb99befd927a2015531018e594ea0d2e1bbb26651cdfd7da7a68eac7c9e3bfe928d85dddc0093d4ab64cde48653373dbe24fff27916f2b2527d4be2b8ee
   languageName: node
   linkType: hard
 
@@ -3234,10 +3234,10 @@ __metadata:
   linkType: hard
 
 "@patternfly/react-table@npm:^5.1.2":
-  version: 5.3.3
-  resolution: "@patternfly/react-table@npm:5.3.3"
+  version: 5.3.4
+  resolution: "@patternfly/react-table@npm:5.3.4"
   dependencies:
-    "@patternfly/react-core": ^5.3.3
+    "@patternfly/react-core": ^5.3.4
     "@patternfly/react-icons": ^5.3.2
     "@patternfly/react-styles": ^5.3.1
     "@patternfly/react-tokens": ^5.3.1
@@ -3246,7 +3246,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 6e0bb878bab665e9b611ffa8dbf36a2fce27eb4c16ba7a2abe714ad5b4e96f68861b002a30ee582387779b39b1a7585fc935e6f9eaf1c85dc97c6bc65fdc2884
+  checksum: 40a72e827533d97b8f4ed789535c1329356a13512e7141393ea518002cca7c801d781dfbd474b3820f457d59385552dc10dea58060d8335e8308a9911a720438
   languageName: node
   linkType: hard
 
