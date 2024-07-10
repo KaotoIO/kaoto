@@ -25,6 +25,7 @@ describe('filterTiles', () => {
       description: 'Schedule a task to run at a specific time.',
       tags: ['scheduling'],
       type: CatalogKind.Component,
+      provider: 'Red Hat',
     },
     hazelcast: {
       name: 'hazelcast',
@@ -72,6 +73,28 @@ describe('filterTiles', () => {
       [CatalogKind.Component]: [tilesMap.activemq],
       [CatalogKind.Pattern]: [tilesMap.setBody, tilesMap.split],
       [CatalogKind.Kamelet]: [tilesMap.slackSource],
+    });
+  });
+
+  it('should filter tiles by provider', () => {
+    const options = { selectedProviders: ['Red Hat'] };
+    const result = filterTiles(tiles, options);
+
+    expect(result).toEqual({
+      [CatalogKind.Component]: [tilesMap.cron],
+      [CatalogKind.Pattern]: [],
+      [CatalogKind.Kamelet]: [],
+    });
+  });
+
+  it('should return tiles without provider when community is selected', () => {
+    const options = { selectedProviders: ['Community'] };
+    const result = filterTiles(tiles, options);
+
+    expect(result).toEqual({
+      [CatalogKind.Component]: [tilesMap.activemq, tilesMap.cometd, tilesMap.hazelcast],
+      [CatalogKind.Pattern]: [tilesMap.setBody, tilesMap.split],
+      [CatalogKind.Kamelet]: [tilesMap.beerSource, tilesMap.slackSource],
     });
   });
 

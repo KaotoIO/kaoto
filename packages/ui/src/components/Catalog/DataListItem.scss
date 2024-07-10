@@ -31,4 +31,13 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
+
+  &__provider {
+    display: block;
+    font-size: var(--pf-v5-c-card__body--FontSize);
+    text-align: right;
+    padding: 0 10px;
+    font-weight: bold;
+    background-color: var(--pf-v5-global--palette--black-150);
+  }
 }

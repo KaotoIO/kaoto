@@ -2,7 +2,7 @@ import { ITile } from '../components/Catalog/Catalog.models';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
 
 export const camelComponentToTile = (componentDef: ICamelComponentDefinition): ITile => {
-  const { name, title, description, supportLevel, label, version } = componentDef.component;
+  const { name, title, description, supportLevel, label, provider, version } = componentDef.component;
   const headerTags: string[] = ['Component'];
   const tags: string[] = [];
 
@@ -28,6 +28,7 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
     description,
     headerTags,
     tags,
+    provider,
     version,
     rawObject: componentDef,
   };

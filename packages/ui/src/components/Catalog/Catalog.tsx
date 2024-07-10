@@ -18,6 +18,8 @@ interface CatalogProps {
 }
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
+  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+
   /** Selected Group */
   const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
   const [filterTags, setFilterTags] = useState<string[]>([]);
@@ -27,10 +29,23 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     return sortTags(props.tiles, filterTags);
   }, [filterTags, props.tiles]);
 
+  /** All providers */
+  const providers = useMemo(() => {
+    const providersSet = new Set<string>();
+    props.tiles.forEach((tile) => {
+      providersSet.add(tile.provider ?? 'Community');
+    });
+
+    return Array.from(providersSet);
+  }, [props.tiles]);
+
+  /** Selected Providers */
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(providers);
+
   /** Filter by selected group */
   const filteredTilesByGroup = useMemo(() => {
-    return filterTiles(props.tiles, { searchTerm, searchTags: filterTags });
-  }, [filterTags, props.tiles, searchTerm]);
+    return filterTiles(props.tiles, { searchTerm, searchTags: filterTags, selectedProviders });
+  }, [filterTags, props.tiles, searchTerm, selectedProviders]);
 
   /** Set the tiles groups */
   const tilesGroups = useMemo(() => {
@@ -38,7 +53,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
   }, [filteredTilesByGroup]);
 
   const [activeGroups, setActiveGroups] = useState<string[]>(tilesGroups.map((g) => g.name));
-  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+
   const filteredTiles = useMemo(() => {
     return Object.entries(filteredTilesByGroup).reduce((acc, [group, tiles]) => {
       if (activeGroups.includes(group)) {
@@ -68,12 +83,25 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     });
   }, []);
 
+  const onSelectProvider = useCallback(
+    (provider: string) => {
+      setSelectedProviders(
+        selectedProviders.includes(provider)
+          ? selectedProviders.filter((selection) => selection !== provider)
+          : [provider, ...selectedProviders],
+      );
+    },
+    [selectedProviders],
+  );
+
   return (
     <div className="catalog">
       <CatalogFilter
         className="catalog__filter"
         searchTerm={searchTerm}
         groups={tilesGroups}
+        providers={providers}
+        selectedProviders={selectedProviders}
         tags={sortedTags}
         tagsOverflowIndex={overflowIndex}
         layouts={[CatalogLayout.Gallery, CatalogLayout.List]}
@@ -84,6 +112,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         setActiveGroups={setActiveGroups}
         setActiveLayout={setActiveLayout}
         setFilterTags={setFilterTags}
+        onSelectProvider={onSelectProvider}
       />
       <BaseCatalog
         className="catalog__base"

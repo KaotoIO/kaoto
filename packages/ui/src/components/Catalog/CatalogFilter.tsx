@@ -15,11 +15,14 @@ import { FunctionComponent, useEffect, useRef } from 'react';
 import { CatalogLayout } from './Catalog.models';
 import './CatalogFilter.scss';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
+import { ProviderFilter } from './ProviderFilter/ProviderFilter';
 
 interface CatalogFilterProps {
   className?: string;
   searchTerm: string;
   groups: { name: string; count: number }[];
+  providers: string[];
+  selectedProviders: string[];
   tags: string[];
   tagsOverflowIndex: number;
   layouts: CatalogLayout[];
@@ -30,6 +33,7 @@ interface CatalogFilterProps {
   setActiveGroups: (groups: string[]) => void;
   setActiveLayout: (layout: CatalogLayout) => void;
   setFilterTags: (tags: string[]) => void;
+  onSelectProvider: (provider: string) => void;
 }
 
 export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
@@ -76,6 +80,14 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
           />
         </FormGroup>
 
+        <FormGroup className="filter-bar__provider" label="Provider" fieldId="provider">
+          <ProviderFilter
+            providers={props.providers}
+            selectedProviders={props.selectedProviders}
+            onSelectProvider={props.onSelectProvider}
+          />
+        </FormGroup>
+
         <FormGroup label="Type" fieldId="element-type">
           <ToggleGroup aria-label="Select element type">
             {props.groups.map((tileGroup) => (
@@ -98,7 +110,7 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
         <FormGroup label="Layout" fieldId="layout">
           <ToggleGroup aria-label="Change layout">
             {props.layouts.map((key) => (
-              <Tooltip aria-label="Layout toggle Tooltip" content={<p>Display elements with a {key} view</p>}>
+              <Tooltip key={key} aria-label="Layout toggle Tooltip" content={<p>Display elements with a {key} view</p>}>
                 <ToggleGroupItem
                   icon={<CatalogLayoutIcon key={key} layout={key} />}
                   key={key}
