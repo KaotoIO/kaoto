@@ -59,6 +59,12 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       <CardFooter>
         <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
       </CardFooter>
+
+      {props.tile.provider && (
+        <p className="tile__provider" data-provider={props.tile.provider}>
+          Provided by {props.tile.provider}
+        </p>
+      )}
     </Card>
   );
 };

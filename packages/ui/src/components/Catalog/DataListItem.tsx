@@ -32,6 +32,11 @@ const descriptionElementOrder = {
   md: '3',
 };
 
+const providerElementOrder = {
+  default: '4',
+  md: '4',
+};
+
 export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> = (props) => {
   return (
     <DataListItem
@@ -75,8 +80,13 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
                     <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
                   </div>
                 </GridItem>
-                <GridItem span={12} order={descriptionElementOrder}>
+                <GridItem sm={12} md={11} order={descriptionElementOrder}>
                   <span className="catalog-data-list-item__description">{props.tile.description}</span>
+                </GridItem>
+                <GridItem sm={12} md={1} order={providerElementOrder}>
+                  <span className="catalog-data-list-item__provider" data-provider={props.tile.provider}>
+                    {props.tile.provider}
+                  </span>
                 </GridItem>
               </Grid>
             </DataListCell>,

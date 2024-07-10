@@ -44,6 +44,18 @@ describe('camelComponentToTile', () => {
     expect(tile.version).toEqual('4.0.0');
   });
 
+  it('should populate the provider', () => {
+    const componentDef = {
+      component: {
+        provider: 'my-provider',
+      },
+    } as ICamelComponentDefinition;
+
+    const tile = camelComponentToTile(componentDef);
+
+    expect(tile.provider).toEqual('my-provider');
+  });
+
   it('should populate tags with `consumerOnly` and `producerOnly` when applicable', () => {
     const componentDef = {
       component: {

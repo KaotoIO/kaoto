@@ -6,6 +6,7 @@ export interface ITile {
   headerTags?: string[];
   tags: string[];
   version?: string;
+  provider?: string;
   /** @deprecated Please relay on name property instead */
   rawObject?: unknown;
 }

@@ -163,7 +163,7 @@ exports[`DataListItem renders correctly 1`] = `
             </div>
           </div>
           <div
-            class="pf-v5-l-grid__item pf-m-12-col"
+            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-11-col-on-md"
             style="--pf-v5-l-grid--item--Order: 2; --pf-v5-l-grid--item--Order-on-md: 3;"
           >
             <span
@@ -171,6 +171,14 @@ exports[`DataListItem renders correctly 1`] = `
             >
               tile-description
             </span>
+          </div>
+          <div
+            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-1-col-on-md"
+            style="--pf-v5-l-grid--item--Order: 4; --pf-v5-l-grid--item--Order-on-md: 4;"
+          >
+            <span
+              class="catalog-data-list-item__provider"
+            />
           </div>
         </div>
       </div>

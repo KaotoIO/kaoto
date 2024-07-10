@@ -33,6 +33,7 @@ export interface ICamelComponent {
   consumerOnly?: boolean;
   producerOnly?: boolean;
   lenientProperties?: boolean;
+  provider?: string;
 }
 
 // these interfaces don't contain all properties which are save in the component json object. If you need some new, add it here
