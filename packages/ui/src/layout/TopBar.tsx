@@ -16,6 +16,7 @@ import {
 import { EllipsisVIcon, ExternalLinkAltIcon, GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import React, { FunctionComponent, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo-kaoto.png';
 import { useComponentLink } from '../hooks/ComponentLink';
 import { Links } from '../router/links.models';
@@ -110,9 +111,11 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                 </DropdownItem>
               </a>
               <Divider component="li" key="separator1" />
-              <DropdownItem id="settings" key="settings" isDisabled>
-                Settings
-              </DropdownItem>
+              <Link data-testid="settings-link" to={Links.Settings}>
+                <DropdownItem id="settings" key="settings">
+                  Settings
+                </DropdownItem>
+              </Link>
               <Divider component="li" key="separator2" />
               <DropdownItem
                 id="about"
