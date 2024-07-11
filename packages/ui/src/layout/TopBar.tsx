@@ -8,6 +8,7 @@ import {
   MastheadBrand,
   MastheadContent,
   MastheadMain,
+  MastheadProps,
   MastheadToggle,
   MenuToggle,
   MenuToggleElement,
@@ -15,7 +16,7 @@ import {
 } from '@patternfly/react-core';
 import { EllipsisVIcon, ExternalLinkAltIcon, GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo-kaoto.png';
 import { useComponentLink } from '../hooks/ComponentLink';
@@ -26,13 +27,16 @@ interface ITopBar {
   navToggle: () => void;
 }
 
+const displayObject: MastheadProps['display'] = {
+  default: 'inline',
+};
+
 const DEFAULT_POPPER_PROPS = {
   position: 'end',
   preventOverflow: true,
 } as const;
 
 export const TopBar: FunctionComponent<ITopBar> = (props) => {
-  const displayObject = useRef({ default: 'inline', lg: 'stack', '2xl': 'inline' } as const);
   const logoLink = useComponentLink(Links.Home);
   const [isOpen, setIsOpen] = React.useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = React.useState(false);
@@ -44,14 +48,6 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
   const onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined) => {
     event?.stopPropagation();
     setIsOpen(!isOpen);
-    const selectedItemId = event?.currentTarget?.id || '';
-    if (selectedItemId === 'settings') {
-      // TODO: open the settings modal
-    } else if (selectedItemId === 'about') {
-      // todo
-    } else {
-      // ignore unknown menu items
-    }
   };
 
   const toggleAboutModal = () => {
@@ -60,7 +56,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
 
   return (
     <>
-      <Masthead id="stack-inline-masthead" display={displayObject.current}>
+      <Masthead id="stack-inline-masthead" display={displayObject}>
         <MastheadToggle>
           <Button variant="plain" onClick={props.navToggle} aria-label="Global navigation">
             <BarsIcon />
