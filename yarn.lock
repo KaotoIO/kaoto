@@ -3638,16 +3638,17 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-actions@npm:^8.0.0":
-  version: 8.1.11
-  resolution: "@storybook/addon-actions@npm:8.1.11"
+  version: 8.2.2
+  resolution: "@storybook/addon-actions@npm:8.2.2"
   dependencies:
-    "@storybook/core-events": 8.1.11
     "@storybook/global": ^5.0.0
     "@types/uuid": ^9.0.1
     dequal: ^2.0.2
     polished: ^4.2.2
     uuid: ^9.0.0
-  checksum: e4711bc4acdcad5402176e9715410a34e634ab3ce183eaf2589a18024e745292f78c276c015ae7074115766bf82b5d125833e518fc82a718188bb5f80ed345f7
+  peerDependencies:
+    storybook: ^8.2.2
+  checksum: a1a3395fa00654477d258df0328e148778d27bf4ce3a7364eb03a25574bdeaa428cef8b1fe99ebf148c67f34c8997ab25e77de65f7d1b2c717e7394628b53bae
   languageName: node
   linkType: hard
 
@@ -3679,25 +3680,6 @@ __metadata:
     react-dom:
       optional: true
   checksum: 6540d0339aee2c4e5a16db467a04c8757822c676709af608cb086b3a04617113f4fd7cf218f2d10b6933e069927c8501eb8255e1fa54e8789f0b2e350f9cdec0
-  languageName: node
-  linkType: hard
-
-"@storybook/core-events@npm:8.1.11":
-  version: 8.1.11
-  resolution: "@storybook/core-events@npm:8.1.11"
-  dependencies:
-    "@storybook/csf": ^0.1.7
-    ts-dedent: ^2.0.0
-  checksum: 3b3231b299367def8d6d9ee8dc939ad145473bbd561d495f0dac3e5cd3adb93b7e87f1d0a6787917275f8dfae8193959c872336530930ad90207b6df5de37910
-  languageName: node
-  linkType: hard
-
-"@storybook/csf@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@storybook/csf@npm:0.1.7"
-  dependencies:
-    type-fest: ^2.19.0
-  checksum: 0f2b32a3d3920620d032436429fff9f3a08add8e52dc735a5dfd6ce46260a12c7ec87f4fff065bf0e8baae988d1655eea25d5aaba810e7687119ac5661eaeaa4
   languageName: node
   linkType: hard
 
@@ -13201,13 +13183,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-dedent@npm:^2.0.0":
-  version: 2.2.0
-  resolution: "ts-dedent@npm:2.2.0"
-  checksum: 93ed8f7878b6d5ed3c08d99b740010eede6bccfe64bce61c5a4da06a2c17d6ddbb80a8c49c2d15251de7594a4f93ffa21dd10e7be75ef66a4dc9951b4a94e2af
-  languageName: node
-  linkType: hard
-
 "ts-graphviz@npm:^1.8.1":
   version: 1.8.2
   resolution: "ts-graphviz@npm:1.8.2"
@@ -13342,7 +13317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^2.19.0, type-fest@npm:^2.5.1":
+"type-fest@npm:^2.5.1":
   version: 2.19.0
   resolution: "type-fest@npm:2.19.0"
   checksum: a4ef07ece297c9fba78fc1bd6d85dff4472fe043ede98bd4710d2615d15776902b595abf62bd78339ed6278f021235fb28a96361f8be86ed754f778973a0d278
