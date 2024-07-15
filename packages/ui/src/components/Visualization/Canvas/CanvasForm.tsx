@@ -1,9 +1,9 @@
-import { Card, CardBody, CardHeader, SearchInput } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { Card, CardBody, CardHeader, SearchInput, Tabs, Tab, TabTitleText, Tooltip } from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { VisibleFlowsContext, FilteredFieldContext } from '../../../providers';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
-import { isDefined, setValue } from '../../../utils';
+import { isDefined, setValue, getUserUpdatedPropertiesSchema } from '../../../utils';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
@@ -23,10 +23,19 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
-  const formRef = useRef<CustomAutoFormRef>(null);
-  const divRef = useRef<HTMLDivElement>(null);
+  const defaultformRef = useRef<CustomAutoFormRef>(null);
+  const specialformRef = useRef<CustomAutoFormRef>(null);
+  const defaultformdivRef = useRef<HTMLDivElement>(null);
+  const specialformdivRef = useRef<HTMLDivElement>(null);
   const flowIdRef = useRef<string | undefined>(undefined);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
+  const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const defaultTooltipRef = useRef<HTMLElement>(null);
+  const specialTooltipRef = useRef<HTMLElement>(null);
+
+  const handleTabClick = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, tabIndex: string | number) => {
+    setActiveTabKey(tabIndex);
+  };
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -35,9 +44,16 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
       answer!.definition.parameters = {};
     }
     return answer;
-  }, [props.selectedNode.data?.vizNode]);
+  }, [props.selectedNode.data?.vizNode, activeTabKey]);
   const model = visualComponentSchema?.definition;
   const title = visualComponentSchema?.title;
+
+  const processedSchema = useMemo(() => {
+    return {
+      ...visualComponentSchema?.schema,
+      properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),
+    };
+  }, [visualComponentSchema]);
 
   /** Store the flow's initial Id */
   useEffect(() => {
@@ -45,8 +61,9 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    formRef.current?.form.reset();
-  }, [props.selectedNode.data?.vizNode]);
+    defaultformRef.current?.form.reset();
+    specialformRef.current?.form.reset();
+  }, [props.selectedNode.data?.vizNode, activeTabKey]);
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
@@ -108,25 +125,58 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         </CardHeader>
 
         <CardBody className="canvas-form__body">
-          {stepFeatures.isUnknownComponent ? (
-            <UnknownNode model={model} />
-          ) : (
-            <SchemaBridgeProvider schema={visualComponentSchema?.schema} parentRef={divRef}>
-              {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-              {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-              {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-              <CustomAutoForm
-                key={props.selectedNode.id}
-                ref={formRef}
-                model={model}
-                onChange={handleOnChangeIndividualProp}
-                sortFields={false}
-                omitFields={omitFields.current}
-                data-testid="autoform"
-              />
-              <div data-testid="root-form-placeholder" ref={divRef} />
-            </SchemaBridgeProvider>
-          )}
+          <Tabs
+            activeKey={activeTabKey}
+            onSelect={handleTabClick}
+            aria-label="Tabs in the canvas side-bar"
+            role="form-tabs"
+            className="form-tabs"
+          >
+            <Tab eventKey={0} title={<TabTitleText>Default Form</TabTitleText>} ref={defaultTooltipRef}>
+              {stepFeatures.isUnknownComponent ? (
+                <UnknownNode model={model} />
+              ) : (
+                <SchemaBridgeProvider schema={visualComponentSchema?.schema} parentRef={defaultformdivRef}>
+                  {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
+                  {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+                  {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+                  <CustomAutoForm
+                    key={props.selectedNode.id}
+                    ref={defaultformRef}
+                    model={model}
+                    onChange={handleOnChangeIndividualProp}
+                    sortFields={false}
+                    omitFields={omitFields.current}
+                    data-testid="autoform"
+                  />
+                  <div data-testid="root-form-placeholder" ref={defaultformdivRef} />
+                </SchemaBridgeProvider>
+              )}
+            </Tab>
+            <Tab eventKey={1} title={<TabTitleText>Special Form</TabTitleText>} ref={specialTooltipRef}>
+              <SchemaBridgeProvider schema={processedSchema} parentRef={specialformdivRef}>
+                {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
+                {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
+                {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
+                <CustomAutoForm
+                  key={props.selectedNode.id}
+                  ref={specialformRef}
+                  model={model}
+                  onChange={handleOnChangeIndividualProp}
+                  sortFields={false}
+                  omitFields={omitFields.current}
+                  data-testid="autoform"
+                />
+                <div data-testid="root-form-placeholder" ref={specialformdivRef} />
+              </SchemaBridgeProvider>
+            </Tab>
+          </Tabs>
+          <Tooltip id="tooltip-ref1" content="Form that shows all fields." triggerRef={defaultTooltipRef} />
+          <Tooltip
+            id="tooltip-ref2"
+            content="Form that shows only user modified fields."
+            triggerRef={specialTooltipRef}
+          />
         </CardBody>
       </Card>
     </ErrorBoundary>
