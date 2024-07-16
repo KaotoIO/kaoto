@@ -4,7 +4,6 @@ import {
   ConcentricLayout,
   DagreLayout,
   DefaultEdge,
-  EdgeAnimationSpeed,
   EdgeStyle,
   ForceLayout,
   GridLayout,
@@ -29,8 +28,7 @@ describe('CanvasService', () => {
 
   const DEFAULT_EDGE_PROPS = {
     type: 'edge',
-    edgeStyle: EdgeStyle.dashed,
-    animationSpeed: EdgeAnimationSpeed.medium,
+    edgeStyle: EdgeStyle.solid,
   };
 
   beforeEach(() => {
