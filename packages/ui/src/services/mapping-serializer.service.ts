@@ -1,8 +1,19 @@
-import { BODY_DOCUMENT_ID, IDocument, IField, PrimitiveDocument } from '../models/document';
-import { MappingItem, MappingTree } from '../models/mapping';
+import { BaseField, IDocument, IField, IParentType, PrimitiveDocument } from '../models/document';
+import {
+  ChooseItem,
+  FieldItem,
+  ForEachItem,
+  IfItem,
+  MappingItem,
+  MappingParentType,
+  MappingTree,
+  OtherwiseItem,
+  ValueSelector,
+  ValueType,
+  WhenItem,
+} from '../models/mapping';
 import xmlFormat from 'xml-formatter';
-import { DocumentService } from './document.service';
-import { DocumentType, NodePath } from '../models/path';
+import { DocumentType } from '../models/path';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
 export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
@@ -12,21 +23,37 @@ export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
   </xsl:template>
 </xsl:stylesheet>
 `;
+
 export class MappingSerializerService {
   static createNew() {
     return new DOMParser().parseFromString(EMPTY_XSL, 'application/xml');
   }
 
+  /**
+   * Serialize the {@link MappingTree} model object into an XSLT mappings document string.
+   * @param mappings {@link MappingTree} object to write
+   * @param sourceParameterMap source paramter map
+   */
   static serialize(mappings: MappingTree, sourceParameterMap: Map<string, IDocument>): string {
     const xslt = MappingSerializerService.createNew();
     MappingSerializerService.populateParam(xslt, sourceParameterMap);
+    const template = MappingSerializerService.getRootTemplate(xslt);
     mappings.children.forEach((mapping) => {
-      MappingSerializerService.populateMapping(xslt, mapping);
+      MappingSerializerService.populateMapping(template, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
   }
 
-  static populateParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
+  private static getRootTemplate(xsltDocument: Document) {
+    const prefix = xsltDocument.lookupPrefix(NS_XSL);
+    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+    return xsltDocument
+      .evaluate(`/${prefix}:stylesheet/${prefix}:template[@match='/']`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
+      .iterateNext()! as Element;
+  }
+
+  private static populateParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
+    const template = MappingSerializerService.getRootTemplate(xsltDocument);
     sourceParameterMap.forEach((_doc, paramName) => {
       const prefix = xsltDocument.lookupPrefix(NS_XSL);
       const nsResolver = xsltDocument.createNSResolver(xsltDocument);
@@ -41,147 +68,249 @@ export class MappingSerializerService {
       if (!existing) {
         const xsltParam = xsltDocument.createElementNS(NS_XSL, 'param');
         xsltParam.setAttribute('name', paramName);
-        const template = xsltDocument
-          .evaluate(
-            `/${prefix}:stylesheet/${prefix}:template[@match='/']`,
-            xsltDocument,
-            nsResolver,
-            XPathResult.ANY_TYPE,
-          )
-          .iterateNext()!;
         (template.parentNode as Element).insertBefore(xsltParam, template);
       }
     });
   }
 
-  static populateMapping(_xsltDocument: Document, _mapping: MappingItem) {
-    /*
-    const source = mapping.source;
-    const target = mapping.targetFields[0];
-
-    const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
-    // jsdom requires `type` to be specified anyway, but if `type` is specified,
-    // Chrome requires NS Resolver to be explicitly specified.
-    // Note that `createNSResolver()` returns null with jsdom.
-    const template = xsltDocument
-      .evaluate(`/${prefix}:stylesheet/${prefix}:template[@match='/']`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
-      .iterateNext() as Element;
-    if (!template || template.nodeType !== Node.ELEMENT_NODE) {
-      throw Error('No root template in the XSLT document');
+  private static populateMapping(parent: Element, mapping: MappingItem) {
+    let child: Element | null = null;
+    if (mapping instanceof ValueSelector) {
+      child = MappingSerializerService.populateValueSelector(parent, mapping);
+    } else if (mapping instanceof FieldItem) {
+      child = MappingSerializerService.populateFieldItem(parent, mapping);
+    } else if (mapping instanceof IfItem) {
+      child = MappingSerializerService.populateIfItem(parent, mapping);
+    } else if (mapping instanceof ChooseItem) {
+      child = MappingSerializerService.populateChooseItem(parent, mapping);
+    } else if (mapping instanceof ForEachItem) {
+      child = MappingSerializerService.populateForEachItem(parent, mapping);
+    } else if (mapping instanceof WhenItem) {
+      child = MappingSerializerService.populateWhenItem(parent, mapping);
+    } else if (mapping instanceof OtherwiseItem) {
+      child = MappingSerializerService.populateOtherwiseItem(parent, mapping);
     }
-    const parent =
-      target instanceof PrimitiveDocument
-        ? template
-        : MappingSerializerService.getOrCreateParent(template as Element, target);
-    const sourceXPath = mapping.xpath ? mapping.xpath : MappingSerializerService.getXPath(xsltDocument, source);
-    MappingSerializerService.populateSource(parent, sourceXPath, target);
-
-     */
+    if (child) mapping.children.forEach((childItem) => MappingSerializerService.populateMapping(child!, childItem));
   }
 
-  static getOrCreateParent(template: Element, target: IField) {
-    if (!('parent' in target)) {
-      return template;
-    }
-
-    const xsltDocument = template.ownerDocument;
-    const fieldStack: IField[] = DocumentService.getFieldStack(target);
-    let parentNode = template;
-    while (fieldStack.length) {
-      const currentField = fieldStack.pop()!;
-      let element: Element | undefined = undefined;
-      parentNode.childNodes.forEach((n) => {
-        if (
-          n.nodeType === Node.ELEMENT_NODE &&
-          MappingSerializerService.isInSameNamespace(n as Element, currentField) &&
-          (n as Element).localName === currentField.name
-        ) {
-          element = n as Element;
-        }
-      });
-      if (!element) {
-        element = xsltDocument.createElementNS(currentField.namespaceURI, currentField.name);
-        parentNode.appendChild(element);
-      }
-      parentNode = element;
-    }
-    return parentNode;
-  }
-
-  static isInSameNamespace(element: Element, field: IField) {
-    if (element.namespaceURI === null || element.namespaceURI === '') {
-      return field.namespaceURI === null || field.namespaceURI === '';
-    }
-    return element.namespaceURI === field.namespaceURI;
-  }
-
-  static populateSource(parent: Element, sourceXPath: string, target: IField) {
+  private static populateValueSelector(parent: Element, selector: ValueSelector) {
     const xsltDocument = parent.ownerDocument;
-    if (target.isAttribute) {
-      const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
-      xslAttribute.setAttribute('name', target.name);
-      parent.appendChild(xslAttribute);
-      const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
-      valueOf.setAttribute('select', sourceXPath);
-      xslAttribute.appendChild(valueOf);
-    } else if (target instanceof PrimitiveDocument) {
-      const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
-      valueOf.setAttribute('select', sourceXPath);
-      parent.appendChild(valueOf);
-    } else if (target.fields.length > 0) {
-      const copyOf = xsltDocument.createElementNS(NS_XSL, 'copy-of');
-      copyOf.setAttribute('select', sourceXPath);
-      parent.appendChild(copyOf);
-    } else {
-      const element = xsltDocument.createElementNS(target.namespaceURI, target.name);
-      parent.appendChild(element);
-      const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
-      valueOf.setAttribute('select', sourceXPath);
-      element.appendChild(valueOf);
-    }
-  }
-
-  static getXPath(_xsltDocument: Document, _source: MappingTree) {
-    /*
-    const fieldStack = DocumentService.getFieldStack(source, true);
-    const pathStack: string[] = [];
-    while (fieldStack.length) {
-      const currentField = fieldStack.pop()!;
-      const prefix = MappingSerializerService.getOrCreateNSPrefix(xsltDocument, currentField.namespaceURI);
-      pathStack.push(prefix ? prefix + ':' + currentField.expression : currentField.expression);
-    }
-    const paramPrefix =
-      source.ownerDocument.documentType === DocumentType.PARAM ? '$' + source.ownerDocument.documentId : '';
-    return source.ownerDocument instanceof PrimitiveDocument ? paramPrefix : paramPrefix + '/' + pathStack.join('/');
-
-     */
-  }
-
-  static getOrCreateNSPrefix(xsltDocument: Document, namespace: string | null) {
-    const rootElement = xsltDocument.documentElement;
-    if (namespace == null || namespace === '') {
-      return null;
-    }
-    const prefix = rootElement.lookupPrefix(namespace);
-    if (prefix != null && prefix !== '') {
-      return prefix;
-    }
-    for (let counter = 0; ; counter++) {
-      const prefix = 'ns' + counter;
-      const existing = rootElement.lookupNamespaceURI(prefix);
-      if (!existing) {
-        rootElement.setAttribute('xmlns:' + prefix, namespace);
-        return prefix;
+    switch (selector.valueType) {
+      case ValueType.CONTAINER: {
+        const copyOf = xsltDocument.createElementNS(NS_XSL, 'copy-of');
+        copyOf.setAttribute('select', selector.expression);
+        parent.appendChild(copyOf);
+        return copyOf;
+      }
+      default: {
+        const valueOf = xsltDocument.createElementNS(NS_XSL, 'value-of');
+        valueOf.setAttribute('select', selector.expression);
+        parent.appendChild(valueOf);
+        return valueOf;
       }
     }
   }
 
-  static deserialize(mappingTree: MappingTree, xslt: string): MappingTree {
+  private static populateFieldItem(parent: Element, mapping: FieldItem) {
+    const xsltDocument = parent.ownerDocument;
+    if (mapping.field.isAttribute) {
+      const xslAttribute = xsltDocument.createElementNS(NS_XSL, 'attribute');
+      xslAttribute.setAttribute('name', mapping.field.name);
+      mapping.field.namespaceURI && xslAttribute.setAttribute('namespace', mapping.field.namespaceURI);
+      parent.appendChild(xslAttribute);
+      return xslAttribute;
+    } else {
+      const element = mapping.field.namespaceURI
+        ? xsltDocument.createElementNS(mapping.field.namespaceURI, mapping.field.name)
+        : xsltDocument.createElement(mapping.field.name);
+      parent.appendChild(element);
+      return element;
+    }
+  }
+
+  private static populateIfItem(parent: Element, mapping: IfItem) {
+    const xsltDocument = parent.ownerDocument;
+    const xslIf = xsltDocument.createElementNS(NS_XSL, 'if');
+    xslIf.setAttribute('test', mapping.expression);
+    parent.appendChild(xslIf);
+    return xslIf;
+  }
+
+  private static populateChooseItem(parent: Element, _mapping: ChooseItem) {
+    const xsltDocument = parent.ownerDocument;
+    const xslChoose = xsltDocument.createElementNS(NS_XSL, 'choose');
+    parent.appendChild(xslChoose);
+    return xslChoose;
+  }
+
+  private static populateForEachItem(parent: Element, mapping: ForEachItem) {
+    const xsltDocument = parent.ownerDocument;
+    const xslForEach = xsltDocument.createElementNS(NS_XSL, 'for-each');
+    xslForEach.setAttribute('select', mapping.expression);
+    parent.appendChild(xslForEach);
+    return xslForEach;
+  }
+
+  private static populateWhenItem(parent: Element, mapping: WhenItem) {
+    const xsltDocument = parent.ownerDocument;
+    const xslWhen = xsltDocument.createElementNS(NS_XSL, 'when');
+    xslWhen.setAttribute('test', mapping.expression);
+    parent.appendChild(xslWhen);
+    return xslWhen;
+  }
+
+  private static populateOtherwiseItem(parent: Element, _mapping: OtherwiseItem) {
+    const xsltDocument = parent.ownerDocument;
+    const xslOtherwise = xsltDocument.createElementNS(NS_XSL, 'otherwise');
+    parent.appendChild(xslOtherwise);
+    return xslOtherwise;
+  }
+
+  /**
+   * Deserialize the XSLT mappings document into a {@link MappingTree} model object.
+   * @param xslt XSLT mappings document in string format
+   * @param targetDocument Target Document
+   * @param mappingTree {@link MappingTree} object to write
+   * @param sourceParameterMap source parameter map
+   */
+  static deserialize(
+    xslt: string,
+    targetDocument: IDocument,
+    mappingTree: MappingTree,
+    sourceParameterMap: Map<string, IDocument>,
+  ): MappingTree {
     mappingTree.children = [];
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
-    template.localName;
-    return { nodePath: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID), children: [] };
+    if (!template?.children) return mappingTree;
+    MappingSerializerService.restoreParam(xsltDoc, sourceParameterMap);
+    Array.from(template.children).forEach((item) =>
+      MappingSerializerService.restoreMapping(item, targetDocument, mappingTree),
+    );
+    return mappingTree;
+  }
+
+  private static restoreParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
+    const prefix = xsltDocument.lookupPrefix(NS_XSL);
+    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+    const params = xsltDocument.evaluate(
+      `/${prefix}:stylesheet/${prefix}:param`,
+      xsltDocument,
+      nsResolver,
+      XPathResult.ANY_TYPE,
+    );
+    let param: Node | null;
+    while ((param = params.iterateNext())) {
+      const paramEl = param as Element;
+      const name = paramEl.getAttribute('name');
+      if (!name || sourceParameterMap.has(name)) continue;
+      sourceParameterMap.set(name, new PrimitiveDocument(DocumentType.PARAM, name));
+    }
+  }
+
+  private static restoreMapping(item: Element, parentField: IParentType, parentMapping: MappingParentType) {
+    let mappingItem: MappingItem | null = null;
+    let fieldItem: IParentType | null = null;
+    if (item.namespaceURI === NS_XSL) {
+      switch (item.localName) {
+        case 'copy-of': {
+          const selector = new ValueSelector(parentMapping, ValueType.CONTAINER);
+          selector.expression = item.getAttribute('select') || '';
+          mappingItem = selector;
+          break;
+        }
+        case 'value-of': {
+          const valueType =
+            'isAttribute' in parentField && parentField.isAttribute ? ValueType.ATTRIBUTE : ValueType.VALUE;
+          const selector = new ValueSelector(parentMapping, valueType);
+          selector.expression = item.getAttribute('select') || '';
+          mappingItem = selector;
+          break;
+        }
+        case 'if': {
+          const ifItem = new IfItem(parentMapping);
+          ifItem.expression = item.getAttribute('test') || '';
+          mappingItem = ifItem;
+          break;
+        }
+        case 'choose': {
+          mappingItem = new ChooseItem(parentMapping);
+          break;
+        }
+        case 'when': {
+          const whenItem = new WhenItem(parentMapping);
+          whenItem.expression = item.getAttribute('test') || '';
+          mappingItem = whenItem;
+          break;
+        }
+        case 'otherwise': {
+          mappingItem = new OtherwiseItem(parentMapping);
+          break;
+        }
+        case 'for-each': {
+          const forEachItem = new ForEachItem(parentMapping);
+          forEachItem.expression = item.getAttribute('select') || '';
+          mappingItem = forEachItem;
+          break;
+        }
+        case 'attribute': {
+          if (parentField instanceof PrimitiveDocument) return;
+          const field = MappingSerializerService.getOrCreateAttributeField(item, parentField);
+          if (!field) return;
+          fieldItem = field;
+          mappingItem = new FieldItem(parentMapping, field);
+          break;
+        }
+      }
+    } else {
+      if (parentField instanceof PrimitiveDocument) return;
+      const field = MappingSerializerService.getOrCreateElementField(item, parentField);
+      if (!field) return;
+      fieldItem = field;
+      mappingItem = new FieldItem(parentMapping, field);
+    }
+    if (mappingItem) {
+      parentMapping.children.push(mappingItem);
+      Array.from(item.children).forEach((childItem) =>
+        MappingSerializerService.restoreMapping(childItem, fieldItem ? fieldItem : parentField, mappingItem!),
+      );
+    }
+  }
+
+  private static getOrCreateAttributeField(item: Element, parentField: IParentType): IField | null {
+    const namespace = item.getAttribute('namespace');
+    const name = item.getAttribute('name');
+    if (!name) return null;
+    const existing = parentField.fields.find(
+      (child) => child.name === name && ((!namespace && !child.namespaceURI) || child.namespaceURI === namespace),
+    );
+    if (existing) return existing;
+    const field = new BaseField(
+      parentField,
+      'ownerDocument' in parentField ? parentField.ownerDocument : parentField,
+      name,
+    );
+    field.isAttribute = true;
+    field.expression = '@' + name;
+    field.namespaceURI = namespace;
+    parentField.fields.push(field);
+    return field;
+  }
+
+  private static getOrCreateElementField(item: Element, parentField: IParentType): IField {
+    const namespace = item.namespaceURI;
+    const name = item.localName;
+    const existing = parentField.fields.find(
+      (child) => child.name === name && ((!namespace && !child.namespaceURI) || child.namespaceURI === namespace),
+    );
+    if (existing) return existing;
+    const field = new BaseField(
+      parentField,
+      'ownerDocument' in parentField ? parentField.ownerDocument : parentField,
+      name,
+    );
+    field.namespaceURI = namespace;
+    parentField.fields.push(field);
+    return field;
   }
 }

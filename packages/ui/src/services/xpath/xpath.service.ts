@@ -121,7 +121,7 @@ export class XPathService {
     const doc = source.ownerDocument;
     const prefix = doc.documentType === DocumentType.PARAM ? `$${doc.documentId}` : '';
     const xpath = DocumentService.getFieldStack(source, true).reduceRight(
-      (acc, field) => acc + `/${field.name}`,
+      (acc, field) => acc + `/${field.expression}`,
       prefix,
     );
     return xpath ? xpath : '.';

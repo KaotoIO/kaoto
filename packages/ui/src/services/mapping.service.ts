@@ -11,6 +11,7 @@ import {
   MappingParentType,
   ForEachItem,
   ExpressionItem,
+  ValueType,
 } from '../models/mapping';
 import { IDocument, IField, PrimitiveDocument } from '../models/document';
 import { DocumentService } from './document.service';
@@ -209,7 +210,7 @@ export class MappingService {
   static mapToDocument(mappingTree: MappingTree, source: PrimitiveDocument | IField) {
     let valueSelector = mappingTree.children.find((mapping) => mapping instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
-      valueSelector = new ValueSelector(mappingTree);
+      valueSelector = MappingService.createValueSelector(mappingTree);
       mappingTree.children.push(valueSelector);
     }
     const path = XPathService.toXPath(source);
@@ -219,12 +220,32 @@ export class MappingService {
   static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
     let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
-      valueSelector = new ValueSelector(targetFieldItem);
+      valueSelector = MappingService.createValueSelector(targetFieldItem);
       targetFieldItem.children.push(valueSelector);
     }
     const absPath = XPathService.toXPath(source);
     const relativePath = MappingService.getRelativePath(valueSelector, absPath);
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
+  }
+
+  static createValueSelector(parent: MappingParentType) {
+    const valueType = parent instanceof MappingTree ? ValueType.VALUE : MappingService.getValueTypeFor(parent);
+    return new ValueSelector(parent, valueType);
+  }
+
+  private static getValueTypeFor(mapping: MappingItem): ValueType {
+    const field = MappingService.getTargetField(mapping);
+    return field?.isAttribute
+      ? ValueType.ATTRIBUTE
+      : field?.fields?.length && field.fields.length > 0
+        ? ValueType.CONTAINER
+        : ValueType.VALUE;
+  }
+
+  private static getTargetField(mapping: MappingItem) {
+    let item = mapping;
+    while (!(item instanceof FieldItem) && !(item.parent instanceof MappingTree)) item = item.parent;
+    if (item instanceof FieldItem) return item.field;
   }
 
   static deleteMappingItem(item: MappingParentType) {

@@ -77,7 +77,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   id: string;
 }
 
-export abstract class BaseField implements IField {
+export class BaseField implements IField {
   constructor(
     public parent: IParentType,
     public ownerDocument: IDocument,

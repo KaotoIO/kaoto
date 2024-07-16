@@ -106,8 +106,17 @@ export class SortItem {
   order: 'ascending' | 'descending' = 'ascending';
 }
 
+export enum ValueType {
+  VALUE = 'value',
+  CONTAINER = 'container',
+  ATTRIBUTE = 'attribute',
+}
+
 export class ValueSelector extends ExpressionItem {
-  constructor(public parent: MappingParentType) {
+  constructor(
+    public parent: MappingParentType,
+    public valueType: ValueType = ValueType.VALUE,
+  ) {
     super(parent, 'value');
   }
 }

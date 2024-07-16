@@ -13,7 +13,7 @@ type ImportMappingFileDropdownItemProps = {
 export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileDropdownItemProps> = ({
   onComplete,
 }) => {
-  const { mappingTree, refreshMappingTree } = useDataMapper();
+  const { mappingTree, sourceParameterMap, targetBodyDocument, refreshMappingTree } = useDataMapper();
 
   const { files, onClick, HiddenFileInput } = useFilePicker({
     maxFileSize: 1,
@@ -23,13 +23,12 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
   const onImport = useCallback(
     (file: File) => {
       readFileAsString(file).then((content) => {
-        MappingSerializerService.deserialize(mappingTree, content);
+        MappingSerializerService.deserialize(content, targetBodyDocument, mappingTree, sourceParameterMap);
         refreshMappingTree();
-        alert('TODO');
         onComplete();
       });
     },
-    [mappingTree, onComplete, refreshMappingTree],
+    [mappingTree, onComplete, refreshMappingTree, sourceParameterMap, targetBodyDocument],
   );
 
   useEffect(() => {

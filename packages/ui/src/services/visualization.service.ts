@@ -246,7 +246,10 @@ export class VisualizationService {
         : nodeData.mapping;
     if (!mapping) return;
     const existing = mapping.children.find((c: MappingItem) => c instanceof ValueSelector);
-    if (!existing) mapping.children.push(new ValueSelector(mapping));
+    if (!existing) {
+      const valueSelector = MappingService.createValueSelector(mapping);
+      mapping.children.push(valueSelector);
+    }
   }
 
   static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData) {
