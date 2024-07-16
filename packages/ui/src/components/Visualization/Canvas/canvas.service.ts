@@ -6,7 +6,6 @@ import {
   ConcentricLayout,
   DagreLayout,
   DefaultEdge,
-  EdgeAnimationSpeed,
   EdgeStyle,
   ForceLayout,
   Graph,
@@ -258,8 +257,7 @@ export class CanvasService {
       type: 'edge',
       source,
       target,
-      edgeStyle: EdgeStyle.dashed,
-      animationSpeed: EdgeAnimationSpeed.medium,
+      edgeStyle: EdgeStyle.solid,
     };
   }
 }

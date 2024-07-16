@@ -766,9 +766,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -798,9 +798,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -830,9 +830,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -862,9 +862,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -894,9 +894,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -926,9 +926,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -958,9 +958,9 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1467,9 +1467,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1499,9 +1499,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1531,9 +1531,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1563,9 +1563,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1595,9 +1595,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1627,9 +1627,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -1659,9 +1659,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2168,9 +2168,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2200,9 +2200,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2232,9 +2232,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2264,9 +2264,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2296,9 +2296,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2328,9 +2328,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
@@ -2360,9 +2360,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                 d="M37.5 37.5 L0 0"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-dashed"
+                                class="pf-topology__edge__link pf-m-solid"
                                 d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0.75s;"
+                                style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
