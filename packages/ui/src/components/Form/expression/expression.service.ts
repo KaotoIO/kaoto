@@ -1,5 +1,6 @@
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { ICamelLanguageDefinition } from '../../../models';
+import { isDefined } from '../../../utils';
 
 export class ExpressionService {
   /**
@@ -72,9 +73,10 @@ export class ExpressionService {
     language: ICamelLanguageDefinition | undefined;
     model: Record<string, unknown> | undefined;
   } {
+    if (!isDefined(parentModel)) return { language: undefined, model: undefined };
     let languageModelName;
     let model = undefined;
-    if (parentModel?.expression && Object.keys(parentModel.expression).length > 0) {
+    if (parentModel.expression && Object.keys(parentModel.expression).length > 0) {
       languageModelName = Object.keys(parentModel.expression)[0];
       model = ExpressionService.parseLanguageModel(
         parentModel.expression as Record<string, unknown>,

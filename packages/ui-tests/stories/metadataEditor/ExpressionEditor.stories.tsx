@@ -9,6 +9,7 @@ import {
   SchemasLoaderProvider,
   StepExpressionEditor,
   VisualComponentSchema,
+  FormTabsModes,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 
@@ -63,4 +64,5 @@ const Template: StoryFn<typeof MetadataEditor> = (args: CanvasNode) => {
 export const Default = Template.bind({});
 Default.args = {
   selectedNode: mockNode,
+  formMode: FormTabsModes.ALL_FIELDS,
 };

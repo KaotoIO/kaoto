@@ -12,10 +12,12 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import { getSerializedModel } from '../../../utils';
+import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
+  formMode: FormTabsModes;
 }
 
 export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props) => {
@@ -58,6 +60,14 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     return DataFormatService.getDataFormatSchema(dataFormat);
   }, [dataFormat]);
 
+  const processedSchema = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return dataFormatSchema;
+    return {
+      ...dataFormatSchema,
+      properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
+    };
+  }, [props.formMode, dataFormat]);
+
   const handleOnChange = useCallback(
     (
       selectedDataFormatOption: { name: string; title: string } | undefined,
@@ -78,6 +88,13 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
     [entitiesContext, dataFormatCatalogMap, props.selectedNode.data?.vizNode],
   );
 
+  const showEditor = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
+    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedDataFormatOption);
+  }, [props.formMode]);
+
+  if (!showEditor) return null;
+
   return (
     <div className="dataformat-metadata-editor">
       <Card isCompact={true} isExpanded={isExpanded} className="dataformat-metadata-editor-card">
@@ -91,7 +108,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
               title="dataformat"
               selected={selectedDataFormatOption}
               selectedModel={dataFormatModel}
-              selectedSchema={dataFormatSchema}
+              selectedSchema={processedSchema}
               selectionOnChange={handleOnChange}
             />
           </CardBody>

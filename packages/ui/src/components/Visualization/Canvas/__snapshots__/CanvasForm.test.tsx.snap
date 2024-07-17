@@ -105,6 +105,44 @@ exports[`CanvasForm should render 1`] = `
     <div
       class="pf-v5-c-card__body canvas-form__body"
     >
+      <div
+        aria-label="Single selectable form tabs"
+        class="pf-v5-c-toggle-group form-tabs"
+        role="group"
+      >
+        <div
+          class="pf-v5-c-toggle-group__item"
+        >
+          <button
+            aria-pressed="true"
+            class="pf-v5-c-toggle-group__button pf-m-selected"
+            id="All Fields"
+            type="button"
+          >
+            <span
+              class="pf-v5-c-toggle-group__text"
+            >
+              All Fields
+            </span>
+          </button>
+        </div>
+        <div
+          class="pf-v5-c-toggle-group__item"
+        >
+          <button
+            aria-pressed="false"
+            class="pf-v5-c-toggle-group__button"
+            id="User Modified"
+            type="button"
+          >
+            <span
+              class="pf-v5-c-toggle-group__text"
+            >
+              User Modified
+            </span>
+          </button>
+        </div>
+      </div>
       <form
         autocomplete="new-password"
         class="pf-v5-c-form"
