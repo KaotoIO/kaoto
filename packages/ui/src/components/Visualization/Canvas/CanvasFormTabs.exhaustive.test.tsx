@@ -14,7 +14,7 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SchemaService } from '../../Form';
 import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
 
-describe('CanvasForm', () => {
+describe('CanvasFormTabs', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;

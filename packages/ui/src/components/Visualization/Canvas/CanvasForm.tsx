@@ -1,18 +1,11 @@
 import { Card, CardBody, CardHeader, SearchInput } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { VisibleFlowsContext, FilteredFieldContext } from '../../../providers';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
-import { isDefined, setValue } from '../../../utils';
 import { ErrorBoundary } from '../../ErrorBoundary';
-import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
-import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
-import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
-import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
-import { UnknownNode } from '../Custom/UnknownNode';
 import './CanvasForm.scss';
 import { CanvasFormHeader } from './Form/CanvasFormHeader';
 import { CanvasNode } from './canvas.models';
+import { CanvasFormTabs } from './CanvasFormTabs';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -21,12 +14,8 @@ interface CanvasFormProps {
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
-  const entitiesContext = useContext(EntitiesContext);
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
-  const formRef = useRef<CustomAutoFormRef>(null);
-  const divRef = useRef<HTMLDivElement>(null);
   const flowIdRef = useRef<string | undefined>(undefined);
-  const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
@@ -36,48 +25,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     }
     return answer;
   }, [props.selectedNode.data?.vizNode]);
-  const model = visualComponentSchema?.definition;
   const title = visualComponentSchema?.title;
 
   /** Store the flow's initial Id */
   useEffect(() => {
     flowIdRef.current = props.selectedNode.data?.vizNode?.getBaseEntity()?.getId();
   }, []);
-
-  useEffect(() => {
-    formRef.current?.form.reset();
-  }, [props.selectedNode.data?.vizNode]);
-
-  const handleOnChangeIndividualProp = useCallback(
-    (path: string, value: unknown) => {
-      if (!props.selectedNode.data?.vizNode) {
-        return;
-      }
-
-      let updatedValue = value;
-      if (typeof value === 'string' && value.trim() === '') {
-        updatedValue = undefined;
-      }
-
-      const newModel = props.selectedNode.data.vizNode.getComponentSchema()?.definition || {};
-      setValue(newModel, path, updatedValue);
-      props.selectedNode.data.vizNode.updateModel(newModel);
-      entitiesContext?.updateSourceCodeFromEntities();
-    },
-    [entitiesContext, props.selectedNode.data?.vizNode],
-  );
-
-  const stepFeatures = useMemo(() => {
-    const comment = visualComponentSchema?.schema?.['$comment'] ?? '';
-    const isExpressionAwareStep = comment.includes('expression');
-    const isDataFormatAwareStep = comment.includes('dataformat');
-    const isLoadBalanceAwareStep = comment.includes('loadbalance');
-    const isUnknownComponent =
-      !isDefined(visualComponentSchema) ||
-      !isDefined(visualComponentSchema.schema) ||
-      Object.keys(visualComponentSchema.schema).length === 0;
-    return { isExpressionAwareStep, isDataFormatAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
-  }, [visualComponentSchema]);
 
   const onClose = useCallback(() => {
     props.onClose?.();
@@ -108,25 +61,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
         </CardHeader>
 
         <CardBody className="canvas-form__body">
-          {stepFeatures.isUnknownComponent ? (
-            <UnknownNode model={model} />
-          ) : (
-            <SchemaBridgeProvider schema={visualComponentSchema?.schema} parentRef={divRef}>
-              {stepFeatures.isExpressionAwareStep && <StepExpressionEditor selectedNode={props.selectedNode} />}
-              {stepFeatures.isDataFormatAwareStep && <DataFormatEditor selectedNode={props.selectedNode} />}
-              {stepFeatures.isLoadBalanceAwareStep && <LoadBalancerEditor selectedNode={props.selectedNode} />}
-              <CustomAutoForm
-                key={props.selectedNode.id}
-                ref={formRef}
-                model={model}
-                onChange={handleOnChangeIndividualProp}
-                sortFields={false}
-                omitFields={omitFields.current}
-                data-testid="autoform"
-              />
-              <div data-testid="root-form-placeholder" ref={divRef} />
-            </SchemaBridgeProvider>
-          )}
+          <CanvasFormTabs selectedNode={props.selectedNode} />
         </CardBody>
       </Card>
     </ErrorBoundary>

@@ -9,6 +9,7 @@ import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { SchemaService } from '../schema.service';
 import { StepExpressionEditor } from './StepExpressionEditor';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -45,8 +46,14 @@ describe('StepExpressionEditor', () => {
     };
   });
 
+  it('should not render', () => {
+    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    const launcherButton = screen.queryAllByRole('button', { name: 'Configure Expression' });
+    expect(launcherButton).toHaveLength(0);
+  });
+
   it('should render', async () => {
-    render(<StepExpressionEditor selectedNode={mockNode} />);
+    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
     await act(async () => {
       fireEvent.click(launcherButton[0]);

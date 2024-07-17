@@ -5,10 +5,12 @@ import { EntitiesContext } from '../../../providers';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { ExpressionService } from '..//expression/expression.service';
 import { ExpressionModalLauncher } from '../expression/ExpressionModalLauncher';
-import { getSerializedModel } from '../../../utils';
+import { getSerializedModel, isDefined } from '../../../utils';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
+  formMode: FormTabsModes;
 }
 
 export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> = (props) => {
@@ -64,6 +66,13 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   }, [resetModel]);
   const title = props.selectedNode.label;
   const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
+
+  const showEditor = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
+    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(preparedLanguage);
+  }, [props.formMode]);
+
+  if (!showEditor) return null;
 
   return (
     languageCatalogMap && (

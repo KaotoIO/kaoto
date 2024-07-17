@@ -8,6 +8,7 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { MetadataEditor } from '../../MetadataEditor';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerEditor } from './LoadBalancerEditor';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 describe('LoadBalancerEditor', () => {
   let mockNode: CanvasNode;
@@ -46,8 +47,56 @@ describe('LoadBalancerEditor', () => {
     };
   });
 
+  it('should not render', () => {
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    const buttons = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
+    expect(buttons).toHaveLength(0);
+  });
+
+  it('should render with only the user updated fields', () => {
+    const visualComponentSchema: VisualComponentSchema = {
+      title: 'My Node',
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      } as unknown as KaotoSchemaDefinition['schema'],
+      definition: {
+        name: 'my node',
+        failoverLoadBalancer: {
+          id: 'test',
+        },
+      },
+    };
+
+    mockNode = {
+      id: '1',
+      type: 'node',
+      data: {
+        vizNode: {
+          getComponentSchema: () => visualComponentSchema,
+          updateModel: (_value: unknown) => {},
+        } as IVisualizationNode,
+      },
+    };
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    const buttons = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
+    expect(buttons).toHaveLength(1);
+
+    const inputElement = screen.getAllByRole('combobox')[0];
+    expect(inputElement).toHaveValue('Failover Load Balancer');
+
+    const inputIdModifiedTabElement = screen
+      .queryAllByRole('textbox')
+      .filter((textbox) => textbox.getAttribute('label') === 'Id');
+    expect(inputIdModifiedTabElement).toHaveLength(1);
+  });
+
   it('should render', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -61,7 +110,7 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should filter candidates with a text input', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
@@ -77,7 +126,7 @@ describe('LoadBalancerEditor', () => {
   });
 
   it('should clear filter and close the dropdown with close button', async () => {
-    render(<LoadBalancerEditor selectedNode={mockNode} />);
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
