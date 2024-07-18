@@ -211,5 +211,24 @@ describe('Pipe', () => {
       expect(sink.getPreviousNode()).toBe(steps0);
       expect(sink.getNextNode()).toBeUndefined();
     });
+
+    it('should include all steps as children of the Pipe group', () => {
+      const vizNode = pipeVisualEntity.toVizNode();
+
+      const sourceNode = vizNode.getChildren()![0];
+      const stepNode = vizNode.getChildren()![1];
+      const sinkNode = vizNode.getChildren()![2];
+
+      expect(vizNode.getChildren()).toHaveLength(3);
+
+      expect(sourceNode.getPreviousNode()).toBeUndefined();
+      expect(sourceNode.getNextNode()).toBe(stepNode);
+
+      expect(stepNode.getPreviousNode()).toBe(sourceNode);
+      expect(stepNode.getNextNode()).toBe(sinkNode);
+
+      expect(sinkNode.getPreviousNode()).toBe(stepNode);
+      expect(sinkNode.getNextNode()).toBeUndefined();
+    });
   });
 });

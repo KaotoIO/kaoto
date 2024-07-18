@@ -17,7 +17,9 @@ describe('CollapseButton', () => {
   });
 
   it('should render the collapse button', () => {
-    const wrapper = render(<CollapseButton element={element} onCollapseChange={onCollapseChange} />);
+    const wrapper = render(
+      <CollapseButton data-testid="collapseButton-test" element={element} onCollapseChange={onCollapseChange} />,
+    );
     const button = wrapper.getByTestId('collapseButton-test');
 
     expect(button).toBeInTheDocument();
@@ -41,7 +43,9 @@ describe('CollapseButton', () => {
   });
 
   it('should call onCollapseChange when the button is clicked', () => {
-    const wrapper = render(<CollapseButton element={element} onCollapseChange={onCollapseChange} />);
+    const wrapper = render(
+      <CollapseButton data-testid="collapseButton-test" element={element} onCollapseChange={onCollapseChange} />,
+    );
     const button = wrapper.getByTestId('collapseButton-test');
 
     act(() => {

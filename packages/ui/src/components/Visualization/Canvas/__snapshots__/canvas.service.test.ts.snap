@@ -1,0 +1,481 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a group with children 1`] = `
+[
+  {
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "data": {},
+        "id": "child1-1234",
+        "nextNode": undefined,
+        "parentNode": VisualizationNode {
+          "DISABLED_NODE_INTERACTION": {
+            "canBeDisabled": false,
+            "canHaveChildren": false,
+            "canHaveNextStep": false,
+            "canHavePreviousStep": false,
+            "canHaveSpecialChildren": false,
+            "canRemoveFlow": false,
+            "canRemoveStep": false,
+            "canReplaceStep": false,
+          },
+          "children": [
+            [Circular],
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "data": {},
+              "id": "child2-1234",
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
+          ],
+          "data": {
+            "isGroup": true,
+          },
+          "id": "group-1234",
+          "nextNode": undefined,
+          "parentNode": undefined,
+          "previousNode": undefined,
+        },
+        "previousNode": undefined,
+      },
+    },
+    "height": 75,
+    "id": "child1-1234",
+    "parentNode": "group-1234",
+    "shape": "rect",
+    "type": "node",
+    "width": 75,
+  },
+  {
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "data": {},
+        "id": "child2-1234",
+        "nextNode": undefined,
+        "parentNode": VisualizationNode {
+          "DISABLED_NODE_INTERACTION": {
+            "canBeDisabled": false,
+            "canHaveChildren": false,
+            "canHaveNextStep": false,
+            "canHavePreviousStep": false,
+            "canHaveSpecialChildren": false,
+            "canRemoveFlow": false,
+            "canRemoveStep": false,
+            "canReplaceStep": false,
+          },
+          "children": [
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "data": {},
+              "id": "child1-1234",
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
+            [Circular],
+          ],
+          "data": {
+            "isGroup": true,
+          },
+          "id": "group-1234",
+          "nextNode": undefined,
+          "parentNode": undefined,
+          "previousNode": undefined,
+        },
+        "previousNode": undefined,
+      },
+    },
+    "height": 75,
+    "id": "child2-1234",
+    "parentNode": "group-1234",
+    "shape": "rect",
+    "type": "node",
+    "width": 75,
+  },
+  {
+    "children": [
+      "child1-1234",
+      "child2-1234",
+    ],
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "children": [
+          VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "data": {},
+            "id": "child1-1234",
+            "nextNode": undefined,
+            "parentNode": [Circular],
+            "previousNode": undefined,
+          },
+          VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "data": {},
+            "id": "child2-1234",
+            "nextNode": undefined,
+            "parentNode": [Circular],
+            "previousNode": undefined,
+          },
+        ],
+        "data": {
+          "isGroup": true,
+        },
+        "id": "group-1234",
+        "nextNode": undefined,
+        "parentNode": undefined,
+        "previousNode": undefined,
+      },
+    },
+    "group": true,
+    "id": "group-1234",
+    "label": "group-1234",
+    "parentNode": undefined,
+    "style": {
+      "padding": 60,
+    },
+    "type": "group",
+  },
+]
+`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a group with children 2`] = `[]`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 1`] = `
+[
+  {
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "data": {},
+        "id": "node-1234",
+        "nextNode": VisualizationNode {
+          "DISABLED_NODE_INTERACTION": {
+            "canBeDisabled": false,
+            "canHaveChildren": false,
+            "canHaveNextStep": false,
+            "canHavePreviousStep": false,
+            "canHaveSpecialChildren": false,
+            "canRemoveFlow": false,
+            "canRemoveStep": false,
+            "canReplaceStep": false,
+          },
+          "data": {},
+          "id": "set-header-1234",
+          "nextNode": VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "data": {},
+                    "id": "when-leaf-1234",
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                ],
+                "data": {},
+                "id": "when-1234",
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": [
+                      VisualizationNode {
+                        "DISABLED_NODE_INTERACTION": {
+                          "canBeDisabled": false,
+                          "canHaveChildren": false,
+                          "canHaveNextStep": false,
+                          "canHavePreviousStep": false,
+                          "canHaveSpecialChildren": false,
+                          "canRemoveFlow": false,
+                          "canRemoveStep": false,
+                          "canReplaceStep": false,
+                        },
+                        "data": {},
+                        "id": "log-1234",
+                        "nextNode": undefined,
+                        "parentNode": [Circular],
+                        "previousNode": undefined,
+                      },
+                    ],
+                    "data": {},
+                    "id": "process-1234",
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                ],
+                "data": {},
+                "id": "otherwise-1234",
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
+            ],
+            "data": {},
+            "id": "choice-1234",
+            "nextNode": VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "data": {},
+              "id": "direct-1234",
+              "nextNode": undefined,
+              "parentNode": undefined,
+              "previousNode": [Circular],
+            },
+            "parentNode": undefined,
+            "previousNode": [Circular],
+          },
+          "parentNode": undefined,
+          "previousNode": [Circular],
+        },
+        "parentNode": undefined,
+        "previousNode": undefined,
+      },
+    },
+    "height": 75,
+    "id": "node-1234",
+    "parentNode": undefined,
+    "shape": "rect",
+    "type": "node",
+    "width": 75,
+  },
+]
+`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 2`] = `
+[
+  {
+    "edgeStyle": "solid",
+    "id": "node-1234-to-set-header-1234",
+    "source": "node-1234",
+    "target": "set-header-1234",
+    "type": "edge",
+  },
+]
+`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a simple VisualizationNode 1`] = `
+[
+  {
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "data": {},
+        "id": "node-1234",
+        "nextNode": undefined,
+        "parentNode": undefined,
+        "previousNode": undefined,
+      },
+    },
+    "height": 75,
+    "id": "node-1234",
+    "parentNode": undefined,
+    "shape": "rect",
+    "type": "node",
+    "width": 75,
+  },
+]
+`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a simple VisualizationNode 2`] = `[]`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 1`] = `
+[
+  {
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "children": [
+          VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "data": {},
+            "id": "child-1234",
+            "nextNode": undefined,
+            "parentNode": [Circular],
+            "previousNode": undefined,
+          },
+        ],
+        "data": {},
+        "id": "node-1234",
+        "nextNode": undefined,
+        "parentNode": undefined,
+        "previousNode": undefined,
+      },
+    },
+    "height": 75,
+    "id": "node-1234",
+    "parentNode": undefined,
+    "shape": "rect",
+    "type": "node",
+    "width": 75,
+  },
+]
+`;
+
+exports[`CanvasService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 2`] = `[]`;

@@ -114,7 +114,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const setHeaderNode = rootNode.getChildren()![0].getChildren()![0];
+      const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -179,7 +179,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const marshalNode = rootNode.getChildren()![0].getChildren()![0];
+      const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -267,7 +267,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const loadBalanceNode = rootNode.getChildren()![0].getChildren()![0];
+      const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -360,7 +360,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const setHeaderNode = rootNode.getChildren()![0].getChildren()![0];
+      const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -420,7 +420,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const setHeaderNode = rootNode.getChildren()![0].getChildren()![0];
+      const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -485,7 +485,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const marshalNode = rootNode.getChildren()![0].getChildren()![0];
+      const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -535,7 +535,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const marshalNode = rootNode.getChildren()![0].getChildren()![0];
+      const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -591,7 +591,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const loadBalanceNode = rootNode.getChildren()![0].getChildren()![0];
+      const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
@@ -641,7 +641,7 @@ describe('CanvasFormTabs', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
-      const loadBalanceNode = rootNode.getChildren()![0].getChildren()![0];
+      const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
         type: 'node',
