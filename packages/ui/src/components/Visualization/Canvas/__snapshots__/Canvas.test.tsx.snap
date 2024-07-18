@@ -684,7 +684,7 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -692,18 +692,18 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               >
                                 <div
                                   class="custom-group"
@@ -729,7 +729,7 @@ exports[`Canvas should render correctly 1`] = `
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-1"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-7"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="collapseButton-route-8888"
@@ -757,10 +757,210 @@ exports[`Canvas should render correctly 1`] = `
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-2"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-8"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="choice-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="choice"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="choice"
+                                    >
+                                      choice
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-9"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-10"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="otherwise-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="otherwise"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="otherwise"
+                                    >
+                                      otherwise
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-11"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-otherwise"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-12"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-otherwise"
                                         type="button"
                                       >
                                         <svg
@@ -832,16 +1032,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M37.5 37.5 L-106 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M37.5 37.5 L-120 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(-106, 37.5) rotate(180)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -854,7 +1054,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-when-1234"
+                            data-id="amqp-1234-to-amqp-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -887,7 +1087,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="when-1234-to-log-1234"
+                            data-id="choice-1234-to-direct-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -898,16 +1098,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M-120 37.5 L23.5 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M-120 37.5 L37.5 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(23.5, 37.5) rotate(0)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -920,106 +1120,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-otherwise-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234-to-amqp-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-to-direct-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                           >
@@ -1041,33 +1142,38 @@ exports[`Canvas should render correctly 1`] = `
                             <g
                               data-id="choice-1234"
                               data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="when-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="log-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="otherwise-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="amqp-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
+                              data-type="group"
+                            >
+                              <g
+                                class="custom-group"
+                              />
+                              <g
+                                data-id="when-1234"
+                                data-kind="node"
+                                data-type="group"
+                              />
+                              <g
+                                data-id="otherwise-1234"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  class="custom-group"
+                                />
+                                <g
+                                  data-id="amqp-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                                <g
+                                  data-id="log-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                              </g>
+                            </g>
                             <g
                               data-id="direct-1234"
                               data-kind="node"
@@ -1329,7 +1435,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -1337,18 +1443,18 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               >
                                 <div
                                   class="custom-group"
@@ -1374,7 +1480,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-3"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-19"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="collapseButton-route-8888"
@@ -1402,10 +1508,210 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-4"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-20"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="choice-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="choice"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="choice"
+                                    >
+                                      choice
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-21"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-22"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="otherwise-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="otherwise"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="otherwise"
+                                    >
+                                      otherwise
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-23"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-otherwise"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-24"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-otherwise"
                                         type="button"
                                       >
                                         <svg
@@ -1477,16 +1783,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M37.5 37.5 L-106 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M37.5 37.5 L-120 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(-106, 37.5) rotate(180)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1499,7 +1805,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-when-1234"
+                            data-id="amqp-1234-to-amqp-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1532,7 +1838,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="when-1234-to-log-1234"
+                            data-id="choice-1234-to-direct-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1543,16 +1849,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M-120 37.5 L23.5 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M-120 37.5 L37.5 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(23.5, 37.5) rotate(0)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1565,106 +1871,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-otherwise-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234-to-amqp-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-to-direct-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                           >
@@ -1686,33 +1893,38 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g
                               data-id="choice-1234"
                               data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="when-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="log-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="otherwise-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="amqp-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
+                              data-type="group"
+                            >
+                              <g
+                                class="custom-group"
+                              />
+                              <g
+                                data-id="when-1234"
+                                data-kind="node"
+                                data-type="group"
+                              />
+                              <g
+                                data-id="otherwise-1234"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  class="custom-group"
+                                />
+                                <g
+                                  data-id="amqp-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                                <g
+                                  data-id="log-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                              </g>
+                            </g>
                             <g
                               data-id="direct-1234"
                               data-kind="node"
@@ -1974,7 +2186,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -1982,18 +2194,18 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="195"
-                                width="195"
-                                x="-60"
-                                y="-60"
+                                height="435"
+                                width="435"
+                                x="-180"
+                                y="-180"
                               >
                                 <div
                                   class="custom-group"
@@ -2019,7 +2231,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-9"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-45"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="collapseButton-route-8888"
@@ -2047,10 +2259,210 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       <button
                                         aria-disabled="false"
                                         class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-10"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-46"
                                         data-ouia-component-type="PF5/Button"
                                         data-ouia-safe="true"
                                         data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="choice-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="choice"
+                                height="315"
+                                width="315"
+                                x="-120"
+                                y="-120"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="choice"
+                                    >
+                                      choice
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-47"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-48"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-choice"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="otherwise-1234"
+                            data-kind="node"
+                            data-type="group"
+                            transform="translate(0, 0)"
+                          >
+                            <g>
+                              <rect
+                                class="phantom-rect"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              />
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="otherwise"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
+                              >
+                                <div
+                                  class="custom-group"
+                                >
+                                  <div
+                                    class="custom-group__title"
+                                  >
+                                    <div
+                                      class="custom-group__title__img-circle"
+                                    >
+                                      <img
+                                        src=""
+                                      />
+                                    </div>
+                                    <span
+                                      title="otherwise"
+                                    >
+                                      otherwise
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-49"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-otherwise"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-50"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-otherwise"
                                         type="button"
                                       >
                                         <svg
@@ -2122,16 +2534,16 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M37.5 37.5 L-106 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M37.5 37.5 L-120 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(-106, 37.5) rotate(180)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2144,7 +2556,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-when-1234"
+                            data-id="amqp-1234-to-amqp-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2177,7 +2589,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="when-1234-to-log-1234"
+                            data-id="choice-1234-to-direct-1234"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2188,16 +2600,16 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
+                                d="M-120 37.5 L23.5 37.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
+                                d="M-120 37.5 L37.5 37.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(23.5, 37.5) rotate(0)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2210,106 +2622,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-otherwise-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234-to-amqp-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-to-direct-1234"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M37.5 37.5 L0 0"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M37.5 37.5 L37.5 37.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888"
+                            data-id="route-8888-1234"
                             data-kind="node"
                             data-type="group"
                           >
@@ -2331,33 +2644,38 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             <g
                               data-id="choice-1234"
                               data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="when-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="log-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="otherwise-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
-                            <g
-                              data-id="amqp-1234"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(0, 0)"
-                            />
+                              data-type="group"
+                            >
+                              <g
+                                class="custom-group"
+                              />
+                              <g
+                                data-id="when-1234"
+                                data-kind="node"
+                                data-type="group"
+                              />
+                              <g
+                                data-id="otherwise-1234"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  class="custom-group"
+                                />
+                                <g
+                                  data-id="amqp-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                                <g
+                                  data-id="log-1234"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(0, 0)"
+                                />
+                              </g>
+                            </g>
                             <g
                               data-id="direct-1234"
                               data-kind="node"

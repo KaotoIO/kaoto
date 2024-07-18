@@ -221,6 +221,8 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     /** If there are no steps, we link the `source` and the `sink` together */
 
     pipeGroupNode.addChild(sourceNode);
+    stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
+    pipeGroupNode.addChild(sinkNode);
 
     if (stepNodes.length === 0) {
       sourceNode.setNextNode(sinkNode);

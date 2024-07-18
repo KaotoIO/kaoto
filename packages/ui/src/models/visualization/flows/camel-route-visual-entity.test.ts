@@ -272,21 +272,25 @@ describe('Camel Route', () => {
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
-      expect(vizNode.getChildren()).toHaveLength(1);
+
+      /** from nod eand choice group */
+      expect(vizNode.getChildren()).toHaveLength(2);
+      expect(vizNode.getChildren()?.[0].data.path).toEqual('from');
+      expect(vizNode.getChildren()?.[1].data.path).toEqual('from.steps.0.choice');
 
       /** from */
       expect(fromNode.data.path).toEqual('from');
       expect(fromNode.getNodeLabel()).toEqual('timer');
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
-      expect(fromNode.getNextNode()).toBeUndefined();
-      expect(fromNode.getChildren()).toHaveLength(1);
+      expect(fromNode.getNextNode()).toBeDefined();
+      expect(fromNode.getChildren()).toHaveLength(0);
 
       /** choice */
-      const choiceNode = fromNode.getChildren()?.[0] as IVisualizationNode;
+      const choiceNode = vizNode.getChildren()?.[1] as IVisualizationNode;
       expect(choiceNode.data.path).toEqual('from.steps.0.choice');
       expect(choiceNode.getNodeLabel()).toEqual('choice');
-      expect(choiceNode.getPreviousNode()).toBeUndefined();
+      expect(choiceNode.getPreviousNode()).toBe(fromNode);
       expect(choiceNode.getNextNode()).toBeUndefined();
       expect(choiceNode.getChildren()).toHaveLength(1);
 
@@ -321,21 +325,21 @@ describe('Camel Route', () => {
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
-      expect(vizNode.getChildren()).toHaveLength(1);
+      expect(vizNode.getChildren()).toHaveLength(4);
 
       /** from */
       expect(fromNode.data.path).toEqual('from');
       expect(fromNode.getNodeLabel()).toEqual('timer');
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
-      expect(fromNode.getNextNode()).toBeUndefined();
-      expect(fromNode.getChildren()).toHaveLength(3);
+      expect(fromNode.getNextNode()).toBeDefined();
+      expect(fromNode.getChildren()).toHaveLength(0);
 
       /** setHeader */
-      const setHeaderNode = fromNode.getChildren()?.[0] as IVisualizationNode;
+      const setHeaderNode = vizNode.getChildren()?.[1] as IVisualizationNode;
       expect(setHeaderNode.data.path).toEqual('from.steps.0.set-header');
       expect(setHeaderNode.getNodeLabel()).toEqual('set-header');
-      expect(setHeaderNode.getPreviousNode()).toBeUndefined();
+      expect(setHeaderNode.getPreviousNode()).toBe(fromNode);
       expect(setHeaderNode.getNextNode()).toBeDefined();
       expect(setHeaderNode.getChildren()).toBeUndefined();
 

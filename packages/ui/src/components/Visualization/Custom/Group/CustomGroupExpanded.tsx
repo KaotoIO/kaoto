@@ -113,8 +113,12 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupExpandedProps> = 
                   </div>
                   <span title={label}>{label}</span>
 
-                  <CollapseButton element={element} onCollapseChange={onCollapseChange} />
-                  <ContextMenuButton element={element} />
+                  <CollapseButton
+                    data-testid={`collapseButton-${label}`}
+                    element={element}
+                    onCollapseChange={onCollapseChange}
+                  />
+                  <ContextMenuButton data-testid={`contextualMenu-${label}`} element={element} />
                 </div>
               </div>
             </foreignObject>

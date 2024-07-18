@@ -2,35 +2,21 @@ import {
   BreadthFirstLayout,
   ColaLayout,
   ConcentricLayout,
-  DagreLayout,
   DefaultEdge,
-  EdgeStyle,
   ForceLayout,
   GridLayout,
   ModelKind,
   Visualization,
 } from '@patternfly/react-topology';
 import { createVisualizationNode } from '../../../models/visualization';
+import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CustomGroupWithSelection } from '../Custom';
+import { DagreGroupsExtendedLayout } from '../Custom/Layout/DagreGroupsExtendedLayout';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 
 describe('CanvasService', () => {
-  const DEFAULT_NODE_PROPS = {
-    type: 'node',
-    data: undefined,
-    shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
-    width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
-    height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
-  };
-
-  const DEFAULT_EDGE_PROPS = {
-    type: 'edge',
-    edgeStyle: EdgeStyle.solid,
-  };
-
   beforeEach(() => {
     CanvasService.nodes = [];
     CanvasService.edges = [];
@@ -47,12 +33,14 @@ describe('CanvasService', () => {
   it('should allow consumers to create a new controller and register its factories', () => {
     const layoutFactorySpy = jest.spyOn(Visualization.prototype, 'registerLayoutFactory');
     const componentFactorySpy = jest.spyOn(Visualization.prototype, 'registerComponentFactory');
+    const baselineElementFactorySpy = jest.spyOn(Visualization.prototype, 'registerElementFactory');
 
     const controller = CanvasService.createController();
 
     expect(controller).toBeInstanceOf(Visualization);
     expect(layoutFactorySpy).toHaveBeenCalledWith(CanvasService.baselineLayoutFactory);
     expect(componentFactorySpy).toHaveBeenCalledWith(CanvasService.baselineComponentFactory);
+    expect(baselineElementFactorySpy).toHaveBeenCalledWith(CanvasService.baselineElementFactory);
   });
 
   describe('baselineComponentFactory', () => {
@@ -93,7 +81,8 @@ describe('CanvasService', () => {
     [LayoutType.ColaNoForce, ColaLayout],
     [LayoutType.ColaGroups, ColaLayout],
     [LayoutType.Concentric, ConcentricLayout],
-    [LayoutType.DagreVertical, DagreLayout],
+    [LayoutType.DagreVertical, DagreGroupsExtendedLayout],
+    [LayoutType.DagreHorizontal, DagreGroupsExtendedLayout],
     [LayoutType.Force, ForceLayout],
     [LayoutType.Grid, GridLayout],
     ['unknown' as LayoutType, ColaLayout],
@@ -122,15 +111,8 @@ describe('CanvasService', () => {
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
-      expect(nodes).toEqual([
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'node-1234',
-          parentNode: undefined,
-          data: { vizNode },
-        },
-      ]);
-      expect(edges).toEqual([]);
+      expect(nodes).toMatchSnapshot();
+      expect(edges).toMatchSnapshot();
     });
 
     it('should return nodes and edges for a group with children', () => {
@@ -142,32 +124,8 @@ describe('CanvasService', () => {
 
       const { nodes, edges } = CanvasService.getFlowDiagram(groupVizNode);
 
-      expect(nodes).toEqual([
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'child1-1234',
-          parentNode: 'group-1234',
-          data: { vizNode: child1VizNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'child2-1234',
-          parentNode: 'group-1234',
-          data: { vizNode: child2VizNode },
-        },
-        {
-          children: ['child1-1234', 'child2-1234'],
-          data: { vizNode: groupVizNode },
-          group: true,
-          type: 'group',
-          id: 'Unknown',
-          label: 'Unknown',
-          style: {
-            padding: 60,
-          },
-        },
-      ]);
-      expect(edges).toEqual([]);
+      expect(nodes).toMatchSnapshot();
+      expect(edges).toMatchSnapshot();
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
@@ -177,28 +135,8 @@ describe('CanvasService', () => {
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
-      expect(nodes).toEqual([
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'node-1234',
-          parentNode: undefined,
-          data: { vizNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'child-1234',
-          parentNode: 'node-1234',
-          data: { vizNode: childNode },
-        },
-      ]);
-      expect(edges).toEqual([
-        {
-          id: 'node-1234-to-child-1234',
-          source: 'node-1234',
-          target: 'child-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-      ]);
+      expect(nodes).toMatchSnapshot();
+      expect(edges).toMatchSnapshot();
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
@@ -232,118 +170,8 @@ describe('CanvasService', () => {
 
       const { nodes, edges } = CanvasService.getFlowDiagram(vizNode);
 
-      expect(nodes).toEqual([
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'node-1234',
-          parentNode: undefined,
-          data: { vizNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'set-header-1234',
-          parentNode: undefined,
-          data: { vizNode: setHeaderNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'choice-1234',
-          parentNode: undefined,
-          data: { vizNode: choiceNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'when-1234',
-          parentNode: 'choice-1234',
-          data: { vizNode: whenNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'when-leaf-1234',
-          parentNode: 'when-1234',
-          data: { vizNode: whenLeafNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'otherwise-1234',
-          parentNode: 'choice-1234',
-          data: { vizNode: otherwiseNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'process-1234',
-          parentNode: 'otherwise-1234',
-          data: { vizNode: processNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'log-1234',
-          parentNode: 'process-1234',
-          data: { vizNode: logNode },
-        },
-        {
-          ...DEFAULT_NODE_PROPS,
-          id: 'direct-1234',
-          parentNode: undefined,
-          data: { vizNode: directNode },
-        },
-      ]);
-      expect(edges).toEqual([
-        {
-          id: 'node-1234-to-set-header-1234',
-          source: 'node-1234',
-          target: 'set-header-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'set-header-1234-to-choice-1234',
-          source: 'set-header-1234',
-          target: 'choice-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'choice-1234-to-when-1234',
-          source: 'choice-1234',
-          target: 'when-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'when-1234-to-when-leaf-1234',
-          source: 'when-1234',
-          target: 'when-leaf-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'choice-1234-to-otherwise-1234',
-          source: 'choice-1234',
-          target: 'otherwise-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'otherwise-1234-to-process-1234',
-          source: 'otherwise-1234',
-          target: 'process-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'process-1234-to-log-1234',
-          source: 'process-1234',
-          target: 'log-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'when-leaf-1234-to-direct-1234',
-          source: 'when-leaf-1234',
-          target: 'direct-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-        {
-          id: 'log-1234-to-direct-1234',
-          source: 'log-1234',
-          target: 'direct-1234',
-          ...DEFAULT_EDGE_PROPS,
-        },
-      ]);
+      expect(nodes).toMatchSnapshot();
+      expect(edges).toMatchSnapshot();
     });
 
     it('should return a group node for a multiple nodes VisualizationNode with a group', () => {

@@ -31,9 +31,15 @@ export class CamelStepsService {
       componentLookup.processorName as keyof ProcessorDefinition,
     );
 
+    if (childrenStepsProperties.length > 0) {
+      vizNode.data.isGroup = true;
+    }
+
     childrenStepsProperties.forEach((stepsProperty) => {
       const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
-      childrenVizNodes.forEach((childVizNode) => vizNode.addChild(childVizNode));
+      childrenVizNodes.forEach((childVizNode) => {
+        vizNode.addChild(childVizNode);
+      });
     });
 
     return vizNode;

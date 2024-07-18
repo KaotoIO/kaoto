@@ -112,7 +112,7 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
 
 Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
   cy.hoverOnRuntime(type);
-  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v5-c-menu__item`).click({ force: true });
+  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v5-c-menu__item`).first().click({ force: true });
   cy.waitSchemasLoading();
 
   cy.get('[data-testid="visualization-empty-state"]').should('exist');

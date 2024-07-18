@@ -236,6 +236,22 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
     routeGroupNode.addChild(fromNode);
 
+    fromNode.getChildren()?.forEach((child, index) => {
+      routeGroupNode.addChild(child);
+      if (index === 0) {
+        fromNode.setNextNode(child);
+        child.setPreviousNode(fromNode);
+      }
+
+      const previousChild = fromNode.getChildren()?.[index - 1];
+      if (previousChild) {
+        previousChild.setNextNode(child);
+        child.setPreviousNode(previousChild);
+      }
+    });
+    fromNode.getChildren()?.splice(0);
+    fromNode.data.isGroup = false;
+
     return routeGroupNode;
   }
 

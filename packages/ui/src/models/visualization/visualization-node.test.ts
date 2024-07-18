@@ -180,7 +180,7 @@ describe('VisualizationNode', () => {
       const fromNode = node.getChildren()?.[0];
 
       /** Get set-header node */
-      const setHeaderNode = fromNode!.getChildren()?.[0];
+      const setHeaderNode = node.getChildren()?.[1];
 
       /** Remove set-header node */
       setHeaderNode!.removeChild();
@@ -189,8 +189,10 @@ describe('VisualizationNode', () => {
       node = camelRouteVisualEntityStub.toVizNode();
 
       expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
-      expect(fromNode!.getChildren()?.[0].getNodeLabel()).toEqual('choice-1234');
-      expect(fromNode!.getChildren()).toHaveLength(2);
+      expect(node.getChildren()?.[1].getNodeLabel()).toEqual('choice');
+      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()).toHaveLength(3);
+      expect(fromNode!.getChildren()).toHaveLength(0);
     });
   });
 

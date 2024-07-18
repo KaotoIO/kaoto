@@ -14,7 +14,7 @@ describe('ContextMenuButton', () => {
   });
 
   it('should render the button', () => {
-    const wrapper = render(<ContextMenuButton element={element} />);
+    const wrapper = render(<ContextMenuButton data-testid="contextualMenu-test" element={element} />);
     const button = wrapper.getByTestId('contextualMenu-test');
 
     expect(button).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe('ContextMenuButton', () => {
   });
 
   it('should open the context menu when the button is clicked', () => {
-    const wrapper = render(<ContextMenuButton element={element} />);
+    const wrapper = render(<ContextMenuButton data-testid="contextualMenu-test" element={element} />);
     const button = wrapper.getByTestId('contextualMenu-test');
 
     act(() => {
@@ -35,7 +35,7 @@ describe('ContextMenuButton', () => {
   });
 
   it('should close the context menu when the button is clicked twice', () => {
-    const wrapper = render(<ContextMenuButton element={element} />);
+    const wrapper = render(<ContextMenuButton data-testid="contextualMenu-test" element={element} />);
     const button = wrapper.getByTestId('contextualMenu-test');
 
     fireEvent.click(button);
