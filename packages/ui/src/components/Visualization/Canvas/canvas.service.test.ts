@@ -47,12 +47,14 @@ describe('CanvasService', () => {
   it('should allow consumers to create a new controller and register its factories', () => {
     const layoutFactorySpy = jest.spyOn(Visualization.prototype, 'registerLayoutFactory');
     const componentFactorySpy = jest.spyOn(Visualization.prototype, 'registerComponentFactory');
+    const baselineElementFactorySpy = jest.spyOn(Visualization.prototype, 'registerElementFactory');
 
     const controller = CanvasService.createController();
 
     expect(controller).toBeInstanceOf(Visualization);
     expect(layoutFactorySpy).toHaveBeenCalledWith(CanvasService.baselineLayoutFactory);
     expect(componentFactorySpy).toHaveBeenCalledWith(CanvasService.baselineComponentFactory);
+    expect(baselineElementFactorySpy).toHaveBeenCalledWith(CanvasService.baselineElementFactory);
   });
 
   describe('baselineComponentFactory', () => {

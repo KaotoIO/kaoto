@@ -190,7 +190,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
-    const canRemoveStep = processorName !== ('from' as keyof ProcessorDefinition);
+    const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
     const canRemoveFlow = data.path === ROOT_PATH;
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
@@ -219,6 +219,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       entity: this,
       isGroup: true,
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
+      processorName: 'route',
     });
 
     const fromNode = CamelStepsService.getVizNodeFromProcessor(
@@ -234,6 +235,22 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       fromNode.data.icon = NodeIconResolver.getPlaceholderIcon();
     }
     routeGroupNode.addChild(fromNode);
+
+    fromNode.getChildren()?.forEach((child, index) => {
+      routeGroupNode.addChild(child);
+      if (index === 0) {
+        fromNode.setNextNode(child);
+        child.setPreviousNode(fromNode);
+      }
+
+      const previousChild = fromNode.getChildren()?.[index - 1];
+      if (previousChild) {
+        previousChild.setNextNode(child);
+        child.setPreviousNode(previousChild);
+      }
+    });
+    fromNode.getChildren()?.splice(0);
+    fromNode.data.isGroup = false;
 
     return routeGroupNode;
   }

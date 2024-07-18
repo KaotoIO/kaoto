@@ -4,21 +4,23 @@ import {
   ColaLayout,
   ComponentFactory,
   ConcentricLayout,
-  DagreLayout,
+  DagreGroupsLayout,
   DefaultEdge,
   EdgeStyle,
   ForceLayout,
   Graph,
   GraphComponent,
+  GraphElement,
   GridLayout,
   Layout,
-  Model,
+  LEFT_TO_RIGHT,
   ModelKind,
+  TOP_TO_BOTTOM,
   Visualization,
   withPanZoom,
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { CustomGroupWithSelection, CustomNodeWithSelection } from '../Custom';
+import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
@@ -32,35 +34,9 @@ export class CanvasService {
 
     newController.registerLayoutFactory(this.baselineLayoutFactory);
     newController.registerComponentFactory(this.baselineComponentFactory);
-
-    const defaultModel: Model = {
-      graph: {
-        id: 'default',
-        type: 'graph',
-      },
-    };
-
-    newController.fromModel(defaultModel, false);
+    newController.registerElementFactory(this.baselineElementFactory);
 
     return newController;
-  }
-
-  static baselineComponentFactory(kind: ModelKind, type: string): ReturnType<ComponentFactory> {
-    switch (type) {
-      case 'group':
-        return CustomGroupWithSelection;
-      default:
-        switch (kind) {
-          case ModelKind.graph:
-            return withPanZoom()(GraphComponent);
-          case ModelKind.node:
-            return CustomNodeWithSelection;
-          case ModelKind.edge:
-            return DefaultEdge;
-          default:
-            return undefined;
-        }
-    }
   }
 
   // ### dagre algo options, uses default value on undefined ###
@@ -103,16 +79,16 @@ export class CanvasService {
       case LayoutType.Concentric:
         return new ConcentricLayout(graph);
       case LayoutType.DagreVertical:
-        return new DagreLayout(graph, {
-          rankdir: 'TB',
+        return new DagreGroupsLayout(graph, {
+          rankdir: TOP_TO_BOTTOM,
           ranker: 'network-simplex',
           nodesep: 20,
           edgesep: 20,
           ranksep: 0,
         });
       case LayoutType.DagreHorizontal:
-        return new DagreLayout(graph, {
-          rankdir: 'LR',
+        return new DagreGroupsLayout(graph, {
+          rankdir: LEFT_TO_RIGHT,
           ranker: 'network-simplex',
           nodesep: 20,
           edgesep: 20,
@@ -129,24 +105,39 @@ export class CanvasService {
     }
   }
 
+  static baselineComponentFactory(kind: ModelKind, type: string): ReturnType<ComponentFactory> {
+    switch (type) {
+      case 'group':
+        return CustomGroupWithSelection;
+      default:
+        switch (kind) {
+          case ModelKind.graph:
+            return withPanZoom()(GraphComponent);
+          case ModelKind.node:
+            return CustomNodeWithSelection;
+          case ModelKind.edge:
+            return DefaultEdge;
+          default:
+            return undefined;
+        }
+    }
+  }
+
+  static baselineElementFactory(kind: ModelKind): GraphElement | undefined {
+    switch (kind) {
+      case ModelKind.edge:
+        return new NoBendpointsEdge();
+      default:
+        return undefined;
+    }
+  }
+
   static getFlowDiagram(vizNode: IVisualizationNode): CanvasNodesAndEdges {
     this.nodes = [];
     this.edges = [];
     this.visitedNodes = [];
 
-    const children = vizNode.getChildren();
-    if (vizNode.data.isGroup && children) {
-      children.forEach((child) => this.appendNodesAndEdges(child));
-      const containerId = vizNode.getBaseEntity()?.getId() ?? 'Unknown';
-      const group = this.getContainer(containerId, {
-        label: containerId,
-        children: this.visitedNodes,
-        data: { vizNode },
-      });
-      this.nodes.push(group);
-    } else {
-      this.appendNodesAndEdges(vizNode);
-    }
+    this.appendNodesAndEdges(vizNode);
 
     return { nodes: this.nodes, edges: this.edges };
   }
@@ -157,7 +148,24 @@ export class CanvasService {
       return;
     }
 
-    const node = this.getCanvasNode(vizNodeParam);
+    let node: CanvasNode;
+
+    const children = vizNodeParam.getChildren();
+    if (vizNodeParam.data.isGroup && children) {
+      children.forEach((child) => {
+        this.appendNodesAndEdges(child);
+      });
+
+      const containerId = vizNodeParam.id;
+      node = this.getContainer(containerId, {
+        label: containerId,
+        children: children.map((child) => child.id),
+        parentNode: vizNodeParam.getParentNode()?.id,
+        data: { vizNode: vizNodeParam },
+      });
+    } else {
+      node = this.getCanvasNode(vizNodeParam);
+    }
 
     /** Add node */
     this.nodes.push(node);
@@ -165,20 +173,6 @@ export class CanvasService {
 
     /** Add edges */
     this.edges.push(...this.getEdgesFromVizNode(vizNodeParam));
-
-    /** Traverse the children nodes */
-    const children = vizNodeParam.getChildren();
-    if (children !== undefined) {
-      children.forEach((child) => {
-        this.appendNodesAndEdges(child);
-      });
-    }
-
-    /** Traverse the next node */
-    const nextNode = vizNodeParam.getNextNode();
-    if (nextNode !== undefined) {
-      this.appendNodesAndEdges(nextNode);
-    }
   }
 
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
@@ -195,28 +189,8 @@ export class CanvasService {
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
 
-    /** Connect to previous node if it doesn't have children */
-    if (vizNodeParam.getPreviousNode() !== undefined && vizNodeParam.getPreviousNode()?.getChildren() === undefined) {
-      edges.push(this.getEdge(vizNodeParam.getPreviousNode()!.id, vizNodeParam.id));
-    }
-
-    /** Connect to the parent if it's not a group and there is no previous node */
-    if (
-      vizNodeParam.getParentNode() !== undefined &&
-      !vizNodeParam.getParentNode()?.data.isGroup &&
-      vizNodeParam.getPreviousNode() === undefined
-    ) {
-      edges.push(this.getEdge(vizNodeParam.getParentNode()!.id, vizNodeParam.id));
-    }
-
-    /** Connect to each leaf of the previous node */
-    if (vizNodeParam.getPreviousNode() !== undefined && vizNodeParam.getPreviousNode()?.getChildren() !== undefined) {
-      const leafNodesIds: string[] = [];
-      vizNodeParam.getPreviousNode()!.populateLeafNodesIds(leafNodesIds);
-
-      leafNodesIds.forEach((leafNodeId) => {
-        edges.push(this.getEdge(leafNodeId, vizNodeParam.id));
-      });
+    if (vizNodeParam.getNextNode() !== undefined) {
+      edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
     }
 
     return edges;
@@ -224,7 +198,7 @@ export class CanvasService {
 
   private static getContainer(
     id: string,
-    options: { label?: string; children?: string[]; data?: CanvasNode['data'] } = {},
+    options: { label?: string; children?: string[]; parentNode?: string; data?: CanvasNode['data'] } = {},
   ): CanvasNode {
     return {
       id,
@@ -232,6 +206,7 @@ export class CanvasService {
       group: true,
       label: options.label ?? id,
       children: options.children ?? [],
+      parentNode: options.parentNode,
       data: options.data,
       style: {
         padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.8,

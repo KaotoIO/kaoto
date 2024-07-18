@@ -12,6 +12,7 @@ import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './came
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = [
+    'route',
     'from',
     'onWhen',
     'when',
@@ -24,6 +25,7 @@ export class CamelComponentSchemaService {
     'onException',
     'onCompletion',
   ];
+  static DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {

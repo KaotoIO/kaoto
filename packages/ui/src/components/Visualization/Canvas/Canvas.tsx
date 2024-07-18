@@ -41,7 +41,7 @@ interface CanvasProps {
   entities: BaseVisualCamelEntity[];
 }
 
-export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
+export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ entities, contextToolbar }) => {
   /** State for @patternfly/react-topology */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
@@ -54,10 +54,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   const controller = useMemo(() => CanvasService.createController(), []);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const shouldShowEmptyState = useMemo(() => {
-    const areNoFlows = props.entities.length === 0;
+    const areNoFlows = entities.length === 0;
     const areAllFlowsHidden = Object.values(visibleFlows).every((visible) => !visible);
     return areNoFlows || areAllFlowsHidden;
-  }, [props.entities.length, visibleFlows]);
+  }, [entities.length, visibleFlows]);
 
   const controlButtons = useMemo(() => {
     const customButtons: TopologyControlButton[] = catalogModalContext
@@ -96,9 +96,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
             id: 'topology-control-bar-catalog-button',
             icon: <CatalogIcon />,
             tooltip: 'Open Catalog',
-            callback: () => {
+            callback: action(() => {
               catalogModalContext.setIsModalOpen(true);
-            },
+            }),
           },
         ]
       : [];
@@ -121,7 +121,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
       legend: false,
       customButtons,
     });
-  }, [catalogModalContext, controller]);
+  }, [catalogModalContext, controller, setActiveLayout]);
 
   const handleSelection = useCallback(
     (selectedIds: string[]) => {
@@ -137,9 +137,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
   /** Set up the controller one time */
   useEffect(() => {
     const localController = controller;
-    const graphLayoutEndFn = () => {
+    const graphLayoutEndFn = action(() => {
       localController.getGraph().fit(80);
-    };
+    });
 
     localController.addEventListener(SELECTION_EVENT, handleSelection);
     localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
@@ -154,13 +154,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
 
   /** Draw graph */
   useEffect(() => {
-    if (!Array.isArray(props.entities)) return;
+    if (!Array.isArray(entities)) return;
     setSelectedNode(undefined);
 
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
 
-    props.entities.forEach((entity) => {
+    entities.forEach((entity) => {
       if (visibleFlows[entity.id]) {
         const { nodes: childNodes, edges: childEdges } = CanvasService.getFlowDiagram(entity.toVizNode());
         nodes.push(...childNodes);
@@ -181,12 +181,16 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
     };
 
     controller.fromModel(model, false);
-  }, [controller, props.entities, visibleFlows]);
+  }, [activeLayout, controller, entities, visibleFlows]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      controller.getGraph().fit(80);
-    }, 500);
+    const timeoutId = setTimeout(
+      action(() => {
+        controller.getGraph().fit(80);
+      }),
+      500,
+    );
+
     return () => {
       clearTimeout(timeoutId);
     };
@@ -201,15 +205,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = (props)
 
   return (
     <TopologyView
-      sideBarResizable={true}
+      sideBarResizable
       sideBarOpen={isSidebarOpen}
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
-      contextToolbar={props.contextToolbar}
+      contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
     >
       <VisualizationProvider controller={controller}>
         {shouldShowEmptyState ? (
-          <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={props.entities.length} />
+          <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
         ) : (
           <VisualizationSurface state={{ selectedIds }} />
         )}
