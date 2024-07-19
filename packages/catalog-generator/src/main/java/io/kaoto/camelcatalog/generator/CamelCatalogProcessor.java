@@ -284,18 +284,20 @@ public class CamelCatalogProcessor {
         var answer = jsonMapper.createObjectNode();
         var processors = schemaProcessor.getProcessors();
         var catalogMap = new LinkedHashMap<String, EipModel>();
+
         for (var name : camelCatalog.findModelNames()) {
-            var modelCatalog = (EipModel) camelCatalog.model(Kind.eip, name);
-            catalogMap.put(modelCatalog.getJavaType(), modelCatalog);
+            var modelCatalog = camelCatalog.eipModel(name);
+            catalogMap.put(modelCatalog.getJavaType(), camelCatalog.eipModel(name));
         }
 
         for (var entry : processors.entrySet()) {
+            List<String> required = new ArrayList<>();
             var sortedSchemaProperties = jsonMapper.createObjectNode();
             var processorFQCN = entry.getKey();
             var processorSchema = entry.getValue();
-            var processorCatalog = catalogMap.get(processorFQCN);
+            var eipModel = catalogMap.get(processorFQCN);
 
-            if (processorCatalog == null) {
+            if (eipModel == null) {
                 if (verbose) {
                     LOGGER.warning(
                             "The processor definition for " + processorFQCN + " is not found in Camel model catalog.");
@@ -303,11 +305,9 @@ public class CamelCatalogProcessor {
                 continue;
             }
 
-            List<String> required = new ArrayList<>();
-
             var camelYamlDslProperties = processorSchema.withObject("/properties").properties().stream()
                     .map(Map.Entry::getKey).sorted(
-                            new CamelYamlDSLKeysComparator(processorCatalog.getOptions()))
+                            new CamelYamlDSLKeysComparator(eipModel.getOptions()))
                     .toList();
 
             for (var propertyName : camelYamlDslProperties) {
@@ -333,7 +333,7 @@ public class CamelCatalogProcessor {
                     continue;
                 }
 
-                var catalogOpOptional = processorCatalog.getOptions().stream()
+                var catalogOpOptional = eipModel.getOptions().stream()
                         .filter(op -> op.getName().equals(propertyName)).findFirst();
                 if (catalogOpOptional.isEmpty()) {
                     throw new Exception(
@@ -352,12 +352,12 @@ public class CamelCatalogProcessor {
                 sortedSchemaProperties.set(propertyName, propertySchema);
             }
 
-            var json = JsonMapper.asJsonObject(processorCatalog).toJson();
+            var json = JsonMapper.asJsonObject(eipModel).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", processorSchema);
             catalogTree.withObject("/propertiesSchema").set("required", jsonMapper.valueToTree(required));
             processorSchema.set("properties", sortedSchemaProperties);
-            answer.set(processorCatalog.getName(), catalogTree);
+            answer.set(eipModel.getName(), catalogTree);
         }
 
         StringWriter writer = new StringWriter();

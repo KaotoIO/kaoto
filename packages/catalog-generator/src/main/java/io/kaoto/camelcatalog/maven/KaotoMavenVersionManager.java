@@ -81,10 +81,11 @@ public class KaotoMavenVersionManager extends MavenVersionManager {
         try {
             MavenDownloader mavenDownloader = downloader;
             String gav = String.format("%s:%s:%s", groupId, artifactId, version);
-            boolean shouldFetchTransitive = artifactId.contains("yaml");
+            boolean shouldFetchTransitive = true;
             boolean shouldUseSnapshots = version.endsWith("SNAPSHOT");
 
             resolve(mavenDownloader, gav, shouldUseSnapshots, shouldFetchTransitive);
+            this.runtimeProviderVersion = version;
 
             if (artifactId.contains("catalog")) {
                 this.version = version;
