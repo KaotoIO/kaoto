@@ -102,7 +102,7 @@ public class CamelCatalogProcessorTest {
                 .withObject("/etcd3")
                 .withObject("/propertiesSchema");
         var etcdEProperty = etcdSchema.withObject("/properties").withObject("/endpoints");
-        assertEquals("Etcd3Constants.ETCD_DEFAULT_ENDPOINTS", etcdEProperty.withArray("/default").get(0).asText());
+        assertEquals("http://localhost:2379", etcdEProperty.get("default").asText());
 
         var smbSchema = componentCatalog
                 .withObject("/smb")
@@ -288,13 +288,13 @@ public class CamelCatalogProcessorTest {
     @Test
     public void testGetLoadBalancerCatalog() throws Exception {
         assertFalse(loadBalancerCatalog.isEmpty());
-        var failoverModel = loadBalancerCatalog.withObject("/failover/model");
-        assertEquals("failover", failoverModel.get("name").asText());
-        var failoverSchema = loadBalancerCatalog.withObject("/failover/propertiesSchema");
+        var failoverModel = loadBalancerCatalog.withObject("/failoverLoadBalancer/model");
+        assertEquals("failoverLoadBalancer", failoverModel.get("name").asText());
+        var failoverSchema = loadBalancerCatalog.withObject("/failoverLoadBalancer/propertiesSchema");
         var maximumFailoverAttempts = failoverSchema.withObject("/properties/maximumFailoverAttempts");
         assertEquals("string", maximumFailoverAttempts.get("type").asText());
         assertEquals("-1", maximumFailoverAttempts.get("default").asText());
-        var roundRobinSchema = loadBalancerCatalog.withObject("/roundRobin/propertiesSchema");
+        var roundRobinSchema = loadBalancerCatalog.withObject("/roundRobinLoadBalancer/propertiesSchema");
         var roundRobinId = roundRobinSchema.withObject("/properties/id");
         assertEquals("string", roundRobinId.get("type").asText());
         var customModel = loadBalancerCatalog.withObject("/customLoadBalancer/model");

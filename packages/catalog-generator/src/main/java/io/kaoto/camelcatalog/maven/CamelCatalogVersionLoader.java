@@ -26,7 +26,6 @@ import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.DefaultRuntimeProvider;
 import org.apache.camel.catalog.quarkus.QuarkusRuntimeProvider;
 import org.apache.camel.springboot.catalog.SpringBootRuntimeProvider;
-import org.apache.camel.tooling.model.OtherModel;
 
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import io.kaoto.camelcatalog.model.Constants;
@@ -110,9 +109,8 @@ public class CamelCatalogVersionLoader {
         return camelCatalog.getCatalogVersion() != null;
     }
 
-    public boolean loadCamelYamlDsl() {
-        OtherModel yamlDSLModel = camelCatalog.otherModel("yaml-dsl");
-        MavenCoordinates mavenCoordinates = getYamlDslMavenCoordinates(runtime, yamlDSLModel);
+    public boolean loadCamelYamlDsl(String version) {
+        MavenCoordinates mavenCoordinates = getYamlDslMavenCoordinates(runtime, version);
         loadDependencyInClasspath(mavenCoordinates);
 
         ClassLoader classLoader = kaotoVersionManager.getClassLoader();
@@ -285,17 +283,17 @@ public class CamelCatalogVersionLoader {
         }
     }
 
-    private MavenCoordinates getYamlDslMavenCoordinates(CatalogRuntime runtime, OtherModel yamlDSLModel) {
+    private MavenCoordinates getYamlDslMavenCoordinates(CatalogRuntime runtime, String version) {
         switch (runtime) {
             case Quarkus:
-                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".quarkus", "camel-quarkus-yaml-dsl", yamlDSLModel.getVersion());
+                return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".quarkus", "camel-quarkus-yaml-dsl", version);
             case SpringBoot:
                 return new MavenCoordinates(Constants.APACHE_CAMEL_ORG + ".springboot", "camel-yaml-dsl-starter",
-                        yamlDSLModel.getVersion());
+                        version);
             default:
                 return new MavenCoordinates(Constants.APACHE_CAMEL_ORG,
                         Constants.CAMEL_YAML_DSL_PACKAGE,
-                        yamlDSLModel.getVersion());
+                        version);
         }
     }
 

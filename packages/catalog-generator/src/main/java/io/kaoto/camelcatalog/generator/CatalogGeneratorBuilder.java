@@ -132,13 +132,13 @@ public class CatalogGeneratorBuilder {
         }
 
         public CatalogDefinition generate() {
-            camelCatalogVersionLoader.loadCamelCatalog(camelCatalogVersion);
-            camelCatalogVersionLoader.loadCamelYamlDsl();
             camelCatalogVersionLoader.loadKameletBoundaries();
             camelCatalogVersionLoader.loadKamelets(kameletsVersion);
             camelCatalogVersionLoader.loadKubernetesSchema();
             camelCatalogVersionLoader.loadCamelKCRDs(camelKCRDsVersion);
             camelCatalogVersionLoader.loadLocalSchemas();
+            camelCatalogVersionLoader.loadCamelYamlDsl(camelCatalogVersion);
+            camelCatalogVersionLoader.loadCamelCatalog(camelCatalogVersion);
 
             var catalogDefinition = new CatalogDefinition();
             var yamlDslSchemaProcessor = processCamelSchema(catalogDefinition);
