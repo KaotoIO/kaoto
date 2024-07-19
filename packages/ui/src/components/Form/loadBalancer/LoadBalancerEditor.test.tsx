@@ -52,7 +52,7 @@ describe('LoadBalancerEditor', () => {
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
-    const failover = screen.getByTestId('loadbalancer-dropdownitem-failover');
+    const failover = screen.getByTestId('loadbalancer-dropdownitem-failoverLoadBalancer');
     await act(async () => {
       fireEvent.click(failover.getElementsByTagName('button')[0]);
     });
