@@ -12,7 +12,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
     cy.openStepConfigurationTab('loadBalance');
 
     cy.get('[data-testid="loadbalancer-config-card"] button').click();
-    cy.get('[data-testid="loadbalancer-dropdownitem-roundRobin"] button').click();
+    cy.get('[data-testid="loadbalancer-dropdownitem-roundRobinLoadBalancer"] button').click();
 
     cy.get('[data-testid="metadata-editor-form-loadbalancer"]')
       .find('input[data-testid="text-field"]')
@@ -41,7 +41,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
       'description: loadBalancerDescription',
       'inheritErrorHandler: true',
       'id: testId',
-      'roundRobin:',
+      'roundRobinLoadBalancer:',
       'id: roundRobinId',
     ];
 

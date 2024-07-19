@@ -37,7 +37,7 @@ describe('RuntimeSelector', () => {
     });
 
     /** Click on first element */
-    const element = await wrapper.findByRole('menuitem');
+    const [element] = await wrapper.findAllByRole('menuitem');
     await act(async () => {
       fireEvent.mouseEnter(element);
       fireEvent.click(element);

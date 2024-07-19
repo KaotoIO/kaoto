@@ -105,7 +105,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       description:
         'If no hostname has been explicit configured, then this resolver is used to compute the hostname the REST service will be using.',
       default: 'allLocalIp',
-      enum: ['allLocalIp', 'localHostName', 'localIp'],
+      enum: ['allLocalIp', 'localHostName', 'localIp', 'none'],
     },
     bindingMode: {
       type: 'string',

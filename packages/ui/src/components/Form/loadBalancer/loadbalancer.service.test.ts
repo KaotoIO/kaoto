@@ -15,8 +15,8 @@ describe('LoadBalancerService', () => {
   describe('getLoadBalancerMap', () => {
     it('should return LoadBalancer map', () => {
       const loadBalancerMap = LoadBalancerService.getLoadBalancerMap();
-      expect(loadBalancerMap.failover.model.title).toEqual('Failover');
-      expect(loadBalancerMap.sticky.propertiesSchema.properties!.correlationExpression[`$comment`]).toEqual(
+      expect(loadBalancerMap.failoverLoadBalancer.model.title).toEqual('Failover Load Balancer');
+      expect(loadBalancerMap.stickyLoadBalancer.propertiesSchema.properties!.correlationExpression[`$comment`]).toEqual(
         'expression',
       );
       expect(loadBalancerMap.customLoadBalancer.model.description).toContain('custom load balancer');
@@ -27,7 +27,7 @@ describe('LoadBalancerService', () => {
   describe('getLoadBalancerSchema', () => {
     it('should return LoadBalancer schema', () => {
       const loadBalancerMap = LoadBalancerService.getLoadBalancerMap();
-      const jsonSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.roundRobin);
+      const jsonSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.roundRobinLoadBalancer);
       expect(jsonSchema!.properties!.id.type).toBe('string');
       const customSchema = LoadBalancerService.getLoadBalancerSchema(loadBalancerMap.customLoadBalancer);
       expect(customSchema!.properties!.ref.type).toBe('string');
@@ -42,9 +42,9 @@ describe('LoadBalancerService', () => {
 
     it('should parse #1', () => {
       const { loadBalancer: loadBalancer, model } = LoadBalancerService.parseLoadBalancerModel(loadBalancerMap, {
-        roundRobin: { id: 'myRoundRobin' },
+        roundRobinLoadBalancer: { id: 'myRoundRobin' },
       });
-      expect(loadBalancer).toEqual(loadBalancerMap.roundRobin);
+      expect(loadBalancer).toEqual(loadBalancerMap.roundRobinLoadBalancer);
       expect(model).toEqual({ id: 'myRoundRobin' });
     });
 
@@ -70,18 +70,20 @@ describe('LoadBalancerService', () => {
     it('should write loadbalancer', () => {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       const parentModel: any = {};
-      LoadBalancerService.setLoadBalancerModel(loadBalancerMap, parentModel, 'failover', { roundRobin: true });
-      expect(parentModel.failover.roundRobin).toEqual(true);
+      LoadBalancerService.setLoadBalancerModel(loadBalancerMap, parentModel, 'failoverLoadBalancer', {
+        roundRobin: true,
+      });
+      expect(parentModel.failoverLoadBalancer.roundRobin).toEqual(true);
     });
 
     it('should write loadbalancer and remove existing', () => {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      const parentModel: any = { failover: { roundRobin: true } };
-      LoadBalancerService.setLoadBalancerModel(loadBalancerMap, parentModel, 'roundRobin', {
+      const parentModel: any = { failoverLoadBalancer: { roundRobin: true } };
+      LoadBalancerService.setLoadBalancerModel(loadBalancerMap, parentModel, 'roundRobinLoadBalancer', {
         id: 'myRoundRobin',
       });
-      expect(parentModel.failover).toBeUndefined();
-      expect(parentModel.roundRobin.id).toEqual('myRoundRobin');
+      expect(parentModel.failoverLoadBalancer).toBeUndefined();
+      expect(parentModel.roundRobinLoadBalancer.id).toEqual('myRoundRobin');
     });
 
     it('should not write if empty', () => {

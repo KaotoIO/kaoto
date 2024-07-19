@@ -550,18 +550,18 @@ describe('CanvasForm', () => {
       await act(async () => {
         fireEvent.click(button[0]);
       });
-      const avro = screen.getByTestId('loadbalancer-dropdownitem-weighted');
+      const avro = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
       await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
-      expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
+      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('lb');
 
       const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
       await act(async () => {
         fireEvent.input(idInput[1], { target: { value: 'modified' } });
       });
-      expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
+      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
 
@@ -607,11 +607,11 @@ describe('CanvasForm', () => {
       await act(async () => {
         fireEvent.click(button[0]);
       });
-      const avro = screen.getByTestId('loadbalancer-dropdownitem-weighted');
+      const avro = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
       await act(async () => {
         fireEvent.click(avro.getElementsByTagName('button')[0]);
       });
-      expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeDefined();
+      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
   });
