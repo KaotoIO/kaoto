@@ -153,27 +153,7 @@ describe('MappingSerializerService', () => {
       selector = titleFieldItem.children[0] as ValueSelector;
       expect(selector.expression).toEqual('Title');
 
-      const quantityFieldItem = itemFieldItem.children[1] as FieldItem;
-      expect(quantityFieldItem.field.name).toEqual('Quantity');
-      expect(quantityFieldItem.field.type).not.toEqual(Types.Container);
-      expect(quantityFieldItem.field.isAttribute).toBeFalsy();
-      expect(quantityFieldItem.field.namespaceURI).toEqual('');
-      expect(quantityFieldItem.field.maxOccurs).toEqual(1);
-      expect(quantityFieldItem.children.length).toEqual(1);
-      selector = quantityFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Quantity');
-
-      const priceFieldItem = itemFieldItem.children[2] as FieldItem;
-      expect(priceFieldItem.field.name).toEqual('Price');
-      expect(priceFieldItem.field.type).not.toEqual(Types.Container);
-      expect(priceFieldItem.field.isAttribute).toBeFalsy();
-      expect(priceFieldItem.field.namespaceURI).toEqual('');
-      expect(priceFieldItem.field.maxOccurs).toEqual(1);
-      expect(priceFieldItem.children.length).toEqual(1);
-      selector = priceFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Price');
-
-      const chooseItem = itemFieldItem.children[3] as ChooseItem;
+      const chooseItem = itemFieldItem.children[1] as ChooseItem;
       expect(chooseItem.children.length).toEqual(2);
 
       const whenItem = chooseItem.children[0] as WhenItem;
@@ -200,6 +180,26 @@ describe('MappingSerializerService', () => {
       expect(noteFieldItem.children.length).toEqual(1);
       selector = noteFieldItem.children[0] as ValueSelector;
       expect(selector.expression).toEqual('Title');
+
+      const quantityFieldItem = itemFieldItem.children[2] as FieldItem;
+      expect(quantityFieldItem.field.name).toEqual('Quantity');
+      expect(quantityFieldItem.field.type).not.toEqual(Types.Container);
+      expect(quantityFieldItem.field.isAttribute).toBeFalsy();
+      expect(quantityFieldItem.field.namespaceURI).toEqual('');
+      expect(quantityFieldItem.field.maxOccurs).toEqual(1);
+      expect(quantityFieldItem.children.length).toEqual(1);
+      selector = quantityFieldItem.children[0] as ValueSelector;
+      expect(selector.expression).toEqual('Quantity');
+
+      const priceFieldItem = itemFieldItem.children[3] as FieldItem;
+      expect(priceFieldItem.field.name).toEqual('Price');
+      expect(priceFieldItem.field.type).not.toEqual(Types.Container);
+      expect(priceFieldItem.field.isAttribute).toBeFalsy();
+      expect(priceFieldItem.field.namespaceURI).toEqual('');
+      expect(priceFieldItem.field.maxOccurs).toEqual(1);
+      expect(priceFieldItem.children.length).toEqual(1);
+      selector = priceFieldItem.children[0] as ValueSelector;
+      expect(selector.expression).toEqual('Price');
     });
   });
 

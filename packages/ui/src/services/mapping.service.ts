@@ -144,8 +144,7 @@ export class MappingService {
 
   static wrapWithItem(wrapped: MappingItem, wrapper: MappingItem) {
     wrapper.children.push(wrapped);
-    wrapped.parent.children = wrapped.parent.children.filter((m) => m !== wrapped);
-    wrapped.parent.children.push(wrapper);
+    wrapped.parent.children = wrapped.parent.children.map((m) => (m !== wrapped ? m : wrapper));
     wrapped.parent = wrapper;
   }
 
@@ -159,8 +158,10 @@ export class MappingService {
 
   static wrapWithChooseWhenOtherwise(wrapped: MappingItem) {
     const parent = wrapped.parent;
-    MappingService.addChooseWhenOtherwise(parent, wrapped);
-    parent.children = parent.children.filter((c) => c !== wrapped);
+    const chooseItem = new ChooseItem(parent, wrapped && wrapped instanceof FieldItem ? wrapped.field : undefined);
+    chooseItem.children.push(wrapped);
+    parent.children = parent.children.map((m) => (m !== wrapped ? m : chooseItem));
+    wrapped.parent = chooseItem;
   }
 
   static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {

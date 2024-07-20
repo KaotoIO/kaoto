@@ -19,12 +19,6 @@
                     <Title>
                         <xsl:value-of select="Title"/>
                     </Title>
-                    <Quantity>
-                        <xsl:value-of select="Quantity"/>
-                    </Quantity>
-                    <Price>
-                        <xsl:value-of select="Price"/>
-                    </Price>
                     <xsl:choose>
                         <xsl:when test="Note != ''">
                             <Note>
@@ -37,6 +31,12 @@
                             </Note>
                         </xsl:otherwise>
                     </xsl:choose>
+                    <Quantity>
+                        <xsl:value-of select="Quantity"/>
+                    </Quantity>
+                    <Price>
+                        <xsl:value-of select="Price"/>
+                    </Price>
                 </Item>
             </xsl:for-each>
         </ShipOrder>
