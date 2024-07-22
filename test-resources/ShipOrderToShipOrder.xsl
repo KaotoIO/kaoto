@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test">
     <xsl:output method="xml" indent="yes"/>
     <xsl:template match="/">
         <ShipOrder xmlns="io.kaoto.datamapper.poc.test">
             <xsl:attribute name="OrderId">
-                <xsl:value-of select="/ShipOrder/@OrderId"/>
+                <xsl:value-of select="/ns0:ShipOrder/@OrderId"/>
             </xsl:attribute>
-            <xsl:if test="/ShipOrder/OrderPerson != ''">
+            <xsl:if test="/ns0:ShipOrder/ns0:OrderPerson != ''">
                 <OrderPerson>
-                    <xsl:value-of select="/ShipOrder/OrderPerson"/>
+                    <xsl:value-of select="/ns0:ShipOrder/ns0:OrderPerson"/>
                 </OrderPerson>
             </xsl:if>
             <ShipTo xmlns="">
-                <xsl:copy-of select="/ShipOrder/ShipTo"/>
+                <xsl:copy-of select="/ns0:ShipOrder/ShipTo"/>
             </ShipTo>
-            <xsl:for-each select="/ShipOrder/Item">
+            <xsl:for-each select="/ns0:ShipOrder/Item">
                 <Item xmlns="">
                     <Title>
                         <xsl:value-of select="Title"/>

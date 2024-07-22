@@ -68,6 +68,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
       child.parent = newMapping;
       return child;
     });
+    newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
   }, [mappingTree]);
 

@@ -117,11 +117,11 @@ export class XPathService {
     return expression ? `${expression}, ${source}` : source;
   }
 
-  static toXPath(source: PrimitiveDocument | IField): string {
+  static toXPath(source: PrimitiveDocument | IField, namespaceMap: { [prefix: string]: string }): string {
     const doc = source.ownerDocument;
     const prefix = doc.documentType === DocumentType.PARAM ? `$${doc.documentId}` : '';
     const xpath = DocumentService.getFieldStack(source, true).reduceRight(
-      (acc, field) => acc + `/${field.expression}`,
+      (acc, field) => acc + `/${DocumentService.getFieldExpressionNS(field, namespaceMap)}`,
       prefix,
     );
     return xpath ? xpath : '.';

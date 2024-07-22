@@ -30,7 +30,7 @@ export class DocumentService {
     let parent: IDocument | IField = document;
     for (const segment of pathSegments) {
       if (!segment) continue;
-      const child: IField | undefined = parent.fields.find((f) => f.expression === segment);
+      const child: IField | undefined = parent.fields.find((f) => DocumentService.getFieldExpression(f) === segment);
       if (!child) {
         return undefined;
       }
@@ -41,5 +41,18 @@ export class DocumentService {
 
   static getFieldFromPathExpression(document: IDocument, pathExpression: string) {
     return DocumentService.getFieldFromPathSegments(document, pathExpression.split('/'));
+  }
+
+  static getFieldExpression(field: IField) {
+    return field.isAttribute ? `@${field.name}` : field.name;
+  }
+
+  static getFieldExpressionNS(field: IField, namespaceMap: { [prefix: string]: string }) {
+    let answer = field.isAttribute ? '@' : '';
+    const nsPair =
+      field.namespaceURI &&
+      Object.entries(namespaceMap).find(([prefix, uri]) => prefix && uri && field.namespaceURI === uri);
+    if (nsPair) answer += nsPair[0] + ':';
+    return answer + field.name;
   }
 }

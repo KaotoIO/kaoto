@@ -62,7 +62,6 @@ export class XmlSchemaField extends BaseField {
     public isAttribute: boolean,
   ) {
     super(parent, parent instanceof XmlSchemaDocument ? parent : (parent as XmlSchemaField).ownerDocument, name);
-    this.expression = isAttribute ? '@' + name : name;
   }
 }
 

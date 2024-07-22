@@ -1,5 +1,5 @@
 //import { MappingService } from './mapping.service';
-//import { DocumentType } from '../models/document';
+//import { BODY_DOCUMENT_ID, DocumentType } from '../models/document';
 //import { FieldItem } from '../models/mapping';
 //import { XmlSchemaDocumentService } from './xml-schema-document.service';
 //import * as fs from 'node:fs';

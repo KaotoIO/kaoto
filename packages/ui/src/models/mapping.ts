@@ -12,6 +12,7 @@ export class MappingTree {
   children: MappingItem[] = [];
   nodePath: NodePath;
   contextPath?: Path;
+  namespaceMap: { [prefix: string]: string } = {};
 }
 
 export abstract class MappingItem {
@@ -19,7 +20,10 @@ export abstract class MappingItem {
     public parent: MappingParentType,
     public name: string,
     public id: string,
-  ) {}
+  ) {
+    this.mappingTree = parent instanceof MappingTree ? parent : parent.mappingTree;
+  }
+  mappingTree: MappingTree;
   children: MappingItem[] = [];
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);

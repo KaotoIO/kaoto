@@ -36,12 +36,20 @@ export class MappingSerializerService {
    */
   static serialize(mappings: MappingTree, sourceParameterMap: Map<string, IDocument>): string {
     const xslt = MappingSerializerService.createNew();
+    MappingSerializerService.populateNamespaces(xslt, mappings.namespaceMap);
     MappingSerializerService.populateParam(xslt, sourceParameterMap);
     const template = MappingSerializerService.getRootTemplate(xslt);
     mappings.children.forEach((mapping) => {
       MappingSerializerService.populateMapping(template, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
+  }
+
+  private static populateNamespaces(xslt: Document, namespaceMap: { [prefix: string]: string }) {
+    const rootElement = xslt.documentElement;
+    Object.entries(namespaceMap).forEach(
+      ([prefix, uri]) => prefix && uri && rootElement.setAttribute(`xmlns:${prefix}`, uri),
+    );
   }
 
   private static getRootTemplate(xsltDocument: Document) {
@@ -183,11 +191,22 @@ export class MappingSerializerService {
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
     if (!template?.children) return mappingTree;
+    MappingSerializerService.restoreNamespaces(xsltDoc, mappingTree);
     MappingSerializerService.restoreParam(xsltDoc, sourceParameterMap);
     Array.from(template.children).forEach((item) =>
       MappingSerializerService.restoreMapping(item, targetDocument, mappingTree),
     );
     return mappingTree;
+  }
+
+  private static restoreNamespaces(xsltDocument: Document, mappingTree: MappingTree) {
+    mappingTree.namespaceMap = {};
+    const rootElement = xsltDocument.documentElement;
+    Array.from(rootElement.attributes).forEach((attr) => {
+      if (!attr.nodeName.includes(':') || !attr.nodeValue || attr.nodeValue === NS_XSL) return;
+      const splitted = attr.nodeName.split(':');
+      if (splitted[0] === 'xmlns') mappingTree.namespaceMap[splitted[1]] = attr.nodeValue;
+    });
   }
 
   private static restoreParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
@@ -291,7 +310,6 @@ export class MappingSerializerService {
       name,
     );
     field.isAttribute = true;
-    field.expression = '@' + name;
     field.namespaceURI = namespace;
     parentField.fields.push(field);
     return field;

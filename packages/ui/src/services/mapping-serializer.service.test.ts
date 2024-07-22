@@ -49,12 +49,15 @@ describe('MappingSerializerService', () => {
 
     it('should deserialize XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      expect(Object.keys(mappingTree.namespaceMap).length).toEqual(0);
       mappingTree = MappingSerializerService.deserialize(
         shipOrderToShipOrderXslt,
         targetDoc,
         mappingTree,
         sourceParameterMap,
       );
+      expect(Object.keys(mappingTree.namespaceMap).length).toEqual(1);
+      expect(mappingTree.namespaceMap['ns0']).toEqual('io.kaoto.datamapper.poc.test');
       expect(mappingTree.children.length).toEqual(1);
       const shipOrderFieldItem = mappingTree.children[0] as FieldItem;
       expect(shipOrderFieldItem.field.name).toEqual('ShipOrder');
@@ -70,13 +73,12 @@ describe('MappingSerializerService', () => {
       expect(orderIdFieldItem.field.isAttribute).toBeTruthy();
       expect(orderIdFieldItem.field.namespaceURI).toEqual('');
       expect(orderIdFieldItem.field.maxOccurs).toEqual(1);
-      expect(orderIdFieldItem.field.expression).toEqual('@OrderId');
       expect(orderIdFieldItem.children.length).toEqual(1);
       let selector = orderIdFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ShipOrder/@OrderId');
+      expect(selector.expression).toEqual('/ns0:ShipOrder/@OrderId');
 
       const ifItem = shipOrderFieldItem.children[1] as IfItem;
-      expect(ifItem.expression).toEqual("/ShipOrder/OrderPerson != ''");
+      expect(ifItem.expression).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
       expect(ifItem.children.length).toEqual(1);
       const orderPersonFieldItem = ifItem.children[0] as FieldItem;
       expect(orderPersonFieldItem.field.name).toEqual('OrderPerson');
@@ -86,7 +88,7 @@ describe('MappingSerializerService', () => {
       expect(orderPersonFieldItem.field.maxOccurs).toEqual(1);
       expect(orderPersonFieldItem.children.length).toEqual(1);
       selector = orderPersonFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ShipOrder/OrderPerson');
+      expect(selector.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
 
       const shipToFieldItem = shipOrderFieldItem.children[2] as FieldItem;
       expect(shipToFieldItem.field.name).toEqual('ShipTo');
@@ -96,10 +98,10 @@ describe('MappingSerializerService', () => {
       expect(shipToFieldItem.field.maxOccurs).toEqual(1);
       expect(shipToFieldItem.children.length).toEqual(1);
       selector = shipToFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ShipOrder/ShipTo');
+      expect(selector.expression).toEqual('/ns0:ShipOrder/ShipTo');
 
       const forEachItem = shipOrderFieldItem.children[3] as ForEachItem;
-      expect(forEachItem.expression).toEqual('/ShipOrder/Item');
+      expect(forEachItem.expression).toEqual('/ns0:ShipOrder/Item');
       expect(forEachItem.children.length).toEqual(1);
       const itemFieldItem = forEachItem.children[0] as FieldItem;
       expect(itemFieldItem.field.name).toEqual('Item');
@@ -194,6 +196,7 @@ describe('MappingSerializerService', () => {
       );
       const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      expect(xsltDocument.documentElement.getAttribute('xmlns:ns0')).toEqual('io.kaoto.datamapper.poc.test');
       const orderIdSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:attribute[@name="OrderId"]/xsl:value-of/@select',
@@ -202,7 +205,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(orderIdSelect?.nodeValue).toEqual('/ShipOrder/@OrderId');
+      expect(orderIdSelect?.nodeValue).toEqual('/ns0:ShipOrder/@OrderId');
       const ifTest = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/@test',
@@ -211,7 +214,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(ifTest?.nodeValue).toEqual("/ShipOrder/OrderPerson != ''");
+      expect(ifTest?.nodeValue).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
       const orderPersonSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/OrderPerson/xsl:value-of/@select',
@@ -220,7 +223,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(orderPersonSelect?.nodeValue).toEqual('/ShipOrder/OrderPerson');
+      expect(orderPersonSelect?.nodeValue).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
       const shipToSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/ShipTo/xsl:copy-of/@select',
@@ -229,7 +232,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(shipToSelect?.nodeValue).toEqual('/ShipOrder/ShipTo');
+      expect(shipToSelect?.nodeValue).toEqual('/ns0:ShipOrder/ShipTo');
       const forEachSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/@select',
@@ -238,7 +241,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(forEachSelect?.nodeValue).toEqual('/ShipOrder/Item');
+      expect(forEachSelect?.nodeValue).toEqual('/ns0:ShipOrder/Item');
       const titleSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/Item/Title/xsl:value-of/@select',

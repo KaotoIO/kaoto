@@ -268,8 +268,6 @@ export class VisualizationService {
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
     const parentItem = VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
-    const item = new FieldItem(parentItem, fieldNodeData.field);
-    parentItem.children.push(item);
-    return item;
+    return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
 }

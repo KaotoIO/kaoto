@@ -22,13 +22,13 @@ export interface IField {
   id: string;
   name: string;
   path: NodePath;
-  expression: string;
   type: Types;
   fields: IField[];
   isAttribute: boolean;
   defaultValue: string | null;
   minOccurs: number;
   maxOccurs: number;
+  namespacePrefix: string | null;
   namespaceURI: string | null;
 }
 
@@ -38,7 +38,6 @@ export interface IDocument {
   name: string;
   schemaType: string;
   fields: IField[];
-  namespaces?: INamespace[];
   path: NodePath;
 }
 
@@ -60,16 +59,15 @@ export class PrimitiveDocument extends BaseDocument implements IField {
     super(documentType, documentId);
     this.name = this.documentId;
     this.id = this.documentId;
-    this.expression = this.documentId;
     this.path = NodePath.fromDocument(documentType, documentId);
   }
 
   ownerDocument: IDocument = this;
   defaultValue: string | null = null;
-  expression: string = '';
   isAttribute: boolean = false;
   maxOccurs: number = 1;
   minOccurs: number = 0;
+  namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   parent: IParentType = this;
   type = Types.AnyType;
@@ -91,10 +89,10 @@ export class BaseField implements IField {
   path: NodePath;
   fields: IField[] = [];
   isAttribute: boolean = false;
-  expression: string = '';
   type = Types.AnyType;
   minOccurs: number = DEFAULT_MIN_OCCURS;
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
+  namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
 }
