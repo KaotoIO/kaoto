@@ -47,7 +47,7 @@ describe('DataFormatEditor', () => {
 
   it('should render', async () => {
     render(<DataFormatEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
@@ -59,7 +59,7 @@ describe('DataFormatEditor', () => {
 
   it('should filter candidates with a text input', async () => {
     render(<DataFormatEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
@@ -75,7 +75,7 @@ describe('DataFormatEditor', () => {
 
   it('should clear filter and close the dropdown with close button', async () => {
     render(<DataFormatEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });

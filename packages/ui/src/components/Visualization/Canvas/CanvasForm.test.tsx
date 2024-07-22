@@ -440,7 +440,7 @@ describe('CanvasForm', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
+      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -497,7 +497,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].marshal!.avro).toBeUndefined();
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
+      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -546,7 +546,7 @@ describe('CanvasForm', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
+      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });
@@ -603,7 +603,7 @@ describe('CanvasForm', () => {
       expect(camelRoute.from.steps[0].loadBalance!.weighted).toBeUndefined();
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button', { name: 'Menu toggle' });
+      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
       await act(async () => {
         fireEvent.click(button[0]);
       });

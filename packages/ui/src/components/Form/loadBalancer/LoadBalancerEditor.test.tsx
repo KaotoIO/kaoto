@@ -48,7 +48,7 @@ describe('LoadBalancerEditor', () => {
 
   it('should render', async () => {
     render(<LoadBalancerEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
@@ -62,7 +62,7 @@ describe('LoadBalancerEditor', () => {
 
   it('should filter candidates with a text input', async () => {
     render(<LoadBalancerEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
@@ -78,7 +78,7 @@ describe('LoadBalancerEditor', () => {
 
   it('should clear filter and close the dropdown with close button', async () => {
     render(<LoadBalancerEditor selectedNode={mockNode} />);
-    const buttons = screen.getAllByRole('button', { name: 'Menu toggle' });
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
     await act(async () => {
       fireEvent.click(buttons[0]);
     });
