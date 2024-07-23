@@ -2508,16 +2508,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto-next/uniforms-patternfly@npm:^0.6.10":
-  version: 0.6.12
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.12"
+"@kaoto-next/uniforms-patternfly@npm:^0.6.15":
+  version: 0.6.15
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.15"
   dependencies:
     invariant: ^2.2.4
     lodash: ^4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
     uniforms: 4.0.0-alpha.5
-  checksum: fc9650f96c5c665aacc8fa4140b79ecf0ae018cd5a8e4d072510dc6e56c638a15ae309268cef0c10c42889de049d8e3aa28249c119ac814583938ee47efd80ae
+  checksum: 7be378c7867962bf1d458fb9787eb3ec1699c198ee4fc958b90d868f3ad4be62c40db78bdec9899be85980bad8e96afb397ef28b86593e4310b77e72eba6d23c
   languageName: node
   linkType: hard
 
@@ -2608,7 +2608,7 @@ __metadata:
     "@babel/preset-env": ^7.21.5
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
-    "@kaoto-next/uniforms-patternfly": ^0.6.10
+    "@kaoto-next/uniforms-patternfly": ^0.6.15
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": 0.32.0
     "@kie-tools-core/notifications": 0.32.0
