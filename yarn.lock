@@ -2530,7 +2530,7 @@ __metadata:
     eslint-config-prettier: ^9.0.0
     eslint-plugin-import: ^2.26.0
     eslint-plugin-prettier: ^5.0.0
-    json-schema-to-typescript: ^14.0.0
+    json-schema-to-typescript: ^15.0.0
     prettier: ^3.0.0
     rimraf: ^6.0.0
     ts-node: ^10.9.1
@@ -2547,7 +2547,7 @@ __metadata:
     eslint-config-prettier: ^9.0.0
     eslint-plugin-import: ^2.26.0
     eslint-plugin-prettier: ^5.0.0
-    json-schema-to-typescript: ^14.0.0
+    json-schema-to-typescript: ^15.0.0
     prettier: ^3.0.0
     rimraf: ^6.0.0
     ts-node: ^10.9.1
@@ -6690,13 +6690,6 @@ __metadata:
   version: 6.2.1
   resolution: "ansi-styles@npm:6.2.1"
   checksum: ef940f2f0ced1a6347398da88a91da7930c33ecac3c77b72c5905f8b8fe402c52e6fde304ff5347f616e27a742da3f1dc76de98f6866c69251ad0b07a66776d9
-  languageName: node
-  linkType: hard
-
-"any-promise@npm:^1.0.0":
-  version: 1.3.0
-  resolution: "any-promise@npm:1.3.0"
-  checksum: 0ee8a9bdbe882c90464d75d1f55cf027f5458650c4bd1f0467e65aec38ccccda07ca5844969ee77ed46d04e7dded3eaceb027e8d32f385688523fe305fa7e1de
   languageName: node
   linkType: hard
 
@@ -12948,9 +12941,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-schema-to-typescript@npm:^14.0.0":
-  version: 14.0.5
-  resolution: "json-schema-to-typescript@npm:14.0.5"
+"json-schema-to-typescript@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "json-schema-to-typescript@npm:15.0.0"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^11.5.5
     "@types/json-schema": ^7.0.15
@@ -12962,12 +12955,11 @@ __metadata:
     lodash: ^4.17.21
     minimist: ^1.2.8
     mkdirp: ^3.0.1
-    mz: ^2.7.0
     node-fetch: ^3.3.2
     prettier: ^3.2.5
   bin:
     json2ts: dist/src/cli.js
-  checksum: 3bdc506378970ebdd0f76e8b47eab6c83d1cbe1827b7617fee4eadd697e3e192cc9d08302ef33c55bbd672452fea4358044563f41ffce9e092e70fa11c623745
+  checksum: 96a6471f190c6eccb07c6e83305ac3dc7a485163d30fa947e136ceb4f249434425038255f24c99b2d758363ef78c825562cd795ed7e0efb7e882d3dc6f500702
   languageName: node
   linkType: hard
 
@@ -14124,17 +14116,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mz@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "mz@npm:2.7.0"
-  dependencies:
-    any-promise: ^1.0.0
-    object-assign: ^4.0.1
-    thenify-all: ^1.0.0
-  checksum: 8427de0ece99a07e9faed3c0c6778820d7543e3776f9a84d22cf0ec0a8eb65f6e9aee9c9d353ff9a105ff62d33a9463c6ca638974cc652ee8140cd1e35951c87
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.7":
   version: 3.3.7
   resolution: "nanoid@npm:3.3.7"
@@ -14484,7 +14465,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4.0.1, object-assign@npm:^4.1.1":
+"object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -17518,24 +17499,6 @@ __metadata:
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
   checksum: b6937a38c80c7f84d9c11dd75e49d5c44f71d95e810a3250bd1f1797fc7117c57698204adf676b71497acc205d769d65c16ae8fa10afad832ae1322630aef10a
-  languageName: node
-  linkType: hard
-
-"thenify-all@npm:^1.0.0":
-  version: 1.6.0
-  resolution: "thenify-all@npm:1.6.0"
-  dependencies:
-    thenify: ">= 3.1.0 < 4"
-  checksum: dba7cc8a23a154cdcb6acb7f51d61511c37a6b077ec5ab5da6e8b874272015937788402fd271fdfc5f187f8cb0948e38d0a42dcc89d554d731652ab458f5343e
-  languageName: node
-  linkType: hard
-
-"thenify@npm:>= 3.1.0 < 4":
-  version: 3.3.1
-  resolution: "thenify@npm:3.3.1"
-  dependencies:
-    any-promise: ^1.0.0
-  checksum: 84e1b804bfec49f3531215f17b4a6e50fd4397b5f7c1bccc427b9c656e1ecfb13ea79d899930184f78bc2f57285c54d9a50a590c8868f4f0cef5c1d9f898b05e
   languageName: node
   linkType: hard
 
