@@ -1,11 +1,16 @@
-const DEFAULT_SETTINGS: SettingsModel = {
-  catalogUrl: '',
-};
+export interface ISettingsModel {
+  catalogUrl: string;
+}
 
-export class SettingsModel {
+export interface AbstractSettingsAdapter {
+  getSettings(): ISettingsModel;
+  saveSettings(settings: ISettingsModel): void;
+}
+
+export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
 
-  constructor(options: Partial<SettingsModel> = {}) {
-    Object.assign(this, DEFAULT_SETTINGS, options);
+  constructor(options: Partial<ISettingsModel> = {}) {
+    Object.assign(this, options);
   }
 }

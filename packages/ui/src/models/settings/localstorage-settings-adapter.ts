@@ -1,23 +1,21 @@
 import { LocalStorageKeys } from '../local-storage-keys';
-import { AbstractSettingsAdapter } from './abstract-settings-adapter';
-import { SettingsModel } from './settings.model';
+import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
 
-export class LocalStorageSettingsAdapter extends AbstractSettingsAdapter {
-  private readonly settings: SettingsModel;
+export class LocalStorageSettingsAdapter implements AbstractSettingsAdapter {
+  private settings: ISettingsModel;
 
   constructor() {
-    super();
-
     const rawSettings = localStorage.getItem(LocalStorageKeys.Settings) ?? '{}';
     const parsedSettings = JSON.parse(rawSettings);
     this.settings = new SettingsModel(parsedSettings);
   }
 
-  getSettings(): SettingsModel {
+  getSettings(): ISettingsModel {
     return this.settings;
   }
 
-  saveSettings(settings: SettingsModel): void {
+  saveSettings(settings: ISettingsModel): void {
     localStorage.setItem(LocalStorageKeys.Settings, JSON.stringify(settings));
+    this.settings = { ...settings };
   }
 }
