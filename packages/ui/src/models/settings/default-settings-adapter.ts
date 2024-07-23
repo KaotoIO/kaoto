@@ -1,15 +1,17 @@
-import { ROOT_PATH, setValue } from '../../utils';
-import { AbstractSettingsAdapter } from './abstract-settings-adapter';
-import { SettingsModel } from './settings.model';
+import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
 
-export class DefaultSettingsAdapter extends AbstractSettingsAdapter {
-  private readonly defaultSettings = new SettingsModel();
+export class DefaultSettingsAdapter implements AbstractSettingsAdapter {
+  private settings: ISettingsModel;
 
-  getSettings() {
-    return this.defaultSettings;
+  constructor(settings?: Partial<ISettingsModel>) {
+    this.settings = new SettingsModel(settings);
   }
 
-  saveSettings(settings: SettingsModel) {
-    setValue(this.defaultSettings, ROOT_PATH, settings);
+  getSettings() {
+    return this.settings;
+  }
+
+  saveSettings(settings: ISettingsModel) {
+    Object.assign(this.settings, settings);
   }
 }

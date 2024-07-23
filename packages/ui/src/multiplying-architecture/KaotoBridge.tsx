@@ -9,6 +9,7 @@ import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
+import { SettingsContext } from '../providers/settings.provider';
 import { SourceCodeApiContext } from '../providers/source-code.provider';
 import { VisibleFlowsProvider } from '../providers/visible-flows.provider';
 import { EventNotifier } from '../utils';
@@ -45,11 +46,6 @@ interface KaotoBridgeProps {
    * ChannelType where the component is running.
    */
   channelType: ChannelType;
-
-  /**
-   * Catalog URL to load the components and schemas.
-   */
-  catalogUrl: string;
 }
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>((props, forwardedRef) => {
@@ -57,6 +53,8 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
   const eventNotifier = EventNotifier.getInstance();
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
   const sourceCodeRef = useRef<string>('');
+  const settingsAdapter = useContext(SettingsContext);
+  const catalogUrl = settingsAdapter.getSettings().catalogUrl;
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
@@ -145,7 +143,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
 
   return (
     <ReloadProvider>
-      <RuntimeProvider catalogUrl={props.catalogUrl}>
+      <RuntimeProvider catalogUrl={catalogUrl}>
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <CatalogTilesProvider>
