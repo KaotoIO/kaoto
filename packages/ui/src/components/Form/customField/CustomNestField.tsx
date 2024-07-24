@@ -46,8 +46,9 @@ export const CustomNestField = connectField(
     ...props
   }: CustomNestFieldProps) => {
     const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
+    const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
     const filteredProperties = Object.entries(props.properties ?? {}).filter((field) =>
-      field[0].toLowerCase().includes(filteredFieldText.toLowerCase()),
+      field[0].toLowerCase().includes(cleanQueryTerm),
     );
     const actualProperties = Object.fromEntries(filteredProperties);
     const propertiesArray = getFieldGroups(actualProperties);
