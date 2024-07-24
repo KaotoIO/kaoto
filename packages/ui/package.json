@@ -18,6 +18,10 @@
       "import": "./lib/esm/public-api.js",
       "require": "./lib/cjs/public-api.js"
     },
+    "./models": {
+      "import": "./lib/esm/models-api.js",
+      "require": "./lib/cjs/models-api.js"
+    },
     "./testing": {
       "import": "./lib/esm/testing-api.js",
       "require": "./lib/cjs/testing-api.js"

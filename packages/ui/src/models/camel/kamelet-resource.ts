@@ -1,5 +1,5 @@
 import set from 'lodash/set';
-import { TileFilter } from '../../public-api';
+import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
