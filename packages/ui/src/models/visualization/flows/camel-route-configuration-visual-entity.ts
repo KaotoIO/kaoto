@@ -2,7 +2,7 @@ import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-
 import Ajv, { ValidateFunction } from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../public-api';
+import { SchemaService } from '../../../components/Form/schema.service';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';

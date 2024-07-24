@@ -11,5 +11,6 @@ export * from './kaoto-schema';
 export * from './loading-status';
 export * from './local-storage-keys';
 export * from './react-component';
+export * from './settings';
 export * from './validation';
 export * from './visualization';

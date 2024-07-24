@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { SchemaBridgeProvider } from './schema-bridge.provider';
 import { KaotoSchemaDefinition } from '../models';
-import { SchemaService } from '../public-api';
+import { SchemaService } from '../components/Form/schema.service';
 
 describe('SchemaBridgeProvider', () => {
   const schema: KaotoSchemaDefinition['schema'] = {
