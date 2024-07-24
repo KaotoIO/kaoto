@@ -32,10 +32,9 @@ export function CustomAutoFields({
     return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
   }
 
+  const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
   const actualFields = (fields ?? schema.getSubfields()).filter(
-    (field) =>
-      !omitFields!.includes(field) &&
-      (field === 'parameters' || field.toLowerCase().includes(filteredFieldText.toLowerCase())),
+    (field) => !omitFields!.includes(field) && (field === 'parameters' || field.toLowerCase().includes(cleanQueryTerm)),
   );
   const actualFieldsSchema = actualFields.reduce((acc: { [name: string]: unknown }, name) => {
     acc[name] = schema.getField(name);
