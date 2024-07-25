@@ -122,7 +122,7 @@ describe('ExpressionService', () => {
     it('should not write if empty', () => {
       const parentModel: any = {};
       ExpressionService.setStepExpressionModel(languageMap, parentModel, '', {});
-      expect(parentModel.expression.simple).toBeUndefined();
+      expect(parentModel.expression).toBeUndefined();
     });
   });
 

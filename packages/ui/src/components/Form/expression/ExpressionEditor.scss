@@ -1,7 +1,6 @@
 .expression-metadata-editor {
-  #typeahead-select {
-    max-height: 500px;
-    overflow-y: auto;
+  .expression-metadata-editor-card {
+    margin-bottom: 24px;
   }
 
   form {

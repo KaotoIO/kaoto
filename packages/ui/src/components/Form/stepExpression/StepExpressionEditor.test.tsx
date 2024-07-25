@@ -5,11 +5,10 @@ import { CatalogKind, ICamelLanguageDefinition, KaotoSchemaDefinition } from '..
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { MetadataEditor } from '../../MetadataEditor';
+import { FormTabsModes } from '../../Visualization/Canvas';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { SchemaService } from '../schema.service';
 import { StepExpressionEditor } from './StepExpressionEditor';
-import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 describe('StepExpressionEditor', () => {
   let mockNode: CanvasNode;
@@ -54,10 +53,6 @@ describe('StepExpressionEditor', () => {
 
   it('should render', async () => {
     render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
-    const launcherButton = screen.getAllByRole('button', { name: 'Configure Expression' });
-    await act(async () => {
-      fireEvent.click(launcherButton[0]);
-    });
     const dropdown = screen
       .getAllByTestId('typeahead-select-input')
       .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
@@ -68,28 +63,5 @@ describe('StepExpressionEditor', () => {
     fireEvent.click(jsonpath.getElementsByTagName('button')[0]);
     const form = screen.getByTestId('metadata-editor-form-expression');
     expect(form.innerHTML).toContain('Suppress Exceptions');
-  });
-
-  it('should render for all languages without an error', () => {
-    Object.entries(languageCatalog).forEach(([name, language]) => {
-      try {
-        if (name === 'default') return;
-        expect(language).toBeDefined();
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const schema = (language as any).propertiesSchema;
-        render(
-          <MetadataEditor
-            data-testid="expression-editor"
-            name={'expression'}
-            schema={schema}
-            metadata={{}}
-            onChangeModel={() => {}}
-          />,
-        );
-      } catch (e) {
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        throw new Error(`Error rendering ${name} language: ${(e as any).message}`);
-      }
-    });
   });
 });

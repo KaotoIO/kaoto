@@ -1,16 +1,24 @@
-Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string) => {
-  cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
-    cy.interactWithConfigInputObject(inputName, value);
-  });
+Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string, index?: number) => {
+  index = index ?? 0;
+  cy.get('.expression-metadata-editor-card')
+    .eq(index)
+    .parent()
+    .within(() => {
+      cy.interactWithConfigInputObject(inputName, value);
+    });
 });
 
-Cypress.Commands.add('addExpressionResultType', (value: string) => {
-  cy.get('[data-ouia-component-id="ExpressionModal"]').within(() => {
-    cy.get('[data-fieldname="resultType"]').within(() => {
-      cy.get(`input.pf-v5-c-text-input-group__text-input`).clear();
-      cy.get(`input.pf-v5-c-text-input-group__text-input`).type(value).type('{enter}');
+Cypress.Commands.add('addExpressionResultType', (value: string, index?: number) => {
+  index = index ?? 0;
+  cy.get('.expression-metadata-editor-card')
+    .eq(index)
+    .parent()
+    .within(() => {
+      cy.get('[data-fieldname="resultType"]').within(() => {
+        cy.get(`input.pf-v5-c-text-input-group__text-input`).clear();
+        cy.get(`input.pf-v5-c-text-input-group__text-input`).type(value).type('{enter}');
+      });
     });
-  });
 });
 
 Cypress.Commands.add('checkExpressionResultType', (value: string) => {
@@ -43,33 +51,22 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
   cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).should('have.value', value);
 });
 
-Cypress.Commands.add('openExpressionModalBtn', () => {
-  cy.get('[data-testid="launch-expression-modal-btn"]').scrollIntoView().should('be.visible').click();
-});
-
-Cypress.Commands.add('openExpressionModal', (expression: string) => {
-  cy.get(`[data-fieldname="${expression}"]`)
+Cypress.Commands.add('selectExpression', (expression: string, index?: number) => {
+  index = index ?? 0;
+  cy.get('[data-testid="expression-config-card"]')
+    .eq(index)
     .scrollIntoView()
-    .within(() => {
-      cy.openExpressionModalBtn();
-    });
-});
-
-Cypress.Commands.add('selectExpression', (expression: string) => {
-  cy.get('div[data-ouia-component-id="ExpressionModal"] button.pf-v5-c-menu-toggle__button')
-    .eq(0)
     .should('be.visible')
-    .click();
+    .within(() => {
+      cy.get('div.pf-m-typeahead')
+        .eq(0)
+        .should('be.visible')
+        .within(() => {
+          cy.get('button.pf-v5-c-menu-toggle__button').click();
+        });
+    });
   const regex = new RegExp(`^${expression}$`);
   cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
-});
-
-Cypress.Commands.add('confirmExpressionModal', () => {
-  cy.get('[data-testid="confirm-expression-modal-btn"]').should('be.visible').click();
-});
-
-Cypress.Commands.add('cancelExpressionModal', () => {
-  cy.get('[data-testid="cancel-expression-modal-btn"]').should('be.visible').click();
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {

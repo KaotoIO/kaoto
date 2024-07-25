@@ -23,6 +23,12 @@ const visualComponentSchema: VisualComponentSchema = {
   } as unknown as KaotoSchemaDefinition['schema'],
   definition: {
     name: 'my node',
+    csv: {
+      commentMarker: 'test',
+      delimiter: 'test',
+      escape: 'test',
+      id: 'test',
+    },
   },
 };
 

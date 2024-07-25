@@ -138,17 +138,10 @@ describe('CanvasFormTabs', () => {
         fireEvent.click(modifiedTab);
       });
 
-      expect(screen.queryByTestId('launch-expression-modal-btn')).toBeNull();
-
       act(() => {
         fireEvent.click(defaultTab);
       });
 
-      const launchExpressionDefaultTab = screen.getByTestId('launch-expression-modal-btn');
-
-      act(() => {
-        fireEvent.click(launchExpressionDefaultTab);
-      });
       const button = screen
         .getAllByTestId('typeahead-select-input')
         .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
@@ -162,17 +155,13 @@ describe('CanvasFormTabs', () => {
       const expressionInput = screen
         .getAllByRole('textbox')
         .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
       act(() => {
         fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-        fireEvent.click(applyBtn[0]);
       });
 
       act(() => {
         fireEvent.click(modifiedTab);
       });
-
-      expect(screen.getByTestId('launch-expression-modal-btn')).toBeInTheDocument();
     });
 
     it('dataformat field', async () => {
@@ -387,10 +376,6 @@ describe('CanvasFormTabs', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const launchExpression = screen.getByTestId('launch-expression-modal-btn');
-      act(() => {
-        fireEvent.click(launchExpression);
-      });
       const button = screen
         .getAllByTestId('typeahead-select-input')
         .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
@@ -404,10 +389,8 @@ describe('CanvasFormTabs', () => {
       const expressionInput = screen
         .getAllByRole('textbox')
         .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
       act(() => {
         fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-        fireEvent.click(applyBtn[0]);
       });
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       expect((camelRoute.from.steps[0].setHeader!.expression as any).simple.expression).toEqual('${header.foo}');
@@ -460,10 +443,6 @@ describe('CanvasFormTabs', () => {
       expect(camelRoute.from.steps[0].setHeader!.expression).toBeUndefined();
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
 
-      const launchExpression = screen.getByTestId('launch-expression-modal-btn');
-      act(() => {
-        fireEvent.click(launchExpression);
-      });
       const button = screen
         .getAllByTestId('typeahead-select-input')
         .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
@@ -477,10 +456,8 @@ describe('CanvasFormTabs', () => {
       const expressionInput = screen
         .getAllByRole('textbox')
         .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
       act(() => {
         fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-        fireEvent.click(applyBtn[0]);
       });
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       expect((camelRoute.from.steps[0].setHeader!.expression as any).simple.expression).toEqual('${header.foo}');
