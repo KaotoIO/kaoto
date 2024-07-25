@@ -38,7 +38,7 @@ describe('ExpressionAwareNestField', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
   });
 
-  it('should render with a modal closed, open by click, then close by cancel button', () => {
+  it('should render', async () => {
     render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!} model={{ headers: [{ expression: {} }] }}>
@@ -46,19 +46,14 @@ describe('ExpressionAwareNestField', () => {
         </AutoForm>
       </AutoField.componentDetectorContext.Provider>,
     );
-    const link = screen.getByRole('button', { name: 'Configure Expression' });
-    expect(link).toBeInTheDocument();
-    expect(screen.queryByRole('dialog')).toBeNull();
-    act(() => {
-      fireEvent.click(link);
+    const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
+    await act(async () => {
+      fireEvent.click(buttons[0]);
     });
-    expect(screen.queryByRole('dialog')).toBeInTheDocument();
-    const cancelBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Cancel');
-    expect(cancelBtn).toHaveLength(1);
-    act(() => {
-      fireEvent.click(cancelBtn[0]);
-    });
-    expect(screen.queryByRole('dialog')).toBeNull();
+    const json = screen.getByTestId('expression-dropdownitem-datasonnet');
+    fireEvent.click(json.getElementsByTagName('button')[0]);
+    const form = screen.getByTestId('metadata-editor-form-expression');
+    expect(form.innerHTML).toContain('Output Media Type');
   });
 
   it('should render with parameters filled with passed in model, emit onChange with apply button', () => {
@@ -79,25 +74,12 @@ describe('ExpressionAwareNestField', () => {
         </AutoForm>
       </AutoField.componentDetectorContext.Provider>,
     );
-    const link = screen.getByRole('button', { name: 'Configure Expression' });
-    act(() => {
-      fireEvent.click(link);
-    });
-
-    const expressionInput = screen
-      .getAllByRole('textbox')
-      .filter((textbox) => textbox.getAttribute('name') === 'expression');
-    expect(expressionInput).toHaveLength(1);
-    expect(expressionInput[0].textContent).toEqual('${body}');
-    act(() => {
-      fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-    });
-
-    const applyBtn = screen.getAllByRole('button').filter((button) => button.textContent === 'Apply');
-    expect(applyBtn).toHaveLength(1);
+    const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
+    expect(idInput).toHaveLength(1);
+    expect(idInput[0].getAttribute('value')).toEqual('');
     expect(mockOnChange.mock.calls).toHaveLength(0);
     act(() => {
-      fireEvent.click(applyBtn[0]);
+      fireEvent.input(idInput[0], { target: { value: 'foo' } });
     });
     expect(mockOnChange.mock.calls).toHaveLength(1);
   });

@@ -12,22 +12,18 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.openStepConfigurationTab('setHeaders');
 
     cy.get('[data-testid="list-add-field"]').click();
-    cy.get('[data-testid="launch-expression-modal-btn"]').should('be.visible').click();
 
     cy.selectExpression('Simple');
     cy.interactWithExpressionInputObject('expression', `{{}random(1,100)}`);
     cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
     cy.addExpressionResultType('java.lang.String');
-    cy.confirmExpressionModal();
 
     cy.get('[data-testid="list-add-field"]').click();
-    cy.get('[data-testid="launch-expression-modal-btn"]').eq(1).should('be.visible').click();
 
-    cy.selectExpression('Constant');
-    cy.interactWithExpressionInputObject('expression', `constant`);
-    cy.interactWithExpressionInputObject('id', 'constantExpressionId');
-    cy.addExpressionResultType('java.lang.String');
-    cy.confirmExpressionModal();
+    cy.selectExpression('Constant', 1);
+    cy.interactWithExpressionInputObject('expression', `constant`, 1);
+    cy.interactWithExpressionInputObject('id', 'constantExpressionId', 1);
+    cy.addExpressionResultType('java.lang.String', 1);
 
     cy.openSourceCode();
     const headers = [

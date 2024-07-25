@@ -16,11 +16,12 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="description"]`).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
-    cy.get(`input[data-testid="expression-preview-input"]`).should('exist');
+    cy.get(`.expression-metadata-editor`).should('exist');
+    cy.get('.pf-v5-c-card__header-toggle').click();
 
     // filter fields
     cy.filterFields('name');
-    cy.get(`input[data-testid="expression-preview-input"]`).should('exist');
+    cy.get(`.expression-metadata-editor`).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="id"]`).should('not.exist');
     cy.get(`textarea[name="description"]`).should('not.exist');
@@ -40,11 +41,12 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="description"]`).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
-    cy.get(`input[data-testid="expression-preview-input"]`).should('exist');
+    cy.get(`.expression-metadata-editor`).should('exist');
+    cy.get('.pf-v5-c-card__header-toggle').click();
 
     // filter fields
     cy.filterFields('DISABLED');
-    cy.get(`input[data-testid="expression-preview-input"]`).should('exist');
+    cy.get(`.expression-metadata-editor`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
     cy.get(`input[name="name"]`).should('not.exist');
     cy.get(`input[name="id"]`).should('not.exist');

@@ -61,22 +61,22 @@ describe('Test for root on exception container', () => {
     cy.get(`input[name="redeliveryPolicy.redeliveryDelay"]`).clear().type('2000');
     cy.get(`input[name="redeliveryPolicy.retryAttemptedLogInterval"]`).clear().type('2');
     cy.get(`input[name="redeliveryPolicyRef"]`).clear().type('testRedeliveryPolicyRef');
-    cy.openExpressionModal('retryWhile');
-    cy.selectExpression('Constant');
-    cy.interactWithExpressionInputObject('expression', `retryWhile.constant`);
-    cy.interactWithExpressionInputObject('id', 'retryWhile.constantExpressionId');
-    cy.confirmExpressionModal();
-    cy.openExpressionModal('handled');
-    cy.selectExpression('Constant');
-    cy.interactWithExpressionInputObject('expression', `handled.constant`);
-    cy.interactWithExpressionInputObject('id', 'handled.constantExpressionId');
-    cy.confirmExpressionModal();
-    cy.openExpressionModal('continued');
-    cy.selectExpression('Constant');
-    cy.interactWithExpressionInputObject('expression', `continued.constant`);
-    cy.interactWithExpressionInputObject('id', 'continued.constantExpressionId');
-    cy.confirmExpressionModal();
 
+    cy.get('[data-fieldname="retryWhile"]').within(() => {
+      cy.selectExpression('Constant');
+      cy.interactWithExpressionInputObject('expression', `retryWhile.constant`);
+      cy.interactWithExpressionInputObject('id', 'retryWhile.constantExpressionId');
+    });
+    cy.get('[data-fieldname="handled"]').within(() => {
+      cy.selectExpression('Constant');
+      cy.interactWithExpressionInputObject('expression', `handled.constant`);
+      cy.interactWithExpressionInputObject('id', 'handled.constantExpressionId');
+    });
+    cy.get('[data-fieldname="continued"]').within(() => {
+      cy.selectExpression('Constant');
+      cy.interactWithExpressionInputObject('expression', `continued.constant`);
+      cy.interactWithExpressionInputObject('id', 'continued.constantExpressionId');
+    });
     cy.openSourceCode();
 
     cy.checkCodeSpanLine('description: testDescription');

@@ -25,6 +25,13 @@ const visualComponentSchema: VisualComponentSchema = {
   } as unknown as KaotoSchemaDefinition['schema'],
   definition: {
     name: 'my node',
+    expression: {
+      csimple: {
+        expression: 'test',
+        id: 'test',
+        resultType: 'java.lang.String',
+      },
+    },
   },
 };
 

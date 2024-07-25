@@ -63,18 +63,14 @@ declare global {
       checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
-      interactWithExpressionInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      addExpressionResultType(value: string): Chainable<JQuery<Element>>;
+      interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;
+      addExpressionResultType(value: string, index?: number): Chainable<JQuery<Element>>;
       checkExpressionResultType(value: string): Chainable<JQuery<Element>>;
       interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithDataformatInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
       checkConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
-      openExpressionModalBtn(): Chainable<JQuery<Element>>;
-      openExpressionModal(expression: string): Chainable<JQuery<Element>>;
-      selectExpression(expression: string): Chainable<JQuery<Element>>;
-      confirmExpressionModal(): Chainable<JQuery<Element>>;
-      cancelExpressionModal(): Chainable<JQuery<Element>>;
+      selectExpression(expression: string, index?: number): Chainable<JQuery<Element>>;
       selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;

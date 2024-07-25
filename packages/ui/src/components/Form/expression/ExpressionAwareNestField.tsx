@@ -17,76 +17,15 @@
  * under the License.
  */
 
-import { connectField, filterDOMProps, HTMLFieldProps } from 'uniforms';
+import { AutoField } from '@kaoto-next/uniforms-patternfly';
 import { Card, CardBody } from '@patternfly/react-core';
-import { AutoField, wrapField } from '@kaoto-next/uniforms-patternfly';
-import { ExpressionModalLauncher } from './ExpressionModalLauncher';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ICamelLanguageDefinition } from '../../../models';
-import { ExpressionService } from './expression.service';
-import { getSerializedModel } from '../../../utils';
+import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
+import { ExpressionEditor } from './ExpressionEditor';
 
 export type NestFieldProps = HTMLFieldProps<object, HTMLDivElement, { helperText?: string; itemProps?: object }>;
 
 export const ExpressionAwareNestField = connectField(
-  ({
-    children,
-    error,
-    errorMessage,
-    fields,
-    itemProps,
-    label,
-    name,
-    showInlineError,
-    disabled,
-    ...props
-  }: NestFieldProps) => {
-    const languageCatalogMap = useMemo(() => {
-      return ExpressionService.getLanguageMap();
-    }, []);
-    const [preparedLanguage, setPreparedLanguage] = useState<ICamelLanguageDefinition>();
-    const [preparedModel, setPreparedModel] = useState<Record<string, unknown> | undefined>({});
-
-    const resetModel = useCallback(() => {
-      const { language, model: expressionModel } = ExpressionService.parseStepExpressionModel(
-        languageCatalogMap,
-        props.value as Record<string, unknown>,
-      );
-      setPreparedLanguage(language);
-      setPreparedModel(expressionModel);
-    }, [languageCatalogMap, props.value]);
-
-    useEffect(() => {
-      resetModel();
-    }, [resetModel]);
-
-    const handleChange = useCallback(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (languageName: string, model: any) => {
-        const language = ExpressionService.getDefinitionFromModelName(languageCatalogMap, languageName);
-        setPreparedLanguage(language);
-        setPreparedModel(getSerializedModel(model));
-      },
-      [languageCatalogMap],
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleConfirm = useCallback(() => {
-      if (preparedLanguage && preparedModel) {
-        ExpressionService.setStepExpressionModel(
-          languageCatalogMap,
-          props.value as Record<string, unknown>,
-          preparedLanguage?.model.name,
-          preparedModel,
-        );
-        props.onChange(props.value);
-      }
-    }, [languageCatalogMap, preparedLanguage, preparedModel, props]);
-
-    const handleCancel = useCallback(() => {
-      resetModel();
-    }, [resetModel]);
-
+  ({ children, fields, itemProps, label, name, disabled, ...props }: NestFieldProps) => {
     return (
       <Card data-testid={'nest-field'} {...filterDOMProps(props)}>
         <CardBody className="pf-c-form">
@@ -95,18 +34,10 @@ export const ExpressionAwareNestField = connectField(
               <b>{label}</b>
             </label>
           )}
-          {wrapField(
-            { id: 'expression-wrapper', ...itemProps },
-            <ExpressionModalLauncher
-              name={name}
-              title={label?.toString() || name}
-              language={preparedLanguage}
-              model={preparedModel}
-              onChange={handleChange}
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-            />,
-          )}
+          <ExpressionEditor
+            expressionModel={props.value as Record<string, unknown>}
+            onChangeExpressionModel={props.onChange}
+          />
           {children ||
             fields?.map((field) => <AutoField key={field} disabled={disabled} name={field} {...itemProps} />)}
         </CardBody>

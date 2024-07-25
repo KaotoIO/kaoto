@@ -1,12 +1,18 @@
-import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { ICamelLanguageDefinition } from '../../../models';
+import {
+  Card,
+  CardBody,
+  CardExpandableContent,
+  CardHeader,
+  CardTitle,
+  SelectOptionProps,
+} from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
+import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
-import { ExpressionService } from '..//expression/expression.service';
-import { ExpressionModalLauncher } from '../expression/ExpressionModalLauncher';
-import { getSerializedModel, isDefined } from '../../../utils';
-import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
+import { TypeaheadEditor } from '../customField/TypeaheadEditor';
+import { ExpressionService } from '../expression/expression.service';
+import { FormTabsModes } from '../../Visualization/Canvas';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
@@ -15,82 +21,104 @@ interface StepExpressionEditorProps {
 
 export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
+  const [isExpanded, setIsExpanded] = useState(true);
   const languageCatalogMap = useMemo(() => {
     return ExpressionService.getLanguageMap();
   }, []);
 
-  const [preparedLanguage, setPreparedLanguage] = useState<ICamelLanguageDefinition>();
-  const [preparedModel, setPreparedModel] = useState<Record<string, unknown> | undefined>({});
-
-  const resetModel = useCallback(() => {
-    const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
-    if (visualComponentSchema) {
-      if (!visualComponentSchema.definition) {
-        visualComponentSchema.definition = {};
-      }
+  const visualComponentSchema = props.selectedNode.data?.vizNode?.getComponentSchema();
+  if (visualComponentSchema) {
+    if (!visualComponentSchema.definition) {
+      visualComponentSchema.definition = {};
     }
-    const { language, model: expressionModel } = ExpressionService.parseStepExpressionModel(
-      languageCatalogMap,
-      visualComponentSchema?.definition,
-    );
-    setPreparedLanguage(language);
-    setPreparedModel(expressionModel);
-  }, [languageCatalogMap, props.selectedNode.data?.vizNode]);
+  }
 
-  useEffect(() => {
-    resetModel();
-  }, [resetModel]);
+  const initialExpressionOptions: SelectOptionProps[] = useMemo(() => {
+    return Object.values(languageCatalogMap).map((option) => {
+      return {
+        value: option.model.name,
+        children: option.model.title,
+        className: option.model.name,
+        description: option.model.description,
+      };
+    });
+  }, [languageCatalogMap]);
 
-  const handleOnChange = useCallback(
-    (selectedLanguage: string, newExpressionModel: Record<string, unknown>) => {
-      const language = ExpressionService.getDefinitionFromModelName(languageCatalogMap, selectedLanguage);
-      setPreparedLanguage(language);
-      setPreparedModel(getSerializedModel(newExpressionModel));
-    },
-    [languageCatalogMap],
+  const { language, model: languageModel } = ExpressionService.parseStepExpressionModel(
+    languageCatalogMap,
+    visualComponentSchema?.definition,
   );
 
-  const handleConfirm = useCallback(() => {
-    const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition || {};
-    if (preparedLanguage && preparedModel) {
-      ExpressionService.setStepExpressionModel(languageCatalogMap, model, preparedLanguage.model.name, preparedModel);
-    } else {
-      ExpressionService.deleteStepExpressionModel(model);
-    }
-    props.selectedNode.data?.vizNode?.updateModel(model);
-    entitiesContext?.updateSourceCodeFromEntities();
-  }, [entitiesContext, languageCatalogMap, preparedLanguage, preparedModel, props.selectedNode.data?.vizNode]);
+  const languageOption = language && {
+    name: language!.model.name,
+    title: language!.model.title,
+  };
+  const [selectedLanguageOption, setSelectedLanguageOption] = useState<{ name: string; title: string } | undefined>(
+    languageOption,
+  );
 
-  const handleCancel = useCallback(() => {
-    resetModel();
-  }, [resetModel]);
-  const title = props.selectedNode.label;
-  const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
+  const languageSchema = useMemo(() => {
+    if (!language) {
+      return undefined;
+    }
+    return ExpressionService.getLanguageSchema(ExpressionService.setStepExpressionResultType(language));
+  }, [language]);
+
+  const processedSchema = useMemo(() => {
+    if (props.formMode === FormTabsModes.ALL_FIELDS) return languageSchema;
+    return {
+      ...languageSchema,
+      properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
+    };
+  }, [props.formMode, language]);
+
+  const handleOnChange = useCallback(
+    (
+      selectedLanguageOption: { name: string; title: string } | undefined,
+      newlanguageModel: Record<string, unknown>,
+    ) => {
+      const model = props.selectedNode.data?.vizNode?.getComponentSchema()?.definition;
+      if (!model) return;
+
+      setSelectedLanguageOption(selectedLanguageOption);
+      ExpressionService.setStepExpressionModel(
+        languageCatalogMap,
+        model,
+        selectedLanguageOption ? selectedLanguageOption!.name : '',
+        getSerializedModel(newlanguageModel),
+      );
+      props.selectedNode.data?.vizNode?.updateModel(model);
+      entitiesContext?.updateSourceCodeFromEntities();
+    },
+    [languageCatalogMap, props.selectedNode.data?.vizNode?.getComponentSchema()?.definition, entitiesContext],
+  );
 
   const showEditor = useMemo(() => {
     if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
-    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(preparedLanguage);
+    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLanguageOption);
   }, [props.formMode]);
 
   if (!showEditor) return null;
 
   return (
-    languageCatalogMap && (
-      <div className="expression-field pf-v5-c-form">
-        {wrapField(
-          { ...props, label: 'Expression', id: 'expression-wrapper', description: description },
-          <ExpressionModalLauncher
-            name={props.selectedNode.id}
-            title={title}
-            description={description}
-            language={preparedLanguage}
-            model={preparedModel}
-            onChange={handleOnChange}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-          />,
-        )}
-      </div>
-    )
+    <div className="expression-metadata-editor">
+      <Card isCompact={true} isExpanded={isExpanded} className="expression-metadata-editor-card">
+        <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
+          <CardTitle>Expression</CardTitle>
+        </CardHeader>
+        <CardExpandableContent>
+          <CardBody data-testid={'expression-config-card'}>
+            <TypeaheadEditor
+              selectOptions={initialExpressionOptions}
+              title="expression"
+              selected={selectedLanguageOption}
+              selectedModel={languageModel}
+              selectedSchema={processedSchema}
+              selectionOnChange={handleOnChange}
+            />
+          </CardBody>
+        </CardExpandableContent>
+      </Card>
+    </div>
   );
 };
