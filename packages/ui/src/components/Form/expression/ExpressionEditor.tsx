@@ -1,24 +1,38 @@
-import { SelectOptionProps } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import {
+  Card,
+  CardBody,
+  CardExpandableContent,
+  CardHeader,
+  CardTitle,
+  SelectOptionProps,
+} from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { ICamelLanguageDefinition } from '../../../models';
 import './ExpressionEditor.scss';
 import { ExpressionService } from './expression.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
+import { getSerializedModel } from '../../../utils';
+import { EntitiesContext } from '../../../providers';
 
 interface ExpressionEditorProps {
   language?: ICamelLanguageDefinition;
   expressionModel: Record<string, unknown>;
-  onChangeExpressionModel: (languageName: string, model: Record<string, unknown>) => void;
+  onChangeExpressionModel: (model: Record<string, unknown>) => void;
 }
 
 export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
-  language,
   expressionModel,
   onChangeExpressionModel,
 }) => {
-  const languageCatalogMap: SelectOptionProps[] = useMemo(() => {
-    const languageCatalog = Object.values(ExpressionService.getLanguageMap());
-    return languageCatalog!.map((option) => {
+  const entitiesContext = useContext(EntitiesContext);
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const languageCatalogMap = useMemo(() => {
+    return ExpressionService.getLanguageMap();
+  }, []);
+
+  const initialExpressionOptions: SelectOptionProps[] = useMemo(() => {
+    return Object.values(languageCatalogMap).map((option) => {
       return {
         value: option.model.name,
         children: option.model.title,
@@ -26,7 +40,12 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
         description: option.model.description,
       };
     });
-  }, []);
+  }, [languageCatalogMap]);
+
+  const { language, model: languageModel } = ExpressionService.parseStepExpressionModel(
+    languageCatalogMap,
+    expressionModel,
+  );
 
   const languageOption = language && {
     name: language!.model.name,
@@ -37,7 +56,10 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
   );
 
   const languageSchema = useMemo(() => {
-    return language && ExpressionService.getLanguageSchema(ExpressionService.setStepExpressionResultType(language));
+    if (!language) {
+      return undefined;
+    }
+    return ExpressionService.getLanguageSchema(ExpressionService.setStepExpressionResultType(language));
   }, [language]);
 
   const handleOnChange = useCallback(
@@ -46,21 +68,37 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
       newlanguageModel: Record<string, unknown>,
     ) => {
       setSelectedLanguageOption(selectedLanguageOption);
-      onChangeExpressionModel(selectedLanguageOption ? selectedLanguageOption!.name : '', newlanguageModel);
+      ExpressionService.setStepExpressionModel(
+        languageCatalogMap,
+        expressionModel,
+        selectedLanguageOption ? selectedLanguageOption!.name : '',
+        getSerializedModel(newlanguageModel),
+      );
+      onChangeExpressionModel(expressionModel);
+      entitiesContext?.updateSourceCodeFromEntities();
     },
-    [languageCatalogMap],
+    [languageCatalogMap, expressionModel, entitiesContext],
   );
 
   return (
-    <div className="expression-metadata-editor">
-      <TypeaheadEditor
-        selectOptions={languageCatalogMap}
-        title="expression"
-        selected={selectedLanguageOption}
-        selectedModel={expressionModel}
-        selectedSchema={languageSchema}
-        selectionOnChange={handleOnChange}
-      />
-    </div>
+    <>
+      <Card isCompact={true} isExpanded={isExpanded} className="expression-metadata-editor-card">
+        <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
+          <CardTitle>Expression</CardTitle>
+        </CardHeader>
+        <CardExpandableContent>
+          <CardBody data-testid={'expression-config-card'}>
+            <TypeaheadEditor
+              selectOptions={initialExpressionOptions}
+              title="expression"
+              selected={selectedLanguageOption}
+              selectedModel={languageModel}
+              selectedSchema={languageSchema}
+              selectionOnChange={handleOnChange}
+            />
+          </CardBody>
+        </CardExpandableContent>
+      </Card>
+    </>
   );
 };
