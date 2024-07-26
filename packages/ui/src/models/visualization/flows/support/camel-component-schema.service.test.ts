@@ -4,6 +4,7 @@ import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
+import { NodeLabelType } from '../../../settings/settings.model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 
@@ -340,6 +341,26 @@ describe('CamelComponentSchemaService', () => {
         expect(label).toEqual(result);
       },
     );
+
+    it('should favor `id` when asked for the label', () => {
+      const label = CamelComponentSchemaService.getNodeLabel(
+        { processorName: 'to', componentName: 'log' },
+        { id: 'to-1234', description: 'My Logger', uri: 'log' },
+        NodeLabelType.Id,
+      );
+
+      expect(label).toEqual('to-1234');
+    });
+
+    it('should favor `description` when asked for the label', () => {
+      const label = CamelComponentSchemaService.getNodeLabel(
+        { processorName: 'to', componentName: 'log' },
+        { id: 'to-1234', description: 'My Logger', uri: 'log' },
+        NodeLabelType.Description,
+      );
+
+      expect(label).toEqual('My Logger');
+    });
   });
 
   describe('getTooltipContent', () => {

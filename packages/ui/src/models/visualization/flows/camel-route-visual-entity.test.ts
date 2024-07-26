@@ -5,6 +5,7 @@ import { camelRouteJson } from '../../../stubs/camel-route';
 import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -89,9 +90,9 @@ describe('Camel Route', () => {
       const getNodeLabelSpy = jest.spyOn(CamelComponentSchemaService, 'getNodeLabel');
       jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
 
-      const label = camelEntity.getNodeLabel('from', 'id');
+      const label = camelEntity.getNodeLabel('from', NodeLabelType.Id);
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from, 'id');
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from, NodeLabelType.Id);
       expect(label).toEqual('timer');
     });
   });
