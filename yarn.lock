@@ -8621,11 +8621,11 @@ __metadata:
   linkType: hard
 
 "husky@npm:^9.0.0":
-  version: 9.1.1
-  resolution: "husky@npm:9.1.1"
+  version: 9.1.3
+  resolution: "husky@npm:9.1.3"
   bin:
     husky: bin.js
-  checksum: d907eee996353b0b6da8e40b6cf6c1274d57470cd984f028a8baf3e17b7bbab57d796345d552971c6629521685297a1ee093128e4bd45c8fc1867c0dbf38086b
+  checksum: 81103f34c8a796f5510c73c4d88af09671d9b559b0dd75975cc0891f24697d7076b6b57c8de03348f03c08da08246d254e6565f841f1c894cab91c23695c3ac6
   languageName: node
   linkType: hard
 
