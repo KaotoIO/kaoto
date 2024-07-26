@@ -1,5 +1,6 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../camel-catalog-index';
+import { NodeLabelType } from '../settings/settings.model';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -44,7 +45,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getRootNode().data.entity;
   }
 
-  getNodeLabel(labelType?: string): string {
+  getNodeLabel(labelType?: NodeLabelType): string {
     return this.getBaseEntity()?.getNodeLabel(this.data.path, labelType) ?? this.id;
   }
 

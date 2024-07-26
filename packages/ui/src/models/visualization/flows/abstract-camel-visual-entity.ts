@@ -5,6 +5,7 @@ import { ROOT_PATH, getArrayProperty, getValue, setValue } from '../../../utils'
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
+import { NodeLabelType } from '../../settings/settings.model';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -33,7 +34,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return this.id;
   }
 
-  getNodeLabel(path?: string, labelType?: string): string {
+  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (!path) return '';
 
     const componentModel = getValue(this.route, path);

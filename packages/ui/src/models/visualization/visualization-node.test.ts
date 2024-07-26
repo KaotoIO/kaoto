@@ -1,4 +1,5 @@
 import { camelRouteJson } from '../../stubs/camel-route';
+import { NodeLabelType } from '../settings';
 import { BaseVisualCamelEntity, IVisualizationNode } from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
@@ -41,9 +42,9 @@ describe('VisualizationNode', () => {
       } as unknown as BaseVisualCamelEntity;
 
       node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
-      const label = node.getNodeLabel('id');
+      const label = node.getNodeLabel(NodeLabelType.Id);
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, 'id');
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, NodeLabelType.Id);
       expect(label).toEqual('test-label');
     });
 

@@ -1,6 +1,11 @@
+export const enum NodeLabelType {
+  Id = 'id',
+  Description = 'description',
+}
+
 export interface ISettingsModel {
   catalogUrl: string;
-  nodeLabel: string;
+  nodeLabel: NodeLabelType;
 }
 
 export interface AbstractSettingsAdapter {
@@ -10,7 +15,7 @@ export interface AbstractSettingsAdapter {
 
 export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
-  nodeLabel: string = 'description';
+  nodeLabel: NodeLabelType = NodeLabelType.Description;
 
   constructor(options: Partial<ISettingsModel> = {}) {
     Object.assign(this, options);

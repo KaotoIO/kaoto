@@ -1,10 +1,11 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
-import { CamelUriHelper, ParsedParameters, ROOT_PATH, isDefined } from '../../../../utils';
+import { CamelUriHelper, ParsedParameters, ROOT_PATH, getValue, isDefined } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
+import { NodeLabelType } from '../../../settings/settings.model';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
@@ -65,10 +66,20 @@ export class CamelComponentSchemaService {
     return this.getCamelElement(previousPathSegment as keyof ProcessorDefinition, definition);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getNodeLabel(camelElementLookup: ICamelElementLookupResult, definition?: any, labelType?: string): string {
-    if (typeof definition?.description === 'string' && labelType !== 'id' && definition.description !== '') {
-      return definition.description;
+  static getNodeLabel(
+    camelElementLookup: ICamelElementLookupResult,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+    labelType?: NodeLabelType,
+  ): string {
+    const id: string | undefined = getValue(definition, 'id');
+    if (labelType === NodeLabelType.Id && id) {
+      return id;
+    }
+
+    const description: string | undefined = getValue(definition, 'description');
+    if (description) {
+      return description;
     }
 
     if (camelElementLookup.componentName !== undefined) {
@@ -76,7 +87,6 @@ export class CamelComponentSchemaService {
     }
 
     const uriString = CamelUriHelper.getUriString(definition);
-    const id = definition?.id;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
       case 'errorHandler' as keyof ProcessorDefinition:
