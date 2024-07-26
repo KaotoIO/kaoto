@@ -12,6 +12,7 @@ export * from './set-value';
 export * from './get-custom-schema-from-kamelet';
 export * from './update-kamelet-from-custom-schema';
 export * from './pipe-custom-schema';
+export * from './promise-timeout';
 export * from './get-field-groups';
 export * from './get-serialized-model';
 export * from './get-user-updated-properties-schema';
