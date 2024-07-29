@@ -14080,11 +14080,11 @@ __metadata:
   linkType: hard
 
 "use-debounce@npm:^10.0.0":
-  version: 10.0.1
-  resolution: "use-debounce@npm:10.0.1"
+  version: 10.0.2
+  resolution: "use-debounce@npm:10.0.2"
   peerDependencies:
     react: ">=16.8.0"
-  checksum: 6b53d2b9b1856bacfa4dffd78234bba744792e1d75c194af0642faf1ac2914ebdcc770ac23b7e59ca999f997d969edf3c75d22362879818927d20d3408dd59db
+  checksum: 0b036292686c13b38e1b0f10d8d207e755a16d20d21acc41776696f88f83cea77f58d32923546f03ff252d3ebb12078d1d205b67506685608f77ea45e55a2928
   languageName: node
   linkType: hard
 
