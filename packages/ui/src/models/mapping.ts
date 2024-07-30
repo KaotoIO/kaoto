@@ -27,6 +27,12 @@ export abstract class MappingItem {
   get contextPath(): Path | undefined {
     return this.parent.contextPath;
   }
+  protected abstract doClone(): MappingItem;
+  clone(): MappingItem {
+    const cloned = this.doClone();
+    cloned.children = this.children.map((c) => c.clone());
+    return cloned;
+  }
 }
 
 export class FieldItem extends MappingItem {
@@ -35,6 +41,9 @@ export class FieldItem extends MappingItem {
     public field: IField,
   ) {
     super(parent, 'field-' + field.name, field.id);
+  }
+  doClone() {
+    return new FieldItem(this.parent, this.field);
   }
 }
 
@@ -56,11 +65,19 @@ export abstract class ExpressionItem extends ConditionItem {
     super(parent, name);
   }
   expression = '';
+  clone() {
+    const cloned = super.clone() as ExpressionItem;
+    cloned.expression = this.expression;
+    return cloned;
+  }
 }
 
 export class IfItem extends ExpressionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'if');
+  }
+  doClone() {
+    return new IfItem(this.parent);
   }
 }
 
@@ -77,17 +94,26 @@ export class ChooseItem extends ConditionItem {
   get otherwise() {
     return this.children.find((c) => c instanceof OtherwiseItem) as OtherwiseItem;
   }
+  doClone() {
+    return new ChooseItem(this.parent, this.field);
+  }
 }
 
 export class WhenItem extends ExpressionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'when');
   }
+  doClone() {
+    return new WhenItem(this.parent);
+  }
 }
 
 export class OtherwiseItem extends ConditionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'otherwise');
+  }
+  doClone() {
+    return new OtherwiseItem(this.parent);
   }
 }
 
@@ -99,6 +125,16 @@ export class ForEachItem extends ExpressionItem {
     return new Path(this.expression, this.parent.contextPath);
   }
   sortItems: SortItem[] = [];
+  doClone() {
+    const cloned = new ForEachItem(this.parent);
+    cloned.sortItems = this.sortItems.map((sort) => {
+      return {
+        expression: sort.expression,
+        order: sort.order,
+      } as SortItem;
+    });
+    return cloned;
+  }
 }
 
 export class SortItem {
@@ -118,6 +154,9 @@ export class ValueSelector extends ExpressionItem {
     public valueType: ValueType = ValueType.VALUE,
   ) {
     super(parent, 'value');
+  }
+  doClone() {
+    return new ValueSelector(this.parent, this.valueType);
   }
 }
 

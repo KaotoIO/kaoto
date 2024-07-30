@@ -159,20 +159,25 @@ export class MappingService {
   static wrapWithChooseWhenOtherwise(wrapped: MappingItem) {
     const parent = wrapped.parent;
     const chooseItem = new ChooseItem(parent, wrapped && wrapped instanceof FieldItem ? wrapped.field : undefined);
-    chooseItem.children.push(wrapped);
+    const whenItem = MappingService.addWhen(chooseItem);
+    const otherwiseItem = MappingService.addOtherwise(chooseItem);
+    whenItem.children = [wrapped];
+    wrapped.parent = whenItem;
+    otherwiseItem.children = [wrapped.clone()];
     parent.children = parent.children.map((m) => (m !== wrapped ? m : chooseItem));
-    wrapped.parent = chooseItem;
   }
 
   static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {
     const chooseItem = new ChooseItem(parent, mapping && mapping instanceof FieldItem ? mapping.field : undefined);
-    parent.children.push(chooseItem);
     const whenItem = MappingService.addWhen(chooseItem);
+    const otherwiseItem = MappingService.addOtherwise(chooseItem);
     if (mapping) {
       whenItem.children = [mapping];
       mapping.parent = whenItem;
+      otherwiseItem.children = [mapping.clone()];
+      parent.children = parent.children.map((m) => (m !== mapping ? m : chooseItem));
     }
-    MappingService.addOtherwise(chooseItem);
+    if (!parent.children.includes(chooseItem)) parent.children.push(chooseItem);
   }
 
   static addWhen(item: ChooseItem) {

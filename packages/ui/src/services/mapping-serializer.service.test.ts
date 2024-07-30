@@ -1,7 +1,6 @@
 import { EMPTY_XSL, MappingSerializerService, NS_XSL } from './mapping-serializer.service';
-import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/document';
+import { BODY_DOCUMENT_ID } from '../models/document';
 import * as fs from 'fs';
-import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import {
   ChooseItem,
   FieldItem,
@@ -14,46 +13,13 @@ import {
 } from '../models/mapping';
 import { DocumentType } from '../models/path';
 import { Types } from '../models/types';
+import { TestUtil } from '../test/test-util';
 
 describe('MappingSerializerService', () => {
-  const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
-  /*const sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
-    DocumentType.SOURCE_BODY,
-    BODY_DOCUMENT_ID,
-    orderXsd,
-  );
-   */
-  const sourceParamDoc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, 'sourceParam1', orderXsd);
-  sourceParamDoc.name = 'sourceParam1';
-  const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
-  const sourceParameterMap = new Map<string, IDocument>([
-    ['sourceParam1', sourceParamDoc],
-    ['primitive', sourcePrimitiveParamDoc],
-  ]);
-  const targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
-    DocumentType.TARGET_BODY,
-    BODY_DOCUMENT_ID,
-    orderXsd,
-  );
+  const sourceParameterMap = TestUtil.createParameterMap();
+  const targetDoc = TestUtil.createTargetOrderDoc();
 
-  //const targetPrimitiveDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, 'primitiveTargetBody');
   const domParser = new DOMParser();
-  //const xsltProcessor = new XSLTProcessor();
-
-  /*
-  function getField(doc: IDocument, path: string) {
-    let answer: IField | IDocument = doc;
-    const pathSegments = path.split('/');
-    for (let i = 1; i < pathSegments.length; i++) {
-      const f: IField | undefined = answer.fields.find((f) => f.expression === pathSegments[i]);
-      if (!f) {
-        throw new Error(`Field ${answer.name} doesn't have a child ${pathSegments[i]}`);
-      }
-      answer = f;
-    }
-    return answer;
-  }
-  */
 
   const shipOrderToShipOrderXslt = fs
     .readFileSync(__dirname + '/../../../../test-resources/ShipOrderToShipOrder.xsl')

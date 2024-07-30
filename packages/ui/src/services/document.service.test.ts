@@ -1,20 +1,9 @@
 import { DocumentService } from './document.service';
-import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import * as fs from 'fs';
-import { DocumentType } from '../models/path';
+import { TestUtil } from '../test/test-util';
 
 describe('DocumentService', () => {
-  const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
-  const sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
-    DocumentType.SOURCE_BODY,
-    'ShipOrder.xsd',
-    orderXsd,
-  );
-  const targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
-    DocumentType.TARGET_BODY,
-    'ShipOrder.xsd',
-    orderXsd,
-  );
+  const sourceDoc = TestUtil.createSourceOrderDoc();
+  const targetDoc = TestUtil.createTargetOrderDoc();
 
   describe('getFieldStack()', () => {
     it('', () => {
