@@ -13421,8 +13421,8 @@ __metadata:
   linkType: hard
 
 "stylelint@npm:^16.2.1":
-  version: 16.8.0
-  resolution: "stylelint@npm:16.8.0"
+  version: 16.8.1
+  resolution: "stylelint@npm:16.8.1"
   dependencies:
     "@csstools/css-parser-algorithms": ^2.7.1
     "@csstools/css-tokenizer": ^2.4.1
@@ -13465,7 +13465,7 @@ __metadata:
     write-file-atomic: ^5.0.1
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: fdcd5a44bdbe5666278dc9583dc06facaf19cca14f60e0d3705e496168edafd6a73acf0713d3ff8a5996bdd6d6f40f37423eabf445a2e22ab0942ef74ae6adfe
+  checksum: 4fe1695901b15b04b25b038835901803e2b0af5cd79c516f99c69c7bb2904807c1a6d4824a677c2a89b75a7a318e82348aa29bd2ddd855696f5ea35acb77c3c1
   languageName: node
   linkType: hard
 
