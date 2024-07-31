@@ -70,7 +70,10 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
     );
 
   return (
-    <div className={isDocument ? 'node-container__document' : 'node-container'}>
+    <div
+      data-testid={`target-node-${nodeRefId}`}
+      className={isDocument ? 'node-container__document' : 'node-container'}
+    >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
         <div
           className={isDocument ? 'node-header__document' : 'node-header'}

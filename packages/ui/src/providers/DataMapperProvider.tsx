@@ -20,6 +20,7 @@ import { MappingTree } from '../models/mapping';
 import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/document';
 import { CanvasView } from '../models/view';
 import { DocumentType } from '../models/path';
+import { MappingSerializerService } from '../services/mapping-serializer.service';
 
 export interface IDataMapperContext {
   loading: boolean;
@@ -43,7 +44,12 @@ export interface IDataMapperContext {
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
-export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) => {
+type DataMapperProviderProps = PropsWithChildren & {
+  xsltFile?: string;
+  onUpdate?: (xsltFile: string) => void;
+};
+
+export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({ xsltFile, onUpdate, children }) => {
   const [loading, _setLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
@@ -56,6 +62,7 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   const [mappingTree, setMappingTree] = useState<MappingTree>(
     new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
+  xsltFile && MappingSerializerService.deserialize(xsltFile, targetBodyDocument, mappingTree, sourceParameterMap);
   const [debug, setDebug] = useState<boolean>(false);
 
   const refreshSourceParameters = useCallback(() => {
@@ -70,7 +77,8 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
-  }, [mappingTree]);
+    onUpdate && onUpdate(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
+  }, [mappingTree, onUpdate, sourceParameterMap]);
 
   const value = useMemo(() => {
     return {
@@ -105,8 +113,6 @@ export const DataMapperProvider: FunctionComponent<PropsWithChildren> = (props) 
   ]);
 
   return (
-    <DataMapperContext.Provider value={value}>
-      {value.loading ? <Loading /> : props.children}
-    </DataMapperContext.Provider>
+    <DataMapperContext.Provider value={value}>{value.loading ? <Loading /> : children}</DataMapperContext.Provider>
   );
 };

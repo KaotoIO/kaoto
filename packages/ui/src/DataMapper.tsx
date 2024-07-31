@@ -19,14 +19,11 @@ import { FunctionComponent } from 'react';
 import { useDataMapper } from './hooks/useDataMapper';
 import { DataMapperMonitor } from './components/debug/DataMapperMonitor';
 import { CanvasMonitor } from './components/debug/CanvasMonitor';
+import { DataMapperProvider } from './providers';
+import { CanvasProvider } from './providers/CanvasProvider';
 
-export interface IDataMapperProps {
-  modalsContainerId?: string;
-}
-
-export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
+const DataMapperApp: FunctionComponent = () => {
   const { debug } = useDataMapper()!;
-
   return (
     <>
       {debug && (
@@ -36,6 +33,24 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = () => {
         </>
       )}
       <MainLayout />
+    </>
+  );
+};
+
+export interface IDataMapperProps {
+  modalsContainerId?: string;
+  xsltFile?: string;
+  onUpdate?: (xsltFile: string) => void;
+}
+
+export const DataMapper: FunctionComponent<IDataMapperProps> = ({ xsltFile, onUpdate }) => {
+  return (
+    <>
+      <DataMapperProvider xsltFile={xsltFile} onUpdate={onUpdate}>
+        <CanvasProvider>
+          <DataMapperApp />
+        </CanvasProvider>
+      </DataMapperProvider>
     </>
   );
 };
