@@ -8,11 +8,16 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
-import { getSerializedModel, getUserUpdatedPropertiesSchema, isDefined } from '../../../utils';
+import {
+  getRequiredPropertiesSchema,
+  getSerializedModel,
+  getUserUpdatedPropertiesSchema,
+  isDefined,
+} from '../../../utils';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
 import { ExpressionService } from '../expression/expression.service';
-import { FormTabsModes } from '../../Visualization/Canvas';
+import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
@@ -65,11 +70,16 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   }, [language]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS) return languageSchema;
-    return {
-      ...languageSchema,
-      properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
-    };
+    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
+      return getRequiredPropertiesSchema(languageSchema ?? {});
+    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
+      return languageSchema;
+    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
+      return {
+        ...languageSchema,
+        properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
+      };
+    }
   }, [props.formMode, language]);
 
   const handleOnChange = useCallback(
@@ -94,7 +104,7 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
+    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
     return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLanguageOption);
   }, [props.formMode]);
 

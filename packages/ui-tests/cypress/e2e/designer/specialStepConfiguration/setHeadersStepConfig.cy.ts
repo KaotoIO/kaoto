@@ -10,6 +10,7 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.selectAppendNode('marshal');
     cy.chooseFromCatalog('processor', 'setHeaders');
     cy.openStepConfigurationTab('setHeaders');
+    cy.selectFormTab('All');
 
     cy.get('[data-testid="list-add-field"]').click();
 

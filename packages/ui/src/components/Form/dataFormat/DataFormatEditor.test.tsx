@@ -94,6 +94,51 @@ describe('DataFormatEditor', () => {
     expect(inputIdModifiedTabElement).toHaveLength(1);
   });
 
+  it('should render with only the Required fields', () => {
+    const visualComponentSchema: VisualComponentSchema = {
+      title: 'My Node',
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      } as unknown as KaotoSchemaDefinition['schema'],
+      definition: {
+        name: 'my node',
+        beanio: {},
+      },
+    };
+
+    mockNode = {
+      id: '1',
+      type: 'node',
+      data: {
+        vizNode: {
+          getComponentSchema: () => visualComponentSchema,
+          updateModel: (_value: unknown) => {},
+        } as IVisualizationNode,
+      },
+    };
+    render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.REQUIRED_FIELDS} />);
+    const buttons = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
+    expect(buttons).toHaveLength(1);
+
+    const inputElement = screen.getAllByRole('combobox')[0];
+    expect(inputElement).toHaveValue('BeanIO');
+
+    const inputMappingElement = screen
+      .queryAllByRole('textbox')
+      .filter((textbox) => textbox.getAttribute('label') === 'Mapping');
+    expect(inputMappingElement).toHaveLength(1);
+
+    const inputStreamNameElement = screen
+      .queryAllByRole('textbox')
+      .filter((textbox) => textbox.getAttribute('label') === 'Stream Name');
+    expect(inputStreamNameElement).toHaveLength(1);
+  });
+
   it('should render', async () => {
     render(<DataFormatEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
