@@ -1,0 +1,13 @@
+- route:
+    id: camel-route
+    from:
+      id: idTimer
+      description: descriptionTimer
+      uri: timer
+      steps:
+        - setHeader:
+            description: descriptionSetHeader
+        - marshal:
+            id: idMarshal
+        - to:
+            uri: log:test
