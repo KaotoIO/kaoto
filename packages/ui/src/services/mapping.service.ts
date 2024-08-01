@@ -136,7 +136,10 @@ export class MappingService {
         (document.documentType === DocumentType.SOURCE_BODY && !parsedPath.parameterName) ||
         (document.documentType === DocumentType.PARAM && parsedPath.parameterName === document.documentId)
       ) {
-        return !DocumentService.getFieldFromPathSegments(document, parsedPath.pathSegments);
+        return !DocumentService.getFieldFromPathSegments(
+          document,
+          parsedPath.pathSegments.map((seg) => seg.name),
+        );
       }
     });
     return !!stalePath;
@@ -332,7 +335,12 @@ export class MappingService {
     return XPathService.extractFieldPaths(sourceXPath).reduce((acc, xpath) => {
       const path = new Path(xpath);
       const document = path.parameterName ? sourceParameterMap.get(path.parameterName) : sourceBody;
-      const sourceNodePath = document && DocumentService.getFieldFromPathSegments(document, path.pathSegments)?.path;
+      const sourceNodePath =
+        document &&
+        DocumentService.getFieldFromPathSegments(
+          document,
+          path.pathSegments.map((seg) => seg.name),
+        )?.path;
       sourceNodePath && acc.push({ sourceNodePath: sourceNodePath.toString(), targetNodePath: targetNodePath });
       return acc;
     }, [] as IMappingLink[]);

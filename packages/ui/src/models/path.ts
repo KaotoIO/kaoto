@@ -39,8 +39,8 @@ export class NodePath {
 
 export class Path {
   constructor(
-    public expression: string,
-    public parent?: Path,
+    public readonly expression: string,
+    public readonly parent?: Path,
   ) {
     this.isRelative = true;
     let remainingExpression = this.expression;
@@ -56,7 +56,7 @@ export class Path {
       this.parameterName = pos !== -1 ? remainingExpression.substring(1, pos) : remainingExpression.substring(1);
       remainingExpression = pos !== -1 ? remainingExpression.substring(pos + 1) : '';
     }
-    this.pathSegments = remainingExpression.split('/');
+    this.pathSegments = remainingExpression.split('/').map((segmentString) => new PathSegment(segmentString));
   }
 
   toString() {
@@ -76,5 +76,24 @@ export class Path {
 
   isRelative: boolean;
   parameterName?: string;
-  pathSegments: string[];
+  pathSegments: PathSegment[];
+}
+
+export class PathSegment {
+  constructor(public readonly expression: string) {
+    const splitted = expression.split(':');
+    if (splitted.length > 1) {
+      this.prefix = splitted[0];
+      this.name = splitted[1];
+    } else {
+      this.name = splitted[0];
+    }
+  }
+
+  toString() {
+    return this.prefix ? `${this.prefix}:${this.name}` : this.name;
+  }
+
+  prefix?: string;
+  name: string;
 }

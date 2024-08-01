@@ -46,15 +46,17 @@ export class XPathService {
     if (!('children' in node.children.RelativePathExpr[0])) return answer;
     const relativePathExpr = XPathService.getNode(node, ['RelativePathExpr']);
     if (!relativePathExpr) return answer;
-    const varName = XPathService.getNode(relativePathExpr, ['StepExpr', 'FilterExpr', 'VarRef', 'QName', 'NCName']);
-    const contextItem = XPathService.getNode(relativePathExpr, ['StepExpr', 'FilterExpr', 'ContextItemExpr']);
-    const ncName = XPathService.getNode(relativePathExpr, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
+    const stepExpr = XPathService.getNode(relativePathExpr, ['StepExpr']);
+    if (!stepExpr) return answer;
+    const varName = XPathService.getNode(stepExpr, ['FilterExpr', 'VarRef', 'QName', 'NCName']);
+    const contextItem = XPathService.getNode(stepExpr, ['FilterExpr', 'ContextItemExpr']);
+    const name = XPathService.extractNameFromStepExpr(stepExpr);
     if (varName && 'image' in varName) {
       answer += '$' + varName.image;
     } else if (contextItem && 'image' in contextItem) {
       answer += contextItem.image;
-    } else if (ncName && 'image' in ncName) {
-      answer += ncName.image;
+    } else if (name) {
+      answer += name;
     } else {
       throw Error('Unknown RelativePathExpr: ' + relativePathExpr);
     }
@@ -63,11 +65,25 @@ export class XPathService {
     return following
       ? following.reduce((acc, value) => {
           acc += '/';
-          const ncName = XPathService.getNode(value, ['StepExpr', 'NodeTest', 'NameTest', 'NCName']);
-          if (ncName && 'image' in ncName) acc += ncName.image;
+          const stepExpr = XPathService.getNode(value, ['StepExpr']);
+          const name = stepExpr && XPathService.extractNameFromStepExpr(stepExpr);
+          if (name) acc += name;
           return acc;
         }, answer)
       : answer;
+  }
+
+  private static extractNameFromStepExpr(stepExpr: CstElement) {
+    const isAttribute = !!('children' in stepExpr && stepExpr.children['At']);
+    const nameTest = XPathService.getNode(stepExpr, ['NodeTest', 'NameTest']);
+    if (!nameTest || !('children' in nameTest)) return;
+    const ncNames = nameTest.children['NCName'];
+    const colon = nameTest.children['Colon'];
+    let answer = isAttribute ? '@' : '';
+    if (ncNames.length === 1 && (!colon || colon.length === 0) && 'image' in ncNames[0]) answer += ncNames[0].image;
+    else if (ncNames.length === 2 && colon?.length === 1 && 'image' in ncNames[0] && 'image' in ncNames[1])
+      answer += `${ncNames[0].image}:${ncNames[1].image}`;
+    return answer;
   }
 
   static extractFieldPaths(expression: string) {
