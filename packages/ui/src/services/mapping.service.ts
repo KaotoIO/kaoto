@@ -304,9 +304,7 @@ export class MappingService {
     const answer = [] as IMappingLink[];
     const targetNodePath = item.nodePath.toString();
     if (item instanceof ExpressionItem) {
-      answer.push(
-        ...MappingService.doExtractMappingLinks(item.expression, targetNodePath, sourceParameterMap, sourceBody),
-      );
+      answer.push(...MappingService.doExtractMappingLinks(item, targetNodePath, sourceParameterMap, sourceBody));
     }
     if ('children' in item) {
       item.children.map((child) => {
@@ -315,9 +313,7 @@ export class MappingService {
           !(item.field.ownerDocument instanceof PrimitiveDocument) &&
           child instanceof ValueSelector
         ) {
-          answer.push(
-            ...MappingService.doExtractMappingLinks(child.expression, targetNodePath, sourceParameterMap, sourceBody),
-          );
+          answer.push(...MappingService.doExtractMappingLinks(child, targetNodePath, sourceParameterMap, sourceBody));
         } else {
           answer.push(...MappingService.extractMappingLinks(child, sourceParameterMap, sourceBody));
         }
@@ -327,13 +323,18 @@ export class MappingService {
   }
 
   private static doExtractMappingLinks(
-    sourceXPath: string,
+    sourceExpressionItem: ExpressionItem,
     targetNodePath: string,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
   ) {
+    const sourceXPath = sourceExpressionItem.expression;
     return XPathService.extractFieldPaths(sourceXPath).reduce((acc, xpath) => {
-      const path = new Path(xpath);
+      const absolutePath =
+        sourceExpressionItem.contextPath && !xpath.startsWith('$') && !xpath.startsWith('/')
+          ? sourceExpressionItem.contextPath + '/' + xpath
+          : xpath;
+      const path = new Path(absolutePath);
       const document = path.parameterName ? sourceParameterMap.get(path.parameterName) : sourceBody;
       const sourceNodePath =
         document &&
