@@ -5,6 +5,7 @@ import { Canvas } from './Canvas';
 import { CanvasFallback } from './CanvasFallback';
 import './Visualization.scss';
 import { ContextToolbar } from './ContextToolbar/ContextToolbar';
+import { CanvasFormTabsProvider } from '../../providers';
 
 interface CanvasProps {
   className?: string;
@@ -18,7 +19,9 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
   return (
     <div className={`canvas-surface ${props.className ?? ''}`}>
       <ErrorBoundary key={lastUpdate} fallback={props.fallback ?? <CanvasFallback />}>
-        <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+        <CanvasFormTabsProvider>
+          <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+        </CanvasFormTabsProvider>
       </ErrorBoundary>
     </div>
   );

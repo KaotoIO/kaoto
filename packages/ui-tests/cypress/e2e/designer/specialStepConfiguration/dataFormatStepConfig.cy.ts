@@ -9,6 +9,7 @@ describe('Tests for sidebar dataformat configuration', () => {
 
     // Configure marshal dataformat
     cy.openStepConfigurationTab('marshal');
+    cy.selectFormTab('All');
     cy.selectDataformat('Base64');
     cy.interactWithDataformatInputObject('lineLength', '128');
     cy.interactWithDataformatInputObject('id', 'simpleDataformatId');
@@ -29,6 +30,7 @@ describe('Tests for sidebar dataformat configuration', () => {
 
     // Configure marshal dataformat
     cy.openStepConfigurationTab('marshal');
+    cy.selectFormTab('All');
     cy.selectDataformat('Avro');
     cy.configureDropdownValue('library', 'avroJackson');
     cy.interactWithDataformatInputObject('unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');

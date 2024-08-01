@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import {
   CamelCatalogService,
@@ -13,13 +13,19 @@ import {
 } from '../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../models/visualization/flows/support/flows-visibility';
-import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../providers';
+import {
+  VisibleFlowsContext,
+  VisibleFlowsProvider,
+  CanvasFormTabsContext,
+  CanvasFormTabsProvider,
+} from '../../../providers';
 import { EntitiesContext, EntitiesProvider } from '../../../providers/entities.provider';
 import { camelRouteJson, kameletJson } from '../../../stubs';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
+import { FormTabsModes } from './canvasformtabs.modes';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
@@ -159,7 +165,14 @@ describe('CanvasForm', () => {
     render(
       <EntitiesProvider>
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: FormTabsModes.ALL_FIELDS,
+              onTabChange: jest.fn(),
+            }}
+          >
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
@@ -187,7 +200,14 @@ describe('CanvasForm', () => {
     render(
       <EntitiesProvider>
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: FormTabsModes.ALL_FIELDS,
+              onTabChange: jest.fn(),
+            }}
+          >
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
@@ -216,7 +236,14 @@ describe('CanvasForm', () => {
     render(
       <EntitiesProvider>
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: FormTabsModes.ALL_FIELDS,
+              onTabChange: jest.fn(),
+            }}
+          >
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
@@ -264,5 +291,495 @@ describe('CanvasForm', () => {
 
     expect(kameletVisualEntity.id).toEqual(newName);
     expect(dispatchSpy).toHaveBeenCalledWith({ type: 'renameFlow', flowId, newName });
+  });
+
+  describe('should show the User-updated field under the modified tab', () => {
+    beforeEach(() => {
+      camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
+      const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      selectedNode = nodes[0]; // timer
+    });
+
+    it('normal text field', async () => {
+      render(
+        <EntitiesProvider>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsProvider>
+          </VisibleFlowsProvider>
+        </EntitiesProvider>,
+      );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+
+      expect(allTab).toBeInTheDocument();
+      expect(modifiedTab).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      const inputVariableReceiveModifiedTabElement = screen
+        .queryAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
+      expect(inputVariableReceiveModifiedTabElement).toHaveLength(0);
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      await act(async () => {
+        const inputVariableReceiveAllTabElement = screen
+          .getAllByRole('textbox')
+          .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
+        fireEvent.change(inputVariableReceiveAllTabElement[0], { target: { value: 'test' } });
+        fireEvent.blur(inputVariableReceiveAllTabElement[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      const inputVariableReceiveModifiedTabElementNew = screen
+        .getAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
+      expect(inputVariableReceiveModifiedTabElementNew).toHaveLength(1);
+    });
+
+    it('expression field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              setHeader: {
+                name: 'foo',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const setHeaderNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: setHeaderNode,
+        },
+      };
+
+      render(
+        <EntitiesContext.Provider value={null}>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>,
+      );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      const ExpressionAllTabButton = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
+
+      act(() => {
+        fireEvent.click(ExpressionAllTabButton[0]);
+      });
+
+      const simple = screen.getByTestId('expression-dropdownitem-simple');
+      act(() => {
+        fireEvent.click(simple.getElementsByTagName('button')[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputExpressionModifiedTabElement = screen
+        .queryAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('name') === 'expression');
+      expect(inputExpressionModifiedTabElement).toHaveLength(0);
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      await act(async () => {
+        const expressionInput = screen
+          .getAllByRole('textbox')
+          .filter((textbox) => textbox.getAttribute('name') === 'expression');
+        fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
+        fireEvent.blur(expressionInput[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputExpressionModifiedTabElementNew = screen
+        .getAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('name') === 'expression');
+      expect(inputExpressionModifiedTabElementNew).toHaveLength(1);
+    });
+
+    it('dataformat field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              marshal: {
+                id: 'ms',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const marshalNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: marshalNode,
+        },
+      };
+
+      render(
+        <EntitiesContext.Provider value={null}>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>,
+      );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      const dataformatAllTabButton = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
+      await act(async () => {
+        fireEvent.click(dataformatAllTabButton[0]);
+      });
+      const asn1 = screen.getByTestId('dataformat-dropdownitem-asn1');
+      await act(async () => {
+        fireEvent.click(asn1.getElementsByTagName('button')[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputUnmarshalTypeModifiedTabElement = screen
+        .queryAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
+      expect(inputUnmarshalTypeModifiedTabElement).toHaveLength(0);
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      await act(async () => {
+        const inputUnmarshalTypeDefaultTabElement = screen
+          .getAllByRole('textbox')
+          .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
+        fireEvent.change(inputUnmarshalTypeDefaultTabElement[0], { target: { value: 'test' } });
+        fireEvent.blur(inputUnmarshalTypeDefaultTabElement[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputUnmarshalTypeModifiedTabElementNew = screen
+        .getAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
+      expect(inputUnmarshalTypeModifiedTabElementNew).toHaveLength(1);
+    });
+
+    it('loadbalancer field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              loadBalance: {
+                id: 'lb',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const loadBalanceNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: loadBalanceNode,
+        },
+      };
+
+      render(
+        <EntitiesContext.Provider value={null}>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>,
+      );
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
+      await act(async () => {
+        fireEvent.click(button[0]);
+      });
+      const weightedLoadBalancer = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
+      await act(async () => {
+        fireEvent.click(weightedLoadBalancer.getElementsByTagName('button')[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputDistributionRatioModifiedTabElement = screen
+        .queryAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
+      expect(inputDistributionRatioModifiedTabElement).toHaveLength(0);
+
+      act(() => {
+        fireEvent.click(allTab);
+      });
+
+      await act(async () => {
+        const inputDistributionRatioDefaultTabElement = screen
+          .getAllByRole('textbox')
+          .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
+        fireEvent.change(inputDistributionRatioDefaultTabElement[0], { target: { value: 'test' } });
+        fireEvent.blur(inputDistributionRatioDefaultTabElement[0]);
+      });
+
+      act(() => {
+        fireEvent.click(modifiedTab);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+
+      const inputDistributionRatioModifiedTabElementNew = screen
+        .getAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
+      expect(inputDistributionRatioModifiedTabElementNew).toHaveLength(1);
+    });
+  });
+
+  describe('should show the Required field under the required tab', () => {
+    beforeEach(() => {
+      camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
+      const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      selectedNode = nodes[0]; // timer
+    });
+
+    it('normal text field', async () => {
+      render(
+        <EntitiesProvider>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                onTabChange: jest.fn(),
+              }}
+            >
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsContext.Provider>
+          </VisibleFlowsProvider>
+        </EntitiesProvider>,
+      );
+
+      const allTab = screen.getByRole('button', { name: 'All' });
+      const requiredTab = screen.getByRole('button', { name: 'Required' });
+
+      expect(allTab).toBeInTheDocument();
+      expect(requiredTab).toBeInTheDocument();
+
+      const inputTimerNameRequiredTabTabElement = screen
+        .queryAllByRole('textbox')
+        .filter((textbox) => textbox.getAttribute('label') === 'Timer Name');
+      expect(inputTimerNameRequiredTabTabElement).toHaveLength(1);
+    });
+
+    it('expression field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              setHeader: {
+                name: 'foo',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const setHeaderNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: setHeaderNode,
+        },
+      };
+
+      render(
+        <EntitiesProvider>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                onTabChange: jest.fn(),
+              }}
+            >
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsContext.Provider>
+          </VisibleFlowsProvider>
+        </EntitiesProvider>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+    });
+
+    it('dataformat field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              marshal: {
+                id: 'ms',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const marshalNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: marshalNode,
+        },
+      };
+
+      render(
+        <EntitiesContext.Provider value={null}>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                onTabChange: jest.fn(),
+              }}
+            >
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsContext.Provider>
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+    });
+
+    it('loadbalancer field', async () => {
+      const camelRoute = {
+        from: {
+          uri: 'timer:tutorial',
+          steps: [
+            {
+              loadBalance: {
+                id: 'lb',
+              },
+            },
+          ],
+        },
+      } as RouteDefinition;
+      const entity = new CamelRouteVisualEntity(camelRoute);
+      const rootNode: IVisualizationNode = entity.toVizNode();
+      const loadBalanceNode = rootNode.getChildren()![1];
+      const selectedNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode: loadBalanceNode,
+        },
+      };
+
+      render(
+        <EntitiesContext.Provider value={null}>
+          <VisibleFlowsProvider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                onTabChange: jest.fn(),
+              }}
+            >
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsContext.Provider>
+          </VisibleFlowsProvider>
+        </EntitiesContext.Provider>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+    });
   });
 });

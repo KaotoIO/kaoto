@@ -95,6 +95,46 @@ describe('LoadBalancerEditor', () => {
     expect(inputIdModifiedTabElement).toHaveLength(1);
   });
 
+  it('should render with only the Required fields', () => {
+    const visualComponentSchema: VisualComponentSchema = {
+      title: 'My Node',
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+        },
+      } as unknown as KaotoSchemaDefinition['schema'],
+      definition: {
+        name: 'my node',
+        weightedLoadBalancer: {},
+      },
+    };
+
+    mockNode = {
+      id: '1',
+      type: 'node',
+      data: {
+        vizNode: {
+          getComponentSchema: () => visualComponentSchema,
+          updateModel: (_value: unknown) => {},
+        } as IVisualizationNode,
+      },
+    };
+    render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.REQUIRED_FIELDS} />);
+    const buttons = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
+    expect(buttons).toHaveLength(1);
+
+    const inputElement = screen.getAllByRole('combobox')[0];
+    expect(inputElement).toHaveValue('Weighted Load Balancer');
+
+    const inputDistributionRatioElement = screen
+      .queryAllByRole('textbox')
+      .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
+    expect(inputDistributionRatioElement).toHaveLength(1);
+  });
+
   it('should render', async () => {
     render(<LoadBalancerEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
     const buttons = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });

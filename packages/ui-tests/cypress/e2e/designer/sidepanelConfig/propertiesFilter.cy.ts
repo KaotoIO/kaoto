@@ -7,7 +7,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('setHeader');
-
+    cy.selectFormTab('All');
     // expand wrapped section
     cy.contains('button', 'Processor advanced properties').click();
 
@@ -32,6 +32,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('All');
 
     // expand wrapped section
     cy.contains('button', 'Processor advanced properties').click();
@@ -57,6 +58,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('log');
+    cy.selectFormTab('All');
 
     // check all fields are present
     cy.get(`input[name="id"]`).should('exist');
@@ -75,18 +77,19 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('log');
+    cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('variableSend', 'testVariableSend');
     cy.interactWithConfigInputObject('variableReceive', 'testVariableReceive');
 
-    cy.get('button[id="User Modified"]').click();
+    cy.selectFormTab('Modified');
 
     cy.get(`input[name="variableSend"]`).should('exist');
     cy.get(`input[name="variableReceive"]`).should('exist');
     cy.get(`textarea[name="description"]`).should('not.exist');
     cy.get(`input[name="id"]`).should('not.exist');
 
-    cy.get('button[id="All Fields"]').click();
+    cy.selectFormTab('All');
 
     cy.get(`input[name="variableSend"]`).should('exist');
     cy.get(`input[name="variableReceive"]`).should('exist');

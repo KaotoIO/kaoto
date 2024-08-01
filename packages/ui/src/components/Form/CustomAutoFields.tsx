@@ -5,9 +5,11 @@ import { KaotoSchemaDefinition } from '../../models';
 import { Card, CardBody } from '@patternfly/react-core';
 import { getFieldGroups } from '../../utils';
 import { CatalogKind } from '../../models';
-import { FilteredFieldContext } from '../../providers';
+import { CanvasFormTabsContext, FilteredFieldContext } from '../../providers';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
+import { NoFieldFound } from './NoFieldFound';
+import { FormTabsModes } from '../Visualization/Canvas';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -26,6 +28,7 @@ export function CustomAutoFields({
   const { schema } = useForm();
   const rootField = schema.getField('');
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
+  const { selectedTab } = useContext(CanvasFormTabsContext);
 
   /** Special handling for oneOf schemas */
   if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
@@ -41,6 +44,17 @@ export function CustomAutoFields({
     return acc;
   }, {});
   const propertiesArray = getFieldGroups(actualFieldsSchema);
+
+  if (
+    selectedTab !== FormTabsModes.ALL_FIELDS &&
+    propertiesArray.common.length === 0 &&
+    Object.keys(propertiesArray.groups).length === 0
+  ) {
+    const comment = (rootField as KaotoSchemaDefinition['schema'])['$comment'] ?? '';
+    if (!comment.includes('expression') && !comment.includes('dataformat') && !comment.includes('loadbalance')) {
+      return <NoFieldFound />;
+    }
+  }
 
   return createElement(
     element,
