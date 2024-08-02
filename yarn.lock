@@ -4158,8 +4158,8 @@ __metadata:
   linkType: hard
 
 "@storybook/addon-actions@npm:^8.0.0":
-  version: 8.2.6
-  resolution: "@storybook/addon-actions@npm:8.2.6"
+  version: 8.2.7
+  resolution: "@storybook/addon-actions@npm:8.2.7"
   dependencies:
     "@storybook/global": ^5.0.0
     "@types/uuid": ^9.0.1
@@ -4167,8 +4167,8 @@ __metadata:
     polished: ^4.2.2
     uuid: ^9.0.0
   peerDependencies:
-    storybook: ^8.2.6
-  checksum: 0295966756be3bd3d8b6e9ff46a0b69698671b0992c5df9ba0d805c1aaae4f671cdd2afa238298beab65f6f00dbdfbddae5f8b383074cda6a673ccc005c4de4c
+    storybook: ^8.2.7
+  checksum: 36653b650f2d051caf54cb29675e01d591698ae2e189f6e8c86f377d50d2cc543ae0dd56115de8b02f0078ba4851a13690b6dbcadf6301ced516d86a767195ce
   languageName: node
   linkType: hard
 
