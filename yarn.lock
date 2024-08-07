@@ -2691,7 +2691,7 @@ __metadata:
     stylelint-prettier: ^5.0.0
     ts-node: ^10.9.1
     typescript: ^5.4.2
-    uniforms: 4.0.0-alpha.5
+    uniforms: 4.0.0-alpha.6
     uniforms-bridge-json-schema: 4.0.0-alpha.6
     usehooks-ts: ^3.0.0
     uuid: ^10.0.0
@@ -18048,16 +18048,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms@npm:4.0.0-alpha.5":
-  version: 4.0.0-alpha.5
-  resolution: "uniforms@npm:4.0.0-alpha.5"
+"uniforms@npm:4.0.0-alpha.6":
+  version: 4.0.0-alpha.6
+  resolution: "uniforms@npm:4.0.0-alpha.6"
   dependencies:
     invariant: ^2.0.0
     lodash: ^4.0.0
     tslib: ^2.2.0
   peerDependencies:
     react: ^18.0.0 || ^17.0.0 || ^16.8.0
-  checksum: ce76babac327849077976bd5d7dfc75959fbf97e7e3f4c76bda7a75a3bd5360a3c6e8f341134d510325a66a6d978e3a634336a96cf03f94f9605dae0e9b6d889
+  checksum: 033057936957755550564e700665f67df1a755be0d270ebd29cbe9cd9fa58571eb1fe3b9e3205e93ad8ef32a714282b46eaae656c38f7c491db9e63c31a54a3f
   languageName: node
   linkType: hard
 
