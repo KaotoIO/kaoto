@@ -7,6 +7,11 @@ Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: numb
   cy.get(`[data-nodelabel="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
+Cypress.Commands.add('toggleExpandGroup', (groupName: string, groupIndex?: number) => {
+  groupIndex = groupIndex ?? 0;
+  cy.get(`[data-testid="collapseButton-${groupName}"]`).eq(groupIndex).click({ force: true });
+});
+
 Cypress.Commands.add('closeStepConfigurationTab', () => {
   cy.get('[data-testid="close-side-bar"]').click();
   cy.get('.pf-topology-resizable-side-bar').should('not.exist');
@@ -47,6 +52,10 @@ Cypress.Commands.add('selectInsertSpecialNode', (nodeName: string, nodeIndex?: n
 
 Cypress.Commands.add('selectPrependNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'prepend', nodeIndex);
+});
+
+Cypress.Commands.add('selectRemoveGroup', (groupName: string, groupIndex?: number) => {
+  cy.performNodeAction(groupName, 'container-remove', groupIndex);
 });
 
 Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
