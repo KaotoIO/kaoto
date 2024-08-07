@@ -5,7 +5,15 @@
 export {};
 
 declare global {
-  type ActionType = 'append' | 'prepend' | 'replace' | 'insert' | 'insert-special' | 'delete' | 'disable';
+  type ActionType =
+    | 'append'
+    | 'prepend'
+    | 'replace'
+    | 'insert'
+    | 'insert-special'
+    | 'delete'
+    | 'disable'
+    | 'container-remove';
 
   namespace Cypress {
     interface Chainable {
@@ -34,6 +42,7 @@ declare global {
       showAllRoutes(): Chainable<JQuery<Element>>;
       // design
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
+      toggleExpandGroup(groupName: string, groupIndex?: number): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
@@ -43,6 +52,7 @@ declare global {
       selectInsertSpecialNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectRemoveGroup(groupName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       performNodeAction(nodeName: string, action: ActionType, nodeIndex?: number): Chainable<JQuery<Element>>;
       checkNodeExist(inputName: string, nodesCount: number): Chainable<JQuery<Element>>;
       checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;

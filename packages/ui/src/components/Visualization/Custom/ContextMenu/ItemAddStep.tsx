@@ -1,9 +1,9 @@
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'react';
-import { IDataTestID } from '../../../models';
-import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
-import { EntitiesContext } from '../../../providers/entities.provider';
+import { IDataTestID } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 
 interface ItemAddStepProps extends PropsWithChildren<IDataTestID> {
   mode: AddStepMode.PrependStep | AddStepMode.AppendStep;

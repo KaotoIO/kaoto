@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodeContextMenu should render an empty component when there is no vizNode 1`] = `
+<div>
+  <div
+    data-testid="node-context-menu"
+  />
+</div>
+`;

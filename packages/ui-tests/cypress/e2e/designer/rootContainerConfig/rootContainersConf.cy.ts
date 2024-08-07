@@ -8,24 +8,14 @@ describe('Test for camel route root containers configuration', () => {
     cy.openDesignPage();
     cy.toggleRouteVisibility(1);
 
-    cy.get('[data-id^="route-1234"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .eq(0)
-      .click();
+    cy.toggleExpandGroup('route-1234');
+    cy.toggleExpandGroup('route-4321');
 
-    cy.get('[data-id^="route-4321"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .eq(0)
-      .click();
     cy.checkNodeExist('timer', 0);
     cy.checkNodeExist('log', 0);
-    cy.get('[data-id^="route-4321"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .eq(0)
-      .click();
+
+    cy.toggleExpandGroup('route-4321');
+
     cy.checkNodeExist('timer', 1);
     cy.checkNodeExist('log', 1);
   });
@@ -35,11 +25,10 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
     cy.toggleRouteVisibility(1);
-    cy.get('[data-id^="route-1234"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .click();
+
+    cy.toggleExpandGroup('route-1234');
     cy.toggleRouteVisibility(1);
+
     cy.checkNodeExist('timer', 0);
     cy.checkNodeExist('log', 0);
   });
@@ -48,10 +37,8 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.get('[data-id^="camel-route"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('camel-route');
+
     cy.interactWithConfigInputObject('description', 'test.description');
     cy.interactWithConfigInputObject('group', 'test.group');
     cy.interactWithConfigInputObject('inputType.description', 'test.inputType.description');
@@ -102,10 +89,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
-    cy.get('[data-id^="eip-action"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('eip-action');
 
     cy.interactWithConfigInputObject('name', 'test.name');
     cy.interactWithConfigInputObject('title', 'test.title');
@@ -144,7 +128,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/pipe/basic.yaml');
     cy.openDesignPage();
 
-    cy.get('[data-id^="pipe"] .pf-topology__group__label text').click({ force: true });
+    cy.openStepConfigurationTab('pipe');
 
     cy.get(`input[name="name"]`).clear();
     cy.get(`input[name="name"]`).type('testName');
@@ -187,23 +171,13 @@ describe('Test for camel route root containers configuration', () => {
     cy.openDesignPage();
     cy.toggleRouteVisibility(1);
 
-    cy.get('[data-id^="route-4321"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .eq(1)
-      .click();
-    cy.get('[data-testid="context-menu-container-remove"]').click();
+    cy.performNodeAction('route-4321', 'container-remove');
     cy.contains('button', 'Cancel').click();
 
     cy.checkNodeExist('timer', 2);
     cy.checkNodeExist('log', 2);
 
-    cy.get('[data-id^="route-4321"]')
-      .find('.pf-topology__group__label')
-      .find('.pf-topology__node__action-icon')
-      .eq(1)
-      .click();
-    cy.get('[data-testid="context-menu-container-remove"]').click();
+    cy.performNodeAction('route-4321', 'container-remove');
     cy.contains('button', 'Confirm').click();
 
     cy.checkNodeExist('timer', 1);

@@ -661,53 +661,6 @@ exports[`Canvas should render correctly 1`] = `
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="1"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId--hover"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="200%"
-                        id="NodeShadowsFilterId--danger"
-                        width="200%"
-                        x="-50%"
-                        y="-50%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="0"
-                          flood-color="#DB0000"
-                          flood-opacity="0.5"
-                          stdDeviation="4"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -736,113 +689,98 @@ exports[`Canvas should render correctly 1`] = `
                             data-type="group"
                             transform="translate(0, 0)"
                           >
-                            <g
-                              class="pf-topology__group"
-                            >
+                            <g>
                               <rect
-                                class="pf-topology__group__background"
+                                class="phantom-rect"
                                 height="195"
                                 width="195"
                                 x="-60"
                                 y="-60"
                               />
-                            </g>
-                            <g>
-                              <g
-                                class="pf-topology__group__label"
-                                transform="translate(NaN, 159)"
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="route-8888"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
                               >
-                                <rect
-                                  class="pf-topology__node__label__background"
-                                  height="NaN"
-                                  rx="4"
-                                  ry="4"
-                                  width="NaN"
-                                  x="0"
-                                  y="0"
-                                />
-                                <text
-                                  dy="0.35em"
-                                  x="8"
-                                  y="NaN"
+                                <div
+                                  class="custom-group"
                                 >
-                                  route-8888
-                                </text>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
+                                  <div
+                                    class="custom-group__title"
                                   >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 448 512"
-                                      width="1em"
+                                    <div
+                                      class="custom-group__title__img-circle"
                                     >
-                                      <path
-                                        d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                      <img
+                                        src=""
                                       />
-                                    </svg>
-                                  </g>
-                                </g>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
-                                  >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 192 512"
-                                      width="1em"
+                                    </div>
+                                    <span
+                                      title="route-8888"
                                     >
-                                      <path
-                                        d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                                      />
-                                    </svg>
-                                  </g>
-                                </g>
-                              </g>
+                                      route-8888
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-1"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-2"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                         </g>
@@ -1085,11 +1023,9 @@ exports[`Canvas should render correctly 1`] = `
                             data-kind="node"
                             data-type="group"
                           >
-                            <g>
-                              <g
-                                class="pf-topology__group"
-                              />
-                            </g>
+                            <g
+                              class="custom-group"
+                            />
                             <g
                               data-id="timer-1234"
                               data-kind="node"
@@ -1370,53 +1306,6 @@ exports[`Canvas should render correctly with more routes  1`] = `
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="1"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId--hover"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="200%"
-                        id="NodeShadowsFilterId--danger"
-                        width="200%"
-                        x="-50%"
-                        y="-50%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="0"
-                          flood-color="#DB0000"
-                          flood-opacity="0.5"
-                          stdDeviation="4"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -1445,113 +1334,98 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             data-type="group"
                             transform="translate(0, 0)"
                           >
-                            <g
-                              class="pf-topology__group"
-                            >
+                            <g>
                               <rect
-                                class="pf-topology__group__background"
+                                class="phantom-rect"
                                 height="195"
                                 width="195"
                                 x="-60"
                                 y="-60"
                               />
-                            </g>
-                            <g>
-                              <g
-                                class="pf-topology__group__label"
-                                transform="translate(NaN, 159)"
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="route-8888"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
                               >
-                                <rect
-                                  class="pf-topology__node__label__background"
-                                  height="NaN"
-                                  rx="4"
-                                  ry="4"
-                                  width="NaN"
-                                  x="0"
-                                  y="0"
-                                />
-                                <text
-                                  dy="0.35em"
-                                  x="8"
-                                  y="NaN"
+                                <div
+                                  class="custom-group"
                                 >
-                                  route-8888
-                                </text>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
+                                  <div
+                                    class="custom-group__title"
                                   >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 448 512"
-                                      width="1em"
+                                    <div
+                                      class="custom-group__title__img-circle"
                                     >
-                                      <path
-                                        d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                      <img
+                                        src=""
                                       />
-                                    </svg>
-                                  </g>
-                                </g>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
-                                  >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 192 512"
-                                      width="1em"
+                                    </div>
+                                    <span
+                                      title="route-8888"
                                     >
-                                      <path
-                                        d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                                      />
-                                    </svg>
-                                  </g>
-                                </g>
-                              </g>
+                                      route-8888
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-3"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-4"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                         </g>
@@ -1794,11 +1668,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             data-kind="node"
                             data-type="group"
                           >
-                            <g>
-                              <g
-                                class="pf-topology__group"
-                              />
-                            </g>
+                            <g
+                              class="custom-group"
+                            />
                             <g
                               data-id="timer-1234"
                               data-kind="node"
@@ -2079,53 +1951,6 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="1"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="150%"
-                        id="NodeShadowsFilterId--hover"
-                        width="150%"
-                        x="-25%"
-                        y="-25%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.2"
-                          stdDeviation="2"
-                        />
-                      </filter>
-                      <filter
-                        height="200%"
-                        id="NodeShadowsFilterId--danger"
-                        width="200%"
-                        x="-50%"
-                        y="-50%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="0"
-                          flood-color="#DB0000"
-                          flood-opacity="0.5"
-                          stdDeviation="4"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -2154,113 +1979,98 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             data-type="group"
                             transform="translate(0, 0)"
                           >
-                            <g
-                              class="pf-topology__group"
-                            >
+                            <g>
                               <rect
-                                class="pf-topology__group__background"
+                                class="phantom-rect"
                                 height="195"
                                 width="195"
                                 x="-60"
                                 y="-60"
                               />
-                            </g>
-                            <g>
-                              <g
-                                class="pf-topology__group__label"
-                                transform="translate(NaN, 159)"
+                              <foreignobject
+                                class="foreign-object"
+                                data-nodelabel="route-8888"
+                                height="195"
+                                width="195"
+                                x="-60"
+                                y="-60"
                               >
-                                <rect
-                                  class="pf-topology__node__label__background"
-                                  height="NaN"
-                                  rx="4"
-                                  ry="4"
-                                  width="NaN"
-                                  x="0"
-                                  y="0"
-                                />
-                                <text
-                                  dy="0.35em"
-                                  x="8"
-                                  y="NaN"
+                                <div
+                                  class="custom-group"
                                 >
-                                  route-8888
-                                </text>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
+                                  <div
+                                    class="custom-group__title"
                                   >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 448 512"
-                                      width="1em"
+                                    <div
+                                      class="custom-group__title__img-circle"
                                     >
-                                      <path
-                                        d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"
+                                      <img
+                                        src=""
                                       />
-                                    </svg>
-                                  </g>
-                                </g>
-                                <line
-                                  class="pf-topology__node__separator"
-                                  shape-rendering="crispEdges"
-                                  x1="NaN"
-                                  x2="NaN"
-                                  y1="0"
-                                  y2="NaN"
-                                />
-                                <g
-                                  class="pf-topology__node__action-icon"
-                                >
-                                  <rect
-                                    class="pf-topology__node__action-icon__background"
-                                    height="NaN"
-                                    width="16"
-                                    x="NaN"
-                                    y="0"
-                                  />
-                                  <g
-                                    class="pf-topology__node__action-icon__icon"
-                                    transform="translate(NaN, NaN)"
-                                  >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="pf-v5-svg"
-                                      fill="currentColor"
-                                      height="1em"
-                                      role="img"
-                                      viewBox="0 0 192 512"
-                                      width="1em"
+                                    </div>
+                                    <span
+                                      title="route-8888"
                                     >
-                                      <path
-                                        d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                                      />
-                                    </svg>
-                                  </g>
-                                </g>
-                              </g>
+                                      route-8888
+                                    </span>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-9"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="collapseButton-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          data-testid="collapse-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M200 288H88c-21.4 0-32.1 25.8-17 41l32.9 31-99.2 99.3c-6.2 6.2-6.2 16.4 0 22.6l25.4 25.4c6.2 6.2 16.4 6.2 22.6 0L152 408l31.1 33c15.1 15.1 40.9 4.4 40.9-17V312c0-13.3-10.7-24-24-24zm112-64h112c21.4 0 32.1-25.9 17-41l-33-31 99.3-99.3c6.2-6.2 6.2-16.4 0-22.6L481.9 4.7c-6.2-6.2-16.4-6.2-22.6 0L360 104l-31.1-33C313.8 55.9 288 66.6 288 88v112c0 13.3 10.7 24 24 24zm96 136l33-31.1c15.1-15.1 4.4-40.9-17-40.9H312c-13.3 0-24 10.7-24 24v112c0 21.4 25.9 32.1 41 17l31-32.9 99.3 99.3c6.2 6.2 16.4 6.2 22.6 0l25.4-25.4c6.2-6.2 6.2-16.4 0-22.6L408 360zM183 71.1L152 104 52.7 4.7c-6.2-6.2-16.4-6.2-22.6 0L4.7 30.1c-6.2 6.2-6.2 16.4 0 22.6L104 152l-33 31.1C55.9 198.2 66.6 224 88 224h112c13.3 0 24-10.7 24-24V88c0-21.3-25.9-32-41-16.9z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <div
+                                      style="display: contents;"
+                                    >
+                                      <button
+                                        aria-disabled="false"
+                                        class="pf-v5-c-button pf-m-control container-controls"
+                                        data-ouia-component-id="OUIA-Generated-Button-control-10"
+                                        data-ouia-component-type="PF5/Button"
+                                        data-ouia-safe="true"
+                                        data-testid="contextualMenu-route-8888"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                         </g>
@@ -2503,11 +2313,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             data-kind="node"
                             data-type="group"
                           >
-                            <g>
-                              <g
-                                class="pf-topology__group"
-                              />
-                            </g>
+                            <g
+                              class="custom-group"
+                            />
                             <g
                               data-id="timer-1234"
                               data-kind="node"
