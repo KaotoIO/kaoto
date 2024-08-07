@@ -4,7 +4,6 @@ import {
   ColaLayout,
   ComponentFactory,
   ConcentricLayout,
-  DagreGroupsLayout,
   DefaultEdge,
   EdgeStyle,
   ForceLayout,
@@ -21,6 +20,7 @@ import {
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
+import { DagreGroupsExtendedLayout } from '../Custom/Layout/DagreGroupsExtendedLayout';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
@@ -79,7 +79,7 @@ export class CanvasService {
       case LayoutType.Concentric:
         return new ConcentricLayout(graph);
       case LayoutType.DagreVertical:
-        return new DagreGroupsLayout(graph, {
+        return new DagreGroupsExtendedLayout(graph, {
           rankdir: TOP_TO_BOTTOM,
           ranker: 'network-simplex',
           nodesep: 20,
@@ -87,7 +87,7 @@ export class CanvasService {
           ranksep: 0,
         });
       case LayoutType.DagreHorizontal:
-        return new DagreGroupsLayout(graph, {
+        return new DagreGroupsExtendedLayout(graph, {
           rankdir: LEFT_TO_RIGHT,
           ranker: 'network-simplex',
           nodesep: 20,
@@ -138,6 +138,15 @@ export class CanvasService {
     this.visitedNodes = [];
 
     this.appendNodesAndEdges(vizNode);
+    /**
+     * Add an index to each node so they can be sorted in DagreGroupsExtendedLayout
+     * Related issue: https://github.com/patternfly/react-topology/issues/230
+     */
+    this.nodes.forEach((node, index) => {
+      if (node.data) {
+        node.data.index = index;
+      }
+    });
 
     return { nodes: this.nodes, edges: this.edges };
   }

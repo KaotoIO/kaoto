@@ -20,6 +20,7 @@ export const enum LayoutType {
 export interface CanvasNode extends NodeModel {
   parentNode?: string;
   data?: {
+    index?: number;
     vizNode?: IVisualizationNode;
   };
 }

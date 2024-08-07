@@ -47,6 +47,7 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
+    "@dagrejs/dagre": "1.1.2",
     "@kaoto-next/uniforms-patternfly": "^0.6.15",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",

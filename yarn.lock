@@ -2624,6 +2624,7 @@ __metadata:
     "@babel/preset-env": ^7.21.5
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
+    "@dagrejs/dagre": 1.1.2
     "@kaoto-next/uniforms-patternfly": ^0.6.15
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": 0.32.0
