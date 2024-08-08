@@ -37,12 +37,7 @@ export default {
 const Template: StoryFn<typeof NewBeanModal> = (args) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const handleClose = () => setIsModalOpen(!isModalOpen);
-  return (
-    <>
-      <button onClick={() => setIsModalOpen(true)}>Open New Bean Modal</button>
-      <NewBeanModal {...args} onCancelCreateBean={handleClose} isOpen={isModalOpen} />
-    </>
-  );
+  return <NewBeanModal {...args} onCancelCreateBean={handleClose} isOpen={isModalOpen} />;
 };
 
 export const Default = Template.bind({});

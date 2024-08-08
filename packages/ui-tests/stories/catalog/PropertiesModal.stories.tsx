@@ -14,12 +14,7 @@ export default {
 const Template: StoryFn<typeof PropertiesModal> = (args) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const handleClose = () => setIsModalOpen(!isModalOpen);
-  return (
-    <>
-      <button onClick={() => setIsModalOpen(true)}>Open Properties Modal</button>
-      <PropertiesModal {...args} onClose={handleClose} isModalOpen={isModalOpen} />
-    </>
-  );
+  return <PropertiesModal {...args} onClose={handleClose} isModalOpen={isModalOpen} />;
 };
 
 export const ProcessorPropertiesModal = Template.bind({});
