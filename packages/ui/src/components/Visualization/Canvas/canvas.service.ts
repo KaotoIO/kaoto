@@ -4,6 +4,7 @@ import {
   ColaLayout,
   ComponentFactory,
   ConcentricLayout,
+  DagreGroupsLayout,
   DefaultEdge,
   EdgeStyle,
   ForceLayout,
@@ -20,7 +21,6 @@ import {
 } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
-import { DagreGroupsExtendedLayout } from '../Custom/Layout/DagreGroupsExtendedLayout';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges, LayoutType } from './canvas.models';
 
@@ -79,7 +79,7 @@ export class CanvasService {
       case LayoutType.Concentric:
         return new ConcentricLayout(graph);
       case LayoutType.DagreVertical:
-        return new DagreGroupsExtendedLayout(graph, {
+        return new DagreGroupsLayout(graph, {
           rankdir: TOP_TO_BOTTOM,
           ranker: 'network-simplex',
           nodesep: 20,
@@ -87,7 +87,7 @@ export class CanvasService {
           ranksep: 0,
         });
       case LayoutType.DagreHorizontal:
-        return new DagreGroupsExtendedLayout(graph, {
+        return new DagreGroupsLayout(graph, {
           rankdir: LEFT_TO_RIGHT,
           ranker: 'network-simplex',
           nodesep: 20,
