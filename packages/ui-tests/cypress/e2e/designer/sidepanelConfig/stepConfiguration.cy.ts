@@ -8,6 +8,7 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
     // Configure timer - source step
     cy.openStepConfigurationTab('timer-source');
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('period', '3000');
     cy.interactWithConfigInputObject('message', 'test message');
     cy.get(`input[name="message"]`).clear();
@@ -15,6 +16,7 @@ describe('Tests for Design page', () => {
 
     // Configure kafka-sink step
     cy.openStepConfigurationTab('kafka-sink');
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('topic', 'topicname');
     cy.interactWithConfigInputObject('bootstrapServers', 'bootstrap');
     cy.interactWithConfigInputObject('securityProtocol', 'security');

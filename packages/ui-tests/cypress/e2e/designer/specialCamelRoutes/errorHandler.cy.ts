@@ -10,6 +10,7 @@ describe('Test for errorHandler configuration container', () => {
       .find('.pf-topology__node__label')
       .find('.pf-topology__node__label__background')
       .click();
+    cy.selectFormTab('All');
 
     cy.get('#-oneof-toggle').click();
     cy.get('ul.pf-v5-c-menu__list > li:first')
@@ -33,6 +34,7 @@ describe('Test for errorHandler configuration container', () => {
       .find('.pf-topology__node__label')
       .find('.pf-topology__node__label__background')
       .click();
+    cy.selectFormTab('All');
 
     cy.get('#-oneof-toggle').click();
     cy.get('[data-testid="-oneof-select-dropdownlist-Default Error Handler"]').click();

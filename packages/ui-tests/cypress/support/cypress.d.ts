@@ -75,6 +75,7 @@ declare global {
       addProperty(propertyName: string): Chainable<JQuery<Element>>;
       addSingleKVProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
       filterFields(filter: string): Chainable<JQuery<Element>>;
+      selectFormTab(tab: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

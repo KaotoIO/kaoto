@@ -52,6 +52,7 @@ describe('Test for camel route root containers configuration', () => {
       .find('.pf-topology__group__label')
       .find('.pf-topology__node__label__background')
       .click();
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('description', 'test.description');
     cy.interactWithConfigInputObject('group', 'test.group');
     cy.interactWithConfigInputObject('inputType.description', 'test.inputType.description');
@@ -107,6 +108,7 @@ describe('Test for camel route root containers configuration', () => {
       .find('.pf-topology__node__label__background')
       .click();
 
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('name', 'test.name');
     cy.interactWithConfigInputObject('title', 'test.title');
     cy.interactWithConfigInputObject('description', 'test.description');
@@ -146,6 +148,7 @@ describe('Test for camel route root containers configuration', () => {
 
     cy.get('[data-id^="pipe"] .pf-topology__group__label text').click({ force: true });
 
+    cy.selectFormTab('All');
     cy.get(`input[name="name"]`).clear();
     cy.get(`input[name="name"]`).type('testName');
 

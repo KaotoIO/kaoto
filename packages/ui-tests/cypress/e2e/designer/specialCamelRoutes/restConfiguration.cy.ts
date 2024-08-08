@@ -10,6 +10,7 @@ describe('Test for root on rest configuration container', () => {
       .find('.pf-topology__node__label')
       .find('.pf-topology__node__label__background')
       .click();
+    cy.selectFormTab('All');
 
     cy.selectInTypeaheadField('component', 'coap');
     cy.selectInTypeaheadField('apiComponent', 'openapi');

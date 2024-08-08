@@ -68,7 +68,7 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   const description = title ? `Configure expression for "${title}" parameter` : 'Configure expression';
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS) return true;
+    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
     return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(preparedLanguage);
   }, [props.formMode]);
 

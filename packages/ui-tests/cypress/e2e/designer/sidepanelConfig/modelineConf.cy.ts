@@ -9,6 +9,7 @@ describe('Tests for modeline', () => {
 
     cy.removeNodeByName('https');
     cy.openStepConfigurationTab('kamelet:log-sink');
+    cy.selectFormTab('All');
     cy.get(`input[name="parameters.showProperties"]`).check();
 
     cy.openSourceCode();

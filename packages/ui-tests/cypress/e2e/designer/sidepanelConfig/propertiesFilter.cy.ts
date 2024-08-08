@@ -7,7 +7,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('setHeader');
-
+    cy.selectFormTab('All');
     // expand wrapped section
     cy.contains('button', 'Processor advanced properties').click();
 
@@ -31,6 +31,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('All');
 
     // expand wrapped section
     cy.contains('button', 'Processor advanced properties').click();
@@ -55,6 +56,7 @@ describe('Tests for side panel step filtering', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('log');
+    cy.selectFormTab('All');
 
     // check all fields are present
     cy.get(`input[name="id"]`).should('exist');

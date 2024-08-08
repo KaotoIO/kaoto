@@ -142,3 +142,7 @@ Cypress.Commands.add('filterFields', (filter: string) => {
     cy.get('input.pf-v5-c-text-input-group__text-input').type(filter);
   });
 });
+
+Cypress.Commands.add('selectFormTab', (value: string) => {
+  cy.get(`[id$="${value}"]`).click();
+});

@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, SearchInput } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader, SearchInput, ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { VisibleFlowsContext, FilteredFieldContext } from '../../../providers';
 import { ErrorBoundary } from '../../ErrorBoundary';
@@ -6,6 +6,8 @@ import './CanvasForm.scss';
 import { CanvasFormHeader } from './Form/CanvasFormHeader';
 import { CanvasNode } from './canvas.models';
 import { CanvasFormTabs } from './CanvasFormTabs';
+import { FormTabsModes, getTabTooltip } from './canvasformtabs.modes';
+import { CanvasFormTabsContext } from '../../../providers/canvas-form-tabs.provider';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -15,6 +17,7 @@ interface CanvasFormProps {
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
+  const { selectedTab, onTabChange } = useContext(CanvasFormTabsContext);
   const flowIdRef = useRef<string | undefined>(undefined);
 
   const visualComponentSchema = useMemo(() => {
@@ -44,6 +47,19 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
     <ErrorBoundary key={props.selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Card className="canvas-form">
         <CardHeader>
+          <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
+            {Object.values(FormTabsModes).map((mode) => (
+              <Tooltip content={getTabTooltip(mode)}>
+                <ToggleGroupItem
+                  key={mode}
+                  text={mode}
+                  buttonId={mode}
+                  isSelected={selectedTab === mode}
+                  onChange={onTabChange}
+                />
+              </Tooltip>
+            ))}
+          </ToggleGroup>
           <SearchInput
             className="filter-fields"
             placeholder="Find properties by name"
