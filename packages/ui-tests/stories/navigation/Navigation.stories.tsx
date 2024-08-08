@@ -1,6 +1,6 @@
 import { Navigation, Shell, SourceCodeProvider } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
-import { withRouter, reactRouterOutlet, reactRouterParameters } from 'storybook-addon-react-router-v6';
+import { withRouter, reactRouterOutlet, reactRouterParameters } from 'storybook-addon-remix-react-router';
 
 export default {
   title: 'Navigation/Navigation',
