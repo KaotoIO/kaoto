@@ -1,6 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
 import { dirname, join } from 'path';
+import packageJson from '../../../package.json';
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -17,15 +18,13 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-essentials'),
     getAbsolutePath('@storybook/addon-onboarding'),
     getAbsolutePath('@storybook/addon-interactions'),
-    getAbsolutePath('storybook-addon-react-router-v6'),
+    getAbsolutePath('storybook-addon-remix-react-router'),
   ],
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},
   },
-  docs: {
-    autodocs: true,
-  },
+  docs: {},
   // Configures the static asset folder in> Storybook
   // Requires the catalog-generator build
   staticDirs: [{ from: '../../catalog-generator/dist/camel-catalog', to: 'camel-catalog' }],
@@ -38,6 +37,17 @@ const config: StorybookConfig = {
       propFilter: (prop: { parent: { fileName: string } }) =>
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
+  },
+  viteFinal: async (config) => {
+    return {
+      ...config,
+      define: {
+        ...config.define,
+        __GIT_HASH: JSON.stringify('Demo hash'),
+        __GIT_DATE: JSON.stringify('1970-01-01T00:00:00Z'),
+        __KAOTO_VERSION: JSON.stringify(packageJson.version),
+      },
+    };
   },
 };
 export default config;
