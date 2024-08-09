@@ -2343,16 +2343,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto-next/uniforms-patternfly@npm:^0.6.15":
-  version: 0.6.15
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.6.15"
+"@kaoto-next/uniforms-patternfly@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.1"
   dependencies:
     invariant: ^2.2.4
-    lodash: ^4.17.21
+    lodash.clonedeep: ^4.5.0
+    uniforms: 4.0.0-alpha.5
+  peerDependencies:
+    "@patternfly/react-core": ^5.0.0
+    "@patternfly/react-icons": ^5.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
-    uniforms: 4.0.0-alpha.5
-  checksum: 7be378c7867962bf1d458fb9787eb3ec1699c198ee4fc958b90d868f3ad4be62c40db78bdec9899be85980bad8e96afb397ef28b86593e4310b77e72eba6d23c
+  checksum: d07b18d0438dd6aabfe995851fc7177eb27bdfb632e299a8cdb4fe366ccd5000d6756fb2f3042c70ef4c13ac73c676461b9608b45904e26486aeadea57115293
   languageName: node
   linkType: hard
 
@@ -2442,7 +2445,7 @@ __metadata:
     "@babel/preset-env": ^7.21.5
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
-    "@kaoto-next/uniforms-patternfly": ^0.6.15
+    "@kaoto-next/uniforms-patternfly": ^0.7.1
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": 0.32.0
     "@kie-tools-core/notifications": 0.32.0
@@ -2518,6 +2521,17 @@ __metadata:
     vite-plugin-static-copy: ^1.0.6
     yaml: ^2.3.2
     zustand: ^4.3.9
+  peerDependencies:
+    "@patternfly/patternfly": ^5.3.0
+    "@patternfly/react-code-editor": ^5.3.0
+    "@patternfly/react-core": ^5.3.0
+    "@patternfly/react-icons": ^5.3.0
+    "@patternfly/react-table": ^5.3.0
+    "@patternfly/react-topology": ^5.3.0
+    monaco-yaml: ^5.1.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    react-monaco-editor: ^0.56.0
   languageName: unknown
   linkType: soft
 
