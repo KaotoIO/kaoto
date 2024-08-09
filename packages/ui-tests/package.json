@@ -26,7 +26,6 @@
     "@storybook/addon-essentials": "^8.2.8",
     "@storybook/addon-interactions": "^8.2.8",
     "@storybook/addon-links": "^8.2.8",
-    "@storybook/addon-onboarding": "^8.2.8",
     "@storybook/blocks": "^8.2.8",
     "@storybook/channels": "^8.2.8",
     "@storybook/components": "^8.2.8",
