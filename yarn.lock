@@ -1685,15 +1685,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dagrejs/dagre@npm:1.1.3":
-  version: 1.1.3
-  resolution: "@dagrejs/dagre@npm:1.1.3"
-  dependencies:
-    "@dagrejs/graphlib": 2.2.2
-  checksum: f9bb8e00aaa5342887974068e0c534cdc65b444ee3a9fbfebe546b5129c478b67c7772f1470ecfeedeba7d2d5894d3355714fed56a937dddc3c4aa0c3f170901
-  languageName: node
-  linkType: hard
-
 "@dagrejs/graphlib@npm:2.2.2":
   version: 2.2.2
   resolution: "@dagrejs/graphlib@npm:2.2.2"
@@ -2606,7 +2597,6 @@ __metadata:
     "@babel/preset-env": ^7.21.5
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.5
-    "@dagrejs/dagre": 1.1.3
     "@kaoto-next/uniforms-patternfly": ^0.6.15
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": 0.32.0
