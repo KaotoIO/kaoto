@@ -2398,7 +2398,6 @@ __metadata:
     "@storybook/addon-essentials": ^8.2.8
     "@storybook/addon-interactions": ^8.2.8
     "@storybook/addon-links": ^8.2.8
-    "@storybook/addon-onboarding": ^8.2.8
     "@storybook/blocks": ^8.2.8
     "@storybook/channels": ^8.2.8
     "@storybook/components": ^8.2.8
@@ -2493,7 +2492,7 @@ __metadata:
     lodash.isempty: ^4.4.0
     lodash.memoize: ^4.1.2
     lodash.set: ^4.3.2
-    monaco-editor: ^0.45.0
+    monaco-editor: ^0.50.0
     monaco-yaml: ^5.1.1
     prettier: ^3.0.0
     react: ^18.2.0
@@ -3831,17 +3830,6 @@ __metadata:
   peerDependencies:
     storybook: ^8.2.8
   checksum: 51d51986261308d9eb0179e0ce01f33de4176ef5065b880bc13460ae25d698a99e472703fe93b29fddfc5fac83ce52a9fed10ff7564cd8cfda36232cb4e34a94
-  languageName: node
-  linkType: hard
-
-"@storybook/addon-onboarding@npm:^8.2.8":
-  version: 8.2.8
-  resolution: "@storybook/addon-onboarding@npm:8.2.8"
-  dependencies:
-    react-confetti: ^6.1.0
-  peerDependencies:
-    storybook: ^8.2.8
-  checksum: f1f7022bc07073cd26af7e66a39d78637c856765d565bccbc31e94605d55218b9b1a8931bb64a91802250ef0496b09e79f03a3ae7b402b9e09e47bddb46e2d20
   languageName: node
   linkType: hard
 
@@ -12940,10 +12928,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.45.0":
-  version: 0.45.0
-  resolution: "monaco-editor@npm:0.45.0"
-  checksum: 7c70aeea8b81bc8dbda4b962fa8236d41fd2a3d07bcc2843ea7f1756ad95d701da5ef71e67d787595567aeec247ceb6bf4e3451abdf4895fe7819a8b9ef76231
+"monaco-editor@npm:^0.50.0":
+  version: 0.50.0
+  resolution: "monaco-editor@npm:0.50.0"
+  checksum: 841b047c89060bcd5e8864c671389f7cda322bd8372663ea71f42eb3d780edbbabc41b151791629fec04bbf3c53b407eb9e5b0829ef95292103d685df0994147
   languageName: node
   linkType: hard
 
@@ -14449,17 +14437,6 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: e432b7cb0df57e8f0bcdc3b012d2e93fcbcb6092c9e0f85654788d5ebfc4442536d8cc35b2418061ba3c4afb8b7788cc101c606d86a1732407921de7a9244c8d
-  languageName: node
-  linkType: hard
-
-"react-confetti@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "react-confetti@npm:6.1.0"
-  dependencies:
-    tween-functions: ^1.2.0
-  peerDependencies:
-    react: ^16.3.0 || ^17.0.1 || ^18.0.0
-  checksum: 24b6975df144d2bf09d8e1c95ddc49e547775f911efaa8d96b49e522659d931539e9d9e48cc0db3a01f3a671be7e3824e6e728db85096f5527db5d1c69ebb153
   languageName: node
   linkType: hard
 
@@ -16606,13 +16583,6 @@ __metadata:
   dependencies:
     safe-buffer: ^5.0.1
   checksum: 05f6510358f8afc62a057b8b692f05d70c1782b70db86d6a1e0d5e28a32389e52fa6e7707b6c5ecccacc031462e4bc35af85ecfe4bbc341767917b7cf6965711
-  languageName: node
-  linkType: hard
-
-"tween-functions@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "tween-functions@npm:1.2.0"
-  checksum: 880708d680eff5c347ddcb9f922ad121703a91c78ce308ed309073e73a794b633eb0b80589a839365803f150515ad34c9646809ae8a0e90f09e62686eefb1ab6
   languageName: node
   linkType: hard
 
