@@ -39,6 +39,7 @@ describe('Test for camel route root containers configuration', () => {
 
     cy.openStepConfigurationTab('camel-route');
 
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('description', 'test.description');
     cy.interactWithConfigInputObject('group', 'test.group');
     cy.interactWithConfigInputObject('inputType.description', 'test.inputType.description');
@@ -91,6 +92,7 @@ describe('Test for camel route root containers configuration', () => {
 
     cy.openStepConfigurationTab('eip-action');
 
+    cy.selectFormTab('All');
     cy.interactWithConfigInputObject('name', 'test.name');
     cy.interactWithConfigInputObject('title', 'test.title');
     cy.interactWithConfigInputObject('description', 'test.description');
@@ -130,6 +132,7 @@ describe('Test for camel route root containers configuration', () => {
 
     cy.openStepConfigurationTab('pipe');
 
+    cy.selectFormTab('All');
     cy.get(`input[name="name"]`).clear();
     cy.get(`input[name="name"]`).type('testName');
 

@@ -26,7 +26,6 @@
     "@storybook/addon-essentials": "^8.2.8",
     "@storybook/addon-interactions": "^8.2.8",
     "@storybook/addon-links": "^8.2.8",
-    "@storybook/addon-onboarding": "^8.2.8",
     "@storybook/blocks": "^8.2.8",
     "@storybook/channels": "^8.2.8",
     "@storybook/components": "^8.2.8",
@@ -58,7 +57,7 @@
     "storybook-addon-remix-react-router": "^3.0.0",
     "storybook-fixtures": "0.12.0",
     "typescript": "^5.4.2",
-    "vite": "^4.4.5"
+    "vite": "^5.4.0"
   },
   "dependencies": {
     "storybook": "^8.2.8"

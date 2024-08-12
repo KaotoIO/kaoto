@@ -8,6 +8,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('All');
     cy.selectExpression('Simple');
     cy.interactWithExpressionInputObject('expression', `{{}{{}header.baz}}`);
     cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
@@ -25,6 +26,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
     cy.addExpressionResultType('java.lang.String');
@@ -36,6 +38,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkNodeExist('setHeader', 2);
 
     cy.openStepConfigurationTab('setHeader', 1);
+    cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
     cy.addExpressionResultType('java.lang.String');
@@ -66,6 +69,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setHeader expression
     cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('All');
     cy.selectExpression('Simple');
     cy.interactWithExpressionInputObject('expression', `{{}{{}header.baz}}`);
     cy.get('textarea[name="expression"]').should('have.value', '{{header.baz}}');
@@ -83,6 +87,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.openDesignPage();
     // Configure setBody expression
     cy.openStepConfigurationTab('setBody');
+    cy.selectFormTab('All');
     cy.selectExpression('Simple');
     cy.interactWithExpressionInputObject('expression', `{{}{{}body.baz}}`);
     cy.interactWithExpressionInputObject('id', 'simpleExpressionId');

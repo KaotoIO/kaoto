@@ -16,4 +16,5 @@ export * from './promise-timeout';
 export * from './get-field-groups';
 export * from './get-serialized-model';
 export * from './get-user-updated-properties-schema';
+export * from './get-required-properties-schema';
 export * from './weight-schema-properties';

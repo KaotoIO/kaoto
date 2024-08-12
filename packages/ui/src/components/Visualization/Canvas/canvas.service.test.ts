@@ -2,6 +2,7 @@ import {
   BreadthFirstLayout,
   ColaLayout,
   ConcentricLayout,
+  DagreGroupsLayout,
   DefaultEdge,
   ForceLayout,
   GridLayout,
@@ -11,7 +12,6 @@ import {
 import { createVisualizationNode } from '../../../models/visualization';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CustomGroupWithSelection } from '../Custom';
-import { DagreGroupsExtendedLayout } from '../Custom/Layout/DagreGroupsExtendedLayout';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { CanvasService } from './canvas.service';
@@ -81,8 +81,8 @@ describe('CanvasService', () => {
     [LayoutType.ColaNoForce, ColaLayout],
     [LayoutType.ColaGroups, ColaLayout],
     [LayoutType.Concentric, ConcentricLayout],
-    [LayoutType.DagreVertical, DagreGroupsExtendedLayout],
-    [LayoutType.DagreHorizontal, DagreGroupsExtendedLayout],
+    [LayoutType.DagreVertical, DagreGroupsLayout],
+    [LayoutType.DagreHorizontal, DagreGroupsLayout],
     [LayoutType.Force, ForceLayout],
     [LayoutType.Grid, GridLayout],
     ['unknown' as LayoutType, ColaLayout],
