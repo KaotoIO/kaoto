@@ -21,9 +21,14 @@ import io.kaoto.camelcatalog.model.CatalogRuntime;
 
 public class GenerateCommandOptions {
     private static final Logger LOGGER = Logger.getLogger(GenerateCommandOptions.class.getName());
-    private static Options options = new Options();
+    private Options options = new Options();
+    private ConfigBean configBean;
 
-    public static ConfigBean configure(String[] args) {
+    public GenerateCommandOptions(ConfigBean configBean) {
+        this.configBean = configBean;
+    }
+
+    public void configure(String[] args) throws ParseException {
         Option outputOption = Option.builder().argName("outputDir").option("o").longOpt("output")
                 .desc("Output directory. It will be cleaned before generating the catalogs").hasArg()
                 .required()
@@ -57,41 +62,27 @@ public class GenerateCommandOptions {
         options.addOption(camelSpringbootVersionOption);
         options.addOption(verboseOption);
 
-        ConfigBean configBean = new ConfigBean();
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+        configBean.setOutputFolder(Util.getNormalizedFolder(cmd.getOptionValue(outputOption.getOpt())));
+        configBean.setCatalogsName(cmd.getOptionValue(catalogsNameOption.getOpt()));
+        configBean.setKameletsVersion(cmd.getOptionValue(kameletsVersionOption.getOpt()));
 
-        try {
-            CommandLineParser parser = new DefaultParser();
-            CommandLine cmd = parser.parse(options, args);
-            configBean.setOutputFolder(Util.getNormalizedFolder(cmd.getOptionValue(outputOption.getOpt())));
-            configBean.setCatalogsName(cmd.getOptionValue(catalogsNameOption.getOpt()));
-            configBean.setKameletsVersion(cmd.getOptionValue(kameletsVersionOption.getOpt()));
+        addRuntimeVersions(configBean, cmd, camelMainVersionOption, CatalogRuntime.Main);
+        addRuntimeVersions(configBean, cmd, camelQuarkusVersionOption, CatalogRuntime.Quarkus);
+        addRuntimeVersions(configBean, cmd, camelSpringbootVersionOption, CatalogRuntime.SpringBoot);
 
-            addRuntimeVersions(configBean, cmd, camelMainVersionOption, CatalogRuntime.Main);
-            addRuntimeVersions(configBean, cmd, camelQuarkusVersionOption, CatalogRuntime.Quarkus);
-            addRuntimeVersions(configBean, cmd, camelSpringbootVersionOption, CatalogRuntime.SpringBoot);
-
-            if (configBean.getCatalogVersionSet().isEmpty()) {
-                addDefaultVersions(configBean);
-            }
-        } catch (ParseException e) {
-            LOGGER.severe("Missing required options");
-            printHelpAndExit();
+        if (configBean.getCatalogVersionSet().isEmpty()) {
+            addDefaultVersions(configBean);
         }
-
-        return configBean;
     }
 
-    private static void printHelpAndExit() {
-        printHelp();
-        System.exit(1);
-    }
-
-    private static void printHelp() {
+    public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("catalog-generator", options);
+        formatter.printHelp("catalog-generator", this.options);
     }
 
-    private static void addRuntimeVersions(ConfigBean configBean, CommandLine cmd, Option option,
+    private void addRuntimeVersions(ConfigBean configBean, CommandLine cmd, Option option,
             CatalogRuntime runtime) {
         String[] versions = cmd.getOptionValues(option.getOpt());
         if (versions != null) {
@@ -101,10 +92,11 @@ public class GenerateCommandOptions {
         }
     }
 
-    private static void addDefaultVersions(ConfigBean configBean) {
+    private void addDefaultVersions(ConfigBean configBean) {
         // If no version is specified, we will generate the main catalog with the
         // installed version
-        LOGGER.warning("\nNo Camel Main catalog version specified. \nGenerating the main catalog with the installed version");
+        LOGGER.warning(
+                "\nNo Camel Main catalog version specified. \nGenerating the main catalog with the installed version");
 
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
         configBean.addCatalogVersion(new CatalogCliArgument(CatalogRuntime.Main, camelCatalog.getCatalogVersion()));
