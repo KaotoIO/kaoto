@@ -78,11 +78,13 @@ export class MappingService {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentId);
       if (
-        !(child instanceof ExpressionItem) ||
-        !MappingService.hasStaleSourceDocument(child.expression as string, documentType, documentId)
+        child instanceof ExpressionItem &&
+        MappingService.hasStaleSourceDocument(child.expression as string, documentType, documentId)
       ) {
-        acc.push(child);
+        return acc;
       }
+      if (child instanceof FieldItem && child.children.length === 0) return acc;
+      acc.push(child);
       return acc;
     }, [] as MappingItem[]);
   }
@@ -110,9 +112,9 @@ export class MappingService {
   private static doRemoveStaleMappingsForTargetDocument(item: MappingTree | MappingItem, document: IDocument) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForTargetDocument(child, document);
-      if (child instanceof FieldItem && DocumentService.hasField(document, child.field)) {
+      if (child instanceof FieldItem && DocumentService.hasField(document, child.field) && child.children.length > 0) {
         acc.push(child);
-      } else if (!('isCondition' in child) || child.children.length > 0) {
+      } else if (child instanceof ConditionItem) {
         acc.push(child);
       }
       return acc;
@@ -122,9 +124,11 @@ export class MappingService {
   private static doRemoveStaleMappingsForSourceDocument(item: MappingTree | MappingItem, document: IDocument) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForSourceDocument(child, document);
-      if ('expression' in child && !MappingService.hasStaleSourceField(child.expression as string, document)) {
-        acc.push(child);
+      if ('expression' in child && MappingService.hasStaleSourceField(child.expression as string, document)) {
+        return acc;
       }
+      if (child instanceof FieldItem && child.children.length === 0) return acc;
+      acc.push(child);
       return acc;
     }, [] as MappingItem[]);
   }
