@@ -23,6 +23,7 @@ import otherwise from '../assets/eip/otherwise.png';
 import throwException from '../assets/eip/throw-exception.png';
 import pausable from '../assets/eip/pausable.png';
 import pipeline from '../assets/eip/pipeline.png';
+import poll from '../assets/eip/poll-enrich.png';
 import poll_enrich from '../assets/eip/poll-enrich.png';
 import process from '../assets/eip/process.png';
 import recipient_list from '../assets/eip/recipient-list.png';
@@ -672,6 +673,8 @@ export class NodeIconResolver {
         return pausable;
       case 'pipeline':
         return pipeline;
+      case 'poll':
+        return poll;
       case 'pollEnrich':
         return poll_enrich;
       case 'process':
