@@ -28,7 +28,7 @@
       "@testing-library/jest-dom",
     ]
   },
-  "include": ["src/public-api.ts", "src/models-api.ts", "src/testing-api.ts", "src/global.d.ts"],
+  "include": ["src/public-api.ts", "src/models-api.ts", "src/testing-api.ts","src/components-api.ts", "src/global.d.ts"],
   "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
