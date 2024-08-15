@@ -204,6 +204,7 @@ export class MappingService {
   }
 
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {
+    MappingService.registerNamespaceFromField(condition.mappingTree, source);
     const absPath = XPathService.toXPath(source, condition.mappingTree.namespaceMap);
     const relativePath = MappingService.getRelativePath(condition, absPath);
     if (condition instanceof ForEachItem) {
@@ -226,6 +227,7 @@ export class MappingService {
       valueSelector = MappingService.createValueSelector(mappingTree);
       mappingTree.children.push(valueSelector);
     }
+    MappingService.registerNamespaceFromField(mappingTree, source);
     const path = XPathService.toXPath(source, mappingTree.namespaceMap);
     valueSelector.expression = XPathService.addSource(valueSelector.expression, path);
   }
@@ -236,6 +238,7 @@ export class MappingService {
       valueSelector = MappingService.createValueSelector(targetFieldItem);
       targetFieldItem.children.push(valueSelector);
     }
+    MappingService.registerNamespaceFromField(targetFieldItem.mappingTree, source);
     const absPath = XPathService.toXPath(source, targetFieldItem.mappingTree.namespaceMap);
     const relativePath = MappingService.getRelativePath(valueSelector, absPath);
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
@@ -243,15 +246,19 @@ export class MappingService {
 
   static createFieldItem(parentItem: MappingItem, field: IField) {
     const fieldItem = new FieldItem(parentItem, field);
-    const existingns = Object.entries(fieldItem.mappingTree.namespaceMap).find(
-      ([_prefix, uri]) => field.namespaceURI && uri === field.namespaceURI,
-    );
-    if (!existingns && fieldItem.field.namespaceURI) {
-      const prefix = fieldItem.field.namespacePrefix ?? MappingService.createNSPrefix(fieldItem.mappingTree);
-      fieldItem.mappingTree.namespaceMap[prefix] = fieldItem.field.namespaceURI;
-    }
     parentItem.children.push(fieldItem);
     return fieldItem;
+  }
+
+  private static registerNamespaceFromField(mappingTree: MappingTree, field: IField) {
+    if (!field.namespaceURI) return;
+    const existingns = Object.entries(mappingTree.namespaceMap).find(
+      ([_prefix, uri]) => field.namespaceURI && uri === field.namespaceURI,
+    );
+    if (!existingns && field.namespaceURI) {
+      const prefix = field.namespacePrefix ?? MappingService.createNSPrefix(mappingTree);
+      mappingTree.namespaceMap[prefix] = field.namespaceURI;
+    }
   }
 
   private static createNSPrefix(mappingTree: MappingTree) {
