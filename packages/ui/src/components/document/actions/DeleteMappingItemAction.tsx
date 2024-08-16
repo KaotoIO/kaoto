@@ -38,6 +38,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
         variant={ModalVariant.small}
         isOpen={isModalOpen}
         title={title}
+        onClose={closeModal}
         actions={[
           <Button key="confirm" variant="primary" onClick={onConfirmDelete}>
             Confirm

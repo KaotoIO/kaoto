@@ -51,6 +51,7 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
         variant={ModalVariant.small}
         isOpen={isModalOpen}
         title="Delete parameter"
+        onClose={closeModal}
         actions={[
           <Button key="confirm" variant="primary" onClick={onConfirmDelete}>
             Confirm

@@ -89,6 +89,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
         variant={ModalVariant.small}
         isOpen={isModalOpen}
         title="Detach schema"
+        onClose={closeModal}
         actions={[
           <Button key="confirm" variant="primary" onClick={onConfirmDelete}>
             Confirm
