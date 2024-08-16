@@ -5,6 +5,7 @@ import {
   CamelCatalogService,
   CamelRouteVisualEntity,
   CatalogKind,
+  createVisualizationNode,
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   IKameletDefinition,
@@ -26,6 +27,7 @@ import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
 import { CanvasService } from './canvas.service';
 import { FormTabsModes } from './canvasformtabs.modes';
+import { ROOT_PATH } from '../../../utils';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
@@ -73,16 +75,22 @@ describe('CanvasForm', () => {
   });
 
   it('should render nothing if no schema is available', () => {
+    const vizNode = createVisualizationNode('route', {
+      path: ROOT_PATH,
+      entity: new CamelRouteVisualEntity(camelRouteJson),
+      isGroup: true,
+      processorName: 'route',
+    });
+
     const selectedNode: CanvasNode = {
       id: '1',
       type: 'node',
       data: {
-        vizNode: {
-          getComponentSchema: () => undefined,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
-        } as unknown as IVisualizationNode,
+        vizNode,
       },
     };
+
+    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue(undefined);
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>
@@ -102,16 +110,22 @@ describe('CanvasForm', () => {
       definition: null,
     };
 
+    const vizNode = createVisualizationNode('route', {
+      path: ROOT_PATH,
+      entity: new CamelRouteVisualEntity(camelRouteJson),
+      isGroup: true,
+      processorName: 'route',
+    });
+
     const selectedNode: CanvasNode = {
       id: '1',
       type: 'node',
       data: {
-        vizNode: {
-          getComponentSchema: () => visualComponentSchema,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
-        } as unknown as IVisualizationNode,
+        vizNode,
       },
     };
+
+    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue(visualComponentSchema);
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>
@@ -140,6 +154,8 @@ describe('CanvasForm', () => {
         vizNode: {
           getComponentSchema: () => visualComponentSchema,
           getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
+          getId: () => 'route-8888',
+          getOmitFields: () => [],
         } as unknown as IVisualizationNode,
       },
     };
