@@ -13,7 +13,7 @@ interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
 export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const deleteModalContext = useContext(DeleteModalContext);
-  const flowId = props.vizNode?.getBaseEntity()?.getId();
+  const flowId = props.vizNode?.getId();
 
   const onRemoveGroup = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */

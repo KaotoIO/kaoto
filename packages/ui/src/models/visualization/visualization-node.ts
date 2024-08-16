@@ -41,8 +41,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     public data: T,
   ) {}
 
-  getBaseEntity(): BaseVisualCamelEntity | undefined {
-    return this.getRootNode().data.entity;
+  getId(): string | undefined {
+    return this.getBaseEntity()?.getId();
   }
 
   getNodeLabel(labelType?: NodeLabelType): string {
@@ -63,6 +63,10 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   getComponentSchema(): VisualComponentSchema | undefined {
     return this.getBaseEntity()?.getComponentSchema(this.data.path);
+  }
+
+  getOmitFormFields(): string[] {
+    return this.getBaseEntity()?.getOmitFormFields() ?? [];
   }
 
   updateModel(value: unknown): void {
@@ -119,7 +123,15 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeValidationText(this.data.path);
   }
 
-  private getRootNode(): IVisualizationNode {
+  /**
+   * Get the underlying entity for the entire flow
+   * This property is only set on the root node
+   */
+  protected getBaseEntity(): BaseVisualCamelEntity | undefined {
+    return this.getRootNode().data.entity;
+  }
+
+  protected getRootNode(): IVisualizationNode {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let rootNode: IVisualizationNode | undefined = this;
 

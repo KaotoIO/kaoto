@@ -72,8 +72,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   id: string;
   data: T;
 
-  /** This property is only set on the root node */
-  getBaseEntity(): BaseVisualCamelEntity | undefined;
+  getId(): string | undefined;
 
   /** This method returns the label to be used by the canvas nodes */
   getNodeLabel(labelType?: NodeLabelType): string;
@@ -86,6 +85,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getNodeInteraction(): NodeInteraction;
 
   getComponentSchema(): VisualComponentSchema | undefined;
+
+  /** Returnt fields that should be omitted when configuring this entity */
+  getOmitFormFields(): string[];
 
   updateModel(value: unknown): void;
 

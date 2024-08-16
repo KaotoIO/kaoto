@@ -15,11 +15,11 @@ describe('VisualizationNode', () => {
     expect(node.id).toEqual('test-1234');
   });
 
-  it('should return the base visual entity', () => {
-    const visualEntity = {} as BaseVisualCamelEntity;
+  it('should return the base entity ID', () => {
+    const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
     node = createVisualizationNode('test', { entity: visualEntity });
 
-    expect(node.getBaseEntity()).toEqual(visualEntity);
+    expect(node.getId()).toEqual('route-8888');
   });
 
   it('should return the component schema from the underlying BaseVisualCamelEntity', () => {
@@ -32,6 +32,18 @@ describe('VisualizationNode', () => {
     node.getComponentSchema();
 
     expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.data.path);
+  });
+
+  it('should delegate getOmitFormFields() to the underlying BaseVisualCamelEntity', () => {
+    const getOmitFormFieldsSpy = jest.fn();
+    const visualEntity = {
+      getOmitFormFields: getOmitFormFieldsSpy,
+    } as unknown as BaseVisualCamelEntity;
+
+    node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+    node.getOmitFormFields();
+
+    expect(getOmitFormFieldsSpy).toHaveBeenCalled();
   });
 
   describe('getNodeLabel', () => {

@@ -21,7 +21,7 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
   const { selectedTab } = useContext(CanvasFormTabsContext);
   const divRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<CustomAutoFormRef>(null);
-  const omitFields = useRef(props.selectedNode.data?.vizNode?.getBaseEntity()?.getOmitFormFields() || []);
+  const omitFields = useRef(props.selectedNode.data?.vizNode?.getOmitFormFields() || []);
 
   const visualComponentSchema = useMemo(() => {
     const answer = props.selectedNode.data?.vizNode?.getComponentSchema();

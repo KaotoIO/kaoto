@@ -30,6 +30,8 @@ const selectedNode: CanvasNode = {
       parentNode: undefined,
       previousNode: undefined,
       label: 'test',
+      getId: () => 'aggregate-6839',
+      getOmitFormFields: () => [],
       getComponentSchema: () => {
         return {
           title: 'aggregate',
