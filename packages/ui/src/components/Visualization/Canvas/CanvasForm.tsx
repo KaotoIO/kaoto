@@ -32,12 +32,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
 
   /** Store the flow's initial Id */
   useEffect(() => {
-    flowIdRef.current = props.selectedNode.data?.vizNode?.getBaseEntity()?.getId();
+    flowIdRef.current = props.selectedNode.data?.vizNode?.getId();
   }, []);
 
   const onClose = useCallback(() => {
     props.onClose?.();
-    const newId = props.selectedNode.data?.vizNode?.getBaseEntity()?.getId();
+    const newId = props.selectedNode.data?.vizNode?.getId();
     if (typeof flowIdRef.current === 'string' && typeof newId === 'string' && flowIdRef.current !== newId) {
       visualFlowsApi.renameFlow(flowIdRef.current, newId);
     }
