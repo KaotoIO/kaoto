@@ -196,43 +196,6 @@ describe('VisualizationNode', () => {
     });
   });
 
-  it('should populate the leaf nodes ids - simple relationship', () => {
-    const child = createVisualizationNode('child', {});
-    node.addChild(child);
-
-    const leafNode = createVisualizationNode('leaf', {});
-    child.addChild(leafNode);
-
-    const ids: string[] = [];
-    node.populateLeafNodesIds(ids);
-
-    expect(ids).toEqual(['leaf-1234']);
-  });
-
-  it('should populate the leaf nodes ids - complex relationship', () => {
-    const choiceNode = createVisualizationNode('choice', {});
-    node.addChild(choiceNode);
-
-    const whenNode = createVisualizationNode('when', {});
-    choiceNode.addChild(whenNode);
-
-    const otherwiseNode = createVisualizationNode('otherwise', {});
-    choiceNode.addChild(otherwiseNode);
-
-    const whenLeafNode = createVisualizationNode('when-leaf', {});
-    whenNode.addChild(whenLeafNode);
-
-    const processNode = createVisualizationNode('process', {});
-    otherwiseNode.addChild(processNode);
-    const logNode = createVisualizationNode('log', {});
-    processNode.addChild(logNode);
-
-    const ids: string[] = [];
-    node.populateLeafNodesIds(ids);
-
-    expect(ids).toEqual(['when-leaf-1234', 'log-1234']);
-  });
-
   describe('getNodeValidationText', () => {
     it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
       node = createVisualizationNode('test', {});
