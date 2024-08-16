@@ -115,17 +115,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
   }
 
-  populateLeafNodesIds(ids: string[]): void {
-    /** If this node doesn't have a next node neither children, it can be considered a leaf node */
-    if (this.nextNode === undefined && this.children === undefined) {
-      ids.push(this.id);
-      return;
-    }
-
-    /** If this node has children, populate the leaf nodes ids of each child */
-    this.children?.forEach((child) => child.populateLeafNodesIds(ids));
-  }
-
   getNodeValidationText(): string | undefined {
     return this.getBaseEntity()?.getNodeValidationText(this.data.path);
   }

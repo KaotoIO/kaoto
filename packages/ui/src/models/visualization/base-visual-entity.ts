@@ -107,8 +107,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   removeChild(): void;
 
-  populateLeafNodesIds(ids: string[]): void;
-
   /** Retrieve the node's validation status, relying into the underlying entity */
   getNodeValidationText(): string | undefined;
 }
