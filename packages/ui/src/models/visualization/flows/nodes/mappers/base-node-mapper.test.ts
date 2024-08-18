@@ -1,13 +1,19 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { ICamelElementLookupResult } from './camel-component-types';
-import { CamelStepsService } from './camel-steps.service';
+import { ICamelElementLookupResult } from '../../support/camel-component-types';
+import { RootNodeMapper } from '../root-node-mapper';
+import { BaseNodeMapper } from './base-node-mapper';
 
-describe('CamelStepsService', () => {
+describe('BaseNodeMapper', () => {
+  let mapper: BaseNodeMapper;
   let path: string;
   let componentLookup: ICamelElementLookupResult;
   let entityDefinition: unknown;
 
   beforeEach(() => {
+    const rootNodeMapper = new RootNodeMapper();
+    mapper = new BaseNodeMapper(rootNodeMapper);
+    rootNodeMapper.registerDefaultMapper(mapper);
+
     path = 'from';
     componentLookup = {
       processorName: 'from' as keyof ProcessorDefinition,
@@ -18,7 +24,7 @@ describe('CamelStepsService', () => {
 
   describe('getVizNodeFromProcessor', () => {
     it('should return a VisualizationNode', () => {
-      const vizNode = CamelStepsService.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data).toMatchObject({
@@ -37,7 +43,7 @@ describe('CamelStepsService', () => {
         },
       };
 
-      const vizNode = CamelStepsService.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
       expect(vizNode.getChildren()).toHaveLength(2);
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.log');
       expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.1.to');
@@ -49,27 +55,24 @@ describe('CamelStepsService', () => {
           uri: 'timer:timerName',
           steps: [
             {
-              choice: {
-                when: [
-                  { expression: { simple: { expression: '${body} == 1' } } },
-                  { expression: { simple: { expression: '${body} == 2' } } },
-                ],
-                otherwise: { steps: [{ log: 'logName' }] },
+              doTry: {
+                doCatch: [{ exception: ['java.lang.RuntimeException'] }, { exception: ['java.lang.RuntimeException'] }],
+                doFinally: { steps: [{ log: 'logName' }] },
               },
             },
           ],
         },
       };
 
-      const vizNode = CamelStepsService.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
       expect(vizNode.getChildren()).toHaveLength(1);
-      expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.choice');
+      expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.doTry');
 
-      const choiceNode = vizNode.getChildren()?.[0];
-      expect(choiceNode?.getChildren()).toHaveLength(3);
-      expect(choiceNode?.getChildren()?.[0].data.path).toBe('from.steps.0.choice.when.0');
-      expect(choiceNode?.getChildren()?.[1].data.path).toBe('from.steps.0.choice.when.1');
-      expect(choiceNode?.getChildren()?.[2].data.path).toBe('from.steps.0.choice.otherwise');
+      const doTryNode = vizNode.getChildren()?.[0];
+      expect(doTryNode?.getChildren()).toHaveLength(3);
+      expect(doTryNode?.getChildren()?.[0].data.path).toBe('from.steps.0.doTry.doCatch.0');
+      expect(doTryNode?.getChildren()?.[1].data.path).toBe('from.steps.0.doTry.doCatch.1');
+      expect(doTryNode?.getChildren()?.[2].data.path).toBe('from.steps.0.doTry.doFinally');
     });
   });
 });

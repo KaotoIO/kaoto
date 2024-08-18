@@ -176,24 +176,24 @@ export class CamelComponentSchemaService {
 
       case 'choice':
         return [
-          { name: 'when', type: 'clause-list' },
+          { name: 'when', type: 'array-clause' },
           { name: 'otherwise', type: 'single-clause' },
         ];
 
       case 'doTry':
         return [
           { name: 'steps', type: 'branch' },
-          { name: 'doCatch', type: 'clause-list' },
+          { name: 'doCatch', type: 'array-clause' },
           { name: 'doFinally', type: 'single-clause' },
         ];
 
       case 'routeConfiguration' as keyof ProcessorDefinition:
         return [
-          { name: 'intercept', type: 'clause-list' },
-          { name: 'interceptFrom', type: 'clause-list' },
-          { name: 'interceptSendToEndpoint', type: 'clause-list' },
-          { name: 'onException', type: 'clause-list' },
-          { name: 'onCompletion', type: 'clause-list' },
+          { name: 'intercept', type: 'array-clause' },
+          { name: 'interceptFrom', type: 'array-clause' },
+          { name: 'interceptSendToEndpoint', type: 'array-clause' },
+          { name: 'onException', type: 'array-clause' },
+          { name: 'onCompletion', type: 'array-clause' },
         ];
 
       default:

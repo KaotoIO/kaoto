@@ -18,7 +18,7 @@ import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
@@ -156,7 +156,7 @@ export class CamelRouteConfigurationVisualEntity
       if (!Array.isArray(childEntities)) return;
 
       childEntities.forEach((childEntity, index) => {
-        const childNode = CamelStepsService.getVizNodeFromProcessor(
+        const childNode = NodeMapperService.getVizNode(
           `${CamelRouteConfigurationVisualEntity.ROOT_PATH}.${stepsProperty.name}.${index}.${
             Object.keys(childEntity)[0]
           }`,

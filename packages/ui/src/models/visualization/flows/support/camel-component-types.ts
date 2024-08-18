@@ -20,7 +20,7 @@ export interface CamelProcessorStepsProperties {
    * Property handling type
    * single-clause: the property can have a single-clause type of processor, f.i. `otherwise` and `doFinally`
    * branch: the property have a list of `processors`, f.i. `steps`
-   * clause-list: the property can have a list of clause processors, usually in the shape of `expression`, f.i. `when` and `doCatch`
+   * array-clause: the property is an array of clause processors, usually in the shape of `expression`, f.i. `when` and `doCatch`
    */
-  type: 'single-clause' | 'branch' | 'clause-list';
+  type: 'single-clause' | 'branch' | 'array-clause';
 }

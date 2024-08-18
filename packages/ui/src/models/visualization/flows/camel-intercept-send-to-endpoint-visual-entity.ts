@@ -11,7 +11,7 @@ import {
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from './support/camel-component-types';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelInterceptSendToEndpointVisualEntity
@@ -110,7 +110,7 @@ export class CamelInterceptSendToEndpointVisualEntity
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const interceptSendToEndpointGroupNode = CamelStepsService.getVizNodeFromProcessor(
+    const interceptSendToEndpointGroupNode = NodeMapperService.getVizNode(
       CamelInterceptSendToEndpointVisualEntity.ROOT_PATH,
       { processorName: CamelInterceptSendToEndpointVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.interceptSendToEndpointDef,

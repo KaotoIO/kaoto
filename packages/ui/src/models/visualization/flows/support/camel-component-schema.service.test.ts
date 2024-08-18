@@ -7,6 +7,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
+import { CamelProcessorStepsProperties } from './camel-component-types';
 
 describe('CamelComponentSchemaService', () => {
   let path: string;
@@ -471,7 +472,7 @@ describe('CamelComponentSchemaService', () => {
       [
         'choice',
         [
-          { name: 'when', type: 'clause-list' },
+          { name: 'when', type: 'array-clause' },
           { name: 'otherwise', type: 'single-clause' },
         ],
       ],
@@ -479,7 +480,7 @@ describe('CamelComponentSchemaService', () => {
         'doTry',
         [
           { name: 'steps', type: 'branch' },
-          { name: 'doCatch', type: 'clause-list' },
+          { name: 'doCatch', type: 'array-clause' },
           { name: 'doFinally', type: 'single-clause' },
         ],
       ],
@@ -489,11 +490,11 @@ describe('CamelComponentSchemaService', () => {
       [
         'routeConfiguration',
         [
-          { name: 'intercept', type: 'clause-list' },
-          { name: 'interceptFrom', type: 'clause-list' },
-          { name: 'interceptSendToEndpoint', type: 'clause-list' },
-          { name: 'onException', type: 'clause-list' },
-          { name: 'onCompletion', type: 'clause-list' },
+          { name: 'intercept', type: 'array-clause' },
+          { name: 'interceptFrom', type: 'array-clause' },
+          { name: 'interceptSendToEndpoint', type: 'array-clause' },
+          { name: 'onException', type: 'array-clause' },
+          { name: 'onCompletion', type: 'array-clause' },
         ],
       ],
       ['intercept', [{ name: 'steps', type: 'branch' }]],
@@ -501,13 +502,16 @@ describe('CamelComponentSchemaService', () => {
       ['interceptSendToEndpoint', [{ name: 'steps', type: 'branch' }]],
       ['onException', [{ name: 'steps', type: 'branch' }]],
       ['onCompletion', [{ name: 'steps', type: 'branch' }]],
-    ])(`should return the steps properties for '%s'`, (processorName, result) => {
-      const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-        processorName as keyof ProcessorDefinition,
-      );
+    ] as [string, CamelProcessorStepsProperties[]][])(
+      `should return the steps properties for '%s'`,
+      (processorName, result) => {
+        const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+          processorName as keyof ProcessorDefinition,
+        );
 
-      expect(stepsProperties).toEqual(result);
-    });
+        expect(stepsProperties).toEqual(result);
+      },
+    );
   });
 
   describe('getIconName', () => {

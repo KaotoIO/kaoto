@@ -14,7 +14,7 @@ import {
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -119,7 +119,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const restConfigurationGroupNode = CamelStepsService.getVizNodeFromProcessor(
+    const restConfigurationGroupNode = NodeMapperService.getVizNode(
       'restConfiguration',
       { processorName: 'restConfiguration' as keyof ProcessorDefinition },
       this.restConfigurationDef,
