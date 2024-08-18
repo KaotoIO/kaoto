@@ -11,7 +11,7 @@ import {
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from './support/camel-component-types';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelOnExceptionVisualEntity
@@ -83,7 +83,7 @@ export class CamelOnExceptionVisualEntity
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const onExceptionGroupNode = CamelStepsService.getVizNodeFromProcessor(
+    const onExceptionGroupNode = NodeMapperService.getVizNode(
       CamelOnExceptionVisualEntity.ROOT_PATH,
       { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onExceptionDef,

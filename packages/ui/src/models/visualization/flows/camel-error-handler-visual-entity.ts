@@ -11,7 +11,7 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -125,7 +125,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const errorHandlerGroupNode = CamelStepsService.getVizNodeFromProcessor(
+    const errorHandlerGroupNode = NodeMapperService.getVizNode(
       'errorHandler',
       { processorName: 'errorHandler' as keyof ProcessorDefinition },
       this.errorHandlerDef,

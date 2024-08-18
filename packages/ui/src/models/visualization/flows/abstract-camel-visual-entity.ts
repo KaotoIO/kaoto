@@ -18,7 +18,7 @@ import { createVisualizationNode } from '../visualization-node';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
-import { CamelStepsService } from './support/camel-steps.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
@@ -222,7 +222,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       processorName: 'route',
     });
 
-    const fromNode = CamelStepsService.getVizNodeFromProcessor(
+    const fromNode = NodeMapperService.getVizNode(
       'from',
       {
         processorName: 'from' as keyof ProcessorDefinition,

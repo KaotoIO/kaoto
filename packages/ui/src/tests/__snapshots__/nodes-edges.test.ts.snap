@@ -72,7 +72,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.when.0",
@@ -119,7 +118,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.otherwise",
@@ -132,7 +130,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice",
@@ -412,7 +409,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.when.0",
@@ -459,7 +455,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.otherwise",
@@ -472,7 +467,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice",
@@ -572,7 +566,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "componentName": undefined,
                       "icon": "",
                       "isGroup": true,
                       "path": "from.steps.0.choice.when.0",
@@ -619,7 +612,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "componentName": undefined,
                       "icon": "",
                       "isGroup": true,
                       "path": "from.steps.0.choice.otherwise",
@@ -632,7 +624,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice",
@@ -759,7 +750,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice.when.0",
@@ -816,7 +806,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice.otherwise",
@@ -829,7 +818,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "componentName": undefined,
               "icon": "",
               "isGroup": true,
               "path": "from.steps.0.choice",
@@ -1274,7 +1262,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "componentName": undefined,
           "icon": "",
           "isGroup": true,
           "path": "from.steps.0.choice.when.0",
@@ -1331,7 +1318,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.otherwise",
@@ -1344,7 +1330,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice",
@@ -1784,7 +1769,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice.otherwise",
@@ -1840,7 +1824,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice.when.0",
@@ -1854,7 +1837,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "componentName": undefined,
               "icon": "",
               "isGroup": true,
               "path": "from.steps.0.choice",
@@ -2299,7 +2281,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "componentName": undefined,
           "icon": "",
           "isGroup": true,
           "path": "from.steps.0.choice.otherwise",
@@ -2355,7 +2336,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.when.0",
@@ -2369,7 +2349,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice",
@@ -2827,7 +2806,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "componentName": undefined,
               "icon": "",
               "isGroup": true,
               "path": "from.steps.0.choice.when.0",
@@ -2874,7 +2852,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "componentName": undefined,
               "icon": "",
               "isGroup": true,
               "path": "from.steps.0.choice.otherwise",
@@ -2887,7 +2864,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "componentName": undefined,
           "icon": "",
           "isGroup": true,
           "path": "from.steps.0.choice",
@@ -3390,7 +3366,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "componentName": undefined,
                       "icon": "",
                       "isGroup": true,
                       "path": "from.steps.0.choice.when.0",
@@ -3437,7 +3412,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "componentName": undefined,
                       "icon": "",
                       "isGroup": true,
                       "path": "from.steps.0.choice.otherwise",
@@ -3450,7 +3424,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice",
@@ -3512,7 +3485,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.when.0",
@@ -3559,7 +3531,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.otherwise",
@@ -3572,7 +3543,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice",
@@ -3724,7 +3694,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.when.0",
@@ -3771,7 +3740,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice.otherwise",
@@ -3784,7 +3752,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "componentName": undefined,
             "icon": "",
             "isGroup": true,
             "path": "from.steps.0.choice",
@@ -4103,7 +4070,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.when.0",
@@ -4150,7 +4116,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.otherwise",
@@ -4163,7 +4128,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice",
@@ -4246,7 +4210,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice.when.0",
@@ -4293,7 +4256,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "componentName": undefined,
                   "icon": "",
                   "isGroup": true,
                   "path": "from.steps.0.choice.otherwise",
@@ -4306,7 +4268,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "componentName": undefined,
               "icon": "",
               "isGroup": true,
               "path": "from.steps.0.choice",
@@ -4429,7 +4390,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.when.0",
@@ -4476,7 +4436,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "componentName": undefined,
                     "icon": "",
                     "isGroup": true,
                     "path": "from.steps.0.choice.otherwise",
@@ -4489,7 +4448,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "componentName": undefined,
                 "icon": "",
                 "isGroup": true,
                 "path": "from.steps.0.choice",
