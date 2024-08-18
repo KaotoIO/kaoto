@@ -25,7 +25,7 @@ import { camelRouteJson, kameletJson } from '../../../stubs';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
-import { CanvasService } from './canvas.service';
+import { FlowService } from './flow.service';
 import { FormTabsModes } from './canvasformtabs.modes';
 import { ROOT_PATH } from '../../../utils';
 
@@ -54,7 +54,7 @@ describe('CanvasForm', () => {
 
   beforeEach(() => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[2]; // choice
   });
 
@@ -175,7 +175,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -210,7 +210,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -246,7 +246,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewId';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -284,7 +284,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewName';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = CanvasService.getFlowDiagram(kameletVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram(kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -312,7 +312,7 @@ describe('CanvasForm', () => {
   describe('should show the User-updated field under the modified tab', () => {
     beforeEach(() => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 
@@ -640,7 +640,7 @@ describe('CanvasForm', () => {
   describe('should show the Required field under the required tab', () => {
     beforeEach(() => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = CanvasService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 

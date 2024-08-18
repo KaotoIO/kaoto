@@ -34,7 +34,8 @@ import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
-import { CanvasService } from './canvas.service';
+import { ControllerService } from './controller.service';
+import { FlowService } from './flow.service';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -51,7 +52,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
 
-  const controller = useMemo(() => CanvasService.createController(), []);
+  const controller = useMemo(() => ControllerService.createController(), []);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entities.length === 0;
@@ -162,7 +163,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
     entities.forEach((entity) => {
       if (visibleFlows[entity.id]) {
-        const { nodes: childNodes, edges: childEdges } = CanvasService.getFlowDiagram(entity.toVizNode());
+        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.toVizNode());
         nodes.push(...childNodes);
         edges.push(...childEdges);
       }

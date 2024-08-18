@@ -1,11 +1,11 @@
 import { CamelRouteResource } from '../models/camel';
-import { CanvasService } from '../components/Visualization/Canvas/canvas.service';
+import { FlowService } from '../components/Visualization/Canvas/flow.service';
 import { camelRouteBranch } from '../stubs/camel-route-branch';
 
 describe('Nodes and Edges', () => {
   beforeEach(() => {
-    CanvasService.nodes = [];
-    CanvasService.edges = [];
+    FlowService.nodes = [];
+    FlowService.edges = [];
   });
 
   it('should generate edges for steps with branches', () => {
@@ -13,7 +13,7 @@ describe('Nodes and Edges', () => {
     const [camelRoute] = camelResource.getVisualEntities();
 
     const rootVizNode = camelRoute.toVizNode();
-    const { nodes, edges } = CanvasService.getFlowDiagram(rootVizNode);
+    const { nodes, edges } = FlowService.getFlowDiagram(rootVizNode);
 
     expect(nodes).toMatchSnapshot();
     expect(edges).toMatchSnapshot();
