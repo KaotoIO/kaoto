@@ -1,0 +1,8 @@
+codecov:
+  flags:
+    ui:
+      paths:
+        - packages/ui
+    catalog-generator:
+      paths:
+        - packages/catalog-generator

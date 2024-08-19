@@ -40,6 +40,11 @@ jobs:
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
 
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
         run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
