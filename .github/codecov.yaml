@@ -2,7 +2,7 @@ codecov:
   flags:
     ui:
       paths:
-        - packages/ui
+        - packages/ui/coverage
     catalog-generator:
       paths:
-        - packages/catalog-generator
+        - packages/catalog-generator/target/jacoco
