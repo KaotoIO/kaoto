@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a group with children 1`] = `
+exports[`FlowService getFlowDiagram should return nodes and edges for a group with children 1`] = `
 [
   {
     "data": {
@@ -206,9 +206,9 @@ exports[`CanvasService getFlowDiagram should return nodes and edges for a group 
 ]
 `;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a group with children 2`] = `[]`;
+exports[`FlowService getFlowDiagram should return nodes and edges for a group with children 2`] = `[]`;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 1`] = `
+exports[`FlowService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 1`] = `
 [
   {
     "data": {
@@ -381,7 +381,7 @@ exports[`CanvasService getFlowDiagram should return nodes and edges for a multip
 ]
 `;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 2`] = `
+exports[`FlowService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 2`] = `
 [
   {
     "edgeStyle": "solid",
@@ -393,7 +393,7 @@ exports[`CanvasService getFlowDiagram should return nodes and edges for a multip
 ]
 `;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a simple VisualizationNode 1`] = `
+exports[`FlowService getFlowDiagram should return nodes and edges for a simple VisualizationNode 1`] = `
 [
   {
     "data": {
@@ -425,9 +425,9 @@ exports[`CanvasService getFlowDiagram should return nodes and edges for a simple
 ]
 `;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a simple VisualizationNode 2`] = `[]`;
+exports[`FlowService getFlowDiagram should return nodes and edges for a simple VisualizationNode 2`] = `[]`;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 1`] = `
+exports[`FlowService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 1`] = `
 [
   {
     "data": {
@@ -478,4 +478,4 @@ exports[`CanvasService getFlowDiagram should return nodes and edges for a two-no
 ]
 `;
 
-exports[`CanvasService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 2`] = `[]`;
+exports[`FlowService getFlowDiagram should return nodes and edges for a two-nodes VisualizationNode 2`] = `[]`;
