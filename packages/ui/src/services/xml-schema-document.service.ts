@@ -16,7 +16,6 @@ import {
   XmlSchemaGroup,
   XmlSchemaGroupParticle,
   XmlSchemaGroupRef,
-  XmlSchemaObjectBase,
   XmlSchemaParticle,
   XmlSchemaRef,
   XmlSchemaSequence,
@@ -81,23 +80,6 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * @deprecated
-   */
-  static throwNotYetSupported(object: XmlSchemaObjectBase) {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    const cache: any[] = [];
-    throw Error(
-      `Not yet supported: ${JSON.stringify(object, (_key, value) => {
-        if (typeof value === 'object' && value !== null) {
-          if (cache.includes(value)) return;
-          cache.push(value);
-        }
-        if (typeof value === 'bigint') return value.toString();
-      })}`,
-    );
-  }
-
-  /**
    * Populate XML Element as a field into {@link fields} array passed in as an argument.
    * @param parent
    * @param fields
@@ -114,27 +96,23 @@ export class XmlSchemaDocumentService {
     fields.push(field);
 
     const schemaType = element.getSchemaType();
-    if (schemaType == null) {
-      const typeName = element.getSchemaTypeName()?.getLocalPart();
-      field.type = (typeName && Types[typeName as keyof typeof Types]) || Types.AnyType;
+    if (schemaType instanceof XmlSchemaSimpleType) {
+      const simple = schemaType as XmlSchemaSimpleType;
+      field.type = Types[simple.getName() as keyof typeof Types] || Types.AnyType;
       return;
     }
     field.type = Types.Container;
-    if (schemaType instanceof XmlSchemaSimpleType) {
-      XmlSchemaDocumentService.throwNotYetSupported(element);
-    } else if (schemaType instanceof XmlSchemaComplexType) {
+    if (schemaType instanceof XmlSchemaComplexType) {
       const complex = schemaType as XmlSchemaComplexType;
       const attributes: XmlSchemaAttributeOrGroupRef[] = complex.getAttributes();
       attributes.forEach((attr) => {
         XmlSchemaDocumentService.populateAttributeOrGroupRef(field, field.fields, attr);
       });
       XmlSchemaDocumentService.populateParticle(field, field.fields, complex.getParticle());
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(element);
     }
   }
 
-  static populateAttributeOrGroupRef(
+  private static populateAttributeOrGroupRef(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     attr: XmlSchemaAttributeOrGroupRef,
@@ -143,8 +121,6 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateAttribute(parent, fields, attr);
     } else if (attr instanceof XmlSchemaAttributeGroupRef) {
       XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, attr);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(attr);
     }
   }
 
@@ -179,7 +155,7 @@ export class XmlSchemaDocumentService {
     }
   }
 
-  static populateAttributeGroupRef(
+  private static populateAttributeGroupRef(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     groupRef: XmlSchemaAttributeGroupRef,
@@ -188,7 +164,7 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.populateAttributeGroup(parent, fields, ref.getTarget());
   }
 
-  static populateAttributeGroupMember(
+  private static populateAttributeGroupMember(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     member: XmlSchemaAttributeGroupMember,
@@ -199,12 +175,10 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateAttributeGroup(parent, fields, member);
     } else if (member instanceof XmlSchemaAttributeGroupRef) {
       XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, member);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateAttributeGroup(
+  private static populateAttributeGroup(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     group: XmlSchemaAttributeGroup | null,
@@ -219,7 +193,11 @@ export class XmlSchemaDocumentService {
       );
   }
 
-  static populateParticle(parent: XmlSchemaParentType, fields: XmlSchemaField[], particle: XmlSchemaParticle | null) {
+  private static populateParticle(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    particle: XmlSchemaParticle | null,
+  ) {
     if (particle == null) {
       return;
     }
@@ -230,18 +208,15 @@ export class XmlSchemaDocumentService {
     } else if (particle instanceof XmlSchemaGroupParticle) {
       XmlSchemaDocumentService.populateGroupParticle(parent, fields, particle);
     } else if (particle instanceof XmlSchemaGroupRef) {
-      XmlSchemaDocumentService.populateGroupRef(fields, particle);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(particle);
+      XmlSchemaDocumentService.populateGroupRef(parent, fields, particle);
     }
   }
 
-  static populateAny(_fields: XmlSchemaField[], schemaAny: XmlSchemaAny) {
+  private static populateAny(_fields: XmlSchemaField[], _schemaAny: XmlSchemaAny) {
     /* TODO - xs:any allows arbitrary elements */
-    XmlSchemaDocumentService.throwNotYetSupported(schemaAny);
   }
 
-  static populateGroupParticle(
+  private static populateGroupParticle(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     groupParticle: XmlSchemaGroupParticle | null,
@@ -268,50 +243,48 @@ export class XmlSchemaDocumentService {
       all
         .getItems()
         .forEach((member: XmlSchemaAllMember) => XmlSchemaDocumentService.populateAllMember(parent, fields, member));
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(groupParticle);
     }
   }
 
-  static populateGroupRef(_fields: XmlSchemaField[], groupRef: XmlSchemaGroupRef) {
-    XmlSchemaDocumentService.throwNotYetSupported(groupRef);
+  private static populateGroupRef(parent: XmlSchemaParentType, fields: XmlSchemaField[], groupRef: XmlSchemaGroupRef) {
+    XmlSchemaDocumentService.populateGroupParticle(parent, fields, groupRef.getParticle());
   }
 
-  static populateChoiceMember(parent: XmlSchemaParentType, fields: XmlSchemaField[], member: XmlSchemaChoiceMember) {
-    if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(parent, fields, member);
+  private static populateChoiceMember(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    member: XmlSchemaChoiceMember,
+  ) {
+    if (member instanceof XmlSchemaGroupRef) {
+      XmlSchemaDocumentService.populateGroupRef(parent, fields, member);
     } else if (member instanceof XmlSchemaGroup) {
       XmlSchemaDocumentService.populateGroup(parent, fields, member);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(member);
+    } else if (member instanceof XmlSchemaParticle) {
+      XmlSchemaDocumentService.populateParticle(parent, fields, member);
     }
   }
 
-  static populateSequenceMember(
+  private static populateSequenceMember(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     member: XmlSchemaSequenceMember,
   ) {
-    if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(parent, fields, member);
+    if (member instanceof XmlSchemaGroupRef) {
+      XmlSchemaDocumentService.populateGroupRef(parent, fields, member);
     } else if (member instanceof XmlSchemaGroup) {
       XmlSchemaDocumentService.populateGroup(parent, fields, member);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(member);
+    } else if (member instanceof XmlSchemaParticle) {
+      XmlSchemaDocumentService.populateParticle(parent, fields, member);
     }
   }
 
-  static populateAllMember(parent: XmlSchemaParentType, fields: XmlSchemaField[], member: XmlSchemaAllMember) {
+  private static populateAllMember(parent: XmlSchemaParentType, fields: XmlSchemaField[], member: XmlSchemaAllMember) {
     if (member instanceof XmlSchemaParticle) {
       XmlSchemaDocumentService.populateParticle(parent, fields, member);
-    } else if (member instanceof XmlSchemaGroup) {
-      XmlSchemaDocumentService.populateGroup(parent, fields, member);
-    } else {
-      XmlSchemaDocumentService.throwNotYetSupported(member);
     }
   }
 
-  static populateGroup(parent: XmlSchemaParentType, fields: XmlSchemaField[], group: XmlSchemaGroup) {
+  private static populateGroup(parent: XmlSchemaParentType, fields: XmlSchemaField[], group: XmlSchemaGroup) {
     XmlSchemaDocumentService.populateParticle(parent, fields, group.getParticle());
   }
 }

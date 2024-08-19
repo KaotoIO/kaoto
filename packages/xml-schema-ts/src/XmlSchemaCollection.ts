@@ -393,7 +393,7 @@ export class XmlSchemaCollection {
    * @return the schema.
    */
   schemaForNamespace(uri: string) {
-    for (const entry of this.schemas.entries()) {
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         return entry[1];
       }
@@ -513,7 +513,7 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = schemaAttributeName.getNamespaceURI();
-    for (const entry of this.schemas.entries()) {
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const attribute = entry[1].getAttributeByQName(schemaAttributeName);
         if (attribute != null) {
@@ -535,7 +535,7 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = qname.getNamespaceURI();
-    for (const entry of this.schemas.entries()) {
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const element = entry[1].getElementByQName(qname);
         if (element != null) {
@@ -551,7 +551,8 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = name.getNamespaceURI();
-    for (const entry of this.schemas.entries()) {
+    const entries = this.schemas.entries();
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const group = entry[1].getAttributeGroupByQName(name);
         if (group != null) {
@@ -567,7 +568,7 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = name.getNamespaceURI();
-    for (const entry of this.schemas.entries()) {
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const group = entry[1].getGroupByQName(name);
         if (group != null) {
@@ -583,7 +584,7 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = name.getNamespaceURI();
-    for (const entry of this.schemas.entries()) {
+    for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const notation = entry[1].getNotationByQName(name);
         if (notation != null) {

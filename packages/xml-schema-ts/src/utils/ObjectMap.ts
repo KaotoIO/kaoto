@@ -8,19 +8,19 @@ abstract class ObjectMap<K, V> {
   private delegate = new Map<string, V>();
 
   get(key: K) {
-    return this.delegate.get(JSON.stringify(key));
+    return this.delegate.get(this.keyToString(key));
   }
 
   set(key: K, value: V) {
-    this.delegate.set(JSON.stringify(key), value);
+    this.delegate.set(this.keyToString(key), value);
   }
 
   has(key: K) {
-    return this.delegate.has(JSON.stringify(key));
+    return this.delegate.has(this.keyToString(key));
   }
 
   delete(key: K) {
-    this.delegate.delete(JSON.stringify(key));
+    this.delegate.delete(this.keyToString(key));
   }
 
   get size() {
@@ -31,19 +31,20 @@ abstract class ObjectMap<K, V> {
     this.delegate.clear();
   }
 
-  abstract newKeyInstance(stringified: string): K;
+  abstract stringToKey(stringified: string): K;
+  abstract keyToString(key: K): string;
 
-  keys() {
+  keys(): IterableIterator<K> {
     const delegateKeys = this.delegate.keys();
-    return new KeysBridge<K>(delegateKeys, this.newKeyInstance);
+    return new KeysBridge<K>(delegateKeys, this.stringToKey);
   }
 
   entries(): IterableIterator<[K, V]> {
     const delegateEntries = this.delegate.entries();
-    return new EntriesBridge<K, V>(delegateEntries, this.newKeyInstance);
+    return new EntriesBridge<K, V>(delegateEntries, this.stringToKey);
   }
 
-  values() {
+  values(): IterableIterator<V> {
     return this.delegate.values();
   }
 }
@@ -51,7 +52,7 @@ abstract class ObjectMap<K, V> {
 class KeysBridge<K> implements IterableIterator<K> {
   constructor(
     private delegateKeys: IterableIterator<string>,
-    private newKeyInstance: (stringifiedKey: string) => K,
+    private stringToKey: (stringifiedKey: string) => K,
   ) {}
 
   [Symbol.iterator](): IterableIterator<K> {
@@ -59,20 +60,20 @@ class KeysBridge<K> implements IterableIterator<K> {
   }
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-  next(): IteratorResult<K, any> {
+  next(): IteratorResult<K, K> {
     const next = this.delegateKeys.next();
     if (!next.value) {
       return next as any;
     }
-    const key: K = this.newKeyInstance(next.value);
-    return { value: key, done: true };
+    const key: K = this.stringToKey(next.value);
+    return { value: key };
   }
 }
 
 class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
   constructor(
     private delegateEntries: IterableIterator<[string, V]>,
-    private newKeyInstance: (stringifiedKey: string) => K,
+    private stringToKey: (stringifiedKey: string) => K,
   ) {}
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
@@ -85,19 +86,27 @@ class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
     if (!next.value) {
       return next as any;
     }
-    const key: K = this.newKeyInstance(next.value[0]);
-    return { value: [key, next.value[1]], done: true };
+    const key: K = this.stringToKey(next.value[0]);
+    return { value: [key, next.value[1]] };
   }
 }
 
 export class QNameMap<V> extends ObjectMap<QName, V> {
-  newKeyInstance(stringified: string): QName {
-    return Object.assign(new QName(null, null), JSON.parse(stringified));
+  stringToKey(stringified: string): QName {
+    const obj = Object.assign(new QName(null, null), JSON.parse(stringified));
+    obj.prefix = undefined;
+    return obj;
+  }
+  keyToString(key: QName): string {
+    return JSON.stringify(new QName(key.getNamespaceURI(), key.getLocalPart()));
   }
 }
 
 export class SchemaKeyMap<V> extends ObjectMap<SchemaKey, V> {
-  newKeyInstance(stringified: string): SchemaKey {
+  stringToKey(stringified: string): SchemaKey {
     return Object.assign(new SchemaKey(), JSON.parse(stringified));
+  }
+  keyToString(key: SchemaKey): string {
+    return JSON.stringify(key);
   }
 }

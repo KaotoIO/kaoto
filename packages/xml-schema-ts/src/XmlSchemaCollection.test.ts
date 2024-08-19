@@ -6,10 +6,14 @@ import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
 import { XmlSchemaUse } from './XmlSchemaUse';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
+import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 
 describe('XmlSchemaCollection', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../../../test-resources/ShipOrder.xsd').toString();
-  it('should parse XML schema', () => {
+  const testXsd = fs.readFileSync(__dirname + '/../../../test-resources/TestDocument.xsd').toString();
+
+  it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
     const xmlSchema = collection.read(orderXsd, () => {});
     const attributes = xmlSchema.getAttributes();
@@ -40,7 +44,7 @@ describe('XmlSchemaCollection', () => {
     expect(shipOrderSequenceMembers.length).toBe(3);
 
     const orderPerson = shipOrderSequenceMembers[0] as XmlSchemaElement;
-    expect(orderPerson.getSchemaType()).toBeNull();
+    expect(orderPerson.getSchemaType() instanceof XmlSchemaSimpleType).toBeTruthy();
     expect(orderPerson.getSchemaTypeName()?.getLocalPart()).toEqual('string');
     expect(orderPerson.getName()).toEqual('OrderPerson');
     expect(orderPerson.getWireName()?.getNamespaceURI()).toEqual('io.kaoto.datamapper.poc.test');
@@ -72,5 +76,20 @@ describe('XmlSchemaCollection', () => {
     expect(itemQuantity.getSchemaTypeName()?.getLocalPart()).toEqual('positiveInteger');
     const itemPrice = itemSequenceMembers[3] as XmlSchemaElement;
     expect(itemPrice.getSchemaTypeName()?.getLocalPart()).toEqual('decimal');
+  });
+
+  it('should parse TestDocument XML schema', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(testXsd, () => {});
+    const attributes = xmlSchema.getAttributes();
+    expect(attributes.size).toEqual(0);
+    const elements = xmlSchema.getElements();
+    expect(elements.size).toEqual(1);
+    const testDocumentElement = elements.get(new QName('io.kaoto.datamapper.poc.test', 'TestDocument'));
+    const testDocumentComplexType = testDocumentElement!.getSchemaType() as XmlSchemaComplexType;
+    const testDocumentAttributes = testDocumentComplexType.getAttributes();
+    expect(testDocumentAttributes.length).toBe(1);
+    const attrGroupRef = (testDocumentAttributes[0] as XmlSchemaAttributeGroupRef).getRef();
+    expect(attrGroupRef.getTarget()).toBeTruthy();
   });
 });
