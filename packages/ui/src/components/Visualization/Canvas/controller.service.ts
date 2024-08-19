@@ -21,7 +21,7 @@ import {
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
 import { LayoutType } from './canvas.models';
 
-export class CanvasService {
+export class ControllerService {
   static createController(): Visualization {
     const newController = new Visualization();
 
