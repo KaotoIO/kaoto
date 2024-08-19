@@ -1,6 +1,5 @@
 import { EMPTY_XSL, MappingSerializerService, NS_XSL } from './mapping-serializer.service';
 import { BODY_DOCUMENT_ID } from '../models/document';
-import * as fs from 'fs';
 import {
   ChooseItem,
   FieldItem,
@@ -20,10 +19,6 @@ describe('MappingSerializerService', () => {
   const targetDoc = TestUtil.createTargetOrderDoc();
 
   const domParser = new DOMParser();
-
-  const shipOrderToShipOrderXslt = fs
-    .readFileSync(__dirname + '/../../../../test-resources/ShipOrderToShipOrder.xsl')
-    .toString();
 
   it('createNew() should create am empty XSLT document', () => {
     const xslt = MappingSerializerService.createNew();
@@ -51,7 +46,7 @@ describe('MappingSerializerService', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       expect(Object.keys(mappingTree.namespaceMap).length).toEqual(0);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderXslt,
+        TestUtil.shipOrderToShipOrderXslt,
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -189,7 +184,7 @@ describe('MappingSerializerService', () => {
     it('should serialize mappings', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderXslt,
+        TestUtil.shipOrderToShipOrderXslt,
         targetDoc,
         mappingTree,
         sourceParameterMap,

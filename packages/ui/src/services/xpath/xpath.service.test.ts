@@ -1,6 +1,8 @@
 import { XPathService } from './xpath.service';
 import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
+import { IFunctionDefinition } from '../../models/mapping';
+import { FunctionGroup } from './xpath-parser';
 
 describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
@@ -38,5 +40,25 @@ describe('XPathService', () => {
       expect(paths[1]).toEqual('aaa/bbb/ddd');
       expect(paths[2]).toEqual('$param1/eee/fff');
     });
+  });
+
+  it('getXPathFunctionDefinitions()', () => {
+    const functionDefs = XPathService.getXPathFunctionDefinitions();
+    expect(Object.keys(functionDefs).length).toBeGreaterThan(9);
+  });
+
+  it('getXPathFunctionNames()', () => {
+    const functionDefs = XPathService.getXPathFunctionDefinitions();
+    const flattened = Object.keys(functionDefs).reduce((acc, value) => {
+      acc.push(...functionDefs[value as FunctionGroup]);
+      return acc;
+    }, [] as IFunctionDefinition[]);
+    const functionNames = XPathService.getXPathFunctionNames();
+    expect(functionNames.length).toEqual(flattened.length);
+  });
+
+  it('getMonacoXPathLanguageMetadata()', () => {
+    const metadata = XPathService.getMonacoXPathLanguageMetadata();
+    expect(metadata.id).toEqual('xpath');
   });
 });

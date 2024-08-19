@@ -36,6 +36,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
       onClick={() => {}}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      data-testid={`mapping-link-${x1}-${y1}-${x2}-${y2}`}
       d={`M${x1},${y1},${x2},${y2}`}
       style={lineStyle}
     >
@@ -138,6 +139,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   return (
     <svg
+      data-testid="mapping-links"
       style={{
         position: 'absolute',
         top: 0,

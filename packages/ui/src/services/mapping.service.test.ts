@@ -1,5 +1,4 @@
 import { MappingService } from './mapping.service';
-import * as fs from 'fs';
 import { TestUtil } from '../test/test-util';
 import {
   ChooseItem,
@@ -17,7 +16,6 @@ import { XmlSchemaDocument } from './xml-schema-document.service';
 import { IDocument } from '../models/document';
 
 describe('MappingService', () => {
-  const xsltFile = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrderToShipOrder.xsl').toString();
   let sourceDoc: XmlSchemaDocument;
   let targetDoc: XmlSchemaDocument;
   let paramsMap: Map<string, IDocument>;
@@ -28,7 +26,7 @@ describe('MappingService', () => {
     targetDoc = TestUtil.createTargetOrderDoc();
     paramsMap = TestUtil.createParameterMap();
     tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
-    MappingSerializerService.deserialize(xsltFile, targetDoc, tree, paramsMap);
+    MappingSerializerService.deserialize(TestUtil.shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
   });
 
   describe('filterMappingsForField()', () => {

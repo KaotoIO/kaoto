@@ -12,10 +12,8 @@ import { TestUtil } from '../test/test-util';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { IDocument } from '../models/document';
-import * as fs from 'fs';
 
 describe('VisualizationService', () => {
-  const xsltFile = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrderToShipOrder.xsl').toString();
   let sourceDoc: XmlSchemaDocument;
   let sourceDocNode: DocumentNodeData;
   let targetDoc: XmlSchemaDocument;
@@ -180,7 +178,7 @@ describe('VisualizationService', () => {
 
   describe('with pre-populated mappings', () => {
     beforeEach(() => {
-      MappingSerializerService.deserialize(xsltFile, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(TestUtil.shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
     });
 

@@ -1,18 +1,15 @@
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
-import * as fs from 'fs';
 import { BODY_DOCUMENT_ID } from '../models/document';
 import { DocumentType } from '../models/path';
 import { Types } from '../models/types';
+import { TestUtil } from '../test/test-util';
 
 describe('XmlSchemaDocumentService', () => {
-  const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
-  const testXsd = fs.readFileSync(__dirname + '/../../../../test-resources/TestDocument.xsd').toString();
-
   it('should parse ShipOrder XML schema', () => {
     const document = XmlSchemaDocumentService.createXmlSchemaDocument(
       DocumentType.SOURCE_BODY,
       BODY_DOCUMENT_ID,
-      orderXsd,
+      TestUtil.orderXsd,
     );
     expect(document).toBeDefined();
     const shipOrder = XmlSchemaDocumentService.getFirstElement(document.xmlSchema);
@@ -30,7 +27,7 @@ describe('XmlSchemaDocumentService', () => {
     const document = XmlSchemaDocumentService.createXmlSchemaDocument(
       DocumentType.TARGET_BODY,
       BODY_DOCUMENT_ID,
-      testXsd,
+      TestUtil.testXsd,
     );
     expect(document).toBeDefined();
     const testDoc = XmlSchemaDocumentService.getFirstElement(document.xmlSchema);
@@ -40,7 +37,11 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should create XML Schema Document', () => {
-    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', orderXsd);
+    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'ShipOrder.xsd',
+      TestUtil.orderXsd,
+    );
     expect(doc.documentType).toEqual(DocumentType.SOURCE_BODY);
     expect(doc.documentId).toEqual('ShipOrder.xsd');
     expect(doc.name).toEqual('ShipOrder.xsd');

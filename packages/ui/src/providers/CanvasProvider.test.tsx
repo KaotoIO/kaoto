@@ -8,6 +8,11 @@ import { DocumentType } from '../models/path';
 import { TestUtil } from '../test/test-util';
 import { useCanvas } from '../hooks/useCanvas';
 import { BODY_DOCUMENT_ID } from '../models/document';
+import { MappingSerializerService } from '../services/mapping-serializer.service';
+import { screen } from '@testing-library/react';
+import { MainLayout } from '../layout';
+import { MappingService } from '../services/mapping.service';
+import { IMappingLink } from '../models/visualization';
 
 describe('CanvasProvider', () => {
   it('should render', () => {
@@ -18,12 +23,19 @@ describe('CanvasProvider', () => {
     );
   });
 
+  it('should fail if not within DataMapperProvider', () => {
+    const thrower = () => {
+      render(<CanvasProvider></CanvasProvider>);
+    };
+    expect(thrower).toThrow();
+  });
+
   it('clearNodeReferencesForPath() should clear for the path', () => {
     let first = false;
     let second = false;
     let beforeNodePaths: string[] = [];
     let afterNodePaths: string[] = [];
-    const LoadDocument: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    const LoadDocuments: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const { setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
       const { clearNodeReferencesForPath, getAllNodePaths, reloadNodeReferences } = useCanvas();
       useEffect(() => {
@@ -50,9 +62,9 @@ describe('CanvasProvider', () => {
     render(
       <DataMapperProvider>
         <CanvasProvider>
-          <LoadDocument>
+          <LoadDocuments>
             <SourceTargetView></SourceTargetView>
-          </LoadDocument>
+          </LoadDocuments>
         </CanvasProvider>
       </DataMapperProvider>,
     );
@@ -65,7 +77,7 @@ describe('CanvasProvider', () => {
     let second = false;
     let beforeNodePaths: string[] = [];
     let afterNodePaths: string[] = [];
-    const LoadDocument: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    const LoadDocuments: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const { setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
       const { clearNodeReferencesForDocument, getAllNodePaths, reloadNodeReferences } = useCanvas();
       useEffect(() => {
@@ -92,9 +104,9 @@ describe('CanvasProvider', () => {
     render(
       <DataMapperProvider>
         <CanvasProvider>
-          <LoadDocument>
+          <LoadDocuments>
             <SourceTargetView></SourceTargetView>
-          </LoadDocument>
+          </LoadDocuments>
         </CanvasProvider>
       </DataMapperProvider>,
     );
@@ -102,10 +114,48 @@ describe('CanvasProvider', () => {
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
 
-  it('should fail if not within DataMapperProvider', () => {
-    const thrower = () => {
-      render(<CanvasProvider></CanvasProvider>);
+  it('should render Documents and mappings', () => {
+    let mappingLinks: IMappingLink[] = [];
+    const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
+      const {
+        mappingTree,
+        setMappingTree,
+        sourceParameterMap,
+        setSourceBodyDocument,
+        setTargetBodyDocument,
+        sourceBodyDocument,
+      } = useDataMapper();
+      const { getAllNodePaths, reloadNodeReferences } = useCanvas();
+      useEffect(() => {
+        const sourceDoc = TestUtil.createSourceOrderDoc();
+        setSourceBodyDocument(sourceDoc);
+        const targetDoc = TestUtil.createTargetOrderDoc();
+        setTargetBodyDocument(targetDoc);
+        MappingSerializerService.deserialize(
+          TestUtil.shipOrderToShipOrderXslt,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        );
+        setMappingTree(mappingTree);
+        reloadNodeReferences();
+      }, []);
+      useEffect(() => {
+        mappingLinks = MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument);
+      }, [getAllNodePaths, mappingTree, sourceBodyDocument, sourceParameterMap]);
+      return <>{children}</>;
     };
-    expect(thrower).toThrow();
+    render(
+      <DataMapperProvider>
+        <CanvasProvider>
+          <LoadMappings>
+            <MainLayout></MainLayout>
+          </LoadMappings>
+        </CanvasProvider>
+      </DataMapperProvider>,
+    );
+    const targetNodes = screen.getAllByTestId(/target-node-.*/);
+    expect(targetNodes.length).toBeGreaterThan(10);
+    expect(mappingLinks.length).toBeGreaterThan(10);
   });
 });

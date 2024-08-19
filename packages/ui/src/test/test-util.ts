@@ -5,6 +5,10 @@ import { IDocument, PrimitiveDocument } from '../models/document';
 
 export class TestUtil {
   static orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
+  static testXsd = fs.readFileSync(__dirname + '/../../../../test-resources/TestDocument.xsd').toString();
+  static shipOrderToShipOrderXslt = fs
+    .readFileSync(__dirname + '/../../../../test-resources/ShipOrderToShipOrder.xsl')
+    .toString();
 
   static createSourceOrderDoc() {
     return XmlSchemaDocumentService.createXmlSchemaDocument(
