@@ -44,6 +44,7 @@ describe('CanvasProvider', () => {
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         reloadNodeReferences();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
         if (!first) {
@@ -86,6 +87,7 @@ describe('CanvasProvider', () => {
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         reloadNodeReferences();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
         if (!first) {
@@ -139,6 +141,7 @@ describe('CanvasProvider', () => {
         );
         setMappingTree(mappingTree);
         reloadNodeReferences();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
         mappingLinks = MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument);
