@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="55.842178mm"
+   height="49.860378mm"
+   viewBox="0 0 55.842178 49.860378"
+   version="1.1"
+   id="svg324"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="atlasmap.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview326"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:snap-global="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="0.69130191"
+     inkscape:cx="-145.37787"
+     inkscape:cy="370.31577"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs321" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-22.635411,-20.070722)">
+    <g
+       id="g387">
+      <path
+         class="cls-2"
+         d="m 67.180358,40.281886 v 9.42975 l 2.550583,4.33387 a 7.9374999,7.9374999 0 0 1 4.116917,0.69321 v -19.47598 a 7.9613124,7.9613124 0 1 0 -9.871604,-2.69081 l -3.439584,5.85258 3.868209,6.5749 z"
+         id="path22"
+         style="fill:#4db0d5;stroke-width:0.264583" />
+      <path
+         class="cls-2"
+         d="m 51.345045,54.045506 a 7.9057499,7.9057499 0 0 0 -1.5875,0 l -5.315479,-9.0461 -3.868208,6.57754 3.439583,5.84994 a 7.9586666,7.9586666 0 1 0 13.075709,0 l 3.439583,-5.84994 -3.862917,-6.57754 z"
+         id="path24"
+         style="fill:#4db0d5;stroke-width:0.264583" />
+      <path
+         class="cls-2"
+         d="m 31.384879,54.045506 2.542646,-4.33387 v -9.42975 l 2.778125,4.71752 3.868208,-6.5749 -3.439583,-5.85258 a 7.9586666,7.9586666 0 1 0 -9.87425,2.69081 v 19.47598 a 7.9374999,7.9374999 0 0 1 4.124854,-0.69321 z"
+         id="path26"
+         style="fill:#4db0d5;stroke-width:0.264583" />
+      <path
+         class="cls-1"
+         d="m 49.762837,35.953296 a 7.9057499,7.9057499 0 0 0 1.5875,0 l 5.320771,9.04346 3.868208,-6.57489 -3.439583,-5.85259 a 7.9586666,7.9586666 0 1 0 -13.075708,0 l -3.439584,5.85259 3.857625,6.57754 z"
+         id="path28"
+         style="fill:#ffffff;stroke-width:0.264583" />
+      <path
+         class="cls-1"
+         d="m 67.180358,54.738716 v -5.02708 l -2.778125,-4.72017 -3.868208,6.57754 3.439583,5.84994 a 7.9904166,7.9904166 0 0 1 3.20675,-2.68023 z"
+         id="path30"
+         style="fill:#ffffff;stroke-width:0.264583" />
+      <path
+         class="cls-1"
+         d="m 33.927525,49.711636 v 5.02708 a 7.9745416,7.9745416 0 0 1 3.204104,2.68817 l 3.439583,-5.84994 -3.865562,-6.57754 z"
+         id="path32"
+         style="fill:#ffffff;stroke-width:0.264583" />
+      <polygon
+         class="cls-3"
+         points="54.18,95.19 68.8,120.05 83.42,95.19 68.8,70.34 "
+         id="polygon34"
+         style="fill:#afdbec"
+         transform="matrix(0.26458333,0,0,0.26458333,22.370525,19.813716)" />
+      <polygon
+         class="cls-3"
+         points="129.62,95.19 144.24,120.05 158.86,95.19 144.24,70.34 "
+         id="polygon36"
+         style="fill:#afdbec"
+         transform="matrix(0.26458333,0,0,0.26458333,22.370525,19.813716)" />
+      <path
+         class="cls-3"
+         d="m 70.524691,54.005816 a 7.8025624,7.8025624 0 0 0 -0.79375,0.0397 l -2.550583,-4.33387 v 5.02708 a 7.9613124,7.9613124 0 1 0 3.33375,-0.73025 z"
+         id="path38"
+         style="fill:#afdbec;stroke-width:0.264583" />
+      <path
+         class="cls-3"
+         d="m 30.593775,54.005816 a 7.8025624,7.8025624 0 0 1 0.79375,0.0397 l 2.54,-4.33387 v 5.02708 a 7.9613124,7.9613124 0 1 1 -3.33375,-0.73025 z"
+         id="path40"
+         style="fill:#afdbec;stroke-width:0.264583" />
+    </g>
+  </g>
+</svg>

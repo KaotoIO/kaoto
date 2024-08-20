@@ -12,7 +12,7 @@ import {
 import { INodeMapper } from '../node-mapper';
 
 export class BaseNodeMapper implements INodeMapper {
-  constructor(private readonly rootNodeMapper: INodeMapper) {}
+  constructor(protected readonly rootNodeMapper: INodeMapper) {}
 
   getVizNodeFromProcessor(
     path: string,
