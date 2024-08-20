@@ -59,6 +59,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -105,6 +106,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -147,6 +149,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": "sql",
               "icon": "",
@@ -266,6 +269,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -396,6 +400,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -442,6 +447,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -484,6 +490,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -509,6 +516,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
               "data": {
                 "componentName": "sql",
                 "icon": "",
@@ -553,6 +561,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "canRemoveStep": false,
                           "canReplaceStep": false,
                         },
+                        "children": undefined,
                         "data": {
                           "componentName": undefined,
                           "icon": "",
@@ -599,6 +608,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "canRemoveStep": false,
                           "canReplaceStep": false,
                         },
+                        "children": undefined,
                         "data": {
                           "componentName": undefined,
                           "icon": "",
@@ -727,6 +737,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "canRemoveStep": false,
           "canReplaceStep": false,
         },
+        "children": undefined,
         "data": {
           "componentName": undefined,
           "icon": "",
@@ -793,6 +804,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": undefined,
                       "icon": "",
@@ -835,6 +847,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
               "data": {
                 "componentName": "sql",
                 "icon": "",
@@ -1000,6 +1013,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": "sql",
                     "icon": "",
@@ -1126,6 +1140,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": "sql",
                       "icon": "",
@@ -1249,6 +1264,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": undefined,
               "icon": "",
@@ -1305,6 +1321,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -1347,6 +1364,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": "sql",
               "icon": "",
@@ -1512,6 +1530,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -1638,6 +1657,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": "sql",
                     "icon": "",
@@ -1746,6 +1766,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "canRemoveStep": false,
           "canReplaceStep": false,
         },
+        "children": undefined,
         "data": {
           "componentName": undefined,
           "icon": "",
@@ -1811,6 +1832,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": undefined,
                       "icon": "",
@@ -1854,6 +1876,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
               "data": {
                 "componentName": "sql",
                 "icon": "",
@@ -2019,6 +2042,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": "sql",
                     "icon": "",
@@ -2145,6 +2169,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": "sql",
                       "icon": "",
@@ -2268,6 +2293,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": undefined,
               "icon": "",
@@ -2323,6 +2349,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -2366,6 +2393,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": "sql",
               "icon": "",
@@ -2531,6 +2559,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -2657,6 +2686,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": "sql",
                     "icon": "",
@@ -2793,6 +2823,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": undefined,
                   "icon": "",
@@ -2839,6 +2870,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": undefined,
                   "icon": "",
@@ -2881,6 +2913,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "canRemoveStep": false,
             "canReplaceStep": false,
           },
+          "children": undefined,
           "data": {
             "componentName": "sql",
             "icon": "",
@@ -3046,6 +3079,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
               "data": {
                 "componentName": "sql",
                 "icon": "",
@@ -3172,6 +3206,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -3278,6 +3313,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "canRemoveStep": false,
           "canReplaceStep": false,
         },
+        "children": undefined,
         "data": {
           "componentName": "sql",
           "icon": "",
@@ -3353,6 +3389,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "canRemoveStep": false,
                           "canReplaceStep": false,
                         },
+                        "children": undefined,
                         "data": {
                           "componentName": undefined,
                           "icon": "",
@@ -3399,6 +3436,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "canRemoveStep": false,
                           "canReplaceStep": false,
                         },
+                        "children": undefined,
                         "data": {
                           "componentName": undefined,
                           "icon": "",
@@ -3472,6 +3510,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -3518,6 +3557,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -3681,6 +3721,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -3727,6 +3768,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
                   "data": {
                     "componentName": undefined,
                     "icon": "",
@@ -4057,6 +4099,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -4103,6 +4146,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -4145,6 +4189,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
                 "data": {
                   "componentName": "sql",
                   "icon": "",
@@ -4197,6 +4242,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": undefined,
                       "icon": "",
@@ -4243,6 +4289,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
                     "data": {
                       "componentName": undefined,
                       "icon": "",
@@ -4285,6 +4332,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
               "data": {
                 "componentName": "sql",
                 "icon": "",
@@ -4333,6 +4381,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canRemoveStep": false,
               "canReplaceStep": false,
             },
+            "children": undefined,
             "data": {
               "componentName": "sql",
               "icon": "",
@@ -4377,6 +4426,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
@@ -4423,6 +4473,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
                       "data": {
                         "componentName": undefined,
                         "icon": "",
