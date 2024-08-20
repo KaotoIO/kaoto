@@ -145,3 +145,9 @@ Cypress.Commands.add('selectFormTab', (value: string) => {
     cy.get(`[id$="${value}"]`).click();
   });
 });
+
+Cypress.Commands.add('specifiedFormTab', (value: string) => {
+  cy.get('div.form-tabs').within(() => {
+    cy.get(`[id$="${value}"]`).should('have.attr', 'aria-pressed', 'true');
+  });
+});

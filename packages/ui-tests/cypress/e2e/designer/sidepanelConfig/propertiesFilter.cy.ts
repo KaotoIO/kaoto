@@ -96,4 +96,43 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="description"]`).should('exist');
     cy.get(`input[name="id"]`).should('exist');
   });
+
+  it('Side panel required fields filter', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+    cy.openStepConfigurationTab('timer');
+    cy.selectFormTab('Required');
+
+    cy.get(`input[name="parameters.timerName"]`).should('exist');
+    cy.get(`textarea[name="description"]`).should('not.exist');
+    cy.get(`input[name="id"]`).should('not.exist');
+
+    cy.selectReplaceNode('marshal');
+    cy.chooseFromCatalog('processor', 'transacted');
+    cy.openStepConfigurationTab('transacted');
+
+    cy.selectFormTab('Required');
+
+    cy.get('.pf-v5-c-alert__title').should('contain', 'No Required Field Found');
+  });
+
+  it('Side panel to retain user specified fields filter', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+    cy.openStepConfigurationTab('log');
+    cy.selectFormTab('All');
+
+    cy.openStepConfigurationTab('timer');
+
+    cy.specifiedFormTab('All');
+    cy.selectFormTab('Required');
+
+    cy.openStepConfigurationTab('log');
+    cy.specifiedFormTab('Required');
+    cy.selectFormTab('Modified');
+
+    cy.closeStepConfigurationTab();
+    cy.openStepConfigurationTab('timer');
+    cy.specifiedFormTab('Modified');
+  });
 });
