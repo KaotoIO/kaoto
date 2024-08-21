@@ -60,7 +60,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
 
   return (
     <NodeContainer ref={containerRef} nodeData={nodeData}>
-      <div className={isDocument ? 'node-container__document' : 'node-container'}>
+      <div className={isDocument ? 'node-container__document' : 'node-container'} data-testid={`node-${nodeData.id}`}>
         <NodeContainer ref={headerRef} nodeData={nodeData}>
           <div
             className={isDocument ? 'node-header__document' : 'node-header'}

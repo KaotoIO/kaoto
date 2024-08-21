@@ -14,10 +14,9 @@
     limitations under the License.
 */
 import { Button, Tooltip } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
+import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
-import { useFilePicker } from 'react-sage';
 import { readFileAsString } from '../../../util';
 import { XmlSchemaDocumentService } from '../../../services';
 import { useDataMapper } from '../../../hooks';
@@ -45,13 +44,16 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setTargetBodyDocument,
   } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
-  const { files, onClick, HiddenFileInput } = useFilePicker({
-    maxFileSize: 1,
-  });
-  const previouslyUploadedFiles = useRef<File[] | null>(null);
+  const fileInputRef = createRef<HTMLInputElement>();
+
+  const onClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, [fileInputRef]);
 
   const onImport = useCallback(
-    (file: File) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.item(0);
+      if (!file) return;
       readFileAsString(file).then((content) => {
         const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
         if (hasSchema) {
@@ -92,15 +94,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     ],
   );
 
-  useEffect(() => {
-    if (previouslyUploadedFiles.current !== files) {
-      previouslyUploadedFiles.current = files;
-      if (files?.length === 1) {
-        onImport(files[0]);
-      }
-    }
-  }, [files, onImport]);
-
   return (
     <Tooltip position={'auto'} enableFlip={true} content={<div>{hasSchema ? 'Update schema' : 'Attach a schema'}</div>}>
       <Button
@@ -110,7 +103,14 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         onClick={onClick}
       >
         <ImportIcon />
-        <HiddenFileInput accept={'.xml, .xsd'} />
+        <input
+          type="file"
+          style={{ display: 'none' }}
+          data-testid={`attach-schema-${documentType}-${documentId}-file-input`}
+          onChange={onImport}
+          accept=".xml, .xsd"
+          ref={fileInputRef}
+        />
       </Button>
     </Tooltip>
   );

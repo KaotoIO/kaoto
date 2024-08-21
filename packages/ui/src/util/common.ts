@@ -1,8 +1,7 @@
 export const generateRandomId = (kind: string, length = 4): string => {
-  const cryptoObj = window.crypto || (window as Window & { msCrypto?: Crypto }).msCrypto;
-  const randomNumber = Math.floor(cryptoObj?.getRandomValues(new Uint32Array(1))[0] ?? Date.now());
-
-  return `${kind}-${randomNumber.toString(10).slice(0, length)}`;
+  const randomNumber = Math.floor(Math.random() * 10 ** length);
+  const randomNumberString = randomNumber.toString(10).padStart(4, '0');
+  return `${kind}-${randomNumberString}`;
 };
 
 export const readFileAsString = (file: File): Promise<string> => {

@@ -61,6 +61,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
         <TextInput
           ref={inputRef}
           id="new-parameter-name"
+          data-testid="add-new-parameter-name-input"
           onChange={(_event, text) => setNewParameterName(text)}
           placeholder="parameter name"
         />
@@ -71,6 +72,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
           variant="link"
           isDisabled={!isNewParameterNameValid}
           id="add-new-parameter-submit-btn"
+          data-testid="add-new-parameter-submit-btn"
           aria-label="Submit new parameter"
         >
           <CheckIcon />
@@ -81,6 +83,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
           onClick={() => cancelNewParameter()}
           variant="plain"
           id="add-new-parameter-cancel-btn"
+          data-testid="add-new-parameter-cancel-btn"
           aria-label={'Cancel new parameter'}
         >
           <TimesIcon />
