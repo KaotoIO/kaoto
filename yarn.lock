@@ -7715,11 +7715,11 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-react-refresh@npm:^0.4.5":
-  version: 0.4.9
-  resolution: "eslint-plugin-react-refresh@npm:0.4.9"
+  version: 0.4.10
+  resolution: "eslint-plugin-react-refresh@npm:0.4.10"
   peerDependencies:
     eslint: ">=7"
-  checksum: 3fa27a9db264c59cddfd74307f59067762b0a9905ccc59aa6fd1fcfe4caa8c0ac52d1f3af394634382c4c8019e1ca6b30cc0fee1c921a3c2fdea8f7889925803
+  checksum: 43dd9aa62a560ac019813e047f904e9d85fcfbd696afd9fe815171acd95cb0e892547b8da54a20425182499a0e352255e64feef225048dfebdc8187e51bc267d
   languageName: node
   linkType: hard
 
