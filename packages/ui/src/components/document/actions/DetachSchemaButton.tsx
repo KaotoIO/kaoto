@@ -92,10 +92,15 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
         data-testid="detach-schema-modal"
         onClose={closeModal}
         actions={[
-          <Button key="confirm" variant="primary" data-testid="detach-schema-modal-confirm" onClick={onConfirmDelete}>
+          <Button
+            key="confirm"
+            variant="primary"
+            data-testid="detach-schema-modal-confirm-btn"
+            onClick={onConfirmDelete}
+          >
             Confirm
           </Button>,
-          <Button key="cancel" variant="link" data-testid="detach-schema-modal-cancel" onClick={closeModal}>
+          <Button key="cancel" variant="link" data-testid="detach-schema-modal-cancel-btn" onClick={closeModal}>
             Cancel
           </Button>,
         ]}

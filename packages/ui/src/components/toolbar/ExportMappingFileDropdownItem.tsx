@@ -35,7 +35,7 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
 
   const modalActions = useMemo(() => {
     return [
-      <Button key="Close" variant="primary" onClick={handleModalClose}>
+      <Button key="Close" variant="primary" onClick={handleModalClose} data-testid="export-mappings-modal-close-btn">
         Close
       </Button>,
     ];
@@ -56,6 +56,7 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
         isOpen={isModalOpen}
         onClose={() => handleModalClose()}
         actions={modalActions}
+        data-testid="export-mappings-modal"
       >
         <CodeEditor
           isReadOnly={false}
@@ -66,6 +67,7 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
           height="sizeToFit"
           width="sizeToFit"
           options={editorOptions}
+          data-testid="export-mappings-code-editor"
         />
       </Modal>
     </>

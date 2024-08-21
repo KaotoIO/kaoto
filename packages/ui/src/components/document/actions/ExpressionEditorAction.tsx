@@ -35,8 +35,13 @@ export const ExpressionEditorAction: FunctionComponent<ExpressionEditorProps> = 
         variant={ModalVariant.large}
         isOpen={isEditorOpen}
         onClose={closeExpressionEditor}
+        data-testid="expression-editor-modal"
         actions={[
-          <Button key="close-expression-editor" onClick={closeExpressionEditor}>
+          <Button
+            key="close-expression-editor"
+            onClick={closeExpressionEditor}
+            data-testid="close-expression-editor-btn"
+          >
             Close
           </Button>,
         ]}

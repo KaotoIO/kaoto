@@ -73,7 +73,7 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(detachButton);
     });
-    const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm');
+    const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm-btn');
     act(() => {
       fireEvent.click(detachConfirmButton);
     });

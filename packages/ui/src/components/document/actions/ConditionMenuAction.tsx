@@ -69,6 +69,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
               variant="plain"
               isExpanded={isActionMenuOpen}
               aria-label="Transformation Action list"
+              data-testid="transformation-actions-menu-toggle"
             >
               <EllipsisVIcon />
             </MenuToggle>
@@ -79,32 +80,42 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
         >
           <DropdownList>
             {allowValueSelector && (
-              <DropdownItem key="selector" value="selector" isDisabled={hasValueSelector}>
+              <DropdownItem
+                key="selector"
+                value="selector"
+                isDisabled={hasValueSelector}
+                data-testid="transformation-actions-selector"
+              >
                 Add selector expression
               </DropdownItem>
             )}
             {isChooseNode ? (
               <>
-                <DropdownItem key="when" value="when">
+                <DropdownItem key="when" value="when" data-testid="transformation-actions-when">
                   Add <q>when</q>
                 </DropdownItem>
-                <DropdownItem key="otherwise" value="otherwise" isDisabled={!!otherwiseItem}>
+                <DropdownItem
+                  key="otherwise"
+                  value="otherwise"
+                  isDisabled={!!otherwiseItem}
+                  data-testid="transformation-actions-otherwise"
+                >
                   Add <q>otherwise</q>
                 </DropdownItem>
               </>
             ) : (
               <>
                 {allowForEach && (
-                  <DropdownItem key="foreach" value="foreach">
+                  <DropdownItem key="foreach" value="foreach" data-testid="transformation-actions-foreach">
                     Wrap with <q>for-each</q>
                   </DropdownItem>
                 )}
                 {allowIfChoose && (
                   <>
-                    <DropdownItem key="if" value="if">
+                    <DropdownItem key="if" value="if" data-testid="transformation-actions-if">
                       Wrap with <q>if</q>
                     </DropdownItem>
-                    <DropdownItem key="choose" value="choose">
+                    <DropdownItem key="choose" value="choose" data-testid="transformation-actions-choose">
                       Wrap with <q>choose-when-otherwise</q>
                     </DropdownItem>
                   </>

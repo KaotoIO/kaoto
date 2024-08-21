@@ -1,6 +1,6 @@
 import { Types } from './types';
 import { DocumentType, NodePath } from './path';
-import { generateRandomId } from '../util';
+import { CommonUtil } from '../util';
 
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
@@ -81,7 +81,7 @@ export class BaseField implements IField {
     public ownerDocument: IDocument,
     public name: string,
   ) {
-    this.id = generateRandomId(`field-${this.name}`, 4);
+    this.id = CommonUtil.generateRandomId(`field-${this.name}`, 4);
     this.path = NodePath.childOf(parent.path, this.id);
   }
 

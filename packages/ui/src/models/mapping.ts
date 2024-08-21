@@ -1,5 +1,5 @@
 import { IField } from './document';
-import { generateRandomId } from '../util';
+import { CommonUtil } from '../util';
 import { DocumentType, NodePath, Path } from './path';
 import { Types } from './types';
 
@@ -56,7 +56,7 @@ export abstract class ConditionItem extends MappingItem {
     public parent: MappingParentType,
     public name: string,
   ) {
-    super(parent, name, generateRandomId(name, 4));
+    super(parent, name, CommonUtil.generateRandomId(name, 4));
   }
   readonly isCondition = true;
 }

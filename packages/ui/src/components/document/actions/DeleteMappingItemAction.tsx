@@ -30,7 +30,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   return (
     <ActionListItem key="delete-item">
       <Tooltip position={'auto'} enableFlip={true} content={<div>{title}</div>}>
-        <Button variant="plain" aria-label={title} data-testid={`delete-mapping-button`} onClick={openModal}>
+        <Button variant="plain" aria-label={title} data-testid="delete-mapping-btn" onClick={openModal}>
           <TrashIcon />
         </Button>
       </Tooltip>
@@ -39,11 +39,12 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
         isOpen={isModalOpen}
         title={title}
         onClose={closeModal}
+        data-testid="delete-mapping-modal"
         actions={[
-          <Button key="confirm" variant="primary" onClick={onConfirmDelete}>
+          <Button key="confirm" variant="primary" onClick={onConfirmDelete} data-testid="delete-mapping-confirm-btn">
             Confirm
           </Button>,
-          <Button key="cancel" variant="link" onClick={closeModal}>
+          <Button key="cancel" variant="link" onClick={closeModal} data-testid="delete-mapping-cancel-btn">
             Cancel
           </Button>,
         ]}

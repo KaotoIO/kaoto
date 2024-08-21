@@ -17,7 +17,7 @@ import { Button, Tooltip } from '@patternfly/react-core';
 import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
-import { readFileAsString } from '../../../util';
+import { CommonUtil } from '../../../util';
 import { XmlSchemaDocumentService } from '../../../services';
 import { useDataMapper } from '../../../hooks';
 import { MappingService } from '../../../services/mapping.service';
@@ -54,7 +54,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.item(0);
       if (!file) return;
-      readFileAsString(file).then((content) => {
+      CommonUtil.readFileAsString(file).then((content) => {
         const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
         if (hasSchema) {
           const cleaned = MappingService.removeStaleMappingsForDocument(mappingTree, document);

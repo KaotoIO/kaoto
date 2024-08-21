@@ -1,10 +1,10 @@
-import { generateRandomId, readFileAsString } from './common';
+import { CommonUtil } from './common';
 
 describe('generateRandomId()', () => {
   it('should generate', () => {
-    const generated = generateRandomId('dummy', 4);
+    const generated = CommonUtil.generateRandomId('dummy', 4);
     expect(generated).toMatch(/dummy-\d{4}/);
-    expect(generateRandomId('dummy', 4)).not.toEqual(generateRandomId('dummy', 4));
+    expect(CommonUtil.generateRandomId('dummy', 4)).not.toEqual(CommonUtil.generateRandomId('dummy', 4));
   });
 });
 
@@ -13,7 +13,7 @@ describe('readFileAsString()', () => {
     const file = new File(['foo'], 'foo.txt', {
       type: 'text/plain',
     });
-    const answer = await readFileAsString(file);
+    const answer = await CommonUtil.readFileAsString(file);
     expect(answer).toEqual('foo');
   });
 });

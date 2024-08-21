@@ -3,7 +3,7 @@ import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 import { ImportIcon } from '@patternfly/react-icons';
 import { MappingSerializerService } from '../../services/mapping-serializer.service';
 import { useDataMapper } from '../../hooks';
-import { readFileAsString } from '../../util';
+import { CommonUtil } from '../../util';
 
 type ImportMappingFileDropdownItemProps = {
   onComplete: () => void;
@@ -23,7 +23,7 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
     (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.item(0);
       if (!file) return;
-      readFileAsString(file).then((content) => {
+      CommonUtil.readFileAsString(file).then((content) => {
         MappingSerializerService.deserialize(content, targetBodyDocument, mappingTree, sourceParameterMap);
         refreshMappingTree();
         onComplete();

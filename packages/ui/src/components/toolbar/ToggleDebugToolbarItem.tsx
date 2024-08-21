@@ -11,8 +11,9 @@ export const ToggleDebugToolbarItem: FunctionComponent = () => {
       <ToggleGroup>
         <ToggleGroupItem
           icon={<BugIcon />}
-          aria-label={'Enable debug mode'}
-          buttonId={'enable-debug-mode'}
+          aria-label="Enable debug mode"
+          buttonId="enable-debug-mode"
+          data-testid="enable-debug-mode-btn"
           isSelected={debug}
           onChange={() => setDebug(!debug)}
         ></ToggleGroupItem>
