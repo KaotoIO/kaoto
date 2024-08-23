@@ -7843,11 +7843,11 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-react-refresh@npm:^0.4.5":
-  version: 0.4.10
-  resolution: "eslint-plugin-react-refresh@npm:0.4.10"
+  version: 0.4.11
+  resolution: "eslint-plugin-react-refresh@npm:0.4.11"
   peerDependencies:
     eslint: ">=7"
-  checksum: 43dd9aa62a560ac019813e047f904e9d85fcfbd696afd9fe815171acd95cb0e892547b8da54a20425182499a0e352255e64feef225048dfebdc8187e51bc267d
+  checksum: 55c9efb14c3dadf6422bb96af8a561d3f1385f1dc68e7ca9d388cc4adc69907644e1bb509ecfbb033a8ec19ea326beb99577c82d4a2530000809d897b08bf3d4
   languageName: node
   linkType: hard
 
