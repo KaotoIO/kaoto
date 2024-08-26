@@ -13,43 +13,25 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { MainLayout } from './layout';
+import { StandaloneLayout } from './layout';
 import { FunctionComponent } from 'react';
 
-import { useDataMapper } from './hooks/useDataMapper';
-import { DataMapperMonitor } from './components/debug/DataMapperMonitor';
-import { CanvasMonitor } from './components/debug/CanvasMonitor';
 import { DataMapperProvider } from './providers';
 import { CanvasProvider } from './providers/CanvasProvider';
-
-const DataMapperApp: FunctionComponent = () => {
-  const { debug } = useDataMapper()!;
-  return (
-    <>
-      {debug && (
-        <>
-          <DataMapperMonitor />
-          <CanvasMonitor />
-        </>
-      )}
-      <MainLayout />
-    </>
-  );
-};
+import { MainCanvas } from './layout/MainCanvas';
 
 export interface IDataMapperProps {
   modalsContainerId?: string;
   xsltFile?: string;
   onUpdate?: (xsltFile: string) => void;
+  isEmbedded?: boolean;
 }
 
-export const DataMapper: FunctionComponent<IDataMapperProps> = ({ xsltFile, onUpdate }) => {
+export const DataMapper: FunctionComponent<IDataMapperProps> = ({ xsltFile, onUpdate, isEmbedded }) => {
   return (
     <>
       <DataMapperProvider xsltFile={xsltFile} onUpdate={onUpdate}>
-        <CanvasProvider>
-          <DataMapperApp />
-        </CanvasProvider>
+        <CanvasProvider>{isEmbedded ? <MainCanvas /> : <StandaloneLayout />}</CanvasProvider>
       </DataMapperProvider>
     </>
   );

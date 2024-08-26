@@ -1,14 +1,12 @@
 import { DataMapperProvider } from '../providers';
 import { CanvasProvider } from '../providers/CanvasProvider';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MainLayout } from './MainLayout';
+import { StandaloneLayout } from './StandaloneLayout';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { useDataMapper } from '../hooks';
 import { useCanvas } from '../hooks/useCanvas';
 import { TestUtil } from '../test/test-util';
 import { MappingSerializerService } from '../services/mapping-serializer.service';
-import { CanvasMonitor } from '../components/debug/CanvasMonitor';
-import { DataMapperMonitor } from '../components/debug/DataMapperMonitor';
 import { MappingTree } from '../models/mapping';
 
 describe('MainLayout', () => {
@@ -35,7 +33,7 @@ describe('MainLayout', () => {
         <DataMapperProvider>
           <CanvasProvider>
             <TestLoader>
-              <MainLayout />
+              <StandaloneLayout />
             </TestLoader>
           </CanvasProvider>
         </DataMapperProvider>,
@@ -79,10 +77,17 @@ describe('MainLayout', () => {
   describe('debug', () => {
     it('should output debug info to console', () => {
       const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-        const { mappingTree, setMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
-          useDataMapper();
+        const {
+          setDebug,
+          mappingTree,
+          setMappingTree,
+          sourceParameterMap,
+          setSourceBodyDocument,
+          setTargetBodyDocument,
+        } = useDataMapper();
         const { reloadNodeReferences } = useCanvas();
         useEffect(() => {
+          setDebug(true);
           const sourceDoc = TestUtil.createSourceOrderDoc();
           setSourceBodyDocument(sourceDoc);
           const targetDoc = TestUtil.createTargetOrderDoc();
@@ -105,9 +110,7 @@ describe('MainLayout', () => {
         <DataMapperProvider>
           <CanvasProvider>
             <TestLoader>
-              <DataMapperMonitor />
-              <CanvasMonitor />
-              <MainLayout />
+              <StandaloneLayout />
             </TestLoader>
           </CanvasProvider>
         </DataMapperProvider>,

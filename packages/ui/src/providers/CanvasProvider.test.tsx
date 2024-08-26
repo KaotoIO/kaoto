@@ -10,7 +10,7 @@ import { useCanvas } from '../hooks/useCanvas';
 import { BODY_DOCUMENT_ID } from '../models/document';
 import { MappingSerializerService } from '../services/mapping-serializer.service';
 import { screen } from '@testing-library/react';
-import { MainLayout } from '../layout';
+import { StandaloneLayout } from '../layout';
 import { MappingService } from '../services/mapping.service';
 import { IMappingLink } from '../models/visualization';
 
@@ -152,7 +152,7 @@ describe('CanvasProvider', () => {
       <DataMapperProvider>
         <CanvasProvider>
           <LoadMappings>
-            <MainLayout></MainLayout>
+            <StandaloneLayout></StandaloneLayout>
           </LoadMappings>
         </CanvasProvider>
       </DataMapperProvider>,

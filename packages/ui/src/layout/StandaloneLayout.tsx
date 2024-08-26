@@ -13,25 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, memo, useContext, useMemo } from 'react';
+import { FunctionComponent, memo } from 'react';
 import { Masthead, MastheadContent, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
-import { SourceTargetView } from './views';
-import { DataMapperContext } from '../providers';
-import { CanvasView } from '../models/view';
 import { ContextToolbar } from './ContextToolbar';
-import './MainLayout.scss';
+import './StandaloneLayout.scss';
+import { MainCanvas } from './MainCanvas';
+import { useDataMapper } from '../hooks';
+import { CanvasMonitor } from '../components/debug/CanvasMonitor';
+import { DataMapperMonitor } from '../components/debug/DataMapperMonitor';
 
-export const MainLayout: FunctionComponent = memo(function MainLayout() {
-  const { activeView } = useContext(DataMapperContext)!;
-  const currentView = useMemo(() => {
-    switch (activeView) {
-      case CanvasView.SOURCE_TARGET:
-        return <SourceTargetView />;
-      default:
-        return <>View {activeView} is not supported</>;
-    }
-  }, [activeView]);
-
+export const StandaloneLayout: FunctionComponent = memo(function MainLayout() {
+  const { debug } = useDataMapper()!;
   const header = (
     <Masthead>
       <MastheadContent>
@@ -42,8 +34,14 @@ export const MainLayout: FunctionComponent = memo(function MainLayout() {
 
   return (
     <Page header={header}>
-      <PageSection variant={PageSectionVariants.default} className="main-layout">
-        {currentView}
+      {debug && (
+        <>
+          <DataMapperMonitor />
+          <CanvasMonitor />
+        </>
+      )}
+      <PageSection variant={PageSectionVariants.default} className="standalone-layout">
+        <MainCanvas />
       </PageSection>
     </Page>
   );
