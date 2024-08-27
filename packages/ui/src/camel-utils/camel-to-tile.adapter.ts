@@ -30,7 +30,6 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
     tags,
     provider,
     version,
-    rawObject: componentDef,
   };
 };
 
@@ -45,7 +44,6 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
     description,
     headerTags: ['Processor'],
     tags,
-    rawObject: processorDef,
   };
 };
 
@@ -73,6 +71,5 @@ export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
     headerTags,
     tags,
     version,
-    rawObject: kameletDef,
   };
 };
