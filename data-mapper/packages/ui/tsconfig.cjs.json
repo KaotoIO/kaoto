@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.esm.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ES5",
+    "outDir": "lib/cjs",
+  },
+}

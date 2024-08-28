@@ -1,0 +1,40 @@
+.node-container {
+  //border-bottom: 1px solid gray;
+  //border-left: 1px solid gray;
+  padding: 5px;
+  padding-left: 10px;
+
+  &__document {
+
+  }
+}
+
+.node-header {
+  border-bottom: 1px solid gray;
+  border-left: 1px solid gray;
+  padding-left: 10px;
+  display: flex;
+  flex-flow: row;
+  &__document {
+
+  }
+}
+
+.node-children {
+  border-bottom: 1px solid gray;
+  border-left: 1px solid gray;
+  padding: 5px;
+  padding-left: 10px;
+  &__document {
+
+  }
+}
+
+img {
+  transition: transform 0.5s ease-in-out;
+}
+
+.toggle-icon-collapsed {
+  transform: rotate(-90deg);
+}
+

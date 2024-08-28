@@ -1,0 +1,31 @@
+.source-target-view {
+  height: 100%;
+
+  &__source-split {
+    width: 30%;
+  }
+
+  &__source-panel {
+    height: 100%;
+  }
+  &__source-panel-main {
+    height: 100%;
+  }
+
+  &__line-blank {
+    width: 10%
+  }
+
+  &__target-split {
+    width: 60%;
+  }
+
+  &__target-panel {
+    height: 100%;
+  }
+
+  &__target-panel-main {
+    height: 100%;
+    max-height: 100%;
+  }
+}
