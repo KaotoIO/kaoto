@@ -2546,6 +2546,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kaoto/xml-schema-ts@workspace:packages/xml-schema-ts":
+  version: 0.0.0-use.local
+  resolution: "@kaoto/xml-schema-ts@workspace:packages/xml-schema-ts"
+  dependencies:
+    "@babel/core": ^7.23.2
+    "@babel/preset-env": ^7.21.5
+    "@babel/preset-typescript": ^7.21.5
+    "@testing-library/jest-dom": ^6.4.2
+    "@types/jest": ^29.5.12
+    eslint: ^8.45.0
+    eslint-config-prettier: ^9.0.0
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^27.2.1
+    eslint-plugin-prettier: ^5.0.0
+    jest: ^29.7.0
+    prettier: ^3.0.0
+    rimraf: ^6.0.0
+    typescript: ^5.4.2
+    vite: ^5.4.0
+  languageName: unknown
+  linkType: soft
+
 "@kie-tools-core/backend@npm:0.32.0":
   version: 0.32.0
   resolution: "@kie-tools-core/backend@npm:0.32.0"
@@ -4669,6 +4691,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/jest-dom@npm:^6.4.2":
+  version: 6.5.0
+  resolution: "@testing-library/jest-dom@npm:6.5.0"
+  dependencies:
+    "@adobe/css-tools": ^4.4.0
+    aria-query: ^5.0.0
+    chalk: ^3.0.0
+    css.escape: ^1.5.1
+    dom-accessibility-api: ^0.6.3
+    lodash: ^4.17.21
+    redent: ^3.0.0
+  checksum: c2d14103ebe3358852ec527ff7512f64207a39932b2f7b6dff7e73ba91296b01a71bad9a9584b6ee010681380a906c1740af50470adc6db660e1c7585d012ebf
+  languageName: node
+  linkType: hard
+
 "@testing-library/react@npm:^16.0.0":
   version: 16.0.0
   resolution: "@testing-library/react@npm:16.0.0"
@@ -5259,7 +5296,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.4.0":
+"@types/jest@npm:^29.4.0, @types/jest@npm:^29.5.12":
   version: 29.5.12
   resolution: "@types/jest@npm:29.5.12"
   dependencies:

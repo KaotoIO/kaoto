@@ -10,8 +10,8 @@ import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupR
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 
 describe('XmlSchemaCollection', () => {
-  const orderXsd = fs.readFileSync(__dirname + '/../../../test-resources/ShipOrder.xsd').toString();
-  const testXsd = fs.readFileSync(__dirname + '/../../../test-resources/TestDocument.xsd').toString();
+  const orderXsd = fs.readFileSync(__dirname + '/../test-resources/ShipOrder.xsd').toString();
+  const testXsd = fs.readFileSync(__dirname + '/../test-resources/TestDocument.xsd').toString();
 
   it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
