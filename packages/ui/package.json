@@ -36,7 +36,7 @@
   ],
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build --config vite.config.js",
+    "build": "tsc && NODE_OPTIONS=--max-old-space-size=3072 vite build --config vite.config.js",
     "build:lib": "yarn rimraf ./lib && yarn copy-catalog && yarn build:esm && yarn build:cjs && yarn write-version",
     "build:esm": "tsc --project tsconfig.esm.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/esm",
     "build:cjs": "tsc --project tsconfig.cjs.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/cjs",
