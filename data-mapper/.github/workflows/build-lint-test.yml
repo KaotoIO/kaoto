@@ -1,0 +1,35 @@
+name: 📦 Build npm Package
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@datamapper-poc'
+          cache: 'yarn'
+
+      # Install dependencies
+      - run: yarn
+
+      # Lint files
+      - name: 💅 Run eslint
+        run: yarn workspaces foreach --verbose --topological-dev run lint
+
+      # Build packages
+      - name: Build packages
+        run: yarn workspaces foreach --verbose --topological-dev run build
+
+      # Run tests
+      - name: 🧪 Run tests
+        run: yarn workspaces foreach --verbose --topological-dev run test

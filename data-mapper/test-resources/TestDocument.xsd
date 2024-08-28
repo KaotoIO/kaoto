@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="io.kaoto.datamapper.poc.test" xmlns:ns0="io.kaoto.datamapper.poc.test">
+    <xs:group name="Group1">
+        <xs:sequence>
+            <xs:element name="Group1Element1" type="xs:string"/>
+            <xs:element name="Group1Element2" type="xs:string"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:attributeGroup name="AttrGroup1">
+        <xs:attribute name="AttrGroup1Attr1" type="xs:string"/>
+        <xs:attribute name="AttrGroup1Attr2" type="xs:string"/>
+    </xs:attributeGroup>
+    <xs:element name="TestDocument">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Choice1" type="xs:string" />
+                            <xs:element name="Choice2" type="xs:string" />
+                            <xs:group ref="ns0:Group1"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="AllElement">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="All1" type="xs:string" />
+                            <xs:element name="All2" type="xs:string" />
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="AnyElement">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:group ref="ns0:Group1"/>
+                            <xs:any minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:group ref="ns0:Group1"/>
+            </xs:sequence>
+            <xs:attributeGroup ref="ns0:AttrGroup1"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,26 @@
+{
+  "name": "datamapper-poc",
+  "version": "0.0.1",
+  "description": "datamapper-poc",
+  "repository": "https://github.com/KaotoIO/datamapper-poc",
+  "private": true,
+  "author": "KaotoIO",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "version": "lerna version"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "devDependencies": {
+    "@lerna-lite/cli": "^3.0.0",
+    "@lerna-lite/publish": "^3.0.0",
+    "@lerna-lite/version": "^3.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "packageManager": "yarn@3.8.5"
+}

@@ -1,0 +1,3 @@
+{
+  "*.ts": "yarn workspace @datamapper-poc/xml-schema-ts run eslint \"src/**/*.ts\"",
+}
