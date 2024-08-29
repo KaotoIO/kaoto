@@ -63,6 +63,7 @@ import aws2_s3 from '../assets/components/aws-s3.svg';
 import aws2_sns from '../assets/components/sns.svg';
 import aws2_sqs from '../assets/components/sqs.svg';
 import azure from '../assets/components/azure.png';
+import brain from '../assets/components/brain.svg';
 import cxf from '../assets/components/cxf.png';
 import debezium from '../assets/components/debezium.png';
 import dropbox from '../assets/components/dropbox.svg';
@@ -92,12 +93,15 @@ import kafka from '../assets/components/kafka.svg';
 import kubernetes from '../assets/components/kubernetes.svg';
 import logComponent from '../assets/components/log.svg';
 import mail from '../assets/components/mail.png';
+import milvus from '../assets/components/milvus.svg';
 import mongodb from '../assets/components/mongodb.svg';
 import mqtt from '../assets/components/mqtt3.png';
 import netty from '../assets/components/netty.png';
 import openshift from '../assets/components/openshift.png';
 import openstack from '../assets/components/openstack.png';
+import pinecone from '../assets/components/pinecone.svg';
 import policy from '../assets/components/policy.png';
+import qdrant from '../assets/components/qdrant.png';
 import quartz from '../assets/components/quartz.png';
 import rss from '../assets/components/rss.png';
 import salesforce from '../assets/components/salesforce.svg';
@@ -239,7 +243,9 @@ export class NodeIconResolver {
       case 'browse':
       case 'caffeine-cache':
       case 'caffeine-loadcache':
+        return generic_component;
       case 'chatscript':
+        return brain;
       case 'chunk':
       case 'class':
       case 'cm-sms':
@@ -276,7 +282,9 @@ export class NodeIconResolver {
       case 'direct':
       case 'disruptor':
       case 'disruptor-vm':
+        return generic_component;
       case 'djl':
+        return brain;
       case 'dns':
       case 'docker':
       case 'drill':
@@ -432,6 +440,10 @@ export class NodeIconResolver {
       case 'kudu':
       case 'language':
         return generic_component;
+      case 'langchain4j-chat':
+      case 'langchain4j-embeddings':
+      case 'langchain4j-web-search':
+        return brain;
       case 'ldap':
         return policy;
       case 'ldif':
@@ -450,6 +462,9 @@ export class NodeIconResolver {
       case 'metrics':
       case 'micrometer':
       case 'mina':
+        return generic_component;
+      case 'milvus':
+        return milvus;
       case 'minio':
       case 'mllp':
       case 'mock':
@@ -491,6 +506,9 @@ export class NodeIconResolver {
       case 'pdf':
       case 'pg-replication-slot':
       case 'pgevent':
+        return generic_component;
+      case 'pinecone':
+        return pinecone;
       case 'platform-http':
       case 'plc4x':
         return generic_component;
@@ -502,6 +520,8 @@ export class NodeIconResolver {
         return generic_component;
       case 'quartz':
         return quartz;
+      case 'qdrant':
+        return qdrant;
       case 'quickfix':
       case 'reactive-streams':
       case 'ref':
