@@ -57,7 +57,6 @@ import wiretap from '../assets/eip/wiretap.png';
 // component icons
 import activemq from '../assets/components/amq.svg';
 import amqp from '../assets/components/amqp.svg';
-import atlasmap from '../assets/components/atlasmap.svg';
 import aws from '../assets/components/aws.png';
 import aws2_ddb from '../assets/components/aws-ddb.svg';
 import aws2_s3 from '../assets/components/aws-s3.svg';
@@ -65,6 +64,7 @@ import aws2_sns from '../assets/components/sns.svg';
 import aws2_sqs from '../assets/components/sqs.svg';
 import azure from '../assets/components/azure.png';
 import cxf from '../assets/components/cxf.png';
+import datamapper from '../assets/components/datamapper.png';
 import debezium from '../assets/components/debezium.png';
 import dropbox from '../assets/components/dropbox.svg';
 import facebook from '../assets/components/facebook.svg';
@@ -657,7 +657,7 @@ export class NodeIconResolver {
         return idempotent_consumer;
       // case 'kamelet': handled on top
       case 'kaoto-datamapper':
-        return atlasmap;
+        return datamapper;
       case 'loadBalance':
         return load_balance;
       case 'log':
