@@ -17,11 +17,11 @@ import {
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
 import { ExpressionService } from '../expression/expression.service';
-import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
+import { FormTabsModes } from '../../Visualization/Canvas/Form/canvasformtabs.modes';
 
 interface StepExpressionEditorProps {
   selectedNode: CanvasNode;
-  formMode: FormTabsModes;
+  formMode: keyof typeof FormTabsModes;
 }
 
 export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> = (props) => {
@@ -70,11 +70,11 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   }, [language]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
+    if (props.formMode === 'Required') {
       return getRequiredPropertiesSchema(languageSchema ?? {});
-    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
+    } else if (props.formMode === 'All') {
       return languageSchema;
-    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
+    } else if (props.formMode === 'Modified') {
       return {
         ...languageSchema,
         properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
@@ -104,8 +104,8 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
-    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLanguageOption);
+    if (props.formMode === 'All' || props.formMode === 'Required') return true;
+    return props.formMode === 'Modified' && isDefined(selectedLanguageOption);
   }, [props.formMode]);
 
   if (!showEditor) return null;

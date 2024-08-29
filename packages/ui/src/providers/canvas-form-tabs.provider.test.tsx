@@ -1,7 +1,6 @@
-import { FunctionComponent, useContext } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { CanvasFormTabsProvider, CanvasFormTabsContext } from './canvas-form-tabs.provider';
-import { FormTabsModes } from '../components/Visualization/Canvas';
+import { FunctionComponent, useContext } from 'react';
+import { CanvasFormTabsContext, CanvasFormTabsProvider } from './canvas-form-tabs.provider';
 
 describe('CanvasFormTabsProvider', () => {
   it('should provide default selectedTab value', () => {
@@ -17,7 +16,7 @@ describe('CanvasFormTabsProvider', () => {
     );
 
     const selected = screen.getByTestId('selected-tab');
-    expect(selected).toHaveTextContent(FormTabsModes.REQUIRED_FIELDS);
+    expect(selected).toHaveTextContent('Required');
   });
 
   it('should update selectedTab on tab change', () => {
@@ -26,17 +25,13 @@ describe('CanvasFormTabsProvider', () => {
       return (
         <div>
           <div data-testid="selected-tab">{selectedTab}</div>
-          <button id={FormTabsModes.REQUIRED_FIELDS} onClick={(e) => onTabChange(e, true)} data-testid="required-tab">
+          <button id="Required" onClick={(e) => onTabChange(e, true)} data-testid="required-tab">
             Required Tab
           </button>
-          <button id={FormTabsModes.ALL_FIELDS} onClick={(e) => onTabChange(e, true)} data-testid="all-fields-tab">
+          <button id="All" onClick={(e) => onTabChange(e, true)} data-testid="all-fields-tab">
             All Fields Tab
           </button>
-          <button
-            id={FormTabsModes.USER_MODIFIED}
-            onClick={(e) => onTabChange(e, true)}
-            data-testid="user-modified-tab"
-          >
+          <button id="Modified" onClick={(e) => onTabChange(e, true)} data-testid="user-modified-tab">
             User Modified Tab
           </button>
         </div>
@@ -51,14 +46,14 @@ describe('CanvasFormTabsProvider', () => {
 
     const allTab = screen.getByTestId('all-fields-tab');
     fireEvent.click(allTab);
-    expect(screen.getByTestId('selected-tab')).toHaveTextContent(FormTabsModes.ALL_FIELDS);
+    expect(screen.getByTestId('selected-tab')).toHaveTextContent('All');
 
     const modifiedTab = screen.getByTestId('user-modified-tab');
     fireEvent.click(modifiedTab);
-    expect(screen.getByTestId('selected-tab')).toHaveTextContent(FormTabsModes.USER_MODIFIED);
+    expect(screen.getByTestId('selected-tab')).toHaveTextContent('Modified');
 
     const requiredTab = screen.getByTestId('required-tab');
     fireEvent.click(requiredTab);
-    expect(screen.getByTestId('selected-tab')).toHaveTextContent(FormTabsModes.REQUIRED_FIELDS);
+    expect(screen.getByTestId('selected-tab')).toHaveTextContent('Required');
   });
 });

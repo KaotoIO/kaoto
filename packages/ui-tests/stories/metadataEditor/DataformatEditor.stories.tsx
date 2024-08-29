@@ -1,4 +1,4 @@
-import { DataFormatEditor, MetadataEditor, FormTabsModes } from '@kaoto/kaoto';
+import { DataFormatEditor, MetadataEditor } from '@kaoto/kaoto';
 import {
   CanvasNode,
   CatalogLoaderProvider,
@@ -69,5 +69,5 @@ const Template: StoryFn<typeof MetadataEditor> = (args: CanvasNode) => {
 export const Default = Template.bind({});
 Default.args = {
   selectedNode: mockNode,
-  formMode: FormTabsModes.ALL_FIELDS,
+  formMode: 'All',
 };
