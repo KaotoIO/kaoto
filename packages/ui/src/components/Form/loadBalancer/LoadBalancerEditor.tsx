@@ -18,11 +18,11 @@ import {
   getUserUpdatedPropertiesSchema,
   isDefined,
 } from '../../../utils';
-import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
+import { FormTabsModes } from '../../Visualization/Canvas/Form/canvasformtabs.modes';
 
 interface LoadBalancerEditorProps {
   selectedNode: CanvasNode;
-  formMode: FormTabsModes;
+  formMode: keyof typeof FormTabsModes;
 }
 
 export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (props) => {
@@ -67,11 +67,11 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   }, [loadBalancer]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
+    if (props.formMode === 'Required') {
       return getRequiredPropertiesSchema(loadBalancerSchema ?? {});
-    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
+    } else if (props.formMode === 'All') {
       return loadBalancerSchema;
-    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
+    } else if (props.formMode === 'Modified') {
       return {
         ...loadBalancerSchema,
         properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
@@ -100,8 +100,8 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
-    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedLoadBalancerOption);
+    if (props.formMode === 'All' || props.formMode === 'Required') return true;
+    return props.formMode === 'Modified' && isDefined(selectedLoadBalancerOption);
   }, [props.formMode]);
 
   if (!showEditor) return null;

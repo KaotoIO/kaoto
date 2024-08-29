@@ -4,20 +4,4 @@
   &__body {
     overflow: auto;
   }
-
-  .form-tabs {
-    display: flex;
-
-    /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v5-c-toggle-group__item {
-      display: flex;
-      width: 20%;
-    }
-
-    button {
-      flex: 1;
-      justify-content: center;
-      font-weight: bold;
-    }
-  }
 }

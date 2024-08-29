@@ -5,7 +5,6 @@ import { CatalogKind, ICamelLanguageDefinition, KaotoSchemaDefinition } from '..
 import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
 import { CamelCatalogService } from '../../../models/visualization/flows';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { FormTabsModes } from '../../Visualization/Canvas';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { SchemaService } from '../schema.service';
 import { StepExpressionEditor } from './StepExpressionEditor';
@@ -46,7 +45,7 @@ describe('StepExpressionEditor', () => {
   });
 
   it('should not render under Modified tab', () => {
-    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    render(<StepExpressionEditor selectedNode={mockNode} formMode="Modified" />);
     const dropdown = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
     expect(dropdown).toHaveLength(0);
   });
@@ -82,7 +81,7 @@ describe('StepExpressionEditor', () => {
         } as IVisualizationNode,
       },
     };
-    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.USER_MODIFIED} />);
+    render(<StepExpressionEditor selectedNode={mockNode} formMode="Modified" />);
     const buttons = screen.queryAllByRole('button', { name: 'Typeahead menu toggle' });
     expect(buttons).toHaveLength(1);
 
@@ -96,7 +95,7 @@ describe('StepExpressionEditor', () => {
   });
 
   it('should render under all Tab', async () => {
-    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.ALL_FIELDS} />);
+    render(<StepExpressionEditor selectedNode={mockNode} formMode="All" />);
     const dropdown = screen
       .getAllByTestId('typeahead-select-input')
       .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
@@ -110,7 +109,7 @@ describe('StepExpressionEditor', () => {
   });
 
   it('should render under Required Tab', async () => {
-    render(<StepExpressionEditor selectedNode={mockNode} formMode={FormTabsModes.REQUIRED_FIELDS} />);
+    render(<StepExpressionEditor selectedNode={mockNode} formMode="Required" />);
     const dropdown = screen
       .getAllByTestId('typeahead-select-input')
       .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));

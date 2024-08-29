@@ -1,22 +1,20 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
-import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../utils';
-import { CustomAutoForm, CustomAutoFormRef } from '../../Form/CustomAutoForm';
-import { DataFormatEditor } from '../../Form/dataFormat/DataFormatEditor';
-import { LoadBalancerEditor } from '../../Form/loadBalancer/LoadBalancerEditor';
-import { StepExpressionEditor } from '../../Form/stepExpression/StepExpressionEditor';
-import { UnknownNode } from '../Custom/UnknownNode';
-import './CanvasFormTabs.scss';
-import { CanvasNode } from './canvas.models';
-import { FormTabsModes } from './canvasformtabs.modes';
-import { CanvasFormTabsContext } from '../../../providers/canvas-form-tabs.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { SchemaBridgeProvider } from '../../../../providers/schema-bridge.provider';
+import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../../utils';
+import { CustomAutoForm, CustomAutoFormRef } from '../../../Form/CustomAutoForm';
+import { DataFormatEditor } from '../../../Form/dataFormat/DataFormatEditor';
+import { LoadBalancerEditor } from '../../../Form/loadBalancer/LoadBalancerEditor';
+import { StepExpressionEditor } from '../../../Form/stepExpression/StepExpressionEditor';
+import { UnknownNode } from '../../Custom/UnknownNode';
+import { CanvasNode } from '../canvas.models';
+import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
 
 interface CanvasFormTabsProps {
   selectedNode: CanvasNode;
 }
 
-export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) => {
+export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const { selectedTab } = useContext(CanvasFormTabsContext);
   const divRef = useRef<HTMLDivElement>(null);
@@ -33,9 +31,9 @@ export const CanvasFormTabs: FunctionComponent<CanvasFormTabsProps> = (props) =>
   }, [props.selectedNode.data?.vizNode, selectedTab]);
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
-  if (selectedTab === FormTabsModes.REQUIRED_FIELDS) {
+  if (selectedTab === 'Required') {
     processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema ?? {});
-  } else if (selectedTab === FormTabsModes.USER_MODIFIED) {
+  } else if (selectedTab === 'Modified') {
     processedSchema = {
       ...visualComponentSchema?.schema,
       properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),

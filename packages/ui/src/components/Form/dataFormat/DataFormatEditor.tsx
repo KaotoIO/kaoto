@@ -18,11 +18,11 @@ import {
   getUserUpdatedPropertiesSchema,
   isDefined,
 } from '../../../utils';
-import { FormTabsModes } from '../../Visualization/Canvas/canvasformtabs.modes';
+import { FormTabsModes } from '../../Visualization/Canvas/Form/canvasformtabs.modes';
 
 interface DataFormatEditorProps {
   selectedNode: CanvasNode;
-  formMode: FormTabsModes;
+  formMode: keyof typeof FormTabsModes;
 }
 
 export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props) => {
@@ -66,11 +66,11 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
   }, [dataFormat]);
 
   const processedSchema = useMemo(() => {
-    if (props.formMode === FormTabsModes.REQUIRED_FIELDS) {
+    if (props.formMode === 'Required') {
       return getRequiredPropertiesSchema(dataFormatSchema ?? {});
-    } else if (props.formMode === FormTabsModes.ALL_FIELDS) {
+    } else if (props.formMode === 'All') {
       return dataFormatSchema;
-    } else if (props.formMode === FormTabsModes.USER_MODIFIED) {
+    } else if (props.formMode === 'Modified') {
       return {
         ...dataFormatSchema,
         properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
@@ -99,8 +99,8 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
   );
 
   const showEditor = useMemo(() => {
-    if (props.formMode === FormTabsModes.ALL_FIELDS || props.formMode === FormTabsModes.REQUIRED_FIELDS) return true;
-    return props.formMode === FormTabsModes.USER_MODIFIED && isDefined(selectedDataFormatOption);
+    if (props.formMode === 'All' || props.formMode === 'Required') return true;
+    return props.formMode === 'Modified' && isDefined(selectedDataFormatOption);
   }, [props.formMode]);
 
   if (!showEditor) return null;
