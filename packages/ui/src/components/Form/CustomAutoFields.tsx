@@ -9,7 +9,6 @@ import { CanvasFormTabsContext, FilteredFieldContext } from '../../providers';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
 import { NoFieldFound } from './NoFieldFound';
-import { FormTabsModes } from '../Visualization/Canvas';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -46,7 +45,7 @@ export function CustomAutoFields({
   const propertiesArray = getFieldGroups(actualFieldsSchema);
 
   if (
-    selectedTab !== FormTabsModes.ALL_FIELDS &&
+    selectedTab !== 'All' &&
     propertiesArray.common.length === 0 &&
     Object.keys(propertiesArray.groups).length === 0
   ) {

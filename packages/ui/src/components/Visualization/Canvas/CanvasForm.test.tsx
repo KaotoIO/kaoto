@@ -26,7 +26,6 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../utils';
 import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from './canvas.models';
-import { FormTabsModes } from './canvasformtabs.modes';
 import { FlowService } from './flow.service';
 
 describe('CanvasForm', () => {
@@ -183,7 +182,7 @@ describe('CanvasForm', () => {
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
           <CanvasFormTabsContext.Provider
             value={{
-              selectedTab: FormTabsModes.ALL_FIELDS,
+              selectedTab: 'All',
               onTabChange: jest.fn(),
             }}
           >
@@ -218,7 +217,7 @@ describe('CanvasForm', () => {
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
           <CanvasFormTabsContext.Provider
             value={{
-              selectedTab: FormTabsModes.ALL_FIELDS,
+              selectedTab: 'All',
               onTabChange: jest.fn(),
             }}
           >
@@ -254,7 +253,7 @@ describe('CanvasForm', () => {
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
           <CanvasFormTabsContext.Provider
             value={{
-              selectedTab: FormTabsModes.ALL_FIELDS,
+              selectedTab: 'All',
               onTabChange: jest.fn(),
             }}
           >
@@ -650,7 +649,7 @@ describe('CanvasForm', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                selectedTab: 'Required',
                 onTabChange: jest.fn(),
               }}
             >
@@ -701,7 +700,7 @@ describe('CanvasForm', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                selectedTab: 'Required',
                 onTabChange: jest.fn(),
               }}
             >
@@ -743,7 +742,7 @@ describe('CanvasForm', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                selectedTab: 'Required',
                 onTabChange: jest.fn(),
               }}
             >
@@ -785,7 +784,7 @@ describe('CanvasForm', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.REQUIRED_FIELDS,
+                selectedTab: 'Required',
                 onTabChange: jest.fn(),
               }}
             >

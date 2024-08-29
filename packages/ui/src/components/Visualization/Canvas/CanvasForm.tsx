@@ -1,13 +1,11 @@
-import { Card, CardBody, CardHeader, SearchInput, ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { VisibleFlowsContext, FilteredFieldContext } from '../../../providers';
+import { VisibleFlowsContext } from '../../../providers';
 import { ErrorBoundary } from '../../ErrorBoundary';
-import './CanvasForm.scss';
-import { CanvasFormHeader } from './Form/CanvasFormHeader';
 import { CanvasNode } from './canvas.models';
-import { CanvasFormTabs } from './CanvasFormTabs';
-import { FormTabsModes, getTabTooltip } from './canvasformtabs.modes';
-import { CanvasFormTabsContext } from '../../../providers/canvas-form-tabs.provider';
+import './CanvasForm.scss';
+import { CanvasFormBody } from './Form/CanvasFormBody';
+import { CanvasFormHeader } from './Form/CanvasFormHeader';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -16,8 +14,6 @@ interface CanvasFormProps {
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
-  const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
-  const { selectedTab, onTabChange } = useContext(CanvasFormTabsContext);
   const flowIdRef = useRef<string | undefined>(undefined);
 
   const visualComponentSchema = useMemo(() => {
@@ -53,31 +49,10 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
             onClose={onClose}
             nodeIcon={props.selectedNode.data?.vizNode?.data?.icon}
           />
-          <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
-            {Object.values(FormTabsModes).map((mode) => (
-              <Tooltip content={getTabTooltip(mode)}>
-                <ToggleGroupItem
-                  key={mode}
-                  text={mode}
-                  buttonId={mode}
-                  isSelected={selectedTab === mode}
-                  onChange={onTabChange}
-                />
-              </Tooltip>
-            ))}
-          </ToggleGroup>
-          <SearchInput
-            className="filter-fields"
-            placeholder="Find properties by name"
-            data-testid="filter-fields"
-            value={filteredFieldText}
-            onChange={onFilterChange}
-            onClear={onFilterChange}
-          />
         </CardHeader>
 
         <CardBody className="canvas-form__body">
-          <CanvasFormTabs selectedNode={props.selectedNode} />
+          <CanvasFormBody selectedNode={props.selectedNode} />
         </CardBody>
       </Card>
     </ErrorBoundary>

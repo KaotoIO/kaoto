@@ -8,17 +8,16 @@ import {
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   IKameletDefinition,
-} from '../../../models';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { VisibleFlowsProvider, CanvasFormTabsContext } from '../../../providers';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SchemaService } from '../../Form';
-import { CanvasNode } from './canvas.models';
-import { CanvasFormTabs } from './CanvasFormTabs';
-import { FormTabsModes } from './canvasformtabs.modes';
+} from '../../../../models';
+import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { VisibleFlowsProvider, CanvasFormTabsContext } from '../../../../providers';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { SchemaService } from '../../../Form';
+import { CanvasNode } from '../canvas.models';
+import { CanvasFormBody } from './CanvasFormBody';
 
-describe('CanvasFormTabs', () => {
+describe('CanvasFormBody', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
@@ -73,11 +72,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
@@ -140,11 +139,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
@@ -212,11 +211,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
@@ -270,11 +269,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
@@ -334,11 +333,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
@@ -392,11 +391,11 @@ describe('CanvasFormTabs', () => {
           <VisibleFlowsProvider>
             <CanvasFormTabsContext.Provider
               value={{
-                selectedTab: FormTabsModes.ALL_FIELDS,
+                selectedTab: 'All',
                 onTabChange: jest.fn(),
               }}
             >
-              <CanvasFormTabs selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
             </CanvasFormTabsContext.Provider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
