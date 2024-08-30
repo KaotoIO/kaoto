@@ -37,6 +37,7 @@ public class CamelCatalogVersionLoader {
     private final CamelCatalog camelCatalog = new DefaultCamelCatalog(true);
     private final Map<String, String> kameletBoundaries = new HashMap<>();
     private final Map<String, String> kamelets = new HashMap<>();
+    private final Map<String, String> customComponents = new HashMap<>();
     private final List<String> camelKCRDs = new ArrayList<>();
     private final Map<String, String> localSchemas = new HashMap<>();
     private final CatalogRuntime runtime;
@@ -69,6 +70,10 @@ public class CamelCatalogVersionLoader {
 
     public List<String> getKamelets() {
         return kamelets.values().stream().toList();
+    }
+
+    public Map<String,String> getCustomComponentMap() {
+        return customComponents;
     }
 
     public String getKubernetesSchema() {
@@ -149,6 +154,11 @@ public class CamelCatalogVersionLoader {
         loadResourcesFromFolderAsString("kamelets", kamelets, ".kamelet.yaml");
 
         return !kamelets.isEmpty();
+    }
+
+    public boolean loadCustomComponents() {
+        loadResourcesFromFolderAsString("custom-components", customComponents, ".json");
+        return !customComponents.isEmpty();
     }
 
     public boolean loadKubernetesSchema() {

@@ -25,15 +25,22 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.tooling.model.ApiModel;
 import org.apache.camel.tooling.model.ComponentModel;
+
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
+import io.kaoto.camelcatalog.model.CatalogComponentWrapper;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 
 /**
@@ -50,6 +57,7 @@ public class CamelCatalogProcessor {
     private final CamelYamlDslSchemaProcessor schemaProcessor;
     private final CatalogRuntime runtime;
     private boolean verbose;
+    private final Map<String, String> customComponents;
 
     public CamelCatalogProcessor(CamelCatalog camelCatalog, ObjectMapper jsonMapper,
             CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
@@ -58,6 +66,7 @@ public class CamelCatalogProcessor {
         this.schemaProcessor = schemaProcessor;
         this.runtime = runtime;
         this.verbose = verbose;
+        this.customComponents = loadCustomComponents();
     }
 
     /**
@@ -92,10 +101,23 @@ public class CamelCatalogProcessor {
      */
     public String getComponentCatalog() throws Exception {
         var answer = jsonMapper.createObjectNode();
-        camelCatalog.findComponentNames().stream().filter(component -> !component.isEmpty()).sorted()
+        findComponentNames().stream().filter(component -> !component.isEmpty()).sorted()
                 .forEach(name -> {
                     try {
                         var model = (ComponentModel) camelCatalog.model(Kind.component, name);
+
+                        // if the model is null, it might be a custom
+                        // TODO support springboot and quarkus?
+                        if (runtime == CatalogRuntime.Main) { 
+                            if(model == null) {
+                                model = createCustomComponentModel(customComponents.get(name));
+    
+                                if(model != null) {
+                                    LOGGER.info("Added custom component: " + name);
+                                }
+                            }
+                        }
+
                         var json = JsonMapper.asJsonObject(model).toJson();
                         var catalogNode = (ObjectNode) jsonMapper.readTree(json);
                         generatePropertiesSchema(catalogNode);
@@ -119,16 +141,116 @@ public class CamelCatalogProcessor {
                         }
 
                         answer.set(name, catalogNode);
-                    } catch (Exception e) {
+                    } catch (NullPointerException e) {
                         if (verbose) {
                             LOGGER.warning("The component definition for " + name + " is null.\n" + e.getMessage());
                         }
+                    } catch (Exception e) {
+                        LOGGER.severe("Error loading component definition for " + name + ":" + e.getMessage() );
                     }
                 });
         StringWriter writer = new StringWriter();
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
         jsonMapper.writeTree(jsonGenerator, answer);
         return writer.toString();
+    }
+
+    /**
+     * Load custom components map.
+     *
+     * @return
+     */
+    private Map<String, String> loadCustomComponents() {
+        var loader = new CamelCatalogVersionLoader(runtime, verbose);
+        loader.loadCustomComponents();
+
+        if(!loader.loadCustomComponents()) {
+            LOGGER.info("No custom components found on the classpath");
+        }
+
+        return loader.getCustomComponentMap();
+    }
+
+    /**
+     * Get component names.
+     *
+     * @return list of component names (including custom components)
+     */
+    public List<String> findComponentNames() throws Exception {
+        var allComponents = new ArrayList<String>();
+        allComponents.addAll(customComponents.keySet());
+        allComponents.addAll(camelCatalog.findComponentNames());
+        return allComponents;
+    }
+
+    /**
+     * Creates a component model object from the JSON schema
+     *
+     * @return the custom ComponentModel
+     * @throws JsonProcessingException 
+     * @throws JsonMappingException
+     */
+    private ComponentModel createCustomComponentModel(String modelDefinition) throws JsonMappingException, JsonProcessingException {
+        if(modelDefinition == null) {
+            return null;
+        }
+
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        var componentDefinition = jsonMapper.readValue(modelDefinition, CatalogComponentWrapper.class);
+
+        var componentModel = componentDefinition.getComponent();
+
+        componentDefinition.getComponentOptions().entrySet().stream().forEach(componentOptionEntry -> {
+            componentOptionEntry.getValue().setName(componentOptionEntry.getKey());
+            componentModel.addComponentOption(componentOptionEntry.getValue());
+        });
+
+        componentDefinition.getEndpointOptions().entrySet().stream().forEach(endpointOptionEntry -> {
+            endpointOptionEntry.getValue().setName(endpointOptionEntry.getKey());
+            componentModel.addEndpointOption(endpointOptionEntry.getValue());
+        });
+
+        componentDefinition.getHeaders().entrySet().stream().forEach(headerEntry -> {
+            headerEntry.getValue().setName(headerEntry.getKey());
+            componentModel.addEndpointHeader(headerEntry.getValue());
+        });
+
+        componentDefinition.getApis().entrySet().stream().forEach(apiEntry -> {
+            var apiName = apiEntry.getKey();
+            var apiWrapper = apiEntry.getValue();
+            var apiMethodsWrapper = componentDefinition.getApiOptions().get(apiName);
+
+            var apiModel = new ApiModel();
+            apiModel.setDescription(apiWrapper.getDescription());
+            apiModel.setConsumerOnly(apiWrapper.isConsumerOnly());
+            apiModel.setProducerOnly(apiWrapper.isProducerOnly());
+            apiModel.setName(apiName);
+
+            apiWrapper.getAliases().stream().forEach(alias -> {
+                apiModel.addAlias(alias);
+            });
+
+            apiWrapper.getMethods().entrySet().stream().forEach(apiWrapperMethodEntry -> {
+                var methodName = apiWrapperMethodEntry.getKey();
+                var methodModel = apiWrapperMethodEntry.getValue();
+                methodModel.setName(methodName);
+
+                var methodOptions = apiMethodsWrapper.getMethods().get(methodName);
+                methodOptions.getProperties().entrySet().stream().forEach(apiMethodOption -> {
+                    apiMethodOption.getValue().setName(apiMethodOption.getKey());
+                });
+
+                methodModel.getOptions().addAll(methodOptions.getProperties().values());
+                apiModel.getMethods().add(methodModel);
+            });
+
+            componentModel.getApiOptions().add(apiModel);
+
+        });
+
+
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        return componentModel;
     }
 
     private void generatePropertiesSchema(ObjectNode parent) {
