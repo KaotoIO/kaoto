@@ -9,18 +9,21 @@ import { useDataMapper } from '../../../hooks';
 import { TestUtil } from '../../../test/test-util';
 
 describe('DetachSchemaButton', () => {
-  it('should detach the schema', () => {
+  it('should detach the schema', async () => {
     let sourceDoc: IDocument;
+    let setInitialDoc = true;
     const DetachTest: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const { sourceBodyDocument, setSourceBodyDocument } = useDataMapper();
       useEffect(() => {
-        setSourceBodyDocument(TestUtil.createSourceOrderDoc());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+        if (setInitialDoc) {
+          setSourceBodyDocument(TestUtil.createSourceOrderDoc());
+          setInitialDoc = false;
+        }
+      });
       useEffect(() => {
         sourceDoc = sourceBodyDocument;
       }, [sourceBodyDocument]);
-      return <>{children}</>;
+      return <div data-testid="detachtest">{children}</div>;
     };
     render(
       <DataMapperProvider>
@@ -31,8 +34,8 @@ describe('DetachSchemaButton', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
+    const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
     expect(sourceDoc!.fields.length).toBe(1);
-    const detachBtn = screen.getByTestId('detach-schema-sourceBody-Body-button');
     act(() => {
       fireEvent.click(detachBtn);
     });
@@ -40,6 +43,7 @@ describe('DetachSchemaButton', () => {
     act(() => {
       fireEvent.click(confirmBtn);
     });
+    await screen.findByTestId('detachtest');
     expect(sourceDoc!.fields.length).toBe(0);
     expect(sourceDoc! instanceof PrimitiveDocument);
   });

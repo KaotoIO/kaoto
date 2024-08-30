@@ -94,9 +94,8 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
 };
 
 export const Parameters: FunctionComponent = () => {
-  const { sourceParameterMap } = useDataMapper();
+  const { sourceParameterMap, isSourceParametersExpanded, setSourceParametersExpanded } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
-  const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(false);
   const {
     state: isAddingNewParameter,
     toggleOff: toggleOffAddNewParameter,
@@ -149,7 +148,11 @@ export const Parameters: FunctionComponent = () => {
   return (
     <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
       <NodeContainer ref={headerRef}>
-        <CardHeader onExpand={handleOnExpand} actions={{ actions: parametersHeaderActions, hasNoOffset: true }}>
+        <CardHeader
+          data-testid="card-source-parameters-header"
+          onExpand={handleOnExpand}
+          actions={{ actions: parametersHeaderActions, hasNoOffset: true }}
+        >
           <CardTitle>Parameters</CardTitle>
         </CardHeader>
       </NodeContainer>

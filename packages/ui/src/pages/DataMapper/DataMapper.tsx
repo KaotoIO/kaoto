@@ -19,19 +19,35 @@ import { StandaloneLayout } from '../../components/DataMapper/layout';
 import { MainCanvas } from '../../components/DataMapper/layout/MainCanvas';
 import { DataMapperProvider } from '../../components/DataMapper/providers';
 import { CanvasProvider } from '../../components/DataMapper/providers/CanvasProvider';
+import { DocumentDefinition, DocumentInitializationModel } from '../../components/DataMapper/models/document';
 
 export interface IDataMapperProps {
   modalsContainerId?: string;
-  xsltFile?: string;
-  onUpdate?: (xsltFile: string) => void;
+  documentInitializationModel?: DocumentInitializationModel;
+  onUpdateDocument?: (definition: DocumentDefinition) => void;
+  initialXsltFile?: string;
+  onUpdateMappings?: (xsltFile: string) => void;
   isEmbedded?: boolean;
 }
 
-export const DataMapper: FunctionComponent<IDataMapperProps> = ({ xsltFile, onUpdate, isEmbedded }) => {
+export const DataMapper: FunctionComponent<IDataMapperProps> = ({
+  documentInitializationModel,
+  onUpdateDocument,
+  initialXsltFile,
+  onUpdateMappings,
+  isEmbedded,
+}) => {
   return (
-    <DataMapperProvider xsltFile={xsltFile} onUpdate={onUpdate}>
-      <CanvasProvider>{isEmbedded ? <MainCanvas /> : <StandaloneLayout />}</CanvasProvider>
-    </DataMapperProvider>
+    <>
+      <DataMapperProvider
+        documentInitializationModel={documentInitializationModel}
+        onUpdateDocument={onUpdateDocument}
+        initialXsltFile={initialXsltFile}
+        onUpdateMappings={onUpdateMappings}
+      >
+        <CanvasProvider>{isEmbedded ? <MainCanvas /> : <StandaloneLayout />}</CanvasProvider>
+      </DataMapperProvider>
+    </>
   );
 };
 

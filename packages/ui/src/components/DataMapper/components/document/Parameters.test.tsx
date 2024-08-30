@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TestUtil } from '../../test/test-util';
 
 describe('Parameters', () => {
-  it('should add and remove a parameter', () => {
+  it('should add and remove a parameter', async () => {
     render(
       <DataMapperProvider>
         <CanvasProvider>
@@ -13,7 +13,7 @@ describe('Parameters', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const addButton = screen.getByTestId('add-parameter-button');
+    const addButton = await screen.findByTestId('add-parameter-button');
     act(() => {
       fireEvent.click(addButton);
     });
@@ -45,7 +45,7 @@ describe('Parameters', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const addButton = screen.getByTestId('add-parameter-button');
+    const addButton = await screen.findByTestId('add-parameter-button');
     act(() => {
       fireEvent.click(addButton);
     });

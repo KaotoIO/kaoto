@@ -1,5 +1,5 @@
 import { DataMapperProvider } from './DataMapperProvider';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useDataMapper } from '../hooks';
 import { FieldItem, MappingTree } from '../models/mapping';
 import { useEffect } from 'react';
@@ -10,7 +10,7 @@ describe('DataMapperProvider', () => {
     render(<DataMapperProvider></DataMapperProvider>);
   });
 
-  it('refreshMappingTree should re-create the MappingTree instance', () => {
+  it('refreshMappingTree should re-create the MappingTree instance', async () => {
     let prevTree: MappingTree;
     let nextTree: MappingTree;
     let done = false;
@@ -26,13 +26,14 @@ describe('DataMapperProvider', () => {
           done = true;
         }
       }, [mappingTree, refreshMappingTree]);
-      return <div></div>;
+      return <div data-testid="testdiv"></div>;
     };
     render(
       <DataMapperProvider>
         <TestRefreshMappingTree></TestRefreshMappingTree>
       </DataMapperProvider>,
     );
+    await screen.findByTestId('testdiv');
     expect(prevTree!).toBeDefined();
     expect(nextTree!).toBeDefined();
     expect(prevTree! !== nextTree!).toBeTruthy();

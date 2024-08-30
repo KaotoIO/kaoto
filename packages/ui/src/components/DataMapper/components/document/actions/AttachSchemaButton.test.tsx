@@ -8,7 +8,7 @@ import { CommonUtil } from '../../../util';
 import { TestUtil } from '../../../test/test-util';
 
 describe('AttachSchemaButton', () => {
-  it('should invoke onClick()', () => {
+  it('should invoke onClick()', async () => {
     const spyOnClick = jest.spyOn(HTMLInputElement.prototype, 'click');
     render(
       <DataMapperProvider>
@@ -17,7 +17,7 @@ describe('AttachSchemaButton', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const attachButton = screen.getByTestId('attach-schema-sourceBody-Body-button');
+    const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
     expect(spyOnClick.mock.calls.length).toEqual(0);
     fireEvent.click(attachButton);
     expect(spyOnClick.mock.calls.length).toBeGreaterThan(0);
@@ -32,8 +32,8 @@ describe('AttachSchemaButton', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
+    const fileInput = await screen.findByTestId('attach-schema-sourceBody-Body-file-input');
     const fileContent = new File([new Blob([TestUtil.orderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
-    const fileInput = screen.getByTestId('attach-schema-sourceBody-Body-file-input');
     fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     expect(mockOnImport.mock.calls.length).toEqual(1);
   });

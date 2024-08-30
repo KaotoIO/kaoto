@@ -9,15 +9,15 @@ import { DataMapperProvider } from '../../../providers';
 import { CanvasProvider } from '../../../providers/CanvasProvider';
 
 describe('TargetNodeActions', () => {
-  it('should render', () => {
+  it('should render', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
     const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const nodeData = new TargetDocumentNodeData(targetDoc, tree);
     render(<TargetNodeActions nodeData={nodeData} onUpdate={jest.fn()} />);
-    expect(screen.getByTestId('transformation-actions-menu-toggle')).toBeTruthy();
+    expect(await screen.findByTestId('transformation-actions-menu-toggle')).toBeTruthy();
   });
 
-  it('should render expression action', () => {
+  it('should render expression action', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
     const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const docData = new TargetDocumentNodeData(targetDoc, tree);
@@ -29,7 +29,7 @@ describe('TargetNodeActions', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    expect(screen.getByTestId('transformation-expression-input')).toBeTruthy();
+    expect(await screen.findByTestId('transformation-expression-input')).toBeTruthy();
     expect(screen.getByTestId(`edit-expression-button-${mappingData.id}`)).toBeTruthy();
   });
 });

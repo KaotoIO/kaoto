@@ -9,7 +9,7 @@ import { CanvasProvider } from '../../../providers/CanvasProvider';
 import { DataMapperProvider } from '../../../providers';
 
 describe('DeleteMappingItemAction', () => {
-  it('should invoke onDelete()', () => {
+  it('should invoke onDelete()', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const docData = new TargetDocumentNodeData(targetDoc, mappingTree);
@@ -22,7 +22,7 @@ describe('DeleteMappingItemAction', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const deleteBtn = screen.getByTestId('delete-mapping-btn');
+    const deleteBtn = await screen.findByTestId('delete-mapping-btn');
     act(() => {
       fireEvent.click(deleteBtn);
     });

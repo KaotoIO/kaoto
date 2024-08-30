@@ -96,3 +96,31 @@ export class BaseField implements IField {
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
 }
+
+export enum DocumentDefinitionType {
+  Primitive = 'Primitive',
+  XML_SCHEMA = 'XML Schema',
+}
+
+export class DocumentDefinition {
+  constructor(
+    public documentType: DocumentType,
+    public definitionType: DocumentDefinitionType,
+    public name?: string,
+    public definitionFiles?: File[] | string[],
+  ) {}
+}
+
+export class DocumentInitializationModel {
+  constructor(
+    public sourceParameters: Record<string, DocumentDefinition> = {},
+    public sourceBody: DocumentDefinition = {
+      documentType: DocumentType.SOURCE_BODY,
+      definitionType: DocumentDefinitionType.Primitive,
+    },
+    public targetBody: DocumentDefinition = {
+      documentType: DocumentType.TARGET_BODY,
+      definitionType: DocumentDefinitionType.Primitive,
+    },
+  ) {}
+}

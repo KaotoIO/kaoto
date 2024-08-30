@@ -14,7 +14,7 @@ describe('SourceTargetView', () => {
           </CanvasProvider>
         </DataMapperProvider>,
       );
-      const attachButton = screen.getByTestId('attach-schema-sourceBody-Body-button');
+      const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
       act(() => {
         fireEvent.click(attachButton);
       });
@@ -48,7 +48,7 @@ describe('SourceTargetView', () => {
           </CanvasProvider>
         </DataMapperProvider>,
       );
-      const attachButton = screen.getByTestId('attach-schema-targetBody-Body-button');
+      const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
       act(() => {
         fireEvent.click(attachButton);
       });

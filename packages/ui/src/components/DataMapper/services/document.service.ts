@@ -1,6 +1,72 @@
-import { IDocument, IField, PrimitiveDocument } from '../models/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  IDocument,
+  IField,
+  PrimitiveDocument,
+} from '../models/document';
+import { DocumentType } from '../models/path';
+import { CommonUtil } from '../util';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+
+interface InitialDocumentsSet {
+  sourceBodyDocument?: IDocument;
+  sourceParameterMap: Map<string, IDocument>;
+  targetBodyDocument?: IDocument;
+}
 
 export class DocumentService {
+  static createDocument(definition: DocumentDefinition): Promise<IDocument | null> {
+    if (definition.definitionType === DocumentDefinitionType.Primitive) {
+      return Promise.resolve(
+        new PrimitiveDocument(definition.documentType, DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID),
+      );
+    }
+    if (!definition.definitionFiles || definition.definitionFiles.length === 0) return Promise.resolve(null);
+    return Promise.allSettled(
+      definition.definitionFiles.map((file) =>
+        typeof file === 'string' ? Promise.resolve(file) : CommonUtil.readFileAsString(file),
+      ),
+    ).then((results) => {
+      const content = (results[0] as PromiseFulfilledResult<string>).value;
+      const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
+      return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
+    });
+  }
+
+  static createInitialDocuments(initModel?: DocumentInitializationModel): Promise<InitialDocumentsSet | null> {
+    if (!initModel) return Promise.resolve(null);
+    const answer: InitialDocumentsSet = {
+      sourceParameterMap: new Map<string, IDocument>(),
+    };
+    const promises: Promise<void>[] = [];
+    if (initModel.sourceBody) {
+      const sourceBodyPromise = DocumentService.createDocument(initModel.sourceBody).then((document) => {
+        if (document) answer.sourceBodyDocument = document;
+      });
+      promises.push(sourceBodyPromise);
+    }
+    if (initModel.sourceParameters) {
+      Object.entries(initModel.sourceParameters).map(([key, value]) => {
+        const paramPromise = DocumentService.createDocument(value).then((document) => {
+          answer.sourceParameterMap.set(key, document ? document : new PrimitiveDocument(DocumentType.PARAM, key));
+        });
+        promises.push(paramPromise);
+      });
+    }
+    if (initModel.targetBody) {
+      const targetBodyPromise = DocumentService.createDocument(initModel.targetBody).then((document) => {
+        if (document) answer.targetBodyDocument = document;
+      });
+      promises.push(targetBodyPromise);
+    }
+    return Promise.allSettled(promises).then(() => {
+      return answer;
+    });
+  }
+
   static getFieldStack(field: IField, includeItself: boolean = false) {
     if (field instanceof PrimitiveDocument) return [];
     const fieldStack: IField[] = [];

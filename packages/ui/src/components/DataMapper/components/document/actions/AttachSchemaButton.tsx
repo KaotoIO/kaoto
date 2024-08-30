@@ -17,12 +17,10 @@ import { Button, Tooltip } from '@patternfly/react-core';
 import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
-import { CommonUtil } from '../../../util';
-import { XmlSchemaDocumentService } from '../../../services';
 import { useDataMapper } from '../../../hooks';
-import { MappingService } from '../../../services/mapping.service';
 import { DocumentType } from '../../../models/path';
 import { useCanvas } from '../../../hooks/useCanvas';
+import { DocumentDefinition, DocumentDefinitionType } from '../../../models/document';
 
 type AttachSchemaProps = {
   documentType: DocumentType;
@@ -35,14 +33,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentId,
   hasSchema = false,
 }) => {
-  const {
-    mappingTree,
-    setMappingTree,
-    sourceParameterMap,
-    refreshSourceParameters,
-    setSourceBodyDocument,
-    setTargetBodyDocument,
-  } = useDataMapper();
+  const { updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const fileInputRef = createRef<HTMLInputElement>();
 
@@ -52,46 +43,20 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onImport = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.item(0);
-      if (!file) return;
-      CommonUtil.readFileAsString(file).then((content) => {
-        const document = XmlSchemaDocumentService.createXmlSchemaDocument(documentType, documentId, content);
-        if (hasSchema) {
-          const cleaned = MappingService.removeStaleMappingsForDocument(mappingTree, document);
-          setMappingTree(cleaned);
-        } else {
-          const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId);
-          setMappingTree(cleaned);
-        }
-        switch (documentType) {
-          case DocumentType.SOURCE_BODY:
-            setSourceBodyDocument(document);
-            break;
-          case DocumentType.TARGET_BODY:
-            setTargetBodyDocument(document);
-            break;
-          case DocumentType.PARAM:
-            sourceParameterMap.set(documentId, document);
-            refreshSourceParameters();
-            break;
-        }
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      const definition = new DocumentDefinition(
+        documentType,
+        DocumentDefinitionType.XML_SCHEMA,
+        documentId,
+        Array.from(files),
+      );
+      updateDocumentDefinition(definition).then(() => {
         clearNodeReferencesForDocument(documentType, documentId);
         reloadNodeReferences();
       });
     },
-    [
-      clearNodeReferencesForDocument,
-      documentId,
-      documentType,
-      hasSchema,
-      mappingTree,
-      refreshSourceParameters,
-      reloadNodeReferences,
-      setMappingTree,
-      setSourceBodyDocument,
-      setTargetBodyDocument,
-      sourceParameterMap,
-    ],
+    [clearNodeReferencesForDocument, documentId, documentType, reloadNodeReferences, updateDocumentDefinition],
   );
 
   return (

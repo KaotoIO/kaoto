@@ -8,7 +8,7 @@ import { IDocument, PrimitiveDocument } from '../../../models/document';
 import { DocumentType } from '../../../models/path';
 
 describe('DeleteParameterButton', () => {
-  it('should delete a parameter', () => {
+  it('should delete a parameter', async () => {
     let parameterMap: Map<string, IDocument>;
     const ParamTest: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const { sourceParameterMap } = useDataMapper();
@@ -30,8 +30,8 @@ describe('DeleteParameterButton', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
+    const deleteBtn = await screen.findByTestId('delete-parameter-testparam1-button');
     expect(parameterMap!.size).toEqual(1);
-    const deleteBtn = screen.getByTestId('delete-parameter-testparam1-button');
     act(() => {
       fireEvent.click(deleteBtn);
     });

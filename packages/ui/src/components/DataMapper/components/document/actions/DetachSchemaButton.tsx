@@ -18,8 +18,7 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
 import { useDataMapper, useToggle } from '../../../hooks';
-import { PrimitiveDocument } from '../../../models/document';
-import { MappingService } from '../../../services/mapping.service';
+import { DocumentDefinition, DocumentDefinitionType } from '../../../models/document';
 import { DocumentType } from '../../../models/path';
 import { useCanvas } from '../../../hooks/useCanvas';
 
@@ -29,48 +28,24 @@ type DeleteSchemaProps = {
 };
 
 export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
-  const {
-    mappingTree,
-    setMappingTree,
-    sourceParameterMap,
-    refreshSourceParameters,
-    setSourceBodyDocument,
-    setTargetBodyDocument,
-  } = useDataMapper();
+  const { updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const cleanedMappings = MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId);
-    setMappingTree(cleanedMappings);
-    const primitiveDoc = new PrimitiveDocument(documentType, documentId);
-    switch (documentType) {
-      case DocumentType.SOURCE_BODY:
-        setSourceBodyDocument(primitiveDoc);
-        break;
-      case DocumentType.TARGET_BODY:
-        setTargetBodyDocument(primitiveDoc);
-        break;
-      case DocumentType.PARAM:
-        sourceParameterMap.set(documentId, primitiveDoc);
-        refreshSourceParameters();
-        break;
-    }
-    clearNodeReferencesForDocument(documentType, documentId);
-    reloadNodeReferences();
-    closeModal();
+    const definition = new DocumentDefinition(documentType, DocumentDefinitionType.Primitive, documentId);
+    updateDocumentDefinition(definition).then(() => {
+      clearNodeReferencesForDocument(documentType, documentId);
+      reloadNodeReferences();
+      closeModal();
+    });
   }, [
-    mappingTree,
     documentType,
     documentId,
-    setMappingTree,
+    updateDocumentDefinition,
     clearNodeReferencesForDocument,
     reloadNodeReferences,
     closeModal,
-    setSourceBodyDocument,
-    setTargetBodyDocument,
-    sourceParameterMap,
-    refreshSourceParameters,
   ]);
 
   return (

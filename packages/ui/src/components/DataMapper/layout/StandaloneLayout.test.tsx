@@ -38,7 +38,7 @@ describe('MainLayout', () => {
           </CanvasProvider>
         </DataMapperProvider>,
       );
-      let mainMenuButton = screen.getByTestId('main-menu-button');
+      let mainMenuButton = await screen.findByTestId('main-menu-button');
       act(() => {
         fireEvent.click(mainMenuButton);
       });
@@ -75,7 +75,7 @@ describe('MainLayout', () => {
   });
 
   describe('debug', () => {
-    it('should output debug info to console', () => {
+    it('should output debug info to console', async () => {
       const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
         const {
           setDebug,
@@ -115,6 +115,7 @@ describe('MainLayout', () => {
           </CanvasProvider>
         </DataMapperProvider>,
       );
+      await screen.findByTestId('main-menu-button');
       const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
       expect(nodeRefsLog.length).toBeGreaterThan(0);
       const mappingsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Mapping: ['));

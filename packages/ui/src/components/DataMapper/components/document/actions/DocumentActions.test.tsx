@@ -6,7 +6,7 @@ import { DataMapperProvider } from '../../../providers';
 import { CanvasProvider } from '../../../providers/CanvasProvider';
 
 describe('DocumentActions', () => {
-  it('should render', () => {
+  it('should render', async () => {
     const docData = new DocumentNodeData(TestUtil.createSourceOrderDoc());
     render(
       <DataMapperProvider>
@@ -15,7 +15,6 @@ describe('DocumentActions', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    screen.debug();
-    expect(screen.getByTestId('attach-schema-sourceBody-ShipOrder.xsd-button'));
+    expect(await screen.findByTestId('attach-schema-sourceBody-ShipOrder.xsd-button'));
   });
 });

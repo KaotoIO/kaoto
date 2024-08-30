@@ -20,7 +20,7 @@ describe('ExpressionEditorAction', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const editBtn = screen.getByTestId(`edit-expression-button-${docData.id}`);
+    const editBtn = await screen.findByTestId(`edit-expression-button-${docData.id}`);
     act(() => {
       fireEvent.click(editBtn);
     });

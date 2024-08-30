@@ -7,7 +7,7 @@ import { BODY_DOCUMENT_ID, PrimitiveDocument } from '../../models/document';
 import { DocumentType } from '../../models/path';
 
 describe('SourceDocument', () => {
-  it('should render primitive document', () => {
+  it('should render primitive document', async () => {
     const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
     render(
       <DataMapperProvider>
@@ -16,10 +16,10 @@ describe('SourceDocument', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    expect(screen.getByText('Body')).toBeTruthy();
+    expect(await screen.findByText('Body')).toBeTruthy();
   });
 
-  it('should render ShipOrder doc', () => {
+  it('should render ShipOrder doc', async () => {
     const document = TestUtil.createSourceOrderDoc();
     render(
       <DataMapperProvider>
@@ -28,6 +28,6 @@ describe('SourceDocument', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    expect(screen.getByText('OrderPerson')).toBeTruthy();
+    expect(await screen.findByText('OrderPerson')).toBeTruthy();
   });
 });

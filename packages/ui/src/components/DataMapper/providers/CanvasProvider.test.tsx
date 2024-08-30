@@ -30,7 +30,7 @@ describe('CanvasProvider', () => {
     expect(thrower).toThrow();
   });
 
-  it('clearNodeReferencesForPath() should clear for the path', () => {
+  it('clearNodeReferencesForPath() should clear for the path', async () => {
     let first = false;
     let second = false;
     let beforeNodePaths: string[] = [];
@@ -69,11 +69,12 @@ describe('CanvasProvider', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
+    await screen.findAllByText('ShipOrder');
     expect(afterNodePaths.length).toBeGreaterThan(10);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
 
-  it('clearNodeReferencesForDocument() should clear for the Document', () => {
+  it('clearNodeReferencesForDocument() should clear for the Document', async () => {
     let first = false;
     let second = false;
     let beforeNodePaths: string[] = [];
@@ -112,11 +113,12 @@ describe('CanvasProvider', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
+    await screen.findAllByText('ShipOrder');
     expect(afterNodePaths.length).toBeGreaterThan(10);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
 
-  it('should render Documents and mappings', () => {
+  it('should render Documents and mappings', async () => {
     let mappingLinks: IMappingLink[] = [];
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const {
@@ -157,7 +159,8 @@ describe('CanvasProvider', () => {
         </CanvasProvider>
       </DataMapperProvider>,
     );
-    const targetNodes = screen.getAllByTestId(/target-node-.*/);
+    await screen.findAllByText('ShipOrder');
+    const targetNodes = screen.getAllByTestId(/node-target-.*/);
     expect(targetNodes.length).toBeGreaterThan(10);
     expect(mappingLinks.length).toBeGreaterThan(10);
   });
