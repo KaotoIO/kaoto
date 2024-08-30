@@ -11,22 +11,22 @@ import {
   IKameletDefinition,
   KameletVisualEntity,
   KaotoSchemaDefinition,
-} from '../../../models';
-import { IVisualizationNode, VisualComponentSchema } from '../../../models/visualization/base-visual-entity';
-import { VisualFlowsApi } from '../../../models/visualization/flows/support/flows-visibility';
+} from '../../../../models';
+import { IVisualizationNode, VisualComponentSchema } from '../../../../models/visualization/base-visual-entity';
+import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import {
   CanvasFormTabsContext,
   CanvasFormTabsProvider,
   VisibleFlowsContext,
   VisibleFlowsProvider,
-} from '../../../providers';
-import { EntitiesContext, EntitiesProvider } from '../../../providers/entities.provider';
-import { camelRouteJson, kameletJson } from '../../../stubs';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { ROOT_PATH } from '../../../utils';
+} from '../../../../providers';
+import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
+import { camelRouteJson, kameletJson } from '../../../../stubs';
+import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { ROOT_PATH } from '../../../../utils';
 import { CanvasForm } from './CanvasForm';
-import { CanvasNode } from './canvas.models';
-import { FlowService } from './flow.service';
+import { CanvasNode } from '../canvas.models';
+import { FlowService } from '../flow.service';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
