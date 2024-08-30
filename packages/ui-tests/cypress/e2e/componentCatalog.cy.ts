@@ -22,8 +22,8 @@ describe('Catalog related tests', () => {
 
     cy.get('[data-testid="processor-catalog-tab"]').click();
     cy.get('[data-testid="kamelet-catalog-tab"]').click();
-    cy.get('.pf-v5-c-text-input-group__text-input').type('google');
-    cy.get('div[id="google-storage-source"]').should('be.visible');
+    cy.get('.pf-v5-c-text-input-group__text-input').type('aws secret');
+    cy.get('div[id="aws-secrets-manager-sink"]').should('be.visible');
     cy.get('button[aria-label="Reset"]').click();
     cy.get('.pf-v5-c-text-input-group__text-input').should('have.value', '');
   });
