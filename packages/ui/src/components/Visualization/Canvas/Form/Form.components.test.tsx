@@ -2,20 +2,20 @@ import { AutoField, AutoFields, AutoForm } from '@kaoto-next/uniforms-patternfly
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { render } from '@testing-library/react';
-import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SchemaService } from '../../Form';
-import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CamelCatalogService, CatalogKind, ICamelComponentDefinition } from '../../../../models';
+import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { SchemaService } from '../../../Form';
+import { CustomAutoFieldDetector } from '../../../Form/CustomAutoField';
 
-describe('Form - EIPs', () => {
-  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
+describe('Form - components', () => {
+  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   const schemaService = new SchemaService();
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    patternCatalogMap = catalogsMap.patternCatalogMap;
+    componentCatalogMap = catalogsMap.componentCatalogMap;
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
   });
 
   afterEach(() => {
@@ -26,8 +26,8 @@ describe('Form - EIPs', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('should render for all EIPs without an error', async () => {
-    Object.entries(patternCatalogMap).forEach(([name, catalog]) => {
+  it('should render for all component without an error', async () => {
+    Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
       try {
         if (name === 'default') return;
 
@@ -40,7 +40,7 @@ describe('Form - EIPs', () => {
           </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
-        throw new Error(`Error rendering ${name} EIP: \n ${e}`);
+        throw new Error(`Error rendering ${name} component: \n ${e}`);
       }
     });
   });
