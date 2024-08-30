@@ -2,20 +2,20 @@ import { AutoField, AutoFields, AutoForm } from '@kaoto-next/uniforms-patternfly
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { render } from '@testing-library/react';
-import { CamelCatalogService, CatalogKind, ICamelComponentDefinition } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SchemaService } from '../../Form';
-import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CamelCatalogService, CatalogKind, IKameletDefinition } from '../../../../models';
+import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { SchemaService } from '../../../Form';
+import { CustomAutoFieldDetector } from '../../../Form/CustomAutoField';
 
-describe('Form - components', () => {
-  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
+describe('Form - Kamelets', () => {
+  let kameletCatalogMap: Record<string, IKameletDefinition>;
   const schemaService = new SchemaService();
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    componentCatalogMap = catalogsMap.componentCatalogMap;
+    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
   });
 
   afterEach(() => {
@@ -26,8 +26,8 @@ describe('Form - components', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('should render for all component without an error', async () => {
-    Object.entries(componentCatalogMap).forEach(([name, catalog]) => {
+  it('should render for all Kamelets without an error', async () => {
+    Object.entries(kameletCatalogMap).forEach(([name, catalog]) => {
       try {
         if (name === 'default') return;
 
@@ -40,7 +40,7 @@ describe('Form - components', () => {
           </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
-        throw new Error(`Error rendering ${name} component: \n ${e}`);
+        throw new Error(`Error rendering ${name} Kamelet: \n ${e}`);
       }
     });
   });

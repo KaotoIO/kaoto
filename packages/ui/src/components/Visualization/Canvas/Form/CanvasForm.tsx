@@ -1,11 +1,11 @@
 import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { VisibleFlowsContext } from '../../../providers';
-import { ErrorBoundary } from '../../ErrorBoundary';
-import { CanvasNode } from './canvas.models';
+import { VisibleFlowsContext } from '../../../../providers';
+import { ErrorBoundary } from '../../../ErrorBoundary';
+import { CanvasNode } from '../canvas.models';
 import './CanvasForm.scss';
-import { CanvasFormBody } from './Form/CanvasFormBody';
-import { CanvasFormHeader } from './Form/CanvasFormHeader';
+import { CanvasFormBody } from './CanvasFormBody';
+import { CanvasFormHeader } from './CanvasFormHeader';
 
 interface CanvasFormProps {
   selectedNode: CanvasNode;
@@ -29,6 +29,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = (props) => {
   /** Store the flow's initial Id */
   useEffect(() => {
     flowIdRef.current = props.selectedNode.data?.vizNode?.getId();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onClose = useCallback(() => {

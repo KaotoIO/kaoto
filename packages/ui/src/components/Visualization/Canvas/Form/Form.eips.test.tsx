@@ -2,20 +2,20 @@ import { AutoField, AutoFields, AutoForm } from '@kaoto-next/uniforms-patternfly
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { render } from '@testing-library/react';
-import { CamelCatalogService, CatalogKind, IKameletDefinition } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SchemaService } from '../../Form';
-import { CustomAutoFieldDetector } from '../../Form/CustomAutoField';
+import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition } from '../../../../models';
+import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { SchemaService } from '../../../Form';
+import { CustomAutoFieldDetector } from '../../../Form/CustomAutoField';
 
-describe('Form - Kamelets', () => {
-  let kameletCatalogMap: Record<string, IKameletDefinition>;
+describe('Form - EIPs', () => {
+  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
   const schemaService = new SchemaService();
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
+    patternCatalogMap = catalogsMap.patternCatalogMap;
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
   });
 
   afterEach(() => {
@@ -26,8 +26,8 @@ describe('Form - Kamelets', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('should render for all Kamelets without an error', async () => {
-    Object.entries(kameletCatalogMap).forEach(([name, catalog]) => {
+  it('should render for all EIPs without an error', async () => {
+    Object.entries(patternCatalogMap).forEach(([name, catalog]) => {
       try {
         if (name === 'default') return;
 
@@ -40,7 +40,7 @@ describe('Form - Kamelets', () => {
           </AutoField.componentDetectorContext.Provider>,
         );
       } catch (e) {
-        throw new Error(`Error rendering ${name} Kamelet: \n ${e}`);
+        throw new Error(`Error rendering ${name} EIP: \n ${e}`);
       }
     });
   });
