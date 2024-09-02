@@ -48,6 +48,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
+  const [sidebarWidth, setSidebarWidth] = useLocalStorage(
+    LocalStorageKeys.CanvasSidebarWidth,
+    CanvasDefaults.DEFAULT_SIDEBAR_WIDTH,
+  );
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
@@ -206,6 +210,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   return (
     <TopologyView
+      defaultSideBarSize={sidebarWidth + 'px'}
+      onSideBarResize={(width) => {
+        setSidebarWidth(width);
+      }}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
