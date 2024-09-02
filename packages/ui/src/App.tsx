@@ -1,4 +1,6 @@
 import { Outlet } from 'react-router-dom';
+import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
+import { RegisterComponents } from './components/registers/RegisterComponents';
 import { useReload } from './hooks/reload.hook';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
@@ -36,7 +38,11 @@ function App() {
                   <CatalogLoaderProvider>
                     <CatalogTilesProvider>
                       <VisibleFlowsProvider>
-                        <Outlet />
+                        <RenderingProvider>
+                          <RegisterComponents>
+                            <Outlet />
+                          </RegisterComponents>
+                        </RenderingProvider>
                       </VisibleFlowsProvider>
                     </CatalogTilesProvider>
                   </CatalogLoaderProvider>

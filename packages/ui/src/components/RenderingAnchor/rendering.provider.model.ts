@@ -4,7 +4,7 @@ import { IVisualizationNode } from '../../models';
 export interface IRegisteredComponent {
   anchor: string;
   activationFn: (vizNode: IVisualizationNode) => boolean;
-  component: FunctionComponent<{ vizNode: IVisualizationNode }>;
+  component: FunctionComponent<{ vizNode?: IVisualizationNode }>;
 }
 
 export interface IRegisteredValidatedComponent {

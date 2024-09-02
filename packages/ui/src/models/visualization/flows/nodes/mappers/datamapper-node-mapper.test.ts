@@ -1,13 +1,13 @@
-import { RouteDefinition, Step } from '@kaoto/camel-catalog/types';
-import { parse } from 'yaml';
+import { Step } from '@kaoto/camel-catalog/types';
+import { datamapperRouteDefinitionStub as datamapperRouteDefinitionStub } from '../../../../../stubs/data-mapper';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
 
 describe('DataMapperNodeMapper', () => {
   let mapper: DataMapperNodeMapper;
-  let routeDefinition: RouteDefinition;
   let rootNodeMapper: RootNodeMapper;
+  const routeDefinition = datamapperRouteDefinitionStub;
   const path = 'from.steps.0.step';
 
   beforeEach(() => {
@@ -16,18 +16,6 @@ describe('DataMapperNodeMapper', () => {
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
     mapper = new DataMapperNodeMapper(rootNodeMapper);
-
-    routeDefinition = parse(`
-      from:
-        id: from-8888
-        uri: direct:start
-        parameters: {}
-        steps:
-          - step:
-              id: ${DataMapperNodeMapper.DATAMAPPER_ID_PREFIX}-1234
-              steps:
-                - to:
-                    uri: ${DataMapperNodeMapper.XSLT_COMPONENT_NAME}:transform.xsl`);
   });
 
   it('should not return any children', () => {

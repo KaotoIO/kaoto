@@ -1,5 +1,5 @@
 import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
-import { getValue } from '../../../../../utils';
+import { DATAMAPPER_ID_PREFIX, getValue } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
@@ -27,7 +27,7 @@ export class StepNodeMapper extends BaseNodeMapper {
       return this.rootNodeMapper.getVizNodeFromProcessor(
         path,
         {
-          processorName: DataMapperNodeMapper.DATAMAPPER_ID_PREFIX,
+          processorName: DATAMAPPER_ID_PREFIX,
         },
         entityDefinition,
       );

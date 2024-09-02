@@ -1,5 +1,6 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
+import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { StepNodeMapper } from './step-node-mapper';
@@ -15,7 +16,7 @@ describe('StepNodeMapper', () => {
     rootNodeMapper = new RootNodeMapper();
     rootNodeMapper.registerDefaultMapper(mapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
-    rootNodeMapper.registerMapper(DataMapperNodeMapper.DATAMAPPER_ID_PREFIX, noopNodeMapper);
+    rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, noopNodeMapper);
 
     mapper = new StepNodeMapper(rootNodeMapper);
 
@@ -54,10 +55,6 @@ describe('StepNodeMapper', () => {
 
     mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
-    expect(rootNodeMapperSpy).toHaveBeenCalledWith(
-      path,
-      { processorName: DataMapperNodeMapper.DATAMAPPER_ID_PREFIX },
-      routeDefinition,
-    );
+    expect(rootNodeMapperSpy).toHaveBeenCalledWith(path, { processorName: DATAMAPPER_ID_PREFIX }, routeDefinition);
   });
 });

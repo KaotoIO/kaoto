@@ -1,3 +1,4 @@
+import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
 import { DataMapperNodeMapper } from './mappers/datamapper-node-mapper';
@@ -19,9 +20,6 @@ describe('NodeMapperService', () => {
     expect(registerMapperSpy).toHaveBeenCalledWith('when', expect.any(WhenNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('otherwise', expect.any(OtherwiseNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('step', expect.any(StepNodeMapper));
-    expect(registerMapperSpy).toHaveBeenCalledWith(
-      DataMapperNodeMapper.DATAMAPPER_ID_PREFIX,
-      expect.any(DataMapperNodeMapper),
-    );
+    expect(registerMapperSpy).toHaveBeenCalledWith(DATAMAPPER_ID_PREFIX, expect.any(DataMapperNodeMapper));
   });
 });

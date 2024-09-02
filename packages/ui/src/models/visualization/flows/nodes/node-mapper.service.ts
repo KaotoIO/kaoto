@@ -1,3 +1,4 @@
+import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
@@ -35,9 +36,6 @@ export class NodeMapperService {
     this.rootNodeMapper.registerMapper('when', new WhenNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('otherwise', new OtherwiseNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('step', new StepNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper(
-      DataMapperNodeMapper.DATAMAPPER_ID_PREFIX,
-      new DataMapperNodeMapper(this.rootNodeMapper),
-    );
+    this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
   }
 }

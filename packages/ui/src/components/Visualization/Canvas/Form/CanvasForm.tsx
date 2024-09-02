@@ -2,6 +2,8 @@ import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { VisibleFlowsContext } from '../../../../providers';
 import { ErrorBoundary } from '../../../ErrorBoundary';
+import { Anchors } from '../../../registers/anchors';
+import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasNode } from '../canvas.models';
 import './CanvasForm.scss';
 import { CanvasFormBody } from './CanvasFormBody';
@@ -46,6 +48,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ selectedNode, o
       <Card className="canvas-form">
         <CardHeader>
           <CanvasFormHeader nodeId={selectedNode.id} title={title} onClose={onCloseFn} nodeIcon={vizNode?.data?.icon} />
+          <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
         </CardHeader>
 
         <CardBody className="canvas-form__body">
