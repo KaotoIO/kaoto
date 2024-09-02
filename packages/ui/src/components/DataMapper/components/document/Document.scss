@@ -1,0 +1,27 @@
+.node-container {
+  padding: 5px;
+  padding-left: 10px;
+}
+
+.node-header {
+  border-bottom: 1px solid gray;
+  border-left: 1px solid gray;
+  padding-left: 10px;
+  display: flex;
+  flex-flow: row;
+}
+
+.node-children {
+  border-bottom: 1px solid gray;
+  border-left: 1px solid gray;
+  padding: 5px;
+  padding-left: 10px;
+}
+
+img {
+  transition: transform 0.5s ease-in-out;
+}
+
+.toggle-icon-collapsed {
+  transform: rotate(-90deg);
+}

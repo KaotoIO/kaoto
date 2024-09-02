@@ -1,9 +1,0 @@
-{
-  "extends": ["stylelint-config-standard-scss"],
-  "plugins": ["stylelint-prettier"],
-  "rules": {
-    "prettier/prettier": true,
-    "declaration-property-value-no-unknown": true,
-    "custom-property-pattern": null
-  }
-}

@@ -10,7 +10,7 @@ export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ child
     {
       anchor: Anchors.CanvasFormHeader,
       activationFn: datamapperActivationFn,
-      component: lazy(() => import('../DataMapper/DataMapper')),
+      component: lazy(() => import('../DataMapper/DataMapperLauncher')),
     },
   ]);
 

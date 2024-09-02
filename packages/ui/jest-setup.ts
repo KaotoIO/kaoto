@@ -11,6 +11,20 @@ Object.defineProperty(window, 'fetch', {
   value: jest.fn(),
 });
 
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // Deprecated
+    removeListener: jest.fn(), // Deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 jest
   .spyOn(global, 'crypto', 'get')
   .mockImplementation(() => ({ getRandomValues: () => [12345678] }) as unknown as Crypto);

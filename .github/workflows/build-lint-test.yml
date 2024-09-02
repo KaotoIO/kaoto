@@ -36,6 +36,10 @@ jobs:
       - name: 💅 Run stylelint
         run: yarn workspace @kaoto/kaoto run lint:style
 
+      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
+      - name: Build packages
+        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
+
       # Run tests
       - name: 🧪 Run tests
         run: yarn workspaces foreach --verbose --topological-dev run test
@@ -44,10 +48,6 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
-      - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
 
       # Build lib
       - name: Build @kaoto/kaoto package in lib mode

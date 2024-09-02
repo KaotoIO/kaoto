@@ -1,5 +1,0 @@
-{
-  "*.ts": "yarn workspace @datamapper-poc/ui run eslint \"src/**/*.ts\"",
-  "*.tsx": "yarn workspace @datamapper-poc/ui run eslint \"src/**/*.tsx\"",
-  "*.scss": "yarn workspace @datamapper-poc/ui run lint:style"
-}
