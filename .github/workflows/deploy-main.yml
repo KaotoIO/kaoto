@@ -44,7 +44,7 @@ jobs:
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: "🔧 Build packages"
         run: |
-          yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
+          yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog --exclude @kaoto/camel-catalog-plugin run build
 
       - name: "🔧 Tar UI Dist"
         shell: bash
