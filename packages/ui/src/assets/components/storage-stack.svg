@@ -1,0 +1,73 @@
+<svg id="b43a396b-7483-435a-9d2c-014156047961" data-name="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
+  <title>Storage stack icon - Red</title>
+<desc>disk, platter, drive, backup, infrastructure, multiple, hardware</desc>
+<metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 8.0-c001 1.000000, 0000/00/00-00:00:00        ">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about=""
+            xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:cq="http://www.day.com/jcr/cq/1.0"
+            xmlns:tiff="http://ns.adobe.com/tiff/1.0/">
+         <xmp:rhcc-effective-on>2023-12-08T17:34:32.555Z</xmp:rhcc-effective-on>
+         <xmp:rhcc-metadata-complete-moderator>pending</xmp:rhcc-metadata-complete-moderator>
+         <xmp:rhcc-translation-id>TRAe1c5c75d-d2c5-4d89-88a9-676d1c85a606</xmp:rhcc-translation-id>
+         <xmp:brand-content-type>Icon</xmp:brand-content-type>
+         <xmp:CreateDate>2023-12-08T17:34:32.555Z</xmp:CreateDate>
+         <xmp:rhcc-effective-on-set-on-upload>true</xmp:rhcc-effective-on-set-on-upload>
+         <xmp:rhcc-metadata-complete-uploader>pending</xmp:rhcc-metadata-complete-uploader>
+         <xmp:rhcc-file-last-modified>2023-12-08T17:34:40.995Z</xmp:rhcc-file-last-modified>
+         <xmp:rhcc-audience>rhcc-audience:internal</xmp:rhcc-audience>
+         <xmp:rhcc-rights-restricted>no</xmp:rhcc-rights-restricted>
+         <xmp:brand-content-subtype>Icon</xmp:brand-content-subtype>
+         <xmp:rhcc-derivative-id>DERe1c5c75d-d2c5-4d89-88a9-676d1c85a606</xmp:rhcc-derivative-id>
+         <xmp:brand-logo-color>Red</xmp:brand-logo-color>
+         <xmp:rhcc-notify-portal-subscribers-on-change>yes</xmp:rhcc-notify-portal-subscribers-on-change>
+         <dc:format>image/svg+xml</dc:format>
+         <dc:modified>2024-02-09T20:13:12.156Z</dc:modified>
+         <dc:title>
+            <rdf:Alt>
+               <rdf:li xml:lang="x-default">Storage stack icon - Red</rdf:li>
+            </rdf:Alt>
+         </dc:title>
+         <dc:description>
+            <rdf:Alt>
+               <rdf:li xml:lang="x-default">disk, platter, drive, backup, infrastructure, multiple, hardware</rdf:li>
+            </rdf:Alt>
+         </dc:description>
+         <cq:lastReplicationAction_scene7>Activate</cq:lastReplicationAction_scene7>
+         <cq:lastReplicationAction_publish>Activate</cq:lastReplicationAction_publish>
+         <cq:lastReplicated_publish>2024-02-09T21:49:08.941Z</cq:lastReplicated_publish>
+         <cq:lastReplicatedBy>workflow-process-service</cq:lastReplicatedBy>
+         <cq:lastReplicationAction>Activate</cq:lastReplicationAction>
+         <cq:lastReplicatedBy_publish>workflow-process-service</cq:lastReplicatedBy_publish>
+         <cq:isDelivered>true</cq:isDelivered>
+         <cq:lastReplicated>2024-02-09T21:49:08.941Z</cq:lastReplicated>
+         <cq:lastReplicatedBy_scene7>workflow-process-service</cq:lastReplicatedBy_scene7>
+         <cq:lastReplicated_scene7>2024-02-09T21:49:08.941Z</cq:lastReplicated_scene7>
+         <tiff:ImageLength>36</tiff:ImageLength>
+         <tiff:ImageWidth>36</tiff:ImageWidth>
+      </rdf:Description>
+   </rdf:RDF>
+</x:xmpmeta>
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                 
+<?xpacket end="w"?></metadata>
+<defs>
+    <style>
+      .bc8f13ee-6b7f-4477-b683-45cdeb2ad798 {
+        fill: #e00;
+      }
+    </style>
+  </defs>
+  <path class="bc8f13ee-6b7f-4477-b683-45cdeb2ad798" d="M31.56,11.15c-2-8.88-23.85-8.84-26.88-.84-.55,1.11-.26,4.46-.33,5.69v8c0,4.29,6,7.65,13.65,7.65S31.65,28.29,31.65,24V20C31.59,17.69,31.77,13.4,31.56,11.15ZM30.35,24v0h0c0,3.43-5.67,6.33-12.35,6.33S5.67,27.45,5.65,24h0v-.73c4.5,5.76,20.2,5.75,24.7,0Zm0-4.21c.14,3.66-5.56,6.52-12.35,6.56-7.07-.12-12.77-2.89-12.35-7.06,4.5,5.76,20.2,5.75,24.7,0Zm0-3.95c.11,3.61-5.58,6.48-12.35,6.51-7.07-.12-12.77-2.89-12.35-7.06,4.5,5.76,20.2,5.75,24.7,0ZM18,18.35c-6.7,0-12.35-2.91-12.35-6.35S11.3,5.65,18,5.65,30.35,8.56,30.35,12,24.7,18.35,18,18.35Z"/>
+</svg>
