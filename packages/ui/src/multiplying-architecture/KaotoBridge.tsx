@@ -1,6 +1,8 @@
 import { ChannelType, EditorApi, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { PropsWithChildren, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef } from 'react';
+import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
+import { RegisterComponents } from '../components/registers/RegisterComponents';
 import { useReload } from '../hooks/reload.hook';
 import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
@@ -143,7 +145,11 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <CatalogTilesProvider>
-              <VisibleFlowsProvider>{props.children}</VisibleFlowsProvider>
+              <VisibleFlowsProvider>
+                <RenderingProvider>
+                  <RegisterComponents>{props.children}</RegisterComponents>
+                </RenderingProvider>
+              </VisibleFlowsProvider>
             </CatalogTilesProvider>
           </CatalogLoaderProvider>
         </SchemasLoaderProvider>
