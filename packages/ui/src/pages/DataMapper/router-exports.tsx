@@ -1,3 +1,3 @@
-import { DataMapper } from './DataMapper';
+import { DataMapperPage } from './DataMapperPage';
 
-export const element = <DataMapper isEmbedded />;
+export const element = <DataMapperPage isEmbedded />;
