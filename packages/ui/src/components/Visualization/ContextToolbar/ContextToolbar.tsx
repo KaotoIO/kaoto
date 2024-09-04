@@ -1,4 +1,4 @@
-import { ToolbarItem } from '@patternfly/react-core';
+import { Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { sourceSchemaConfig } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
@@ -31,13 +31,19 @@ export const ContextToolbar: FunctionComponent = () => {
     );
   }
 
-  return toolbarItems.concat([
-    <ToolbarItem key="toolbar-clipboard">
-      <FlowClipboard />
-    </ToolbarItem>,
-    <ToolbarItem key="toolbar-export-image">
-      <FlowExportImage />
-    </ToolbarItem>,
-    <RuntimeSelector key="runtime-selector" />,
-  ]);
+  return (
+    <Toolbar>
+      <ToolbarContent>
+        {toolbarItems.concat([
+          <ToolbarItem key="toolbar-clipboard">
+            <FlowClipboard />
+          </ToolbarItem>,
+          <ToolbarItem key="toolbar-export-image">
+            <FlowExportImage />
+          </ToolbarItem>,
+          <RuntimeSelector key="runtime-selector" />,
+        ])}
+      </ToolbarContent>
+    </Toolbar>
+  );
 };
