@@ -1,15 +1,14 @@
 import { Icon, Tab, TabTitleIcon, TabTitleText, Tabs, TabsProps } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import { useContext, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
+import { useContext, useMemo, useRef } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import bean from '../assets/eip/bean.png';
 import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
-import { BeansPage } from '../pages/Beans/BeansPage';
-import { MetadataPage } from '../pages/Metadata/MetadataPage';
-import { PipeErrorHandlerPage } from '../pages/PipeErrorHandler/PipeErrorHandlerPage';
 import { EntitiesContext } from '../providers/entities.provider';
+import { Links } from '../router/links.models';
 import './KaotoEditor.scss';
-import { DesignTab } from './Tabs/DesignTab';
 
 const enum TabList {
   Design,
@@ -27,13 +26,10 @@ const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
 };
 
 export const KaotoEditor = () => {
-  const [activeTabKey, setActiveTabKey] = useState<TabList>(TabList.Design);
-  const handleTabClick = (_event: unknown, tabIndex: TabList) => {
-    setActiveTabKey(tabIndex);
-  };
   const entitiesContext = useContext(EntitiesContext);
   const resource = entitiesContext?.camelResource;
   const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
+  const currentLocation = useLocation();
 
   const availableTabs = useMemo(() => {
     if (!resource) {
@@ -59,87 +55,91 @@ export const KaotoEditor = () => {
         inset={inset.current}
         isBox
         unmountOnExit
-        activeKey={activeTabKey}
-        onSelect={handleTabClick as TabsProps['onSelect']}
+        activeKey={currentLocation.pathname}
         aria-label="Tabs in the Kaoto editor"
         role="region"
       >
         {availableTabs.design && (
-          <Tab
-            eventKey={TabList.Design}
-            className="shell__tab-content_design-canvas"
-            title={
-              <>
-                <TabTitleIcon>
-                  <Icon>
-                    <img src={camelIcon} alt="Camel icon" />
-                  </Icon>
-                </TabTitleIcon>
-                <TabTitleText>Design</TabTitleText>
-              </>
-            }
-            aria-label="Design canvas"
-          >
-            <DesignTab />
-          </Tab>
+          <Link data-testid="design-tab" to={Links.Home}>
+            <Tab
+              eventKey={Links.Home}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <Icon>
+                      <img src={camelIcon} alt="Camel icon" />
+                    </Icon>
+                  </TabTitleIcon>
+                  <TabTitleText>Design</TabTitleText>
+                </>
+              }
+              aria-label="Design canvas"
+            />
+          </Link>
         )}
 
         {availableTabs.beans && (
-          <Tab
-            eventKey={TabList.Beans}
-            className="shell__tab-content"
-            title={
-              <>
-                <TabTitleIcon>
-                  <Icon>
-                    <img src={bean} />
-                  </Icon>
-                </TabTitleIcon>
-                <TabTitleText>Beans</TabTitleText>
-              </>
-            }
-            aria-label="Beans editor"
-          >
-            <BeansPage />
-          </Tab>
+          <Link data-testid="beans-tab" to={Links.Beans}>
+            <Tab
+              eventKey={Links.Beans}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <Icon>
+                      <img src={bean} />
+                    </Icon>
+                  </TabTitleIcon>
+                  <TabTitleText>Beans</TabTitleText>
+                </>
+              }
+              aria-label="Beans editor"
+            />
+          </Link>
         )}
 
         {availableTabs.metadata && (
-          <Tab
-            eventKey={TabList.Metadata}
-            className="shell__tab-content"
-            title={
-              <>
-                <TabTitleIcon>
-                  <CodeIcon />
-                </TabTitleIcon>
-                <TabTitleText>Metadata</TabTitleText>
-              </>
-            }
-            aria-label="Metadata editor"
-          >
-            <MetadataPage />
-          </Tab>
+          <Link data-testid="metadata-tab" to={Links.Metadata}>
+            <Tab
+              eventKey={Links.Metadata}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <CodeIcon />
+                  </TabTitleIcon>
+                  <TabTitleText>Metadata</TabTitleText>
+                </>
+              }
+              aria-label="Metadata editor"
+            />
+          </Link>
         )}
 
         {availableTabs.errorHandler && (
-          <Tab
-            eventKey={TabList.ErrorHandler}
-            className="shell__tab-content"
-            title={
-              <>
-                <TabTitleIcon>
-                  <ExclamationCircleIcon />
-                </TabTitleIcon>
-                <TabTitleText>Error Handler</TabTitleText>
-              </>
-            }
-            aria-label="Error Handler editor"
-          >
-            <PipeErrorHandlerPage />
-          </Tab>
+          <Link data-testid="error-handler-tab" to={Links.PipeErrorHandler}>
+            <Tab
+              eventKey={Links.PipeErrorHandler}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <ExclamationCircleIcon />
+                  </TabTitleIcon>
+                  <TabTitleText>Error Handler</TabTitleText>
+                </>
+              }
+              aria-label="Error Handler editor"
+            />
+          </Link>
         )}
       </Tabs>
+
+      <div
+        className={clsx({
+          'shell__tab-content': true,
+          'shell__tab-content--scrollable': currentLocation.pathname !== Links.Home,
+        })}
+      >
+        <Outlet />
+      </div>
     </div>
   );
 };
