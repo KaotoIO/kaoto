@@ -176,13 +176,15 @@ public class CatalogGeneratorBuilder {
                 return null;
             }
 
+            var camelYamlDSLSchema07 = camelCatalogVersionLoader.getCamelYamlDslSchema().replace(
+                    "http://json-schema.org/draft-04/schema#", "http://json-schema.org/draft-07/schema#");
             try {
                 var outputFileName = String.format("%s-%s.json", CAMEL_YAML_DSL_FILE_NAME,
-                        Util.generateHash(camelCatalogVersionLoader.getCamelYamlDslSchema()));
+                        Util.generateHash(camelYamlDSLSchema07));
                 var output = outputDirectory.toPath().resolve(outputFileName);
                 output.getParent().toFile().mkdirs();
 
-                Files.writeString(output, camelCatalogVersionLoader.getCamelYamlDslSchema());
+                Files.writeString(output, camelYamlDSLSchema07);
 
                 var indexEntry = new CatalogDefinitionEntry(
                         CAMEL_YAML_DSL_FILE_NAME,
@@ -196,7 +198,7 @@ public class CatalogGeneratorBuilder {
             }
 
             try {
-                var yamlDslSchema = (ObjectNode) jsonMapper.readTree(camelCatalogVersionLoader.getCamelYamlDslSchema());
+                var yamlDslSchema = (ObjectNode) jsonMapper.readTree(camelYamlDSLSchema07);
 
                 var schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
                 var schemaMap = schemaProcessor.processSubSchema();

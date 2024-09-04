@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction } from 'ajv-draft-04';
+import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { filterDOMProps, FilterDOMPropsKeys } from 'uniforms';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
