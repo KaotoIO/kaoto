@@ -1,8 +1,9 @@
 import { DataMapperDebugger } from './DataMapperDebugger';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 describe('Debug', () => {
-  it('should render', () => {
+  it('should render', async () => {
     render(<DataMapperDebugger />);
+    await screen.findByTestId('main-menu-button');
   });
 });

@@ -10,10 +10,11 @@ import { DocumentType } from '../../models/datamapper/path';
 import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/data-mapper';
 
 describe('DataMapperPage', () => {
-  it('should render initial XSLT mappings', () => {
+  it('should render initial XSLT mappings', async () => {
     console.log(__dirname);
 
     render(<DataMapperPage initialXsltFile={shipOrderToShipOrderXslt} onUpdateMappings={jest.fn()} />);
+    await screen.findByTestId('card-source-parameters-header');
     // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
   });
 

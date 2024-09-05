@@ -33,6 +33,7 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(confirmButton);
     });
+    await screen.findByTestId('add-parameter-button');
     const notexist = screen.queryByTestId('delete-parameter-testparam1-button');
     expect(notexist).toBeFalsy();
   });
@@ -77,6 +78,7 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(detachConfirmButton);
     });
+    await screen.findByTestId('add-parameter-button');
     expect(screen.queryByTestId('ShipTo')).toBeFalsy();
   });
 });

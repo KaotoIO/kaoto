@@ -6,8 +6,13 @@ import { useEffect } from 'react';
 import { IField } from '../models/datamapper/document';
 
 describe('DataMapperProvider', () => {
-  it('should render', () => {
-    render(<DataMapperProvider></DataMapperProvider>);
+  it('should render', async () => {
+    render(
+      <DataMapperProvider>
+        <div data-testid="testdiv" />
+      </DataMapperProvider>,
+    );
+    await screen.findByTestId('testdiv');
   });
 
   it('refreshMappingTree should re-create the MappingTree instance', async () => {

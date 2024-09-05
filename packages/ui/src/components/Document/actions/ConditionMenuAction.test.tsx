@@ -1,5 +1,5 @@
 import { ConditionMenuAction } from './ConditionMenuAction';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MappingNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../../models/datamapper/visualization';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import { DocumentType } from '../../../models/datamapper/path';
@@ -30,6 +30,7 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
@@ -51,6 +52,7 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(ifItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
@@ -72,6 +74,7 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
@@ -89,6 +92,8 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(whenItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
@@ -106,6 +111,8 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
@@ -127,6 +134,7 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
     });
+    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });

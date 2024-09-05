@@ -37,9 +37,11 @@ describe('SourceTargetView', () => {
       act(() => {
         fireEvent.click(detachConfirmButton);
       });
+      await screen.findByTestId('attach-schema-sourceBody-Body-button');
       expect(screen.queryByTestId('ShipTo')).toBeFalsy();
     });
   });
+
   describe('Target Body Document', () => {
     it('should attach and detach schema', async () => {
       render(
@@ -71,6 +73,7 @@ describe('SourceTargetView', () => {
       act(() => {
         fireEvent.click(detachConfirmButton);
       });
+      await screen.findByTestId('attach-schema-sourceBody-Body-button');
       expect(screen.queryByTestId('ShipTo')).toBeFalsy();
     });
   });

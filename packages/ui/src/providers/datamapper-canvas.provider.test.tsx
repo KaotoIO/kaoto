@@ -11,19 +11,24 @@ import { screen } from '@testing-library/react';
 import { TestUtil } from '../stubs/data-mapper';
 
 describe('CanvasProvider', () => {
-  it('should render', () => {
+  it('should render', async () => {
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider></DataMapperCanvasProvider>
+        <DataMapperCanvasProvider>
+          <div data-testid="testdiv" />
+        </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
+    expect(await screen.findByTestId('testdiv')).toBeInTheDocument();
   });
 
   it('should fail if not within DataMapperProvider', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const thrower = () => {
       render(<DataMapperCanvasProvider></DataMapperCanvasProvider>);
     };
     expect(thrower).toThrow();
+    consoleSpy.mockRestore();
   });
 
   it('clearNodeReferencesForPath() should clear for the path', async () => {

@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, memo } from 'react';
+import { FunctionComponent, memo, useEffect } from 'react';
 import { Masthead, MastheadContent, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { ContextToolbar } from './ContextToolbar';
 import './DebugLayout.scss';
@@ -25,7 +25,10 @@ import { IDataMapperProps } from '../../../pages/DataMapper/DataMapperPage';
 
 export const DebugLayout: FunctionComponent<IDataMapperProps> = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;
-  setDebug(true);
+  useEffect(() => {
+    setDebug(true);
+  }, [setDebug]);
+
   const header = (
     <Masthead>
       <MastheadContent>

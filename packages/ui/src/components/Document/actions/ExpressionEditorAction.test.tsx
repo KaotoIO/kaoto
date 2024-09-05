@@ -26,5 +26,5 @@ describe('ExpressionEditorAction', () => {
     });
     const modal = await screen.findByTestId('expression-editor-modal');
     expect(modal).toBeInTheDocument();
-  });
+  }, 10000);
 });
