@@ -20,3 +20,10 @@
     line-height: 22px;
   }
 }
+
+.pf-v5-c-toolbar {
+  --pf-v5-c-toolbar--PaddingTop: 0;
+  --pf-v5-c-toolbar__content--PaddingLeft: 0;
+  --pf-v5-c-toolbar__content--PaddingRight: 0;
+  --pf-v5-c-toolbar--RowGap: 0;
+}

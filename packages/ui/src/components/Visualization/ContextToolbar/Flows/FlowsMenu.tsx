@@ -36,19 +36,21 @@ export const FlowsMenu: FunctionComponent = () => {
             aria-label="flows list"
             onClick={onToggleClick}
           >
-            <Icon isInline>
-              <ListIcon />
-            </Icon>
-            <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm flows-menu-display">
-              <Truncate
-                content={visibleFlowsInformation().singleFlowId ?? 'Routes'}
-                tooltipPosition="top"
-                className="flows-menu-truncate"
-              />
-            </span>
-            <Badge data-testid="flows-list-route-count" isRead>
-              {visibleFlowsInformation().visibleFlowsCount}/{visibleFlowsInformation().totalFlowsCount}
-            </Badge>
+            <div className="flows-menu">
+              <Icon isInline>
+                <ListIcon />
+              </Icon>
+              <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm flows-menu-display">
+                <Truncate
+                  content={visibleFlowsInformation().singleFlowId ?? 'Routes'}
+                  tooltipPosition="top"
+                  className="flows-menu-truncate"
+                />
+              </span>
+              <Badge data-testid="flows-list-route-count" isRead>
+                {visibleFlowsInformation().visibleFlowsCount}/{visibleFlowsInformation().totalFlowsCount}
+              </Badge>
+            </div>
           </MenuToggleAction>,
         ],
       }}

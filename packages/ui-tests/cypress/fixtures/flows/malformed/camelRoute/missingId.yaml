@@ -12,4 +12,4 @@
                 expression: body-constant
         - log:
             id: log-4225
-            message: template message
+            message: ${body}

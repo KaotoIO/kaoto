@@ -43,12 +43,23 @@ export class CamelComponentDefaultService {
   }
 
   private static getDefaultValueFromComponent(componentName: string): object {
-    return parse(`
-      to:
-        id: ${getCamelRandomId('to')}
-        uri: "${componentName}"
-        parameters: {}
-    `);
+    switch (componentName) {
+      case 'log':
+        return parse(`
+          to:
+            id: ${getCamelRandomId('to')}
+            uri: log:InfoLogger
+            parameters: {}
+        `);
+
+      default:
+        return parse(`
+          to:
+            id: ${getCamelRandomId('to')}
+            uri: "${componentName}"
+            parameters: {}
+        `);
+    }
   }
 
   private static getDefaultValueFromKamelet(kameletName: string): object {

@@ -7,10 +7,10 @@
         repeatCount: "5"
       steps:
         - setBody:
-        # wrong id placement - creates unknown node 
+        # wrong id placement - creates unknown node
         - id: setBody-3518
         # wrong id placement
         - log:
             id: log-4225
-            message: template message
+            message: ${body}
     id: route-8484

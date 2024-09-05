@@ -13,6 +13,7 @@ export const restConfigurationStub: { restConfiguration: RestConfiguration } = {
 };
 
 export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
   title: 'Rest Configuration',
   description: 'To configure rest',
   type: 'object',

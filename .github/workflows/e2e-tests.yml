@@ -45,7 +45,7 @@ jobs:
 
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
-        run: yarn workspaces foreach --verbose --topological-dev --exclude @kaoto/camel-catalog run build
+        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog --exclude @kaoto/camel-catalog-plugin run build
 
       # Build lib
       - name: Build @kaoto/kaoto package in lib mode
@@ -63,7 +63,7 @@ jobs:
         with:
           name: catalog-dist
           if-no-files-found: error
-          path: packages/camel-catalog/dist
+          path: packages/catalog-generator/dist/camel-catalog
 
   test-on-firefox:
     needs: install
@@ -95,7 +95,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.3
+        uses: cypress-io/github-action@v6.7.5
         with:
           browser: firefox
           # we have already installed all dependencies above
@@ -154,7 +154,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.3
+        uses: cypress-io/github-action@v6.7.5
         with:
           browser: chrome
           # we have already installed all dependencies above
@@ -213,7 +213,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.3
+        uses: cypress-io/github-action@v6.7.5
         with:
           browser: edge
           # we have already installed all dependencies above

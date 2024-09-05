@@ -1,16 +1,17 @@
 import { Modal, ModalBoxBody, Tab, Tabs } from '@patternfly/react-core';
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { IPropertiesTab } from './PropertiesModal.models';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
   transformKameletComponentIntoTab,
 } from '../../camel-utils/camel-to-tabs.adapter';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
+import { CatalogKind } from '../../models';
 import { ITile } from '../Catalog';
 import './PropertiesModal.scss';
 import { PropertiesTabs } from './PropertiesTabs';
 import { EmptyTableState } from './Tables';
+import { CatalogContext } from '../../providers';
 
 interface IPropertiesModalProps {
   tile: ITile;
@@ -19,16 +20,19 @@ interface IPropertiesModalProps {
 }
 
 export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props) => {
+  const catalogService = useContext(CatalogContext);
   const tabs = useMemo(() => {
     switch (props.tile.type) {
       case CatalogKind.Component: {
-        return transformCamelComponentIntoTab(props.tile.rawObject as ICamelComponentDefinition);
+        return transformCamelComponentIntoTab(catalogService.getComponent(CatalogKind.Component, props.tile.name));
       }
       case CatalogKind.Processor: {
-        return transformCamelProcessorComponentIntoTab(props.tile.rawObject as ICamelProcessorDefinition);
+        return transformCamelProcessorComponentIntoTab(
+          catalogService.getComponent(CatalogKind.Processor, props.tile.name),
+        );
       }
       case CatalogKind.Kamelet: {
-        return transformKameletComponentIntoTab(props.tile.rawObject as IKameletDefinition);
+        return transformKameletComponentIntoTab(catalogService.getComponent(CatalogKind.Kamelet, props.tile.name));
       }
       default:
         throw Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);

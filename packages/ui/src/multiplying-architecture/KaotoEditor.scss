@@ -11,20 +11,17 @@
     flex-shrink: 0;
   }
 
-  // Tab content is scrollable
-  section#{&}__tab-content {
+  // Tab content for Design canvas is not scrollable
+  div#{&}__tab-content {
     flex-grow: 1;
     flex-shrink: 1;
     position: relative;
-    padding: 0 15px 15px;
-    overflow: scroll;
   }
 
-  // Tab content for Design canvas is not scrollable
-  section#{&}__tab-content_design-canvas {
-    flex-grow: 1;
-    flex-shrink: 1;
-    position: relative;
+  // Tab content is scrollable
+  div#{&}__tab-content--scrollable {
+    padding: 0 15px 15px;
+    overflow: scroll;
   }
 }
 

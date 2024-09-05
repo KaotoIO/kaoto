@@ -3,10 +3,8 @@ import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { PropsWithChildren, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef } from 'react';
 import { useReload } from '../hooks/reload.hook';
-import { CatalogModalProvider } from '../providers/catalog-modal.provider';
 import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
-import { DeleteModalContextProvider } from '../providers/delete-modal.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SchemasLoaderProvider } from '../providers/schemas.provider';
 import { SettingsContext } from '../providers/settings.provider';
@@ -116,13 +114,13 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
    */
   useImperativeHandle(forwardedRef, () => {
     return {
+      /* Callback is exposed to the Channel to set the content of the file into the current Editor. */
+      setContent: (path: string, content: string) => Promise.resolve(setContent(path, content)),
       /**
        * Callback is exposed to the Channel to retrieve the current value of the Editor. It returns the value of
        * the editorContent, which is the state that has the kaoto yaml.
        */
       getContent: () => Promise.resolve(sourceCodeRef.current),
-      /* Callback is exposed to the Channel to set the content of the file into the current Editor. */
-      setContent: (path: string, content: string) => Promise.resolve(setContent(path, content)),
       getPreview: () => Promise.resolve(undefined),
       undo: (): Promise<void> => {
         return Promise.resolve();
@@ -130,7 +128,6 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
       redo: (): Promise<void> => {
         return Promise.resolve();
       },
-      getElementPosition: () => Promise.resolve(undefined),
       validate: () => Promise.resolve([]),
       setTheme: () => Promise.resolve(),
     };
@@ -147,11 +144,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <CatalogTilesProvider>
-              <VisibleFlowsProvider>
-                <CatalogModalProvider>
-                  <DeleteModalContextProvider>{props.children}</DeleteModalContextProvider>
-                </CatalogModalProvider>
-              </VisibleFlowsProvider>
+              <VisibleFlowsProvider>{props.children}</VisibleFlowsProvider>
             </CatalogTilesProvider>
           </CatalogLoaderProvider>
         </SchemasLoaderProvider>

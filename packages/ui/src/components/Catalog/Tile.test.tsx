@@ -10,7 +10,6 @@ describe('Tile', () => {
     description: 'tile-description',
     tags: ['tag1', 'tag2'],
     headerTags: ['header-tag1', 'header-tag2'],
-    rawObject: {},
   };
 
   it('renders correctly', () => {

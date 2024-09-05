@@ -143,6 +143,11 @@ describe('camelComponentToTab', () => {
 
     expect(tab).toHaveLength(2);
   });
+
+  it('should return empty tab when component definition is undefined', () => {
+    const tab = transformCamelComponentIntoTab(undefined);
+    expect(tab).toHaveLength(0);
+  });
 });
 
 describe('camelProcessorToTab', () => {
@@ -185,6 +190,11 @@ describe('camelProcessorToTab', () => {
 
   it('should return empty tab', () => {
     const tab = transformCamelProcessorComponentIntoTab(processDef);
+    expect(tab).toHaveLength(0);
+  });
+
+  it('should return empty tab when processor definition is undefined', () => {
+    const tab = transformCamelProcessorComponentIntoTab(undefined);
     expect(tab).toHaveLength(0);
   });
 });
@@ -234,6 +244,11 @@ describe('kameletToTab', () => {
   it('should return empty tab even though properties exist but they are empty', () => {
     kameletDef.spec.definition.properties = {};
     const tab = transformKameletComponentIntoTab(kameletDef);
+    expect(tab).toHaveLength(0);
+  });
+
+  it('should return empty tab when kamelet definition is undefined', () => {
+    const tab = transformKameletComponentIntoTab(undefined);
     expect(tab).toHaveLength(0);
   });
 });

@@ -15,26 +15,20 @@
  */
 package io.kaoto.camelcatalog.generator;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import io.kaoto.camelcatalog.model.CatalogRuntime;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Customize Camel Catalog for Kaoto.
@@ -42,17 +36,23 @@ import io.kaoto.camelcatalog.model.CatalogRuntime;
 public class CamelCatalogProcessor {
     private static final Logger LOGGER = Logger.getLogger(CamelCatalogProcessor.class.getName());
 
-    private static final String TO_DYNAMIC_DEFINITION = "org.apache.camel.model.ToDynamicDefinition";
+    private static final List<String> PARAMETRIZED_PROCESSORS = List.of(
+            "org.apache.camel.model.KameletDefinition",
+            "org.apache.camel.model.PollDefinition",
+            "org.apache.camel.model.ToDynamicDefinition",
+            "org.apache.camel.model.ToDefinition",
+            "org.apache.camel.model.WireTapDefinition"
+    );
     private static final String SET_HEADERS_DEFINITION = "org.apache.camel.model.SetHeadersDefinition";
     private static final String SET_VARIABLES_DEFINITION = "org.apache.camel.model.SetVariablesDefinition";
     private final ObjectMapper jsonMapper;
     private final CamelCatalog camelCatalog;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
     private final CatalogRuntime runtime;
-    private boolean verbose;
+    private final boolean verbose;
 
     public CamelCatalogProcessor(CamelCatalog camelCatalog, ObjectMapper jsonMapper,
-            CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
+                                 CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
         this.jsonMapper = jsonMapper;
         this.camelCatalog = camelCatalog;
         this.schemaProcessor = schemaProcessor;
@@ -115,7 +115,7 @@ public class CamelCatalogProcessor {
 
                         componentDefinition.put("version", componentVersion);
                         if (componentVersion.contains("redhat")) {
-                            componentDefinition.put("provider",  "Red Hat");
+                            componentDefinition.put("provider", "Red Hat");
                         }
 
                         answer.set(name, catalogNode);
@@ -312,21 +312,19 @@ public class CamelCatalogProcessor {
 
             for (var propertyName : camelYamlDslProperties) {
                 var propertySchema = processorSchema.withObject("/properties").withObject("/" + propertyName);
-                if (TO_DYNAMIC_DEFINITION.equals(processorFQCN) && "parameters".equals(propertyName)) {
+                if ("parameters".equals(propertyName) && PARAMETRIZED_PROCESSORS.contains(processorFQCN)) {
                     // "parameters" as a common property is omitted in the catalog, but we need this
-                    // for "toD"
+                    // f.i. "toD" and "poll"
                     propertySchema.put("title", "Parameters");
                     propertySchema.put("description", "URI parameters");
                     sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
-                }
-                if (SET_HEADERS_DEFINITION.equals((processorFQCN)) && "headers".equals(propertyName)) {
+                } else if (SET_HEADERS_DEFINITION.equals((processorFQCN)) && "headers".equals(propertyName)) {
                     propertySchema.put("title", "Headers");
                     propertySchema.put("description", "Headers to set");
                     sortedSchemaProperties.set(propertyName, propertySchema);
                     continue;
-                }
-                if (SET_VARIABLES_DEFINITION.equals((processorFQCN)) && "variables".equals(propertyName)) {
+                } else if (SET_VARIABLES_DEFINITION.equals((processorFQCN)) && "variables".equals(propertyName)) {
                     propertySchema.put("title", "Variables");
                     propertySchema.put("description", "Variables to set");
                     sortedSchemaProperties.set(propertyName, propertySchema);

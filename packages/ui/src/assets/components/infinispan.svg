@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="artwork" width="209.17" height="209.17" version="1.1" viewBox="0 0 209.17 209.17" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <style>.els-1{fill:#0b2545;}.els-2{fill:#599fc6;}.els-3{fill:#fff;}</style>
+ </defs>
+ <rect class="els-2" width="209.17" height="209.17"/>
+ <path class="els-3" d="m115.81 104.58a82 82 0 0 0-82-82v22.42a59.65 59.65 0 0 1 59.59 59.59 82 82 0 0 0 82 82.05v-22.46a59.66 59.66 0 0 1-59.59-59.6z"/>
+ <path class="els-3" d="m89.19 126.46a59.69 59.69 0 0 1-55.42 37.72v22.45a81.92 81.92 0 0 0 66.67-34.26 88.52 88.52 0 0 1-11.25-25.91z"/>
+ <path class="els-3" d="m120 82.71a59.69 59.69 0 0 1 55.4-37.71v-22.46a81.92 81.92 0 0 0-66.67 34.26 88.52 88.52 0 0 1 11.27 25.91z"/>
+</svg>
