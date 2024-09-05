@@ -4,12 +4,12 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
-  "canHaveNextStep": true,
-  "canHavePreviousStep": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
   "canHaveSpecialChildren": false,
   "canRemoveFlow": true,
-  "canRemoveStep": true,
-  "canReplaceStep": true,
+  "canRemoveStep": false,
+  "canReplaceStep": false,
 }
 `;
 
