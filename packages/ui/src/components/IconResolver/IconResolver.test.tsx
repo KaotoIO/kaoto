@@ -10,7 +10,6 @@ describe('IconResolver', () => {
     description: 'description',
     name: 'name',
     tags: [],
-    rawObject: {},
   };
 
   it('should render default icon', () => {

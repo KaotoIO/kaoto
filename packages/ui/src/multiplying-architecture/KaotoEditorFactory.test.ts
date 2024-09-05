@@ -1,9 +1,10 @@
+jest.mock('./KaotoEditorApp');
+jest.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
 import { ISettingsModel, NodeLabelType } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
-jest.mock('./KaotoEditorApp');
 
 describe('KaotoEditorFactory', () => {
   afterAll(() => {

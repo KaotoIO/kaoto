@@ -7,8 +7,6 @@ export interface ITile {
   tags: string[];
   version?: string;
   provider?: string;
-  /** @deprecated Please relay on name property instead */
-  rawObject?: unknown;
 }
 
 export type TileFilter = (item: ITile) => boolean;

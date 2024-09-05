@@ -1,5 +1,5 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
-import Ajv, { ValidateFunction } from 'ajv-draft-04';
+import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';

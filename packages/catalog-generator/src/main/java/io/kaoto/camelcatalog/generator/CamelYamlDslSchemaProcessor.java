@@ -275,6 +275,7 @@ public class CamelYamlDslSchemaProcessor {
             propToRemove.forEach(processorProperties::remove);
             populateDefinitions(processor, relocatedDefinitions);
             sanitizeDefinitions(processorFQCN, processor);
+            processor.put("$schema", "http://json-schema.org/draft-07/schema#");
             answer.put(processorFQCN, processor);
         }
         return answer;
@@ -581,6 +582,7 @@ public class CamelYamlDslSchemaProcessor {
             propToRemove.forEach(yamlInProperties::remove);
             populateDefinitions(yamlInDefinition, relocatedDefinitions);
             sanitizeDefinitions(yamlInFQCN, yamlInDefinition);
+            yamlInDefinition.put("$schema", "http://json-schema.org/draft-07/schema#");
             answer.put(yamlInName, yamlInDefinition);
         }
         return answer;

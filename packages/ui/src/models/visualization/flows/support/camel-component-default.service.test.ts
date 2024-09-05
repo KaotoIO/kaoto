@@ -43,8 +43,18 @@ describe('CamelComponentDefaultService', () => {
         name: 'log',
       } as DefinedComponent) as any;
       expect(logDefault.log).toBeDefined();
-      expect((logDefault.log.id as string).startsWith('log-')).toBeTruthy();
+      expect(logDefault.log.id as string).toMatch(/^log-/);
       expect(logDefault.log.message).toEqual('${body}');
+    });
+
+    it('should return the default value for a log component', () => {
+      const logDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'component',
+        name: 'log',
+      } as DefinedComponent) as any;
+      expect(logDefault.to).toBeDefined();
+      expect(logDefault.to.id as string).toMatch(/^to-/);
+      expect(logDefault.to.uri).toEqual('log:InfoLogger');
     });
 
     it('should return the default value for a doCatch processor', () => {

@@ -9,6 +9,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "id": "route-1234",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
       "org.apache.camel.model.ErrorHandlerDefinition": {
@@ -250,6 +251,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "uri": "log",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Sends the message to a static endpoint",
     "properties": {
@@ -597,6 +599,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "message": "Hello World",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Used for printing custom messages to the logger.",
     "properties": {
@@ -679,6 +682,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
     "uri": "non-existing-component",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Sends the message to a static endpoint",
     "properties": {
@@ -737,6 +741,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "message": "\${body}",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Used for printing custom messages to the logger.",
     "properties": {
@@ -819,6 +824,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "uri": "bean",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Sends the message to a static endpoint",
     "properties": {
@@ -933,6 +939,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "uri": "bean",
   },
   "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "description": "Sends the message to a dynamic endpoint",
     "properties": {

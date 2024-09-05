@@ -8,7 +8,7 @@
       steps:
         - log:
             id: log-6809
-            message: template message
+            message: ${body}
 - route:
     id: route-4321
     from:
@@ -19,4 +19,4 @@
       steps:
         - log:
             id: log-2966
-            message: template message
+            message: ${body}

@@ -1,3 +1,4 @@
+import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import {
   Editor,
   EditorApi,
@@ -6,15 +7,15 @@ import {
   KogitoEditorEnvelopeContextType,
 } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
-import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import { RefObject, createRef } from 'react';
+import { RouterProvider } from 'react-router-dom';
 import { AbstractSettingsAdapter } from '../models/settings';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
 import { KaotoBridge } from './KaotoBridge';
-import { KaotoEditor } from './KaotoEditor';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export class KaotoEditorApp implements Editor {
   private readonly editorRef: RefObject<EditorApi>;
@@ -28,19 +29,6 @@ export class KaotoEditorApp implements Editor {
     private readonly settingsAdapter: AbstractSettingsAdapter,
   ) {
     this.editorRef = createRef<EditorApi>();
-  }
-
-  async getElementPosition() {
-    return {
-      bottom: 0,
-      height: 0,
-      left: 0,
-      right: 0,
-      top: 0,
-      width: 0,
-      x: 0,
-      y: 0,
-    };
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -81,21 +69,23 @@ export class KaotoEditorApp implements Editor {
             <KaotoBridge
               ref={this.editorRef}
               channelType={this.initArgs.channel}
-              onReady={() => this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send()}
+              onReady={() => {
+                this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send();
+              }}
               onNewEdit={(edit) => {
                 this.envelopeContext.channelApi.notifications.kogitoWorkspace_newEdit.send(edit);
               }}
-              setNotifications={(path, notifications) =>
+              setNotifications={(path, notifications) => {
                 this.envelopeContext.channelApi.notifications.kogitoNotifications_setNotifications.send(
                   path,
                   notifications,
-                )
-              }
-              onStateControlCommandUpdate={(command) =>
-                this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command)
-              }
+                );
+              }}
+              onStateControlCommandUpdate={(command) => {
+                this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command);
+              }}
             >
-              <KaotoEditor />
+              <RouterProvider router={kaotoEditorRouter} />
             </KaotoBridge>
           </SettingsProvider>
         </EntitiesProvider>

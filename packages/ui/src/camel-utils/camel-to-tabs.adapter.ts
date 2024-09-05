@@ -1,5 +1,6 @@
 import { IPropertiesTab, IPropertiesTable } from '../components/PropertiesModal';
 import { ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
+import { isDefined } from '../utils';
 import {
   IPropertiesTableFilter,
   camelComponentApisToTable,
@@ -46,9 +47,12 @@ const transformPropertiesIntoTab = <K, T>(
   };
 };
 
-export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefinition): IPropertiesTab[] => {
-  const finalTabs: IPropertiesTab[] = [];
+export const transformCamelComponentIntoTab = (
+  componentDef: ICamelComponentDefinition | undefined,
+): IPropertiesTab[] => {
+  if (!isDefined(componentDef)) return [];
 
+  const finalTabs: IPropertiesTab[] = [];
   let tab = transformPropertiesIntoTab(
     [
       {
@@ -116,7 +120,11 @@ export const transformCamelComponentIntoTab = (componentDef: ICamelComponentDefi
   return finalTabs;
 };
 
-export const transformCamelProcessorComponentIntoTab = (processorDef: ICamelProcessorDefinition): IPropertiesTab[] => {
+export const transformCamelProcessorComponentIntoTab = (
+  processorDef: ICamelProcessorDefinition | undefined,
+): IPropertiesTab[] => {
+  if (!isDefined(processorDef)) return [];
+
   const finalTabs: IPropertiesTab[] = [];
   const tab = transformPropertiesIntoTab(
     [
@@ -131,7 +139,9 @@ export const transformCamelProcessorComponentIntoTab = (processorDef: ICamelProc
   return finalTabs;
 };
 
-export const transformKameletComponentIntoTab = (kameletDef: IKameletDefinition): IPropertiesTab[] => {
+export const transformKameletComponentIntoTab = (kameletDef: IKameletDefinition | undefined): IPropertiesTab[] => {
+  if (!isDefined(kameletDef)) return [];
+
   const finalTabs: IPropertiesTab[] = [];
   const tab = transformPropertiesIntoTab(
     [

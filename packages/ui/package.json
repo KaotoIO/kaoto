@@ -58,7 +58,6 @@
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",
     "ajv": "^8.12.0",
-    "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.0",
     "chevrotain": "10.5.0",
     "clsx": "^2.1.0",

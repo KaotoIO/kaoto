@@ -24,7 +24,7 @@
     <version.junit>5.11.0</version.junit>
     <version.kubernetes-model>6.13.3</version.kubernetes-model>
     <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
-    <version.maven-surefire-plugin>3.4.0</version.maven-surefire-plugin>
+    <version.maven-surefire-plugin>3.5.0</version.maven-surefire-plugin>
   </properties>
   <dependencies>
     <dependency>
@@ -86,13 +86,13 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.12.0</version>
+      <version>5.13.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>5.12.0</version>
+      <version>5.13.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
