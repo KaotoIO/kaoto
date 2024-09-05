@@ -11,5 +11,5 @@ export const routeTemplate = () => {
       steps:
         - log:
             id: ${getCamelRandomId('log')}
-            message: template message`;
+            message: \${body}`;
 };

@@ -80,7 +80,7 @@ describe('useEntities', () => {
       steps:
         - log:
             id: log-1234
-            message: template message
+            message: \${body}
 `,
     );
   });
@@ -178,7 +178,7 @@ describe('useEntities', () => {
       steps:
         - log:
             id: log-1234
-            message: template message
+            message: \${body}
 `;
 
       const { result } = renderHook(() => useEntities());
@@ -219,7 +219,7 @@ describe('useEntities', () => {
       steps:
         - log:
             id: log-1234
-            message: template message
+            message: \${body}
 `,
       );
     });
