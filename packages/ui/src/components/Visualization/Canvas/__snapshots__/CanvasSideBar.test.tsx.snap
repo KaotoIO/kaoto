@@ -221,7 +221,7 @@ parameters:
 steps:
   - log:
       id: log-1234
-      message: template message
+      message: \${body}
 
                   </code>
                 </pre>
