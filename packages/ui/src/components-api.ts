@@ -1,1 +1,1 @@
-export * from './external/RouteVisualisation/RouteVisualization';
+export * from './external/RouteVisualization/RouteVisualization';
