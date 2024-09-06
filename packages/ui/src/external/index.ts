@@ -1,1 +1,1 @@
-export * from './RouteVisualisation/RouteVisualization';
+export * from './RouteVisualization/RouteVisualization';
