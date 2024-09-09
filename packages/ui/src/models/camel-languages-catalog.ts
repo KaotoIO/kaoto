@@ -7,6 +7,6 @@ export interface ICamelLanguageDefinition {
   propertiesSchema: KaotoSchemaDefinition['schema'];
 }
 
-export interface ICamelLanguageModel extends ICamelProcessorModel {}
+export type ICamelLanguageModel = ICamelProcessorModel;
 
-export interface ICamelLanguageProperty extends ICamelProcessorProperty {}
+export type ICamelLanguageProperty = ICamelProcessorProperty;

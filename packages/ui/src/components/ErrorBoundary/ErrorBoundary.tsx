@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExpandableSection } from '@patternfly/react-core';
 import { Component, ReactNode } from 'react';

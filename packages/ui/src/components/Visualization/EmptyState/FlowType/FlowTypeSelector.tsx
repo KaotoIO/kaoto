@@ -81,7 +81,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               currentFlowType.multipleRoute ? (
                 <p>Add a new {currentFlowType.name} route</p>
               ) : (
-                <p>The {currentFlowType.name} type doesn't support multiple routes</p>
+                <p>The {currentFlowType.name} type does not support multiple routes</p>
               )
             }
           >
