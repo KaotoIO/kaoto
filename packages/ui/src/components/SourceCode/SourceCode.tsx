@@ -1,8 +1,8 @@
 import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
-import { configureMonacoYaml } from 'monaco-yaml';
+import { configureMonacoYaml, JSONSchema } from 'monaco-yaml';
 import { FunctionComponent, MutableRefObject, Ref, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
-import { SourceSchemaType, sourceSchemaConfig } from '../../models/camel';
+import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { RedoButton } from './RedoButton';
 import './SourceCode.scss';
@@ -32,7 +32,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
           format: true,
           schemas: [
             {
-              schema: currentSchema.schema,
+              schema: currentSchema.schema as JSONSchema,
               uri: currentSchema.uri,
               fileMatch: ['*'],
             },
