@@ -1,6 +1,5 @@
 import { ChannelType, EditorApi, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
-import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { PropsWithChildren, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef } from 'react';
 import { useReload } from '../hooks/reload.hook';
 import { CatalogTilesProvider } from '../providers/catalog-tiles.provider';
@@ -30,7 +29,7 @@ interface KaotoBridgeProps {
    * that a change has taken place.
    * @param edit An object representing the unique change.
    */
-  onNewEdit: (edit: WorkspaceEdit) => void;
+  onNewEdit: (edit: string) => Promise<void>;
 
   /**
    * Delegation for NotificationsChannelApi.kogigotNotifications_setNotifications(path, notifications) to report all validation
@@ -89,14 +88,14 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
    */
   useEffect(() => {
     const unsubscribeFromEntities = eventNotifier.subscribe('entities:updated', (newContent: string) => {
-      props.onNewEdit(new WorkspaceEdit(newContent));
+      props.onNewEdit(newContent);
       sourceCodeRef.current = newContent;
     });
 
     const unsubscribeFromSourceCode = eventNotifier.subscribe('code:updated', (newContent: string) => {
       /** Ignore the first change, from an empty string to the file content  */
       if (sourceCodeRef.current !== '') {
-        props.onNewEdit(new WorkspaceEdit(newContent));
+        props.onNewEdit(newContent);
       }
       sourceCodeRef.current = newContent;
     });

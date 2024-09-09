@@ -1,7 +1,13 @@
 import '@testing-library/jest-dom';
-import { FilterDOMPropsKeys, filterDOMProps } from 'uniforms';
 import { setupJestCanvasMock } from 'jest-canvas-mock';
-// import '@testing-library/jest-dom/extend-expect'
+import { subtle } from 'node:crypto';
+import { TextDecoder, TextEncoder } from 'node:util';
+import { FilterDOMPropsKeys, filterDOMProps } from 'uniforms';
+
+Object.defineProperties(global, {
+  TextDecoder: { value: TextDecoder },
+  TextEncoder: { value: TextEncoder },
+});
 
 filterDOMProps.register('inputRef' as FilterDOMPropsKeys, 'placeholder' as FilterDOMPropsKeys);
 enableSVGElementMocks();
@@ -13,7 +19,7 @@ Object.defineProperty(window, 'fetch', {
 
 jest
   .spyOn(global, 'crypto', 'get')
-  .mockImplementation(() => ({ getRandomValues: () => [12345678] }) as unknown as Crypto);
+  .mockImplementation(() => ({ getRandomValues: () => [12345678], subtle }) as unknown as Crypto);
 
 jest.spyOn(console, 'warn').mockImplementation((...args) => {
   if (
