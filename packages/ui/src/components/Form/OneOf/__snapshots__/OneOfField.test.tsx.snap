@@ -23,6 +23,9 @@ exports[`OneOfField should render 1`] = `
           <button
             aria-expanded="false"
             class="pf-v5-c-menu-toggle pf-m-full-width"
+            data-ouia-component-id="OUIA-Generated-MenuToggle-1"
+            data-ouia-component-type="PF5/MenuToggle"
+            data-ouia-safe="true"
             data-testid="-oneof-toggle"
             id="-oneof-toggle"
             type="button"

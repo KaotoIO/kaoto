@@ -107,7 +107,7 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   return (
     <div className="dataformat-metadata-editor">
-      <Card isCompact={true} isExpanded={isExpanded} className="dataformat-metadata-editor-card">
+      <Card isCompact isExpanded={isExpanded} className="dataformat-metadata-editor-card">
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
           <CardTitle>Data Format</CardTitle>
         </CardHeader>

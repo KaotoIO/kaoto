@@ -112,7 +112,7 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
 
   return (
     <div className="expression-metadata-editor">
-      <Card isCompact={true} isExpanded={isExpanded} className="expression-metadata-editor-card">
+      <Card isCompact isExpanded={isExpanded} className="expression-metadata-editor-card">
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
           <CardTitle>Expression</CardTitle>
         </CardHeader>
