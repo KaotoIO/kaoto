@@ -252,7 +252,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const isPlaceholder = step?.ref?.name === undefined;
     const icon = isPlaceholder
       ? NodeIconResolver.getPlaceholderIcon()
-      : kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
+      : (kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon());
 
     const data: IVisualizationNodeData = {
       path,

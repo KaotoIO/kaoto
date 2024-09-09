@@ -132,7 +132,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
                 <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
                   {getDescriptionForType(sourceType) !== undefined
                     ? getDescriptionForType(sourceType)
-                    : (sourceSchema.schema?.schema as { description: string }).description ?? ''}
+                    : ((sourceSchema.schema?.schema as { description: string }).description ?? '')}
                 </span>
               }
               isDisabled={isOptionDisabled}
