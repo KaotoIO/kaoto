@@ -22,7 +22,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
      * and doesn't take into account the sidebar children.
      */
     <TopologySideBar resizable>
-      <ErrorBoundary key={props.selectedNode.id} fallback={<p>Something didn't work as expected</p>}>
+      <ErrorBoundary key={props.selectedNode.id} fallback={<p>Something did not work as expected</p>}>
         <FilteredFieldProvider>
           <CanvasForm selectedNode={props.selectedNode} onClose={props.onClose} />
         </FilteredFieldProvider>

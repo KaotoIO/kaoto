@@ -37,7 +37,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       default:
         throw Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);
     }
-  }, [props.tile]);
+  }, [catalogService, props.tile.name, props.tile.type]);
   const [activeTabKey, setActiveTabKey] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<IPropertiesTab>(tabs[0]);
 

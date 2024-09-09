@@ -7,6 +7,6 @@ export interface ICamelLoadBalancerDefinition {
   propertiesSchema: KaotoSchemaDefinition['schema'];
 }
 
-export interface ICamelLoadBalancerModel extends ICamelProcessorModel {}
+export type ICamelLoadBalancerModel = ICamelProcessorModel;
 
-export interface ICamelLoadBalancerProperty extends ICamelProcessorProperty {}
+export type ICamelLoadBalancerProperty = ICamelProcessorProperty;

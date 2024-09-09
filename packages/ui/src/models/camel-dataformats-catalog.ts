@@ -7,6 +7,6 @@ export interface ICamelDataformatDefinition {
   propertiesSchema: KaotoSchemaDefinition['schema'];
 }
 
-export interface ICamelDataformatModel extends ICamelProcessorModel {}
+export type ICamelDataformatModel = ICamelProcessorModel;
 
-export interface ICamelDataformatProperty extends ICamelProcessorProperty {}
+export type ICamelDataformatProperty = ICamelProcessorProperty;
