@@ -5719,7 +5719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:^7.0.0, @types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.9":
+"@types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.9":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: 10/1a3c3e06236e4c4aab89499c428d585527ce50c24fe8259e8b3926d3df4cfbbbcf306cfc73ddfb66cbafc973116efd15967020b0f738f63e09e64c7d260519e7
@@ -13500,14 +13500,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-languageserver-types@npm:^0.3.0":
-  version: 0.3.4
-  resolution: "monaco-languageserver-types@npm:0.3.4"
+"monaco-languageserver-types@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "monaco-languageserver-types@npm:0.4.0"
   dependencies:
     monaco-types: "npm:^0.1.0"
     vscode-languageserver-protocol: "npm:^3.0.0"
     vscode-uri: "npm:^3.0.0"
-  checksum: 10/8cdb2e7e98a61669c5bb5a04a804db2ddeb354f6ac60508b73c63056c97d4b7b31eeafd95ec1e2c4a8def2079cdb28249f17f6681c8d4cd488520566af5d7034
+  checksum: 10/758740ac3b2ad9ada481cf5d23b1e5a2d229b416307a2de59a73bf76b27ddac211aceba6d11e40cb7d65e4f9b52666201aca42d6bccc1c88c50642c96385a8a2
   languageName: node
   linkType: hard
 
@@ -13537,12 +13537,11 @@ __metadata:
   linkType: hard
 
 "monaco-yaml@npm:^5.1.1":
-  version: 5.2.0
-  resolution: "monaco-yaml@npm:5.2.0"
+  version: 5.2.2
+  resolution: "monaco-yaml@npm:5.2.2"
   dependencies:
-    "@types/json-schema": "npm:^7.0.0"
     jsonc-parser: "npm:^3.0.0"
-    monaco-languageserver-types: "npm:^0.3.0"
+    monaco-languageserver-types: "npm:^0.4.0"
     monaco-marker-data-provider: "npm:^1.0.0"
     monaco-types: "npm:^0.1.0"
     monaco-worker-manager: "npm:^2.0.0"
@@ -13554,7 +13553,7 @@ __metadata:
     yaml: "npm:^2.0.0"
   peerDependencies:
     monaco-editor: ">=0.36"
-  checksum: 10/d28b586ebf857782d54be0257aa61f9deebc9ba28ed57b06c462be83b7b74f5f4fbdbbcc9134d177aec136ef2455a1d88608316b44604b2fca6e087e7bc69564
+  checksum: 10/a950462b366f3f2654c158bcf5f136b8c13aa6a90769782fbf3772f920bebfc2f60cfcfea3428dffb002382f4cef42863109f33895d67bf38a33369f5f6fdf2e
   languageName: node
   linkType: hard
 
