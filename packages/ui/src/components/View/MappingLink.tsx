@@ -1,4 +1,4 @@
-import { FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { CSSProperties, FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
@@ -21,6 +21,7 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
   const lineStyle = {
     stroke: 'gray',
     strokeWidth: isOver ? 6 : 3,
+    pointerEvents: 'auto' as CSSProperties['pointerEvents'],
   };
 
   const onMouseEnter = useCallback(() => {
@@ -145,6 +146,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
       data-testid="mapping-links"
       style={{
         position: 'absolute',
+        pointerEvents: 'none',
         top: 0,
         left: 0,
         width: '100%',

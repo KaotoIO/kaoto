@@ -29,7 +29,6 @@ export const SourceTargetView: FunctionComponent = () => {
 
   return (
     <Split className="source-target-view">
-      <MappingLinksContainer />
       <SplitItem className="source-target-view__source-split" isFilled>
         <SourcePanel />
       </SplitItem>
@@ -50,6 +49,7 @@ export const SourceTargetView: FunctionComponent = () => {
           </PanelMain>
         </Panel>
       </SplitItem>
+      <MappingLinksContainer />
     </Split>
   );
 };
