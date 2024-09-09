@@ -39,6 +39,8 @@ describe('DebugLayout', () => {
       }, [getAllNodePaths, mappingTree, sourceBodyDocument, sourceParameterMap]);
       return <>{children}</>;
     };
+    const mockLog = jest.fn();
+    console.log = mockLog;
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
@@ -52,6 +54,8 @@ describe('DebugLayout', () => {
     const targetNodes = screen.getAllByTestId(/node-target-.*/);
     expect(targetNodes.length).toBeGreaterThan(10);
     expect(mappingLinks.length).toBeGreaterThan(10);
+    const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
+    expect(nodeRefsLog.length).toBeGreaterThan(0);
   });
 
   describe('Main Menu', () => {
@@ -73,6 +77,8 @@ describe('DebugLayout', () => {
         }, [mappingTree]);
         return <>{children}</>;
       };
+      const mockLog = jest.fn();
+      console.log = mockLog;
       render(
         <DataMapperProvider>
           <DataMapperCanvasProvider>
@@ -115,6 +121,8 @@ describe('DebugLayout', () => {
         fireEvent.click(closeModalButton);
       });
       expect(screen.queryByTestId('export-mappings-modal')).toBeFalsy();
+      const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
+      expect(nodeRefsLog.length).toBeGreaterThan(0);
     });
   });
 

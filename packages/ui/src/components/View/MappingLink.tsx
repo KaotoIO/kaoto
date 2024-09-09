@@ -1,4 +1,4 @@
-import { FunctionComponent, MutableRefObject, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
@@ -51,9 +51,11 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const { mappingTree, sourceBodyDocument, sourceParameterMap } = useDataMapper();
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const getCoordFromFieldRef = useCallback(
     (sourceRef: MutableRefObject<NodeReference>, targetRef: MutableRefObject<NodeReference>) => {
+      const svgRect = svgRef.current?.getBoundingClientRect();
       const sourceRect = sourceRef.current?.headerRef?.getBoundingClientRect();
       const targetRect = targetRef.current?.headerRef?.getBoundingClientRect();
       if (!sourceRect || !targetRect) {
@@ -61,10 +63,10 @@ export const MappingLinksContainer: FunctionComponent = () => {
       }
 
       return {
-        x1: sourceRect.right,
-        y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2,
-        x2: targetRect.left,
-        y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2,
+        x1: sourceRect.right - (svgRect ? svgRect.left : 0),
+        y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - (svgRect ? svgRect.top : 0),
+        x2: targetRect.left - (svgRect ? svgRect.left : 0),
+        y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2 - (svgRect ? svgRect.top : 0),
       };
     },
     [],
@@ -139,6 +141,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   return (
     <svg
+      ref={svgRef}
       data-testid="mapping-links"
       style={{
         position: 'absolute',

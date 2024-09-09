@@ -25,7 +25,6 @@ export interface IDataMapperProps {
   onUpdateDocument?: (definition: DocumentDefinition) => void;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
-  isEmbedded?: boolean;
 }
 
 export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({
