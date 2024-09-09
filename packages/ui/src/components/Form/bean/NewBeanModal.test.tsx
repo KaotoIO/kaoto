@@ -20,7 +20,7 @@ describe('NewBeanModal', () => {
     render(
       <NewBeanModal
         beanSchema={beanSchema}
-        isOpen={true}
+        isOpen
         onCancelCreateBean={mockOnCancel}
         onCreateBean={mockOnCreate}
         propertyTitle={'foo'}

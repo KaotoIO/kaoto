@@ -55,7 +55,7 @@ describe('PropertiesModal', () => {
 
     it('renders component properties table correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Poll Atom RSS feeds.');
@@ -146,7 +146,7 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Asterisk');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
@@ -168,7 +168,7 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
@@ -202,7 +202,7 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
         'ASN.1 File',
@@ -226,7 +226,7 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
         'AWS DynamoDB Streams Source',
@@ -273,7 +273,7 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />);
+      const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
       expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
         'NATS Sink',
@@ -301,7 +301,7 @@ describe('PropertiesModal', () => {
     });
 
     it('fires error for property modal', () => {
-      expect(() => render(<PropertiesModal tile={tile} isModalOpen={true} onClose={jest.fn()} />)).toThrow(
+      expect(() => render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />)).toThrow(
         'Unknown CatalogKind during rendering modal: tile-type',
       );
     });
