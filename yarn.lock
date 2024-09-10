@@ -2639,6 +2639,8 @@ __metadata:
     eslint: "npm:^9.10.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-prettier: "npm:^5.2.1"
+    eslint-plugin-react: "npm:^7.35.2"
+    eslint-plugin-react-hooks: "npm:5.1.0-rc-eb3ad065-20240822"
     msw: "npm:^2.0.2"
     msw-storybook-addon: "npm:^2.0.3"
     prettier: "npm:^3.0.0"
