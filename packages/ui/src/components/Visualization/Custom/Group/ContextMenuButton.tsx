@@ -1,4 +1,4 @@
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Tooltip } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons';
 import { ContextMenu, PointIface } from '@patternfly/react-topology';
 import { FunctionComponent, MouseEventHandler, useRef, useState } from 'react';
@@ -26,9 +26,14 @@ export const ContextMenuButton: FunctionComponent<ContextMenuButtonProps> = ({
   return (
     <>
       <Tooltip content="Contextual menu">
-        <Button className="container-controls" variant="control" onClick={onClick} data-testid={dataTestId}>
+        <button
+          className="container-controls"
+          id="container-controls-contextual-menu"
+          onClick={onClick}
+          data-testid={dataTestId}
+        >
           <EllipsisVIcon />
-        </Button>
+        </button>
       </Tooltip>
       <ContextMenu
         reference={reference.current}
