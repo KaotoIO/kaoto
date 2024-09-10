@@ -36,6 +36,7 @@ import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
 import { FlowService } from './flow.service';
+import './Canvas.scss';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;

@@ -1,0 +1,6 @@
+#topology-resize-panel {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v5-c-drawer__splitter::after {
+    border: none;
+  }
+}
