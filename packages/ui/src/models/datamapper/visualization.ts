@@ -1,5 +1,5 @@
 import { IDocument, IField, PrimitiveDocument } from './document';
-import { FieldItem, MappingItem, MappingParentType, MappingTree } from './mapping';
+import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
 import { DocumentType, NodePath } from './path';
 
 export interface NodeData {
@@ -95,6 +95,37 @@ export class MappingNodeData implements TargetNodeData {
   isSource = false;
   isPrimitive: boolean;
   mappingTree: MappingTree;
+}
+
+class SimpleNodePath extends NodePath {
+  constructor(public path: string) {
+    super();
+  }
+  toString() {
+    return this.path;
+  }
+}
+export class EditorNodeData implements NodeData {
+  constructor(public mapping: ExpressionItem) {}
+  id: string = 'editor';
+  isPrimitive: boolean = false;
+  isSource: boolean = false;
+  path: NodePath = new SimpleNodePath('Editor');
+  title: string = 'Editor';
+}
+
+export class FunctionNodeData implements NodeData {
+  constructor(public functionDefinition: IFunctionDefinition) {
+    this.id = functionDefinition.name;
+    this.title = functionDefinition.displayName;
+    this.path = new SimpleNodePath('Func:' + functionDefinition.name);
+  }
+
+  id: string;
+  isPrimitive: boolean = false;
+  isSource: boolean = true;
+  path: NodePath;
+  title: string;
 }
 
 export interface IMappingLink {

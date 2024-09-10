@@ -14,6 +14,7 @@ import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { IDocument } from '../models/datamapper/document';
 import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { XPathService } from './xpath/xpath.service';
 
 describe('MappingService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -98,6 +99,16 @@ describe('MappingService', () => {
       expect(chooseItem instanceof ChooseItem).toBeTruthy();
       expect(chooseItem.children[0] instanceof WhenItem).toBeTruthy();
       expect(chooseItem.children[1] instanceof OtherwiseItem).toBeTruthy();
+    });
+  });
+
+  describe('wrapWithFunction()', () => {
+    it('should wrap with xpath function', () => {
+      const concatFx = XPathService.functions.String.find((f) => f.name === 'concat');
+      const valueSelector = new ValueSelector(tree);
+      valueSelector.expression = '/path/to/field';
+      MappingService.wrapWithFunction(valueSelector, concatFx!);
+      expect(valueSelector.expression).toEqual('concat(/path/to/field)');
     });
   });
 

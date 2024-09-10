@@ -7,24 +7,9 @@ import {
   useMemo,
   useState,
 } from 'react';
-import {
-  DataRef,
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragOverlay,
-  DragStartEvent,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { Label } from '@patternfly/react-core';
-import { useDataMapper } from '../hooks/useDataMapper';
 import { DnDHandler } from './dnd/DnDHandler';
-import { NodeData } from '../models/datamapper/visualization';
 import { DocumentType, NodePath } from '../models/datamapper/path';
+import { DatamapperDndProvider } from './datamapper-dnd.provider';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -46,50 +31,11 @@ export interface ICanvasContext {
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
 
 export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const { mappingTree, refreshMappingTree } = useDataMapper();
   const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>();
   const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>();
 
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: {
-      distance: 10,
-    },
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 250,
-      tolerance: 5,
-    },
-  });
-  const keyboardSensor = useSensor(KeyboardSensor);
-  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
-
-  const [activeData, setActiveData] = useState<DataRef<NodeData> | null>(null);
   const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
     new Map<string, MutableRefObject<NodeReference>>(),
-  );
-
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      activeHandler && activeHandler.handleDragStart(event);
-      setActiveData(event.active.data as DataRef<NodeData>);
-    },
-    [activeHandler],
-  );
-
-  const handleDragOver = useCallback(
-    (event: DragOverEvent) => {
-      activeHandler && activeHandler.handleDragOver(event);
-    },
-    [activeHandler],
-  );
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      activeHandler && activeHandler.handleDragEnd(event, mappingTree, refreshMappingTree);
-      setActiveData(null);
-    },
-    [activeHandler, mappingTree, refreshMappingTree],
   );
 
   const setNodeReference = useCallback(
@@ -174,12 +120,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
 
   return (
     <CanvasContext.Provider value={value}>
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-        {props.children}
-        <DragOverlay dropAnimation={null}>
-          <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
-        </DragOverlay>
-      </DndContext>
+      <DatamapperDndProvider handler={activeHandler}>{props.children}</DatamapperDndProvider>
     </CanvasContext.Provider>
   );
 };

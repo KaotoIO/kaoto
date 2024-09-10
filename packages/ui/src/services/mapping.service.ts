@@ -12,6 +12,7 @@ import {
   ForEachItem,
   ExpressionItem,
   ValueType,
+  IFunctionDefinition,
 } from '../models/datamapper/mapping';
 import { IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
 import { DocumentService } from './document.service';
@@ -201,6 +202,10 @@ export class MappingService {
     newChildren.push(otherwiseItem);
     item.children = newChildren;
     return otherwiseItem;
+  }
+
+  static wrapWithFunction(condition: ExpressionItem, func: IFunctionDefinition) {
+    condition.expression = `${func.name}(${condition.expression})`;
   }
 
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {
