@@ -1,6 +1,10 @@
 .canvas-surface {
   display: flex;
   flex-flow: column;
+
+  .pf-topology-content {
+    border-radius: 15px;
+  }
 }
 
 // Override for the default patternfly class
