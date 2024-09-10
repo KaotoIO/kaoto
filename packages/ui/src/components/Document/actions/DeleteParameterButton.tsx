@@ -68,7 +68,7 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
           </Button>,
         ]}
       >
-        Delete parameter "{parameterName}"? Related mappings will be also removed.
+        Delete parameter &quot;{parameterName}&quot;? Related mappings will be also removed.
       </Modal>
     </>
   );
