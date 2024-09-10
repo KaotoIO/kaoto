@@ -109,6 +109,7 @@ import icon_component_datamapper from '../assets/components/datamapper.png';
 import icon_component_debezium from '../assets/components/debezium.svg';
 import icon_component_dhis2 from '../assets/components/dhis2.svg';
 import icon_component_direct from '../assets/components/direct.svg';
+import icon_component_djl from '../assets/components/djl.png';
 import icon_component_docker from '../assets/components/docker.svg';
 import icon_component_drill from '../assets/components/drill.svg';
 import icon_component_dropbox from '../assets/components/dropbox.svg';
@@ -431,6 +432,7 @@ export class NodeIconResolver {
       case 'disruptor':
       case 'disruptor-vm':
       case 'djl':
+        return icon_component_djl;
       case 'dns':
         return icon_component_generic;
       case 'docker':
@@ -625,6 +627,8 @@ export class NodeIconResolver {
         return icon_component_kudu;
       case 'langchain4j-chat':
       case 'langchain4j-embeddings':
+      case 'langchain4j-tools':
+      case 'langchain4j-web-search':
         return icon_component_langchain4j;
       case 'language':
         return icon_component_generic;
@@ -972,6 +976,8 @@ export class NodeIconResolver {
         return icon_eip_generic;
       case 'stop':
         return icon_eip_stop;
+      case 'langChain4j':
+        return icon_component_langchain4j;
       case 'threads':
         return icon_eip_threads;
       case 'throttle':

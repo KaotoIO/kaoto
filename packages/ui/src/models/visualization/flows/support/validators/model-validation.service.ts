@@ -24,7 +24,6 @@ interface IValidationResult {
  * property file.
  */
 export class ModelValidationService {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static validateNodeStatus(schema: VisualComponentSchema | undefined): string {
     if (!schema?.schema) return '';
     let message = '';

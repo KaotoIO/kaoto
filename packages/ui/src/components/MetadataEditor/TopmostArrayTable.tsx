@@ -48,7 +48,7 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
   return (
     <OuterScrollContainer>
       <InnerScrollContainer>
-        <Table aria-label={props.name} variant={TableVariant.compact} borders={true} isStickyHeader>
+        <Table aria-label={props.name} variant={TableVariant.compact} borders isStickyHeader>
           <Thead>
             <Tr>
               {props.itemSchema.required &&
@@ -98,7 +98,7 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                   {props.itemSchema.required &&
                     props.itemSchema.required.map((name: string) => (
                       <Td key={name}>
-                        <Truncate content={item[name]} />
+                        <Truncate content={item[name] ?? ''} />
                       </Td>
                     ))}
                   <Td key="buttons" isActionCell>

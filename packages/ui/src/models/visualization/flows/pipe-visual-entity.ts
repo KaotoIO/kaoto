@@ -188,13 +188,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     return {
       /** Pipe cannot have a Kamelet before the source property */
-      canHavePreviousStep: data.path !== 'source',
+      canHavePreviousStep: data.path !== ROOT_PATH && data.path !== 'source',
       /** Pipe cannot have a Kamelet after the sink property */
-      canHaveNextStep: data.path !== 'sink',
+      canHaveNextStep: data.path !== ROOT_PATH && data.path !== 'sink',
       canHaveChildren: false,
       canHaveSpecialChildren: false,
-      canReplaceStep: true,
-      canRemoveStep: true,
+      canReplaceStep: data.path !== ROOT_PATH,
+      canRemoveStep: data.path !== ROOT_PATH,
       canRemoveFlow: data.path === ROOT_PATH,
       canBeDisabled: false,
     };
@@ -252,7 +252,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const isPlaceholder = step?.ref?.name === undefined;
     const icon = isPlaceholder
       ? NodeIconResolver.getPlaceholderIcon()
-      : kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon();
+      : (kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon());
 
     const data: IVisualizationNodeData = {
       path,

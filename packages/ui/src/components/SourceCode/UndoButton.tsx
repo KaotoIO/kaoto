@@ -16,7 +16,7 @@ export const UndoButton: FunctionComponent<IUndoIcon> = (props) => {
       data-testid="sourceCode--undoButton"
       onClick={props.onClick}
       tooltipProps={{ content: 'Undo change', position: 'top' }}
-      isVisible={true}
+      isVisible
     />
   );
 };

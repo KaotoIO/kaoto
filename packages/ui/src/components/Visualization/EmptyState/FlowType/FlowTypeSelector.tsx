@@ -81,7 +81,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               currentFlowType.multipleRoute ? (
                 <p>Add a new {currentFlowType.name} route</p>
               ) : (
-                <p>The {currentFlowType.name} type doesn't support multiple routes</p>
+                <p>The {currentFlowType.name} type does not support multiple routes</p>
               )
             }
           >
@@ -132,7 +132,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
                 <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
                   {getDescriptionForType(sourceType) !== undefined
                     ? getDescriptionForType(sourceType)
-                    : (sourceSchema.schema?.schema as { description: string }).description ?? ''}
+                    : ((sourceSchema.schema?.schema as { description: string }).description ?? '')}
                 </span>
               }
               isDisabled={isOptionDisabled}

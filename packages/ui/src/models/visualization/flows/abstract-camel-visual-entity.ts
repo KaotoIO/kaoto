@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { SchemaService } from '../../../components/Form/schema.service';
 import { ROOT_PATH, getArrayProperty, getValue, setValue } from '../../../utils';

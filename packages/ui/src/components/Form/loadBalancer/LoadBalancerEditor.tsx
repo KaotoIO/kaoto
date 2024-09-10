@@ -108,7 +108,7 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   return (
     <div className="loadbalancer-metadata-editor">
-      <Card isCompact={true} isExpanded={isExpanded} className="loadbalancer-metadata-editor-card">
+      <Card isCompact isExpanded={isExpanded} className="loadbalancer-metadata-editor-card">
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
           <CardTitle>Load Balancer</CardTitle>
         </CardHeader>

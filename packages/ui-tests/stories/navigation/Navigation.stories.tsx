@@ -16,7 +16,7 @@ export default {
 };
 
 const NavigationTemplate: StoryFn<typeof Navigation> = () => {
-  return <Navigation isNavOpen={true} />;
+  return <Navigation isNavOpen />;
 };
 
 const ShellTemplate: StoryFn<typeof Shell> = () => {

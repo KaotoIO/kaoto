@@ -16,7 +16,7 @@ export const RedoButton: FunctionComponent<IRedoIcon> = (props) => {
       data-testid="sourceCode--redoButton"
       onClick={props.onClick}
       tooltipProps={{ content: 'Redo change', position: 'top' }}
-      isVisible={true}
+      isVisible
     />
   );
 };

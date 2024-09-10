@@ -1,5 +1,4 @@
 #!/usr/bin/env ts-node
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 /**
  * This script generates TypeScript types from the JSON schemas in the dist folder.
