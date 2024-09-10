@@ -7,7 +7,7 @@ exports[`CanvasSideBar displays selected node information 1`] = `
     role="dialog"
   >
     <div
-      class="pf-v5-c-card canvas-form"
+      class="pf-v5-c-card pf-m-flat canvas-form"
       data-ouia-component-id="OUIA-Generated-Card-1"
       data-ouia-component-type="PF5/Card"
       data-ouia-safe="true"

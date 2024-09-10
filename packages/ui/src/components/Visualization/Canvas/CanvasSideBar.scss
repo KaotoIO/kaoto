@@ -3,3 +3,7 @@
   position: absolute;
   height: 100%;
 }
+/* stylelint-disable-next-line selector-class-pattern */
+.pf-v5-c-drawer__splitter pf-m-vertical {
+  border: none;
+}

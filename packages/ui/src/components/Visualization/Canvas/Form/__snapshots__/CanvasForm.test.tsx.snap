@@ -3,7 +3,7 @@
 exports[`CanvasForm should render 1`] = `
 <div>
   <div
-    class="pf-v5-c-card canvas-form"
+    class="pf-v5-c-card pf-m-flat canvas-form"
     data-ouia-component-id="OUIA-Generated-Card-1"
     data-ouia-component-type="PF5/Card"
     data-ouia-safe="true"
@@ -286,7 +286,7 @@ exports[`CanvasForm should render 1`] = `
 exports[`CanvasForm should render nothing if no schema and no definition is available 1`] = `
 <div>
   <div
-    class="pf-v5-c-card canvas-form"
+    class="pf-v5-c-card pf-m-flat canvas-form"
     data-ouia-component-id="OUIA-Generated-Card-4"
     data-ouia-component-type="PF5/Card"
     data-ouia-safe="true"
@@ -551,7 +551,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
 exports[`CanvasForm should render nothing if no schema is available 1`] = `
 <div>
   <div
-    class="pf-v5-c-card canvas-form"
+    class="pf-v5-c-card pf-m-flat canvas-form"
     data-ouia-component-id="OUIA-Generated-Card-2"
     data-ouia-component-type="PF5/Card"
     data-ouia-safe="true"
