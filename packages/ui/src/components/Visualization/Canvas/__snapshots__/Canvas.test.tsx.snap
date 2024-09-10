@@ -730,13 +730,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-7"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-route-8888"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -758,13 +754,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-8"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-route-8888"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -830,13 +822,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-9"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-choice"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -858,13 +846,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-10"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-choice"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -930,13 +914,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-11"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-otherwise"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -958,13 +938,9 @@ exports[`Canvas should render correctly 1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-12"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-otherwise"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1481,13 +1457,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-19"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-route-8888"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1509,13 +1481,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-20"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-route-8888"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1581,13 +1549,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-21"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-choice"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1609,13 +1573,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-22"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-choice"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1681,13 +1641,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-23"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-otherwise"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -1709,13 +1665,9 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-24"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-otherwise"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2232,13 +2184,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-45"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-route-8888"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2260,13 +2208,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-46"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-route-8888"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2332,13 +2276,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-47"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-choice"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2360,13 +2300,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-48"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-choice"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2432,13 +2368,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-49"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="collapseButton-otherwise"
-                                        type="button"
+                                        id="collapse-button-control"
                                       >
                                         <svg
                                           aria-hidden="true"
@@ -2460,13 +2392,9 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                                       style="display: contents;"
                                     >
                                       <button
-                                        aria-disabled="false"
-                                        class="pf-v5-c-button pf-m-control container-controls"
-                                        data-ouia-component-id="OUIA-Generated-Button-control-50"
-                                        data-ouia-component-type="PF5/Button"
-                                        data-ouia-safe="true"
+                                        class="container-controls"
                                         data-testid="contextualMenu-otherwise"
-                                        type="button"
+                                        id="container-controls-contextual-menu"
                                       >
                                         <svg
                                           aria-hidden="true"
