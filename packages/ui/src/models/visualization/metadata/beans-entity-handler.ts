@@ -30,7 +30,6 @@ export class BeansEntityHandler {
     return this.type !== undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getBeanSchema(): KaotoSchemaDefinition['schema'] | undefined {
     switch (this.type) {
       case 'beans':
@@ -42,7 +41,6 @@ export class BeansEntityHandler {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getBeansSchema(): KaotoSchemaDefinition['schema'] | undefined {
     switch (this.type) {
       case 'beans': {

@@ -80,7 +80,7 @@ export const ExpressionEditor: FunctionComponent<ExpressionEditorProps> = ({
 
   return (
     <>
-      <Card isCompact={true} isExpanded={isExpanded} className="expression-metadata-editor-card">
+      <Card isCompact isExpanded={isExpanded} className="expression-metadata-editor-card">
         <CardHeader onExpand={() => setIsExpanded(!isExpanded)}>
           <CardTitle>Expression</CardTitle>
         </CardHeader>

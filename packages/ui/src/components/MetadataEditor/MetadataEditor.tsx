@@ -95,7 +95,7 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
         <Split hasGutter>
           <SplitItem className="metadata-editor-modal-list-view">
             <TopmostArrayTable
-              model={preparedModel != null ? preparedModel : props.metadata}
+              model={preparedModel !== null ? preparedModel : props.metadata}
               itemSchema={getFormSchema()}
               name={props.name}
               selected={selected}
@@ -115,7 +115,7 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
                   onChangeModel={onChangeFormModel}
                   data-testid={`metadata-editor-form-${props.name}`}
                   disabled={isFormDisabled()}
-                  sortFields={true}
+                  sortFields
                   ref={fieldsRefs}
                   handleConfirm={props.handleConfirm}
                 />
@@ -129,7 +129,7 @@ export const MetadataEditor = forwardRef<CustomAutoFormRef, MetadataEditorProps>
           onChangeModel={onChangeFormModel}
           data-testid={`metadata-editor-form-${props.name}`}
           disabled={isFormDisabled()}
-          sortFields={true}
+          sortFields
           ref={fieldsRefs}
           handleConfirm={props.handleConfirm}
         />

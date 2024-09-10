@@ -82,7 +82,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
               popperProps={DEFAULT_POPPER_PROPS}
             >
-              <a href="https://kaoto.io/workshop/" target="_blank">
+              <a href="https://kaoto.io/workshop/" target="_blank" rel="noreferrer">
                 <DropdownItem key="tutorial">
                   <Icon isInline>
                     <ExternalLinkAltIcon />
@@ -90,7 +90,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Tutorials</span>
                 </DropdownItem>
               </a>
-              <a href="https://kaoto.io/docs/" target="_blank">
+              <a href="https://kaoto.io/docs/" target="_blank" rel="noreferrer">
                 <DropdownItem key="help">
                   <Icon isInline>
                     <ExternalLinkAltIcon />
@@ -98,7 +98,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Help</span>
                 </DropdownItem>
               </a>
-              <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank">
+              <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
                     <GithubIcon />

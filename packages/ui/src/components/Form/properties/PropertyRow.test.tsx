@@ -118,7 +118,7 @@ describe('PropertyRow.tsx', () => {
             path={['one', 'two']}
             parentModel={model}
             treeRow={treeRow}
-            isObject={true}
+            isObject
             onChangeModel={() => onChangeModel++}
             createPlaceholder={(o) => onCreatePlaceholder.push(o)}
           />
