@@ -1,8 +1,9 @@
 import { camelRouteJson } from '../../stubs/camel-route';
 import { NodeLabelType } from '../settings';
-import { BaseVisualCamelEntity, IVisualizationNode } from './base-visual-entity';
+import { BaseVisualCamelEntity, DISABLED_NODE_INTERACTION, IVisualizationNode } from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
+import { NodeInteraction } from './base-visual-entity';
 
 describe('VisualizationNode', () => {
   let node: IVisualizationNode;
@@ -165,6 +166,51 @@ describe('VisualizationNode', () => {
 
     expect(node.getChildren()).toEqual([child]);
     expect(child.getParentNode()).toEqual(node);
+  });
+
+  describe('getNodeInteraction', () => {
+    it('should return the added nodeInteraction', () => {
+      const testNodeInteraction: NodeInteraction = {
+        canHavePreviousStep: true,
+        canHaveNextStep: true,
+        canHaveChildren: true,
+        canHaveSpecialChildren: true,
+        canReplaceStep: false,
+        canRemoveStep: false,
+        canRemoveFlow: false,
+        canBeDisabled: true,
+      };
+      node.setNodeInteraction(testNodeInteraction);
+
+      expect(node.getNodeInteraction()).toEqual(testNodeInteraction);
+    });
+
+    it('should return node interaction from the underlying base entity', () => {
+      const mockNodeInteraction: NodeInteraction = {
+        canHavePreviousStep: true,
+        canHaveNextStep: true,
+        canHaveChildren: true,
+        canHaveSpecialChildren: true,
+        canReplaceStep: false,
+        canRemoveStep: true,
+        canRemoveFlow: false,
+        canBeDisabled: true,
+      };
+      const getNodeInteractionSpy = jest.fn().mockReturnValue(mockNodeInteraction);
+      const visualEntity = {
+        getNodeInteraction: getNodeInteractionSpy,
+      } as unknown as BaseVisualCamelEntity;
+      node = createVisualizationNode('test', { entity: visualEntity });
+      const expectedNodeInteraction = node.getNodeInteraction();
+
+      expect(getNodeInteractionSpy).toHaveBeenCalledWith(node.data);
+      expect(expectedNodeInteraction).toEqual(mockNodeInteraction);
+    });
+
+    it('should return DISABLED_NODE_INTERACTION when there is no underlying base entity', () => {
+      node = createVisualizationNode('test', {});
+      expect(node.getNodeInteraction()).toEqual(DISABLED_NODE_INTERACTION);
+    });
   });
 
   describe('removeChild', () => {

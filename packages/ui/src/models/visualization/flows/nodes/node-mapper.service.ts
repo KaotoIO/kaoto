@@ -4,6 +4,8 @@ import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
 import { OtherwiseNodeMapper } from './mappers/otherwise-node-mapper';
 import { WhenNodeMapper } from './mappers/when-node-mapper';
+import { MulticastNodeMapper } from './mappers/multicast-node-mapper';
+import { LoadBalanceNodeMapper } from './mappers/loadbalance-node-mapper';
 import { INodeMapper } from './node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
 
@@ -32,5 +34,7 @@ export class NodeMapperService {
     this.rootNodeMapper.registerMapper('choice', new ChoiceNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('when', new WhenNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('otherwise', new OtherwiseNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(this.rootNodeMapper));
   }
 }
