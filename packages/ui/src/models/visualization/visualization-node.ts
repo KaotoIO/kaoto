@@ -4,6 +4,7 @@ import { NodeLabelType } from '../settings/settings.model';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
+  DISABLED_NODE_INTERACTION,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -25,16 +26,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
-  private readonly DISABLED_NODE_INTERACTION: NodeInteraction = {
-    canHavePreviousStep: false,
-    canHaveNextStep: false,
-    canHaveChildren: false,
-    canHaveSpecialChildren: false,
-    canReplaceStep: false,
-    canRemoveStep: false,
-    canRemoveFlow: false,
-    canBeDisabled: false,
-  };
+  private nodeInteraction: NodeInteraction | undefined = undefined;
+  private readonly DISABLED_NODE_INTERACTION: NodeInteraction = DISABLED_NODE_INTERACTION;
 
   constructor(
     public readonly id: string,
@@ -58,7 +51,13 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeInteraction(): NodeInteraction {
-    return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
+    return (
+      this.nodeInteraction ?? this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION
+    );
+  }
+
+  setNodeInteraction(nodeInteraction: NodeInteraction): void {
+    this.nodeInteraction = nodeInteraction;
   }
 
   getComponentSchema(): VisualComponentSchema | undefined {
@@ -85,7 +84,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.previousNode;
   }
 
-  setPreviousNode(previousNode: IVisualizationNode) {
+  setPreviousNode(previousNode?: IVisualizationNode) {
     this.previousNode = previousNode;
   }
 
@@ -93,7 +92,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.nextNode;
   }
 
-  setNextNode(node: IVisualizationNode) {
+  setNextNode(node?: IVisualizationNode) {
     this.nextNode = node;
   }
 
