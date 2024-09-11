@@ -211,6 +211,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   return (
     <TopologyView
       defaultSideBarSize={sidebarWidth + 'px'}
+      minSideBarSize={'210px'}
       onSideBarResize={(width) => {
         setSidebarWidth(width);
       }}

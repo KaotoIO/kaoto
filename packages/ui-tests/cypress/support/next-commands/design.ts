@@ -13,7 +13,7 @@ Cypress.Commands.add('toggleExpandGroup', (groupName: string, groupIndex?: numbe
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
-  cy.get('[data-testid="close-side-bar"]').click();
+  cy.get('[data-testid="close-side-bar"]').click({ force: true });
   cy.get('.pf-topology-resizable-side-bar').should('not.exist');
 });
 
