@@ -275,7 +275,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
             class="pf-v5-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
-            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
+            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
       </div>
@@ -625,7 +625,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
             class="pf-v5-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
-            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
+            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
       </div>
@@ -1376,7 +1376,7 @@ exports[`Canvas should render correctly 1`] = `
             class="pf-v5-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
-            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
+            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
       </div>
@@ -2127,7 +2127,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
             class="pf-v5-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
-            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
+            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
       </div>
@@ -2982,7 +2982,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
             class="pf-v5-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
-            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 150px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
+            style="--pf-v5-c-drawer__panel--md--FlexBasis: 500px; --pf-v5-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v5-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
       </div>

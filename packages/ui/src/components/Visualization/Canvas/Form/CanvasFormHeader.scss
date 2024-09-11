@@ -16,17 +16,22 @@
 
 .form-tabs {
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 15px;
 
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v5-c-toggle-group__item {
     display: flex;
-    width: 20%;
+    flex: content;
+    min-width: 33%;
   }
 
   button {
     flex: 1;
     justify-content: center;
     font-weight: bold;
+
+    --pf-v5-c-toggle-group__button--PaddingRight: 0.25rem;
+    --pf-v5-c-toggle-group__button--PaddingLeft: 0.25rem;
   }
 }
