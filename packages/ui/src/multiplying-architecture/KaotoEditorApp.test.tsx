@@ -7,6 +7,7 @@ import {
   KogitoEditorEnvelopeContextType,
   StateControlCommand,
 } from '@kie-tools-core/editor/dist/api';
+import { ApiRequests } from '@kie-tools-core/envelope-bus/dist/api';
 import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
@@ -51,8 +52,10 @@ describe('KaotoEditorApp', () => {
           kogitoWorkspace_newEdit: getNotificationMock(),
           kogitoWorkspace_openFile: getNotificationMock(),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        requests: {} as any,
+        requests: {
+          getFilePreferences: jest.fn(),
+          setFilePreferences: jest.fn(),
+        } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
       },
@@ -193,6 +196,18 @@ describe('KaotoEditorApp', () => {
     expect(envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send).toHaveBeenCalledWith(
       StateControlCommand.REDO,
     );
+  });
+
+  it('should delegate to the channelApi getting the file preferences', async () => {
+    await kaotoEditorApp.getFilePreferences('path');
+
+    expect(envelopeContext.channelApi.requests.getFilePreferences).toHaveBeenCalledWith('path');
+  });
+
+  it('should delegate to the channelApi setting the file preferences', async () => {
+    await kaotoEditorApp.setFilePreferences('key', 'value');
+
+    expect(envelopeContext.channelApi.requests.setFilePreferences).toHaveBeenCalledWith('key', 'value');
   });
 });
 

@@ -4,6 +4,7 @@ export * from './catalog-tiles.provider';
 export * from './catalog.provider';
 export * from './delete-modal.provider';
 export * from './entities.provider';
+export * from './file-preferences.provider';
 export * from './filtered-field.provider';
 export * from './settings.provider';
 export * from './reload.context';

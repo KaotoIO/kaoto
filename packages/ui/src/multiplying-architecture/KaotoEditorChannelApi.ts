@@ -12,4 +12,14 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * Returns the Kaoto VSCode settings defined.
    */
   getVSCodeKaotoSettings(): Promise<ISettingsModel>;
+
+  /**
+   * Returns preferences querying the Kaoto preferences file.
+   */
+  getFilePreferences<T>(key: string): Promise<T>;
+
+  /**
+   * Save preferences to the Kaoto preferences file.
+   */
+  setFilePreferences<T>(key: string, preferences: T): Promise<void>;
 }
