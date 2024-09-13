@@ -174,7 +174,7 @@ public class CamelCatalogProcessor {
                 }
             }
 
-            if (property.has("enum")) {
+            if (property.has("enum") && !property.has("multiValue")) {
                 property.withArray("/enum")
                         .forEach(e -> propertySchema.withArray("/enum").add(e));
                 if (!propertySchema.has("type") || "object".equals(propertySchema.get("type").asText())) {
