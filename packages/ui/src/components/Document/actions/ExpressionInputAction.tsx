@@ -1,5 +1,5 @@
 import { ExpressionItem } from '../../../models/datamapper/mapping';
-import { FormEvent, FunctionComponent, useCallback } from 'react';
+import { FormEvent, FunctionComponent, MouseEvent, useCallback } from 'react';
 import { ActionListItem, InputGroup, InputGroupItem, TextInput } from '@patternfly/react-core';
 
 type ExpressionInputProps = {
@@ -18,6 +18,10 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
     [mapping, onUpdate],
   );
 
+  const stopPropagation = useCallback((event: MouseEvent) => {
+    event.stopPropagation();
+  }, []);
+
   return (
     <ActionListItem key="expression-input">
       <InputGroup>
@@ -28,6 +32,7 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
             type="text"
             value={mapping.expression as string}
             onChange={handleExpressionChange}
+            onMouseMove={stopPropagation}
           />
         </InputGroupItem>
       </InputGroup>
