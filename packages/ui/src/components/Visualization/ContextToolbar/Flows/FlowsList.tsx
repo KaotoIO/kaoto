@@ -4,7 +4,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useRef } from 'react';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { DeleteModalContext } from '../../../../providers/delete-modal.provider';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { InlineEdit } from '../../../InlineEdit';
 import './FlowsList.scss';
@@ -19,7 +19,7 @@ interface IFlowsList {
 export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
-  const deleteModalContext = useContext(DeleteModalContext);
+  const deleteModalContext = useContext(ActionConfirmationModalContext);
 
   const isListEmpty = visualEntities.length === 0;
 
@@ -105,7 +105,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 icon={<TrashIcon />}
                 variant="plain"
                 onClick={async (event) => {
-                  const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+                  const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
                     title: 'Permanently delete flow?',
                     text: 'All steps will be lost.',
                   });

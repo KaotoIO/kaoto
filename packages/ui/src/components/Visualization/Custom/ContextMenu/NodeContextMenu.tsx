@@ -16,6 +16,8 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   if (!vizNode) return items;
 
   const nodeInteractions = vizNode.getNodeInteraction();
+  const childrenNodes = vizNode.getChildren();
+  const isStepWithChildren = childrenNodes !== undefined && childrenNodes.length > 0;
 
   if (nodeInteractions.canHavePreviousStep) {
     items.push(
@@ -80,7 +82,12 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   }
   if (nodeInteractions.canReplaceStep) {
     items.push(
-      <ItemReplaceStep key="context-menu-item-replace" data-testid="context-menu-item-replace" vizNode={vizNode} />,
+      <ItemReplaceStep
+        key="context-menu-item-replace"
+        data-testid="context-menu-item-replace"
+        vizNode={vizNode}
+        loadActionConfirmationModal={isStepWithChildren}
+      />,
     );
   }
   if (nodeInteractions.canBeDisabled || nodeInteractions.canReplaceStep) {
@@ -88,14 +95,12 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   }
 
   if (nodeInteractions.canRemoveStep) {
-    const childrenNodes = vizNode.getChildren();
-    const shouldConfirmBeforeDeletion = childrenNodes !== undefined && childrenNodes.length > 0;
     items.push(
       <ItemDeleteStep
         key="context-menu-item-delete"
         data-testid="context-menu-item-delete"
         vizNode={vizNode}
-        loadModal={shouldConfirmBeforeDeletion}
+        loadActionConfirmationModal={isStepWithChildren}
       />,
     );
   }
