@@ -28,10 +28,13 @@ type DocumentNodeProps = {
 };
 
 const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) => {
+  const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
   const [collapsed, setCollapsed] = useState(false);
-  const onClick = () => {
+
+  const onClick = useCallback(() => {
     setCollapsed(!collapsed);
-  };
+    reloadNodeReferences();
+  }, [collapsed, reloadNodeReferences]);
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -42,7 +45,6 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
 
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { getNodeReference, setNodeReference } = useCanvas();
   const nodeReference = useRef<NodeReference>({
     get headerRef() {
       return headerRef.current;

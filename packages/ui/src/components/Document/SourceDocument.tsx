@@ -1,5 +1,5 @@
 import { DocumentNodeData, FieldNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
-import { FunctionComponent, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { IDocument } from '../../models/datamapper/document';
 import { Label, Split, SplitItem, Title } from '@patternfly/react-core';
 import { DocumentActions } from './actions/DocumentActions';
@@ -24,10 +24,13 @@ type DocumentNodeProps = {
 };
 
 export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) => {
+  const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
   const [collapsed, setCollapsed] = useState(false);
-  const onClick = () => {
+
+  const onClick = useCallback(() => {
     setCollapsed(!collapsed);
-  };
+    reloadNodeReferences();
+  }, [collapsed, reloadNodeReferences]);
 
   const isDocument = nodeData instanceof DocumentNodeData;
   const children = VisualizationService.generateNodeDataChildren(nodeData);
@@ -37,7 +40,6 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
 
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { getNodeReference, setNodeReference } = useCanvas();
   const nodeReference = useRef<NodeReference>({
     get headerRef() {
       return headerRef.current;
