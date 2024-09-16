@@ -1,19 +1,22 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
-import { DeleteModalContext, DeleteModalContextProvider } from './delete-modal.provider';
+import {
+  ActionConfirmationModalContext,
+  ActionConfirmationModalContextProvider,
+} from './action-confirmation-modal.provider';
 
-let deleteConfirmationResult: boolean | undefined;
+let actionConfirmationResult: boolean | undefined;
 
-describe('DeleteModalProvider', () => {
+describe('ActionConfirmationModalProvider', () => {
   beforeEach(() => {
-    deleteConfirmationResult = undefined;
+    actionConfirmationResult = undefined;
   });
 
-  it('calls deleteConfirmation with true when Confirm button is clicked', async () => {
+  it('calls actionConfirmation with true when Confirm button is clicked', async () => {
     render(
-      <DeleteModalContextProvider>
+      <ActionConfirmationModalContextProvider>
         <TestComponent title="Permanently delete step" text="Step parameters and its children will be lost." />
-      </DeleteModalContextProvider>,
+      </ActionConfirmationModalContextProvider>,
     );
 
     const deleteButton = screen.getByText('Delete');
@@ -22,15 +25,15 @@ describe('DeleteModalProvider', () => {
     const confirmButton = await screen.findByRole('button', { name: 'Confirm' });
     fireEvent.click(confirmButton);
 
-    // Wait for deleteConfirmation promise to resolve
-    await waitFor(() => expect(deleteConfirmationResult).toEqual(true));
+    // Wait for actionConfirmation promise to resolve
+    await waitFor(() => expect(actionConfirmationResult).toEqual(true));
   });
 
-  it('calls deleteConfirmation with false when Cancel button is clicked', async () => {
+  it('calls actionConfirmation with false when Cancel button is clicked', async () => {
     render(
-      <DeleteModalContextProvider>
+      <ActionConfirmationModalContextProvider>
         <TestComponent title="Permanently delete step" text="Step parameters and its children will be lost." />
-      </DeleteModalContextProvider>,
+      </ActionConfirmationModalContextProvider>,
     );
 
     const deleteButton = screen.getByText('Delete');
@@ -39,15 +42,15 @@ describe('DeleteModalProvider', () => {
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     fireEvent.click(cancelButton);
 
-    // Wait for deleteConfirmation promise to resolve
-    await waitFor(() => expect(deleteConfirmationResult).toEqual(false));
+    // Wait for actionConfirmation promise to resolve
+    await waitFor(() => expect(actionConfirmationResult).toEqual(false));
   });
 
   it('should allow consumers to update the modal title and text', () => {
     const wrapper = render(
-      <DeleteModalContextProvider>
+      <ActionConfirmationModalContextProvider>
         <TestComponent title="Custom title" text="Custom text" />
-      </DeleteModalContextProvider>,
+      </ActionConfirmationModalContextProvider>,
     );
 
     act(() => {
@@ -63,12 +66,17 @@ describe('DeleteModalProvider', () => {
   });
 });
 
-const TestComponent: FunctionComponent<{ title: string; text: string }> = (props) => {
-  const { deleteConfirmation } = useContext(DeleteModalContext)!;
+interface TestComponentProps {
+  title: string;
+  text: string;
+}
+
+const TestComponent: FunctionComponent<TestComponentProps> = (props) => {
+  const { actionConfirmation: deleteConfirmation } = useContext(ActionConfirmationModalContext)!;
 
   const handleDelete = async () => {
     const confirmation = await deleteConfirmation(props);
-    deleteConfirmationResult = confirmation;
+    actionConfirmationResult = confirmation;
   };
 
   return <button onClick={handleDelete}>Delete</button>;

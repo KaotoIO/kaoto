@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DeleteModalProvider should allow consumers to update the modal title and text 1`] = `
+exports[`ActionConfirmationModalProvider should allow consumers to update the modal title and text 1`] = `
 <div
   aria-describedby="pf-modal-part-4"
   aria-labelledby="pf-modal-part-3"
   aria-modal="true"
   class="pf-v5-c-modal-box pf-m-warning pf-m-sm"
-  data-ouia-component-id="DeleteConfirmModal"
+  data-ouia-component-id="ActionConfirmationModal"
   data-ouia-component-type="PF5/ModalContent"
   data-ouia-safe="true"
   id="pf-modal-part-2"
@@ -19,7 +19,7 @@ exports[`DeleteModalProvider should allow consumers to update the modal title an
       aria-disabled="false"
       aria-label="Close"
       class="pf-v5-c-button pf-m-plain"
-      data-ouia-component-id="DeleteConfirmModal-ModalBoxCloseButton"
+      data-ouia-component-id="ActionConfirmationModal-ModalBoxCloseButton"
       data-ouia-component-type="PF5/Button"
       data-ouia-safe="true"
       type="button"
