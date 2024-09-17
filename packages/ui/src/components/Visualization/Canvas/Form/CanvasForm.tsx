@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
 import { VisibleFlowsContext } from '../../../../providers';
 import { ErrorBoundary } from '../../../ErrorBoundary';
 import { CanvasNode } from '../canvas.models';
@@ -16,16 +16,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ selectedNode, o
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const flowIdRef = useRef<string | undefined>(undefined);
   const vizNode = selectedNode.data?.vizNode;
-
-  const visualComponentSchema = useMemo(() => {
-    const answer = vizNode?.getComponentSchema();
-    // Overriding parameters with an empty object When the parameters property is mistakenly set to null
-    if (answer?.definition?.parameters === null) {
-      answer!.definition.parameters = {};
-    }
-    return answer;
-  }, [vizNode]);
-  const title = visualComponentSchema?.title;
+  const title = vizNode?.getTitle();
 
   /** Store the flow's initial Id */
   useEffect(() => {

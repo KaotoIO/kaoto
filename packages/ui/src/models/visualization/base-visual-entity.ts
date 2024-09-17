@@ -80,6 +80,12 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This method returns the tooltip content to be used by the canvas nodes */
   getTooltipContent(): string;
 
+  /** This method set the title used by the CanvasForm component */
+  setTitle(title: string): void;
+
+  /** This method returns the title used by the CanvasForm component */
+  getTitle(): string;
+
   addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
 
   getNodeInteraction(): NodeInteraction;
@@ -131,7 +137,6 @@ export interface IVisualizationNodeData {
  * the name and the schema of the component.
  */
 export interface VisualComponentSchema {
-  title: string;
   schema: KaotoSchemaDefinition['schema'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: any;

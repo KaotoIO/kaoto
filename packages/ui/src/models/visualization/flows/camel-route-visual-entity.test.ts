@@ -106,7 +106,6 @@ describe('Camel Route', () => {
       const result = camelEntity.getComponentSchema('test');
 
       expect(result).toEqual({
-        title: 'test',
         schema: {},
         definition: undefined,
       });
@@ -115,7 +114,6 @@ describe('Camel Route', () => {
     it('should return the component schema', () => {
       const spy = jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema');
       spy.mockReturnValueOnce({
-        title: 'test',
         schema: {} as KaotoSchemaDefinition['schema'],
         definition: {},
       });

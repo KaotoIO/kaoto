@@ -97,12 +97,6 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
       expect(entity.getComponentSchema().schema).toEqual(errorHandlerSchema);
     });
-
-    it('should return hardcoded schema title', () => {
-      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-
-      expect(entity.getComponentSchema().title).toEqual('Error Handler');
-    });
   });
 
   describe('updateModel', () => {
@@ -174,6 +168,13 @@ describe('CamelErrorHandlerVisualEntity', () => {
         processorName: 'errorHandler',
       });
     });
+  });
+
+  it('should return hardcoded schema title', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+    const vizNode = entity.toVizNode();
+
+    expect(vizNode.getTitle()).toEqual('Error Handler');
   });
 
   it('should serialize the errorHandler definition', () => {

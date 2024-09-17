@@ -235,7 +235,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     ],
     "type": "object",
   },
-  "title": "route",
 }
 `;
 
@@ -589,7 +588,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "title": "To",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -668,7 +666,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "title": "Logger",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -731,7 +728,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
     "title": "To",
     "type": "object",
   },
-  "title": "non-existing-component",
 }
 `;
 
@@ -810,7 +806,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "Logger",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -925,7 +920,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "To",
     "type": "object",
   },
-  "title": "bean",
 }
 `;
 
@@ -1072,6 +1066,5 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "To D",
     "type": "object",
   },
-  "title": "bean",
 }
 `;

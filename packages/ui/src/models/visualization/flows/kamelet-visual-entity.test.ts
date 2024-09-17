@@ -122,4 +122,21 @@ describe('KameletVisualEntity', () => {
     const kamelet = new KameletVisualEntityTest(kameletDef);
     expect(kamelet.getRootUri()).toEqual('timer:tutorial');
   });
+
+  describe('toVizNode', () => {
+    it('should delegate to the super class toVizNode', () => {
+      const toVizNodeSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'toVizNode');
+      const kamelet = new KameletVisualEntity(kameletDef);
+      kamelet.toVizNode();
+
+      expect(toVizNodeSpy).toHaveBeenCalled();
+    });
+
+    it('should return a visualization node with title Kamelet', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      const vizNode = kamelet.toVizNode();
+
+      expect(vizNode.getTitle()).toEqual('Kamelet');
+    });
+  });
 });

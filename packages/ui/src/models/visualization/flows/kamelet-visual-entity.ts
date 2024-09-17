@@ -12,7 +12,7 @@ import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
@@ -45,7 +45,6 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
     if (path === ROOT_PATH) {
       return {
-        title: 'Kamelet',
         schema: this.getRootKameletSchema(),
         definition: getCustomSchemaFromKamelet(this.kamelet),
       };
@@ -94,6 +93,13 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
     }
 
     super.removeStep(path);
+  }
+
+  toVizNode(): IVisualizationNode {
+    const vizNode = super.toVizNode();
+    vizNode.setTitle('Kamelet');
+
+    return vizNode;
   }
 
   protected getRootUri(): string | undefined {

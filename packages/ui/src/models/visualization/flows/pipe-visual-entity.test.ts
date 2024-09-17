@@ -58,13 +58,12 @@ describe('Pipe', () => {
     it('should return the component schema', () => {
       const spy = jest.spyOn(KameletSchemaService, 'getVisualComponentSchema');
       spy.mockReturnValueOnce({
-        title: 'test',
         schema: {} as KaotoSchemaDefinition['schema'],
         definition: {},
       });
 
       pipeVisualEntity.getComponentSchema('source');
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -173,6 +172,24 @@ describe('Pipe', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
+    });
+
+    it('should set the title to `Pipe`', () => {
+      const vizNode = pipeVisualEntity.toVizNode();
+
+      expect(vizNode.getTitle()).toEqual('Pipe');
+    });
+
+    it('should set the title to children nodes', () => {
+      const vizNode = pipeVisualEntity.toVizNode();
+
+      const sourceNode = vizNode.getChildren()![0];
+      const stepNode = vizNode.getChildren()![1];
+      const sinkNode = vizNode.getChildren()![2];
+
+      expect(sourceNode.getTitle()).toEqual('webhook-source');
+      expect(stepNode.getTitle()).toEqual('delay-action');
+      expect(sinkNode.getTitle()).toEqual('log-sink');
     });
 
     it('should set the node labels as `Unknown` if the uri is not available', () => {

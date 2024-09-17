@@ -86,12 +86,6 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
       expect(entity.getComponentSchema().schema).toEqual(restConfigurationSchema);
     });
-
-    it('should return hardcoded schema title', () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-      expect(entity.getComponentSchema().title).toEqual('Rest Configuration');
-    });
   });
 
   describe('updateModel', () => {
@@ -206,6 +200,13 @@ describe('CamelRestConfigurationVisualEntity', () => {
         path: 'restConfiguration',
         processorName: 'restConfiguration',
       });
+    });
+
+    it('should return hardcoded schema title', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+      const vizNode = entity.toVizNode();
+
+      expect(vizNode.getTitle()).toEqual('Rest Configuration');
     });
   });
 

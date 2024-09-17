@@ -18,7 +18,6 @@ describe('StepExpressionEditor', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
@@ -52,7 +51,6 @@ describe('StepExpressionEditor', () => {
 
   it('should render with only the user updated fields', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
