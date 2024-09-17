@@ -815,6 +815,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "parameters": {
       "beanName": "myBean",
       "method": "hello",
+      "parameters": {},
     },
     "uri": "bean",
   },
@@ -929,6 +930,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "parameters": {
       "beanName": "myBean",
       "method": "hello",
+      "parameters": {},
     },
     "uri": "bean",
   },

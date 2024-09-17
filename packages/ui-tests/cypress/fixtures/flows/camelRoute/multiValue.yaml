@@ -1,0 +1,12 @@
+- route:
+    id: route-2553
+    from:
+      id: from-3744
+      uri: quartz:Camel/
+      parameters:
+        job.testJob: testJob
+        trigger.testTrigger: testTrigger
+      steps:
+        - log:
+            id: log-3089
+            message: ${body}
