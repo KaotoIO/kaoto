@@ -36,8 +36,8 @@ export class KaotoEditorApp implements Editor {
     this.sendNewEdit = this.sendNewEdit.bind(this);
     this.sendNotifications = this.sendNotifications.bind(this);
     this.sendStateControlCommand = this.sendStateControlCommand.bind(this);
-    this.getFilePreferences = this.getFilePreferences.bind(this);
-    this.setFilePreferences = this.setFilePreferences.bind(this);
+    this.getMetadata = this.getMetadata.bind(this);
+    this.setMetadata = this.setMetadata.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -96,12 +96,12 @@ export class KaotoEditorApp implements Editor {
     this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command);
   }
 
-  async getFilePreferences<T>(key: string): Promise<T> {
-    return this.envelopeContext.channelApi.requests.getFilePreferences(key);
+  async getMetadata<T>(key: string): Promise<T | undefined> {
+    return this.envelopeContext.channelApi.requests.getMetadata(key);
   }
 
-  async setFilePreferences<T>(key: string, preferences: T): Promise<void> {
-    return this.envelopeContext.channelApi.requests.setFilePreferences(key, preferences);
+  async setMetadata<T>(key: string, preferences: T): Promise<void> {
+    return this.envelopeContext.channelApi.requests.setMetadata(key, preferences);
   }
 
   af_componentRoot() {
@@ -116,8 +116,8 @@ export class KaotoEditorApp implements Editor {
               onNewEdit={this.sendNewEdit}
               setNotifications={this.sendNotifications}
               onStateControlCommandUpdate={this.sendStateControlCommand}
-              getFilePreferences={this.getFilePreferences}
-              setFilePreferences={this.setFilePreferences}
+              getMetadata={this.getMetadata}
+              setMetadata={this.setMetadata}
             >
               <RouterProvider router={kaotoEditorRouter} />
             </KaotoBridge>
