@@ -1,10 +1,27 @@
-import { Navigation, Shell, SourceCodeProvider } from '@kaoto/kaoto/testing';
+import {
+  EntitiesContext,
+  EntitiesProvider,
+  Navigation,
+  Shell,
+  SourceCodeProvider,
+  SourceSchemaType,
+  EntitiesContextResult,
+} from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
-import { withRouter, reactRouterOutlet, reactRouterParameters } from 'storybook-addon-remix-react-router';
+import { reactRouterOutlet, reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
 export default {
   title: 'Navigation/Navigation',
-  decorators: [withRouter],
+  decorators: [
+    withRouter,
+    (Story: StoryFn) => (
+      <EntitiesProvider>
+        <SourceCodeProvider>
+          <Story />
+        </SourceCodeProvider>
+      </EntitiesProvider>
+    ),
+  ],
   parameters: {
     reactRouter: reactRouterParameters({
       routing: reactRouterOutlet({
@@ -15,18 +32,32 @@ export default {
   component: Navigation,
 };
 
-const NavigationTemplate: StoryFn<typeof Navigation> = () => {
+const RouteNavigationTemplate: StoryFn<typeof Navigation> = () => {
   return <Navigation isNavOpen />;
 };
 
-const ShellTemplate: StoryFn<typeof Shell> = () => {
+const KameletNavigationTemplate: StoryFn<typeof Navigation> = () => {
   return (
-    <SourceCodeProvider>
-      <Shell />
-    </SourceCodeProvider>
+    <EntitiesContext.Provider value={{ currentSchemaType: SourceSchemaType.Kamelet } as EntitiesContextResult}>
+      <Navigation isNavOpen />
+    </EntitiesContext.Provider>
   );
 };
 
-export const NavigationOpen = NavigationTemplate.bind({});
+const PipeNavigationTemplate: StoryFn<typeof Navigation> = () => {
+  return (
+    <EntitiesContext.Provider value={{ currentSchemaType: SourceSchemaType.Pipe } as EntitiesContextResult}>
+      <Navigation isNavOpen />
+    </EntitiesContext.Provider>
+  );
+};
+
+const ShellTemplate: StoryFn<typeof Shell> = () => {
+  return <Shell />;
+};
+
+export const RouteNavigationOpen = RouteNavigationTemplate.bind({});
+export const KameletNavigationOpen = KameletNavigationTemplate.bind({});
+export const PipeNavigationOpen = PipeNavigationTemplate.bind({});
 
 export const NavigationWithTopBar = ShellTemplate.bind({});
