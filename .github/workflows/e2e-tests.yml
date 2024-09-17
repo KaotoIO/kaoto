@@ -111,14 +111,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 💾 Save videos
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: videos-firefox
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: screenshots-firefox
@@ -170,14 +170,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 💾 Save videos
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: videos-chrome
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: screenshots-chrome
@@ -229,14 +229,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 💾 Save videos
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: videos-edge
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: screenshots-edge
