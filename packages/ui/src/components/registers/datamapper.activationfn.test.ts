@@ -13,7 +13,6 @@ describe('datamapperActivationFn', () => {
   it('should return false if stepDefinition is undefined', () => {
     const result = datamapperActivationFn({
       getComponentSchema: () => ({
-        title: 'Data mapper',
         definition: undefined,
         schema: {} as KaotoSchemaDefinition['schema'],
       }),
@@ -25,7 +24,6 @@ describe('datamapperActivationFn', () => {
   it('should return `true` if stepDefinition is a Data Mapper node', () => {
     const result = datamapperActivationFn({
       getComponentSchema: () => ({
-        title: 'Data mapper',
         definition: datamapperRouteDefinitionStub.from.steps[0].step as Step,
         schema: {} as KaotoSchemaDefinition['schema'],
       }),

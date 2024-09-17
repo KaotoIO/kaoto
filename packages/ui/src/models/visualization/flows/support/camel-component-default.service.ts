@@ -153,6 +153,17 @@ export class CamelComponentDefaultService {
             simple: {}
         `);
 
+      case 'kaoto-datamapper' as keyof ProcessorDefinition:
+        return parse(`
+          step:
+            id: ${getCamelRandomId('kaoto-datamapper')}
+            steps:
+              - to:
+                  id: ${getCamelRandomId('kaoto-datamapper-xslt')}
+                  uri: xslt
+                  parameters: {}
+          `);
+
       default:
         return {
           [processorName]: {

@@ -333,7 +333,9 @@ describe('CamelComponentSchemaService', () => {
         { id: 'interceptSendToEndpoint-1234' },
         'interceptSendToEndpoint-1234',
       ],
-    ])(
+      [{ processorName: 'step' }, { id: 'kaoto-datamapper-1234' }, 'kaoto-datamapper-1234'],
+      [{ processorName: 'step' }, { id: 'step-1234' }, 'step-1234'],
+    ] as const)(
       'should return the processor name if the component name is not provided: %s [%s]',
       (componentLookup, definition, result) => {
         const label = CamelComponentSchemaService.getNodeLabel(componentLookup, definition);

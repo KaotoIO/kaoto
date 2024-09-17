@@ -1,10 +1,10 @@
-import { DataMapperPage } from './DataMapperPage';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { DocumentDefinitionType } from '../../models/datamapper/document';
-import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/data-mapper';
+import { render, screen } from '@testing-library/react';
 import { IVisualizationNode } from '../../models';
-import { IMetadataApi, MetadataProvider } from '../../providers';
+import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
+import { IMetadataApi, MetadataProvider } from '../../providers';
+import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/data-mapper';
+import { DataMapperPage } from './DataMapperPage';
 
 describe('DataMapperPage', () => {
   const vizNode = {

@@ -96,6 +96,7 @@ export class CamelComponentSchemaService {
       case 'intercept' as keyof ProcessorDefinition:
       case 'interceptFrom' as keyof ProcessorDefinition:
       case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
+      case 'step':
         return id ?? camelElementLookup.processorName;
 
       case 'from' as keyof ProcessorDefinition:
