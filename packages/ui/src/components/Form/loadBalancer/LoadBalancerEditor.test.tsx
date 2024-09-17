@@ -18,7 +18,6 @@ describe('LoadBalancerEditor', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, loadbalancerCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
@@ -54,7 +53,6 @@ describe('LoadBalancerEditor', () => {
 
   it('should render with only the user updated fields', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
@@ -96,7 +94,6 @@ describe('LoadBalancerEditor', () => {
 
   it('should render with only the Required fields', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {

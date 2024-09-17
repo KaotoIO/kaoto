@@ -52,7 +52,6 @@ describe('CamelComponentSchemaService', () => {
       const result = CamelComponentSchemaService.getVisualComponentSchema(path, definition);
 
       expect(result).toEqual({
-        title: 'non-existing-processor',
         schema: {},
         definition,
       });

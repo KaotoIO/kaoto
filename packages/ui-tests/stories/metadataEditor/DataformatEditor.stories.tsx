@@ -12,7 +12,6 @@ import {
 import { Meta, StoryFn } from '@storybook/react';
 
 const visualComponentSchema: VisualComponentSchema = {
-  title: 'My Node',
   schema: {
     type: 'object',
     properties: {
@@ -37,6 +36,7 @@ const mockNode: CanvasNode = {
   type: 'node',
   data: {
     vizNode: {
+      getTitle: () => 'My Node',
       getComponentSchema: () => visualComponentSchema,
       updateModel: (_value: unknown) => {},
     } as IVisualizationNode,

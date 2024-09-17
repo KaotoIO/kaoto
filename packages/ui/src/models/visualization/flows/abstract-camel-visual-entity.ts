@@ -14,10 +14,10 @@ import {
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
+import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
-import { NodeMapperService } from './nodes/node-mapper.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
@@ -62,6 +62,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
     const componentModel = getValue(this.route, path);
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
+
+    /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */
+    if (visualComponentSchema?.definition?.parameters === null) {
+      visualComponentSchema.definition.parameters = {};
+    }
 
     return visualComponentSchema;
   }
@@ -213,7 +218,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   toVizNode(): IVisualizationNode {
-    const routeGroupNode = createVisualizationNode(this.id, {
+    const routeGroupNode = createVisualizationNode('route', {
       path: ROOT_PATH,
       entity: this,
       isGroup: true,

@@ -14,7 +14,6 @@ export class KameletSchemaService {
     const definition = this.getKameletDefinition(stepModel);
 
     return {
-      title: definition?.metadata.name || '',
       schema: definition?.propertiesSchema || ({} as KaotoSchemaDefinition['schema']),
       definition: stepModel?.properties || {},
     };
