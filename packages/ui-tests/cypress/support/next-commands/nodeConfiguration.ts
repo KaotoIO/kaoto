@@ -136,6 +136,7 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
 
 Cypress.Commands.add('filterFields', (filter: string) => {
   cy.get('[data-testid="filter-fields"]').within(() => {
+    cy.get('input.pf-v5-c-text-input-group__text-input').clear();
     cy.get('input.pf-v5-c-text-input-group__text-input').type(filter);
   });
 });
