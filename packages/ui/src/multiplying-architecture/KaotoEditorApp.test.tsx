@@ -53,8 +53,8 @@ describe('KaotoEditorApp', () => {
           kogitoWorkspace_openFile: getNotificationMock(),
         },
         requests: {
-          getFilePreferences: jest.fn(),
-          setFilePreferences: jest.fn(),
+          getMetadata: jest.fn(),
+          setMetadata: jest.fn(),
         } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
@@ -199,15 +199,15 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi getting the file preferences', async () => {
-    await kaotoEditorApp.getFilePreferences('path');
+    await kaotoEditorApp.getMetadata('path');
 
-    expect(envelopeContext.channelApi.requests.getFilePreferences).toHaveBeenCalledWith('path');
+    expect(envelopeContext.channelApi.requests.getMetadata).toHaveBeenCalledWith('path');
   });
 
   it('should delegate to the channelApi setting the file preferences', async () => {
-    await kaotoEditorApp.setFilePreferences('key', 'value');
+    await kaotoEditorApp.setMetadata('key', 'value');
 
-    expect(envelopeContext.channelApi.requests.setFilePreferences).toHaveBeenCalledWith('key', 'value');
+    expect(envelopeContext.channelApi.requests.setMetadata).toHaveBeenCalledWith('key', 'value');
   });
 });
 

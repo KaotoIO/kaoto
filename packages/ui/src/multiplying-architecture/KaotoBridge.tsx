@@ -16,7 +16,7 @@ import { useReload } from '../hooks/reload.hook';
 import {
   CatalogLoaderProvider,
   CatalogTilesProvider,
-  FilePreferencesProvider,
+  MetadataProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsContext,
@@ -54,17 +54,17 @@ interface KaotoBridgeProps {
   setNotifications: (path: string, notifications: Notification[]) => void;
 
   /**
-   * Get FilePreferences by a given key, using the Channel API.
-   * @param key The key to retrieve the FilePreferences
-   * @returns The FilePreferences
+   * Get metadata querying a Kaoto metadata file using the channel API.
+   * @param key The key to retrieve the metadata from the Kaoto metadata file
    */
-  getFilePreferences: <T>(key: string) => Promise<T>;
+  getMetadata<T>(key: string): Promise<T | undefined>;
 
   /**
-   * Set FilePreferences by a given key, using the Channel API.
-   * @param key The key to set the FilePreferences
+   * Save metadata to a Kaoto metadata file using the channel API.
+   * @param key The key to set the metadata
+   * @param metadata The metadata to be saved
    */
-  setFilePreferences: <T>(key: string, preferences: T) => Promise<void>;
+  setMetadata<T>(key: string, metadata: T): Promise<void>;
 
   /**
    * ChannelType where the component is running.
@@ -73,17 +73,14 @@ interface KaotoBridgeProps {
 }
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>(
-  ({ onNewEdit, onReady, children, getFilePreferences, setFilePreferences }, forwardedRef) => {
+  ({ onNewEdit, onReady, children, getMetadata, setMetadata }, forwardedRef) => {
     const ReloadProvider = useReload();
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
     const sourceCodeRef = useRef<string>('');
     const settingsAdapter = useContext(SettingsContext);
     const catalogUrl = settingsAdapter.getSettings().catalogUrl;
-    const filePreferencesApi = useMemo(
-      () => ({ getFilePreferences, setFilePreferences }),
-      [getFilePreferences, setFilePreferences],
-    );
+    const metadataApi = useMemo(() => ({ getMetadata, setMetadata }), [getMetadata, setMetadata]);
 
     /**
      * Callback is exposed to the Channel that is called when a new file is opened.
@@ -175,9 +172,9 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
               <CatalogTilesProvider>
                 <VisibleFlowsProvider>
                   <RenderingProvider>
-                    <FilePreferencesProvider api={filePreferencesApi}>
+                    <MetadataProvider api={metadataApi}>
                       <RegisterComponents>{children}</RegisterComponents>
-                    </FilePreferencesProvider>
+                    </MetadataProvider>
                   </RenderingProvider>
                 </VisibleFlowsProvider>
               </CatalogTilesProvider>
