@@ -1,6 +1,11 @@
 import { camelRouteJson } from '../../stubs/camel-route';
 import { NodeLabelType } from '../settings';
-import { BaseVisualCamelEntity, DISABLED_NODE_INTERACTION, IVisualizationNode, NodeInteraction } from './base-visual-entity';
+import {
+  BaseVisualCamelEntity,
+  DISABLED_NODE_INTERACTION,
+  IVisualizationNode,
+  NodeInteraction,
+} from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
 
