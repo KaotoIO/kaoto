@@ -9,6 +9,7 @@ import {
   MenuGroup,
   MenuItem,
   Tab,
+  TabContent,
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
@@ -23,13 +24,14 @@ import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditor
 import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
+import './XPathEditorLayout.scss';
 
-type TransformationEditorProps = {
+type XPathEditorLayoutProps = {
   mapping: ExpressionItem;
   onUpdate: () => void;
 };
 
-export const ExpressionEditor: FunctionComponent<TransformationEditorProps> = ({ mapping, onUpdate }) => {
+export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ mapping, onUpdate }) => {
   const dndHandler = useMemo(() => new ExpressionEditorDnDHandler(), []);
 
   const handleExpressionChange = useCallback(
@@ -50,34 +52,46 @@ export const ExpressionEditor: FunctionComponent<TransformationEditorProps> = ({
 
   return (
     <DatamapperDndProvider handler={dndHandler}>
-      <Grid hasGutter>
-        <GridItem key={0} span={3} rowSpan={10}>
+      <Grid hasGutter className="xpath-editor-layout-grid">
+        <GridItem key={0} span={4} rowSpan={10}>
           <Tabs isFilled activeKey={activeTabKey} onSelect={handleTabClick}>
-            <Tab eventKey={0} key={0} title={<TabTitleText>Function</TabTitleText>}>
-              <Menu isScrollable>
-                <MenuContent>
-                  {Object.keys(functionDefinitions).map((value) => (
-                    <MenuGroup key={value} label={value}>
-                      {functionDefinitions[value as FunctionGroup].map((func, index) => (
-                        <DraggableContainer
-                          key={index}
-                          id={`${value}-${index}-${func.name}`}
-                          nodeData={new FunctionNodeData(func)}
-                        >
-                          <MenuItem key={`${value}-${index}`} description={func.description}>
-                            {func.displayName}
-                          </MenuItem>
-                        </DraggableContainer>
-                      ))}
-                    </MenuGroup>
-                  ))}
-                </MenuContent>
-              </Menu>
-            </Tab>
-            <Tab eventKey={1} key={1} title={<TabTitleText>Field</TabTitleText>}>
-              <div className="pf-m-scrollable">
+            <Tab
+              eventKey={0}
+              key={0}
+              title={<TabTitleText>Field</TabTitleText>}
+              className="xpath-editor-layout-tab-content"
+            >
+              <TabContent id="fields" className="xpath-editor-layout-tab-content">
                 <SourcePanel />
-              </div>
+              </TabContent>
+            </Tab>
+            <Tab
+              eventKey={1}
+              key={1}
+              title={<TabTitleText>Function</TabTitleText>}
+              className="xpath-editor-layout-tab-content"
+            >
+              <TabContent id="functions" className="xpath-editor-layout-tab-content">
+                <Menu isScrollable className="xpath-editor-layout-tab-content">
+                  <MenuContent menuHeight="100%" maxMenuHeight="100%">
+                    {Object.keys(functionDefinitions).map((value) => (
+                      <MenuGroup key={value} label={value}>
+                        {functionDefinitions[value as FunctionGroup].map((func, index) => (
+                          <DraggableContainer
+                            key={index}
+                            id={`${value}-${index}-${func.name}`}
+                            nodeData={new FunctionNodeData(func)}
+                          >
+                            <MenuItem key={`${value}-${index}`} description={func.description}>
+                              {func.displayName}
+                            </MenuItem>
+                          </DraggableContainer>
+                        ))}
+                      </MenuGroup>
+                    ))}
+                  </MenuContent>
+                </Menu>
+              </TabContent>
             </Tab>
           </Tabs>
         </GridItem>
@@ -89,7 +103,7 @@ export const ExpressionEditor: FunctionComponent<TransformationEditorProps> = ({
           */}
         </GridItem>
         <GridItem key={1} span={6} rowSpan={10}>
-          <DroppableContainer id="expression-editor" nodeData={new EditorNodeData(mapping)}>
+          <DroppableContainer id="xpath-editor" nodeData={new EditorNodeData(mapping)}>
             <XPathEditor mapping={mapping} onChange={handleExpressionChange} />
           </DroppableContainer>
         </GridItem>

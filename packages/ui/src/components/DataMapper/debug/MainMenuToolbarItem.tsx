@@ -6,7 +6,6 @@ import { ImportMappingFileDropdownItem } from './ImportMappingFileDropdownItem';
 
 export const MainMenuToolbarItem: FunctionComponent = () => {
   const { state: isOpen, toggle: onToggle, toggleOff } = useToggle(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (
     <ToolbarItem>
       <Dropdown

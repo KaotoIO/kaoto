@@ -29,7 +29,7 @@ describe('TargetNodeActions', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    expect(await screen.findByTestId('transformation-expression-input')).toBeTruthy();
-    expect(screen.getByTestId(`edit-expression-button-${mappingData.id}`)).toBeTruthy();
+    expect(await screen.findByTestId('transformation-xpath-input')).toBeTruthy();
+    expect(screen.getByTestId(`edit-xpath-button-${mappingData.id}`)).toBeTruthy();
   });
 });

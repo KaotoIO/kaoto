@@ -2,12 +2,12 @@ import { ExpressionItem } from '../../../models/datamapper/mapping';
 import { FormEvent, FunctionComponent, MouseEvent, useCallback } from 'react';
 import { ActionListItem, InputGroup, InputGroupItem, TextInput } from '@patternfly/react-core';
 
-type ExpressionInputProps = {
+type XPathInputProps = {
   mapping: ExpressionItem;
   onUpdate: () => void;
 };
-export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({ mapping, onUpdate }) => {
-  const handleExpressionChange = useCallback(
+export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, onUpdate }) => {
+  const handleXPathChange = useCallback(
     (event: FormEvent, value: string) => {
       if (mapping) {
         mapping.expression = value;
@@ -23,15 +23,15 @@ export const ExpressionInputAction: FunctionComponent<ExpressionInputProps> = ({
   }, []);
 
   return (
-    <ActionListItem key="expression-input">
+    <ActionListItem key="xpath-input">
       <InputGroup>
         <InputGroupItem>
           <TextInput
-            data-testid="transformation-expression-input"
-            id="expression"
+            data-testid="transformation-xpath-input"
+            id="xpath"
             type="text"
             value={mapping.expression as string}
-            onChange={handleExpressionChange}
+            onChange={handleXPathChange}
             onMouseMove={stopPropagation}
           />
         </InputGroupItem>

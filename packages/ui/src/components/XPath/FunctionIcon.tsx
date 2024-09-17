@@ -1,5 +1,5 @@
 import { FunctionComponent } from 'react';
-import './Transformation.scss';
+import './FunctionIcon.scss';
 
 export const FunctionIcon: FunctionComponent = () => {
   return (

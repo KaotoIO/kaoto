@@ -44,8 +44,6 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
           value: mapping.expression,
         });
         newEditor.onDidChangeModelContent((_e) => onChange(newEditor.getModel()?.getValue()));
-        const model = newEditor.getModel();
-        console.log(`##### ${model?.getLanguageId()}`);
         return newEditor;
       });
     }

@@ -120,12 +120,12 @@ export const Parameters: FunctionComponent = () => {
   const handleAddNewParameter = useCallback(() => {
     setSourceParametersExpanded(true);
     toggleOnAddNewParameter();
-  }, [toggleOnAddNewParameter]);
+  }, [setSourceParametersExpanded, toggleOnAddNewParameter]);
 
   const handleOnExpand = useCallback(() => {
     setSourceParametersExpanded(!isSourceParametersExpanded);
     reloadNodeReferences();
-  }, [isSourceParametersExpanded, reloadNodeReferences]);
+  }, [isSourceParametersExpanded, reloadNodeReferences, setSourceParametersExpanded]);
 
   const parametersHeaderActions = useMemo(() => {
     return (

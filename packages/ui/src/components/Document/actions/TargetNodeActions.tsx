@@ -1,9 +1,9 @@
 import { ActionListGroup } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, KeyboardEvent, useCallback } from 'react';
-import { ExpressionInputAction } from './ExpressionInputAction';
+import { XPathInputAction } from './XPathInputAction';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { ConditionMenuAction } from './ConditionMenuAction';
-import { ExpressionEditorAction } from './ExpressionEditorAction';
+import { XPathEditorAction } from './XPathEditorAction';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 
@@ -27,8 +27,8 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ n
     >
       {expressionItem && (
         <>
-          <ExpressionInputAction mapping={expressionItem} onUpdate={onUpdate} />
-          <ExpressionEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
+          <XPathInputAction mapping={expressionItem} onUpdate={onUpdate} />
+          <XPathEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
         </>
       )}
       <ConditionMenuAction nodeData={nodeData} onUpdate={onUpdate} />

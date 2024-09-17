@@ -1,4 +1,4 @@
-import { ExpressionEditorAction } from './ExpressionEditorAction';
+import { XPathEditorAction } from './XPathEditorAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
 import { DocumentType } from '../../../models/datamapper/path';
@@ -16,15 +16,15 @@ describe('ExpressionEditorAction', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <ExpressionEditorAction mapping={new ValueSelector(tree)} nodeData={docData} onUpdate={jest.fn()} />
+          <XPathEditorAction mapping={new ValueSelector(tree)} nodeData={docData} onUpdate={jest.fn()} />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    const editBtn = await screen.findByTestId(`edit-expression-button-${docData.id}`);
+    const editBtn = await screen.findByTestId(`edit-xpath-button-${docData.id}`);
     act(() => {
       fireEvent.click(editBtn);
     });
-    const modal = await screen.findByTestId('expression-editor-modal');
+    const modal = await screen.findByTestId('xpath-editor-modal');
     expect(modal).toBeInTheDocument();
   }, 10000);
 });
