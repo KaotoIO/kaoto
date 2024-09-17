@@ -7,6 +7,8 @@ import { DataMapperNodeMapper } from './mappers/datamapper-node-mapper';
 import { OtherwiseNodeMapper } from './mappers/otherwise-node-mapper';
 import { StepNodeMapper } from './mappers/step-node-mapper';
 import { WhenNodeMapper } from './mappers/when-node-mapper';
+import { MulticastNodeMapper } from './mappers/multicast-node-mapper';
+import { LoadBalanceNodeMapper } from './mappers/loadbalance-node-mapper';
 import { INodeMapper } from './node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
 
@@ -37,5 +39,7 @@ export class NodeMapperService {
     this.rootNodeMapper.registerMapper('otherwise', new OtherwiseNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('step', new StepNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(this.rootNodeMapper));
   }
 }

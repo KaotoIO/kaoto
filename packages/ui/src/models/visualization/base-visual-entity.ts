@@ -84,6 +84,8 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getNodeInteraction(): NodeInteraction;
 
+  setNodeInteraction(nodeInteraction: NodeInteraction): void;
+
   getComponentSchema(): VisualComponentSchema | undefined;
 
   /** Returnt fields that should be omitted when configuring this entity */
@@ -97,11 +99,11 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getPreviousNode(): IVisualizationNode | undefined;
 
-  setPreviousNode(previousNode: IVisualizationNode): void;
+  setPreviousNode(previousNode?: IVisualizationNode): void;
 
   getNextNode(): IVisualizationNode | undefined;
 
-  setNextNode(node: IVisualizationNode): void;
+  setNextNode(node?: IVisualizationNode): void;
 
   getChildren(): IVisualizationNode[] | undefined;
 
@@ -165,3 +167,14 @@ export interface NodeInteraction {
   canRemoveFlow: boolean;
   canBeDisabled: boolean;
 }
+
+export const DISABLED_NODE_INTERACTION: NodeInteraction = {
+  canHavePreviousStep: false,
+  canHaveNextStep: false,
+  canHaveChildren: false,
+  canHaveSpecialChildren: false,
+  canReplaceStep: false,
+  canRemoveStep: false,
+  canRemoveFlow: false,
+  canBeDisabled: false,
+};
