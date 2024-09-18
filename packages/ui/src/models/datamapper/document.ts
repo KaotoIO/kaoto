@@ -107,8 +107,10 @@ export class DocumentDefinition {
     public documentType: DocumentType,
     public definitionType: DocumentDefinitionType,
     public name?: string,
-    public definitionFiles?: File[] | string[],
-  ) {}
+    public definitionFiles?: Record<string, string>,
+  ) {
+    if (!definitionFiles) this.definitionFiles = {};
+  }
 }
 
 export class DocumentInitializationModel {

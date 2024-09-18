@@ -31,6 +31,9 @@ import { MappingService } from '../services/mapping.service';
 import { DocumentService } from '../services/document.service';
 
 export interface IDataMapperContext {
+  isLoading: boolean;
+  setIsLoading(isLoading: boolean): void;
+
   activeView: CanvasView;
   setActiveView(view: CanvasView): void;
 
@@ -40,7 +43,7 @@ export interface IDataMapperContext {
   setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
   setTargetBodyDocument: (doc: IDocument) => void;
-  updateDocumentDefinition: (definition: DocumentDefinition) => Promise<void>;
+  updateDocumentDefinition: (definition: DocumentDefinition) => void;
 
   isSourceParametersExpanded: boolean;
   setSourceParametersExpanded: (expanded: boolean) => void;
@@ -70,9 +73,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   children,
 }) => {
   const [debug, setDebug] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
 
-  const [initializingDocument, setInitializingDocument] = useState<boolean>(true);
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(false);
   const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
@@ -81,37 +84,39 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
     new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
+  const [mappingTree, setMappingTree] = useState<MappingTree>(
+    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
+  );
 
   useEffect(() => {
-    setInitializingDocument(true);
-    DocumentService.createInitialDocuments(documentInitializationModel)
-      .then((documents) => {
-        if (!documents) return;
-        documents.sourceBodyDocument && setSourceBodyDocument(documents.sourceBodyDocument);
-        setSourceParameterMap(documents.sourceParameterMap);
-        documents.targetBodyDocument && setTargetBodyDocument(documents.targetBodyDocument);
-      })
-      .finally(() => {
-        setInitializingDocument(false);
-      });
+    const documents = DocumentService.createInitialDocuments(documentInitializationModel);
+    let latestSourceParameterMap = sourceParameterMap;
+    let latestTargetBodyDocument = targetBodyDocument;
+    if (documents) {
+      documents.sourceBodyDocument && setSourceBodyDocument(documents.sourceBodyDocument);
+      setSourceParameterMap(documents.sourceParameterMap);
+      latestSourceParameterMap = documents.sourceParameterMap;
+      if (documents.targetBodyDocument) {
+        setTargetBodyDocument(documents.targetBodyDocument);
+        latestTargetBodyDocument = documents.targetBodyDocument;
+      }
+    }
+    if (initialXsltFile) {
+      const loaded = MappingSerializerService.deserialize(
+        initialXsltFile,
+        latestTargetBodyDocument,
+        mappingTree,
+        latestSourceParameterMap,
+      );
+      setMappingTree(loaded);
+    }
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
   }, [sourceParameterMap]);
-
-  const [initializingMapping, setInitializingMapping] = useState<boolean>(!!initialXsltFile);
-  const [mappingTree, setMappingTree] = useState<MappingTree>(
-    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
-  );
-  useEffect(() => {
-    if (initialXsltFile && !initializingDocument && initializingMapping) {
-      MappingSerializerService.deserialize(initialXsltFile, targetBodyDocument!, mappingTree, sourceParameterMap!);
-      setInitializingMapping(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initializingDocument, initializingMapping]);
 
   const refreshMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
@@ -165,24 +170,21 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [refreshSourceParameters, sourceParameterMap],
   );
 
-  const [updatingDocument, setUpdatingDocument] = useState<boolean>(false);
   const updateDocumentDefinition = useCallback(
     (definition: DocumentDefinition) => {
-      setUpdatingDocument(true);
-      return DocumentService.createDocument(definition)
-        .then((document) => {
-          if (!document) return;
-          removeStaleMappings(document.documentType, document.documentId, document);
-          setNewDocument(document.documentType, document.documentId, document);
-          onUpdateDocument && onUpdateDocument(definition);
-        })
-        .finally(() => setUpdatingDocument(false));
+      const document = DocumentService.createDocument(definition);
+      if (!document) return;
+      removeStaleMappings(document.documentType, document.documentId, document);
+      setNewDocument(document.documentType, document.documentId, document);
+      onUpdateDocument && onUpdateDocument(definition);
     },
     [onUpdateDocument, removeStaleMappings, setNewDocument],
   );
 
   const value = useMemo(() => {
     return {
+      isLoading,
+      setIsLoading,
       activeView,
       setActiveView,
       sourceParameterMap,
@@ -201,6 +203,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setDebug,
     };
   }, [
+    isLoading,
     activeView,
     sourceParameterMap,
     isSourceParametersExpanded,
@@ -213,9 +216,5 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     debug,
   ]);
 
-  return (
-    <DataMapperContext.Provider value={value}>
-      {initializingDocument || initializingMapping || updatingDocument ? <Loading /> : children}
-    </DataMapperContext.Provider>
-  );
+  return <DataMapperContext.Provider value={value}>{isLoading ? <Loading /> : children}</DataMapperContext.Provider>;
 };

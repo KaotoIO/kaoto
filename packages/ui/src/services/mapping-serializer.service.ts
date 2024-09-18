@@ -17,7 +17,7 @@ import { DocumentType } from '../models/datamapper/path';
 
 export const NS_XSL = 'http://www.w3.org/1999/XSL/Transform';
 export const EMPTY_XSL = `<?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="${NS_XSL}">
+<xsl:stylesheet version="2.0" xmlns:xsl="${NS_XSL}">
   <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
   </xsl:template>

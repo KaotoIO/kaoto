@@ -35,11 +35,10 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
 
   const onConfirmDelete = useCallback(() => {
     const definition = new DocumentDefinition(documentType, DocumentDefinitionType.Primitive, documentId);
-    updateDocumentDefinition(definition).then(() => {
-      clearNodeReferencesForDocument(documentType, documentId);
-      reloadNodeReferences();
-      closeModal();
-    });
+    updateDocumentDefinition(definition);
+    clearNodeReferencesForDocument(documentType, documentId);
+    reloadNodeReferences();
+    closeModal();
   }, [
     documentType,
     documentId,

@@ -21,6 +21,7 @@ import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType } from '../../../models/datamapper/path';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { DocumentDefinition, DocumentDefinitionType } from '../../../models/datamapper/document';
+import { readFileAsString } from '../../../utils/read-file-as-string';
 
 type AttachSchemaProps = {
   documentType: DocumentType;
@@ -33,7 +34,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentId,
   hasSchema = false,
 }) => {
-  const { updateDocumentDefinition } = useDataMapper();
+  const { setIsLoading, updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const fileInputRef = createRef<HTMLInputElement>();
 
@@ -42,21 +43,36 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, [fileInputRef]);
 
   const onImport = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      setIsLoading(true);
       const files = event.target.files;
       if (!files || files.length === 0) return;
+      const fileContents: Record<string, string> = {};
+      const fileContentPromises: Promise<string>[] = [];
+      Array.from(files).map((f) => {
+        const promise = readFileAsString(f).then((content) => (fileContents[f.name] = content));
+        fileContentPromises.push(promise);
+      });
+      await Promise.allSettled(fileContentPromises);
       const definition = new DocumentDefinition(
         documentType,
         DocumentDefinitionType.XML_SCHEMA,
         documentId,
-        Array.from(files),
+        fileContents,
       );
-      updateDocumentDefinition(definition).then(() => {
-        clearNodeReferencesForDocument(documentType, documentId);
-        reloadNodeReferences();
-      });
+      await updateDocumentDefinition(definition);
+      clearNodeReferencesForDocument(documentType, documentId);
+      reloadNodeReferences();
+      setIsLoading(false);
     },
-    [clearNodeReferencesForDocument, documentId, documentType, reloadNodeReferences, updateDocumentDefinition],
+    [
+      clearNodeReferencesForDocument,
+      documentId,
+      documentType,
+      reloadNodeReferences,
+      setIsLoading,
+      updateDocumentDefinition,
+    ],
   );
 
   return (

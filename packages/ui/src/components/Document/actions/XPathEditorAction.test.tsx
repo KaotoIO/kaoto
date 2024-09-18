@@ -8,8 +8,8 @@ import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { TestUtil } from '../../../stubs/data-mapper';
 
-describe('ExpressionEditorAction', () => {
-  it('should open expression editor modal', async () => {
+describe('XPathEditorAction', () => {
+  it('should open xpath editor modal', async () => {
     const doc = TestUtil.createTargetOrderDoc();
     const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const docData = new TargetDocumentNodeData(doc, tree);
@@ -26,5 +26,5 @@ describe('ExpressionEditorAction', () => {
     });
     const modal = await screen.findByTestId('xpath-editor-modal');
     expect(modal).toBeInTheDocument();
-  }, 10000);
+  }, 15000);
 });

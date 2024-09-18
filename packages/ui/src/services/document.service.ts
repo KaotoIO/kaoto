@@ -9,7 +9,6 @@ import {
 } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { readFileAsString } from '../utils/read-file-as-string';
 
 interface InitialDocumentsSet {
   sourceBodyDocument?: IDocument;
@@ -18,53 +17,36 @@ interface InitialDocumentsSet {
 }
 
 export class DocumentService {
-  static createDocument(definition: DocumentDefinition): Promise<IDocument | null> {
+  static createDocument(definition: DocumentDefinition): IDocument | null {
     if (definition.definitionType === DocumentDefinitionType.Primitive) {
-      return Promise.resolve(
-        new PrimitiveDocument(definition.documentType, DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID),
-      );
+      return new PrimitiveDocument(definition.documentType, DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID);
     }
-    if (!definition.definitionFiles || definition.definitionFiles.length === 0) return Promise.resolve(null);
-    return Promise.allSettled(
-      definition.definitionFiles.map((file) =>
-        typeof file === 'string' ? Promise.resolve(file) : readFileAsString(file),
-      ),
-    ).then((results) => {
-      const content = (results[0] as PromiseFulfilledResult<string>).value;
-      const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
-      return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
-    });
+    if (!definition.definitionFiles || Object.keys(definition.definitionFiles).length === 0) return null;
+    const content = Object.values(definition.definitionFiles)[0];
+    const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
   }
 
-  static createInitialDocuments(initModel?: DocumentInitializationModel): Promise<InitialDocumentsSet | null> {
-    if (!initModel) return Promise.resolve(null);
+  static createInitialDocuments(initModel?: DocumentInitializationModel): InitialDocumentsSet | null {
+    if (!initModel) return null;
     const answer: InitialDocumentsSet = {
       sourceParameterMap: new Map<string, IDocument>(),
     };
-    const promises: Promise<void>[] = [];
     if (initModel.sourceBody) {
-      const sourceBodyPromise = DocumentService.createDocument(initModel.sourceBody).then((document) => {
-        if (document) answer.sourceBodyDocument = document;
-      });
-      promises.push(sourceBodyPromise);
+      const document = DocumentService.createDocument(initModel.sourceBody);
+      if (document) answer.sourceBodyDocument = document;
     }
     if (initModel.sourceParameters) {
       Object.entries(initModel.sourceParameters).map(([key, value]) => {
-        const paramPromise = DocumentService.createDocument(value).then((document) => {
-          answer.sourceParameterMap.set(key, document ? document : new PrimitiveDocument(DocumentType.PARAM, key));
-        });
-        promises.push(paramPromise);
+        const document = DocumentService.createDocument(value);
+        answer.sourceParameterMap.set(key, document ? document : new PrimitiveDocument(DocumentType.PARAM, key));
       });
     }
     if (initModel.targetBody) {
-      const targetBodyPromise = DocumentService.createDocument(initModel.targetBody).then((document) => {
-        if (document) answer.targetBodyDocument = document;
-      });
-      promises.push(targetBodyPromise);
+      const document = DocumentService.createDocument(initModel.targetBody);
+      if (document) answer.targetBodyDocument = document;
     }
-    return Promise.allSettled(promises).then(() => {
-      return answer;
-    });
+    return answer;
   }
 
   static getFieldStack(field: IField, includeItself: boolean = false) {

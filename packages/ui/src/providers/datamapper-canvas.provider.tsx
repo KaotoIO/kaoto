@@ -4,12 +4,14 @@ import {
   MutableRefObject,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { DnDHandler } from './dnd/DnDHandler';
 import { DocumentType, NodePath } from '../models/datamapper/path';
 import { DatamapperDndProvider } from './datamapper-dnd.provider';
+import { useDataMapper } from '../hooks/useDataMapper';
 
 export interface NodeReference {
   headerRef: HTMLDivElement | null;
@@ -31,6 +33,7 @@ export interface ICanvasContext {
 export const CanvasContext = createContext<ICanvasContext | undefined>(undefined);
 
 export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (props) => {
+  const { mappingTree } = useDataMapper();
   const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>();
   const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>();
 
@@ -55,6 +58,10 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
   const reloadNodeReferences = useCallback(() => {
     setNodeReferenceMap(new Map(nodeReferenceMap));
   }, [nodeReferenceMap]);
+
+  useEffect(() => {
+    if (mappingTree) reloadNodeReferences();
+  }, [mappingTree]);
 
   const clearNodeReferencesForPath = useCallback(
     (path: string) => {

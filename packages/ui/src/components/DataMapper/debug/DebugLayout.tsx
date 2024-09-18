@@ -21,9 +21,8 @@ import { DataMapper } from '../DataMapper';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { CanvasMonitor } from './CanvasMonitor';
 import { DataMapperMonitor } from './DataMapperMonitor';
-import { IDataMapperProps } from '../../../pages/DataMapper/DataMapperPage';
 
-export const DebugLayout: FunctionComponent<IDataMapperProps> = memo(function DebugLayout() {
+export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;
   useEffect(() => {
     setDebug(true);

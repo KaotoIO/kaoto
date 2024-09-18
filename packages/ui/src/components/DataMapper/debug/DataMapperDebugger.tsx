@@ -1,10 +1,17 @@
 import { FunctionComponent } from 'react';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { IDataMapperProps } from '../../../pages/DataMapper/DataMapperPage';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DebugLayout } from './DebugLayout';
+import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
 
-export const DataMapperDebugger: FunctionComponent<IDataMapperProps> = ({
+type DataMapperDebuggerProps = {
+  documentInitializationModel?: DocumentInitializationModel;
+  onUpdateDocument?: (definition: DocumentDefinition) => void;
+  initialXsltFile?: string;
+  onUpdateMappings?: (xsltFile: string) => void;
+};
+
+export const DataMapperDebugger: FunctionComponent<DataMapperDebuggerProps> = ({
   documentInitializationModel,
   onUpdateDocument,
   initialXsltFile,
