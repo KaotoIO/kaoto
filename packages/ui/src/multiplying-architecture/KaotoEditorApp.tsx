@@ -38,6 +38,8 @@ export class KaotoEditorApp implements Editor {
     this.sendStateControlCommand = this.sendStateControlCommand.bind(this);
     this.getMetadata = this.getMetadata.bind(this);
     this.setMetadata = this.setMetadata.bind(this);
+    this.getResourceContent = this.getResourceContent.bind(this);
+    this.saveResourceContent = this.saveResourceContent.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -104,6 +106,14 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.setMetadata(key, preferences);
   }
 
+  async getResourceContent(path: string): Promise<string | undefined> {
+    return this.envelopeContext.channelApi.requests.getResourceContent(path);
+  }
+
+  async saveResourceContent(path: string, content: string): Promise<void> {
+    return this.envelopeContext.channelApi.requests.saveResourceContent(path, content);
+  }
+
   af_componentRoot() {
     return (
       <SourceCodeProvider>
@@ -118,6 +128,8 @@ export class KaotoEditorApp implements Editor {
               onStateControlCommandUpdate={this.sendStateControlCommand}
               getMetadata={this.getMetadata}
               setMetadata={this.setMetadata}
+              getResourceContent={this.getResourceContent}
+              saveResourceContent={this.saveResourceContent}
             >
               <RouterProvider router={kaotoEditorRouter} />
             </KaotoBridge>

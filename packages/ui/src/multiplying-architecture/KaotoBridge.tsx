@@ -67,20 +67,39 @@ interface KaotoBridgeProps {
   setMetadata<T>(key: string, metadata: T): Promise<void>;
 
   /**
+   * Retrieve resource content using the channel API.
+   * @param path The path of the resource
+   */
+  getResourceContent(path: string): Promise<string | undefined>;
+
+  /**
+   * Save resource content using the channel API.
+   * @param path The path of the resource
+   * @param content The content to be saved
+   */
+  saveResourceContent(path: string, content: string): Promise<void>;
+
+  /**
    * ChannelType where the component is running.
    */
   channelType: ChannelType;
 }
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>(
-  ({ onNewEdit, onReady, children, getMetadata, setMetadata }, forwardedRef) => {
+  (
+    { onNewEdit, onReady, children, getMetadata, setMetadata, getResourceContent, saveResourceContent },
+    forwardedRef,
+  ) => {
     const ReloadProvider = useReload();
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
     const sourceCodeRef = useRef<string>('');
     const settingsAdapter = useContext(SettingsContext);
     const catalogUrl = settingsAdapter.getSettings().catalogUrl;
-    const metadataApi = useMemo(() => ({ getMetadata, setMetadata }), [getMetadata, setMetadata]);
+    const metadataApi = useMemo(
+      () => ({ getMetadata, setMetadata, getResourceContent, saveResourceContent }),
+      [getMetadata, setMetadata, getResourceContent, saveResourceContent],
+    );
 
     /**
      * Callback is exposed to the Channel that is called when a new file is opened.

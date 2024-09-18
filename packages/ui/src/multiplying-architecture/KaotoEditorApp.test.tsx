@@ -55,6 +55,8 @@ describe('KaotoEditorApp', () => {
         requests: {
           getMetadata: jest.fn(),
           setMetadata: jest.fn(),
+          getResourceContent: jest.fn(),
+          saveResourceContent: jest.fn(),
         } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
@@ -198,16 +200,28 @@ describe('KaotoEditorApp', () => {
     );
   });
 
-  it('should delegate to the channelApi getting the file preferences', async () => {
+  it('should delegate to the channelApi getting metadata from the Kaoto metadata file', async () => {
     await kaotoEditorApp.getMetadata('path');
 
     expect(envelopeContext.channelApi.requests.getMetadata).toHaveBeenCalledWith('path');
   });
 
-  it('should delegate to the channelApi setting the file preferences', async () => {
+  it('should delegate to the channelApi setting metadata from the Kaoto metadata file', async () => {
     await kaotoEditorApp.setMetadata('key', 'value');
 
     expect(envelopeContext.channelApi.requests.setMetadata).toHaveBeenCalledWith('key', 'value');
+  });
+
+  it('should delegate to the channelApi getting a file resource content', async () => {
+    await kaotoEditorApp.getResourceContent('path');
+
+    expect(envelopeContext.channelApi.requests.getResourceContent).toHaveBeenCalledWith('path');
+  });
+
+  it('should delegate to the channelApi saving file resource content', async () => {
+    await kaotoEditorApp.saveResourceContent('path', 'content');
+
+    expect(envelopeContext.channelApi.requests.saveResourceContent).toHaveBeenCalledWith('path', 'content');
   });
 });
 
