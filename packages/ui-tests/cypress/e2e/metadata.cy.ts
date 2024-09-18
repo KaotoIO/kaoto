@@ -7,22 +7,8 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
-    cy.expandWrappedSection('annotations');
-    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-name-input"]').click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-name-input"]').clear().type('test-annotations');
-    cy.get('[data-testid="annotations--placeholder-value-input"]').click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-value-input"]').clear().type('value-annotations');
-    cy.get('[data-testid="annotations--placeholder-property-edit-confirm--btn"]').click({ force: true });
-    cy.closeWrappedSection('annotations');
-    cy.expandWrappedSection('labels');
-    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="labels--placeholder-name-input"]').click({ force: true });
-    cy.get('[data-testid="labels--placeholder-name-input"]').clear().type('test-labels');
-    cy.get('[data-testid="labels--placeholder-value-input"]').click({ force: true });
-    cy.get('[data-testid="labels--placeholder-value-input"]').clear().type('value-labels');
-    cy.get('[data-testid="labels--placeholder-property-edit-confirm--btn"]').click({ force: true });
-    cy.closeWrappedSection('labels');
+    cy.addStringProperty('annotations', 'test-annotations', 'value-annotations');
+    cy.addStringProperty('labels', 'test-labels', 'value-labels');
 
     cy.get(`input[name="creationTimestamp"]`).clear().type('testCreationTimestamp');
     cy.get(`input[name="deletionGracePeriodSeconds"]`).clear().type('1000');

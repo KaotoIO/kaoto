@@ -18,17 +18,7 @@ describe('Test for node bean reference and configuration support', () => {
       cy.get(`input[name="name"]`).clear().type('test');
       cy.get(`input[name="type"]`).clear().type('org.acme');
 
-      cy.expandWrappedSection('properties');
-      cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-      cy.get('[data-testid="properties--placeholder-name-input"]').should('not.be.disabled');
-      cy.get('[data-testid="properties--placeholder-name-input"]').click({ force: true });
-      cy.get('[data-testid="properties--placeholder-name-input"]').clear().type('test');
-
-      cy.get('[data-testid="properties--placeholder-value-input"]').should('not.be.disabled');
-      cy.get('[data-testid="properties--placeholder-value-input"]').click({ force: true });
-      cy.get('[data-testid="properties--placeholder-value-input"]').clear().type('value');
-
-      cy.get('[data-testid="properties--placeholder-property-edit-confirm--btn"]').click({ force: true });
+      cy.addStringProperty('properties', 'test', 'value');
 
       cy.get('[data-testid="create-bean-btn"').click();
       cy.closeStepConfigurationTab();

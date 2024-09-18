@@ -83,6 +83,7 @@ declare global {
       filterFields(filter: string): Chainable<JQuery<Element>>;
       selectFormTab(tab: string): Chainable<JQuery<Element>>;
       specifiedFormTab(tab: string): Chainable<JQuery<Element>>;
+      addStringProperty(selector: string, key: string, value: string): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;

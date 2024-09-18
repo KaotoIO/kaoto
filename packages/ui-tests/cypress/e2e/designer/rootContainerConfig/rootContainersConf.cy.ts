@@ -136,29 +136,8 @@ describe('Test for camel route root containers configuration', () => {
     cy.get(`input[name="name"]`).clear();
     cy.get(`input[name="name"]`).type('testName');
 
-    cy.expandWrappedSection('labels');
-    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="labels--placeholder-name-input"]').should('not.be.disabled');
-    cy.get('[data-testid="labels--placeholder-name-input"]').click({ force: true });
-    cy.get('[data-testid="labels--placeholder-name-input"]').clear().type('labelsTest');
-
-    cy.get('[data-testid="labels--placeholder-value-input"]').should('not.be.disabled');
-    cy.get('[data-testid="labels--placeholder-value-input"]').click({ force: true });
-    cy.get('[data-testid="labels--placeholder-value-input"]').clear().type('labelsValue');
-    cy.get('[data-testid="labels--placeholder-property-edit-confirm--btn"]').click({ force: true });
-    cy.closeWrappedSection('labels');
-
-    cy.expandWrappedSection('annotations');
-    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-name-input"]').should('not.be.disabled');
-    cy.get('[data-testid="annotations--placeholder-name-input"]').click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-name-input"]').clear().type('annotationsTest');
-
-    cy.get('[data-testid="annotations--placeholder-value-input"]').should('not.be.disabled');
-    cy.get('[data-testid="annotations--placeholder-value-input"]').click({ force: true });
-    cy.get('[data-testid="annotations--placeholder-value-input"]').clear().type('annotationsValue');
-    cy.get('[data-testid="annotations--placeholder-property-edit-confirm--btn"]').click({ force: true });
-    cy.closeWrappedSection('annotations');
+    cy.addStringProperty('labels', 'labelsTest', 'labelsValue');
+    cy.addStringProperty('annotations', 'annotationsTest', 'annotationsValue');
 
     cy.openSourceCode();
 
