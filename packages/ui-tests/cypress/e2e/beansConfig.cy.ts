@@ -17,17 +17,7 @@ describe('Test for Bean support', () => {
 
     cy.openBeans();
     cy.forceSelectMetadataRow(0);
-    cy.expandWrappedSection('properties');
-    cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-    cy.get('[data-testid="properties--placeholder-name-input"]').should('not.be.disabled');
-    cy.get('[data-testid="properties--placeholder-name-input"]').click({ force: true });
-    cy.get('[data-testid="properties--placeholder-name-input"]').clear().type('test');
-
-    cy.get('[data-testid="properties--placeholder-value-input"]').should('not.be.disabled');
-    cy.get('[data-testid="properties--placeholder-value-input"]').click({ force: true });
-    cy.get('[data-testid="properties--placeholder-value-input"]').clear().type('value');
-
-    cy.get('[data-testid="properties--placeholder-property-edit-confirm--btn"]').click({ force: true });
+    cy.addStringProperty('properties', 'test', 'value');
     cy.openSourceCode();
 
     // CHECK the bean was created in the code editor
