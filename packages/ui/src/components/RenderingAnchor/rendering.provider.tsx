@@ -1,7 +1,8 @@
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, Suspense, useCallback, useMemo, useRef } from 'react';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { IVisualizationNode } from '../../models';
-import { IRenderingAnchorContext, IRegisteredComponent } from './rendering.provider.model';
+import { Loading } from '../Loading';
+import { IRegisteredComponent, IRenderingAnchorContext } from './rendering.provider.model';
 
 export const RenderingAnchorContext = createContext<IRenderingAnchorContext>({
   registerComponent: () => {},
@@ -29,5 +30,15 @@ export const RenderingProvider: FunctionComponent<PropsWithChildren> = ({ childr
     [getRegisteredComponents, registerComponent],
   );
 
-  return <RenderingAnchorContext.Provider value={value}>{children}</RenderingAnchorContext.Provider>;
+  return (
+    <Suspense
+      fallback={
+        <Loading>
+          <span>Loading dynamic components...</span>
+        </Loading>
+      }
+    >
+      <RenderingAnchorContext.Provider value={value}>{children}</RenderingAnchorContext.Provider>
+    </Suspense>
+  );
 };
