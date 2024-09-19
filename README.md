@@ -12,32 +12,38 @@
 <h2 align="center">Visual Editor for <a href="https://camel.apache.org">Apache Camel</a></h2>
 
 <p align="center">
-  <a href="https://kaoto.io/docs/installation">Documentation</a> | 
-  <a href="https://kaoto.io/workshop/">Workshops</a> | 
-  <a href="https://kaoto.io/contribute/">Contribute</a> | 
-  <a href="https://camel.zulipchat.com/#narrow/stream/441302-kaoto">Chat</a>
+  <a style="font-weight: bold" href="https://kaoto.io/docs/installation">Documentation</a> | 
+  <a style="font-weight: bold" href="https://kaoto.io/workshop/">Workshops</a> | 
+  <a style="font-weight: bold" href="https://kaoto.io/contribute/">Contribute</a> | 
+  <a style="font-weight: bold" href="https://camel.zulipchat.com/#narrow/stream/441302-kaoto">Chat</a>
+</p>
+
+<p align="center">
+  <img style="width: 80%; max-width: 1200px; height: auto" src="./assets/kaoto-screen.png" alt="A picture showing the Kaoto graphical editor showing an integration with the configuration panel opened"/>
 </p>
 
 # Kaoto
 Kaoto is a visual editor for Apache Camel integrations. It offers support in creating and editing Camel Routes, Kamelets and Pipes. Kaoto also has a built-in catalog with available Camel components, Enterprise Integration Patterns and Kamelets provided by the Apache Camel community.
 
 Have a quick look at our online demo instance:
-https://kaotoio.github.io/kaoto/
+<a style="font-weight: bold" href="https://kaotoio.github.io/kaoto/">https://kaotoio.github.io/kaoto/</a>
+
 
 ## Table of Contents
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-  - [Clone the Repository](#clone-the-repository)
-  - [Install Dependencies](#install-dependencies)
-- [Running kaoto with Docker](#running-kaoto-with-docker)
-- [Development](#development)
-  - [Web Application](#web-application)
-    - [Run](#run)
-    - [Build](#build)
-  - [Public Components](#public-components)
-- [How to do a release](/RELEASE.md)
-- [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
-- [Storybook](#storybook)
+- [Kaoto](#kaoto)
+  - [Table of Contents](#table-of-contents)
+  - [Requirements](#requirements)
+  - [Getting Started](#getting-started)
+    - [Clone the Repository](#clone-the-repository)
+    - [Install Dependencies](#install-dependencies)
+  - [Running kaoto with Docker](#running-kaoto-with-docker)
+  - [Development](#development)
+    - [Web Application](#web-application)
+      - [Run](#run)
+      - [Build](#build)
+    - [Public Components](#public-components)
+  - [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
+  - [Storybook](#storybook)
 
 ## Requirements
 - NodeJS (v18.x or higher) [+info](https://nodejs.org/en)
