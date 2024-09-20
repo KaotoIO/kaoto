@@ -26,7 +26,7 @@
 Kaoto is a visual editor for Apache Camel integrations. It offers support in creating and editing Camel Routes, Kamelets and Pipes. Kaoto also has a built-in catalog with available Camel components, Enterprise Integration Patterns and Kamelets provided by the Apache Camel community.
 
 Have a quick look at our online demo instance:
-<a style="font-weight: bold" href="https://kaotoio.github.io/kaoto/">https://kaotoio.github.io/kaoto/</a>
+<a style="font-weight: bold" href="https://red.ht/kaoto">https://red.ht/kaoto</a>
 
 
 ## Table of Contents
