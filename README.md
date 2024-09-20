@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="./packages/ui/src/assets/logo-kaoto.png" alt="Kaoto">
+  <a href="https://kaoto.io/"><img src="./packages/ui/src/assets/logo-kaoto.png" alt="Kaoto"></a>
 </h1>
 
 <p align=center>
@@ -117,3 +117,7 @@ yarn workspace @kaoto/kaoto build:lib
 yarn workspace @kaoto/kaoto-tests storybook
 ```
 To publish to Chromatic: `yarn workspace @kaoto/kaoto-tests chromatic`
+
+<p align="center">
+  <a href="https://redhat.com"><img style="margin: 50px 0px 50px 0px; " src="assets/redhat-sponsor.png"/></a>
+</p>
