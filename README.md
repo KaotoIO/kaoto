@@ -12,9 +12,9 @@
 <h2 align="center">Visual Editor for <a href="https://camel.apache.org">Apache Camel</a></h2>
 
 <p align="center">
-  <a style="font-weight: bold" href="https://kaoto.io/docs/installation">Documentation</a> | 
-  <a style="font-weight: bold" href="https://kaoto.io/workshop/">Workshops</a> | 
-  <a style="font-weight: bold" href="https://kaoto.io/contribute/">Contribute</a> | 
+  <a style="font-weight: bold" href="https://kaoto.io/docs/installation">Documentation</a> |
+  <a style="font-weight: bold" href="https://kaoto.io/workshop/">Workshops</a> |
+  <a style="font-weight: bold" href="https://kaoto.io/contribute/">Contribute</a> |
   <a style="font-weight: bold" href="https://camel.zulipchat.com/#narrow/stream/441302-kaoto">Chat</a>
 </p>
 
@@ -119,5 +119,5 @@ yarn workspace @kaoto/kaoto-tests storybook
 To publish to Chromatic: `yarn workspace @kaoto/kaoto-tests chromatic`
 
 <p align="center">
-  <a href="https://redhat.com"><img style="margin: 50px 0px 50px 0px; " src="assets/redhat-sponsor.png"/></a>
+  <a href="https://redhat.com"><img style="margin: 50px 0px 50px 0px; " src="assets/redhat-sponsor.jpeg"/></a>
 </p>
