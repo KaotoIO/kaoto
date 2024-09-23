@@ -1,7 +1,6 @@
 import { Icon } from '@patternfly/react-core';
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
-  GRAPH_LAYOUT_END_EVENT,
   Model,
   SELECTION_EVENT,
   TopologyControlBar,
@@ -20,6 +19,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
@@ -31,12 +31,12 @@ import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { VisualizationEmptyState } from '../EmptyState';
+import './Canvas.scss';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
 import { FlowService } from './flow.service';
-import './Canvas.scss';
 
 interface CanvasProps {
   contextToolbar?: ReactNode;
@@ -143,24 +143,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   /** Set up the controller one time */
   useEffect(() => {
     const localController = controller;
-    const graphLayoutEndFn = action(() => {
-      localController.getGraph().fit(80);
-    });
-
     localController.addEventListener(SELECTION_EVENT, handleSelection);
-    localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
 
     return () => {
       localController.removeEventListener(SELECTION_EVENT, handleSelection);
-      localController.removeEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleSelection]);
+  }, [controller, handleSelection]);
 
   /** Draw graph */
-  useEffect(() => {
-    if (!Array.isArray(entities)) return;
+  useLayoutEffect(() => {
     setSelectedNode(undefined);
 
     const nodes: CanvasNode[] = [];
@@ -197,25 +188,23 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   const isSidebarOpen = useMemo(() => selectedNode !== undefined, [selectedNode]);
 
   return (
-    <TopologyView
-      defaultSideBarSize={sidebarWidth + 'px'}
-      minSideBarSize={'210px'}
-      onSideBarResize={(width) => {
-        setSidebarWidth(width);
-      }}
-      sideBarResizable
-      sideBarOpen={isSidebarOpen}
-      sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
-      contextToolbar={contextToolbar}
-      controlBar={<TopologyControlBar controlButtons={controlButtons} />}
-    >
-      <VisualizationProvider controller={controller}>
+    <VisualizationProvider controller={controller}>
+      <TopologyView
+        defaultSideBarSize={sidebarWidth + 'px'}
+        minSideBarSize="210px"
+        onSideBarResize={setSidebarWidth}
+        sideBarResizable
+        sideBarOpen={isSidebarOpen}
+        sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
+        contextToolbar={contextToolbar}
+        controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+      >
         {shouldShowEmptyState ? (
           <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
         ) : (
           <VisualizationSurface state={{ selectedIds }} />
         )}
-      </VisualizationProvider>
-    </TopologyView>
+      </TopologyView>
+    </VisualizationProvider>
   );
 };
