@@ -33,26 +33,24 @@ export function getVisibleFlowsInformation(visibleFlows: IVisibleFlows): IVisibl
   };
 }
 
-type VisibleFlowAction =
+export type VisibleFlowAction =
   | {
       type: 'toggleFlowVisible';
       flowId: string;
-      isVisible?: boolean;
     }
   | { type: 'showAllFlows' }
   | { type: 'hideAllFlows' }
   | { type: 'clearFlows' }
-  | { type: 'setVisibleFlows'; flows: string[] }
-  | { type: 'initVisibleFlows'; visibleFlows: IVisibleFlows }
+  | { type: 'initVisibleFlows'; flowsIds: string[] }
   | { type: 'renameFlow'; flowId: string; newName: string };
 
 export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
-  let visibleFlows;
+  let visibleFlows: IVisibleFlows;
   switch (action.type) {
     case 'toggleFlowVisible':
       return {
         ...state,
-        [action.flowId]: action.isVisible !== undefined ? action.isVisible : !state[action.flowId],
+        [action.flowId]: !state[action.flowId],
       };
 
     case 'showAllFlows':
@@ -67,24 +65,19 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
         return acc;
       }, {});
 
-    case 'setVisibleFlows':
-      visibleFlows = action.flows.reduce(
-        (acc, flow, index) => ({
-          ...acc,
-          /**
-           * We keep the previous visibility state if any
-           * otherwise, we set the first flow to visible
-           * and the rest to invisible
-           */
-          [flow]: acc[flow] ?? index === 0,
-        }),
-        {} as IVisibleFlows,
-      );
-      return { ...state, ...visibleFlows };
     case 'clearFlows':
       return {};
+
     case 'initVisibleFlows':
-      return { ...action.visibleFlows };
+      visibleFlows = action.flowsIds.reduce((acc, flowId) => {
+        acc[flowId] = state[flowId] ?? false;
+        return acc;
+      }, {} as IVisibleFlows);
+      if (Object.values(visibleFlows).every((visible) => !visible) && action.flowsIds.length > 0) {
+        visibleFlows[action.flowsIds[0]] = true;
+      }
+
+      return visibleFlows;
 
     case 'renameFlow':
       // eslint-disable-next-line no-case-declarations
@@ -105,8 +98,8 @@ export class VisualFlowsApi {
     this.dispatch = dispatch;
   }
 
-  toggleFlowVisible(flowId: string, isVisible?: boolean) {
-    this.dispatch({ type: 'toggleFlowVisible', flowId, isVisible });
+  toggleFlowVisible(flowId: string) {
+    this.dispatch({ type: 'toggleFlowVisible', flowId });
   }
 
   showAllFlows() {
@@ -117,16 +110,12 @@ export class VisualFlowsApi {
     this.dispatch({ type: 'hideAllFlows' });
   }
 
-  setVisibleFlows(flows: string[]) {
-    this.dispatch({ type: 'setVisibleFlows', flows });
-  }
-
   clearFlows() {
     this.dispatch({ type: 'clearFlows' });
   }
 
-  initVisibleFlows(visibleFlows: IVisibleFlows) {
-    this.dispatch({ type: 'initVisibleFlows', visibleFlows });
+  initVisibleFlows(flowsIds: string[]) {
+    this.dispatch({ type: 'initVisibleFlows', flowsIds });
   }
 
   renameFlow(flowId: string, newName: string) {
