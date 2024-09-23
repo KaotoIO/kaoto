@@ -189,19 +189,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     controller.fromModel(model, false);
   }, [activeLayout, controller, entities, visibleFlows]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(
-      action(() => {
-        controller.getGraph().fit(80);
-      }),
-      500,
-    );
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [controller, selectedIds]);
-
   const handleCloseSideBar = useCallback(() => {
     setSelectedIds([]);
     setSelectedNode(undefined);
