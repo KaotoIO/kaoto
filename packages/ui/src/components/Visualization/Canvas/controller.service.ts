@@ -28,7 +28,6 @@ export class ControllerService {
     newController.registerLayoutFactory(this.baselineLayoutFactory);
     newController.registerComponentFactory(this.baselineComponentFactory);
     newController.registerElementFactory(this.baselineElementFactory);
-    newController.setFitToScreenOnLayout(true, 80);
 
     return newController;
   }
