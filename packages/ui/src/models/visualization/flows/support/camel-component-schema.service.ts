@@ -464,7 +464,17 @@ export class CamelComponentSchemaService {
     const [pathUri, queryUri] = definition.uri?.split('?') ?? [undefined, undefined];
     if (queryUri) {
       definition.uri = pathUri;
-      Object.assign(definition.parameters, CamelUriHelper.getParametersFromQueryString(queryUri));
+
+      const validParametersFromQueryString =
+        Object.entries(CamelUriHelper.getParametersFromQueryString(queryUri)).reduce((parameters, parameter) => {
+          if (parameter) {
+            const [key, stringValue] = parameter;
+            if (catalogLookup.definition?.properties[key]) parameters[key] = stringValue;
+          }
+
+          return parameters;
+        }, {} as ParsedParameters) ?? {};
+      Object.assign(definition.parameters, validParametersFromQueryString);
     }
 
     if (pathUri && catalogLookup.catalogKind === CatalogKind.Component) {
