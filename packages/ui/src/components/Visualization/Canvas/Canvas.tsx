@@ -1,16 +1,20 @@
 import { Icon } from '@patternfly/react-core';
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
+  GRAPH_LAYOUT_END_EVENT,
+  GraphLayoutEndEventListener,
   Model,
   SELECTION_EVENT,
+  SelectionEventListener,
   TopologyControlBar,
   TopologyControlButton,
   TopologyView,
-  VisualizationProvider,
   VisualizationSurface,
   action,
   createTopologyControlButtons,
   defaultControlButtonsOptions,
+  useEventListener,
+  useVisualizationController,
 } from '@patternfly/react-topology';
 import {
   FunctionComponent,
@@ -19,7 +23,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
@@ -35,7 +38,6 @@ import './Canvas.scss';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
-import { ControllerService } from './controller.service';
 import { FlowService } from './flow.service';
 
 interface CanvasProps {
@@ -47,7 +49,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   /** State for @patternfly/react-topology */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
-  const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
@@ -57,13 +58,77 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
 
-  const controller = useMemo(() => ControllerService.createController(), []);
+  const controller = useVisualizationController();
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entities.length === 0;
     const areAllFlowsHidden = Object.values(visibleFlows).every((visible) => !visible);
     return areNoFlows || areAllFlowsHidden;
   }, [entities.length, visibleFlows]);
+
+  /** Draw graph */
+  useEffect(() => {
+    const nodes: CanvasNode[] = [];
+    const edges: CanvasEdge[] = [];
+
+    entities.forEach((entity) => {
+      if (visibleFlows[entity.id]) {
+        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.toVizNode());
+        nodes.push(...childNodes);
+        edges.push(...childEdges);
+      }
+    });
+
+    const model: Model = {
+      nodes,
+      edges,
+      graph: {
+        id: 'g1',
+        type: 'graph',
+        layout: activeLayout,
+      },
+    };
+
+    console.log('[RENDER] Canvas - Draw graph', nodes);
+    controller.fromModel(model, true);
+  }, [activeLayout, controller, entities, visibleFlows]);
+
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, (ids) => {
+    setSelectedIds(ids);
+  });
+  useEventListener<GraphLayoutEndEventListener>(GRAPH_LAYOUT_END_EVENT, ({ graph }) => {
+    console.log('[RENDER] Canvas - Graph layout end');
+    setTimeout(
+      action(() => {
+        graph.fit(80);
+      }),
+      0,
+    );
+  });
+
+  /** Set select node and pan it into view */
+  useEffect(() => {
+    let resizeTimeout: number | undefined;
+
+    if (!selectedIds[0]) {
+      const selectedNode = controller.getNodeById(selectedIds[0]);
+      if (selectedNode) {
+        setSelectedNode(selectedNode as unknown as CanvasNode);
+        resizeTimeout = setTimeout(
+          action(() => {
+            controller.getGraph().panIntoView(selectedNode, { offset: 20, minimumVisible: 100 });
+            resizeTimeout = undefined;
+          }),
+          500,
+        ) as unknown as number;
+      }
+    }
+    return () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+    };
+  }, [selectedIds, controller]);
 
   const controlButtons = useMemo(() => {
     const customButtons: TopologyControlButton[] = catalogModalContext
@@ -129,57 +194,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     });
   }, [catalogModalContext, controller, setActiveLayout]);
 
-  const handleSelection = useCallback(
-    (selectedIds: string[]) => {
-      setSelectedIds(selectedIds);
-
-      /** Current support for single selection at the moment */
-      const selectedId = selectedIds[0];
-      setSelectedNode(nodes.find((node) => node.id === selectedId));
-    },
-    [nodes],
-  );
-
-  /** Set up the controller one time */
-  useEffect(() => {
-    const localController = controller;
-    localController.addEventListener(SELECTION_EVENT, handleSelection);
-
-    return () => {
-      localController.removeEventListener(SELECTION_EVENT, handleSelection);
-    };
-  }, [controller, handleSelection]);
-
-  /** Draw graph */
-  useLayoutEffect(() => {
-    setSelectedNode(undefined);
-
-    const nodes: CanvasNode[] = [];
-    const edges: CanvasEdge[] = [];
-
-    entities.forEach((entity) => {
-      if (visibleFlows[entity.id]) {
-        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.toVizNode());
-        nodes.push(...childNodes);
-        edges.push(...childEdges);
-      }
-    });
-
-    setNodes([...nodes]);
-
-    const model: Model = {
-      nodes,
-      edges,
-      graph: {
-        id: 'g1',
-        type: 'graph',
-        layout: activeLayout,
-      },
-    };
-
-    controller.fromModel(model, false);
-  }, [activeLayout, controller, entities, visibleFlows]);
-
   const handleCloseSideBar = useCallback(() => {
     setSelectedIds([]);
     setSelectedNode(undefined);
@@ -188,23 +202,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   const isSidebarOpen = useMemo(() => selectedNode !== undefined, [selectedNode]);
 
   return (
-    <VisualizationProvider controller={controller}>
-      <TopologyView
-        defaultSideBarSize={sidebarWidth + 'px'}
-        minSideBarSize="210px"
-        onSideBarResize={setSidebarWidth}
-        sideBarResizable
-        sideBarOpen={isSidebarOpen}
-        sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
-        contextToolbar={contextToolbar}
-        controlBar={<TopologyControlBar controlButtons={controlButtons} />}
-      >
-        {shouldShowEmptyState ? (
-          <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
-        ) : (
-          <VisualizationSurface state={{ selectedIds }} />
-        )}
-      </TopologyView>
-    </VisualizationProvider>
+    <TopologyView
+      defaultSideBarSize={sidebarWidth + 'px'}
+      minSideBarSize="210px"
+      onSideBarResize={setSidebarWidth}
+      sideBarResizable
+      sideBarOpen={isSidebarOpen}
+      sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
+      contextToolbar={contextToolbar}
+      controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+    >
+      {shouldShowEmptyState ? (
+        <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
+      ) : (
+        <VisualizationSurface state={{ selectedIds }} />
+      )}
+    </TopologyView>
   );
 };
