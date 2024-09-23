@@ -27,7 +27,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          */
         const newId = entitiesContext.camelResource.addNewEntity();
         visibleFlowsContext.visualFlowsApi.hideAllFlows();
-        visibleFlowsContext.visualFlowsApi.setVisibleFlows([newId]);
+        visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
         entitiesContext.updateEntitiesFromCamelResource();
       } else {
         /**
