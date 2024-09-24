@@ -4,3 +4,13 @@
     border: none;
   }
 }
+
+.canvas-empty-state {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.hidden {
+  visibility: hidden;
+}

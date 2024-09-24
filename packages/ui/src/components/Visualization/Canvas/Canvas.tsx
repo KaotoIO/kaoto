@@ -1,8 +1,6 @@
 import { Icon } from '@patternfly/react-core';
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
-  GRAPH_LAYOUT_END_EVENT,
-  GraphLayoutEndEventListener,
   Model,
   SELECTION_EVENT,
   SelectionEventListener,
@@ -16,6 +14,7 @@ import {
   useEventListener,
   useVisualizationController,
 } from '@patternfly/react-topology';
+import clsx from 'clsx';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -41,12 +40,13 @@ import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
 
 interface CanvasProps {
-  contextToolbar?: ReactNode;
   entities: BaseVisualCamelEntity[];
+  contextToolbar?: ReactNode;
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ entities, contextToolbar }) => {
   /** State for @patternfly/react-topology */
+  const [initialized, setInitialized] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
@@ -68,6 +68,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   /** Draw graph */
   useEffect(() => {
+    setSelectedNode(undefined);
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
 
@@ -89,28 +90,22 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
     };
 
-    console.log('[RENDER] Canvas - Draw graph', nodes);
     controller.fromModel(model, true);
-  }, [activeLayout, controller, entities, visibleFlows]);
+    setInitialized(true);
+  }, [controller, entities, visibleFlows]);
 
-  useEventListener<SelectionEventListener>(SELECTION_EVENT, (ids) => {
-    setSelectedIds(ids);
-  });
-  useEventListener<GraphLayoutEndEventListener>(GRAPH_LAYOUT_END_EVENT, ({ graph }) => {
-    console.log('[RENDER] Canvas - Graph layout end');
-    setTimeout(
-      action(() => {
-        graph.fit(80);
-      }),
-      0,
-    );
-  });
+  const handleSelection = useCallback((selectedIds: string[]) => {
+    setSelectedIds(selectedIds);
+  }, []);
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
 
   /** Set select node and pan it into view */
   useEffect(() => {
     let resizeTimeout: number | undefined;
 
     if (!selectedIds[0]) {
+      setSelectedNode(undefined);
+    } else {
       const selectedNode = controller.getNodeById(selectedIds[0]);
       if (selectedNode) {
         setSelectedNode(selectedNode as unknown as CanvasNode);
@@ -122,68 +117,64 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
           500,
         ) as unknown as number;
       }
+      return () => {
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout);
+        }
+      };
     }
-    return () => {
-      if (resizeTimeout) {
-        clearTimeout(resizeTimeout);
-      }
-    };
   }, [selectedIds, controller]);
 
   const controlButtons = useMemo(() => {
-    const customButtons: TopologyControlButton[] = catalogModalContext
-      ? [
-          {
-            id: 'topology-control-bar-h_layout-button',
-            icon: (
-              <Icon>
-                <img src={layoutHorizontalIcon} />
-              </Icon>
-            ),
-            tooltip: 'Horizontal Layout',
-            callback: action(() => {
-              setActiveLayout(LayoutType.DagreHorizontal);
-              controller.getGraph().setLayout(LayoutType.DagreHorizontal);
-              controller.getGraph().reset();
-              controller.getGraph().layout();
-            }),
-          },
-          {
-            id: 'topology-control-bar-v_layout-button',
-            icon: (
-              <Icon>
-                <img src={layoutVerticalIcon} />
-              </Icon>
-            ),
-            tooltip: 'Vertical Layout',
-            callback: action(() => {
-              setActiveLayout(LayoutType.DagreVertical);
-              controller.getGraph().setLayout(LayoutType.DagreVertical);
-              controller.getGraph().reset();
-              controller.getGraph().layout();
-            }),
-          },
-          {
-            id: 'topology-control-bar-catalog-button',
-            icon: <CatalogIcon />,
-            tooltip: 'Open Catalog',
-            callback: action(() => {
-              catalogModalContext.setIsModalOpen(true);
-            }),
-          },
-        ]
-      : [];
+    const customButtons: TopologyControlButton[] = [
+      {
+        id: 'topology-control-bar-h_layout-button',
+        icon: (
+          <Icon>
+            <img src={layoutHorizontalIcon} />
+          </Icon>
+        ),
+        tooltip: 'Horizontal Layout',
+        callback: action(() => {
+          setActiveLayout(LayoutType.DagreHorizontal);
+          controller.getGraph().setLayout(LayoutType.DagreHorizontal);
+          controller.getGraph().layout();
+        }),
+      },
+      {
+        id: 'topology-control-bar-v_layout-button',
+        icon: (
+          <Icon>
+            <img src={layoutVerticalIcon} />
+          </Icon>
+        ),
+        tooltip: 'Vertical Layout',
+        callback: action(() => {
+          setActiveLayout(LayoutType.DagreVertical);
+          controller.getGraph().setLayout(LayoutType.DagreVertical);
+          controller.getGraph().layout();
+        }),
+      },
+    ];
+    if (catalogModalContext) {
+      customButtons.push({
+        id: 'topology-control-bar-catalog-button',
+        icon: <CatalogIcon />,
+        tooltip: 'Open Catalog',
+        callback: action(() => {
+          catalogModalContext.setIsModalOpen(true);
+        }),
+      });
+    }
 
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
+      fitToScreen: false,
       zoomInCallback: action(() => {
         controller.getGraph().scaleBy(4 / 3);
       }),
       zoomOutCallback: action(() => {
         controller.getGraph().scaleBy(3 / 4);
-      }),
-      fitToScreenCallback: action(() => {
-        controller.getGraph().fit(80);
       }),
       resetViewCallback: action(() => {
         controller.getGraph().reset();
@@ -203,6 +194,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   return (
     <TopologyView
+      className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"
       onSideBarResize={setSidebarWidth}
@@ -212,10 +204,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
     >
-      {shouldShowEmptyState ? (
-        <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
-      ) : (
-        <VisualizationSurface state={{ selectedIds }} />
+      <VisualizationSurface state={{ selectedIds }} />
+
+      {shouldShowEmptyState && (
+        <VisualizationEmptyState
+          className="canvas-empty-state"
+          data-testid="visualization-empty-state"
+          entitiesNumber={entities.length}
+        />
       )}
     </TopologyView>
   );
