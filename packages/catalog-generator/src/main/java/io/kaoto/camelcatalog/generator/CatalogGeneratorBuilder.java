@@ -155,7 +155,7 @@ public class CatalogGeneratorBuilder {
 
                 File indexFile = outputDirectory.toPath().resolve(filename).toFile();
                 catalogDefinition
-                        .setName("Camel " + camelCatalogVersionLoader.getRuntime() + " " + camelCatalogVersion);
+                        .setName("Camel " + camelCatalogVersionLoader.getRuntime().getLabel() + " " + camelCatalogVersion);
                 catalogDefinition.setVersion(camelCatalogVersion);
                 catalogDefinition.setRuntime(camelCatalogVersionLoader.getRuntime());
                 catalogDefinition.setFileName(indexFile.getName());

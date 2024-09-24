@@ -8,6 +8,7 @@ import { useLocalStorage } from '../../../../hooks';
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { LocalStorageKeys } from '../../../../models';
 
+const SPACE_REGEX = /\s/g;
 const getIcon = (name: string) => {
   if (name.includes('redhat')) {
     return (
@@ -21,7 +22,7 @@ const getIcon = (name: string) => {
         <img src={quarkusLogo} />
       </Icon>
     );
-  } else if (name.includes('SpringBoot')) {
+  } else if (name.replace(SPACE_REGEX, '').includes('SpringBoot')) {
     return (
       <Icon>
         <img src={springBootLogo} />
