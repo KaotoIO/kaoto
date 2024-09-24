@@ -28,6 +28,20 @@ describe('ControllerService', () => {
     expect(baselineElementFactorySpy).toHaveBeenCalledWith(ControllerService.baselineElementFactory);
   });
 
+  it('should generate an empty graph when creating a controller to force computing dimensions right away', () => {
+    const fromModelSpy = jest.spyOn(Visualization.prototype, 'fromModel');
+
+    const controller = ControllerService.createController();
+
+    expect(controller).toBeInstanceOf(Visualization);
+    expect(fromModelSpy).toHaveBeenCalledWith({
+      graph: {
+        id: 'g1',
+        type: 'graph',
+      },
+    });
+  });
+
   describe('baselineComponentFactory', () => {
     it('should return the correct component for a group', () => {
       const component = ControllerService.baselineComponentFactory({} as ModelKind, 'group');

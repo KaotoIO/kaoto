@@ -18,13 +18,14 @@ const EyeSlashIcon: FunctionComponent = (props) => <PatternFlyEyeSlashIcon data-
 
 interface IVisualizationEmptyState extends IDataTestID {
   entitiesNumber: number;
+  className?: string;
 }
 
 export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState> = (props) => {
   const hasRoutes = useMemo(() => props.entitiesNumber > 0, [props.entitiesNumber]);
 
   return (
-    <Bullseye>
+    <Bullseye className={props.className}>
       <Card>
         <EmptyState data-testid={props['data-testid']}>
           <EmptyStateHeader
