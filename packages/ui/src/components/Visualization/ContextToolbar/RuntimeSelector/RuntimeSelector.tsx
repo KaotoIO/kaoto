@@ -21,7 +21,7 @@ const getIcon = (name: string) => {
         <img src={quarkusLogo} />
       </Icon>
     );
-  } else if (name.includes('SpringBoot')) {
+  } else if (name.includes('Spring Boot')) {
     return (
       <Icon>
         <img src={springBootLogo} />

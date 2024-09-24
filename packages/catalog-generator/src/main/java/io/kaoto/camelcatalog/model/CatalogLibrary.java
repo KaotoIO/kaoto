@@ -23,7 +23,7 @@ public class CatalogLibrary {
         CatalogLibraryEntry entry = new CatalogLibraryEntry(
                 catalogDefinition.getName(),
                 catalogDefinition.getVersion(),
-                catalogDefinition.getRuntime(),
+                catalogDefinition.getRuntime().getLabel(),
                 catalogDefinition.getFileName());
 
         definitions.add(entry);
