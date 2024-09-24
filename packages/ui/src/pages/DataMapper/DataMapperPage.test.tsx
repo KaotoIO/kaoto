@@ -7,7 +7,14 @@ import { IMetadataApi, MetadataProvider } from '../../providers';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 
 describe('DataMapperPage', () => {
-  const vizNode = { id: 'kaoto-datamapper-1234' } as IVisualizationNode;
+  const vizNode = {
+    getId: () => 'route-1234',
+    getComponentSchema: () => {
+      return {
+        definition: { id: 'kaoto-datamapper-1234' },
+      };
+    },
+  } as unknown as IVisualizationNode;
   const defaultMetadata: IDataMapperMetadata = {
     sourceBody: {
       type: DocumentDefinitionType.Primitive,

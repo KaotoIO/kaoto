@@ -17,7 +17,7 @@ describe('datamapperActivationFn', () => {
         definition: undefined,
         schema: {} as KaotoSchemaDefinition['schema'],
       }),
-    } as IVisualizationNode);
+    } as unknown as IVisualizationNode);
 
     expect(result).toBe(false);
   });
@@ -29,7 +29,7 @@ describe('datamapperActivationFn', () => {
         definition: datamapperRouteDefinitionStub.from.steps[0].step as Step,
         schema: {} as KaotoSchemaDefinition['schema'],
       }),
-    } as IVisualizationNode);
+    } as unknown as IVisualizationNode);
 
     expect(result).toBe(true);
   });
