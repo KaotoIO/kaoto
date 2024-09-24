@@ -136,6 +136,7 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
 
 Cypress.Commands.add('filterFields', (filter: string) => {
   cy.get('[data-testid="filter-fields"]').within(() => {
+    cy.get('input.pf-v5-c-text-input-group__text-input').clear();
     cy.get('input.pf-v5-c-text-input-group__text-input').type(filter);
   });
 });
@@ -150,4 +151,22 @@ Cypress.Commands.add('specifiedFormTab', (value: string) => {
   cy.get('div.form-tabs').within(() => {
     cy.get(`[id$="${value}"]`).should('have.attr', 'aria-pressed', 'true');
   });
+});
+
+Cypress.Commands.add('addStringProperty', (selector: string, key: string, value: string) => {
+  cy.expandWrappedSection(selector);
+  cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]')
+    .clear()
+    .type(key);
+
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]')
+    .clear()
+    .type(value);
+  cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
+  cy.closeWrappedSection(selector);
 });

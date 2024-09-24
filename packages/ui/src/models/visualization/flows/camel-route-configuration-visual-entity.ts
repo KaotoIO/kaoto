@@ -26,7 +26,7 @@ export class CamelRouteConfigurationVisualEntity
 {
   id: string;
   readonly type = EntityType.RouteConfiguration;
-  private static readonly ROOT_PATH = 'routeConfiguration';
+  static readonly ROOT_PATH = 'routeConfiguration';
   private schemaValidator: ValidateFunction<RouteConfigurationDefinition> | undefined;
   private readonly OMIT_FORM_FIELDS = [
     ...SchemaService.OMIT_FORM_FIELDS,
@@ -87,7 +87,6 @@ export class CamelRouteConfigurationVisualEntity
     if (path === CamelRouteConfigurationVisualEntity.ROOT_PATH) {
       const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');
       return {
-        title: 'Route Configuration',
         schema: schema?.propertiesSchema || {},
         definition: Object.assign({}, this.routeConfigurationDef.routeConfiguration),
       };
@@ -148,6 +147,7 @@ export class CamelRouteConfigurationVisualEntity
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
       processorName: CamelRouteConfigurationVisualEntity.ROOT_PATH,
     });
+    routeConfigurationGroupNode.setTitle('Route Configuration');
 
     CamelComponentSchemaService.getProcessorStepsProperties(
       CamelRouteConfigurationVisualEntity.ROOT_PATH as keyof ProcessorDefinition,

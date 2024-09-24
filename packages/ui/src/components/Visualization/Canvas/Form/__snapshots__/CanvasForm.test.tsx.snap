@@ -314,7 +314,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
             >
-              My Node
+              route
             </h2>
           </div>
           <div
@@ -578,7 +578,9 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
               data-ouia-component-id="OUIA-Generated-Title-2"
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
-            />
+            >
+              route
+            </h2>
           </div>
           <div
             class="pf-v5-l-grid__item pf-m-1-col"

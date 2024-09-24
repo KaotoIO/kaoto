@@ -233,10 +233,10 @@ import { CamelCatalogService } from '../models/visualization/flows/camel-catalog
 import { EntityType } from '../models/camel/entities';
 
 export const enum NodeIconType {
-  Component,
-  EIP,
-  Kamelet,
-  VisualEntity,
+  Component = 'Component',
+  EIP = 'EIP',
+  Kamelet = 'Kamelet',
+  VisualEntity = 'VisualEntity',
 }
 
 export class NodeIconResolver {

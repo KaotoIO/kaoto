@@ -3,7 +3,7 @@ import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'react';
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { DeleteModalContext } from '../../../../providers/delete-modal.provider';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 
 interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
@@ -12,12 +12,12 @@ interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
 
 export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const deleteModalContext = useContext(DeleteModalContext);
+  const deleteModalContext = useContext(ActionConfirmationModalContext);
   const flowId = props.vizNode?.getId();
 
   const onRemoveGroup = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */
-    const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+    const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
       title: 'Permanently delete flow?',
       text: 'All steps will be lost.',
     });

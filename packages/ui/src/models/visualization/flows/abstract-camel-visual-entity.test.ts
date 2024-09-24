@@ -78,6 +78,59 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
+  describe('getComponentSchema', () => {
+    it('should return undefined if path is not provided', () => {
+      const result = abstractVisualEntity.getComponentSchema();
+      expect(result).toBeUndefined();
+    });
+
+    it('should return visualComponentSchema when path is valid', () => {
+      const path = 'from.steps.0';
+      const visualComponentSchema = {
+        schema: {},
+        definition: {
+          parameters: { some: 'parameter' },
+        },
+      };
+
+      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
+
+      const result = abstractVisualEntity.getComponentSchema(path);
+      expect(result).toEqual(visualComponentSchema);
+    });
+
+    it('should override parameters with an empty object when parameters is null', () => {
+      const path = 'from.steps.0';
+      const visualComponentSchema = {
+        schema: {},
+        definition: {
+          parameters: null,
+        },
+      };
+
+      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
+
+      const result = abstractVisualEntity.getComponentSchema(path);
+      expect(result?.definition.parameters).toEqual({});
+    });
+
+    it.each([undefined, { property: 'value' }])('should not do anything when parameters is not null', (value) => {
+      const path = 'from.steps.0';
+      const visualComponentSchema = {
+        schema: {},
+        definition: {
+          parameters: value,
+        },
+      };
+      const expected = JSON.parse(JSON.stringify(visualComponentSchema));
+
+      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
+
+      const result = abstractVisualEntity.getComponentSchema(path);
+      expect(result).toEqual(expected);
+    });
+  });
+
   describe('updateModel', () => {
     it('should update the model with the new value', () => {
       const newUri = 'timer:MyTimer';

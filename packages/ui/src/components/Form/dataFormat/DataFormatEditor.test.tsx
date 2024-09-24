@@ -19,7 +19,6 @@ describe('DataFormatEditor', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
 
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
@@ -53,7 +52,6 @@ describe('DataFormatEditor', () => {
 
   it('should render with only the user updated fields', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {
@@ -95,7 +93,6 @@ describe('DataFormatEditor', () => {
 
   it('should render with only the Required fields', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: {
         type: 'object',
         properties: {

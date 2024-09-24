@@ -79,7 +79,6 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     if (!path) return undefined;
     if (path === ROOT_PATH) {
       return {
-        title: 'Pipe',
         schema: this.getRootPipeSchema(),
         definition: getCustomSchemaFromPipe(this.pipe),
       };
@@ -220,6 +219,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const sinkNode = this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
     /** If there are no steps, we link the `source` and the `sink` together */
 
+    pipeGroupNode.setTitle('Pipe');
     pipeGroupNode.addChild(sourceNode);
     stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
     pipeGroupNode.addChild(sinkNode);
@@ -261,7 +261,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       icon,
     };
 
-    return createVisualizationNode(step?.ref?.name ?? path, data);
+    const vizNode = createVisualizationNode(step?.ref?.name ?? path, data);
+    vizNode.setTitle(kameletDefinition?.metadata.name ?? '');
+
+    return vizNode;
   }
 
   private getVizNodesFromSteps(steps?: PipeStep[]): IVisualizationNode[] {

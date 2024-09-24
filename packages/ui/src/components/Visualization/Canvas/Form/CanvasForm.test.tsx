@@ -24,9 +24,9 @@ import { EntitiesContext, EntitiesProvider } from '../../../../providers/entitie
 import { camelRouteJson, kameletJson } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
-import { CanvasForm } from './CanvasForm';
 import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
+import { CanvasForm } from './CanvasForm';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
@@ -104,7 +104,6 @@ describe('CanvasForm', () => {
 
   it('should render nothing if no schema and no definition is available', () => {
     const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
       schema: null as unknown as KaotoSchemaDefinition['schema'],
       definition: null,
     };
@@ -135,39 +134,6 @@ describe('CanvasForm', () => {
     );
 
     expect(container).toMatchSnapshot();
-  });
-
-  it('should update the parameters object if null', () => {
-    const visualComponentSchema: VisualComponentSchema = {
-      title: 'My Node',
-      schema: null as unknown as KaotoSchemaDefinition['schema'],
-      definition: {
-        parameters: null,
-      },
-    };
-
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode: {
-          getComponentSchema: () => visualComponentSchema,
-          getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
-          getId: () => 'route-8888',
-          getOmitFields: () => [],
-        } as unknown as IVisualizationNode,
-      },
-    };
-
-    render(
-      <EntitiesContext.Provider value={null}>
-        <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
-        </VisibleFlowsProvider>
-      </EntitiesContext.Provider>,
-    );
-
-    expect(visualComponentSchema.definition.parameters).toEqual({});
   });
 
   it("should serialize empty strings `''` as `undefined`", async () => {
