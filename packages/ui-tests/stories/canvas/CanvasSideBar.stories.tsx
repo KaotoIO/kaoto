@@ -34,10 +34,10 @@ const selectedNode: CanvasNode = {
       previousNode: undefined,
       label: 'test',
       getId: () => 'log-sink-6839',
+      getTitle: () => 'My Node',
       getOmitFormFields: () => [],
       getComponentSchema: () => {
         return {
-          title: 'My Node',
           schema: {
             type: 'object',
             properties: {
@@ -76,6 +76,7 @@ const unknownSelectedNode: CanvasNode = {
         icon: NodeIconResolver.getIcon(''),
       } as IVisualizationNodeData,
       getId: () => 'test',
+      getTitle: () => 'My Node',
       getOmitFormFields: () => [],
       getComponentSchema: () => {
         return {

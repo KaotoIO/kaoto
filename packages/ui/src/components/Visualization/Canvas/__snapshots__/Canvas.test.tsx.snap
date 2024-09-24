@@ -687,7 +687,7 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -1099,7 +1099,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                           >
@@ -1414,7 +1414,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -1826,7 +1826,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                           >
@@ -2141,7 +2141,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -2553,7 +2553,7 @@ exports[`Canvas should render the Catalog button if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route-8888-1234"
+                            data-id="route-1234"
                             data-kind="node"
                             data-type="group"
                           >

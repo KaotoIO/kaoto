@@ -41,4 +41,17 @@
       height: 60vh;
     }
   }
+
+  &__title-div {
+    display: flex;
+  }
+
+  &__title-image {
+    height: 50px;
+    width: 50px;
+  }
+
+  &__title {
+    padding: 10px;
+  }
 }

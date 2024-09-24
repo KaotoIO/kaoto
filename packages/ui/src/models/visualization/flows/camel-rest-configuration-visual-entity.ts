@@ -74,7 +74,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return {
       definition: Object.assign({}, this.restConfigurationDef.restConfiguration),
       schema: schema?.propertiesSchema || {},
-      title: 'Rest Configuration',
     };
   }
 
@@ -127,6 +126,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     restConfigurationGroupNode.data.entity = this;
     restConfigurationGroupNode.data.isGroup = true;
     restConfigurationGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    restConfigurationGroupNode.setTitle('Rest Configuration');
 
     return restConfigurationGroupNode;
   }

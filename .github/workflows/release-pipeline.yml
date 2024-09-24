@@ -12,7 +12,7 @@ on:
         description: |
           Is this a stable release? If so we are going to tag also a stable container image to be used in the Kaoto Operator
         required: false
-        default: false
+        default: true
 
 jobs:
   tag-and-release:

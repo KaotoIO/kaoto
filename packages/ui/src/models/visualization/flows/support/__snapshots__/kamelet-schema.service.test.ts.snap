@@ -17,7 +17,6 @@ exports[`KameletSchemaService getVisualComponentSchema should build the appropri
     "title": "Beer Source",
     "type": "object",
   },
-  "title": "beer-source",
 }
 `;
 
@@ -50,7 +49,6 @@ exports[`KameletSchemaService getVisualComponentSchema should build the appropri
     "title": "XJ Template Action",
     "type": "object",
   },
-  "title": "xj-template-action",
 }
 `;
 
@@ -71,7 +69,6 @@ exports[`KameletSchemaService getVisualComponentSchema should provide a default 
     "title": "Beer Source",
     "type": "object",
   },
-  "title": "",
 }
 `;
 

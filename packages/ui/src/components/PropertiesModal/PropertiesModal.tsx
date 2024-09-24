@@ -1,17 +1,18 @@
-import { Modal, ModalBoxBody, Tab, Tabs } from '@patternfly/react-core';
-import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
-import { IPropertiesTab } from './PropertiesModal.models';
+import { Modal, ModalBoxBody, Tab, Tabs, capitalize } from '@patternfly/react-core';
+import { FunctionComponent, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
   transformKameletComponentIntoTab,
 } from '../../camel-utils/camel-to-tabs.adapter';
 import { CatalogKind } from '../../models';
+import { CatalogContext } from '../../providers';
+import { NodeIconResolver, NodeIconType } from '../../utils';
 import { ITile } from '../Catalog';
+import { IPropertiesTab } from './PropertiesModal.models';
 import './PropertiesModal.scss';
 import { PropertiesTabs } from './PropertiesTabs';
 import { EmptyTableState } from './Tables';
-import { CatalogContext } from '../../providers';
 
 interface IPropertiesModalProps {
   tile: ITile;
@@ -50,6 +51,19 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     setActiveTab(tabs[tabIndex as number]);
     setActiveTabKey(tabIndex as number);
   };
+  const nodeIconType = capitalize(props.tile.type === 'processor' ? 'EIP' : props.tile.type);
+  const iconName = nodeIconType === NodeIconType.Kamelet ? `kamelet:${props.tile.name}` : props.tile.name;
+
+  const title: ReactElement = (
+    <div className="properties-modal__title-div">
+      <img
+        className={'properties-modal__title-image'}
+        src={NodeIconResolver.getIcon(iconName, nodeIconType as NodeIconType)}
+        alt={`${props.tile.type} icon`}
+      />
+      <h1 className="properties-modal__title">{props.tile.title}</h1>
+    </div>
+  );
 
   const description = (
     <div>
@@ -66,7 +80,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
   return (
     <Modal
       className="properties-modal"
-      title={props.tile.title}
+      title={title}
       isOpen={props.isModalOpen}
       onClose={props.onClose}
       ouiaId="BasicModal"

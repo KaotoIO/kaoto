@@ -235,7 +235,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     ],
     "type": "object",
   },
-  "title": "route",
 }
 `;
 
@@ -589,7 +588,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "title": "To",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -622,7 +620,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "type": "string",
       },
       "logName": {
-        "description": "Sets the name of the logger",
+        "description": "Sets the name of the logger. The name is default the routeId or the source:line if source location is enabled. You can also specify the name using tokens: \${class} - the logger class name (org.apache.camel.processor.LogProcessor) \${contextId} - the camel context id \${routeId} - the route id \${groupId} - the route group id \${nodeId} - the node id \${nodePrefixId} - the node prefix id \${source} - the source:line (source location must be enabled) \${source.name} - the source filename (source location must be enabled) \${source.line} - the source line number (source location must be enabled) For example to use the route and node id you can specify the name as: \${routeId}/\${nodeId}",
         "group": "common",
         "title": "Log Name",
         "type": "string",
@@ -668,7 +666,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "title": "Logger",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -731,7 +728,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
     "title": "To",
     "type": "object",
   },
-  "title": "non-existing-component",
 }
 `;
 
@@ -764,7 +760,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "type": "string",
       },
       "logName": {
-        "description": "Sets the name of the logger",
+        "description": "Sets the name of the logger. The name is default the routeId or the source:line if source location is enabled. You can also specify the name using tokens: \${class} - the logger class name (org.apache.camel.processor.LogProcessor) \${contextId} - the camel context id \${routeId} - the route id \${groupId} - the route group id \${nodeId} - the node id \${nodePrefixId} - the node prefix id \${source} - the source:line (source location must be enabled) \${source.name} - the source filename (source location must be enabled) \${source.line} - the source line number (source location must be enabled) For example to use the route and node id you can specify the name as: \${routeId}/\${nodeId}",
         "group": "common",
         "title": "Log Name",
         "type": "string",
@@ -810,7 +806,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "Logger",
     "type": "object",
   },
-  "title": "log",
 }
 `;
 
@@ -820,6 +815,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "parameters": {
       "beanName": "myBean",
       "method": "hello",
+      "parameters": {},
     },
     "uri": "bean",
   },
@@ -925,7 +921,6 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "To",
     "type": "object",
   },
-  "title": "bean",
 }
 `;
 
@@ -935,6 +930,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "parameters": {
       "beanName": "myBean",
       "method": "hello",
+      "parameters": {},
     },
     "uri": "bean",
   },
@@ -1072,6 +1068,5 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
     "title": "To D",
     "type": "object",
   },
-  "title": "bean",
 }
 `;

@@ -20,6 +20,10 @@ describe('VisualizationNode', () => {
     expect(node.id).toEqual('test-1234');
   });
 
+  it('should create a node and set the ID as the title', () => {
+    expect(node.getTitle()).toEqual('test');
+  });
+
   it('should return the base entity ID', () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
     node = createVisualizationNode('test', { entity: visualEntity });

@@ -4,21 +4,21 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'r
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { DeleteModalContext } from '../../../../providers/delete-modal.provider';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 
 interface ItemDeleteStepProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
-  loadModal: boolean;
+  loadActionConfirmationModal: boolean;
 }
 
 export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const deleteModalContext = useContext(DeleteModalContext);
+  const deleteModalContext = useContext(ActionConfirmationModalContext);
 
   const onRemoveNode = useCallback(async () => {
-    if (props.loadModal) {
+    if (props.loadActionConfirmationModal) {
       /** Open delete confirm modal, get the confirmation  */
-      const isDeleteConfirmed = await deleteModalContext?.deleteConfirmation({
+      const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
         title: 'Permanently delete step?',
         text: 'Step and its children will be lost.',
       });
@@ -28,7 +28,7 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
 
     props.vizNode?.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, props.loadModal, props.vizNode]);
+  }, [deleteModalContext, entitiesContext, props.loadActionConfirmationModal, props.vizNode]);
 
   return (
     <ContextMenuItem onClick={onRemoveNode} data-testid={props['data-testid']}>

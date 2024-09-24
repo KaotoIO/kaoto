@@ -14,7 +14,12 @@ import {
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
   id: string,
   data: T,
-): IVisualizationNode<T> => new VisualizationNode(getCamelRandomId(id), data);
+): IVisualizationNode<T> => {
+  const vizNode = new VisualizationNode(getCamelRandomId(id), data);
+  vizNode.setTitle(id);
+
+  return vizNode;
+};
 
 /**
  * VisualizationNode
@@ -22,6 +27,7 @@ export const createVisualizationNode = <T extends IVisualizationNodeData = IVisu
  * It shouldn't be used directly, but rather through the IVisualizationNode interface.
  */
 class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> implements IVisualizationNode<T> {
+  private title = '';
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
@@ -44,6 +50,14 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   getTooltipContent(): string {
     return this.getBaseEntity()?.getTooltipContent(this.data.path) ?? this.id;
+  }
+
+  setTitle(title: string): void {
+    this.title = title;
+  }
+
+  getTitle(): string {
+    return this.title;
   }
 
   addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {

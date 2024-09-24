@@ -31,10 +31,10 @@ const selectedNode: CanvasNode = {
       previousNode: undefined,
       label: 'test',
       getId: () => 'aggregate-6839',
+      getTitle: () => 'Aggregate',
       getOmitFormFields: () => [],
       getComponentSchema: () => {
         return {
-          title: 'aggregate',
           schema: {
             title: 'Aggregate',
             description: 'Aggregates many messages into a single message',

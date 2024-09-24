@@ -5,6 +5,7 @@ import { VisualFlowsApi } from '../../../../models/visualization/flows/support/f
 import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 
 describe('FlowsList.tsx', () => {
   let camelResource: CamelRouteResource;
@@ -100,6 +101,30 @@ describe('FlowsList.tsx', () => {
     });
 
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show delete confirmation modal when clicking on a delete icon', async () => {
+    const mockDeleteModalContext = {
+      actionConfirmation: jest.fn(),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <FlowsList />
+        </ActionConfirmationModalContext.Provider>
+      </Provider>,
+    );
+
+    act(() => {
+      fireEvent.click(wrapper.getByTestId('delete-btn-route-1234'));
+    });
+
+    expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
+      title: 'Permanently delete flow?',
+      text: 'All steps will be lost.',
+    });
   });
 
   it('should toggle the visibility of a flow clicking on the Eye icon', async () => {
