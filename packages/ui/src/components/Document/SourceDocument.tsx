@@ -1,7 +1,7 @@
 import { DocumentNodeData, FieldNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { IDocument } from '../../models/datamapper/document';
-import { Label, Split, SplitItem, Title } from '@patternfly/react-core';
+import { Label, Split, SplitItem, Title, Truncate } from '@patternfly/react-core';
 import { DocumentActions } from './actions/DocumentActions';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import { NodeContainer } from './NodeContainer';
@@ -53,11 +53,15 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
 
   const nodeTitle =
     nodeData instanceof MappingNodeData ? (
-      <Label>{nodeData.title}</Label>
+      <Label>
+        <Truncate content={nodeData.title} />
+      </Label>
     ) : isDocument ? (
-      <Title headingLevel="h5">{nodeData.title}</Title>
+      <Title headingLevel="h5">
+        <Truncate content={nodeData.title} />
+      </Title>
     ) : (
-      nodeData.title
+      <Truncate content={nodeData.title} />
     );
 
   return (

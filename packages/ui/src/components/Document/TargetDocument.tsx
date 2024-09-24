@@ -4,7 +4,7 @@ import { useDataMapper } from '../../hooks/useDataMapper';
 import { MappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { NodeContainer } from './NodeContainer';
-import { Label, Split, SplitItem, Title } from '@patternfly/react-core';
+import { Label, Split, SplitItem, Title, Truncate } from '@patternfly/react-core';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { useCanvas } from '../../hooks/useCanvas';
 import { VisualizationService } from '../../services/visualization.service';
@@ -64,11 +64,15 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
 
   const nodeTitle =
     nodeData instanceof MappingNodeData ? (
-      <Label>{nodeData.title}</Label>
+      <Label>
+        <Truncate content={nodeData.title} />
+      </Label>
     ) : isDocument ? (
-      <Title headingLevel="h5">{nodeData.title}</Title>
+      <Title headingLevel="h5">
+        <Truncate content={nodeData.title} />
+      </Title>
     ) : (
-      nodeData.title
+      <Truncate content={nodeData.title} />
     );
 
   return (
