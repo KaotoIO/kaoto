@@ -82,10 +82,7 @@ describe('DataMapperPage', () => {
         <DataMapperPage vizNode={vizNode} />
       </MetadataProvider>,
     );
-    const parametersHeader = await screen.findByTestId('card-source-parameters-header');
-    act(() => {
-      fireEvent.click(parametersHeader.getElementsByTagName('button')[0]);
-    });
+    await screen.findByTestId('card-source-parameters-header');
     expect(screen.getByTestId('node-source-doc-param-testparam1')).toBeInTheDocument();
     expect(screen.getByTestId('node-source-doc-sourceBody-Body')).toBeInTheDocument();
     expect(screen.getByTestId('node-target-doc-targetBody-Body')).toBeInTheDocument();

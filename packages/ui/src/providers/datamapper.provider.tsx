@@ -77,7 +77,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
 
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
-  const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(false);
+  const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(true);
   const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
     new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID),
   );
