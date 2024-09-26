@@ -1,0 +1,19 @@
+$root-element: 'properties-field';
+
+.#{$root-element} {
+  .#{$root-element} &__head,
+  .#{$root-element} &__body {
+    .#{$root-element}__row__value {
+      max-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      --pf-v5-c-table--cell--PaddingLeft: 0 !important;
+    }
+
+    .#{$root-element}__row__action[data-column-type='action'] {
+      --pf-v5-c-table--cell--PaddingRight: 0 !important;
+    }
+  }
+}
