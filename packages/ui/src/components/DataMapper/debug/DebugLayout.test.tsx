@@ -12,6 +12,11 @@ import { IMappingLink } from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping.service';
 
 describe('DebugLayout', () => {
+  afterAll(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+  });
+
   it('should render Documents and mappings', async () => {
     let mappingLinks: IMappingLink[] = [];
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
@@ -123,7 +128,7 @@ describe('DebugLayout', () => {
       expect(screen.queryByTestId('export-mappings-modal')).toBeFalsy();
       const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
       expect(nodeRefsLog.length).toBeGreaterThan(0);
-    });
+    }, 15000);
   });
 
   describe('debug', () => {

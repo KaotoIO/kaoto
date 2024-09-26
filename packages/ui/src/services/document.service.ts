@@ -9,6 +9,8 @@ import {
 } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { readFileAsString } from '../utils/read-file-as-string';
+import { IMetadataApi } from '../providers';
 
 interface InitialDocumentsSet {
   sourceBodyDocument?: IDocument;
@@ -17,6 +19,43 @@ interface InitialDocumentsSet {
 }
 
 export class DocumentService {
+  static async createDocumentDefinitionFromMetadata(
+    api: IMetadataApi,
+    documentType: DocumentType,
+    definitionType: DocumentDefinitionType,
+    documentId: string,
+    schemaFilePaths: string[],
+  ): Promise<DocumentDefinition | undefined> {
+    if (!schemaFilePaths || schemaFilePaths.length === 0) return;
+    const fileContents: Record<string, string> = {};
+    const fileContentPromises: Promise<void>[] = [];
+    schemaFilePaths.map((path: string) => {
+      const promise = api.getResourceContent(path).then((content: string | undefined) => {
+        if (content) fileContents[path] = content;
+      });
+      fileContentPromises.push(promise);
+    });
+    await Promise.allSettled(fileContentPromises);
+    return new DocumentDefinition(documentType, definitionType, documentId, fileContents);
+  }
+
+  static async createDocumentDefinition(
+    documentType: DocumentType,
+    definitionType: DocumentDefinitionType,
+    documentId: string,
+    schemaFiles: FileList,
+  ): Promise<DocumentDefinition | undefined> {
+    if (!schemaFiles || schemaFiles.length === 0) return;
+    const fileContents: Record<string, string> = {};
+    const fileContentPromises: Promise<string>[] = [];
+    Array.from(schemaFiles).map((f) => {
+      const promise = readFileAsString(f).then((content) => (fileContents[f.name] = content));
+      fileContentPromises.push(promise);
+    });
+    await Promise.allSettled(fileContentPromises);
+    return new DocumentDefinition(documentType, definitionType, documentId, fileContents);
+  }
+
   static createDocument(definition: DocumentDefinition): IDocument | null {
     if (definition.definitionType === DocumentDefinitionType.Primitive) {
       return new PrimitiveDocument(definition.documentType, DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID);

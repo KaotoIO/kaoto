@@ -12,6 +12,8 @@ import { EMPTY_XSL } from './mapping-serializer.service';
 import { EntitiesContextResult } from '../hooks';
 
 export class DataMapperMetadataService {
+  static readonly SCHEMA_NAME_PATTERN = '**/*.{xsd,xml,XSD,XML}';
+
   static getDataMapperMetadataId(vizNode: IVisualizationNode) {
     const model = vizNode.getComponentSchema()?.definition;
     return `${vizNode.getId()}-${model.id}`; // routeId-stepId
@@ -182,5 +184,14 @@ export class DataMapperMetadataService {
 
   static async updateMappingFile(api: IMetadataApi, metadata: IDataMapperMetadata, xsltFile: string) {
     await api.saveResourceContent(metadata.xsltPath, xsltFile);
+  }
+
+  static async selectDocumentSchema(api: IMetadataApi) {
+    return await api.askUserForFileSelection(this.SCHEMA_NAME_PATTERN, undefined, {
+      canPickMany: false, // TODO set to true once we support xs:include/xs:import, i.e. multiple files
+      placeHolder:
+        'Choose the schema file to attach. Type a text to narrow down the candidates. The file path is shown as a relative path from the active Camel file opening with Kaoto.',
+      title: 'Attaching document schema file',
+    });
   }
 }

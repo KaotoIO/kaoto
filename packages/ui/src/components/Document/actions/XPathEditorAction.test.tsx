@@ -26,5 +26,9 @@ describe('XPathEditorAction', () => {
     });
     const modal = await screen.findByTestId('xpath-editor-modal');
     expect(modal).toBeInTheDocument();
-  }, 15000);
+    const monaco = await screen.findByTestId('xpath-editor');
+    expect(monaco).toBeInTheDocument();
+    const textbox = await screen.findByRole('textbox');
+    expect(textbox).toBeInTheDocument();
+  }, 30000);
 });

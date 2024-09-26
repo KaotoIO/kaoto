@@ -80,6 +80,18 @@ interface KaotoBridgeProps {
   saveResourceContent(path: string, content: string): Promise<void>;
 
   /**
+   * Show a Quick Pick widget and ask the user to select one or more files available in the workspace.
+   * @param include The filter expression for the files to include
+   * @param exclude The filter expression for the files to exclude
+   * @param options The options to pass over to VSCode QuickPick
+   */
+  askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined>;
+
+  /**
    * ChannelType where the component is running.
    */
   channelType: ChannelType;
@@ -87,7 +99,16 @@ interface KaotoBridgeProps {
 
 export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgeProps>>(
   (
-    { onNewEdit, onReady, children, getMetadata, setMetadata, getResourceContent, saveResourceContent },
+    {
+      onNewEdit,
+      onReady,
+      children,
+      getMetadata,
+      setMetadata,
+      getResourceContent,
+      saveResourceContent,
+      askUserForFileSelection,
+    },
     forwardedRef,
   ) => {
     const ReloadProvider = useReload();
@@ -97,8 +118,8 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     const settingsAdapter = useContext(SettingsContext);
     const catalogUrl = settingsAdapter.getSettings().catalogUrl;
     const metadataApi = useMemo(
-      () => ({ getMetadata, setMetadata, getResourceContent, saveResourceContent }),
-      [getMetadata, setMetadata, getResourceContent, saveResourceContent],
+      () => ({ getMetadata, setMetadata, getResourceContent, saveResourceContent, askUserForFileSelection }),
+      [getMetadata, setMetadata, getResourceContent, saveResourceContent, askUserForFileSelection],
     );
 
     /**

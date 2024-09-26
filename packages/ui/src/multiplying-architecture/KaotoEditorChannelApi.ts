@@ -38,4 +38,16 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * @param content The content to be saved
    */
   saveResourceContent(path: string, content: string): Promise<void>;
+
+  /**
+   * Show a Quick Pick widget and ask the user to select one or more files available in the workspace.
+   * @param include The filter expression for the files to include
+   * @param exclude The filter expression for the files to exclude
+   * @param options The options to pass over to VSCode QuickPick
+   */
+  askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined>;
 }

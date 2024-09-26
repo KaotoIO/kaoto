@@ -40,6 +40,7 @@ export class KaotoEditorApp implements Editor {
     this.setMetadata = this.setMetadata.bind(this);
     this.getResourceContent = this.getResourceContent.bind(this);
     this.saveResourceContent = this.saveResourceContent.bind(this);
+    this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -114,6 +115,14 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.saveResourceContent(path, content);
   }
 
+  async askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined> {
+    return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
+  }
+
   af_componentRoot() {
     return (
       <SourceCodeProvider>
@@ -130,6 +139,7 @@ export class KaotoEditorApp implements Editor {
               setMetadata={this.setMetadata}
               getResourceContent={this.getResourceContent}
               saveResourceContent={this.saveResourceContent}
+              askUserForFileSelection={this.askUserForFileSelection}
             >
               <RouterProvider router={kaotoEditorRouter} />
             </KaotoBridge>

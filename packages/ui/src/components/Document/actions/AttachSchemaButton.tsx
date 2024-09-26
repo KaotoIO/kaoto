@@ -14,14 +14,16 @@
     limitations under the License.
 */
 import { Button, Tooltip } from '@patternfly/react-core';
-import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
+import { ChangeEvent, createRef, FunctionComponent, useCallback, useContext } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType } from '../../../models/datamapper/path';
 import { useCanvas } from '../../../hooks/useCanvas';
-import { DocumentDefinition, DocumentDefinitionType } from '../../../models/datamapper/document';
-import { readFileAsString } from '../../../utils/read-file-as-string';
+import { DocumentDefinitionType } from '../../../models/datamapper/document';
+import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
+import { MetadataContext } from '../../../providers';
+import { DocumentService } from '../../../services/document.service';
 
 type AttachSchemaProps = {
   documentType: DocumentType;
@@ -34,36 +36,66 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentId,
   hasSchema = false,
 }) => {
+  const api = useContext(MetadataContext);
   const { setIsLoading, updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const fileInputRef = createRef<HTMLInputElement>();
 
-  const onClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, [fileInputRef]);
+  const onClick = useCallback(async () => {
+    if (!api) {
+      // fallback: use browser file picker if VSCode Metadata API is not available (standalone/debug mode)
+      fileInputRef.current?.click();
+      return;
+    }
+
+    const paths = await DataMapperMetadataService.selectDocumentSchema(api);
+    if (!paths || (Array.isArray(paths) && paths.length === 0)) return;
+    setIsLoading(true);
+    try {
+      const definition = await DocumentService.createDocumentDefinitionFromMetadata(
+        api,
+        documentType,
+        DocumentDefinitionType.XML_SCHEMA,
+        documentId,
+        Array.isArray(paths) ? paths : [paths],
+      );
+      if (!definition) return;
+      await updateDocumentDefinition(definition);
+      clearNodeReferencesForDocument(documentType, documentId);
+      reloadNodeReferences();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    api,
+    clearNodeReferencesForDocument,
+    documentId,
+    documentType,
+    fileInputRef,
+    reloadNodeReferences,
+    setIsLoading,
+    updateDocumentDefinition,
+  ]);
 
   const onImport = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       setIsLoading(true);
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
-      const fileContents: Record<string, string> = {};
-      const fileContentPromises: Promise<string>[] = [];
-      Array.from(files).map((f) => {
-        const promise = readFileAsString(f).then((content) => (fileContents[f.name] = content));
-        fileContentPromises.push(promise);
-      });
-      await Promise.allSettled(fileContentPromises);
-      const definition = new DocumentDefinition(
-        documentType,
-        DocumentDefinitionType.XML_SCHEMA,
-        documentId,
-        fileContents,
-      );
-      await updateDocumentDefinition(definition);
-      clearNodeReferencesForDocument(documentType, documentId);
-      reloadNodeReferences();
-      setIsLoading(false);
+      try {
+        const files = event.target.files;
+        if (!files) return;
+        const definition = await DocumentService.createDocumentDefinition(
+          documentType,
+          DocumentDefinitionType.XML_SCHEMA,
+          documentId,
+          files,
+        );
+        if (!definition) return;
+        await updateDocumentDefinition(definition);
+        clearNodeReferencesForDocument(documentType, documentId);
+        reloadNodeReferences();
+      } finally {
+        setIsLoading(false);
+      }
     },
     [
       clearNodeReferencesForDocument,

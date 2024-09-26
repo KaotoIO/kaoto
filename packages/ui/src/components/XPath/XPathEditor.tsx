@@ -64,5 +64,5 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
     xpathLanguage.tokensProvider,
   ]);
 
-  return <div className="xpath-editor" ref={monacoEl}></div>;
+  return <div className="xpath-editor" data-testid="xpath-editor" ref={monacoEl}></div>;
 };
