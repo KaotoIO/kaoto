@@ -24,7 +24,7 @@ interface CanvasFormHeaderProps {
 
 export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props) => {
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
-  const { selectedTab, onTabChange } = useContext(CanvasFormTabsContext);
+  const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
   return (
     <>
@@ -40,19 +40,21 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props
         </GridItem>
       </Grid>
 
-      <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
-        {Object.entries(FormTabsModes).map(([mode, tooltip]) => (
-          <Tooltip key={mode} content={tooltip}>
-            <ToggleGroupItem
-              key={mode}
-              text={mode}
-              buttonId={mode}
-              isSelected={selectedTab === mode}
-              onChange={onTabChange}
-            />
-          </Tooltip>
-        ))}
-      </ToggleGroup>
+      {canvasFormTabsContext && (
+        <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
+          {Object.entries(FormTabsModes).map(([mode, tooltip]) => (
+            <Tooltip key={mode} content={tooltip}>
+              <ToggleGroupItem
+                key={mode}
+                text={mode}
+                buttonId={mode}
+                isSelected={canvasFormTabsContext.selectedTab === mode}
+                onChange={canvasFormTabsContext.onTabChange}
+              />
+            </Tooltip>
+          ))}
+        </ToggleGroup>
+      )}
 
       <SearchInput
         className="filter-fields"

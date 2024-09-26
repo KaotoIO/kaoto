@@ -65,7 +65,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesProvider>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesProvider>,
     );
@@ -94,7 +96,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesContext.Provider value={null}>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
@@ -128,7 +132,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesContext.Provider value={null}>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
@@ -255,7 +261,9 @@ describe('CanvasForm', () => {
     render(
       <EntitiesProvider>
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );

@@ -1,13 +1,15 @@
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
-import { Badge, EmptyState, EmptyStateBody, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
+import { Badge, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
 import { Table, TableVariant, Tbody, Td, TdProps, Th, Thead, Tr } from '@patternfly/react-table';
-import { ReactNode, useState } from 'react';
-import { HTMLFieldProps, connectField } from 'uniforms';
+import { ReactNode, useContext, useMemo, useState } from 'react';
+import { connectField } from 'uniforms';
+import { CanvasFormTabsContext } from '../../../providers';
+import { getJoinPath, isDefined } from '../../../utils';
 import { AddPropertyButtons } from './AddPropertyButtons';
+import { IPropertiesField, PlaceholderState } from './properties-field.models';
+import './PropertiesField.scss';
+import { PropertiesFieldEmptyState } from './PropertiesFieldEmptyState';
 import { PropertyRow } from './PropertyRow';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PropertiesFieldProps = HTMLFieldProps<any, HTMLDivElement>;
 
 /**
  * The uniforms custom field for editing generic properties where it has type "object" in the schema,
@@ -15,24 +17,17 @@ export type PropertiesFieldProps = HTMLFieldProps<any, HTMLDivElement>;
  * @param props
  * @constructor
  */
-const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
-  const [isFieldExpanded, setFieldExpanded] = useState<boolean>(false);
+export const PropertiesField = connectField((props: IPropertiesField) => {
+  const propertiesModel = props.value ? { ...props.value } : {};
+  const [isFieldExpanded, setFieldExpanded] = useState<boolean>(Object.keys(propertiesModel).length > 0);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [placeholderState, setPlaceholderState] = useState<PlaceholderState | null>(null);
-  const propertiesModel = props.value ? { ...props.value } : {};
-
-  type PlaceholderState = {
-    isObject: boolean;
-    parentNodeId: string;
-  };
+  const canvasFormTabsContext = useContext(CanvasFormTabsContext);
+  const canAddObjectProperties = useMemo(() => !isDefined(canvasFormTabsContext), [canvasFormTabsContext]);
 
   function handleModelChange() {
     setPlaceholderState(null);
     props.onChange(propertiesModel, props.name);
-  }
-
-  function getNodeId(path: string[]) {
-    return path.join('-');
   }
 
   function handleCreatePlaceHolder(state: PlaceholderState) {
@@ -68,7 +63,7 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
         },
       };
 
-      return placeholderState && placeholderState.parentNodeId === getNodeId(parentPath)
+      return placeholderState && placeholderState.parentNodeId === getJoinPath(parentPath)
         ? [
             <PropertyRow
               isPlaceholder
@@ -91,7 +86,7 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
     const nodeValue = node[1];
     const path = parentPath.slice();
     path.push(nodeName);
-    const nodeId = getNodeId(path);
+    const nodeId = getJoinPath(path);
     const isExpanded = expandedNodes.includes(nodeId);
 
     const childRows =
@@ -127,7 +122,7 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
 
     return [
       <PropertyRow
-        key={`${props.name}-${getNodeId(path)}`}
+        key={`${props.name}-${getJoinPath(path)}`}
         propertyName={props.name}
         nodeName={nodeName}
         nodeValue={nodeValue}
@@ -139,7 +134,7 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
         createPlaceholder={(isObject) => {
           handleCreatePlaceHolder({
             isObject: isObject,
-            parentNodeId: getNodeId(path),
+            parentNodeId: getJoinPath(path),
           });
         }}
       />,
@@ -165,8 +160,15 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
     >
       <Stack hasGutter>
         <StackItem isFilled>
-          <Table isTreeTable aria-label={props.name} variant={TableVariant.compact} borders isStickyHeader>
-            <Thead>
+          <Table
+            borders
+            isTreeTable
+            isStickyHeader
+            className="properties-field"
+            aria-label={props.name}
+            variant={TableVariant.compact}
+          >
+            <Thead className="properties-field__head">
               <Tr key={`${props.name}-header`}>
                 <Th width={40} modifier="nowrap">
                   NAME
@@ -174,10 +176,11 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
                 <Th width={40} modifier="nowrap">
                   VALUE
                 </Th>
-                <Td modifier="nowrap" isActionCell>
+                <Td modifier="nowrap" isActionCell className="properties-field__row__action" data-column-type="action">
                   <AddPropertyButtons
                     path={[]}
                     disabled={props.disabled}
+                    canAddObjectProperties={canAddObjectProperties}
                     createPlaceholder={(isObject) =>
                       handleCreatePlaceHolder({
                         isObject,
@@ -188,26 +191,24 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
                 </Td>
               </Tr>
             </Thead>
-            <Tbody>
+
+            <Tbody className="properties-field__body">
               {Object.keys(propertiesModel).length > 0 || placeholderState
                 ? renderRows(Object.entries(propertiesModel), propertiesModel)
                 : !props.disabled && (
                     <Tr key={`${props.name}-empty`}>
-                      <Td colSpan={3}>
-                        <EmptyState>
-                          <EmptyStateBody>No {props.name}</EmptyStateBody>
-                          <AddPropertyButtons
-                            showLabel
-                            path={[]}
-                            disabled={props.disabled}
-                            createPlaceholder={(isObject) =>
-                              handleCreatePlaceHolder({
-                                isObject: isObject,
-                                parentNodeId: '',
-                              })
-                            }
-                          />
-                        </EmptyState>
+                      <Td modifier="truncate" colSpan={3}>
+                        <PropertiesFieldEmptyState
+                          name={props.name}
+                          disabled={props.disabled}
+                          canAddObjectProperties={canAddObjectProperties}
+                          createPlaceholder={(isObject) =>
+                            handleCreatePlaceHolder({
+                              isObject: isObject,
+                              parentNodeId: '',
+                            })
+                          }
+                        />
                       </Td>
                     </Tr>
                   )}
@@ -217,6 +218,4 @@ const PropertiesFieldComponent = (props: PropertiesFieldProps) => {
       </Stack>
     </ExpandableSection>,
   );
-};
-
-export const PropertiesField = connectField(PropertiesFieldComponent);
+});

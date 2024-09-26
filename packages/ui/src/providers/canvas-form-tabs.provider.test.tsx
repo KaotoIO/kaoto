@@ -5,7 +5,7 @@ import { CanvasFormTabsContext, CanvasFormTabsProvider } from './canvas-form-tab
 describe('CanvasFormTabsProvider', () => {
   it('should provide default selectedTab value', () => {
     const TestComponent: FunctionComponent = () => {
-      const { selectedTab } = useContext(CanvasFormTabsContext);
+      const { selectedTab } = useContext(CanvasFormTabsContext)!;
       return <div data-testid="selected-tab">{selectedTab}</div>;
     };
 
@@ -21,17 +21,17 @@ describe('CanvasFormTabsProvider', () => {
 
   it('should update selectedTab on tab change', () => {
     const TestComponent: FunctionComponent = () => {
-      const { selectedTab, onTabChange } = useContext(CanvasFormTabsContext);
+      const { selectedTab, onTabChange } = useContext(CanvasFormTabsContext)!;
       return (
         <div>
           <div data-testid="selected-tab">{selectedTab}</div>
-          <button id="Required" onClick={(e) => onTabChange(e, true)} data-testid="required-tab">
+          <button id="Required" onClick={onTabChange} data-testid="required-tab">
             Required Tab
           </button>
-          <button id="All" onClick={(e) => onTabChange(e, true)} data-testid="all-fields-tab">
+          <button id="All" onClick={onTabChange} data-testid="all-fields-tab">
             All Fields Tab
           </button>
-          <button id="Modified" onClick={(e) => onTabChange(e, true)} data-testid="user-modified-tab">
+          <button id="Modified" onClick={onTabChange} data-testid="user-modified-tab">
             User Modified Tab
           </button>
         </div>
