@@ -1,9 +1,10 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { parse, stringify } from 'yaml';
-import { CamelResource, SourceSchemaType, createCamelResource } from '../models/camel';
+import { CamelResource, createCamelResource, SourceSchemaType } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
+import { isXML, parseXML } from '../utils/xml-parser';
 
 /**
  * Regular expression to match commented lines, regardless of indentation
@@ -58,7 +59,6 @@ export const useEntities = (): EntitiesContextResult => {
    */
   useLayoutEffect(() => {
     return eventNotifier.subscribe('code:updated', (code) => {
-      /** Extract comments from the source code */
       const lines = code.split('\n');
       const comments: string[] = [];
       for (const line of lines) {
@@ -69,7 +69,12 @@ export const useEntities = (): EntitiesContextResult => {
         }
       }
 
-      const rawEntities = parse(code);
+      let rawEntities;
+      if (isXML(code)) {
+        rawEntities = parseXML(code);
+      } else {
+        rawEntities = parse(code);
+      }
       const camelResource = createCamelResource(rawEntities);
       camelResource.setComments(comments);
       const entities = camelResource.getEntities();
