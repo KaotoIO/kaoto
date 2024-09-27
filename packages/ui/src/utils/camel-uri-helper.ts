@@ -109,7 +109,9 @@ export class CamelUriHelper {
       queryString?.split('&').reduce((parameters, parameter) => {
         if (parameter) {
           const [key, stringValue] = parameter.split('=');
-          if (isDefined(stringValue) && stringValue !== '') parameters[key] = getParsedValue(stringValue);
+          if (isDefined(stringValue) && stringValue !== '') {
+            parameters[key] = getParsedValue(stringValue);
+          }
         }
 
         return parameters;

@@ -3,7 +3,7 @@ import { VisualComponentSchema } from '../../../base-visual-entity';
 
 interface IValidationResult {
   level: 'error' | 'warning' | 'info';
-  type: 'missingRequired';
+  type: 'missingRequired' | 'syntaxMismatch';
   parentPath: string;
   propertyName: string;
   message: string;
@@ -28,9 +28,14 @@ export class ModelValidationService {
     if (!schema?.schema) return '';
     let message = '';
 
-    const validationResult = this.validateRequiredProperties(schema.schema, schema.definition, '');
-    const missingProperties = validationResult
+    const requiredValidationResult = this.validateRequiredProperties(schema.schema, schema.definition, '');
+    const missingProperties = requiredValidationResult
       .filter((result) => result.type === 'missingRequired')
+      .map((result) => result.propertyName);
+
+    const syntaxValidationResult = this.validateSyntaxProperties(schema.schema, schema.definition, '');
+    const syntaxMismatchProperties = syntaxValidationResult
+      .filter((result) => result.type === 'syntaxMismatch')
       .map((result) => result.propertyName);
 
     if (missingProperties.length > 0) {
@@ -38,6 +43,14 @@ export class ModelValidationService {
         missingProperties.length > 1
           ? `${missingProperties.length} required parameters are not yet configured: [ ${missingProperties} ]`
           : `1 required parameter is not yet configured: [ ${missingProperties} ]`;
+    }
+
+    if (syntaxMismatchProperties.length > 0) {
+      message +=
+        syntaxMismatchProperties.length > 1
+          ? `${syntaxMismatchProperties.length} parameters are configured incorrectly: [ ${syntaxMismatchProperties} ]`
+          : `1 parameter is configured incorrectly: [ ${syntaxMismatchProperties} ]` +
+            ` cannot contain special characters like '?', ':', '&'`;
     }
 
     return message;
@@ -76,6 +89,42 @@ export class ModelValidationService {
             parentPath: parentPath,
             propertyName: propertyName,
             message: `Missing required property ${propertyName}`,
+          });
+        }
+      });
+    }
+
+    return answer;
+  }
+
+  private static validateSyntaxProperties(
+    schema: KaotoSchemaDefinition['schema'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any,
+    parentPath: string,
+  ): IValidationResult[] {
+    const answer = [] as IValidationResult[];
+
+    if (schema.properties) {
+      Object.entries(schema.properties).forEach(([propertyName, propertyValue]) => {
+        const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
+        // TODO
+        if (propertySchema.type === 'array') return;
+        if (propertySchema.type === 'object') {
+          const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
+          if (model) {
+            answer.push(...this.validateSyntaxProperties(propertySchema, model[propertyName], path));
+          }
+          return;
+        }
+        // check syntax parameter
+        if (propertySchema.pattern && model[propertyName] && model[propertyName].match(/[:&?]/g) !== null) {
+          answer.push({
+            level: 'error',
+            type: 'syntaxMismatch',
+            parentPath: parentPath,
+            propertyName: propertyName,
+            message: `Property ${propertyName} incorrectly configured`,
           });
         }
       });

@@ -136,6 +136,10 @@ public class CamelCatalogProcessor {
         answer.put("$schema", "http://json-schema.org/draft-07/schema#");
         answer.put("type", "object");
 
+        var syntaxValue = parent.withObject("/component").has("syntax") ? parent.withObject("/component").get("syntax").asText() : "";
+        var syntaxArray = syntaxValue.split(":|(\\/\\/)|#|@|\\.|\\/");
+        var syntaxPropertiesArray = Arrays.copyOfRange(syntaxArray, 1, syntaxArray.length);
+
         var properties = parent.withObject("/properties");
         var answerProperties = answer.withObject("/properties");
         var required = new LinkedHashSet<String>();
@@ -188,6 +192,11 @@ public class CamelCatalogProcessor {
                 // that the UI should handle this as a bean reference field
                 propertySchema.put("type", "string");
                 propertySchema.put("$comment", "class:" + property.get("javaType").asText());
+            }
+
+            // Add the validation if the property is in the syntax
+            if (Arrays.asList(syntaxPropertiesArray).contains(propertyName)) {
+                propertySchema.put("pattern", "^[^?:&]*$");
             }
         }
         required.forEach(req -> answer.withArray("/required").add(req));
