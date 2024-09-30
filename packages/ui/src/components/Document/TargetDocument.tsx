@@ -65,14 +65,14 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
   const nodeTitle =
     nodeData instanceof MappingNodeData ? (
       <Label>
-        <Truncate content={nodeData.title} />
+        <Truncate content={nodeData.title ?? ''} />
       </Label>
     ) : isDocument ? (
       <Title headingLevel="h5">
-        <Truncate content={nodeData.title} />
+        <Truncate content={nodeData.title ?? ''} />
       </Title>
     ) : (
-      <Truncate content={nodeData.title} />
+      <Truncate content={nodeData.title ?? ''} />
     );
 
   return (
