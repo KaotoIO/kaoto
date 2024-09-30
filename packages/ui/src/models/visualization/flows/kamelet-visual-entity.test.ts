@@ -120,7 +120,7 @@ describe('KameletVisualEntity', () => {
       }
     }
     const kamelet = new KameletVisualEntityTest(kameletDef);
-    expect(kamelet.getRootUri()).toEqual('timer:tutorial');
+    expect(kamelet.getRootUri()).toEqual('timer');
   });
 
   describe('toVizNode', () => {

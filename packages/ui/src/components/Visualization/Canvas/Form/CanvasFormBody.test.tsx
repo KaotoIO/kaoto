@@ -46,7 +46,10 @@ describe('CanvasFormBody', () => {
     it('expression => main form', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -113,7 +116,10 @@ describe('CanvasFormBody', () => {
     it('main form => expression', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -185,7 +191,10 @@ describe('CanvasFormBody', () => {
     it('dataformat => main form', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -243,7 +252,10 @@ describe('CanvasFormBody', () => {
     it('main form => dataformat', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -307,7 +319,10 @@ describe('CanvasFormBody', () => {
     it('loadbalancer => main form', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {
@@ -365,7 +380,10 @@ describe('CanvasFormBody', () => {
     it('main form => loadbalancer', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {

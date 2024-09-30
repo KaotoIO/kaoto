@@ -11,7 +11,10 @@ describe('ModelValidationService', () => {
     route: {
       id: 'route-8888',
       from: {
-        uri: 'timer:tutorial',
+        uri: 'timer',
+        parameters: {
+          timerName: 'tutorial',
+        },
         steps: [
           {
             to: {

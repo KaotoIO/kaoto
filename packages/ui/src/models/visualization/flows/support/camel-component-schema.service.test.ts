@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { CamelUriHelper, ROOT_PATH } from '../../../../utils';
+import { ROOT_PATH } from '../../../../utils';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -26,7 +26,7 @@ describe('CamelComponentSchemaService', () => {
 
   beforeEach(() => {
     path = 'from';
-    definition = { uri: 'timer:foo?delay=1000&period=1000' };
+    definition = { uri: 'timer' };
   });
 
   afterEach(() => {
@@ -66,7 +66,15 @@ describe('CamelComponentSchemaService', () => {
     it('should build the appropriate schema for `route` entity', () => {
       const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
       const rootPath = ROOT_PATH;
-      const routeDefinition = { id: 'route-1234', from: { uri: 'timer:MyTimer?period=1000' } };
+      const routeDefinition = {
+        id: 'route-1234',
+        from: {
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
+        },
+      };
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(rootPath, routeDefinition);
 
@@ -107,7 +115,13 @@ describe('CamelComponentSchemaService', () => {
 
     it('should transform a string-based `To` processor', () => {
       const toBeanPath = 'from.steps.0.to';
-      const toBeanDefinition = 'bean:myBean?method=hello';
+      const toBeanDefinition = {
+        uri: 'bean',
+        parameters: {
+          beanName: 'myBean',
+          method: 'hello',
+        },
+      };
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(toBeanPath, toBeanDefinition);
 
@@ -116,7 +130,13 @@ describe('CamelComponentSchemaService', () => {
 
     it('should transform a string-based `ToD` processor', () => {
       const toDBeanPath = 'from.steps.0.toD';
-      const toDBeanDefinition = 'bean:myBean?method=hello';
+      const toDBeanDefinition = {
+        uri: 'bean',
+        parameters: {
+          beanName: 'myBean',
+          method: 'hello',
+        },
+      };
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(toDBeanPath, toDBeanDefinition);
 
@@ -153,7 +173,13 @@ describe('CamelComponentSchemaService', () => {
     it(`should parse and clean the component's URI field`, () => {
       const toLogPath = 'from';
       const toLogDefinition = {
-        uri: 'timer:timer-1?period=5000&delay=5&synchronous=true',
+        uri: 'timer',
+        parameters: {
+          timerName: 'timer-1',
+          delay: 5,
+          period: 5000,
+          synchronous: true,
+        },
       };
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(toLogPath, toLogDefinition);
@@ -211,8 +237,8 @@ describe('CamelComponentSchemaService', () => {
 
   describe('getCamelComponentLookup', () => {
     it.each([
-      [ROOT_PATH, { from: { uri: 'timer:foo?delay=1000&period=1000' } }, { processorName: 'route' }],
-      ['from', { uri: 'timer:foo?delay=1000&period=1000' }, { processorName: 'from', componentName: 'timer' }],
+      [ROOT_PATH, { from: { uri: 'timer' } }, { processorName: 'route' }],
+      ['from', { uri: 'timer' }, { processorName: 'from', componentName: 'timer' }],
       ['from.steps.0.to', { uri: 'log' }, { processorName: 'to', componentName: 'log' }],
       ['from.steps.1.toD', { uri: 'log' }, { processorName: 'toD', componentName: 'log' }],
       ['from.steps.0.to', 'log', { processorName: 'to', componentName: 'log' }],
@@ -242,24 +268,28 @@ describe('CamelComponentSchemaService', () => {
     it.each([
       [
         { processorName: 'route' as keyof ProcessorDefinition },
-        { id: 'route-1234', description: 'My Route description', from: { uri: 'timer:foo' } },
+        { id: 'route-1234', description: 'My Route description', from: { uri: 'timer' } },
         'My Route description',
       ],
       [
         { processorName: 'route' as keyof ProcessorDefinition },
-        { id: 'route-1234', from: { uri: 'timer:foo', description: '' } },
+        { id: 'route-1234', from: { uri: 'timer', parameters: { timerName: 'foo' }, description: '' } },
         'route-1234',
       ],
-      [{ processorName: 'from' as keyof ProcessorDefinition }, { uri: 'timer:foo', description: '' }, 'timer:foo'],
       [
         { processorName: 'from' as keyof ProcessorDefinition },
-        { uri: 'timer:foo', description: 'this is a description' },
+        { uri: 'timer', parameters: { timerName: 'foo' }, description: '' },
+        'timer',
+      ],
+      [
+        { processorName: 'from' as keyof ProcessorDefinition },
+        { uri: 'timer', parameters: { timerName: 'foo' }, description: 'this is a description' },
         'this is a description',
       ],
       [
         { processorName: 'from' as keyof ProcessorDefinition },
-        { uri: 'timer:foo?delay=1000&period=1000' },
-        'timer:foo?delay=1000&period=1000',
+        { uri: 'timer', parameters: { timerName: 'foo', delay: 1000, period: 1000 } },
+        'timer',
       ],
       [{ processorName: 'from' as keyof ProcessorDefinition }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, id: 'from-1234', uri: '' }, {}, 'from: Unknown'],
@@ -267,14 +297,20 @@ describe('CamelComponentSchemaService', () => {
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: null }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: 10 }, {}, 'from: Unknown'],
       [{ processorName: 'from' as keyof ProcessorDefinition, uri: undefined }, {}, 'from: Unknown'],
-      [{ processorName: 'to' as keyof ProcessorDefinition }, 'timer:foo', 'timer:foo'],
-      [{ processorName: 'to' as keyof ProcessorDefinition }, { uri: 'timer:foo' }, 'timer:foo'],
+      [
+        { processorName: 'to' as keyof ProcessorDefinition },
+        { uri: 'timer', parameters: { timerName: 'foo' } },
+        'timer',
+      ],
       [{ processorName: 'to' as keyof ProcessorDefinition }, {}, 'to'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, undefined, 'to'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, null, 'to'],
       [{ processorName: 'to' as keyof ProcessorDefinition }, '', 'to'],
-      [{ processorName: 'toD' as keyof ProcessorDefinition }, 'timer:foo', 'timer:foo'],
-      [{ processorName: 'toD' as keyof ProcessorDefinition }, { uri: 'timer:foo' }, 'timer:foo'],
+      [
+        { processorName: 'toD' as keyof ProcessorDefinition },
+        { uri: 'timer', parameters: { timerName: 'foo' } },
+        'timer',
+      ],
       [{ processorName: 'toD' as keyof ProcessorDefinition }, {}, 'toD'],
       [{ processorName: 'toD' as keyof ProcessorDefinition }, undefined, 'toD'],
       [{ processorName: 'toD' as keyof ProcessorDefinition }, null, 'toD'],
@@ -595,52 +631,6 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
-  describe('getUriSerializedDefinition', () => {
-    it('should return the same parameters if the definition is not a component', () => {
-      const definition = { log: { message: 'Hello World' } };
-      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
-
-      expect(result).toEqual(definition);
-    });
-
-    it('should return the same parameters if the component is not found', () => {
-      const definition = { uri: 'unknown-component' };
-      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
-
-      expect(result).toEqual(definition);
-    });
-
-    it('should query the catalog service and generate the required parameters array', () => {
-      const definition = { uri: 'log', parameters: { message: 'Hello World' } };
-      const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getCatalogLookup');
-      const camelUriHelperSpy = jest.spyOn(CamelUriHelper, 'getUriStringFromParameters');
-
-      CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
-
-      expect(catalogServiceSpy).toHaveBeenCalledWith('log');
-      expect(camelUriHelperSpy).toHaveBeenCalledWith(definition.uri, 'log:loggerName', definition.parameters, {
-        requiredParameters: ['loggerName'],
-        defaultValues: {
-          groupActiveOnly: 'true',
-          level: 'INFO',
-          maxChars: 10000,
-          showBody: true,
-          showBodyType: true,
-          showCachedStreams: true,
-          skipBodyLineSeparator: true,
-          style: 'Default',
-        },
-      });
-    });
-
-    it('should return the serialized definition', () => {
-      const definition = { uri: 'timer', parameters: { timerName: 'MyTimer', delay: '1000', repeatCount: 10 } };
-      const result = CamelComponentSchemaService.getUriSerializedDefinition('from', definition);
-
-      expect(result).toEqual({ uri: 'timer:MyTimer', parameters: { delay: '1000', repeatCount: 10 } });
-    });
-  });
-
   describe('getComponentNameFromUri', () => {
     it('should return undefined if the uri is empty', () => {
       const componentName = CamelComponentSchemaService.getComponentNameFromUri('');
@@ -661,6 +651,12 @@ describe('CamelComponentSchemaService', () => {
 
     it('should return the component name from the uri', () => {
       const uri = 'timer:foo?delay=1000&period=1000';
+      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
+      expect(componentName).toEqual('timer');
+    });
+
+    it('should return the component name from the uri', () => {
+      const uri = 'timer';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
       expect(componentName).toEqual('timer');
     });

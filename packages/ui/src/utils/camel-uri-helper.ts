@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import { getParsedValue } from './get-parsed-value';
-import { isDefined } from './is-defined';
 
 export type ParsedParameters = Record<string, string | boolean | number>;
 
@@ -9,10 +8,6 @@ export type ParsedParameters = Record<string, string | boolean | number>;
  */
 export class CamelUriHelper {
   private static readonly URI_SEPARATORS_REGEX = /:|(\/\/)|#|\//g;
-  private static readonly KNOWN_URI_MAP: Record<string, string> = {
-    'http://httpUri': 'http://',
-    'https://httpUri': 'https://',
-  };
 
   static getUriString<T>(value: T | undefined | null): string | undefined {
     /** For string-based processor definitions, we can return the definition itself */
@@ -118,74 +113,6 @@ export class CamelUriHelper {
   }
 
   /**
-   * Write the appropriate parameters in the URI string, and
-   * and keep the parameters that are not present in the URI syntax
-   */
-  static getUriStringFromParameters(
-    originalUri: string,
-    uriSyntax: string,
-    parameters?: ParsedParameters,
-    options?: { requiredParameters?: string[]; defaultValues?: ParsedParameters },
-  ): { uri: string; parameters: ParsedParameters | undefined } {
-    const { schema, syntax: syntaxWithoutScheme } = this.getSyntaxWithoutSchema(uriSyntax);
-    /** Prepare options */
-    const requiredParameters = options?.requiredParameters ?? [];
-    const defaultValues = options?.defaultValues ?? {};
-
-    /**
-     * Retrieve the delimiters from the syntax by matching the delimiters
-     * Example: 'transport:host:port/messageName' => [':', ':', '/']
-     */
-    const delimiters = syntaxWithoutScheme.match(this.URI_SEPARATORS_REGEX);
-    this.URI_SEPARATORS_REGEX.lastIndex = 0;
-
-    /** If the syntax does not contain any delimiters, we can return the URI string as is */
-    if (
-      syntaxWithoutScheme === '' ||
-      (delimiters === null && parameters?.[syntaxWithoutScheme] === undefined) ||
-      !isDefined(parameters)
-    ) {
-      return { uri: originalUri, parameters };
-    } else if (delimiters === null) {
-      const value = parameters?.[syntaxWithoutScheme] ?? defaultValues[syntaxWithoutScheme] ?? '';
-      const uri = `${schema}:${this.cleanUriParts(value.toString(), uriSyntax)}`;
-      const filteredParameters = this.filterParameters(parameters, [syntaxWithoutScheme]);
-      return { uri, parameters: filteredParameters };
-    }
-
-    /** Otherwise, we create a RegExp using the delimiters found [':', ':', '/'] */
-    const delimitersRegex = new RegExp(delimiters.join('|'), 'g');
-
-    /**
-     * Splitting the syntax string using the delimiters
-     * keys: [ 'transport', 'host', 'port', 'messageName' ]
-     */
-    const keys = syntaxWithoutScheme.split(delimitersRegex);
-    const values = keys.map((key) => {
-      const valueOrUndefined = parameters[key] === '' ? undefined : parameters[key];
-      const value = valueOrUndefined ?? defaultValues[key] ?? '';
-      const isRequired = requiredParameters.includes(key);
-      const previousDelimiter = keys.indexOf(key) > 0 ? delimiters[keys.indexOf(key) - 1] : ':';
-
-      return { key, value, isRequired, previousDelimiter };
-    });
-    values.unshift({ key: 'schema', value: schema, isRequired: true, previousDelimiter: '' });
-
-    const uri = values.reduceRight((acc, current, index) => {
-      const isNextSegmentRequired = values[index + 1]?.isRequired;
-      if (!current.isRequired && current.value === '' && !isNextSegmentRequired) {
-        return acc;
-      }
-
-      const cleanValue = this.cleanUriParts(current.value.toString(), uriSyntax);
-      return `${current.previousDelimiter}${cleanValue}${acc}`;
-    }, '');
-
-    const filteredParameters = this.filterParameters(parameters, keys);
-    return { uri, parameters: filteredParameters };
-  }
-
-  /**
    * Remove the scheme from the URI syntax:
    * 'avro:transport:host:port/messageName' => { schema: 'avro', syntax: 'transport:host:port/messageName' } */
   private static getSyntaxWithoutSchema(uriSyntax: string): { schema: string; syntax: string } {
@@ -198,20 +125,5 @@ export class CamelUriHelper {
   /** Remove the scheme from the URI string: 'avro:netty:localhost:41414/foo' => 'netty:localhost:41414/foo' */
   private static getUriWithoutScheme(uriString: string, uriSyntax: string): string {
     return uriString.substring(uriSyntax.indexOf(':') + 1);
-  }
-
-  /** Remove parts from URI for known components, particularly for URL-relate components */
-  private static cleanUriParts(uri: string, syntax: string): string {
-    return uri.replace(this.KNOWN_URI_MAP[syntax], '');
-  }
-
-  /** Return a new object ignoring the parameters from the `keys` array*/
-  private static filterParameters(parameters: ParsedParameters, keys: string[]): ParsedParameters {
-    return Object.keys(parameters).reduce((acc, parameterKey) => {
-      if (!keys.includes(parameterKey)) {
-        acc[parameterKey] = parameters[parameterKey];
-      }
-      return acc;
-    }, {} as ParsedParameters);
   }
 }

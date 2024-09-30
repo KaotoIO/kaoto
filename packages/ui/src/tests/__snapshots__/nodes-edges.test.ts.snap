@@ -190,6 +190,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -236,7 +237,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -304,6 +305,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -350,7 +352,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -696,6 +698,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "id": "from-4014",
                   "parameters": {
                     "period": "1000",
+                    "timerName": "template",
                   },
                   "steps": [
                     {
@@ -742,7 +745,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     },
                   ],
-                  "uri": "timer:template",
+                  "uri": "timer",
                 },
                 "id": "route-2768",
               },
@@ -957,6 +960,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "id": "from-4014",
                         "parameters": {
                           "period": "1000",
+                          "timerName": "template",
                         },
                         "steps": [
                           {
@@ -1003,7 +1007,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             },
                           },
                         ],
-                        "uri": "timer:template",
+                        "uri": "timer",
                       },
                       "id": "route-2768",
                     },
@@ -1096,6 +1100,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -1142,7 +1147,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -1228,6 +1233,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "id": "from-4014",
                         "parameters": {
                           "period": "1000",
+                          "timerName": "template",
                         },
                         "steps": [
                           {
@@ -1274,7 +1280,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             },
                           },
                         ],
-                        "uri": "timer:template",
+                        "uri": "timer",
                       },
                       "id": "route-2768",
                     },
@@ -1503,6 +1509,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -1549,7 +1556,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -1642,6 +1649,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -1688,7 +1696,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -1774,6 +1782,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -1820,7 +1829,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -2042,6 +2051,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "id": "from-4014",
                         "parameters": {
                           "period": "1000",
+                          "timerName": "template",
                         },
                         "steps": [
                           {
@@ -2088,7 +2098,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             },
                           },
                         ],
-                        "uri": "timer:template",
+                        "uri": "timer",
                       },
                       "id": "route-2768",
                     },
@@ -2181,6 +2191,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -2227,7 +2238,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -2313,6 +2324,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "id": "from-4014",
                         "parameters": {
                           "period": "1000",
+                          "timerName": "template",
                         },
                         "steps": [
                           {
@@ -2359,7 +2371,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             },
                           },
                         ],
-                        "uri": "timer:template",
+                        "uri": "timer",
                       },
                       "id": "route-2768",
                     },
@@ -2588,6 +2600,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -2634,7 +2647,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -2727,6 +2740,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -2773,7 +2787,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -2859,6 +2873,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -2905,7 +2920,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -3137,6 +3152,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -3183,7 +3199,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -3276,6 +3292,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "id": "from-4014",
                   "parameters": {
                     "period": "1000",
+                    "timerName": "template",
                   },
                   "steps": [
                     {
@@ -3322,7 +3339,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     },
                   ],
-                  "uri": "timer:template",
+                  "uri": "timer",
                 },
                 "id": "route-2768",
               },
@@ -3408,6 +3425,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -3454,7 +3472,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -3836,6 +3854,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "id": "from-4014",
                   "parameters": {
                     "period": "1000",
+                    "timerName": "template",
                   },
                   "steps": [
                     {
@@ -3882,7 +3901,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     },
                   ],
-                  "uri": "timer:template",
+                  "uri": "timer",
                 },
                 "id": "route-2768",
               },
@@ -4071,6 +4090,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "id": "from-4014",
                     "parameters": {
                       "period": "1000",
+                      "timerName": "template",
                     },
                     "steps": [
                       {
@@ -4117,7 +4137,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       },
                     ],
-                    "uri": "timer:template",
+                    "uri": "timer",
                   },
                   "id": "route-2768",
                 },
@@ -4179,6 +4199,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "id": "from-4014",
                       "parameters": {
                         "period": "1000",
+                        "timerName": "template",
                       },
                       "steps": [
                         {
@@ -4225,7 +4246,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           },
                         },
                       ],
-                      "uri": "timer:template",
+                      "uri": "timer",
                     },
                     "id": "route-2768",
                   },
@@ -4815,6 +4836,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "id": "from-4014",
                 "parameters": {
                   "period": "1000",
+                  "timerName": "template",
                 },
                 "steps": [
                   {
@@ -4861,7 +4883,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   },
                 ],
-                "uri": "timer:template",
+                "uri": "timer",
               },
               "id": "route-2768",
             },
