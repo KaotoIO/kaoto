@@ -23,7 +23,10 @@ describe('ChoiceNodeMapper', () => {
 
     routeDefinition = {
       from: {
-        uri: 'timer:timerName',
+        uri: 'timer',
+        parameters: {
+          timerName: 'timerName',
+        },
         steps: [
           {
             choice: {

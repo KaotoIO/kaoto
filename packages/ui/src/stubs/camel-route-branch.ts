@@ -5,9 +5,10 @@ export const camelRouteBranch = parse(`
     id: route-2768
     from:
       id: from-4014
-      uri: timer:template
+      uri: timer
       parameters:
         period: "1000"
+        timerName: template
       steps:
         - choice:
             id: choice-3431

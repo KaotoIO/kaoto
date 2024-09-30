@@ -340,7 +340,10 @@ describe('CanvasForm', () => {
     it('expression field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -433,7 +436,10 @@ describe('CanvasForm', () => {
     it('dataformat field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -523,7 +529,10 @@ describe('CanvasForm', () => {
     it('loadbalancer field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {
@@ -648,7 +657,10 @@ describe('CanvasForm', () => {
     it('expression field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -690,7 +702,10 @@ describe('CanvasForm', () => {
     it('dataformat field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -732,7 +747,10 @@ describe('CanvasForm', () => {
     it('loadbalancer field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {

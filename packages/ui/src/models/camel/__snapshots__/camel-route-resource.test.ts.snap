@@ -5,6 +5,9 @@ exports[`CamelRouteResource toJSON should return JSON 1`] = `
   {
     "route": {
       "from": {
+        "parameters": {
+          "timerName": "tutorial",
+        },
         "steps": [
           {
             "set-header": {
@@ -58,7 +61,7 @@ exports[`CamelRouteResource toJSON should return JSON 1`] = `
             },
           },
         ],
-        "uri": "timer:tutorial",
+        "uri": "timer",
       },
       "id": "route-8888",
     },

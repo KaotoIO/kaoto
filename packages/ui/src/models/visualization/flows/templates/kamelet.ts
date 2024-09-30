@@ -36,10 +36,14 @@ spec:
   template:
     from:
       id: ${getCamelRandomId('from')}
-      uri: "timer:user"
+      uri: timer
       parameters:
         period: "{{period}}"
+        timerName: user
       steps:
-      - to: https://random-data-api.com/api/v2/users
+      - to:
+          uri: https
+          parameters:
+            httpUri: random-data-api.com/api/v2/users
       - to: "kamelet:sink"`;
 };

@@ -218,6 +218,7 @@ exports[`CanvasSideBar displays selected node information 1`] = `
 uri: timer
 parameters:
   period: "1000"
+  timerName: template
 steps:
   - log:
       id: log-1234
