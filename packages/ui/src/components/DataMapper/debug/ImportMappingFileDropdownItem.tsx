@@ -3,7 +3,7 @@ import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 import { ImportIcon } from '@patternfly/react-icons';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { readFileAsString } from '../../../utils/read-file-as-string';
+import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 type ImportMappingFileDropdownItemProps = {
   onComplete: () => void;

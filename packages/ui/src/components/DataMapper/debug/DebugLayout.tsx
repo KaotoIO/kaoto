@@ -21,6 +21,7 @@ import { DataMapper } from '../DataMapper';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { CanvasMonitor } from './CanvasMonitor';
 import { DataMapperMonitor } from './DataMapperMonitor';
+import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 
 export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;
@@ -38,11 +39,13 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
 
   return (
     <Page header={header}>
-      <DataMapperMonitor />
-      <CanvasMonitor />
-      <PageSection variant={PageSectionVariants.default} className="debug-layout">
-        <DataMapper />
-      </PageSection>
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperMonitor />
+        <CanvasMonitor />
+        <PageSection variant={PageSectionVariants.default} className="debug-layout">
+          <DataMapper />
+        </PageSection>
+      </BrowserFilePickerMetadataProvider>
     </Page>
   );
 });

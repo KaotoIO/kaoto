@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { Button, Tooltip } from '@patternfly/react-core';
-import { ChangeEvent, createRef, FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent, useCallback, useContext } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -36,23 +36,16 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentId,
   hasSchema = false,
 }) => {
-  const api = useContext(MetadataContext);
+  const api = useContext(MetadataContext)!;
   const { setIsLoading, updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
-  const fileInputRef = createRef<HTMLInputElement>();
 
   const onClick = useCallback(async () => {
-    if (!api) {
-      // fallback: use browser file picker if VSCode Metadata API is not available (standalone/debug mode)
-      fileInputRef.current?.click();
-      return;
-    }
-
     const paths = await DataMapperMetadataService.selectDocumentSchema(api);
     if (!paths || (Array.isArray(paths) && paths.length === 0)) return;
     setIsLoading(true);
     try {
-      const definition = await DocumentService.createDocumentDefinitionFromMetadata(
+      const definition = await DocumentService.createDocumentDefinition(
         api,
         documentType,
         DocumentDefinitionType.XML_SCHEMA,
@@ -71,41 +64,10 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     clearNodeReferencesForDocument,
     documentId,
     documentType,
-    fileInputRef,
     reloadNodeReferences,
     setIsLoading,
     updateDocumentDefinition,
   ]);
-
-  const onImport = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      setIsLoading(true);
-      try {
-        const files = event.target.files;
-        if (!files) return;
-        const definition = await DocumentService.createDocumentDefinition(
-          documentType,
-          DocumentDefinitionType.XML_SCHEMA,
-          documentId,
-          files,
-        );
-        if (!definition) return;
-        await updateDocumentDefinition(definition);
-        clearNodeReferencesForDocument(documentType, documentId);
-        reloadNodeReferences();
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [
-      clearNodeReferencesForDocument,
-      documentId,
-      documentType,
-      reloadNodeReferences,
-      setIsLoading,
-      updateDocumentDefinition,
-    ],
-  );
 
   return (
     <Tooltip position={'auto'} enableFlip={true} content={<div>{hasSchema ? 'Update schema' : 'Attach a schema'}</div>}>
@@ -116,14 +78,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         onClick={onClick}
       >
         <ImportIcon />
-        <input
-          type="file"
-          style={{ display: 'none' }}
-          data-testid={`attach-schema-${documentType}-${documentId}-file-input`}
-          onChange={onImport}
-          accept=".xml, .xsd"
-          ref={fileInputRef}
-        />
       </Button>
     </Tooltip>
   );

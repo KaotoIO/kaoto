@@ -4,16 +4,19 @@ import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.prov
 import { SourceTargetView } from './SourceTargetView';
 
 import { shipOrderXsd } from '../../stubs/data-mapper';
+import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 
 describe('SourceTargetView', () => {
   describe('Source Body Document', () => {
     it('should attach and detach schema', async () => {
       render(
-        <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <SourceTargetView />
-          </DataMapperCanvasProvider>
-        </DataMapperProvider>,
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
       act(() => {
@@ -23,7 +26,7 @@ describe('SourceTargetView', () => {
       act(() => {
         fireEvent.click(attachButton);
       });
-      const fileInput = screen.getByTestId('attach-schema-sourceBody-Body-file-input');
+      const fileInput = screen.getByTestId('attach-schema-file-input');
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -45,11 +48,13 @@ describe('SourceTargetView', () => {
   describe('Target Body Document', () => {
     it('should attach and detach schema', async () => {
       render(
-        <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <SourceTargetView />
-          </DataMapperCanvasProvider>
-        </DataMapperProvider>,
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
       act(() => {
@@ -59,7 +64,7 @@ describe('SourceTargetView', () => {
       act(() => {
         fireEvent.click(attachButton);
       });
-      const fileInput = screen.getByTestId('attach-schema-targetBody-Body-file-input');
+      const fileInput = screen.getByTestId('attach-schema-file-input');
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });

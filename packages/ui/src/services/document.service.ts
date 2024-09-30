@@ -9,7 +9,6 @@ import {
 } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { readFileAsString } from '../utils/read-file-as-string';
 import { IMetadataApi } from '../providers';
 
 interface InitialDocumentsSet {
@@ -19,7 +18,7 @@ interface InitialDocumentsSet {
 }
 
 export class DocumentService {
-  static async createDocumentDefinitionFromMetadata(
+  static async createDocumentDefinition(
     api: IMetadataApi,
     documentType: DocumentType,
     definitionType: DocumentDefinitionType,
@@ -33,23 +32,6 @@ export class DocumentService {
       const promise = api.getResourceContent(path).then((content: string | undefined) => {
         if (content) fileContents[path] = content;
       });
-      fileContentPromises.push(promise);
-    });
-    await Promise.allSettled(fileContentPromises);
-    return new DocumentDefinition(documentType, definitionType, documentId, fileContents);
-  }
-
-  static async createDocumentDefinition(
-    documentType: DocumentType,
-    definitionType: DocumentDefinitionType,
-    documentId: string,
-    schemaFiles: FileList,
-  ): Promise<DocumentDefinition | undefined> {
-    if (!schemaFiles || schemaFiles.length === 0) return;
-    const fileContents: Record<string, string> = {};
-    const fileContentPromises: Promise<string>[] = [];
-    Array.from(schemaFiles).map((f) => {
-      const promise = readFileAsString(f).then((content) => (fileContents[f.name] = content));
       fileContentPromises.push(promise);
     });
     await Promise.allSettled(fileContentPromises);
