@@ -19,7 +19,7 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DocumentDefinition, DocumentInitializationModel } from '../../models/datamapper/document';
 import { IVisualizationNode } from '../../models';
-import { MetadataContext } from '../../providers';
+import { EntitiesContext, MetadataContext } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DocumentType } from '../../models/datamapper/path';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
@@ -30,6 +30,7 @@ export interface IDataMapperProps {
 }
 
 export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({ vizNode }) => {
+  const entitiesContext = useContext(EntitiesContext)!;
   const ctx = useContext(MetadataContext)!;
   const metadataId = vizNode && DataMapperMetadataService.getDataMapperMetadataId(vizNode);
   const [metadata, setMetadata] = useState<IDataMapperMetadata>();
@@ -42,7 +43,7 @@ export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({ vizNode })
     const initialize = async () => {
       let meta = await ctx.getMetadata<IDataMapperMetadata>(metadataId);
       if (!meta) {
-        meta = await DataMapperMetadataService.initializeDataMapperMetadata(vizNode, ctx, metadataId);
+        meta = await DataMapperMetadataService.initializeDataMapperMetadata(entitiesContext, vizNode, ctx, metadataId);
       }
       setMetadata(meta);
       const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);

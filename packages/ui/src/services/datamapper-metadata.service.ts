@@ -9,6 +9,7 @@ import {
 import { IDataMapperMetadata, IDocumentMetadata } from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
 import { EMPTY_XSL } from './mapping-serializer.service';
+import { EntitiesContextResult } from '../hooks';
 
 export class DataMapperMetadataService {
   static getDataMapperMetadataId(vizNode: IVisualizationNode) {
@@ -17,6 +18,7 @@ export class DataMapperMetadataService {
   }
 
   static initializeDataMapperMetadata(
+    entitiesContext: EntitiesContextResult,
     vizNode: IVisualizationNode,
     api: IMetadataApi,
     metadataId: string,
@@ -30,6 +32,7 @@ export class DataMapperMetadataService {
       if (splitted.length < 2) {
         xsltStep.to.uri = `xslt:${xsltFileName}`;
         vizNode.updateModel(model);
+        entitiesContext.updateSourceCodeFromEntities();
       } else {
         xsltFileName = splitted[1];
       }
