@@ -29,21 +29,21 @@ function App() {
     <ReloadProvider>
       <SettingsProvider adapter={settingsAdapter}>
         <SourceCodeProvider>
-          <EntitiesProvider>
-            <Shell>
-              <RuntimeProvider catalogUrl={catalogUrl}>
-                <SchemasLoaderProvider>
-                  <CatalogLoaderProvider>
+          <RuntimeProvider catalogUrl={catalogUrl}>
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
                     <CatalogTilesProvider>
                       <VisibleFlowsProvider>
                         <Outlet />
                       </VisibleFlowsProvider>
                     </CatalogTilesProvider>
-                  </CatalogLoaderProvider>
-                </SchemasLoaderProvider>
-              </RuntimeProvider>
-            </Shell>
-          </EntitiesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
         </SourceCodeProvider>
       </SettingsProvider>
     </ReloadProvider>
