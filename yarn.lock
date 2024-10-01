@@ -2839,11 +2839,11 @@ __metadata:
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": "npm:0.32.0"
     "@kie-tools-core/notifications": "npm:0.32.0"
-    "@patternfly/patternfly": "npm:5.4.0"
-    "@patternfly/react-code-editor": "npm:5.4.0"
-    "@patternfly/react-core": "npm:5.4.0"
+    "@patternfly/patternfly": "npm:5.4.1"
+    "@patternfly/react-code-editor": "npm:5.4.3"
+    "@patternfly/react-core": "npm:5.4.1"
     "@patternfly/react-icons": "npm:5.4.0"
-    "@patternfly/react-table": "npm:5.4.0"
+    "@patternfly/react-table": "npm:5.4.1"
     "@patternfly/react-topology": "npm:5.4.0"
     "@swc/core": "npm:^1.7.14"
     "@swc/jest": "npm:^0.2.36"
@@ -3699,19 +3699,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/patternfly@npm:5.4.0":
-  version: 5.4.0
-  resolution: "@patternfly/patternfly@npm:5.4.0"
-  checksum: 10/dc1691d1e709552916069172acd8de7436430286e0d7a9683711c4cf07c2a9d6b696503932ce4ccf32d47b5d13a8044865924df7087b9d0bdd941455fbd196f6
+"@patternfly/patternfly@npm:5.4.1":
+  version: 5.4.1
+  resolution: "@patternfly/patternfly@npm:5.4.1"
+  checksum: 10/39808abcb72747fc399c638850296bf73198be199edd7a4652ba208def9a48b60caf41f3157e2d714790462b3282257815b06a3cff727aafeceb520b661afaee
   languageName: node
   linkType: hard
 
-"@patternfly/react-code-editor@npm:5.4.0":
-  version: 5.4.0
-  resolution: "@patternfly/react-code-editor@npm:5.4.0"
+"@patternfly/react-code-editor@npm:5.4.3":
+  version: 5.4.3
+  resolution: "@patternfly/react-code-editor@npm:5.4.3"
   dependencies:
     "@monaco-editor/react": "npm:^4.6.0"
-    "@patternfly/react-core": "npm:^5.4.0"
+    "@patternfly/react-core": "npm:^5.4.1"
     "@patternfly/react-icons": "npm:^5.4.0"
     "@patternfly/react-styles": "npm:^5.4.0"
     react-dropzone: "npm:14.2.3"
@@ -3719,13 +3719,13 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/f76e2dde1b6bf457a9fca24edf2530fc74fb1609ad7994c1472aefdba7a4734494eb6321a0984e168535b0c1e7622b8dffdd40455bd1f915e93259ed4a8fd3cb
+  checksum: 10/9bf91f37a285d880c75817cf75d6107b39217312833f3fe50a05aaa8243977e21535ee654acdc8867f1eb2cade09b1250c6d773566279711d26771987a8be84f
   languageName: node
   linkType: hard
 
-"@patternfly/react-core@npm:5.4.0":
-  version: 5.4.0
-  resolution: "@patternfly/react-core@npm:5.4.0"
+"@patternfly/react-core@npm:5.4.1":
+  version: 5.4.1
+  resolution: "@patternfly/react-core@npm:5.4.1"
   dependencies:
     "@patternfly/react-icons": "npm:^5.4.0"
     "@patternfly/react-styles": "npm:^5.4.0"
@@ -3736,7 +3736,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/8e7fd393849be47b856f2e555c5e7f6eb3fd6c19c4af6b8749c40b21b2022947242973e33a8ad3dda6df0c6761c849ba4855ac05f84a1a74fd9fe7b58ab587c7
+  checksum: 10/a488f15bc60d4075b2d60b8349653c04a0e7224a3a297f4b816f3b99cba0002004cc91f5c98d6434916275a3e2ed8896140498ca841e8ba615f2b23b8c2da9bc
   languageName: node
   linkType: hard
 
@@ -3764,11 +3764,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-table@npm:5.4.0":
-  version: 5.4.0
-  resolution: "@patternfly/react-table@npm:5.4.0"
+"@patternfly/react-table@npm:5.4.1":
+  version: 5.4.1
+  resolution: "@patternfly/react-table@npm:5.4.1"
   dependencies:
-    "@patternfly/react-core": "npm:^5.4.0"
+    "@patternfly/react-core": "npm:^5.4.1"
     "@patternfly/react-icons": "npm:^5.4.0"
     "@patternfly/react-styles": "npm:^5.4.0"
     "@patternfly/react-tokens": "npm:^5.4.0"
@@ -3777,7 +3777,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/5162d86d2bc24bfcc5f79a2346db9dd61de192f269422ff2ef1e3c3d8287e0bfa68b76a8b530d119334300d9c54a2327f75587194b4cdfe5b317a35934dbe08a
+  checksum: 10/8ce0afb6f93134c7691a8503096a091506f59cc79f7fc5027a5ac83924b404e8ce3a96bc492b291117fd029c80a1a635750b1ea78cc6837ba7493d7c3c221dd8
   languageName: node
   linkType: hard
 
