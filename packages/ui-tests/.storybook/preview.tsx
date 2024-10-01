@@ -18,8 +18,15 @@ const preview: Preview = {
       },
     },
   },
-
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div style={{ height: '600px', width: '100%' }}>
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default preview;
