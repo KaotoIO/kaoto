@@ -1,4 +1,4 @@
-import { Alert, Button, List, ListItem, Modal, ModalVariant } from '@patternfly/react-core';
+import { Alert, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useState } from 'react';
 import { IVisualizationNode } from '../../models';
