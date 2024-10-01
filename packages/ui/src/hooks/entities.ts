@@ -1,10 +1,10 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { parse, stringify } from 'yaml';
-import { CamelResource, createCamelResource, SourceSchemaType } from '../models/camel';
+import { CamelResource, createCamelResource, sourceSchemaConfig, SourceSchemaType } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
-import { isXML, parseXML } from '../utils/xml-parser';
+import { isXML, XmlParser } from '../utils/xml-parser';
 
 /**
  * Regular expression to match commented lines, regardless of indentation
@@ -71,7 +71,11 @@ export const useEntities = (): EntitiesContextResult => {
 
       let rawEntities;
       if (isXML(code)) {
-        rawEntities = parseXML(code);
+        const schema = sourceSchemaConfig.config[SourceSchemaType.Route].schema;
+        if (schema) {
+          const xmlParser = new XmlParser(schema!.schema!);
+          rawEntities = xmlParser.parseXML(code);
+        }
       } else {
         rawEntities = parse(code);
       }
