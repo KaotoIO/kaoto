@@ -16,7 +16,7 @@ import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
 import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
-import { PrimitiveDocument } from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentDefinitionType } from '../../models/datamapper/document';
 import { useCanvas } from '../../hooks/useCanvas';
 import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
@@ -28,18 +28,17 @@ type AddNewParameterPlaceholderProps = {
 };
 
 const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderProps> = ({ onComplete }) => {
-  const { sourceParameterMap, refreshSourceParameters } = useDataMapper();
+  const { sourceParameterMap, updateDocumentDefinition } = useDataMapper();
   const [newParameterName, setNewParameterName] = useState<string>('');
 
   const submitNewParameter = useCallback(() => {
     if (!sourceParameterMap.has(newParameterName)) {
-      const primitiveDocument = new PrimitiveDocument(DocumentType.PARAM, newParameterName);
-      sourceParameterMap.set(newParameterName, primitiveDocument);
-      refreshSourceParameters();
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, newParameterName);
+      updateDocumentDefinition(definition);
     }
     setNewParameterName('');
     onComplete();
-  }, [sourceParameterMap, newParameterName, onComplete, refreshSourceParameters]);
+  }, [sourceParameterMap, newParameterName, onComplete, updateDocumentDefinition]);
 
   const cancelNewParameter = useCallback(() => {
     setNewParameterName('');

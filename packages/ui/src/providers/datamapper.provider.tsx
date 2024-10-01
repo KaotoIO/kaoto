@@ -39,6 +39,7 @@ export interface IDataMapperContext {
 
   sourceParameterMap: Map<string, IDocument>;
   refreshSourceParameters: () => void;
+  deleteSourceParameter: (name: string) => void;
   sourceBodyDocument: IDocument;
   setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
@@ -61,6 +62,7 @@ export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 type DataMapperProviderProps = PropsWithChildren & {
   documentInitializationModel?: DocumentInitializationModel;
   onUpdateDocument?: (definition: DocumentDefinition) => void;
+  onDeleteParameter?: (name: string) => void;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
 };
@@ -68,6 +70,7 @@ type DataMapperProviderProps = PropsWithChildren & {
 export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   documentInitializationModel,
   onUpdateDocument,
+  onDeleteParameter,
   initialXsltFile,
   onUpdateMappings,
   children,
@@ -117,6 +120,15 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
   }, [sourceParameterMap]);
+
+  const deleteSourceParameter = useCallback(
+    (name: string) => {
+      sourceParameterMap.delete(name);
+      refreshSourceParameters();
+      onDeleteParameter && onDeleteParameter(name);
+    },
+    [onDeleteParameter, refreshSourceParameters, sourceParameterMap],
+  );
 
   const refreshMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
@@ -191,6 +203,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       isSourceParametersExpanded,
       setSourceParametersExpanded,
       refreshSourceParameters,
+      deleteSourceParameter,
       sourceBodyDocument,
       setSourceBodyDocument,
       targetBodyDocument,
@@ -208,6 +221,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     sourceParameterMap,
     isSourceParametersExpanded,
     refreshSourceParameters,
+    deleteSourceParameter,
     sourceBodyDocument,
     targetBodyDocument,
     updateDocumentDefinition,

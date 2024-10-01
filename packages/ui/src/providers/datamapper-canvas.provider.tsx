@@ -61,6 +61,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
 
   useEffect(() => {
     if (mappingTree) reloadNodeReferences();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mappingTree]);
 
   const clearNodeReferencesForPath = useCallback(

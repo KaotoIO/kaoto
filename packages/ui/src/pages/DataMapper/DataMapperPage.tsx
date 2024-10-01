@@ -78,6 +78,14 @@ export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({ vizNode })
     [ctx, metadata, metadataId],
   );
 
+  const onDeleteParameter = useCallback(
+    (name: string) => {
+      if (!metadataId || !metadata) return;
+      DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
+    },
+    [ctx, metadata, metadataId],
+  );
+
   const onUpdateMappings = useCallback(
     (xsltFile: string) => {
       if (!metadata) return;
@@ -94,6 +102,7 @@ export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({ vizNode })
     <DataMapperProvider
       documentInitializationModel={documentInitializationModel}
       onUpdateDocument={onUpdateDocument}
+      onDeleteParameter={onDeleteParameter}
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
     >

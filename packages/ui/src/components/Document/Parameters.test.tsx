@@ -7,15 +7,19 @@ import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePicker
 
 describe('Parameters', () => {
   it('should add and remove a parameter', async () => {
+    const mockUpdateDocument = jest.fn();
+    const mockDeleteParameter = jest.fn();
     render(
       <BrowserFilePickerMetadataProvider>
-        <DataMapperProvider>
+        <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
           <DataMapperCanvasProvider>
             <Parameters />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
+    expect(mockUpdateDocument.mock.calls.length).toEqual(0);
+    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
     const addButton = await screen.findByTestId('add-parameter-button');
     act(() => {
       fireEvent.click(addButton);
@@ -28,6 +32,9 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(submitButton);
     });
+    expect(mockUpdateDocument.mock.calls.length).toEqual(1);
+    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
+    expect(mockUpdateDocument.mock.calls[0][0]['name']).toEqual('testparam1');
     const deleteButton = screen.getByTestId('delete-parameter-testparam1-button');
     act(() => {
       fireEvent.click(deleteButton);
@@ -36,6 +43,9 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(confirmButton);
     });
+    expect(mockUpdateDocument.mock.calls.length).toEqual(1);
+    expect(mockDeleteParameter.mock.calls.length).toEqual(1);
+    expect(mockDeleteParameter.mock.calls[0][0]).toEqual('testparam1');
     await screen.findByTestId('add-parameter-button');
     const notexist = screen.queryByTestId('delete-parameter-testparam1-button');
     expect(notexist).toBeFalsy();

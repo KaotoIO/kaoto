@@ -182,6 +182,16 @@ export class DataMapperMetadataService {
     api.setMetadata(metadataId, metadata);
   }
 
+  static async deleteSourceParameterMetadata(
+    api: IMetadataApi,
+    metadataId: string,
+    metadata: IDataMapperMetadata,
+    name: string,
+  ) {
+    delete metadata.sourceParameters[name];
+    api.setMetadata(metadataId, metadata);
+  }
+
   static async updateMappingFile(api: IMetadataApi, metadata: IDataMapperMetadata, xsltFile: string) {
     await api.saveResourceContent(metadata.xsltPath, xsltFile);
   }
