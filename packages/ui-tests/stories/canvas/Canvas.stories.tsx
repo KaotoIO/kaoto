@@ -4,6 +4,7 @@ import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   CatalogTilesProvider,
+  ControllerService,
   EntitiesProvider,
   KameletVisualEntity,
   PipeVisualEntity,
@@ -15,7 +16,9 @@ import {
   kameletJson,
   pipeJson,
 } from '@kaoto/kaoto/testing';
+import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
+import { useMemo } from 'react';
 import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
 
 const emptyPipeJson = {
@@ -46,21 +49,27 @@ const pipeEntity = new PipeVisualEntity(pipeJson);
 const kameletEntity = new KameletVisualEntity(kameletJson);
 const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson);
 
-const ContextDecorator = (Story: StoryFn) => (
-  <SourceCodeProvider>
-    <EntitiesProvider>
-      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <SchemasLoaderProvider>
-          <CatalogLoaderProvider>
-            <CatalogTilesProvider>
-              <Story />
-            </CatalogTilesProvider>
-          </CatalogLoaderProvider>
-        </SchemasLoaderProvider>
-      </RuntimeProvider>
-    </EntitiesProvider>
-  </SourceCodeProvider>
-);
+const ContextDecorator = (Story: StoryFn) => {
+  const controller = useMemo(() => ControllerService.createController(), []);
+
+  return (
+    <SourceCodeProvider>
+      <EntitiesProvider>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <CatalogTilesProvider>
+                <VisualizationProvider controller={controller}>
+                  <Story />
+                </VisualizationProvider>
+              </CatalogTilesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
+      </EntitiesProvider>
+    </SourceCodeProvider>
+  );
+};
 
 export default {
   title: 'Canvas/Canvas',
@@ -73,11 +82,9 @@ const Template: StoryFn<typeof Canvas> = (args) => {
   const firstVisibleEntity: unknown = { visibleFlows: { [visibleId]: true } };
 
   return (
-    <div style={{ height: '600px', width: '100%' }}>
-      <VisibleFlowsContext.Provider value={firstVisibleEntity as VisibleFLowsContextResult}>
-        <Canvas {...args} />
-      </VisibleFlowsContext.Provider>
-    </div>
+    <VisibleFlowsContext.Provider value={firstVisibleEntity as VisibleFLowsContextResult}>
+      <Canvas {...args} />
+    </VisibleFlowsContext.Provider>
   );
 };
 

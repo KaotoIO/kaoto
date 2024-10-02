@@ -8,7 +8,9 @@ export const camelRouteYaml = `
 - route:
     id: route-8888
     from:
-      uri: timer:tutorial
+      uri: timer
+      parameters:
+        timerName: tutorial
       steps:
       - set-header:
           simple: "\${random(2)}"
@@ -43,7 +45,10 @@ export const camelRouteJson = {
   route: {
     id: 'route-8888',
     from: {
-      uri: 'timer:tutorial',
+      uri: 'timer',
+      parameters: {
+        timerName: 'tutorial',
+      },
       steps: [
         {
           'set-header': {

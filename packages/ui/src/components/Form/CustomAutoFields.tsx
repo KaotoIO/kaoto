@@ -27,7 +27,7 @@ export function CustomAutoFields({
   const { schema } = useForm();
   const rootField = schema.getField('');
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
-  const { selectedTab } = useContext(CanvasFormTabsContext);
+  const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
   /** Special handling for oneOf schemas */
   if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
@@ -45,7 +45,7 @@ export function CustomAutoFields({
   const propertiesArray = getFieldGroups(actualFieldsSchema);
 
   if (
-    selectedTab !== 'All' &&
+    canvasFormTabsContext?.selectedTab !== 'All' &&
     propertiesArray.common.length === 0 &&
     Object.keys(propertiesArray.groups).length === 0
   ) {

@@ -1,5 +1,6 @@
 import {
   CamelRouteVisualEntity,
+  CanvasFormTabsContext,
   CanvasNode,
   CanvasSideBar,
   IVisualizationNode,
@@ -99,9 +100,16 @@ const Template: StoryFn<typeof CanvasSideBar> = (args) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleClose = () => setIsModalOpen(!isModalOpen);
   return (
-    <VisibleFlowsProvider>
-      <CanvasSideBar {...args} onClose={handleClose} />
-    </VisibleFlowsProvider>
+    <CanvasFormTabsContext.Provider
+      value={{
+        selectedTab: 'All',
+        onTabChange: () => {},
+      }}
+    >
+      <VisibleFlowsProvider>
+        <CanvasSideBar {...args} onClose={handleClose} />
+      </VisibleFlowsProvider>
+    </CanvasFormTabsContext.Provider>
   );
 };
 

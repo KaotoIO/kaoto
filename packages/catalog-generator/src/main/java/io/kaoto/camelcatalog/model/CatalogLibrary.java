@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CatalogLibrary {
+    /* Visible for testing */
+    public List<CatalogLibraryEntry> definitions = new ArrayList<>();
     private String name;
-    private List<CatalogLibraryEntry> definitions = new ArrayList<>();
 
     public String getName() {
         return name;

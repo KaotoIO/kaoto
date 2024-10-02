@@ -113,7 +113,7 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectFormTab('Required');
 
-    cy.get('.pf-v5-c-alert__title').should('contain', 'No Required Field Found');
+    cy.get('.pf-v5-c-alert__title').should('contain', 'No Required fields found');
   });
 
   it('Side panel to retain user specified fields filter', () => {

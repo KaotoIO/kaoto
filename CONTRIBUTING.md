@@ -10,7 +10,7 @@ Before you start contributing, ensure that you have the following installed:
 
 - NodeJS (>v18.x)
 - yarn (>v3.x)
-- Java 21+
+- Java 17+
 
 ### Setting Up the Project
 

@@ -133,15 +133,15 @@ describe('AbstractCamelVisualEntity', () => {
 
   describe('updateModel', () => {
     it('should update the model with the new value', () => {
-      const newUri = 'timer:MyTimer';
+      const newUri = 'timer';
       abstractVisualEntity.updateModel('from', { uri: newUri });
 
       expect(abstractVisualEntity.route.from.uri).toEqual(newUri);
     });
 
     it('should delegate the serialization to the `CamelComponentSchemaService`', () => {
-      const newUri = 'timer:MyTimer';
-      const spy = jest.spyOn(CamelComponentSchemaService, 'getUriSerializedDefinition');
+      const newUri = 'timer';
+      const spy = jest.spyOn(CamelComponentSchemaService, 'getMultiValueSerializedDefinition');
       abstractVisualEntity.updateModel('from', { uri: newUri });
 
       expect(spy).toHaveBeenCalledWith('from', { uri: newUri });

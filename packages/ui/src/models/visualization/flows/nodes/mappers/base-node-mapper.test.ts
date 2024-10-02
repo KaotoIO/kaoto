@@ -17,9 +17,9 @@ describe('BaseNodeMapper', () => {
     path = 'from';
     componentLookup = {
       processorName: 'from' as keyof ProcessorDefinition,
-      componentName: 'timer:timerName',
+      componentName: 'timer',
     };
-    entityDefinition = { uri: 'timer:timerName', steps: [] };
+    entityDefinition = { uri: 'timer', parameters: { timerName: 'timerName' }, steps: [] };
   });
 
   describe('getVizNodeFromProcessor', () => {
@@ -31,14 +31,17 @@ describe('BaseNodeMapper', () => {
         path,
         icon: expect.any(String),
         processorName: 'from',
-        componentName: 'timer:timerName',
+        componentName: 'timer',
       });
     });
 
     it('should return a VisualizationNode with children', () => {
       const routeDefinition: RouteDefinition = {
         from: {
-          uri: 'timer:timerName',
+          uri: 'timer',
+          parameters: {
+            timerName: 'timerName',
+          },
           steps: [{ log: 'logName' }, { to: 'direct:anotherRoute' }],
         },
       };
@@ -52,7 +55,10 @@ describe('BaseNodeMapper', () => {
     it('should return a VisualizationNode with special children', () => {
       const routeDefinition: RouteDefinition = {
         from: {
-          uri: 'timer:timerName',
+          uri: 'timer',
+          parameters: {
+            timerName: 'timerName',
+          },
           steps: [
             {
               doTry: {

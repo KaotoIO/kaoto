@@ -4,7 +4,10 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
 {
   "definition": {
     "from": {
-      "uri": "timer:MyTimer?period=1000",
+      "parameters": {
+        "timerName": "tutorial",
+      },
+      "uri": "timer",
     },
     "id": "route-1234",
   },

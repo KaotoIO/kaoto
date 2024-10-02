@@ -65,7 +65,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesProvider>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesProvider>,
     );
@@ -94,7 +96,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesContext.Provider value={null}>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
@@ -128,7 +132,9 @@ describe('CanvasForm', () => {
     const { container } = render(
       <EntitiesContext.Provider value={null}>
         <VisibleFlowsProvider>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsProvider>
       </EntitiesContext.Provider>,
     );
@@ -255,7 +261,9 @@ describe('CanvasForm', () => {
     render(
       <EntitiesProvider>
         <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
-          <CanvasForm selectedNode={selectedNode} />
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
         </VisibleFlowsContext.Provider>
       </EntitiesProvider>,
     );
@@ -332,7 +340,10 @@ describe('CanvasForm', () => {
     it('expression field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -425,7 +436,10 @@ describe('CanvasForm', () => {
     it('dataformat field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -515,7 +529,10 @@ describe('CanvasForm', () => {
     it('loadbalancer field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {
@@ -640,7 +657,10 @@ describe('CanvasForm', () => {
     it('expression field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               setHeader: {
@@ -682,7 +702,10 @@ describe('CanvasForm', () => {
     it('dataformat field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               marshal: {
@@ -724,7 +747,10 @@ describe('CanvasForm', () => {
     it('loadbalancer field', async () => {
       const camelRoute = {
         from: {
-          uri: 'timer:tutorial',
+          uri: 'timer',
+          parameters: {
+            timerName: 'tutorial',
+          },
           steps: [
             {
               loadBalance: {
