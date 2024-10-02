@@ -4,4 +4,5 @@ export enum SourceSchemaType {
   Kamelet = 'Kamelet',
   KameletBinding = 'KameletBinding',
   Pipe = 'Pipe',
+  Rest = 'Rest',
 }

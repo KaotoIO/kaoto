@@ -195,6 +195,16 @@ export class CamelComponentSchemaService {
           { name: 'onCompletion', type: 'array-clause' },
         ];
 
+      case 'rest' as keyof ProcessorDefinition:
+        return [
+          { name: 'get', type: 'array-clause' },
+          { name: 'post', type: 'array-clause' },
+          { name: 'put', type: 'array-clause' },
+          { name: 'delete', type: 'array-clause' },
+          { name: 'patch', type: 'array-clause' },
+          { name: 'head', type: 'array-clause' },
+        ];
+
       default:
         return [];
     }
