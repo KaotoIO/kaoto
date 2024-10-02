@@ -1,7 +1,6 @@
 // @ts-check
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { dirname, relative } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
@@ -31,13 +30,6 @@ export default defineConfig(async () => {
             },
           };
         }),
-      }),
-      codecovVitePlugin({
-        enableBundleAnalysis: true,
-        bundleName: '@kaoto/kaoto',
-        // eslint-disable-next-line no-undef
-        uploadToken: process.env.CODECOV_TOKEN,
-        gitService: 'github',
       }),
     ],
     define: {
