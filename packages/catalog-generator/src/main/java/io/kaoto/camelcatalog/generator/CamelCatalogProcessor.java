@@ -399,15 +399,31 @@ public class CamelCatalogProcessor {
             var entityName = entry.getKey();
             var entitySchema = entry.getValue();
             var entityCatalog = catalogMap.get(entityName);
+
             switch (entityName) {
-                case "beans" -> processBeansParameters(entitySchema, entityCatalog);
-                case "from" -> processFromParameters(entitySchema, entityCatalog);
-                case "route" -> processRouteParameters(entitySchema, entityCatalog);
-                case "routeTemplate" -> processRouteTemplateParameters(entitySchema, entityCatalog);
-                case "templatedRoute" -> processTemplatedRouteParameters(entitySchema, entityCatalog);
-                case "restConfiguration" -> processRestConfigurationParameters(entitySchema, entityCatalog);
-                case "rest" -> processRestParameters(entitySchema, entityCatalog);
-                case null, default -> processEntityParameters(entityName, entitySchema, entityCatalog);
+                case "beans":
+                    processBeansParameters(entitySchema, entityCatalog);
+                    break;
+                case "from":
+                    processFromParameters(entitySchema, entityCatalog);
+                    break;
+                case "route":
+                    processRouteParameters(entitySchema, entityCatalog);
+                    break;
+                case "routeTemplate":
+                    processRouteTemplateParameters(entitySchema, entityCatalog);
+                    break;
+                case "templatedRoute":
+                    processTemplatedRouteParameters(entitySchema, entityCatalog);
+                    break;
+                case "restConfiguration":
+                    processRestConfigurationParameters(entitySchema, entityCatalog);
+                    break;
+                case "rest":
+                    processRestParameters(entitySchema, entityCatalog);
+                    break;
+                default:
+                    processEntityParameters(entityName, entitySchema, entityCatalog);
             }
 
             sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog);

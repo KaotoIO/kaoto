@@ -59,7 +59,7 @@ class GenerateCommandTest {
         })) {
             generateCommand.run();
 
-            CatalogGeneratorBuilder builder = mockedBuilder.constructed().getFirst();
+            CatalogGeneratorBuilder builder = mockedBuilder.constructed().get(0);
 
             verify(builder, times(1)).withRuntime(CatalogRuntime.Main);
             verify(builder, times(1)).withCamelCatalogVersion("4.8.0");
@@ -99,12 +99,12 @@ class GenerateCommandTest {
         ) {
             generateCommand.run();
 
-            CatalogLibrary library = mockedLibrary.constructed().getFirst();
+            CatalogLibrary library = mockedLibrary.constructed().get(0);
 
             assertEquals(library.getName(), "test-camel-catalog");
             assertEquals(library.getDefinitions().size(), 1);
 
-            CatalogLibraryEntry catalogLibraryEntry = library.getDefinitions().getFirst();
+            CatalogLibraryEntry catalogLibraryEntry = library.getDefinitions().get(0);
             assertEquals(catalogLibraryEntry.name(), "test-camel-catalog");
             assertEquals(catalogLibraryEntry.version(), "4.8.0");
             assertEquals(catalogLibraryEntry.runtime(), "Main");
