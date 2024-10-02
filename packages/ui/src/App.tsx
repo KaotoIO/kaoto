@@ -16,6 +16,8 @@ import {
 } from './providers';
 import { isDefined } from './utils';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
+import { RegisterNodeInteractionAddons } from './components/registers/RegisterNodeInteractionAddons';
+import { NodeInteractionAddonProvider } from './components/registers/interactions/node-interaction-addon.provider';
 
 function App() {
   const ReloadProvider = useReload();
@@ -40,7 +42,11 @@ function App() {
                       <VisibleFlowsProvider>
                         <RenderingProvider>
                           <RegisterComponents>
-                            <Outlet />
+                            <NodeInteractionAddonProvider>
+                              <RegisterNodeInteractionAddons>
+                                <Outlet />
+                              </RegisterNodeInteractionAddons>
+                            </NodeInteractionAddonProvider>
                           </RegisterComponents>
                         </RenderingProvider>
                       </VisibleFlowsProvider>

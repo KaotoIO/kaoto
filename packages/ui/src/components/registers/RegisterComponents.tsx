@@ -6,6 +6,7 @@ import { datamapperActivationFn } from './datamapper.activationfn';
 
 export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const { registerComponent } = useContext(RenderingAnchorContext);
+
   const componentsToRegister = useRef<IRegisteredComponent[]>([
     {
       anchor: Anchors.CanvasFormHeader,

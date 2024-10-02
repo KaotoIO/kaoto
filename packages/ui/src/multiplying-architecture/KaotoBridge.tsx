@@ -24,6 +24,8 @@ import {
   VisibleFlowsProvider,
 } from '../providers';
 import { EventNotifier } from '../utils';
+import { NodeInteractionAddonProvider } from '../components/registers/interactions/node-interaction-addon.provider';
+import { RegisterNodeInteractionAddons } from '../components/registers/RegisterNodeInteractionAddons';
 
 interface KaotoBridgeProps {
   /**
@@ -213,7 +215,11 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
                 <VisibleFlowsProvider>
                   <RenderingProvider>
                     <MetadataProvider api={metadataApi}>
-                      <RegisterComponents>{children}</RegisterComponents>
+                      <RegisterComponents>
+                        <NodeInteractionAddonProvider>
+                          <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+                        </NodeInteractionAddonProvider>
+                      </RegisterComponents>
                     </MetadataProvider>
                   </RenderingProvider>
                 </VisibleFlowsProvider>

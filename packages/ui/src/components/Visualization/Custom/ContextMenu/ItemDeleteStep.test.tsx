@@ -1,12 +1,15 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { ItemDeleteStep } from './ItemDeleteStep';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 
 describe('ItemDeleteStep', () => {
   const vizNode = createVisualizationNode('test', {});
   const mockVizNode = {
     removeChild: jest.fn(),
+    getChildren: jest.fn(),
   } as unknown as IVisualizationNode;
 
   const mockDeleteModalContext = {
@@ -49,6 +52,32 @@ describe('ItemDeleteStep', () => {
 
     await waitFor(() => {
       expect(mockVizNode.removeChild).toHaveBeenCalled();
+    });
+  });
+
+  it('should process addon when deleting', async () => {
+    const mockDeleteModalContext = {
+      actionConfirmation: () => Promise.resolve(true),
+    };
+    const mockAddon = jest.fn();
+    const mockNodeInteractionAddonContext = {
+      registerInteractionAddon: jest.fn(),
+      getRegisteredInteractionAddons: (_interaction: IInteractionAddonType, _vizNode: IVisualizationNode) => [
+        { type: IInteractionAddonType.ON_DELETE, activationFn: () => true, callback: mockAddon },
+      ],
+    };
+    const wrapper = render(
+      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+        <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+          <ItemDeleteStep vizNode={vizNode} loadActionConfirmationModal={false} />
+        </NodeInteractionAddonContext.Provider>
+      </ActionConfirmationModalContext.Provider>,
+    );
+    act(() => {
+      fireEvent.click(wrapper.getByText('Delete'));
+    });
+    await waitFor(() => {
+      expect(mockAddon).toHaveBeenCalledWith(vizNode);
     });
   });
 });

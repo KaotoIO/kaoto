@@ -30,7 +30,7 @@ export class DataMapperMetadataService {
       // eslint-disable-next-line
       const xsltStep = model.steps.find((step: any) => step.to?.uri?.startsWith('xslt'));
       const splitted = xsltStep?.to?.uri?.split(':');
-      let xsltFileName = `${model.id}.xsl`;
+      let xsltFileName = `${metadataId}.xsl`;
       if (splitted.length < 2) {
         xsltStep.to.uri = `xslt:${xsltFileName}`;
         vizNode.updateModel(model);
@@ -203,5 +203,9 @@ export class DataMapperMetadataService {
         'Choose the schema file to attach. Type a text to narrow down the candidates. The file path is shown as a relative path from the active Camel file opening with Kaoto.',
       title: 'Attaching document schema file',
     });
+  }
+
+  static deleteMetadata(api: IMetadataApi, metadataId: string) {
+    api.setMetadata(metadataId, undefined);
   }
 }

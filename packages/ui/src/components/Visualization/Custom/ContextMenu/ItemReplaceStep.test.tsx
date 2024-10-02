@@ -1,9 +1,12 @@
-import { fireEvent, render } from '@testing-library/react';
-import { createVisualizationNode } from '../../../../models';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { ItemReplaceStep } from './ItemReplaceStep';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { CatalogModalContext } from '../../../../providers';
 
 describe('ItemReplaceStep', () => {
   const vizNode = createVisualizationNode('test', {});
@@ -47,6 +50,40 @@ describe('ItemReplaceStep', () => {
     expect(mockReplaceModalContext.actionConfirmation).toHaveBeenCalledWith({
       title: 'Replace step?',
       text: 'Step and its children will be lost.',
+    });
+  });
+
+  it('should process addon when replacing', async () => {
+    const mockCatalogModalContext = {
+      setIsModalOpen: jest.fn(),
+      getNewComponent: () => Promise.resolve({} as DefinedComponent),
+    };
+    const mockReplaceModalContext = {
+      actionConfirmation: () => Promise.resolve(true),
+    };
+    const mockAddon = jest.fn();
+    const mockNodeInteractionAddonContext = {
+      registerInteractionAddon: jest.fn(),
+      getRegisteredInteractionAddons: (_interaction: IInteractionAddonType, _vizNode: IVisualizationNode) => [
+        { type: IInteractionAddonType.ON_DELETE, activationFn: () => true, callback: mockAddon },
+      ],
+    };
+    const wrapper = render(
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <ActionConfirmationModalContext.Provider value={mockReplaceModalContext}>
+            <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+              <ItemReplaceStep vizNode={vizNode} loadActionConfirmationModal={false} />
+            </NodeInteractionAddonContext.Provider>
+          </ActionConfirmationModalContext.Provider>
+        </CatalogModalContext.Provider>
+      </EntitiesContext.Provider>,
+    );
+    act(() => {
+      fireEvent.click(wrapper.getByText('Replace'));
+    });
+    await waitFor(() => {
+      expect(mockAddon).toHaveBeenCalledWith(vizNode);
     });
   });
 });
