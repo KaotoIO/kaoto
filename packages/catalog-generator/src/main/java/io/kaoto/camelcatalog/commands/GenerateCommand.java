@@ -1,22 +1,20 @@
 package io.kaoto.camelcatalog.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import io.kaoto.camelcatalog.beans.ConfigBean;
 import io.kaoto.camelcatalog.generator.CatalogGeneratorBuilder;
 import io.kaoto.camelcatalog.model.CatalogDefinition;
 import io.kaoto.camelcatalog.model.CatalogLibrary;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 public class GenerateCommand implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(GenerateCommand.class.getName());
-    private ConfigBean configBean;
+    private final ConfigBean configBean;
 
     public GenerateCommand(ConfigBean configBean) {
         this.configBean = configBean;
