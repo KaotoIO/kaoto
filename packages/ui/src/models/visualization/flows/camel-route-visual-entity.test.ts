@@ -120,7 +120,7 @@ describe('Camel Route', () => {
 
       camelEntity.getComponentSchema('from.uri');
 
-      expect(spy).toHaveBeenCalledWith('from.uri', 'timer:tutorial');
+      expect(spy).toHaveBeenCalledWith('from.uri', 'timer');
     });
   });
 

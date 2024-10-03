@@ -1,9 +1,19 @@
 package io.kaoto.camelcatalog.model;
 
 public enum CatalogRuntime {
-    Main,
-    Quarkus,
-    SpringBoot;
+    Main("Main"),
+    Quarkus("Quarkus"),
+    SpringBoot("Spring Boot");
+
+    private final String label;
+
+    private CatalogRuntime(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
 
     public static CatalogRuntime fromString(String name) {
         for (CatalogRuntime runtime : CatalogRuntime.values()) {

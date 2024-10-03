@@ -77,8 +77,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
-    let updatedValue = CamelComponentSchemaService.getUriSerializedDefinition(path, value);
-    updatedValue = CamelComponentSchemaService.getMultiValueSerializedDefinition(path, updatedValue);
+    const updatedValue = CamelComponentSchemaService.getMultiValueSerializedDefinition(path, value);
 
     setValue(this.route, path, updatedValue);
   }

@@ -11,10 +11,9 @@
   <description>A Camel Catalog generator for Kaoto.</description>
   <url>https://kaoto.io</url>
   <properties>
-    <compiler-plugin.version>3.13.0</compiler-plugin.version>
-    <maven.compiler.release>21</maven.compiler.release>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <version.camel>4.8.0</version.camel>
@@ -23,6 +22,7 @@
     <version.jackson>2.17.2</version.jackson>
     <version.junit>5.11.0</version.junit>
     <version.kubernetes-model>6.13.3</version.kubernetes-model>
+    <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
     <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
     <version.maven-surefire-plugin>3.5.0</version.maven-surefire-plugin>
   </properties>
@@ -159,6 +159,26 @@
             <classPattern>io.kaoto.camelcatalog.model.*</classPattern>
           </classPatterns>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${version.maven-enforcer-plugin}</version>
+        <executions>
+          <execution>
+            <id>enforce-java-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[17,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

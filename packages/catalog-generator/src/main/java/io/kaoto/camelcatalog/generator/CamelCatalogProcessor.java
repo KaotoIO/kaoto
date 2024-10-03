@@ -22,6 +22,7 @@ import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.EipModel.EipOptionModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
@@ -200,11 +201,24 @@ public class CamelCatalogProcessor {
      * @throws Exception
      */
     public String getDataFormatCatalog() throws Exception {
+        var catalogMap = new LinkedHashMap<String, EipModel>();
+        for (var name : camelCatalog.findDataFormatNames()) {
+            var modelCatalog = camelCatalog.dataFormatModel(name);
+            catalogMap.put(modelCatalog.getName(), camelCatalog.eipModel(name));
+        }
         var answer = jsonMapper.createObjectNode();
         var dataFormatSchemaMap = schemaProcessor.getDataFormats();
         for (var entry : dataFormatSchemaMap.entrySet()) {
             var dataFormatName = entry.getKey();
             var dataFormatSchema = entry.getValue();
+            EipModel eipModel = catalogMap.get(dataFormatName);
+            List<EipOptionModel> eipModelOptions = Arrays.asList();
+            if (eipModel != null) {
+                eipModelOptions = eipModel.getOptions();
+            }
+
+            sortPropertiesAccordingToCamelCatalog(dataFormatSchema, eipModelOptions); 
+
             var dataFormatCatalog = (EipModel) camelCatalog.model(Kind.eip, dataFormatName);
             if (dataFormatCatalog == null) {
                 throw new Exception("DataFormat " + dataFormatName + " is not found in Camel model catalog.");
@@ -230,9 +244,22 @@ public class CamelCatalogProcessor {
     public String getLanguageCatalog() throws Exception {
         var answer = jsonMapper.createObjectNode();
         var languageSchemaMap = schemaProcessor.getLanguages();
+        var catalogMap = new LinkedHashMap<String, EipModel>();
+        for (var name : camelCatalog.findLanguageNames()) {
+            var modelCatalog = camelCatalog.languageModel(name);
+            catalogMap.put(modelCatalog.getName(), camelCatalog.eipModel(name));
+        }
         for (var entry : languageSchemaMap.entrySet()) {
             var languageName = entry.getKey();
             var languageSchema = entry.getValue();
+            EipModel eipModel = catalogMap.get(languageName);
+            List<EipOptionModel> eipModelOptions = Arrays.asList();
+            if (eipModel != null) {
+                eipModelOptions = eipModel.getOptions();
+            }
+
+            sortPropertiesAccordingToCamelCatalog(languageSchema, eipModelOptions); 
+
             var languageCatalog = (EipModel) camelCatalog.model(Kind.eip, languageName);
             if (languageCatalog == null) {
                 throw new Exception("Language " + languageName + " is not found in Camel model catalog.");
@@ -399,18 +426,34 @@ public class CamelCatalogProcessor {
             var entityName = entry.getKey();
             var entitySchema = entry.getValue();
             var entityCatalog = catalogMap.get(entityName);
+
             switch (entityName) {
-                case "beans" -> processBeansParameters(entitySchema, entityCatalog);
-                case "from" -> processFromParameters(entitySchema, entityCatalog);
-                case "route" -> processRouteParameters(entitySchema, entityCatalog);
-                case "routeTemplate" -> processRouteTemplateParameters(entitySchema, entityCatalog);
-                case "templatedRoute" -> processTemplatedRouteParameters(entitySchema, entityCatalog);
-                case "restConfiguration" -> processRestConfigurationParameters(entitySchema, entityCatalog);
-                case "rest" -> processRestParameters(entitySchema, entityCatalog);
-                case null, default -> processEntityParameters(entityName, entitySchema, entityCatalog);
+                case "beans":
+                    processBeansParameters(entitySchema, entityCatalog);
+                    break;
+                case "from":
+                    processFromParameters(entitySchema, entityCatalog);
+                    break;
+                case "route":
+                    processRouteParameters(entitySchema, entityCatalog);
+                    break;
+                case "routeTemplate":
+                    processRouteTemplateParameters(entitySchema, entityCatalog);
+                    break;
+                case "templatedRoute":
+                    processTemplatedRouteParameters(entitySchema, entityCatalog);
+                    break;
+                case "restConfiguration":
+                    processRestConfigurationParameters(entitySchema, entityCatalog);
+                    break;
+                case "rest":
+                    processRestParameters(entitySchema, entityCatalog);
+                    break;
+                default:
+                    processEntityParameters(entityName, entitySchema, entityCatalog);
             }
 
-            sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog);
+            sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog.getOptions());
 
             var json = JsonMapper.asJsonObject(entityCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
@@ -608,11 +651,11 @@ public class CamelCatalogProcessor {
         }
     }
 
-    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, EipModel entityCatalog) {
+    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, List<EipOptionModel> entityCatalogOptions) {
         var sortedSchemaProperties = jsonMapper.createObjectNode();
         var camelYamlDslProperties = entitySchema.withObject("/properties").properties().stream().map(Map.Entry::getKey)
                 .sorted(
-                        new CamelYamlDSLKeysComparator(entityCatalog.getOptions()))
+                        new CamelYamlDSLKeysComparator(entityCatalogOptions))
                 .toList();
 
         for (var propertyName : camelYamlDslProperties) {

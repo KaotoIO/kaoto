@@ -2,7 +2,6 @@ import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput, Toolti
 import { CheckIcon, PencilAltIcon, TimesIcon, TrashIcon } from '@patternfly/react-icons';
 import { Td, TdProps, TreeRowWrapper } from '@patternfly/react-table';
 import { FormEvent, useState } from 'react';
-import './PropertyRow.scss';
 import { AddPropertyButtons } from './AddPropertyButtons';
 
 type PropertyRowProps = {
@@ -97,7 +96,12 @@ export function PropertyRow({
 
   return (
     <TreeRowWrapper key={getKey()} row={{ props: treeRow!.props }}>
-      <Td className="property-row__value" dataLabel="NAME" treeRow={treeRow}>
+      <Td
+        data-testid={`${getKey()}-name-label`}
+        className="properties-field__row__value"
+        dataLabel="NAME"
+        treeRow={treeRow}
+      >
         {isEditing ? (
           <>
             <TextInput
@@ -118,33 +122,29 @@ export function PropertyRow({
             )}
           </>
         ) : (
-          <div data-testid={`${getKey()}-name-label`}>{nodeName}</div>
+          <>{nodeName}</>
         )}
       </Td>
-      <Td className="property-row__value" dataLabel="VALUE">
-        {(() => {
-          if (isObject && !isEditing) {
-            return <AddPropertyButtons path={path} createPlaceholder={createPlaceholder} />;
-          } else if (!isObject && isEditing) {
-            return (
-              <TextInput
-                aria-label={`${getKey()}-value`}
-                data-testid={`${getKey()}-value-input`}
-                name={`properties-input-${getKey()}-value`}
-                type="text"
-                value={userInputValue}
-                onKeyDown={(event) => event.stopPropagation()}
-                onChange={(event, value) => handleUserInputValue(value, event)}
-              />
-            );
-          } else if (!isObject && !isEditing) {
-            return <span data-testid={`${getKey()}-value-label`}>{nodeValue}</span>;
-          } else {
-            return <></>;
-          }
-        })()}
+
+      <Td data-testid={`${getKey()}-value-label`} className="properties-field__row__value" dataLabel="VALUE">
+        {isObject && !isEditing && <AddPropertyButtons path={path} createPlaceholder={createPlaceholder} />}
+
+        {!isObject && isEditing && (
+          <TextInput
+            aria-label={`${getKey()}-value`}
+            data-testid={`${getKey()}-value-input`}
+            name={`properties-input-${getKey()}-value`}
+            type="text"
+            value={userInputValue}
+            onKeyDown={(event) => event.stopPropagation()}
+            onChange={(event, value) => handleUserInputValue(value, event)}
+          />
+        )}
+
+        {!isObject && !isEditing && <>{nodeValue}</>}
       </Td>
-      <Td isActionCell>
+
+      <Td isActionCell className="properties-field__row__action" data-column-type="action">
         <Split>
           {isEditing
             ? [

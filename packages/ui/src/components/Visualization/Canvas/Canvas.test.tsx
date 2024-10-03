@@ -1,31 +1,52 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { VisualizationProvider } from '@patternfly/react-topology';
+import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
+import { ActionConfirmationModalContextProvider } from '../../../providers';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFLowsContextResult } from '../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
-import { ActionConfirmationModalContextProvider } from '../../../providers';
+import { ControllerService } from './controller.service';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
   const entity2 = { ...entity, id: 'route-9999' } as CamelRouteVisualEntity;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
 
   it('should render correctly', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper({
       visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
     });
-    const result = render(
-      <Provider>
-        <Canvas entities={[entity]} />
-      </Provider>,
-    );
 
-    await waitFor(async () => expect(result.container.querySelector('#fit-to-screen')).toBeInTheDocument());
-    expect(result.container).toMatchSnapshot();
+    let result: RenderResult | undefined;
+
+    await act(async () => {
+      result = render(
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas entities={[entity]} />
+          </VisualizationProvider>
+        </Provider>,
+      );
+    });
+
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    await waitFor(async () => expect(screen.getByText('Reset View')).toBeInTheDocument());
+    expect(result?.asFragment()).toMatchSnapshot();
   });
 
   it('should render correctly with more routes ', async () => {
@@ -34,14 +55,25 @@ describe('Canvas', () => {
         visibleFlows: { ['route-8888']: true, ['route-9999']: false },
       } as unknown as VisibleFLowsContextResult,
     });
-    const result = render(
-      <Provider>
-        <Canvas entities={[entity, entity2]} />
-      </Provider>,
-    );
 
-    await waitFor(async () => expect(result.container.querySelector('#fit-to-screen')).toBeInTheDocument());
-    expect(result.container).toMatchSnapshot();
+    let result: RenderResult | undefined;
+
+    await act(async () => {
+      result = render(
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas entities={[entity, entity2]} />
+          </VisualizationProvider>
+        </Provider>,
+      );
+    });
+
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    await waitFor(async () => expect(screen.getByText('Reset View')).toBeInTheDocument());
+    expect(result?.asFragment()).toMatchSnapshot();
   });
 
   it('should be able to delete the routes', async () => {
@@ -55,16 +87,31 @@ describe('Canvas', () => {
         visibleFlows: { ['route-8888']: true },
       } as unknown as VisibleFLowsContextResult,
     });
-    const wrapper = render(
-      <ActionConfirmationModalContextProvider>
-        <Provider>
-          <Canvas entities={routeEntities} />
-        </Provider>
-      </ActionConfirmationModalContextProvider>,
-    );
+
+    let result: RenderResult | undefined;
+
+    await act(async () => {
+      result = render(
+        <ActionConfirmationModalContextProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas entities={routeEntities} />
+            </VisualizationProvider>
+          </Provider>
+        </ActionConfirmationModalContextProvider>,
+      );
+    });
+
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    const route = result?.getByText('route-8888');
+    if (!route) {
+      fail('Route not found');
+    }
 
     // Right click anywhere on the container label
-    const route = wrapper.getByText('route-8888');
     await act(async () => {
       fireEvent.contextMenu(route);
     });
@@ -102,17 +149,30 @@ describe('Canvas', () => {
       } as unknown as VisibleFLowsContextResult,
     });
 
-    const wrapper = render(
-      <ActionConfirmationModalContextProvider>
-        <Provider>
-          <Canvas entities={kameletEntities} />
-        </Provider>
-      </ActionConfirmationModalContextProvider>,
-    );
+    let result: RenderResult | undefined;
+
+    await act(async () => {
+      result = render(
+        <ActionConfirmationModalContextProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas entities={kameletEntities} />
+            </VisualizationProvider>
+          </Provider>
+        </ActionConfirmationModalContextProvider>,
+      );
+    });
+
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    const kamelet = result?.getByText('user-source');
+    if (!kamelet) {
+      fail('Kamelet not found');
+    }
 
     // Right click anywhere on the container label
-    const kamelet = wrapper.getByText('user-source');
-    // const route = document.querySelectorAll('.pf-topology__group');
     await act(async () => {
       fireEvent.contextMenu(kamelet);
     });
@@ -137,22 +197,58 @@ describe('Canvas', () => {
     expect(removeSpy).toHaveBeenCalled();
   });
 
-  it('should render the Catalog button if `CatalogModalContext` is provided', async () => {
-    const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
-    });
-    const result = render(
-      <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn() }}>
-        <Provider>
-          <Canvas entities={[entity]} />
-        </Provider>
-      </CatalogModalContext.Provider>,
-    );
+  describe('Catalog button', () => {
+    it('should be present if `CatalogModalContext` is provided', async () => {
+      const { Provider } = TestProvidersWrapper({
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
+      });
 
-    await waitFor(async () =>
-      expect(result.container.querySelector('#topology-control-bar-catalog-button')).toBeInTheDocument(),
-    );
-    expect(result.container).toMatchSnapshot();
+      let result: RenderResult | undefined;
+
+      await act(async () => {
+        result = render(
+          <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn() }}>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas entities={[entity]} />
+              </VisualizationProvider>
+            </Provider>
+          </CatalogModalContext.Provider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(async () => expect(screen.getByText('Open Catalog')).toBeInTheDocument());
+      expect(result?.asFragment()).toMatchSnapshot();
+    });
+
+    it('should NOT be present if `CatalogModalContext` is NOT provided', async () => {
+      const { Provider } = TestProvidersWrapper({
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
+      });
+
+      let result: RenderResult | undefined;
+
+      await act(async () => {
+        result = render(
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas entities={[entity]} />
+            </VisualizationProvider>
+          </Provider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(async () => expect(screen.queryByText('Open Catalog')).not.toBeInTheDocument());
+      expect(result?.asFragment()).toMatchSnapshot();
+    });
   });
 
   describe('Empty state', () => {
@@ -160,28 +256,49 @@ describe('Canvas', () => {
       const { Provider } = TestProvidersWrapper({
         visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFLowsContextResult,
       });
-      const result = render(
-        <Provider>
-          <Canvas entities={[]} />
-        </Provider>,
-      );
 
-      await waitFor(async () => expect(result.getByTestId('visualization-empty-state')).toBeInTheDocument());
-      expect(result.container).toMatchSnapshot();
+      let result: RenderResult | undefined;
+
+      await act(async () => {
+        result = render(
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas entities={[]} />
+            </VisualizationProvider>
+          </Provider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
+      expect(result?.asFragment()).toMatchSnapshot();
     });
 
     it('should render empty state when there is no visible flows', async () => {
       const { Provider } = TestProvidersWrapper({
         visibleFlowsContext: { visibleFlows: { ['route-8888']: false } } as unknown as VisibleFLowsContextResult,
       });
-      const result = render(
-        <Provider>
-          <Canvas entities={[entity]} />
-        </Provider>,
-      );
+      let result: RenderResult | undefined;
 
-      await waitFor(async () => expect(result.getByTestId('visualization-empty-state')).toBeInTheDocument());
-      expect(result.container).toMatchSnapshot();
+      await act(async () => {
+        result = render(
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas entities={[entity]} />
+            </VisualizationProvider>
+          </Provider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
+      expect(result?.container).toMatchSnapshot();
     });
   });
 });

@@ -27,3 +27,8 @@
   --pf-v5-c-toolbar__content--PaddingRight: 0;
   --pf-v5-c-toolbar--RowGap: 0;
 }
+
+// Override for the default patternfly class
+.pf-v5-u-m-sm {
+  margin: var(--pf-v5-global--spacer--sm);
+}

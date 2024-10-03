@@ -3,7 +3,7 @@ describe('Tests for SpringBoot catalog type', () => {
     cy.openHomePage();
   });
 
-  const runtime = 'SpringBoot';
+  const runtime = 'Spring Boot';
 
   it('Camel SpringBoot catalog type with CR', () => {
     cy.selectRuntimeVersion(runtime);

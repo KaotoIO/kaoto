@@ -1,11 +1,13 @@
+import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactNode, useMemo } from 'react';
 import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
+import { CanvasFormTabsProvider } from '../../providers';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
+import { ControllerService } from './Canvas/controller.service';
 import { CanvasFallback } from './CanvasFallback';
-import './Visualization.scss';
 import { ContextToolbar } from './ContextToolbar/ContextToolbar';
-import { CanvasFormTabsProvider } from '../../providers';
+import './Visualization.scss';
 
 interface CanvasProps {
   className?: string;
@@ -14,15 +16,17 @@ interface CanvasProps {
 }
 
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
-  const lastUpdate = useMemo(() => Date.now(), [props.entities]);
+  const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
-    <div className={`canvas-surface ${props.className ?? ''}`}>
-      <ErrorBoundary key={lastUpdate} fallback={props.fallback ?? <CanvasFallback />}>
+    <VisualizationProvider controller={controller}>
+      <div className={`canvas-surface ${props.className ?? ''}`}>
         <CanvasFormTabsProvider>
-          <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+          <ErrorBoundary fallback={props.fallback ?? <CanvasFallback />}>
+            <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+          </ErrorBoundary>
         </CanvasFormTabsProvider>
-      </ErrorBoundary>
-    </div>
+      </div>
+    </VisualizationProvider>
   );
 };

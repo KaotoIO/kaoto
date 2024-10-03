@@ -26,7 +26,10 @@ describe('ParallelProcessorBaseNodeMapper', () => {
       it('should return a VisualizationNode', () => {
         routeDefinition = {
           from: {
-            uri: 'timer:timerName',
+            uri: 'timer',
+            parameters: {
+              timerName: 'timerName',
+            },
             steps: [
               {
                 [processorName]: {
@@ -50,7 +53,10 @@ describe('ParallelProcessorBaseNodeMapper', () => {
       it('should return a VisualizationNode with children', () => {
         routeDefinition = {
           from: {
-            uri: 'timer:timerName',
+            uri: 'timer',
+            parameters: {
+              timerName: 'timerName',
+            },
             steps: [
               {
                 [processorName]: {

@@ -16,7 +16,7 @@ interface CanvasFormTabsProps {
 
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const { selectedTab } = useContext(CanvasFormTabsContext);
+  const { selectedTab } = useContext(CanvasFormTabsContext) ?? { selectedTab: 'Required' };
   const divRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<CustomAutoFormRef>(null);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getOmitFormFields() || []);

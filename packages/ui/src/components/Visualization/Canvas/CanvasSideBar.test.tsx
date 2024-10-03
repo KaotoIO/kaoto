@@ -2,6 +2,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelRouteResource } from '../../../models/camel';
 import { EntityType } from '../../../models/camel/entities';
+import { CanvasFormTabsProvider } from '../../../providers';
 import { TestProvidersWrapper } from '../../../stubs/TestProvidersWrapper';
 import { CanvasNode } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
@@ -20,7 +21,11 @@ describe('CanvasSideBar', () => {
   });
 
   it('does not render anything if there is no selectedNode', () => {
-    const wrapper = render(<CanvasSideBar selectedNode={undefined} onClose={() => {}} />);
+    const wrapper = render(
+      <CanvasFormTabsProvider>
+        <CanvasSideBar selectedNode={undefined} onClose={() => {}} />
+      </CanvasFormTabsProvider>,
+    );
 
     expect(wrapper.container).toBeEmptyDOMElement();
   });
@@ -28,7 +33,9 @@ describe('CanvasSideBar', () => {
   it('displays selected node information', () => {
     const wrapper = render(
       <Provider>
-        <CanvasSideBar selectedNode={selectedNode} onClose={() => {}} />
+        <CanvasFormTabsProvider>
+          <CanvasSideBar selectedNode={selectedNode} onClose={() => {}} />
+        </CanvasFormTabsProvider>
       </Provider>,
     );
 
@@ -40,7 +47,9 @@ describe('CanvasSideBar', () => {
 
     const wrapper = render(
       <Provider>
-        <CanvasSideBar selectedNode={selectedNode} onClose={onCloseSpy} />
+        <CanvasFormTabsProvider>
+          <CanvasSideBar selectedNode={selectedNode} onClose={onCloseSpy} />
+        </CanvasFormTabsProvider>
       </Provider>,
     );
 
