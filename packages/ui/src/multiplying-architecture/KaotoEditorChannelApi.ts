@@ -28,14 +28,21 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
 
   /**
    * Retrieve resource content
-   * @param path The path of the resource
+   * @param path The path of the resource relatively to the currently edited Camel file
    */
   getResourceContent(path: string): Promise<string | undefined>;
 
   /**
    * Save resource content
-   * @param path The path of the resource
+   * @param path The path of the resource relatively to the currently edited Camel file
    * @param content The content to be saved
    */
   saveResourceContent(path: string, content: string): Promise<void>;
+
+  /**
+   * Delete resource
+   * @param path The path of the resource relatively to the currently edited Camel file
+   * @return If the deletion was done succesfully
+   */
+  deleteResource(path: string): Promise<boolean>;
 }
