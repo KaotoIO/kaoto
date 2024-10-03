@@ -46,7 +46,12 @@ describe('getCustomSchemaFromKamelet', () => {
           from: {
             steps: [
               {
-                to: 'https://random-data-api.com/api/v2/users',
+                to: {
+                  uri: 'https',
+                  parameters: {
+                    httpUri: 'random-data-api.com/api/v2/users',
+                  },
+                },
               },
               {
                 to: 'kamelet:sink',
@@ -55,8 +60,9 @@ describe('getCustomSchemaFromKamelet', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
+              timerName: 'user',
             },
-            uri: 'timer:user',
+            uri: 'timer',
           },
         },
         types: {
@@ -185,7 +191,12 @@ describe('getCustomSchemaFromKamelet', () => {
           from: {
             steps: [
               {
-                to: 'https://random-data-api.com/api/v2/users',
+                to: {
+                  uri: 'https',
+                  parameters: {
+                    httpUri: 'random-data-api.com/api/v2/users',
+                  },
+                },
               },
               {
                 to: 'kamelet:sink',
@@ -194,8 +205,9 @@ describe('getCustomSchemaFromKamelet', () => {
             id: 'from-3836',
             parameters: {
               period: '{{period}}',
+              timerName: 'user',
             },
-            uri: 'timer:user',
+            uri: 'timer',
           },
         },
         types: {

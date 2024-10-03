@@ -37,11 +37,15 @@ spec:
     - "camel:kamelet"
   template:
     from:
-      uri: "timer:user"
+      uri: "timer"
       parameters:
         period: "{{period}}"
+        timerName: "user"
       steps:
-      - to: https://random-data-api.com/api/v2/users
+      - to:
+          parameters:
+            httpUri: random-data-api.com/api/v2/users?
+          uri: https
       - to: "kamelet:sink"
 `;
 

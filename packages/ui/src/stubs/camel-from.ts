@@ -7,10 +7,14 @@ import { CamelRouteVisualEntity } from '../models/visualization/flows';
  */
 export const camelFromYaml = `
 - from:
-    uri: timer:tutorial
+    uri: timer
+    parameters:
+      timerName: tutorial
     steps:
     - to:
-        uri: direct:my-route
+        uri: direct
+        parameters:
+          name: my-route
 `;
 
 /**
@@ -19,7 +23,10 @@ export const camelFromYaml = `
  */
 export const camelFromJson: { from: FromDefinition } = {
   from: {
-    uri: 'timer:tutorial',
+    uri: 'timer',
+    parameters: {
+      timerName: 'tutorial',
+    },
     steps: [
       {
         to: {

@@ -1,4 +1,5 @@
 import {
+  CanvasFormTabsContext,
   CanvasNode,
   CanvasSideBar,
   IVisualizationNode,
@@ -8,13 +9,14 @@ import {
   VisibleFlowsProvider,
   VisualComponentSchema,
 } from '@kaoto/kaoto/testing';
+import { NodeShape } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
 
 const selectedNode: CanvasNode = {
   id: 'aggregate-6839',
   label: 'aggregate',
   parentNode: undefined,
-  shape: 'rect',
+  shape: NodeShape.rect,
   type: 'node',
   data: {
     vizNode: {
@@ -272,9 +274,16 @@ export default {
 
 const Template: StoryFn<typeof CanvasSideBar> = (args) => {
   return (
-    <VisibleFlowsProvider>
-      <CanvasSideBar {...args} onClose={() => {}} />
-    </VisibleFlowsProvider>
+    <CanvasFormTabsContext.Provider
+      value={{
+        selectedTab: 'All',
+        onTabChange: () => {},
+      }}
+    >
+      <VisibleFlowsProvider>
+        <CanvasSideBar {...args} onClose={() => {}} />
+      </VisibleFlowsProvider>
+    </CanvasFormTabsContext.Provider>
   );
 };
 

@@ -1,9 +1,19 @@
-import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import {
+  FunctionComponent,
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import {
   IVisibleFlows,
   VisibleFlowsReducer,
   VisualFlowsApi,
 } from '../models/visualization/flows/support/flows-visibility';
+import { initVisibleFlows } from '../utils';
 import { EntitiesContext } from './entities.provider';
 
 export interface VisibleFLowsContextResult {
@@ -14,23 +24,24 @@ export interface VisibleFLowsContextResult {
 export const VisibleFlowsContext = createContext<VisibleFLowsContextResult | undefined>(undefined);
 
 export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props) => {
+  const isMountingRef = useRef(true);
   const entitiesContext = useContext(EntitiesContext);
-  const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, {});
+  const visualEntitiesIds = useMemo(
+    () => entitiesContext?.visualEntities.map((entity) => entity.id) ?? [],
+    [entitiesContext?.visualEntities],
+  );
+
+  const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, {}, () => initVisibleFlows(visualEntitiesIds));
   const visualFlowsApi = useMemo(() => {
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
 
   useEffect(() => {
-    const flows: IVisibleFlows = {};
-
-    entitiesContext?.visualEntities.forEach((visualEntity) => (flows[visualEntity.id] = visibleFlows[visualEntity.id]));
-    const hiddenAll = Object.values(flows).every((visible) => !visible);
-    if (hiddenAll && (entitiesContext?.visualEntities.length ?? 0) > 0) {
-      flows[entitiesContext!.visualEntities[0].id] = true;
+    if (!isMountingRef.current) {
+      visualFlowsApi.initVisibleFlows(visualEntitiesIds);
     }
-
-    visualFlowsApi.initVisibleFlows(flows);
-  }, [entitiesContext, visualFlowsApi]);
+    isMountingRef.current = false;
+  }, [visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {
     return {

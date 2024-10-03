@@ -1,18 +1,20 @@
 import { Icon } from '@patternfly/react-core';
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
-  GRAPH_LAYOUT_END_EVENT,
   Model,
   SELECTION_EVENT,
+  SelectionEventListener,
   TopologyControlBar,
   TopologyControlButton,
   TopologyView,
-  VisualizationProvider,
   VisualizationSurface,
   action,
   createTopologyControlButtons,
   defaultControlButtonsOptions,
+  useEventListener,
+  useVisualizationController,
 } from '@patternfly/react-topology';
+import clsx from 'clsx';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -31,23 +33,22 @@ import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { VisualizationEmptyState } from '../EmptyState';
+import './Canvas.scss';
 import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
-import { ControllerService } from './controller.service';
 import { FlowService } from './flow.service';
-import './Canvas.scss';
 
 interface CanvasProps {
-  contextToolbar?: ReactNode;
   entities: BaseVisualCamelEntity[];
+  contextToolbar?: ReactNode;
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ entities, contextToolbar }) => {
   /** State for @patternfly/react-topology */
+  const [initialized, setInitialized] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
-  const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
@@ -57,7 +58,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
 
-  const controller = useMemo(() => ControllerService.createController(), []);
+  const controller = useVisualizationController();
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entities.length === 0;
@@ -65,104 +66,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     return areNoFlows || areAllFlowsHidden;
   }, [entities.length, visibleFlows]);
 
-  const controlButtons = useMemo(() => {
-    const customButtons: TopologyControlButton[] = catalogModalContext
-      ? [
-          {
-            id: 'topology-control-bar-h_layout-button',
-            icon: (
-              <Icon>
-                <img src={layoutHorizontalIcon} />
-              </Icon>
-            ),
-            tooltip: 'Horizontal Layout',
-            callback: action(() => {
-              setActiveLayout(LayoutType.DagreHorizontal);
-              controller.getGraph().setLayout(LayoutType.DagreHorizontal);
-              controller.getGraph().reset();
-              controller.getGraph().layout();
-            }),
-          },
-          {
-            id: 'topology-control-bar-v_layout-button',
-            icon: (
-              <Icon>
-                <img src={layoutVerticalIcon} />
-              </Icon>
-            ),
-            tooltip: 'Vertical Layout',
-            callback: action(() => {
-              setActiveLayout(LayoutType.DagreVertical);
-              controller.getGraph().setLayout(LayoutType.DagreVertical);
-              controller.getGraph().reset();
-              controller.getGraph().layout();
-            }),
-          },
-          {
-            id: 'topology-control-bar-catalog-button',
-            icon: <CatalogIcon />,
-            tooltip: 'Open Catalog',
-            callback: action(() => {
-              catalogModalContext.setIsModalOpen(true);
-            }),
-          },
-        ]
-      : [];
-
-    return createTopologyControlButtons({
-      ...defaultControlButtonsOptions,
-      zoomInCallback: action(() => {
-        controller.getGraph().scaleBy(4 / 3);
-      }),
-      zoomOutCallback: action(() => {
-        controller.getGraph().scaleBy(3 / 4);
-      }),
-      fitToScreenCallback: action(() => {
-        controller.getGraph().fit(80);
-      }),
-      resetViewCallback: action(() => {
-        controller.getGraph().reset();
-        controller.getGraph().layout();
-      }),
-      legend: false,
-      customButtons,
-    });
-  }, [catalogModalContext, controller, setActiveLayout]);
-
-  const handleSelection = useCallback(
-    (selectedIds: string[]) => {
-      setSelectedIds(selectedIds);
-
-      /** Current support for single selection at the moment */
-      const selectedId = selectedIds[0];
-      setSelectedNode(nodes.find((node) => node.id === selectedId));
-    },
-    [nodes],
-  );
-
-  /** Set up the controller one time */
-  useEffect(() => {
-    const localController = controller;
-    const graphLayoutEndFn = action(() => {
-      localController.getGraph().fit(80);
-    });
-
-    localController.addEventListener(SELECTION_EVENT, handleSelection);
-    localController.addEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
-
-    return () => {
-      localController.removeEventListener(SELECTION_EVENT, handleSelection);
-      localController.removeEventListener(GRAPH_LAYOUT_END_EVENT, graphLayoutEndFn);
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleSelection]);
-
   /** Draw graph */
   useEffect(() => {
-    if (!Array.isArray(entities)) return;
     setSelectedNode(undefined);
-
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
 
@@ -174,8 +80,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       }
     });
 
-    setNodes([...nodes]);
-
     const model: Model = {
       nodes,
       edges,
@@ -186,21 +90,100 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
     };
 
-    controller.fromModel(model, false);
-  }, [activeLayout, controller, entities, visibleFlows]);
+    controller.fromModel(model, true);
+    setInitialized(true);
+  }, [controller, entities, visibleFlows]);
 
+  const handleSelection = useCallback((selectedIds: string[]) => {
+    setSelectedIds(selectedIds);
+  }, []);
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
+
+  /** Set select node and pan it into view */
   useEffect(() => {
-    const timeoutId = setTimeout(
-      action(() => {
-        controller.getGraph().fit(80);
-      }),
-      500,
-    );
+    let resizeTimeout: number | undefined;
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [controller, selectedIds]);
+    if (!selectedIds[0]) {
+      setSelectedNode(undefined);
+    } else {
+      const selectedNode = controller.getNodeById(selectedIds[0]);
+      if (selectedNode) {
+        setSelectedNode(selectedNode as unknown as CanvasNode);
+        resizeTimeout = setTimeout(
+          action(() => {
+            controller.getGraph().panIntoView(selectedNode, { offset: 20, minimumVisible: 100 });
+            resizeTimeout = undefined;
+          }),
+          500,
+        ) as unknown as number;
+      }
+      return () => {
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout);
+        }
+      };
+    }
+  }, [selectedIds, controller]);
+
+  const controlButtons = useMemo(() => {
+    const customButtons: TopologyControlButton[] = [
+      {
+        id: 'topology-control-bar-h_layout-button',
+        icon: (
+          <Icon>
+            <img src={layoutHorizontalIcon} />
+          </Icon>
+        ),
+        tooltip: 'Horizontal Layout',
+        callback: action(() => {
+          setActiveLayout(LayoutType.DagreHorizontal);
+          controller.getGraph().setLayout(LayoutType.DagreHorizontal);
+          controller.getGraph().layout();
+        }),
+      },
+      {
+        id: 'topology-control-bar-v_layout-button',
+        icon: (
+          <Icon>
+            <img src={layoutVerticalIcon} />
+          </Icon>
+        ),
+        tooltip: 'Vertical Layout',
+        callback: action(() => {
+          setActiveLayout(LayoutType.DagreVertical);
+          controller.getGraph().setLayout(LayoutType.DagreVertical);
+          controller.getGraph().layout();
+        }),
+      },
+    ];
+    if (catalogModalContext) {
+      customButtons.push({
+        id: 'topology-control-bar-catalog-button',
+        icon: <CatalogIcon />,
+        tooltip: 'Open Catalog',
+        callback: action(() => {
+          catalogModalContext.setIsModalOpen(true);
+        }),
+      });
+    }
+
+    return createTopologyControlButtons({
+      ...defaultControlButtonsOptions,
+      fitToScreen: false,
+      zoomInCallback: action(() => {
+        controller.getGraph().scaleBy(4 / 3);
+      }),
+      zoomOutCallback: action(() => {
+        controller.getGraph().scaleBy(3 / 4);
+      }),
+      resetViewCallback: action(() => {
+        controller.getGraph().reset();
+        controller.getGraph().layout();
+      }),
+      legend: false,
+      customButtons,
+    });
+  }, [catalogModalContext, controller, setActiveLayout]);
 
   const handleCloseSideBar = useCallback(() => {
     setSelectedIds([]);
@@ -211,24 +194,25 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   return (
     <TopologyView
+      className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
-      minSideBarSize={'210px'}
-      onSideBarResize={(width) => {
-        setSidebarWidth(width);
-      }}
+      minSideBarSize="210px"
+      onSideBarResize={setSidebarWidth}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
     >
-      <VisualizationProvider controller={controller}>
-        {shouldShowEmptyState ? (
-          <VisualizationEmptyState data-testid="visualization-empty-state" entitiesNumber={entities.length} />
-        ) : (
-          <VisualizationSurface state={{ selectedIds }} />
-        )}
-      </VisualizationProvider>
+      <VisualizationSurface state={{ selectedIds }} />
+
+      {shouldShowEmptyState && (
+        <VisualizationEmptyState
+          className="canvas-empty-state"
+          data-testid="visualization-empty-state"
+          entitiesNumber={entities.length}
+        />
+      )}
     </TopologyView>
   );
 };
