@@ -45,4 +45,16 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * @return If the deletion was done succesfully
    */
   deleteResource(path: string): Promise<boolean>;
+
+  /**
+   * Show a file picker and ask the user to select one or more files available.
+   * @param include The filter expression for the files to include
+   * @param exclude The filter expression for the files to exclude
+   * @param options The options to pass over. In VS Code, it is directly delivered as QuickPickOptions
+   */
+  askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined>;
 }
