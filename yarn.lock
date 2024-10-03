@@ -2728,8 +2728,8 @@ __metadata:
   linkType: hard
 
 "@kaoto-next/uniforms-patternfly@npm:^0.7.1":
-  version: 0.7.4
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.4"
+  version: 0.7.7
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.7"
   dependencies:
     invariant: "npm:^2.2.4"
     lodash.clonedeep: "npm:^4.5.0"
@@ -2739,7 +2739,7 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
     uniforms: 4.0.0-alpha.5
-  checksum: 10/eff3dce03508a3c4737ff195874d2111b93c3d292aa4640d563e3d2829b3443dffe8c5ba96290cf9b3d65fba482ed32c58ee09e93aac2e15de55a0547433148f
+  checksum: 10/b74da211f0ce643ea2d85f75d19285a9cc633715f982fbe5f17dc1128fc5d42c5117c0c6b2c70f8e4890728c2ee40b9d3d48a86cd617563c2daf99d386630189
   languageName: node
   linkType: hard
 
