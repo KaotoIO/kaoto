@@ -98,6 +98,14 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Help</span>
                 </DropdownItem>
               </a>
+              <a href="https://github.com/KaotoIO/kaoto-examples" target="_blank" rel="noreferrer">
+                <DropdownItem key="feedback">
+                  <Icon isInline>
+                    <GithubIcon />
+                  </Icon>
+                  &nbsp;<span className="pf-u-mr-lg">Examples</span>
+                </DropdownItem>
+              </a>
               <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
