@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { CodeEditor, CodeEditorControl, Language } from '@patternfly/react-code-editor';
+import { Rest, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CodeEditor, CodeEditorControl, EditorDidMount, Language } from '@patternfly/react-code-editor';
 import {
-  HelperText,
-  HelperTextItem,
   Button,
   Card,
   CardBody,
@@ -10,23 +8,33 @@ import {
   CardTitle,
   Form,
   FormGroup,
+  HelperText,
+  HelperTextItem,
   InputGroup,
   Popover,
   TextInput,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useState, useEffect } from 'react';
-import styles from '@patternfly/react-styles/css/components/Form/form';
-import { BaseVisualCamelEntity, CamelRouteVisualEntity } from '../../models';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
-import { EntitiesContext } from '../../providers/entities.provider';
-import { OpenApi } from '../../models/camel/openapi-resource';
-import { RouteDefinition, RestDefinition } from '@kaoto/camel-catalog/types';
-import { Rest } from '@kaoto/camel-catalog/types';
-import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
-import { Links } from '../../router/links.models';
+import styles from '@patternfly/react-styles/css/components/Form/form';
+import { OpenApi, OpenApiOperation, OpenApiPath } from 'openapi-v3';
+import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { parse } from 'yaml';
+import { BaseVisualCamelEntity, CamelRouteVisualEntity } from '../../models';
 import { EntityType } from '../../models/camel/entities';
+import { SourceSchemaType } from '../../models/camel/source-schema-type';
+import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { FlowTemplateService } from '../../models/visualization/flows/support/flow-templates-service';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { Links } from '../../router/links.models';
+import { isDefined } from '../../utils';
+
+type OpenApiPathMethods = {
+  [K in keyof Required<OpenApiPath>]: Required<OpenApiPath>[K] extends OpenApiOperation ? K : never;
+}[keyof OpenApiPath];
+
+const VALID_METHODS: OpenApiPathMethods[] = ['get', 'post', 'put', 'delete', 'head', 'patch'];
 
 export const OpenApiForm: FunctionComponent = () => {
   const [openApiError, setOpenApiError] = useState('');
@@ -37,11 +45,11 @@ export const OpenApiForm: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
   const navigate = useNavigate();
 
-  const onEditorDidMount = (editor, monaco) => {
+  const onEditorDidMount: EditorDidMount = useCallback((editor, monaco) => {
     editor.layout();
     editor.focus();
     monaco.editor.getModels()[0].updateOptions({ tabSize: 5 });
-  };
+  }, []);
 
   const updateDownloadUrl = (url: string) => {
     setDownloadUrl(url);
@@ -108,10 +116,13 @@ export const OpenApiForm: FunctionComponent = () => {
 
     const openApi: OpenApi = JSON.parse(spec);
 
-    for (const path in openApi.paths) {
-      for (const method in openApi.paths[path]) {
-        const operationId = openApi.paths[path][method]['operationId'];
+    Object.values(openApi.paths ?? {}).forEach((path) => {
+      VALID_METHODS.forEach((method) => {
+        if (!isDefined(path[method])) {
+          return;
+        }
 
+        const operationId = path[method].operationId;
         const route: RouteDefinition = {
           from: {
             uri: 'direct:' + operationId,
@@ -133,27 +144,24 @@ export const OpenApiForm: FunctionComponent = () => {
           const entity = new CamelRouteVisualEntity(route);
           entitiesContext?.camelResource.addExistingEntity(entity);
         }
-      }
-    }
+      });
+    });
 
-    const rest: Rest = {
-      openApi: {
-        specification: downloadUrl,
-      },
-    };
-
+    const rest: Rest = FlowTemplateService.getFlowTemplate(SourceSchemaType.Rest);
+    rest.openApi = rest.openApi ?? { specification: '' };
+    rest.openApi.specification = downloadUrl;
     let restExists: boolean = false;
 
     entitiesContext?.camelResource.getVisualEntities().forEach((entity: BaseVisualCamelEntity) => {
       if (entity.type === EntityType.Rest) {
-        if ((entity as CamelRestVisualEntity).rest.rest?.openApi?.specification === downloadUrl) {
-            restExists = true;
+        if ((entity as CamelRestVisualEntity).restDef.rest?.openApi?.specification === downloadUrl) {
+          restExists = true;
         }
       }
     });
 
     if (!restExists) {
-      const entity = new CamelRestVisualEntity(rest);
+      const entity = new CamelRestVisualEntity({ rest });
       entitiesContext?.camelResource.addExistingEntity(entity);
     }
 

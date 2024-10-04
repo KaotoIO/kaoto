@@ -40,8 +40,5 @@
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0"
   },
-  "packageManager": "yarn@4.5.0",
-  "dependencies": {
-    "fs": "^0.0.1-security"
-  }
+  "packageManager": "yarn@4.5.0"
 }

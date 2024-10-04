@@ -3,7 +3,7 @@ import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { NodeIconResolver, NodeIconType, isDefined, setValue } from '../../../utils';
+import { NodeIconResolver, NodeIconType, isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
@@ -13,17 +13,26 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from '../base-visual-entity';
+import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 
 export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.Rest;
   private schemaValidator: ValidateFunction<Rest> | undefined;
+  private readonly OMIT_FORM_FIELDS = [
+    ...SchemaService.OMIT_FORM_FIELDS,
+    'get',
+    'post',
+    'put',
+    'delete',
+    'head',
+    'patch',
+  ];
 
-  constructor(public rest: { rest: Rest }) {
-    super(rest);
+  constructor(public restDef: { rest: Rest }) {
+    super(restDef);
     const id = getCamelRandomId('rest');
     this.id = id;
   }
@@ -66,23 +75,13 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'rest');
 
     return {
-      definition: Object.assign({}, this.rest),
+      definition: Object.assign({}, this.restDef.rest),
       schema: schema?.propertiesSchema || {},
     };
   }
 
   getOmitFormFields(): string[] {
-    return SchemaService.OMIT_FORM_FIELDS;
-  }
-
-  updateModel(path: string | undefined, value: unknown): void {
-    if (!path) return;
-
-    setValue(this.rest, path, value);
-
-    if (!isDefined(this.rest)) {
-      this.rest = {rest: Rest};
-    }
+    return this.OMIT_FORM_FIELDS;
   }
 
   getNodeInteraction(): NodeInteraction {
@@ -90,7 +89,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       canHavePreviousStep: false,
       canHaveNextStep: false,
       canHaveChildren: false,
-      canHaveSpecialChildren: true,
+      canHaveSpecialChildren: false,
       canRemoveStep: false,
       canReplaceStep: false,
       canRemoveFlow: true,
@@ -106,7 +105,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       this.schemaValidator = this.getValidatorFunction(componentVisualSchema);
     }
 
-    this.schemaValidator?.({ ...this.rest });
+    this.schemaValidator?.({ ...this.restDef });
 
     return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
   }
@@ -115,7 +114,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     const restGroupNode = NodeMapperService.getVizNode(
       'rest',
       { processorName: 'rest' as keyof ProcessorDefinition },
-      this.rest,
+      this.restDef,
     );
     restGroupNode.data.entity = this;
     restGroupNode.data.isGroup = true;
@@ -126,7 +125,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   }
 
   toJSON(): { rest: Rest } {
-    return { rest: this.rest };
+    return { rest: this.restDef.rest };
   }
 
   private getValidatorFunction(componentVisualSchema: VisualComponentSchema): ValidateFunction<Rest> | undefined {
@@ -148,6 +147,6 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   }
 
   protected getRootUri(): string | undefined {
-    return this.rest.rest;
+    return undefined;
   }
 }
