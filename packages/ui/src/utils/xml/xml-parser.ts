@@ -71,8 +71,18 @@ export class XmlParser {
   parseXML = (xml: string): any => {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xml, 'application/xml');
-    const routes = Array.from(xmlDoc.getElementsByTagName('route')).map(this.transformRoute);
-    return routes;
+
+    const rawEntities = Array.from(xmlDoc.getElementsByTagName('route')).map(this.transformRoute);
+
+    const beansSection = rawEntities.length > 1 ? xmlDoc.getElementsByTagName('beans')[0] : xmlDoc;
+    const beans = beansSection
+      ? Array.from(beansSection.getElementsByTagName('bean')).map(this.transformBeanFactory)
+      : [];
+
+    if (beans.length > 0) {
+      rawEntities.push({ beans });
+    }
+    return rawEntities;
   };
 
   dereferenceSchema = (dSchema: JSONSchema4): JSONSchema4 => {
@@ -306,5 +316,63 @@ export class XmlParser {
 
   capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  //TODO figureout bean
+  transformBeanFactory = (beanElement: Element): any => {
+    const beanSchema = this.schemaDefinitions['org.apache.camel.model.BeanFactoryDefinition'];
+
+    // Initialize the bean object
+    let bean: any = {};
+
+    bean = getAttributesFromSchema(beanElement, beanSchema);
+    console.log('bean', getAttributesFromSchema(beanElement, beanSchema));
+    // Special case for 'name/id' and 'type/class'
+    const name = beanElement.getAttribute('id');
+    if (name) {
+      bean['name'] = name;
+    }
+
+    const type = beanElement.getAttribute('class');
+    if (type) {
+      bean['type'] = type;
+    }
+
+    const constructorsElement = beanElement.getElementsByTagName('constructors')[0];
+    if (constructorsElement) {
+      let constructors: { [key: string]: string } = {};
+
+      Array.from(beanElement.getElementsByTagName('constructors')[0].children).forEach((constructorElement) => {
+        const constructorIndex = constructorElement.getAttribute('index');
+        const constructorValue = constructorElement.getAttribute('value');
+
+        if (constructorIndex && constructorValue) {
+          constructors = { ...constructors, [constructorIndex]: constructorValue };
+        }
+      });
+
+      if (Object.keys(constructors).length > 0) {
+        bean['constructors'] = constructors;
+      }
+    }
+    const propertiesElement = beanElement.getElementsByTagName('properties')[0];
+    if (propertiesElement) {
+      let properties: { [key: string]: string } = {};
+
+      Array.from(beanElement.getElementsByTagName('properties')[0].children).forEach((propertyElement) => {
+        const propName = propertyElement.getAttribute('key') || propertyElement.getAttribute('name');
+        const propValue = propertyElement.getAttribute('value') || propertyElement.getAttribute('ref');
+
+        if (propName && propValue) {
+          properties = { ...properties, [propName]: propValue };
+        }
+      });
+
+      if (Object.keys(properties).length > 0) {
+        bean['properties'] = properties;
+      }
+    }
+
+    return bean;
   };
 }

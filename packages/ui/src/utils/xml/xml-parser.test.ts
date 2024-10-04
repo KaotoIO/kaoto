@@ -4,6 +4,7 @@ import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { JSONSchema4 } from 'json-schema';
 import { doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs';
+import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML } from '../../stubs/beans';
 
 describe('XmlParser', () => {
   let parser: XmlParser;
@@ -69,5 +70,10 @@ describe('XmlParser', () => {
   it('parses XML with doTry correctly', () => {
     const result = parser.parseXML(doTryCamelRouteXml);
     expect(result).toEqual([doTryCamelRouteJson]);
+  });
+
+  it('parse beans correctly', () => {
+    const result = parser.parseXML(beanWithConstructorAandPropertiesXML);
+    expect(result).toEqual([beanWithConstructorAandProperties]);
   });
 });
