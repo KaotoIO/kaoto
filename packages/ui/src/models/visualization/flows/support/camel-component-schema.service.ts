@@ -347,12 +347,23 @@ export class CamelComponentSchemaService {
       const componentSchema: KaotoSchemaDefinition['schema'] =
         catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
+      // Filter out producer/consumer properties depenging upon the endpoint usage
+      const actualComponentProperties = Object.fromEntries(
+        Object.entries(componentSchema.properties ?? {}).filter((property) => {
+          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
+            return !property[1].group?.includes('producer');
+          } else {
+            return !property[1].group?.includes('consumer');
+          }
+        }),
+      );
+
       if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
         schema.properties!.parameters = {
           type: 'object',
           title: 'Endpoint Properties',
           description: 'Endpoint properties description',
-          properties: componentSchema.properties,
+          properties: actualComponentProperties,
           required: componentSchema.required,
         };
       }
