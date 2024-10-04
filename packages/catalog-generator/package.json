@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "yarn clean && yarn build:mvn && yarn build:default:catalog && yarn build:ts",
-    "build:mvn": "./mvnw clean install verify",
+    "build:mvn": "./mvnw clean install --no-transfer-progress",
     "build:default:catalog": "./mvnw package; java -jar ./target/catalog-generator-0.0.1-SNAPSHOT.jar -o ./dist/camel-catalog -n \"Default Kaoto catalog\"",
     "build:ts": "node --loader ts-node/esm ./scripts/json-schema-to-typescript.mts",
     "lint": "yarn eslint \"scripts/**/*.{mts,ts}\"",
