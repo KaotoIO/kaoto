@@ -20,3 +20,4 @@ export * from './get-serialized-model';
 export * from './get-user-updated-properties-schema';
 export * from './get-required-properties-schema';
 export * from './weight-schema-properties';
+export * from './xml/xml-parser';

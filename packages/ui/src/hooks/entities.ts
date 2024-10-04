@@ -4,7 +4,7 @@ import { CamelResource, createCamelResource, sourceSchemaConfig, SourceSchemaTyp
 import { BaseCamelEntity } from '../models/camel/entities';
 import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entity';
 import { EventNotifier } from '../utils';
-import { isXML, XmlParser } from '../utils/xml-parser';
+import { isXML, XmlParser } from '../utils/xml/xml-parser';
 
 /**
  * Regular expression to match commented lines, regardless of indentation
