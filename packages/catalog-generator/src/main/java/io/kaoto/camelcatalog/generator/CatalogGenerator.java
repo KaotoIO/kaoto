@@ -250,7 +250,7 @@ public class CatalogGenerator {
         var root = jsonMapper.createObjectNode();
 
         try {
-            kamelets.forEach(kamelet -> {
+            sortKamelets(kamelets).forEach(kamelet -> {
                 processKameletFile(kamelet, root);
             });
 
@@ -291,6 +291,22 @@ public class CatalogGenerator {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
+    }
+
+    private List<String> sortKamelets(List<String> kamelets) {
+        return kamelets.stream().sorted(
+            (k1, k2) -> {
+                try {
+                    JsonNode kameletNode1 = yamlMapper.readTree(k1);
+                    JsonNode kameletNode2 = yamlMapper.readTree(k2);
+                    String kamelet1 = kameletNode1.get("metadata").get("name").asText().toLowerCase();
+                    String kamelet2 = kameletNode2.get("metadata").get("name").asText().toLowerCase();
+                    return kamelet1.compareTo(kamelet2);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
+                return 0;
+            }).toList();
     }
 
     private void processK8sSchema(CatalogDefinition index) {
