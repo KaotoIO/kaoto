@@ -7,6 +7,7 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { processNodeInteractionAddonRecursively } from './item-delete-helper';
 
 interface ItemDeleteStepProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -17,19 +18,6 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
   const entitiesContext = useContext(EntitiesContext);
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
-
-  const onDeleteRecursively = useCallback(
-    (parentVizNode: IVisualizationNode) => {
-      parentVizNode.getChildren()?.forEach((child) => {
-        onDeleteRecursively(child);
-      });
-      const interactions = getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, parentVizNode);
-      interactions.forEach((interaction) => {
-        interaction.callback(parentVizNode);
-      });
-    },
-    [getRegisteredInteractionAddons],
-  );
 
   const onRemoveNode = useCallback(async () => {
     if (props.loadActionConfirmationModal) {
@@ -42,11 +30,19 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
       if (!isDeleteConfirmed) return;
     }
 
-    onDeleteRecursively(props.vizNode);
+    processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
+      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    );
 
     props.vizNode?.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, onDeleteRecursively, props.loadActionConfirmationModal, props.vizNode]);
+  }, [
+    deleteModalContext,
+    entitiesContext,
+    getRegisteredInteractionAddons,
+    props.loadActionConfirmationModal,
+    props.vizNode,
+  ]);
 
   return (
     <ContextMenuItem onClick={onRemoveNode} data-testid={props['data-testid']}>

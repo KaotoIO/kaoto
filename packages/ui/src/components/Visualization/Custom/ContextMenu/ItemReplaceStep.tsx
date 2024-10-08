@@ -8,6 +8,7 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { processNodeInteractionAddonRecursively } from './item-delete-helper';
 
 interface ItemReplaceStepProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -19,19 +20,6 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
   const catalogModalContext = useContext(CatalogModalContext);
   const replaceModalContext = useContext(ActionConfirmationModalContext);
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
-
-  const onDeleteRecursively = useCallback(
-    (parentVizNode: IVisualizationNode) => {
-      parentVizNode.getChildren()?.forEach((child) => {
-        onDeleteRecursively(child);
-      });
-      const addons = getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, parentVizNode);
-      addons.forEach((addon) => {
-        addon.callback(parentVizNode);
-      });
-    },
-    [getRegisteredInteractionAddons],
-  );
 
   const onReplaceNode = useCallback(async () => {
     if (!props.vizNode || !entitiesContext) return;
@@ -56,7 +44,9 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
     const definedComponent = await catalogModalContext?.getNewComponent(catalogFilter);
     if (!definedComponent) return;
 
-    onDeleteRecursively(props.vizNode);
+    processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
+      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    );
 
     /** Add new node to the entities */
     props.vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
@@ -68,8 +58,8 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
     props.loadActionConfirmationModal,
     entitiesContext,
     catalogModalContext,
-    onDeleteRecursively,
     replaceModalContext,
+    getRegisteredInteractionAddons,
   ]);
 
   return (

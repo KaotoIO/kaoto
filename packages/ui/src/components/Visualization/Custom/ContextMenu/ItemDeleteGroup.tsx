@@ -7,6 +7,7 @@ import { ActionConfirmationModalContext } from '../../../../providers/action-con
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { processNodeInteractionAddonRecursively } from './item-delete-helper';
 
 interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -19,19 +20,6 @@ export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) 
 
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
-  const onDeleteRecursively = useCallback(
-    (parentVizNode: IVisualizationNode) => {
-      parentVizNode.getChildren()?.forEach((child) => {
-        onDeleteRecursively(child);
-      });
-      const addons = getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, parentVizNode);
-      addons.forEach((addon) => {
-        addon.callback(parentVizNode);
-      });
-    },
-    [getRegisteredInteractionAddons],
-  );
-
   const onRemoveGroup = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */
     const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
@@ -41,11 +29,13 @@ export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) 
 
     if (!isDeleteConfirmed) return;
 
-    onDeleteRecursively(props.vizNode);
+    processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
+      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    );
 
     entitiesContext?.camelResource.removeEntity(flowId);
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, flowId, onDeleteRecursively, props.vizNode]);
+  }, [deleteModalContext, entitiesContext, flowId, getRegisteredInteractionAddons, props.vizNode]);
 
   return (
     <ContextMenuItem onClick={onRemoveGroup} data-testid={props['data-testid']}>
