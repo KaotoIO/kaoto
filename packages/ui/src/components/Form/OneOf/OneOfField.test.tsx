@@ -20,7 +20,7 @@ describe('OneOfField', () => {
   };
 
   it('should render', () => {
-    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf} />, {
+    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf!} />, {
       wrapper: (props) => (
         <UniformsWrapper model={{}} schema={oneOfSchema}>
           {props.children}
@@ -32,7 +32,7 @@ describe('OneOfField', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf} />, {
+    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf!} />, {
       wrapper: (props) => (
         <UniformsWrapper model={{}} schema={oneOfSchema}>
           {props.children}
@@ -45,7 +45,7 @@ describe('OneOfField', () => {
   });
 
   it('should render the appropriate schema when given a matching model', () => {
-    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf} />, {
+    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf!} />, {
       wrapper: (props) => (
         <UniformsWrapper model={{ name: 'John Doe' }} schema={oneOfSchema}>
           {props.children}
@@ -60,7 +60,7 @@ describe('OneOfField', () => {
   });
 
   it('should render a new selected schema', async () => {
-    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf} />, {
+    const wrapper = render(<OneOfField name="" oneOf={oneOfSchema.oneOf!} />, {
       wrapper: (props) => (
         <UniformsWrapper model={{}} schema={oneOfSchema}>
           {props.children}

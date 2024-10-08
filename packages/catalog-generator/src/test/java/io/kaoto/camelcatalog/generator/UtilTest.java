@@ -25,11 +25,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UtilTest {
+class UtilTest {
     private final List<String> testFiles = List.of("testfile1.txt", "testfile2.txt");
 
     @Test
-    public void testGenerateHash() throws Exception {
+    void testGenerateHash() throws Exception {
         var fileHashMap = new HashMap<String, String>();
         for (var file : testFiles) {
             var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
@@ -51,7 +51,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testGenerateHashFromPath() throws Exception {
+    void testGenerateHashFromPath() throws Exception {
         var url = Thread.currentThread().getContextClassLoader().getResource(testFiles.get(0));
         if (url == null) throw new Exception("no test file available");
         var testFilePath = Path.of(url.toURI());
@@ -65,7 +65,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testGenerateHashFromString() throws Exception {
+    void testGenerateHashFromString() throws Exception {
         var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.get(0));
         if (is == null) throw new Exception("no test file available");
         var testFileString = new String(is.readAllBytes());
@@ -79,7 +79,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testMessageDigestHash() throws Exception {
+    void testMessageDigestHash() throws Exception {
         try (var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.get(0))) {
             if (is == null) throw new Exception("no test file available");
             var digest = MessageDigest.getInstance("MD5");

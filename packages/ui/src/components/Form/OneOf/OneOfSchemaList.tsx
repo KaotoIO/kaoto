@@ -1,7 +1,4 @@
 import {
-  Card,
-  CardBody,
-  CardTitle,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -15,6 +12,7 @@ import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useS
 import { OneOfSchemas } from '../../../utils/get-oneof-schema-list';
 import { isDefined } from '../../../utils/is-defined';
 import { SchemaService } from '../schema.service';
+import './OneOfSchemaList.scss';
 
 interface OneOfComponentProps extends PropsWithChildren {
   name: string;
@@ -50,6 +48,7 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
       <MenuToggle
         id={`${name}-oneof-toggle`}
         data-testid={`${name}-oneof-toggle`}
+        className="oneof-toggle"
         ref={toggleRef}
         onClick={onToggleClick}
         isFullWidth
@@ -76,36 +75,34 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
   }
 
   return (
-    <Card>
-      <CardTitle>
-        <Dropdown
-          id={`${name}-oneof-select`}
-          data-testid={`${name}-oneof-select`}
-          isOpen={isOpen}
-          selected={selectedSchemaName}
-          onSelect={onSelect}
-          onOpenChange={setIsOpen}
-          toggle={toggle}
-          isScrollable
-        >
-          <DropdownList data-testid={`${name}-oneof-select-dropdownlist`}>
-            {oneOfSchemas.map((schemaDef) => {
-              return (
-                <DropdownItem
-                  data-testid={`${name}-oneof-select-dropdownlist-${schemaDef.name}`}
-                  key={schemaDef.name}
-                  value={schemaDef.name}
-                  description={schemaDef.description}
-                >
-                  {schemaDef.name}
-                </DropdownItem>
-              );
-            })}
-          </DropdownList>
-        </Dropdown>
-      </CardTitle>
+    <>
+      <Dropdown
+        id={`${name}-oneof-select`}
+        data-testid={`${name}-oneof-select`}
+        isOpen={isOpen}
+        selected={selectedSchemaName}
+        onSelect={onSelect}
+        onOpenChange={setIsOpen}
+        toggle={toggle}
+        isScrollable
+      >
+        <DropdownList data-testid={`${name}-oneof-select-dropdownlist`}>
+          {oneOfSchemas.map((schemaDef) => {
+            return (
+              <DropdownItem
+                data-testid={`${name}-oneof-select-dropdownlist-${schemaDef.name}`}
+                key={schemaDef.name}
+                value={schemaDef.name}
+                description={schemaDef.description}
+              >
+                {schemaDef.name}
+              </DropdownItem>
+            );
+          })}
+        </DropdownList>
+      </Dropdown>
 
-      <CardBody>{children}</CardBody>
-    </Card>
+      {children}
+    </>
   );
 };

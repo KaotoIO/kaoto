@@ -23,7 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class K8sSchemaProcessorTest {
+class K8sSchemaProcessorTest {
     private static final String[] K8S_DEFINITIONS =
             new String[] {
                     "io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta",
@@ -32,14 +32,14 @@ public class K8sSchemaProcessorTest {
     private final ObjectMapper jsonMapper;
     private final K8sSchemaProcessor processor;
 
-    public K8sSchemaProcessorTest() throws Exception {
+    K8sSchemaProcessorTest() throws Exception {
         jsonMapper = new ObjectMapper();
         var openapiSpec = (ObjectNode) jsonMapper.readTree(getClass().getClassLoader().getResourceAsStream("kubernetes-api-v1-openapi.json"));
         processor = new K8sSchemaProcessor(jsonMapper, openapiSpec);
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         var schemaMap = processor.processK8sDefinitions(List.of(K8S_DEFINITIONS));
         var objectMeta = (ObjectNode) jsonMapper.readTree(schemaMap.get("ObjectMeta"));
         assertTrue(objectMeta.withObject("/properties").has("annotations"));
