@@ -1,8 +1,22 @@
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 
+export const ACTION_INDEX_CANCEL = 0;
+export const ACTION_INDEX_CONFIRM = 1;
+export interface ActionConfirmationButtonOption {
+  index: number;
+  buttonText: string;
+  variant: ButtonVariant;
+  isDanger?: boolean;
+}
+
 interface ActionConfirmationModalContextValue {
-  actionConfirmation: (options: { title?: string; text?: string }) => Promise<boolean>;
+  actionConfirmation: (options: {
+    title?: string;
+    text?: string;
+    buttonOptions?: ActionConfirmationButtonOption[];
+    additionalModalText?: string;
+  }) => Promise<number>;
 }
 
 export const ActionConfirmationModalContext = createContext<ActionConfirmationModalContextValue | undefined>(undefined);
@@ -14,35 +28,52 @@ export const ActionConfirmationModalContext = createContext<ActionConfirmationMo
 export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
-  const [text, setText] = useState('');
-
+  const [textParagraphs, setTextParagraphs] = useState<string[]>([]);
+  const [buttonOptions, setButtonOptions] = useState<ActionConfirmationButtonOption[]>([]);
   const actionConfirmationRef = useRef<{
-    resolve: (confirm: boolean) => void;
+    resolve: (index: number) => void;
     reject: (error: unknown) => unknown;
   }>();
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
-    actionConfirmationRef.current?.resolve(false);
+    actionConfirmationRef.current?.resolve(ACTION_INDEX_CANCEL);
   }, []);
 
-  const handleActionConfirm = useCallback(() => {
+  const handleAction = useCallback((index: number) => {
     setIsModalOpen(false);
-    actionConfirmationRef.current?.resolve(true);
+    actionConfirmationRef.current?.resolve(index);
   }, []);
 
-  const actionConfirmation = useCallback((options: { title?: string; text?: string } = {}) => {
-    const actionConfirmationPromise = new Promise<boolean>((resolve, reject) => {
-      /** Set both resolve and reject functions to be used once the user choose an action */
-      actionConfirmationRef.current = { resolve, reject };
-    });
+  const actionConfirmation = useCallback(
+    (
+      options: {
+        title?: string;
+        text?: string;
+        additionalModalText?: string;
+        buttonOptions?: ActionConfirmationButtonOption[];
+      } = {},
+    ) => {
+      const actionConfirmationPromise = new Promise<number>((resolve, reject) => {
+        /** Set both resolve and reject functions to be used once the user choose an action */
+        actionConfirmationRef.current = { resolve, reject };
+      });
 
-    setTitle(options.title ?? 'Delete?');
-    setText(options.text ?? 'Are you sure you want to delete?');
-    setIsModalOpen(true);
+      setTitle(options.title ?? 'Delete?');
+      const textParagraphs = [options.text ?? 'Are you sure you want to delete?'];
+      if (options.additionalModalText) {
+        textParagraphs.push(options.additionalModalText);
+      }
+      setTextParagraphs(textParagraphs);
+      options.buttonOptions
+        ? setButtonOptions(options.buttonOptions)
+        : setButtonOptions([{ index: ACTION_INDEX_CONFIRM, buttonText: 'Confirm', variant: ButtonVariant.danger }]);
+      setIsModalOpen(true);
 
-    return actionConfirmationPromise;
-  }, []);
+      return actionConfirmationPromise;
+    },
+    [],
+  );
 
   const value: ActionConfirmationModalContextValue = useMemo(
     () => ({
@@ -64,15 +95,30 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
           onClose={handleCloseModal}
           ouiaId="ActionConfirmationModal"
           actions={[
-            <Button key="confirm" variant="danger" onClick={handleActionConfirm}>
-              Confirm
-            </Button>,
-            <Button key="cancel" variant="link" onClick={handleCloseModal}>
+            ...buttonOptions.map((op) => (
+              <Button
+                key={op.index}
+                variant={op.variant}
+                onClick={() => handleAction(op.index)}
+                data-testid={`action-confirmation-modal-btn-${op.index}`}
+                isDanger={op.isDanger}
+              >
+                {op.buttonText}
+              </Button>
+            )),
+            <Button
+              key="cancel"
+              variant="link"
+              onClick={handleCloseModal}
+              data-testid={`action-confirmation-modal-btn-${ACTION_INDEX_CANCEL}`}
+            >
               Cancel
             </Button>,
           ]}
         >
-          {text}
+          {textParagraphs.length === 1
+            ? textParagraphs[0]
+            : textParagraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </Modal>
       )}
     </ActionConfirmationModalContext.Provider>
