@@ -30,7 +30,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CamelCatalogProcessorTest {
+class CamelCatalogProcessorTest {
     private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string");
     private final CamelCatalogProcessor processor;
     private final ObjectNode componentCatalog;
@@ -41,7 +41,7 @@ public class CamelCatalogProcessorTest {
     private final ObjectNode entityCatalog;
     private final ObjectNode loadBalancerCatalog;
 
-    public CamelCatalogProcessorTest() throws Exception {
+    CamelCatalogProcessorTest() throws Exception {
         CamelCatalog catalog = new DefaultCamelCatalog();
         ObjectMapper jsonMapper = new ObjectMapper();
         var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
@@ -60,7 +60,7 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testProcessCatalog() throws Exception {
+    void testProcessCatalog() throws Exception {
         var catalogMap = processor.processCatalog();
         assertEquals(processor.getComponentCatalog(), catalogMap.get("components"));
         assertEquals(processor.getDataFormatCatalog(), catalogMap.get("dataformats"));
@@ -72,7 +72,7 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testGetComponentCatalog() throws Exception {
+    void testGetComponentCatalog() throws Exception {
         assertTrue(componentCatalog.size() > 300);
         var directModel = componentCatalog
                 .withObject("/direct")
@@ -123,7 +123,7 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testComponentEnumParameter() throws Exception {
+    void testComponentEnumParameter() throws Exception {
         checkEnumParameters(componentCatalog);
     }
 
@@ -154,7 +154,7 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testGetDataFormatCatalog() throws Exception {
+    void testGetDataFormatCatalog() throws Exception {
         var customModel = dataFormatCatalog
                 .withObject("/custom")
                 .withObject("/model");
@@ -176,12 +176,12 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testDataFormatEnumParameter() throws Exception {
+    void testDataFormatEnumParameter() throws Exception {
         checkEnumParameters(dataFormatCatalog);
     }
 
     @Test
-    public void testGetLanguageCatalog() throws Exception {
+    void testGetLanguageCatalog() throws Exception {
         assertFalse(languageCatalog.has("file"));
         var languageModel = languageCatalog
                 .withObject("/language")
@@ -206,12 +206,12 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testLanguageEnumParameter() throws Exception {
+    void testLanguageEnumParameter() throws Exception {
         checkEnumParameters(languageCatalog);
     }
 
     @Test
-    public void testGetModelCatalog() throws Exception {
+    void testGetModelCatalog() throws Exception {
         assertTrue(modelCatalog.size() > 200);
         var aggregateModel = modelCatalog
                 .withObject("/aggregate")
@@ -221,12 +221,12 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testModelEnumParameter() throws Exception {
+    void testModelEnumParameter() throws Exception {
         checkEnumParameters(modelCatalog);
     }
 
     @Test
-    public void testGetPatternCatalog() throws Exception {
+    void testGetPatternCatalog() throws Exception {
         assertTrue(processorCatalog.size() > 65 && processorCatalog.size() < 80);
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
@@ -243,17 +243,18 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testRouteConfigurationCatalog() throws Exception {
-        List.of("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").forEach(name -> assertTrue(entityCatalog.has(name), name));
+    void testRouteConfigurationCatalog() throws Exception {
+        List.of("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException")
+                .forEach(name -> assertTrue(entityCatalog.has(name), name));
     }
 
     @Test
-    public void testPatternEnumParameter() throws Exception {
+    void testPatternEnumParameter() throws Exception {
         checkEnumParameters(processorCatalog);
     }
 
     @Test
-    public void testGetEntityCatalog() throws Exception {
+    void testGetEntityCatalog() throws Exception {
         List.of(
                 "bean",
                 "beans",
@@ -270,8 +271,7 @@ public class CamelCatalogProcessorTest {
                 "templatedRoute",
                 "restConfiguration",
                 "rest",
-                "routeTemplateBean"
-        ).forEach(name -> assertTrue(entityCatalog.has(name), name));
+                "routeTemplateBean").forEach(name -> assertTrue(entityCatalog.has(name), name));
         var bean = entityCatalog.withObject("/bean");
         var beanScriptLanguage = bean.withObject("/propertiesSchema")
                 .withObject("/properties")
@@ -292,12 +292,12 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testEntityEnumParameter() throws Exception {
+    void testEntityEnumParameter() throws Exception {
         checkEnumParameters(entityCatalog);
     }
 
     @Test
-    public void testGetLoadBalancerCatalog() throws Exception {
+    void testGetLoadBalancerCatalog() throws Exception {
         assertFalse(loadBalancerCatalog.isEmpty());
         var failoverModel = loadBalancerCatalog.withObject("/failoverLoadBalancer/model");
         assertEquals("failoverLoadBalancer", failoverModel.get("name").asText());
@@ -327,7 +327,7 @@ public class CamelCatalogProcessorTest {
     }
 
     @Test
-    public void testLoadBalancerEnumParameter() throws Exception {
+    void testLoadBalancerEnumParameter() throws Exception {
         checkEnumParameters(loadBalancerCatalog);
     }
 }

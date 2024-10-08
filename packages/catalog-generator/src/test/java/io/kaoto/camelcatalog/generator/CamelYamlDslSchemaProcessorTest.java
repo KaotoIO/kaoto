@@ -18,26 +18,28 @@ package io.kaoto.camelcatalog.generator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CamelYamlDslSchemaProcessorTest {
-    private final ObjectMapper jsonMapper;
-    private final ObjectNode yamlDslSchema;
-    private final CamelYamlDslSchemaProcessor processor;
+class CamelYamlDslSchemaProcessorTest {
+    private ObjectMapper jsonMapper;
+    private CamelYamlDslSchemaProcessor processor;
 
-    public CamelYamlDslSchemaProcessorTest() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         jsonMapper = new ObjectMapper();
         var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
-        yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
+        ObjectNode yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
+
         processor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
     }
 
     @Test
-    public void testProcessSubSchema() throws Exception {
+    void testProcessSubSchema() throws Exception {
         var subSchemaMap = processor.processSubSchema();
         assertTrue(subSchemaMap.size() > 10 && subSchemaMap.size() < 20);
         var beansSchema = jsonMapper.readTree(subSchemaMap.get("beans"));
@@ -52,7 +54,7 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
-    public void testExtractSingleOneOfFromAnyOf() throws Exception {
+    void testExtractSingleOneOfFromAnyOf() throws Exception {
         var subSchemaMap = processor.processSubSchema();
         var errorHandlerSchema = jsonMapper.readTree(subSchemaMap.get("errorHandler"));
 
@@ -60,11 +62,45 @@ public class CamelYamlDslSchemaProcessorTest {
 
         assertTrue(errorHandlerSchema.has("oneOf"));
         assertTrue(errorHandlerSchema.get("oneOf").isArray());
-        assertEquals(7, errorHandlerSchema.get("oneOf").size());
+        assertEquals(6, errorHandlerSchema.get("oneOf").size());
     }
 
     @Test
-    public void testGetDataFormats() throws Exception {
+    void testRemoveEmptyProperties() throws Exception {
+        var tokenizerRootSchema = (ObjectNode) jsonMapper.readTree(
+                getClass().getClassLoader().getResourceAsStream("camel-4.9.0-tokenizer-schema.json"));
+        processor = new CamelYamlDslSchemaProcessor(jsonMapper, tokenizerRootSchema);
+
+        var subSchemaMap = processor.processSubSchema();
+        var tokenizerSchema = jsonMapper.readTree(subSchemaMap.get("tokenizer"));
+        var properties = tokenizerSchema.withObject("/properties");
+
+        assertFalse(properties.has("langChain4jCharacterTokenizer"), "The langChain4jCharacterTokenizer empty property should not exist, since is empty");
+        assertFalse(properties.has("langChain4jLineTokenizer"), "The langChain4jLineTokenizer empty property should not exist, since is empty");
+        assertFalse(properties.has("langChain4jParagraphTokenizer"), "The langChain4jParagraphTokenizer empty property should not exist, since is empty");
+        assertFalse(properties.has("langChain4jSentenceTokenizer"), "The langChain4jSentenceTokenizer empty property should not exist, since is empty");
+        assertFalse(properties.has("langChain4jWordTokenizer"), "The langChain4jWordTokenizer empty property should not exist, since is empty");
+    }
+
+    @Test
+    void testRemoveNotFromOneOf() throws Exception {
+        var tokenizerRootSchema = (ObjectNode) jsonMapper.readTree(
+                getClass().getClassLoader().getResourceAsStream("camel-4.9.0-tokenizer-schema.json"));
+        processor = new CamelYamlDslSchemaProcessor(jsonMapper, tokenizerRootSchema);
+
+        var subSchemaMap = processor.processSubSchema();
+        var tokenizerSchema = jsonMapper.readTree(subSchemaMap.get("tokenizer"));
+        var oneOfArray = tokenizerSchema.withArray("/oneOf");
+
+        assertEquals(5, oneOfArray.size());
+        oneOfArray.forEach(oneOf -> {
+            assertTrue(oneOf.has("properties"));
+            assertFalse(oneOf.has("not"));
+        });
+    }
+
+    @Test
+    void testGetDataFormats() throws Exception {
         var dataFormatMap = processor.getDataFormats();
         assertTrue(dataFormatMap.size() > 30 && dataFormatMap.size() < 50);
         var customDataFormat = dataFormatMap.get("custom");
@@ -78,10 +114,11 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
-    public void testGetDataFormatYaml() throws Exception {
+    void testGetDataFormatYaml() throws Exception {
         var dataFormatMap = processor.getDataFormats();
         var yamlDataFormat = dataFormatMap.get("yaml");
-        var typeFilterDefinition = yamlDataFormat.withObject("/definitions").withObject("org.apache.camel.model.dataformat.YAMLTypeFilterDefinition");
+        var typeFilterDefinition = yamlDataFormat.withObject("/definitions")
+                .withObject("org.apache.camel.model.dataformat.YAMLTypeFilterDefinition");
         assertEquals("object", typeFilterDefinition.get("type").asText());
         var propType = typeFilterDefinition.withObject("/properties").withObject("/type");
         assertEquals("string", propType.get("type").asText());
@@ -89,7 +126,7 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
-    public void testGetLanguages() throws Exception {
+    void testGetLanguages() throws Exception {
         var languageMap = processor.getLanguages();
         assertTrue(languageMap.size() > 20 && languageMap.size() < 30);
         var customLanguage = languageMap.get("language");
@@ -103,7 +140,7 @@ public class CamelYamlDslSchemaProcessorTest {
     }
 
     @Test
-    public void testGetProcessors() throws Exception {
+    void testGetProcessors() throws Exception {
         var processorMap = processor.getProcessors();
         assertTrue(processorMap.size() > 50 && processorMap.size() < 100);
         var aggregate = processorMap.get("org.apache.camel.model.AggregateDefinition");
@@ -141,13 +178,15 @@ public class CamelYamlDslSchemaProcessorTest {
         var actionDef = saga.withObject("/definitions").withObject("/org.apache.camel.model.SagaActionUriDefinition");
         assertFalse(actionDef.has("oneOf"));
         assertEquals("object", actionDef.withObject("/properties").withObject("/parameters").get("type").asText());
-        var propExpDef = saga.withObject("/definitions").withObject("/org.apache.camel.model.PropertyExpressionDefinition");
+        var propExpDef =
+                saga.withObject("/definitions").withObject("/org.apache.camel.model.PropertyExpressionDefinition");
         assertEquals("object", propExpDef.withObject("/properties").withObject("/expression").get("type").asText());
-        assertEquals("expression", propExpDef.withObject("/properties").withObject("/expression").get("$comment").asText());
+        assertEquals("expression",
+                propExpDef.withObject("/properties").withObject("/expression").get("$comment").asText());
     }
 
     @Test
-    public void testGetEntities() throws Exception {
+    void testGetEntities() throws Exception {
         var entityMap = processor.getEntities();
         List.of(
                 "beans",
@@ -163,12 +202,11 @@ public class CamelYamlDslSchemaProcessorTest {
                 "routeTemplate",
                 "templatedRoute",
                 "restConfiguration",
-                "rest"
-        ).forEach(name -> assertTrue(entityMap.containsKey(name), name));
+                "rest").forEach(name -> assertTrue(entityMap.containsKey(name), name));
     }
 
     @Test
-    public void testGetLoadBalancers() throws Exception {
+    void testGetLoadBalancers() throws Exception {
         var lbMap = processor.getLoadBalancers();
         assertTrue(lbMap.containsKey("customLoadBalancer"));
         var customLb = lbMap.get("customLoadBalancer");
