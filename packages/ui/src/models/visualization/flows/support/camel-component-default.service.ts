@@ -133,6 +133,13 @@ export class CamelComponentDefaultService {
           message: "\${body}"
         `);
 
+      case 'removeHeaders':
+        return parse(`
+        removeHeaders:
+          id: ${getCamelRandomId('removeHeaders')}
+          pattern: "*"
+        `);
+
       case 'doCatch':
         return parse(`
           id: ${getCamelRandomId('doCatch')}
