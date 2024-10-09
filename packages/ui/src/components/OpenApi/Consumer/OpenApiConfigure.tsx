@@ -157,7 +157,7 @@ export const OpenApiConfigure : FunctionComponent<Props> = (props) => {
 
   const updateSpecification = useCallback((value: string, url: string) => {
 
-    console.log("Updating specification: " + value);
+    //console.log("Updating specification: " + value);
     if (value !== '') {    
         if (value.startsWith('openapi:')) {
             var spec: OpenApi = parse(value);
@@ -187,11 +187,11 @@ export const OpenApiConfigure : FunctionComponent<Props> = (props) => {
             return;
           }
   
-          const operationId = path[method].operationId;
+          const currentOperationId = path[method].operationId;
 
           var operation: Operation = {
-            selected: false,
-            operationId: operationId!,
+            selected: (currentOperationId! == operationId),
+            operationId: currentOperationId!,
             httpMethod: method,
             path: Object.keys(spec.paths)[index],
           }
@@ -235,7 +235,6 @@ export const OpenApiConfigure : FunctionComponent<Props> = (props) => {
 
   const configureRestOpenApiClient = () => {
     entitiesContext?.camelResource.getVisualEntities().filter((entity: BaseVisualCamelEntity) => {
-        console.log("Found route");
         if (entity.type === EntityType.Route) {
 
             var route: CamelRouteVisualEntity  = entity as CamelRouteVisualEntity;
@@ -261,6 +260,7 @@ export const OpenApiConfigure : FunctionComponent<Props> = (props) => {
   }, [props]);
 
   useEffect(() => {
+
     if (search === ''){
         setFiltered(operations);
     } else {
@@ -271,9 +271,9 @@ export const OpenApiConfigure : FunctionComponent<Props> = (props) => {
   return (
     <>
         <TextContent>
-            <Text component={TextVariants.h1}>Configure Open API</Text>
+            <Text component={TextVariants.h1}>Configure Open API Consumer</Text>
         </TextContent>
-        <Table title='Add Open API'>
+        <Table title='Configure Open API Consumer'>
             <Tbody>
                 <Tr>
                     <Td>

@@ -12,7 +12,10 @@ import {
     EmptyStateIcon,
     EmptyStateVariant,
     Icon,
-    SearchInput
+    SearchInput,
+    Text,
+    TextContent,
+    TextVariants
     } from '@patternfly/react-core';
 import { Table, Thead, Th, Tbody, Td, Tr } from '@patternfly/react-table';
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
@@ -108,13 +111,17 @@ export default function OpenApis() {
             <OpenApiCreate openApiCreateToggle={openApiCreateToggle}/>
         }
         {!openApiCreateOpen &&
+        <div>
+        <TextContent>
+            <Text component={TextVariants.h1}>Create Open API Producers</Text>
+        </TextContent>
         <Table borders={false} variant="compact">
             <Thead noWrap>
                 <Tr>
                     <Th width={30} colSpan={2}>
                         <ActionList>
                             <ActionListItem>
-                                <Button onClick={openApiCreateToggle}>Add Open API</Button>
+                                <Button onClick={openApiCreateToggle}>Add Open API Producer</Button>
                             </ActionListItem>
                             <ActionListItem>
                                 <SearchInput aria-label="Search Open API input" placeholder="Find Open API by specification" onChange={(event, value) => setSearch(value)}/>
@@ -168,6 +175,7 @@ export default function OpenApis() {
                     }
             </Tbody>    
         </Table>
+        </div>
         }
         </>
     );

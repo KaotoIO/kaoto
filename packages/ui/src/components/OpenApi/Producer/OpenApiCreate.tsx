@@ -312,9 +312,9 @@ export const OpenApiCreate : FunctionComponent<Props> = (props) => {
   return (
     <>
         <TextContent>
-            <Text component={TextVariants.h1}>Add Open API</Text>
+            <Text component={TextVariants.h1}>Add Open API Producer</Text>
         </TextContent>
-        <Table title='Add Open API'>
+        <Table title='Add Open API Producer'>
             <Tbody>
                 <Tr>
                     <Td>
@@ -329,9 +329,9 @@ export const OpenApiCreate : FunctionComponent<Props> = (props) => {
                                 }
                             </WizardStep>
                             <WizardStep
-                                name="Review"
-                                key="review"
-                                id="review"
+                                name="Operations"
+                                key="operations"
+                                id="operations"
                                 footer={<CreateOpenApiFooter footerCallback={onCreate}/>}
                             >
                             <Text>The following operations are included in the Open API specification and will be added automatically:</Text>

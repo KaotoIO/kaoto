@@ -12,7 +12,10 @@ import {
     EmptyStateIcon,
     EmptyStateVariant,
     Icon,
-    SearchInput
+    SearchInput,
+    Text,
+    TextContent,
+    TextVariants
     } from '@patternfly/react-core';
 import { Table, Thead, Th, Tbody, Td, Tr } from '@patternfly/react-table';
 import PlusCircleIcon from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
@@ -77,8 +80,6 @@ export default function OpenApis() {
     const findRestOpenApiComponents = (contextNode: IVisualizationNode, newRestOpenApis: RestOpenApi[]) => {
         
         if (contextNode.getTitle() == 'rest-openapi') {
-            console.log("Found rest-api");
-
             var newRestOpenApi: RestOpenApi = {
                 id: contextNode.getId()!,
                 specificationUri: contextNode.getComponentSchema()!.definition!.parameters.specificationUri,
@@ -95,12 +96,9 @@ export default function OpenApis() {
     }
 
     useEffect(() => {
-        console.log("Useeffect for Consumer");
-
         var newRestOpenApis: RestOpenApi[] = new Array<RestOpenApi>;
 
         entitiesContext?.camelResource.getVisualEntities().filter((entity: BaseVisualCamelEntity) => {
-            console.log("Found route");
             if (entity.type === EntityType.Route) {
 
                 var route: CamelRouteVisualEntity  = entity as CamelRouteVisualEntity;
@@ -127,6 +125,11 @@ export default function OpenApis() {
             <OpenApiConfigure openApiConfigureToggle={openApiConfigureToggle} restOpenApiId={restOpenApiId} specificationUri={specificationUri} operationId={operationId} host={host}/>
         }
         {!openApiConfigureOpen &&
+        <div>
+        <TextContent>
+            <Text component={TextVariants.h1}>Configure Open API Consumers</Text>
+        </TextContent>
+        
         <Table borders={false} variant="compact">
             <Thead noWrap>
                 <Tr>
@@ -160,7 +163,7 @@ export default function OpenApis() {
                                 <Td>
                                     <ActionList>
                                         <ActionListItem>
-                                            <Button onClick={() => openApiConfigure(restOpenApi.id)}>Configure Open API</Button>
+                                            <Button onClick={() => openApiConfigure(restOpenApi.id)}>Configure</Button>
                                         </ActionListItem>
                                     </ActionList>
                                 </Td>
@@ -171,6 +174,7 @@ export default function OpenApis() {
                 })}
             </Tbody>    
         </Table>
+        </div>
         }
         </>
     );

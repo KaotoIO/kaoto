@@ -154,8 +154,6 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
   };
 
   const downloadFromUrl = () => {
-    console.log('Downloading from URL ' + downloadUrl);
-
     setIsUploadDisabled(true);
 
     fetch(downloadUrl, { method: 'GET', mode: 'cors' })
@@ -166,8 +164,6 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
   };
 
   const downloadFromApicurioRegistry = (id: string) => {
-    console.log('Downloading from Apicurio Registry ' + id);
-
     var newSpecificationUri = "http://service-registry.service-registry.router-default.apps-crc.testing/apis/registry/v2/groups/default/artifacts/"+id;
 
     fetch(newSpecificationUri, { method: 'GET', mode: 'cors' })
@@ -193,11 +189,8 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
     fetch("http://service-registry.service-registry.router-default.apps-crc.testing/apis/registry/v2/search/artifacts", {method: 'GET', mode: 'cors'})
     .then(res => res.json() as Promise<ApicurioArtifactSearchResult>)
     .then((apicurioArtifactSearchResult) => {
-        console.log("Response: " + JSON.stringify(apicurioArtifactSearchResult));
-
         var newApicurioArtifacts: ApicurioArtifact[] = apicurioArtifactSearchResult.artifacts.filter((apicurioArtifact) => {
             if (apicurioArtifact.type == "OPENAPI") {
-                console.log("Found Open API in Apicurio Registry");
 
                 return apicurioArtifact;
             }
