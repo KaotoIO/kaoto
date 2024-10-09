@@ -170,6 +170,9 @@ public class CamelCatalogProcessorTest {
         assertEquals("Custom", customPropertiesSchema.get("title").asText());
         var refProperty = customPropertiesSchema.withObject("/properties").withObject("/ref");
         assertEquals("Ref", refProperty.get("title").asText());
+        var customPropertiesSchemaRequiredFields = customPropertiesSchema.withArray("/required");
+        assertFalse(customPropertiesSchemaRequiredFields.isEmpty());
+        assertEquals(1, customPropertiesSchemaRequiredFields.size(), "Size should be 1");
     }
 
     @Test
@@ -180,21 +183,26 @@ public class CamelCatalogProcessorTest {
     @Test
     public void testGetLanguageCatalog() throws Exception {
         assertFalse(languageCatalog.has("file"));
-        var customModel = languageCatalog
+        var languageModel = languageCatalog
                 .withObject("/language")
                 .withObject("/model");
-        assertEquals("model", customModel.get("kind").asText());
-        assertEquals("Language", customModel.get("title").asText());
-        var customProperties = languageCatalog
+        assertEquals("model", languageModel.get("kind").asText());
+        assertEquals("Language", languageModel.get("title").asText());
+        var languageProperties = languageCatalog
                 .withObject("/language")
                 .withObject("/properties");
-        assertEquals("Language", customProperties.withObject("/language").get("displayName").asText());
-        var customPropertiesSchema = languageCatalog
+        assertEquals("Language", languageProperties.withObject("/language").get("displayName").asText());
+        var languagePropertiesSchema = languageCatalog
                 .withObject("/language")
                 .withObject("/propertiesSchema");
-        assertEquals("Language", customPropertiesSchema.get("title").asText());
-        var languageProperty = customPropertiesSchema.withObject("/properties").withObject("/language");
+        assertEquals("Language", languagePropertiesSchema.get("title").asText());
+        var languageProperty = languagePropertiesSchema.withObject("/properties").withObject("/language");
         assertEquals("Language", languageProperty.get("title").asText());
+        var languagePropertiesSchemaRequiredFields = languagePropertiesSchema.withArray("/required");
+        assertFalse(languagePropertiesSchemaRequiredFields.isEmpty());
+        assertEquals(2, languagePropertiesSchemaRequiredFields.size(), "Size should be 2");
+        assertEquals("expression", languagePropertiesSchemaRequiredFields.get(0).asText());
+        assertEquals("language", languagePropertiesSchemaRequiredFields.get(1).asText());
     }
 
     @Test
@@ -294,15 +302,25 @@ public class CamelCatalogProcessorTest {
         var failoverModel = loadBalancerCatalog.withObject("/failoverLoadBalancer/model");
         assertEquals("failoverLoadBalancer", failoverModel.get("name").asText());
         var failoverSchema = loadBalancerCatalog.withObject("/failoverLoadBalancer/propertiesSchema");
+        var failoverSchemaRequiredFields = failoverSchema.withArray("/required");
+        assertTrue(failoverSchemaRequiredFields.isEmpty());
         var maximumFailoverAttempts = failoverSchema.withObject("/properties/maximumFailoverAttempts");
         assertEquals("string", maximumFailoverAttempts.get("type").asText());
         assertEquals("-1", maximumFailoverAttempts.get("default").asText());
+
         var roundRobinSchema = loadBalancerCatalog.withObject("/roundRobinLoadBalancer/propertiesSchema");
+        var roundRobinSchemaRequiredFields = roundRobinSchema.withArray("/required");
+        assertTrue(roundRobinSchemaRequiredFields.isEmpty());
         var roundRobinId = roundRobinSchema.withObject("/properties/id");
         assertEquals("string", roundRobinId.get("type").asText());
+
         var customModel = loadBalancerCatalog.withObject("/customLoadBalancer/model");
         assertEquals("Custom Load Balancer", customModel.get("title").asText());
         var customSchema = loadBalancerCatalog.withObject("/customLoadBalancer/propertiesSchema");
+        var customSchemaRequiredFields = customSchema.withArray("/required");
+        assertFalse(customSchemaRequiredFields.isEmpty());
+        assertEquals(1, customSchemaRequiredFields.size(), "Size should be 1");
+        assertEquals("ref", customSchemaRequiredFields.get(0).asText());
         assertEquals("Custom Load Balancer", customSchema.get("title").asText());
         var customRef = customSchema.withObject("/properties/ref");
         assertEquals("Ref", customRef.get("title").asText());

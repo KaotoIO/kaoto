@@ -226,6 +226,8 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(dataFormatCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", dataFormatSchema);
+            // setting required property to all the dataformats schema
+            setRequiredToPropertiesSchema(dataFormatSchema, catalogTree);
             answer.set(dataFormatName, catalogTree);
         }
         StringWriter writer = new StringWriter();
@@ -267,6 +269,8 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(languageCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", languageSchema);
+            // setting required property to all the languages schema
+            setRequiredToPropertiesSchema(languageSchema, catalogTree);
             answer.set(languageName, catalogTree);
         }
         StringWriter writer = new StringWriter();
@@ -709,11 +713,26 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(loadBalancerCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", loadBalancerSchema);
+            // setting required property to all the load-balancers schema
+            setRequiredToPropertiesSchema(loadBalancerSchema, catalogTree);
             answer.set(loadBalancerName, catalogTree);
         }
         StringWriter writer = new StringWriter();
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
         jsonMapper.writeTree(jsonGenerator, answer);
         return writer.toString();
+    }
+
+    private void setRequiredToPropertiesSchema(ObjectNode camelYamlDslSchema, ObjectNode catalogModel) {
+        List<String> required = new ArrayList<>();
+        var camelYamlDslProperties = camelYamlDslSchema.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).toList();
+        for (var propertyName : camelYamlDslProperties) {
+            var catalogPropertySchema = catalogModel.withObject("/properties").withObject("/" + propertyName);
+            if (catalogPropertySchema.has("required") && catalogPropertySchema.get("required").asBoolean()) {
+                required.add(propertyName);
+            }
+        }
+        catalogModel.withObject("/propertiesSchema").set("required", jsonMapper.valueToTree(required));
     }
 }
