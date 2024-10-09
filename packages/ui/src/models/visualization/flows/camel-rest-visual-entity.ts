@@ -20,6 +20,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.Rest;
+  private static readonly ROOT_PATH = 'rest';
   private schemaValidator: ValidateFunction<Rest> | undefined;
   private readonly OMIT_FORM_FIELDS = [
     ...SchemaService.OMIT_FORM_FIELDS,
@@ -31,10 +32,11 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     'patch',
   ];
 
-  constructor(public restDef: { rest: Rest }) {
+  constructor(public restDef: { rest: Rest } = { rest: {} }) {
     super(restDef);
-    const id = getCamelRandomId('rest');
+    const id = restDef.rest.id ?? getCamelRandomId(CamelRestVisualEntity.ROOT_PATH);
     this.id = id;
+    this.restDef.rest.id = id;
   }
 
   static isApplicable(restDef: unknown): restDef is { rest: Rest } {
@@ -44,7 +46,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
     const objectKeys = Object.keys(restDef!);
 
-    return objectKeys.length === 1 && 'rest' in restDef! && typeof restDef.rest === 'object';
+    return objectKeys.length === 1 && this.ROOT_PATH in restDef! && typeof restDef.rest === 'object';
   }
 
   getId(): string {

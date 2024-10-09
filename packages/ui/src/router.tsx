@@ -38,9 +38,13 @@ export const router = createHashRouter([
         lazy: async () => import('./pages/Settings'),
       },
       {
-        path: Links.OpenApi,
-        lazy: async () => import('./pages/OpenApi'),
+        path: Links.OpenApiProducer,
+        lazy: async () => import('./pages/OpenApi/Producer'),
       },
+      {
+        path: Links.OpenApiConsumer,
+        lazy: async () => import('./pages/OpenApi/Consumer'),
+      }
     ],
   },
 ]);
