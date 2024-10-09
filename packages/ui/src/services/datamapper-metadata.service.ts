@@ -205,7 +205,12 @@ export class DataMapperMetadataService {
     });
   }
 
-  static deleteMetadata(api: IMetadataApi, metadataId: string) {
-    api.setMetadata(metadataId, undefined);
+  static async deleteMetadata(api: IMetadataApi, metadataId: string) {
+    await api.setMetadata(metadataId, undefined);
+  }
+
+  static async deleteXsltFile(api: IMetadataApi, metadataId: string) {
+    const metadata = (await api.getMetadata(metadataId)) as IDataMapperMetadata;
+    await api.deleteResource(metadata.xsltPath);
   }
 }

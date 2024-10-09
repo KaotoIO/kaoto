@@ -28,6 +28,12 @@ export interface IMetadataApi {
   saveResourceContent(path: string, content: string): Promise<void>;
 
   /**
+   * Delete resource
+   * @param path The path of the resource
+   */
+  deleteResource(path: string): Promise<boolean>;
+
+  /**
    * Show a Quick Pick widget and ask the user to select one or more files available in the workspace.
    * @param include The filter expression for the files to include
    * @param exclude The filter expression for the files to exclude

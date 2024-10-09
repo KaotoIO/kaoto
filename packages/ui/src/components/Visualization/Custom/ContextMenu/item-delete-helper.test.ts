@@ -4,6 +4,7 @@ import {
   IInteractionAddonType,
   IRegisteredInteractionAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
+import { ACTION_ID_CONFIRM } from '../../../../providers';
 
 describe('item-delete-helper', () => {
   describe('processNodeInteractionAddonRecursively', () => {
@@ -18,7 +19,7 @@ describe('item-delete-helper', () => {
       };
       addons[childVn.id] = [mockAddon];
       vizNode.addChild(childVn);
-      processNodeInteractionAddonRecursively(vizNode, (vn) => addons[vn.id] ?? []);
+      processNodeInteractionAddonRecursively(vizNode, ACTION_ID_CONFIRM, (vn) => addons[vn.id] ?? []);
       expect(mockAddon.callback).toHaveBeenCalled();
     });
   });

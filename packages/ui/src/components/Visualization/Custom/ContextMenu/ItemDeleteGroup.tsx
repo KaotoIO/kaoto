@@ -4,13 +4,13 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'r
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import {
-  ACTION_ID_CONFIRM,
+  ACTION_ID_CANCEL,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
-import { processNodeInteractionAddonRecursively } from './item-delete-helper';
+import { findModalCustomizationRecursively, processNodeInteractionAddonRecursively } from './item-delete-helper';
 
 interface ItemDeleteGroupProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -24,15 +24,22 @@ export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) 
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onRemoveGroup = useCallback(async () => {
+    const modalCustoms = findModalCustomizationRecursively(props.vizNode, (vn) =>
+      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    );
+    const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
+    const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
     /** Open delete confirm modal, get the confirmation  */
-    const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
+    const modalAnswer = await deleteModalContext?.actionConfirmation({
       title: 'Permanently delete flow?',
       text: 'All steps will be lost.',
+      additionalModalText,
+      buttonOptions,
     });
 
-    if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
+    if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
 
-    processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
+    processNodeInteractionAddonRecursively(props.vizNode, modalAnswer, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );
 

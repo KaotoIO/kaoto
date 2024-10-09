@@ -1,9 +1,14 @@
 import { FunctionComponent, PropsWithChildren, useContext, useRef } from 'react';
 import { datamapperActivationFn } from './datamapper.activationfn';
 import { MetadataContext } from '../../providers';
-import { onDeleteDataMapper } from '../DataMapper/on-delete-datamapper';
+import {
+  ACTION_ID_DELETE_STEP_AND_FILE,
+  ACTION_ID_DELETE_STEP_ONLY,
+  onDeleteDataMapper,
+} from '../DataMapper/on-delete-datamapper';
 import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
 import { IInteractionAddonType, IRegisteredInteractionAddon } from './interactions/node-interaction-addon.model';
+import { ButtonVariant } from '@patternfly/react-core';
 
 export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const metadataApi = useContext(MetadataContext)!;
@@ -12,8 +17,22 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
     {
       type: IInteractionAddonType.ON_DELETE,
       activationFn: datamapperActivationFn,
-      callback: (vizNode) => {
-        metadataApi && onDeleteDataMapper(metadataApi, vizNode);
+      callback: (vizNode, modalAnswer) => {
+        metadataApi && onDeleteDataMapper(metadataApi, vizNode, modalAnswer);
+      },
+      modalCustomization: {
+        additionalText: 'Do you also want to delete the associated Kaoto DataMapper mapping file (XSLT)?',
+        buttonOptions: {
+          [ACTION_ID_DELETE_STEP_AND_FILE]: {
+            variant: ButtonVariant.danger,
+            buttonText: 'Delete both step and file',
+          },
+          [ACTION_ID_DELETE_STEP_ONLY]: {
+            variant: ButtonVariant.secondary,
+            isDanger: true,
+            buttonText: 'Delete the step, but keep the file',
+          },
+        },
       },
     },
   ]);

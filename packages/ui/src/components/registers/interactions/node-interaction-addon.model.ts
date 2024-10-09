@@ -1,13 +1,20 @@
 import { IVisualizationNode } from '../../../models';
+import { ActionConfirmationButtonOption } from '../../../providers';
 
 export enum IInteractionAddonType {
   ON_DELETE = 'onDelete',
 }
 
+export interface IModalCustomization {
+  buttonOptions: Record<string, ActionConfirmationButtonOption>;
+  additionalText?: string;
+}
+
 export interface IRegisteredInteractionAddon {
   type: IInteractionAddonType;
   activationFn: (vizNode: IVisualizationNode) => boolean;
-  callback: (vizNode: IVisualizationNode) => void;
+  callback: (vizNode: IVisualizationNode, modalAnswer: string | undefined) => void;
+  modalCustomization?: IModalCustomization;
 }
 
 export interface INodeInteractionAddonContext {
@@ -38,7 +45,7 @@ export interface INodeInteractionAddonContext {
    *
    *    const addons = nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vizNode);
    *    addons.forEach((addon) => {
-   *      addon.onDelete(vizNode);
+   *      addon.callback(vizNode, ACTION_ID_CONFIRM);
    *    });
    * ```
    * @param type   The interaction addon type enum value
