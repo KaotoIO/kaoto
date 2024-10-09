@@ -85,6 +85,7 @@ export class ControllerService {
           nodesep: 20,
           edgesep: 20,
           ranksep: 0,
+          nodeDistance: 40,
         });
       case LayoutType.DagreHorizontal:
         return new DagreGroupsLayout(graph, {
@@ -93,6 +94,7 @@ export class ControllerService {
           nodesep: 20,
           edgesep: 20,
           ranksep: 0,
+          nodeDistance: 40,
         });
       case LayoutType.Force:
         return new ForceLayout(graph);

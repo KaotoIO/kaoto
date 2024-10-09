@@ -11,18 +11,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--pf-v5-global--Color--200);
-  width: calc(var(--custom-group-TitleHeight) * 0.8);
-  height: calc(var(--custom-group-TitleHeight) * 0.8);
-  border: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--palette--black-400);
-  background-color: var(--pf-v5-global--palette--white);
-  border-radius: 50px;
+  color: var(--pf-v5-global--palette--black-300);
+  height: 100%;
+  border: none;
+  background: none;
   cursor: pointer;
-  margin-right: 5px;
+  margin: 5px 5px 5px 0px;
 
   &:hover {
-    border-color: var(--pf-v5-global--primary-color--light-100);
-    background-color: var(--pf-v5-global--BackgroundColor--200);
+    background-color: var(--pf-v5-global--palette--blue-700);
+    border: none;
   }
 }
 
@@ -32,8 +30,8 @@
   --custom-group--BorderRadius: 15px;
   --custom-group--Background: var(--pf-v5-global--palette--white);
   --custom-group-TitleHeight: 32px;
-  --custom-group-TitleBackground: var(--pf-v5-global--palette--blue-200);
-  --custom-group-TitleColor: var(--pf-v5-global--palette--black-900);
+  --custom-group-TitleBackground: var(--pf-v5-global--primary-color--200);
+  --custom-group-TitleColor: var(--pf-v5-global--palette--white);
 
   display: flex;
   flex-flow: column;
@@ -41,30 +39,27 @@
   width: 100%;
   background-color: var(--custom-group--Background);
   color: var(--pf-v5-global--Color--100);
-  border-radius: var(--custom-group--BorderRadius);
-  border: var(--custom-group--BorderSize) solid var(--custom-group--BorderColor);
+  border: 1px solid var(--custom-group--BorderColor);
+  border-radius: 8px;
 
   &__title {
     display: flex;
     align-items: center;
     font-size: var(--pf-v5-global--FontSize--md);
-    font-weight: bold;
+    letter-spacing: .1rem;
     color: var(--custom-group-TitleColor);
-    border-top-left-radius: calc(var(--custom-group--BorderRadius) - 2px);
-    border-top-right-radius: calc(var(--custom-group--BorderRadius) - 2px);
     background-color: var(--custom-group-TitleBackground);
     height: var(--custom-group-TitleHeight);
+    border: var(--custom-group--BorderSize) solid var(--custom-group-TitleBackground);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
 
     &__img-circle {
       margin: 5px -10px 5px 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: calc(var(--custom-group-TitleHeight) * 0.9);
-      height: calc(var(--custom-group-TitleHeight) * 0.9);
-      border: var(--pf-v5-global--BorderWidth--sm) solid var(--pf-v5-global--palette--black-400);
-      background-color: var(--pf-v5-global--palette--white);
-      border-radius: 50px;
+      filter: brightness(0) invert(1);
 
       img {
         max-width: calc(var(--custom-group-TitleHeight) * 0.6);
@@ -82,18 +77,18 @@
   }
 
   &:hover {
-    --custom-group--BorderColor: var(--pf-v5-global--primary-color--light-100);
+    --custom-group--BorderColor: var(--pf-v5-global--primary-color--200);
   }
 
   &--selected {
-    --custom-group--BorderColor: var(--pf-v5-global--palette--blue-200);
+    --custom-group--BorderColor: var(--pf-v5-global--primary-color--200);
     --custom-group--Background: var(--pf-v5-global--palette--blue-50);
     --custom-group--BorderSize: var(--pf-v5-global--BorderWidth--md);
-    --custom-group-TitleBackground: var(--pf-v5-global--palette--blue-300);
+    --custom-group-TitleBackground: var(--pf-v5-global--primary-color--200);
     --custom-group-TitleColor: var(--pf-v5-global--palette--white);
 
     &:hover {
-      --custom-group--BorderColor: var(--pf-v5-global--palette--blue-200);
+      --custom-group--BorderColor: var(--pf-v5-global--primary-color--200);
       --custom-group--Background: var(--pf-v5-global--palette--blue-50);
     }
   }

@@ -203,6 +203,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+      onClick={handleCloseSideBar}
     >
       <VisualizationSurface state={{ selectedIds }} />
 
