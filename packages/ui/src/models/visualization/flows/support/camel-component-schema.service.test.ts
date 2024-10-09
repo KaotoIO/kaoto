@@ -113,6 +113,51 @@ describe('CamelComponentSchemaService', () => {
       expect(result).toMatchSnapshot();
     });
 
+    it('should build the appropriate schema without any producer parameters', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const Path = 'from';
+      const routeDefinition = {
+        uri: 'file',
+        parameters: {},
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(Path, routeDefinition);
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Processor, 'from');
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should build the appropriate schema without any consumer parameters', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const toFilePath = 'from.steps.0.to';
+      const toFileDefinition = {
+        id: 'to-3044',
+        uri: 'file',
+        parameters: {},
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toFilePath, toFileDefinition);
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'file');
+      expect(result).toMatchSnapshot();
+    });
+
+    it('should build the appropriate schema for kamelets', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const toFilePath = 'from.steps.0.to';
+      const toFileDefinition = {
+        id: 'to-3044',
+        uri: 'kamelet:kafka-not-secured-sink',
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(toFilePath, toFileDefinition);
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-not-secured-sink');
+      expect(result).toMatchSnapshot();
+    });
+
     it('should transform a string-based `To` processor', () => {
       const toBeanPath = 'from.steps.0.to';
       const toBeanDefinition = {

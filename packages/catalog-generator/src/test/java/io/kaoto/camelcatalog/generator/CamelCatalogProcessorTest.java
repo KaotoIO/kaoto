@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.kaoto.camelcatalog;
+package io.kaoto.camelcatalog.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +31,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CamelCatalogProcessorTest {
-    private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string" );
-    private final ObjectMapper jsonMapper;
+    private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string");
     private final CamelCatalogProcessor processor;
-    private final ObjectNode yamlDslSchema;
-    private final CamelYamlDslSchemaProcessor schemaProcessor;
     private final ObjectNode componentCatalog;
     private final ObjectNode dataFormatCatalog;
     private final ObjectNode languageCatalog;
@@ -42,11 +42,14 @@ public class CamelCatalogProcessorTest {
     private final ObjectNode loadBalancerCatalog;
 
     public CamelCatalogProcessorTest() throws Exception {
-        this.jsonMapper = new ObjectMapper();
+        CamelCatalog catalog = new DefaultCamelCatalog();
+        ObjectMapper jsonMapper = new ObjectMapper();
         var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
-        yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
-        schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
-        this.processor = new CamelCatalogProcessor(jsonMapper, schemaProcessor);
+        ObjectNode yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
+        CamelYamlDslSchemaProcessor schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
+
+        this.processor = new CamelCatalogProcessor(catalog, jsonMapper, schemaProcessor, CatalogRuntime.Main, true);
+
         this.componentCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getComponentCatalog());
         this.dataFormatCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getDataFormatCatalog());
         this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
