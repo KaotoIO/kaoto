@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.kaoto.camelcatalog;
+package io.kaoto.camelcatalog.generator;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,12 +52,12 @@ public class UtilTest {
 
     @Test
     public void testGenerateHashFromPath() throws Exception {
-        var url = Thread.currentThread().getContextClassLoader().getResource(testFiles.getFirst());
+        var url = Thread.currentThread().getContextClassLoader().getResource(testFiles.get(0));
         if (url == null) throw new Exception("no test file available");
         var testFilePath = Path.of(url.toURI());
         var hash = Util.generateHash(testFilePath);
         assertNotNull(hash);
-        url = Thread.currentThread().getContextClassLoader().getResource(testFiles.getFirst());
+        url = Thread.currentThread().getContextClassLoader().getResource(testFiles.get(0));
         if (url == null) throw new Exception("no test file available");
         testFilePath = Path.of(url.toURI());
         var hash2 = Util.generateHash(testFilePath);
@@ -66,12 +66,12 @@ public class UtilTest {
 
     @Test
     public void testGenerateHashFromString() throws Exception {
-        var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.getFirst());
+        var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.get(0));
         if (is == null) throw new Exception("no test file available");
         var testFileString = new String(is.readAllBytes());
         var hash = Util.generateHash(testFileString);
         assertNotNull(hash);
-        is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.getFirst());
+        is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.get(0));
         if (is == null) throw new Exception("no test file available");
         testFileString = new String(is.readAllBytes());
         var hash2 = Util.generateHash(testFileString);
@@ -80,7 +80,7 @@ public class UtilTest {
 
     @Test
     public void testMessageDigestHash() throws Exception {
-        try (var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.getFirst())) {
+        try (var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(testFiles.get(0))) {
             if (is == null) throw new Exception("no test file available");
             var digest = MessageDigest.getInstance("MD5");
             var hash = digest.digest(is.readAllBytes());

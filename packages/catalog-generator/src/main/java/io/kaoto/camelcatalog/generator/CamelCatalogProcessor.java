@@ -373,7 +373,13 @@ public class CamelCatalogProcessor {
                     required.add(propertyName);
                 }
 
-                propertySchema.put("group", catalogOp.getGroup());
+                /* In Apache Camel previous to 4.5.0, the displayName is stored in the label property */
+                if (catalogOp.getLabel() != null) {
+                    propertySchema.put("group", catalogOp.getLabel());
+                } else if (catalogOp.getGroup() != null) {
+                    propertySchema.put("group", catalogOp.getGroup());
+                }
+
                 sortedSchemaProperties.set(propertyName, propertySchema);
             }
 

@@ -120,5 +120,15 @@ describe('CamelComponentDefaultService', () => {
       expect((filterDefault.filter!.expression as any).simple).toEqual({});
       expect(filterDefault.filter!.steps).toBeUndefined();
     });
+
+    it('should return the default value for a removeHeaders processor', () => {
+      const removeHeadersDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'removeHeaders',
+      } as DefinedComponent) as any;
+      expect(removeHeadersDefault.removeHeaders).toBeDefined();
+      expect(removeHeadersDefault.removeHeaders.id as string).toMatch(/^removeHeaders-/);
+      expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
+    });
   });
 });

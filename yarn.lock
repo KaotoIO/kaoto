@@ -2786,25 +2786,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog-plugin@workspace:packages/camel-catalog":
-  version: 0.0.0-use.local
-  resolution: "@kaoto/camel-catalog-plugin@workspace:packages/camel-catalog"
-  dependencies:
-    "@eslint/js": "npm:^9.10.0"
-    "@types/eslint__js": "npm:^8.42.3"
-    "@types/node": "npm:^20.0.0"
-    eslint: "npm:^9.10.0"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-plugin-prettier: "npm:^5.2.1"
-    json-schema-to-typescript: "npm:^15.0.0"
-    prettier: "npm:^3.0.0"
-    rimraf: "npm:^6.0.0"
-    ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.4.2"
-    typescript-eslint: "npm:^8.5.0"
-  languageName: unknown
-  linkType: soft
-
 "@kaoto/camel-catalog@workspace:*, @kaoto/camel-catalog@workspace:packages/catalog-generator":
   version: 0.0.0-use.local
   resolution: "@kaoto/camel-catalog@workspace:packages/catalog-generator"

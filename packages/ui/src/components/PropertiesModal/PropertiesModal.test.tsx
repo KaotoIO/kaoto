@@ -232,7 +232,7 @@ describe('PropertiesModal', () => {
         'AWS DynamoDB Streams Source',
       );
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Receive events');
-      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (9)');
+      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (13)');
       // headers
       expect(screen.getByTestId('tab-0-table-0-header-property')).toHaveTextContent('property');
       expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
