@@ -181,7 +181,7 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
   };
 
   useEffect(() => {
-    if (props.specificationUri !== '' && props.specificationUri.startsWith('http')) {
+    if (isDefined(props.specificationUri) && props.specificationUri.startsWith('http')) {
       updateDownloadUrl(props.specificationUri);
     }
 
