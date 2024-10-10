@@ -5,8 +5,10 @@ import {
   DefaultNode,
   Node,
   NodeStatus,
+  ScaleDetailsLevel,
   WithSelectionProps,
   observer,
+  useSelection,
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
@@ -32,13 +34,19 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const tooltipContent = vizNode?.getTooltipContent();
   const statusDecoratorTooltip = vizNode?.getNodeValidationText();
   const nodeStatus = !statusDecoratorTooltip || isDisabled ? NodeStatus.default : NodeStatus.warning;
+  const detailsLevel = element.getGraph().getDetailsLevel();
+  const [selected] = useSelection();
 
   return (
     <DefaultNode
       {...rest}
       element={element}
-      label={doTruncateLabel(label)}
-      labelClassName={clsx('custom-node__label', { 'custom-node__label--disabled': isDisabled })}
+      label={selected ? label : doTruncateLabel(label)}
+      scaleLabel={detailsLevel !== ScaleDetailsLevel.low}
+      labelClassName={clsx('custom-node__label', {
+        'custom-node__label--disabled': isDisabled,
+        'custom-node__label--selected': selected,
+      })}
       showStatusDecorator={!isDisabled}
       statusDecoratorTooltip={statusDecoratorTooltip}
       nodeStatus={nodeStatus}
