@@ -1,0 +1,11 @@
+- route:
+    id: route-1921
+    from:
+      id: from-2265
+      uri: amqp
+      parameters: {}
+      steps:
+        - to:
+            id: to-9644
+            uri: activemq6
+            parameters: {}
