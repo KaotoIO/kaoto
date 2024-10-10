@@ -1,7 +1,7 @@
 import { Rest, RouteDefinition } from '@kaoto/camel-catalog/types';
 import {
   ActionList,
-  ActionListItem,    
+  ActionListItem,
   Bullseye,
   Button,
   Card,
@@ -16,7 +16,7 @@ import {
   EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
-  EmptyStateVariant,  
+  EmptyStateVariant,
   FileUpload,
   Form,
   FormGroup,
@@ -30,7 +30,6 @@ import {
   Tabs,
   Text,
   TextInput,
-
 } from '@patternfly/react-core';
 import { Table, Thead, Th, Tbody, Td, Tr } from '@patternfly/react-table';
 import { OpenApi, OpenApiOperation, OpenApiPath } from 'openapi-v3';
@@ -47,28 +46,28 @@ import { EntitiesContext } from '../../../providers/entities.provider';
 import { Links } from '../../../router/links.models';
 import { isDefined } from '../../../utils';
 import PaginationTop from '../../Visualization/Pagination/PaginationTop';
-
+import { SettingsContext } from '../../../providers';
 
 interface Props {
-    updateSpecification: (spec: string, url: string) => void;
-};
+  updateSpecification: (spec: string, url: string) => void;
+}
 
 interface ApicurioArtifact {
-    groupId: string;
-    id: string;
-    name: string;
-    description: string;
-    createdOn: string;
-    createdBy: string;
-    type: string;
-    state: string;
-    modifiedOn: string;
-    modifiedBy: string;
+  groupId: string;
+  id: string;
+  name: string;
+  description: string;
+  createdOn: string;
+  createdBy: string;
+  type: string;
+  state: string;
+  modifiedOn: string;
+  modifiedBy: string;
 }
 
 interface ApicurioArtifactSearchResult {
-    artifacts: ApicurioArtifact[];
-    count: number;
+  artifacts: ApicurioArtifact[];
+  count: number;
 }
 
 type OpenApiPathMethods = {
@@ -78,14 +77,14 @@ type OpenApiPathMethods = {
 const VALID_METHODS: OpenApiPathMethods[] = ['get', 'post', 'put', 'delete', 'head', 'patch'];
 
 interface Operation {
-    selected: boolean;
-    routeExists: boolean;
-    operationId: string;
-    httpMethod: string;
-    path: string;
-};
+  selected: boolean;
+  routeExists: boolean;
+  operationId: string;
+  httpMethod: string;
+  path: string;
+}
 
-export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
+export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
@@ -98,27 +97,26 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
   const [specificationUrl, setSpecificationUrl] = useState('');
   const [apicurioArtifacts, setApicurioArtifacts] = useState<ApicurioArtifact[]>([]);
   const [filtered, setFiltered] = useState<ApicurioArtifact[]>([]);
+  const settingsAdapter = useContext(SettingsContext);
 
   const handlePageChange = (newPageNumber: number) => {
     setPageNumber(newPageNumber);
   };
 
   const handleSearch = useCallback(() => {
-    const filtered = apicurioArtifacts.filter(apicurioArtifact => apicurioArtifact.name.includes(search));
+    const filtered = apicurioArtifacts.filter((apicurioArtifact) => apicurioArtifact.name.includes(search));
     setFiltered(filtered);
-
-  },[search, apicurioArtifacts]);
+  }, [search, apicurioArtifacts]);
 
   const handleTabClick = (
     event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
-    tabIndex: string | number
+    tabIndex: string | number,
   ) => {
     setActiveTabKey(tabIndex);
   };
-  
-  const handleFileInputChange = (_, file: File) => {
-    console.log("File Input Change called " + file.name);
 
+  const handleFileInputChange = (_, file: File) => {
+    console.log('File Input Change called ' + file.name);
 
     setFileName(file.name);
     setSpecificationUrl(file.name);
@@ -158,24 +156,24 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
     setIsUploadDisabled(true);
 
     fetch(downloadUrl, { method: 'GET', mode: 'cors' })
-    .then(res => res.text())
-    .then((spec) => {
+      .then((res) => res.text())
+      .then((spec) => {
         updateSpecification(spec);
-    });
+      });
   };
 
   const downloadFromApicurioRegistry = (id: string) => {
-    console.log('Downloading from Apicurio Registry ' + id);
+    const apicurioRegistryUrl = settingsAdapter.getSettings().apicurioRegistryUrl;
 
-    var newSpecificationUrl = "http://service-registry.service-registry.router-default.apps-crc.testing/apis/registry/v2/groups/default/artifacts/"+id;
+    const newSpecificationUrl = apicurioRegistryUrl + '/apis/registry/v2/groups/default/artifacts/' + id;
 
     fetch(newSpecificationUrl, { method: 'GET', mode: 'cors' })
-    .then(res => res.text())
-    .then((spec) => {
+      .then((res) => res.text())
+      .then((spec) => {
         setSpecificationUrl(newSpecificationUrl);
         setSpecification(spec);
-        props.updateSpecification(spec, newSpecificationUrl);    
-    });
+        props.updateSpecification(spec, newSpecificationUrl);
+      });
   };
 
   const updateSpecification = (spec: string) => {
@@ -184,125 +182,162 @@ export const OpenApiSpecification : FunctionComponent<Props> = (props) => {
   };
 
   useEffect(() => {
-    fetch("http://service-registry.service-registry.router-default.apps-crc.testing/apis/registry/v2/search/artifacts", {method: 'GET', mode: 'cors'})
-    .then(res => res.json() as Promise<ApicurioArtifactSearchResult>)
-    .then((apicurioArtifactSearchResult) => {
-        console.log("Response: " + JSON.stringify(apicurioArtifactSearchResult));
+    const apicurioRegistryUrl = settingsAdapter.getSettings().apicurioRegistryUrl;
 
-        var newApicurioArtifacts: ApicurioArtifact[] = apicurioArtifactSearchResult.artifacts.filter((apicurioArtifact) => {
-            if (apicurioArtifact.type == "OPENAPI") {
-                console.log("Found Open API in Apicurio Registry");
+    fetch(apicurioRegistryUrl + '/apis/registry/v2/search/artifacts', { method: 'GET', mode: 'cors' })
+      .then((res) => res.json() as Promise<ApicurioArtifactSearchResult>)
+      .then((apicurioArtifactSearchResult) => {
+        console.log('Response: ' + JSON.stringify(apicurioArtifactSearchResult));
 
-                return apicurioArtifact;
+        const newApicurioArtifacts: ApicurioArtifact[] = apicurioArtifactSearchResult.artifacts.filter(
+          (apicurioArtifact) => {
+            if (apicurioArtifact.type == 'OPENAPI') {
+              console.log('Found Open API in Apicurio Registry');
+
+              return apicurioArtifact;
             }
-        });
+          },
+        );
 
         setApicurioArtifacts(newApicurioArtifacts);
         setFiltered(newApicurioArtifacts);
-    });
+      });
   }, [isDownloadDisabled, isUploadDisabled]);
 
   return (
-        <Tabs
-            activeKey={activeTabKey}
-            onSelect={handleTabClick}
-            variant={'default'}
-            isBox
-            aria-label="Tabs in the box light variation example"
-            role="region">
-            <Tab eventKey={0} title={<TabTitleText>From URL</TabTitleText>} aria-label="Box light variation content - users">
-                <Form>
-                    <FormGroup isRequired onSubmit={downloadFromUrl}>
-                        <InputGroup>
-                            <TextInput id="operation-name" type="url" onChange={(_event, value) => updateDownloadUrl(value)} isDisabled={isDownloadDisabled}/>
-                            <Button key="download_url" id="download_url" variant="tertiary" onClick={downloadFromUrl}>Download</Button>
-                            <Button key="clear_url" id="clear_url" variant="tertiary" isDisabled={true}>Clear</Button>
-                        </InputGroup>
-                    </FormGroup>
-                </Form>
-            </Tab>
-            <Tab eventKey={1} title={<TabTitleText>From file</TabTitleText>} aria-label="Box light variation content - users">
-                <Form>
-                    <FormGroup>
-                        <FileUpload
-                            id="text-file-simple"
-                            type="text"
-                            filename={fileName}
-                            filenamePlaceholder="Drag and drop a file or upload one"
-                            onFileInputChange={handleFileInputChange}
-                            onDataChange={handleDataChange}
-                            onTextChange={handleTextChange}
-                            onReadStarted={handleFileReadStarted}
-                            onReadFinished={handleFileReadFinished}
-                            onClearClick={handleClear}
-                            isLoading={isLoading}
-                            allowEditingUploadedText={false}
-                            hideDefaultPreview={true}
-                            isClearButtonDisabled={true}
-                            isDisabled={isUploadDisabled}
-                            browseButtonText="Upload"/>
-                    </FormGroup>
-                </Form>
-            </Tab>
-            <Tab eventKey={2} title={<TabTitleText>From Apicurio Registry</TabTitleText>} aria-label="Box light variation content - users">
-                <Table borders={false} variant="compact">
-                    <Thead noWrap>
-                        <Tr>
-                            <Th width={30}>
-                                <ActionList>
-                                    <ActionListItem>
-                                        <SearchInput aria-label="Search Open API input" placeholder="Find Open API by name" onChange={(event, value) => setSearch(value)}/>
-                                    </ActionListItem>
-                                </ActionList>
-                            </Th>
-                            <Th colSpan={70}>
-                                <PaginationTop itemCount={apicurioArtifacts.length} perPage={10} pageChangeCallback={handlePageChange}/>
-                            </Th>
-                        </Tr>
-                        <Tr>
-                            <Th width={30}>ID</Th>
-                            <Th colSpan={2} width={90}>Specification Name</Th>
-                            <Th width={10}>Actions</Th>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {filtered.map((apicurioArtifact, index) => {
-                            if (index >= ((pageNumber-1)*10) && index <= (pageNumber)*10-1) {
-                                return <Tr key={apicurioArtifact.id}>
-                                    <Td>{apicurioArtifact.id}</Td>
-                                    <Td colSpan={2}>{apicurioArtifact.name}</Td>
-                                    <Td>
-                                        <ActionList>
-                                            <ActionListItem key={apicurioArtifact.id + '_action'}>
-                                                <Button onClick={() => downloadFromApicurioRegistry(apicurioArtifact.id)} variant="primary">Download</Button>
-                                            </ActionListItem>
-                                        </ActionList>
-                                    </Td>
-                                </Tr>;
-                            } else {
-                                return;
-                            }
-                        })}
-                        {filtered.length === 0 && search !== '' &&
-                            <Tr>
-                                <Td colSpan={4}>
-                                    <Bullseye>
-                                        <EmptyState variant={EmptyStateVariant.sm}>
-                                            <EmptyStateHeader icon={<EmptyStateIcon icon={SearchIcon} />} titleText="No results found" headingLevel="h2" />
-                                            <EmptyStateBody>Clear all filters and try again.</EmptyStateBody>
-                                            <EmptyStateFooter>
-                                                <EmptyStateActions>
-                                                    <Button variant="link">Clear all filters</Button>
-                                                </EmptyStateActions>
-                                            </EmptyStateFooter>
-                                        </EmptyState>
-                                    </Bullseye>
-                                </Td>
-                            </Tr>
-                        }
-                    </Tbody>    
-                </Table>
-            </Tab>
-        </Tabs>
+    <Tabs
+      activeKey={activeTabKey}
+      onSelect={handleTabClick}
+      variant={'default'}
+      isBox
+      aria-label="Tabs in the box light variation example"
+      role="region"
+    >
+      <Tab eventKey={0} title={<TabTitleText>From URL</TabTitleText>} aria-label="Box light variation content - users">
+        <Form>
+          <FormGroup isRequired onSubmit={downloadFromUrl}>
+            <InputGroup>
+              <TextInput
+                id="operation-name"
+                type="url"
+                onChange={(_event, value) => updateDownloadUrl(value)}
+                isDisabled={isDownloadDisabled}
+              />
+              <Button key="download_url" id="download_url" variant="tertiary" onClick={downloadFromUrl}>
+                Download
+              </Button>
+              <Button key="clear_url" id="clear_url" variant="tertiary" isDisabled={true}>
+                Clear
+              </Button>
+            </InputGroup>
+          </FormGroup>
+        </Form>
+      </Tab>
+      <Tab eventKey={1} title={<TabTitleText>From file</TabTitleText>} aria-label="Box light variation content - users">
+        <Form>
+          <FormGroup>
+            <FileUpload
+              id="text-file-simple"
+              type="text"
+              filename={fileName}
+              filenamePlaceholder="Drag and drop a file or upload one"
+              onFileInputChange={handleFileInputChange}
+              onDataChange={handleDataChange}
+              onTextChange={handleTextChange}
+              onReadStarted={handleFileReadStarted}
+              onReadFinished={handleFileReadFinished}
+              onClearClick={handleClear}
+              isLoading={isLoading}
+              allowEditingUploadedText={false}
+              hideDefaultPreview={true}
+              isClearButtonDisabled={true}
+              isDisabled={isUploadDisabled}
+              browseButtonText="Upload"
+            />
+          </FormGroup>
+        </Form>
+      </Tab>
+      <Tab
+        eventKey={2}
+        title={<TabTitleText>From Apicurio Registry</TabTitleText>}
+        aria-label="Box light variation content - users"
+      >
+        <Table borders={false} variant="compact">
+          <Thead noWrap>
+            <Tr>
+              <Th width={30}>
+                <ActionList>
+                  <ActionListItem>
+                    <SearchInput
+                      aria-label="Search Open API input"
+                      placeholder="Find Open API by name"
+                      onChange={(event, value) => setSearch(value)}
+                    />
+                  </ActionListItem>
+                </ActionList>
+              </Th>
+              <Th colSpan={70}>
+                <PaginationTop
+                  itemCount={apicurioArtifacts.length}
+                  perPage={10}
+                  pageChangeCallback={handlePageChange}
+                />
+              </Th>
+            </Tr>
+            <Tr>
+              <Th width={30}>ID</Th>
+              <Th colSpan={2} width={90}>
+                Specification Name
+              </Th>
+              <Th width={10}>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filtered.map((apicurioArtifact, index) => {
+              if (index >= (pageNumber - 1) * 10 && index <= pageNumber * 10 - 1) {
+                return (
+                  <Tr key={apicurioArtifact.id}>
+                    <Td>{apicurioArtifact.id}</Td>
+                    <Td colSpan={2}>{apicurioArtifact.name}</Td>
+                    <Td>
+                      <ActionList>
+                        <ActionListItem key={apicurioArtifact.id + '_action'}>
+                          <Button onClick={() => downloadFromApicurioRegistry(apicurioArtifact.id)} variant="primary">
+                            Download
+                          </Button>
+                        </ActionListItem>
+                      </ActionList>
+                    </Td>
+                  </Tr>
+                );
+              } else {
+                return;
+              }
+            })}
+            {filtered.length === 0 && search !== '' && (
+              <Tr>
+                <Td colSpan={4}>
+                  <Bullseye>
+                    <EmptyState variant={EmptyStateVariant.sm}>
+                      <EmptyStateHeader
+                        icon={<EmptyStateIcon icon={SearchIcon} />}
+                        titleText="No results found"
+                        headingLevel="h2"
+                      />
+                      <EmptyStateBody>Clear all filters and try again.</EmptyStateBody>
+                      <EmptyStateFooter>
+                        <EmptyStateActions>
+                          <Button variant="link">Clear all filters</Button>
+                        </EmptyStateActions>
+                      </EmptyStateFooter>
+                    </EmptyState>
+                  </Bullseye>
+                </Td>
+              </Tr>
+            )}
+          </Tbody>
+        </Table>
+      </Tab>
+    </Tabs>
   );
 };

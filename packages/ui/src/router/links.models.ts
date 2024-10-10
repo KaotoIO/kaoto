@@ -8,7 +8,7 @@ export const enum Links {
   Catalog = '/catalog',
   Settings = '/settings',
   OpenApiProducer = '/openapi/producer',
-  OpenApiConsumer = '/openapi/consumer'
+  OpenApiConsumer = '/openapi/consumer',
 }
 
 export const enum ExternalLinks {

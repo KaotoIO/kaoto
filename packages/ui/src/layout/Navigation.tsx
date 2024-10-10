@@ -39,13 +39,13 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
         hidden: () => !NAVIGATION_ELEMENTS.PipeErrorHandler.includes(currentSchemaType),
       },
       { title: 'Catalog', to: Links.Catalog },
-      { 
-        title: 'Open API', 
+      {
+        title: 'Open API',
         children: [
-            {title: 'Producer', to: Links.OpenApiProducer },
-            {title: 'Consumer', to: Links.OpenApiConsumer }
-        ]
-      }
+          { title: 'Producer', to: Links.OpenApiProducer },
+          { title: 'Consumer', to: Links.OpenApiConsumer },
+        ],
+      },
     ],
     [currentSchemaType],
   );

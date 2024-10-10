@@ -5,6 +5,7 @@ export const enum NodeLabelType {
 
 export interface ISettingsModel {
   catalogUrl: string;
+  apicurioRegistryUrl: string;
   nodeLabel: NodeLabelType;
 }
 
@@ -15,6 +16,7 @@ export interface AbstractSettingsAdapter {
 
 export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
+  apicurioRegistryUrl: string = '';
   nodeLabel: NodeLabelType = NodeLabelType.Description;
 
   constructor(options: Partial<ISettingsModel> = {}) {
