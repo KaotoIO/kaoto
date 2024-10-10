@@ -96,7 +96,7 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupExpandedProps> = 
               x={boxRef.current.x}
               y={boxRef.current.y}
               width={boxRef.current.width}
-              height={boxRef.current.height}
+              height={boxRef.current.height + 10}
             />
             <foreignObject
               data-nodelabel={label}
@@ -104,7 +104,7 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupExpandedProps> = 
               x={boxRef.current.x}
               y={boxRef.current.y}
               width={boxRef.current.width}
-              height={boxRef.current.height}
+              height={boxRef.current.height + 10}
             >
               <div className={className}>
                 <div className="custom-group__title">
