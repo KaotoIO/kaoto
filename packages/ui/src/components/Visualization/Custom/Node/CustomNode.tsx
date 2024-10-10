@@ -36,6 +36,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const nodeStatus = !statusDecoratorTooltip || isDisabled ? NodeStatus.default : NodeStatus.warning;
   const detailsLevel = element.getGraph().getDetailsLevel();
   const [selected] = useSelection();
+  const id = vizNode?.getTitle();
 
   return (
     <DefaultNode
@@ -51,6 +52,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
       statusDecoratorTooltip={statusDecoratorTooltip}
       nodeStatus={nodeStatus}
       onStatusDecoratorClick={noopFn}
+      secondaryLabel={id !== label ? id : undefined}
     >
       <g
         className="custom-node"
