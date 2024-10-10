@@ -1,4 +1,3 @@
-import { Rest, RouteDefinition } from '@kaoto/camel-catalog/types';
 import {
   ActionList,
   ActionListItem,
@@ -12,46 +11,29 @@ import {
   EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
-  Card,
-  CardBody,
-  CardFooter,
-  CardTitle,
-  DropEvent,
-  FileUpload,
-  Form,
-  FormGroup,
-  HelperText,
-  HelperTextItem,
-  InputGroup,
-  Popover,
   Radio,
   SearchInput,
   Text,
   TextContent,
-  TextVariants,
   TextInput,
+  TextVariants,
   Wizard,
-  WizardHeader,
-  WizardStep,
   WizardFooterWrapper,
-  useWizardContext,
-  Title,
+  WizardStep,
+  useWizardContext
 } from '@patternfly/react-core';
-import { Table, Thead, Th, Tbody, Td, Tr } from '@patternfly/react-table';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { OpenApi, OpenApiOperation, OpenApiPath } from 'openapi-v3';
 import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { parse } from 'yaml';
 import { BaseVisualCamelEntity, CamelRouteVisualEntity, IVisualizationNode } from '../../../models';
 import { EntityType } from '../../../models/camel/entities';
-import { SourceSchemaType } from '../../../models/camel/source-schema-type';
-import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
-import { FlowTemplateService } from '../../../models/visualization/flows/support/flow-templates-service';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { isDefined } from '../../../utils';
-import { OpenApiSpecification } from './OpenApiSpecification';
 import PaginationTop from '../../Visualization/Pagination/PaginationTop';
+import { OpenApiSpecification } from './OpenApiSpecification';
 
 interface Props {
   openApiConfigureToggle: () => void;
@@ -239,6 +221,22 @@ export const OpenApiConfigure: FunctionComponent<Props> = (props) => {
   const configureRestOpenApiClientRecurse = (contextNode: IVisualizationNode) => {
     if (contextNode.getTitle() == 'rest-openapi' && contextNode.getId() == props.restOpenApiId) {
       console.log('Found rest-api, updating');
+
+      let currentDefinition = { parameters: {} };
+      if (isDefined(contextNode.getComponentSchema())) {
+        currentDefinition = contextNode.getComponentSchema()!.definition;
+      }
+
+      const newDefinition = {
+        ...currentDefinition,
+        parameters: {
+          ...currentDefinition.parameters,
+          host: hostName,
+          operationId: operationId,
+          specificationUri: specUrl,
+        },
+      };
+      contextNode.updateModel(newDefinition);
     } else {
       contextNode.getChildren()?.forEach((child) => {
         configureRestOpenApiClientRecurse(child);
