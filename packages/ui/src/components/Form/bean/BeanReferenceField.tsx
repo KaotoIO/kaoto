@@ -109,7 +109,6 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
 
   const onSelect = useCallback(
     (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-      // eslint-disable-next-line no-console
       if (value) {
         if (value === createNewWithNameValue) {
           setIsNewBeanModalOpen(true);
@@ -117,7 +116,6 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
           setInputValue('');
           setIsNewBeanModalOpen(true);
         } else {
-          // eslint-disable-next-line no-console
           setInputValue(value as string);
           setFilterValue('');
           setSelected(value as string);

@@ -7,6 +7,8 @@ export const enum Links {
   PipeErrorHandler = '/pipe-error-handler',
   Catalog = '/catalog',
   Settings = '/settings',
+  OpenApiProducer = '/openapi/producer',
+  OpenApiConsumer = '/openapi/consumer',
 }
 
 export const enum ExternalLinks {

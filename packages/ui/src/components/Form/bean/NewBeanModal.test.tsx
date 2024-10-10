@@ -16,7 +16,7 @@ describe('NewBeanModal', () => {
   it('should render', async () => {
     const mockOnCreate = jest.fn();
     const mockOnCancel = jest.fn();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     render(
       <NewBeanModal
         beanSchema={beanSchema}
