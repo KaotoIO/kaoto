@@ -42,26 +42,27 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
   /** Selected Providers */
   const [selectedProviders, setSelectedProviders] = useState<string[]>(providers);
 
-  /** Filter by selected group */
-  const filteredTilesByGroup = useMemo(() => {
+  const filteredTiles = useMemo(() => {
     return filterTiles(props.tiles, { searchTerm, searchTags: filterTags, selectedProviders });
   }, [filterTags, props.tiles, searchTerm, selectedProviders]);
 
   /** Set the tiles groups */
   const tilesGroups = useMemo(() => {
-    return Object.entries(filteredTilesByGroup).map(([group, tiles]) => ({ name: group, count: tiles.length }));
-  }, [filteredTilesByGroup]);
+    const groups: Record<string, ITile[]> = {};
+    filteredTiles.forEach((tile) => {
+      if (!groups[tile.type]) {
+        groups[tile.type] = [];
+      }
+      groups[tile.type].push(tile);
+    });
+    return Object.entries(groups).map(([group, tiles]) => ({ name: group, count: tiles.length }));
+  }, [filteredTiles]);
 
   const [activeGroups, setActiveGroups] = useState<string[]>(tilesGroups.map((g) => g.name));
 
-  const filteredTiles = useMemo(() => {
-    return Object.entries(filteredTilesByGroup).reduce((acc, [group, tiles]) => {
-      if (activeGroups.includes(group)) {
-        acc.push(...tiles);
-      }
-      return acc;
-    }, [] as ITile[]);
-  }, [activeGroups, filteredTilesByGroup]);
+  const filteredTilesByGroup = useMemo<ITile[]>(() => {
+    return filteredTiles.filter((tile) => activeGroups.includes(tile.type));
+  }, [activeGroups, filteredTiles]);
 
   const onFilterChange = useCallback(
     (_event: unknown, value = '') => {
@@ -116,7 +117,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
       />
       <BaseCatalog
         className="catalog__base"
-        tiles={filteredTiles}
+        tiles={filteredTilesByGroup}
         catalogLayout={activeLayout}
         onTileClick={onTileClick}
         onTagClick={onTagClick}

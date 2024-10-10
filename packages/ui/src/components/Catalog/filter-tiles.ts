@@ -1,4 +1,3 @@
-import { CatalogKind } from '../../models';
 import { ITile } from './Catalog.models';
 
 const checkThatArrayContainsAllTags = (tileTags: string[], searchTags: string[]) =>
@@ -7,7 +6,7 @@ const checkThatArrayContainsAllTags = (tileTags: string[], searchTags: string[])
 export const filterTiles = (
   tiles: ITile[],
   options?: { searchTerm?: string; searchTags?: string[]; selectedProviders?: string[] },
-): Record<string, ITile[]> => {
+): ITile[] => {
   const { searchTerm = '', searchTags = [], selectedProviders = [] } = options ?? {};
   const searchTermLowercase = searchTerm.toLowerCase();
 
@@ -57,19 +56,7 @@ export const filterTiles = (
   });
 
   // Step 3: Sort the filtered tiles by score in descending order
-  filteredTiles.sort((a, b) => b.score - a.score);
+  const tilesResult: ITile[] = filteredTiles.sort((a, b) => b.score - a.score).map(({ tile }) => tile);
 
-  // Step 4: Group the sorted tiles by their type
-  const groupedTiles: Record<ITile['type'], ITile[]> = {};
-  groupedTiles[CatalogKind.Component] = [];
-  groupedTiles[CatalogKind.Kamelet] = [];
-  groupedTiles[CatalogKind.Pattern] = [];
-  filteredTiles.forEach(({ tile }) => {
-    if (!groupedTiles[tile.type]) {
-      groupedTiles[tile.type] = [];
-    }
-    groupedTiles[tile.type].push(tile);
-  });
-
-  return groupedTiles;
+  return tilesResult;
 };
