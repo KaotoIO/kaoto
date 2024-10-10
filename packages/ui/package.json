@@ -51,7 +51,7 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
-    "@kaoto-next/uniforms-patternfly": "^0.7.10",
+    "@kaoto-next/uniforms-patternfly": "^0.7.14",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",
