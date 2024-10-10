@@ -109,10 +109,7 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
     setFiltered(filtered);
   }, [search, apicurioArtifacts]);
 
-  const handleTabClick = (
-    event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
-    tabIndex: string | number,
-  ) => {
+  const handleTabClick = (_event: unknown, tabIndex: string | number) => {
     setActiveTabKey(tabIndex);
   };
 
@@ -187,6 +184,7 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
 
     const apicurioRegistryUrl = settingsAdapter.getSettings().apicurioRegistryUrl;
 
+    // TODO: Place this URL in a config file.
     fetch(apicurioRegistryUrl + '/apis/registry/v2/search/artifacts', { method: 'GET', mode: 'cors' })
       .then((res) => res.json() as Promise<ApicurioArtifactSearchResult>)
       .then((apicurioArtifactSearchResult) => {
@@ -201,7 +199,7 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
         setApicurioArtifacts(newApicurioArtifacts);
         setFiltered(newApicurioArtifacts);
       });
-  }, [isDownloadDisabled, isUploadDisabled]);
+  }, [isDownloadDisabled, isUploadDisabled, props.specificationUri, settingsAdapter]);
 
   return (
     <Tabs
@@ -271,7 +269,7 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
                     <SearchInput
                       aria-label="Search Open API input"
                       placeholder="Find Open API by name"
-                      onChange={(event, value) => setSearch(value)}
+                      onChange={(_event, value) => setSearch(value)}
                     />
                   </ActionListItem>
                 </ActionList>
