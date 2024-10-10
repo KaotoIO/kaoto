@@ -16,7 +16,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  margin: 5px 5px 5px 0px;
+  margin: 5px 5px 5px 0;
 
   &:hover {
     background-color: var(--pf-v5-global--palette--blue-700);
@@ -46,7 +46,7 @@
     display: flex;
     align-items: center;
     font-size: var(--pf-v5-global--FontSize--md);
-    letter-spacing: .1rem;
+    letter-spacing: 0.1rem;
     color: var(--custom-group-TitleColor);
     background-color: var(--custom-group-TitleBackground);
     height: var(--custom-group-TitleHeight);

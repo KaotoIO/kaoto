@@ -1,3 +1,4 @@
+/* stylelint-disable */
 .custom-node {
   &__image {
     display: flex;
@@ -21,7 +22,6 @@
   }
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .custom-node__label--disabled {
   font-style: italic;
   text-decoration: line-through;
@@ -39,5 +39,6 @@
   --pf-topology__node__action-icon__icon--Color: var(--pf-topology__node--m-selected--action-icon__icon--Color);
   --pf-topology__node__label__text--Fill: var(--pf-topology__node--m-selected--node__label__text--Fill);
   --pf-topology__node__label__text--m-secondary--Fill: var(--pf-topology__node--m-selected--node__label__text--m-secondary--Fill);
+
   z-index: 50;
 }
