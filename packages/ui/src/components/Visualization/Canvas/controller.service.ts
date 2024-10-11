@@ -82,17 +82,19 @@ export class ControllerService {
         return new DagreGroupsLayout(graph, {
           rankdir: TOP_TO_BOTTOM,
           ranker: 'network-simplex',
-          nodesep: 20,
-          edgesep: 20,
-          ranksep: 0,
+          ranksep: 30,
+          nodeDistance: 0,
+          linkDistance: 20,
+          groupDistance: 10,
         });
       case LayoutType.DagreHorizontal:
         return new DagreGroupsLayout(graph, {
           rankdir: LEFT_TO_RIGHT,
           ranker: 'network-simplex',
-          nodesep: 20,
-          edgesep: 20,
-          ranksep: 0,
+          ranksep: 20,
+          nodeDistance: 20,
+          linkDistance: 25,
+          groupDistance: 0,
         });
       case LayoutType.Force:
         return new ForceLayout(graph);

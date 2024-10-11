@@ -85,7 +85,7 @@ export class FlowService {
       parentNode: options.parentNode,
       data: options.data,
       style: {
-        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.8,
+        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.9,
       },
     };
   }

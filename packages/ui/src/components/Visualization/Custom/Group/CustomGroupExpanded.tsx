@@ -86,6 +86,8 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupExpandedProps> = 
     }, AnchorEnd.both);
 
     boxRef.current = element.getBounds();
+    const addWidth = element.getGraph().getLayout() === 'DagreVertical' ? 10 : 0;
+    const moveX = element.getGraph().getLayout() === 'DagreVertical' ? 55 : 0;
 
     return (
       <g onContextMenu={onContextMenu} onClick={onSelect} className={className}>
@@ -93,17 +95,17 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupExpandedProps> = 
           <g>
             <rect
               className="phantom-rect"
-              x={boxRef.current.x}
+              x={boxRef.current.x + moveX}
               y={boxRef.current.y}
-              width={boxRef.current.width}
+              width={boxRef.current.width + addWidth}
               height={boxRef.current.height}
             />
             <foreignObject
               data-nodelabel={label}
               className="foreign-object"
-              x={boxRef.current.x}
+              x={boxRef.current.x + moveX}
               y={boxRef.current.y}
-              width={boxRef.current.width}
+              width={boxRef.current.width + addWidth}
               height={boxRef.current.height}
             >
               <div className={className}>

@@ -3,6 +3,7 @@ import { BanIcon } from '@patternfly/react-icons';
 import {
   Decorator,
   DefaultNode,
+  LabelPosition,
   Node,
   NodeStatus,
   WithSelectionProps,
@@ -32,12 +33,14 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const tooltipContent = vizNode?.getTooltipContent();
   const statusDecoratorTooltip = vizNode?.getNodeValidationText();
   const nodeStatus = !statusDecoratorTooltip || isDisabled ? NodeStatus.default : NodeStatus.warning;
+  const labelPosition = element.getGraph().getLayout() === 'DagreVertical' ? LabelPosition.right : LabelPosition.bottom;
 
   return (
     <DefaultNode
       {...rest}
       element={element}
       label={doTruncateLabel(label)}
+      labelPosition={labelPosition}
       labelClassName={clsx('custom-node__label', { 'custom-node__label--disabled': isDisabled })}
       showStatusDecorator={!isDisabled}
       statusDecoratorTooltip={statusDecoratorTooltip}
