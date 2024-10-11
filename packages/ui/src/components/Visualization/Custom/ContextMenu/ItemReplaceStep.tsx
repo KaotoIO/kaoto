@@ -5,7 +5,10 @@ import { IDataTestID } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 
 interface ItemReplaceStepProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;
@@ -27,7 +30,7 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
         text: 'Step and its children will be lost.',
       });
 
-      if (!isReplaceConfirmed) return;
+      if (isReplaceConfirmed !== ACTION_ID_CONFIRM) return;
     }
 
     /** Find compatible components */
@@ -45,7 +48,7 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [replaceModalContext, catalogModalContext, entitiesContext, props.vizNode]);
+  }, [props.vizNode, props.loadActionConfirmationModal, entitiesContext, catalogModalContext, replaceModalContext]);
 
   return (
     <ContextMenuItem onClick={onReplaceNode} data-testid={props['data-testid']}>

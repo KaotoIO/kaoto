@@ -90,7 +90,7 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
       data-ouia-component-id="OUIA-Generated-Button-danger-3"
       data-ouia-component-type="PF5/Button"
       data-ouia-safe="true"
-      data-testid="action-confirmation-modal-btn-1"
+      data-testid="action-confirmation-modal-btn-confirm"
       type="button"
     >
       Confirm
@@ -101,7 +101,7 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
       data-ouia-component-id="OUIA-Generated-Button-link-3"
       data-ouia-component-type="PF5/Button"
       data-ouia-safe="true"
-      data-testid="action-confirmation-modal-btn-0"
+      data-testid="action-confirmation-modal-btn-cancel"
       type="button"
     >
       Cancel
