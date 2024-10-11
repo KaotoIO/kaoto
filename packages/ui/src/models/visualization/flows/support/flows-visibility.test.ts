@@ -81,6 +81,14 @@ describe('VisualFlowsApi', () => {
     });
 
     describe('initVisibleFlows', () => {
+      it('should not create a new state if all flows already exists', () => {
+        const initialState = { flowId1: true, flowId2: false };
+        action = { type: 'initVisibleFlows', flowsIds: ['flowId1', 'flowId2'] };
+        const newState = VisibleFlowsReducer(initialState, action);
+
+        expect(newState).toBe(initialState);
+      });
+
       it('should keep existing visibility', () => {
         const initialState = { flowId1: false, flowId2: true };
         action = { type: 'initVisibleFlows', flowsIds: ['flowId1', 'flowId2'] };
