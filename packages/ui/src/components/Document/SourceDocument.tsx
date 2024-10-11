@@ -12,18 +12,20 @@ import './Document.scss';
 
 type DocumentProps = {
   document: IDocument;
+  isReadOnly: boolean;
 };
 
-export const SourceDocument: FunctionComponent<DocumentProps> = ({ document }) => {
+export const SourceDocument: FunctionComponent<DocumentProps> = ({ document, isReadOnly }) => {
   const nodeData = new DocumentNodeData(document);
-  return <SourceDocumentNode nodeData={nodeData} />;
+  return <SourceDocumentNode nodeData={nodeData} isReadOnly={isReadOnly} />;
 };
 
 type DocumentNodeProps = {
   nodeData: NodeData;
+  isReadOnly: boolean;
 };
 
-export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) => {
+export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, isReadOnly }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -93,14 +95,14 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
                 </SplitItem>
               )}
               <SplitItem isFilled>{nodeTitle}</SplitItem>
-              <SplitItem>{isDocument && <DocumentActions nodeData={nodeData} />}</SplitItem>
+              {!isReadOnly && <SplitItem>{isDocument && <DocumentActions nodeData={nodeData} />}</SplitItem>}
             </Split>
           </div>
         </NodeContainer>
         {hasChildren && !collapsed && (
           <div className={isDocument ? 'node-children__document' : 'node-children'}>
             {children.map((child) => (
-              <SourceDocumentNode nodeData={child} key={child.id} />
+              <SourceDocumentNode nodeData={child} key={child.id} isReadOnly={isReadOnly} />
             ))}
           </div>
         )}

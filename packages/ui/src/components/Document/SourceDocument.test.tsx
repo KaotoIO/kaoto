@@ -12,7 +12,7 @@ describe('SourceDocument', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourceDocument document={document} />
+          <SourceDocument document={document} isReadOnly={false} />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
@@ -24,7 +24,7 @@ describe('SourceDocument', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourceDocument document={document} />
+          <SourceDocument document={document} isReadOnly={false} />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );

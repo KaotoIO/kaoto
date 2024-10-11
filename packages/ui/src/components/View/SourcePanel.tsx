@@ -14,7 +14,11 @@ import { useDataMapper } from '../../hooks/useDataMapper';
 import { useCanvas } from '../../hooks/useCanvas';
 import { SourceDocument } from '../Document/SourceDocument';
 
-export const SourcePanel: FunctionComponent = () => {
+type SourcePanelProps = {
+  isReadOnly?: boolean;
+};
+
+export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = false }) => {
   const { sourceBodyDocument } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
 
@@ -28,11 +32,11 @@ export const SourcePanel: FunctionComponent = () => {
       <PanelMain onScroll={reloadNodeReferences} maxHeight="90%">
         <Stack className="source-target-view__source-panel-main">
           <StackItem>
-            <Parameters />
+            <Parameters isReadOnly={isReadOnly} />
           </StackItem>
           <StackItem>&nbsp;</StackItem>
           <StackItem key={sourceBodyDocument.name}>
-            <SourceDocument document={sourceBodyDocument} />
+            <SourceDocument document={sourceBodyDocument} isReadOnly={isReadOnly} />
           </StackItem>
         </Stack>
       </PanelMain>

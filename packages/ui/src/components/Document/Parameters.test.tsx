@@ -13,7 +13,7 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
           <DataMapperCanvasProvider>
-            <Parameters />
+            <Parameters isReadOnly={false} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -56,7 +56,7 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters />
+            <Parameters isReadOnly={false} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,

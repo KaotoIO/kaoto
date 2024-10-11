@@ -93,7 +93,11 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
   );
 };
 
-export const Parameters: FunctionComponent = () => {
+type ParametersProps = {
+  isReadOnly: boolean;
+};
+
+export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) => {
   const { sourceParameterMap, isSourceParametersExpanded, setSourceParametersExpanded } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
   const {
@@ -129,21 +133,23 @@ export const Parameters: FunctionComponent = () => {
   const parametersHeaderActions = useMemo(() => {
     return (
       <ActionList isIconList={true}>
-        <ActionListItem>
-          <Tooltip position={'auto'} enableFlip={true} content={<div>Add a parameter</div>}>
-            <Button
-              variant="plain"
-              aria-label="Add parameter"
-              data-testid={`add-parameter-button`}
-              onClick={() => handleAddNewParameter()}
-            >
-              <PlusIcon />
-            </Button>
-          </Tooltip>
-        </ActionListItem>
+        {!isReadOnly && (
+          <ActionListItem>
+            <Tooltip position={'auto'} enableFlip={true} content={<div>Add a parameter</div>}>
+              <Button
+                variant="plain"
+                aria-label="Add parameter"
+                data-testid={`add-parameter-button`}
+                onClick={() => handleAddNewParameter()}
+              >
+                <PlusIcon />
+              </Button>
+            </Tooltip>
+          </ActionListItem>
+        )}
       </ActionList>
     );
-  }, [handleAddNewParameter]);
+  }, [handleAddNewParameter, isReadOnly]);
 
   return (
     <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
@@ -166,7 +172,7 @@ export const Parameters: FunctionComponent = () => {
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
               <StackItem key={documentId}>
-                <SourceDocument document={doc} />
+                <SourceDocument document={doc} isReadOnly={isReadOnly} />
               </StackItem>
             ))}
           </Stack>
