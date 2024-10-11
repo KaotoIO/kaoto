@@ -1,4 +1,4 @@
-import { Button, ButtonVariant, Modal, ModalVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant, Modal, ModalVariant, Split, SplitItem } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 
 export const ACTION_ID_CANCEL = 'cancel';
@@ -81,6 +81,34 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
     [actionConfirmation],
   );
 
+  const footer = (
+    <Split hasGutter isWrappable>
+      {...Object.entries(buttonOptions).map(([actionId, option]) => (
+        <SplitItem key={actionId}>
+          <Button
+            key={actionId}
+            variant={option.variant}
+            onClick={() => handleAction(actionId)}
+            data-testid={`action-confirmation-modal-btn-${actionId}`}
+            isDanger={option.isDanger}
+          >
+            {option.buttonText}
+          </Button>
+        </SplitItem>
+      ))}
+      <SplitItem key="cancel">
+        <Button
+          key="cancel"
+          variant="link"
+          onClick={handleCloseModal}
+          data-testid={`action-confirmation-modal-btn-${ACTION_ID_CANCEL}`}
+        >
+          Cancel
+        </Button>
+      </SplitItem>
+    </Split>
+  );
+
   return (
     <ActionConfirmationModalContext.Provider value={value}>
       {props.children}
@@ -93,27 +121,7 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
           titleIconVariant={'warning'}
           onClose={handleCloseModal}
           ouiaId="ActionConfirmationModal"
-          actions={[
-            ...Object.entries(buttonOptions).map(([actionId, option]) => (
-              <Button
-                key={actionId}
-                variant={option.variant}
-                onClick={() => handleAction(actionId)}
-                data-testid={`action-confirmation-modal-btn-${actionId}`}
-                isDanger={option.isDanger}
-              >
-                {option.buttonText}
-              </Button>
-            )),
-            <Button
-              key="cancel"
-              variant="link"
-              onClick={handleCloseModal}
-              data-testid={`action-confirmation-modal-btn-${ACTION_ID_CANCEL}`}
-            >
-              Cancel
-            </Button>,
-          ]}
+          footer={footer}
         >
           {textParagraphs.length === 1
             ? textParagraphs[0]
