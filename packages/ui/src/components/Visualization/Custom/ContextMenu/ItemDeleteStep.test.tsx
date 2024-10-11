@@ -1,7 +1,10 @@
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { ItemDeleteStep } from './ItemDeleteStep';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 
 describe('ItemDeleteStep', () => {
   const vizNode = createVisualizationNode('test', {});
@@ -39,7 +42,7 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should call removechild if deletion is confirmed', async () => {
-    mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(true);
+    mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
         <ItemDeleteStep vizNode={mockVizNode} loadActionConfirmationModal={true} />
