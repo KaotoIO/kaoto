@@ -1,7 +1,10 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { ItemDeleteStep } from './ItemDeleteStep';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_INDEX_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 
@@ -57,7 +60,7 @@ describe('ItemDeleteStep', () => {
 
   it('should process addon when deleting', async () => {
     const mockDeleteModalContext = {
-      actionConfirmation: () => Promise.resolve(true),
+      actionConfirmation: () => Promise.resolve(ACTION_INDEX_CONFIRM),
     };
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {

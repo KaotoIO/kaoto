@@ -1,6 +1,9 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_INDEX_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { ItemReplaceStep } from './ItemReplaceStep';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
@@ -59,7 +62,7 @@ describe('ItemReplaceStep', () => {
       getNewComponent: () => Promise.resolve({} as DefinedComponent),
     };
     const mockReplaceModalContext = {
-      actionConfirmation: () => Promise.resolve(true),
+      actionConfirmation: () => Promise.resolve(ACTION_INDEX_CONFIRM),
     };
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {
