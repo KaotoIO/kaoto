@@ -15,6 +15,7 @@ interface IEntitySchemaConfig {
   [SourceSchemaType.Pipe]: ISourceSchema;
   [SourceSchemaType.KameletBinding]: ISourceSchema;
   [SourceSchemaType.Integration]: ISourceSchema;
+  [SourceSchemaType.Rest]: ISourceSchema;
 }
 
 class SourceSchemaConfig {
@@ -52,6 +53,12 @@ class SourceSchemaConfig {
       schema: undefined,
       multipleRoute: true,
       description: 'An integration defines a Camel route in a CRD file.',
+    },
+    [SourceSchemaType.Rest]: {
+      name: 'Rest',
+      schema: undefined,
+      multipleRoute: true,
+      description: 'Defines an executable integration flow derived from an Open API Specification.',
     },
   };
 

@@ -11,6 +11,13 @@
       "type": "string",
       "format": "uri"
     },
+    "apicurioRegistryUrl": {
+      "title": "Apicurio Registry URL",
+      "description": "URL that points to Apicurio Registry.",
+      "default": "<empty string>",
+      "type": "string",
+      "format": "uri"
+    },
     "nodeLabel": {
       "title": "Node label to display in canvas",
       "description": "Node label, which will be used for nodes in the canvas. Can be either `description` or `id`. If `description` is selected, it will be displayed only if it is available, otherwise `id` will be displayed by default.",

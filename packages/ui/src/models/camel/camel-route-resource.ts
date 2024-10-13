@@ -20,6 +20,7 @@ import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BaseVisualCamelEntityDefinition, BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { CamelRestVisualEntity } from '../visualization/flows/camel-rest-visual-entity';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   static readonly SUPPORTED_ENTITIES: { type: EntityType; group: string; Entity: BaseVisualCamelEntityConstructor }[] =
@@ -37,6 +38,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity },
       { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity },
       { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
+      { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
     ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
@@ -104,6 +106,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     this.entities.push(entity);
 
     return entity.id;
+  }
+
+  addExistingEntity(entity: BaseCamelEntity): void {
+    this.entities.push(entity);
   }
 
   getType(): SourceSchemaType {

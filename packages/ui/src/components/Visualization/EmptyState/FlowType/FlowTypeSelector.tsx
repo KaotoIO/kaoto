@@ -59,6 +59,8 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
         return 'Defines a sequence of concatenated Kamelets to form start to finish integration flows. Pipes are a more abstract level of defining integration flows, by chosing and configuring Kamelets.';
       case SourceSchemaType.Integration:
         return 'An integration defines a Camel route in a CRD file.';
+      case SourceSchemaType.Rest:
+        return 'Defines an executable integration flow derived from an Open API Specification';
       default:
         return undefined;
     }
@@ -118,6 +120,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
           [SourceSchemaType.Route]: sourceSchemaConfig.config[SourceSchemaType.Route],
           [SourceSchemaType.Kamelet]: sourceSchemaConfig.config[SourceSchemaType.Kamelet],
           [SourceSchemaType.Pipe]: sourceSchemaConfig.config[SourceSchemaType.Pipe],
+          [SourceSchemaType.Rest]: sourceSchemaConfig.config[SourceSchemaType.Rest],
         }).map((obj, index) => {
           const sourceType = obj[0] as SourceSchemaType;
           const sourceSchema = obj[1] as ISourceSchema;
