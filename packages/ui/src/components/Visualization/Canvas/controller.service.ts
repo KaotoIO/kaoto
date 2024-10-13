@@ -18,7 +18,7 @@ import {
   Visualization,
   withPanZoom,
 } from '@patternfly/react-topology';
-import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
+import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge, EdgeEndWithButton } from '../Custom';
 import { LayoutType } from './canvas.models';
 
 export class ControllerService {
@@ -109,6 +109,8 @@ export class ControllerService {
     switch (type) {
       case 'group':
         return CustomGroupWithSelection;
+      case 'edge-end':
+        return EdgeEndWithButton;
       default:
         switch (kind) {
           case ModelKind.graph:

@@ -64,9 +64,12 @@ export class FlowService {
 
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
+    const nodeInteractions = vizNodeParam.getNodeInteraction();
 
     if (vizNodeParam.getNextNode() !== undefined) {
       edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
+    } else if (nodeInteractions.canHaveNextStep) {
+      edges.push(this.getEdgeEnd(vizNodeParam.id));
     }
 
     return edges;
@@ -109,6 +112,16 @@ export class FlowService {
       source,
       target,
       edgeStyle: EdgeStyle.solid,
+    };
+  }
+
+  private static getEdgeEnd(source: string): CanvasEdge {
+    return {
+      id: `${source}-end`,
+      type: 'edge-end',
+      source,
+      target: source,
+      edgeStyle: EdgeStyle.dashed,
     };
   }
 }
