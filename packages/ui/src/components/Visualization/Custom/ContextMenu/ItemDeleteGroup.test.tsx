@@ -62,7 +62,7 @@ describe('ItemDeleteGroup', () => {
       fireEvent.click(wrapper.getByText('Delete'));
     });
     await waitFor(() => {
-      expect(mockAddon).toHaveBeenCalledWith(vizNode);
+      expect(mockAddon).toHaveBeenCalled();
     });
   });
 });

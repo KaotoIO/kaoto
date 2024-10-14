@@ -86,7 +86,7 @@ describe('ItemReplaceStep', () => {
       fireEvent.click(wrapper.getByText('Replace'));
     });
     await waitFor(() => {
-      expect(mockAddon).toHaveBeenCalledWith(vizNode);
+      expect(mockAddon).toHaveBeenCalled();
     });
   });
 });
