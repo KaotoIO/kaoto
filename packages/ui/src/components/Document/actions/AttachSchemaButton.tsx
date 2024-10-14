@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Button, Tooltip } from '@patternfly/react-core';
+import { AlertVariant, Button, Tooltip } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
@@ -37,7 +37,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   hasSchema = false,
 }) => {
   const api = useContext(MetadataContext)!;
-  const { setIsLoading, updateDocumentDefinition } = useDataMapper();
+  const { addAlert, setIsLoading, updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
 
   const onClick = useCallback(async () => {
@@ -56,10 +56,15 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       await updateDocumentDefinition(definition);
       clearNodeReferencesForDocument(documentType, documentId);
       reloadNodeReferences();
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } catch (error: any) {
+      const cause = error['message'] ? ': ' + error['message'] : '';
+      addAlert({ variant: AlertVariant.danger, title: `Cannot read the schema file ${cause}` });
     } finally {
       setIsLoading(false);
     }
   }, [
+    addAlert,
     api,
     clearNodeReferencesForDocument,
     documentId,

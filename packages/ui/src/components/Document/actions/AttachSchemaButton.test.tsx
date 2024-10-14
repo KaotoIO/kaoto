@@ -6,8 +6,11 @@ import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
-import { shipOrderXsd } from '../../../stubs/data-mapper';
+import { noTopElementXsd, shipOrderXsd } from '../../../stubs/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
+import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { AlertProps } from '@patternfly/react-core';
 
 jest.mock('../../../stubs/read-file-as-string');
 const mockReadFileAsString = readFileAsString as jest.MockedFunction<typeof readFileAsString>;
@@ -58,5 +61,42 @@ describe('AttachSchemaButton', () => {
     });
     await screen.findByTestId('attach-schema-sourceBody-Body-button');
     expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+  });
+
+  let capturedAlerts: Partial<AlertProps>[] = [];
+  const TestAlertCapture: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    const { alerts } = useDataMapper();
+    useEffect(() => {
+      capturedAlerts = alerts;
+    }, [alerts]);
+    return <>{children}</>;
+  };
+
+  it('should show a toast alert for invalid schema', async () => {
+    mockReadFileAsString.mockResolvedValue(noTopElementXsd);
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <TestAlertCapture>
+              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            </TestAlertCapture>
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+    const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([noTopElementXsd])], 'NoTopElement.xsd', { type: 'text/plain' });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+    screen.debug();
+    await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    expect(capturedAlerts.length).toEqual(1);
+    expect(capturedAlerts[0].title).toContain('no top level Element');
   });
 });

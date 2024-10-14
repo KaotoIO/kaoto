@@ -29,6 +29,7 @@ import { DocumentType } from '../models/datamapper/path';
 import { MappingSerializerService } from '../services/mapping-serializer.service';
 import { MappingService } from '../services/mapping.service';
 import { DocumentService } from '../services/document.service';
+import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -52,6 +53,9 @@ export interface IDataMapperContext {
   mappingTree: MappingTree;
   refreshMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
+
+  alerts: Partial<AlertProps>[];
+  addAlert: (alert: Partial<AlertProps>) => void;
 
   debug: boolean;
   setDebug(debug: boolean): void;
@@ -90,6 +94,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [mappingTree, setMappingTree] = useState<MappingTree>(
     new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
+
+  const [alerts, setAlerts] = useState<Partial<AlertProps>[]>([]);
 
   useEffect(() => {
     const documents = DocumentService.createInitialDocuments(documentInitializationModel);
@@ -193,6 +199,25 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [onUpdateDocument, removeStaleMappings, setNewDocument],
   );
 
+  const addAlert = useCallback(
+    (option: Partial<AlertProps>) => {
+      alerts.push(option);
+      setAlerts([...alerts]);
+    },
+    [alerts],
+  );
+
+  const closeAlert = useCallback(
+    (option: Partial<AlertProps>) => {
+      const index = alerts.indexOf(option);
+      if (index > -1) {
+        alerts.splice(index, 1);
+        setAlerts([...alerts]);
+      }
+    },
+    [alerts],
+  );
+
   const value = useMemo(() => {
     return {
       isLoading,
@@ -212,6 +237,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       mappingTree,
       refreshMappingTree,
       setMappingTree,
+      alerts,
+      addAlert,
       debug,
       setDebug,
     };
@@ -227,8 +254,32 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     updateDocumentDefinition,
     mappingTree,
     refreshMappingTree,
+    alerts,
+    addAlert,
     debug,
   ]);
 
-  return <DataMapperContext.Provider value={value}>{isLoading ? <Loading /> : children}</DataMapperContext.Provider>;
+  return (
+    <DataMapperContext.Provider value={value}>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <AlertGroup isToast>
+            {alerts.map((option, index) => (
+              <Alert
+                key={option.key ?? `alert-key-${index}`}
+                variant={option.variant ?? AlertVariant.danger}
+                title={option.title ?? 'Unknown Error'}
+                timeout={option.timeout ?? true}
+                onTimeout={() => closeAlert(option)}
+                actionClose={<AlertActionCloseButton onClose={() => closeAlert(option)} />}
+              ></Alert>
+            ))}
+          </AlertGroup>
+          {children}
+        </>
+      )}
+    </DataMapperContext.Provider>
+  );
 };

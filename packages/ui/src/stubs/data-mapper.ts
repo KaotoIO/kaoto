@@ -23,6 +23,9 @@ export const shipOrderXsd = fs
 export const testDocumentXsd = fs
   .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/TestDocument.xsd')
   .toString();
+export const noTopElementXsd = fs
+  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/NoTopElement.xsd')
+  .toString();
 export const shipOrderToShipOrderXslt = fs
   .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl')
   .toString();
