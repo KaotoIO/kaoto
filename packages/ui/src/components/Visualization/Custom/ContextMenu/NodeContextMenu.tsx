@@ -7,6 +7,7 @@ import { ItemAddStep } from './ItemAddStep';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
 import { ItemDeleteStep } from './ItemDeleteStep';
 import { ItemDisableStep } from './ItemDisableStep';
+import { ItemEnableAllSteps } from './ItemEnableAllSteps';
 import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
@@ -80,6 +81,8 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       <ItemDisableStep key="context-menu-item-disable" data-testid="context-menu-item-disable" vizNode={vizNode} />,
     );
   }
+  items.push(<ItemEnableAllSteps key="context-menu-item-enable-all" data-testid="context-menu-item-enable-all" />);
+
   if (nodeInteractions.canReplaceStep) {
     items.push(
       <ItemReplaceStep
