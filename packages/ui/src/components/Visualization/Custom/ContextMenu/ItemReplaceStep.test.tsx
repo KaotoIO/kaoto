@@ -1,7 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import {
-  ACTION_INDEX_CONFIRM,
+  ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { ItemReplaceStep } from './ItemReplaceStep';
@@ -62,7 +62,7 @@ describe('ItemReplaceStep', () => {
       getNewComponent: () => Promise.resolve({} as DefinedComponent),
     };
     const mockReplaceModalContext = {
-      actionConfirmation: () => Promise.resolve(ACTION_INDEX_CONFIRM),
+      actionConfirmation: () => Promise.resolve(ACTION_ID_CONFIRM),
     };
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {
