@@ -2,7 +2,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { ItemDeleteStep } from './ItemDeleteStep';
 import {
-  ACTION_INDEX_CONFIRM,
+  ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
@@ -45,7 +45,7 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should call removechild if deletion is confirmed', async () => {
-    mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(true);
+    mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
         <ItemDeleteStep vizNode={mockVizNode} loadActionConfirmationModal={true} />
@@ -60,7 +60,7 @@ describe('ItemDeleteStep', () => {
 
   it('should process addon when deleting', async () => {
     const mockDeleteModalContext = {
-      actionConfirmation: () => Promise.resolve(ACTION_INDEX_CONFIRM),
+      actionConfirmation: () => Promise.resolve(ACTION_ID_CONFIRM),
     };
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {

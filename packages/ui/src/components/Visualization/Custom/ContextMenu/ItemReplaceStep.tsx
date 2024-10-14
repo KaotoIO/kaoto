@@ -5,7 +5,10 @@ import { IDataTestID } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
 import { processNodeInteractionAddonRecursively } from './item-delete-helper';
@@ -31,7 +34,7 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
         text: 'Step and its children will be lost.',
       });
 
-      if (!isReplaceConfirmed) return;
+      if (isReplaceConfirmed !== ACTION_ID_CONFIRM) return;
     }
 
     /** Find compatible components */

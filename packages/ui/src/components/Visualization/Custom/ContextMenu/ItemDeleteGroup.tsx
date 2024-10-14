@@ -3,7 +3,10 @@ import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'react';
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
@@ -27,7 +30,7 @@ export const ItemDeleteGroup: FunctionComponent<ItemDeleteGroupProps> = (props) 
       text: 'All steps will be lost.',
     });
 
-    if (!isDeleteConfirmed) return;
+    if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
     processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),

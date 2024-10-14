@@ -4,7 +4,10 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext } from 'r
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
 import { processNodeInteractionAddonRecursively } from './item-delete-helper';
@@ -27,7 +30,7 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
         text: 'Step and its children will be lost.',
       });
 
-      if (!isDeleteConfirmed) return;
+      if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
     }
 
     processNodeInteractionAddonRecursively(props.vizNode, (vn) =>
