@@ -15,42 +15,34 @@
  */
 package io.kaoto.camelcatalog.generator;
 
-import java.io.StringWriter;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.io.StringWriter;
+import java.util.*;
 
 /**
  * Process camelYamlDsl.json file, aka Camel YAML DSL JSON schema.
  */
 public class CamelYamlDslSchemaProcessor {
     private static final String PROCESSOR_DEFINITION = "org.apache.camel.model.ProcessorDefinition";
+    private static final String TOKENIZER_DEFINITION = "org.apache.camel.model.TokenizerDefinition";
     private static final String ROUTE_CONFIGURATION_DEFINITION = "org.apache.camel.model.RouteConfigurationDefinition";
     private static final String LOAD_BALANCE_DEFINITION = "org.apache.camel.model.LoadBalanceDefinition";
-    private static final String EXPRESSION_SUB_ELEMENT_DEFINITION = "org.apache.camel.model.ExpressionSubElementDefinition";
+    private static final String EXPRESSION_SUB_ELEMENT_DEFINITION =
+            "org.apache.camel.model.ExpressionSubElementDefinition";
     private static final String SAGA_DEFINITION = "org.apache.camel.model.SagaDefinition";
     private static final String PROPERTY_EXPRESSION_DEFINITION = "org.apache.camel.model.PropertyExpressionDefinition";
     private static final String ERROR_HANDLER_DEFINITION = "org.apache.camel.model.ErrorHandlerDefinition";
-    private static final String ERROR_HANDLER_DESERIALIZER = "org.apache.camel.dsl.yaml.deserializers.ErrorHandlerBuilderDeserializer";
+    private static final String ERROR_HANDLER_DESERIALIZER =
+            "org.apache.camel.dsl.yaml.deserializers.ErrorHandlerBuilderDeserializer";
     private final ObjectMapper jsonMapper;
     private final ObjectNode yamlDslSchema;
-    private final List<String> processorBlocklist = List.of(
-            "org.apache.camel.model.KameletDefinition"
-    // reactivate entries once we have a better handling of how to add WHEN and
-    // OTHERWISE without Catalog
-    // "Otherwise",
-    // "when",
-    // "doCatch",
-    // ""doFinally"
-    );
+    private final List<String> processorBlocklist = List.of("org.apache.camel.model.KameletDefinition");
 
     /**
      * The processor properties those should be handled separately, i.e. remove from
@@ -67,8 +59,7 @@ public class CamelYamlDslSchemaProcessor {
             List.of("uri", "parameters"),
             "org.apache.camel.model.WireTapDefinition",
             List.of("uri", "parameters"));
-    private final List<String> processorReferenceBlockList = List.of(
-            PROCESSOR_DEFINITION);
+    private final List<String> processorReferenceBlockList = List.of(PROCESSOR_DEFINITION);
 
     public CamelYamlDslSchemaProcessor(ObjectMapper mapper, ObjectNode yamlDslSchema) throws Exception {
         this.jsonMapper = mapper;
@@ -107,11 +98,14 @@ public class CamelYamlDslSchemaProcessor {
         var answer = (ObjectNode) prop.getValue().deepCopy();
         if (answer.has("$ref") && definitions.has(getNameFromRef(answer))) {
             answer = definitions.withObject("/" + getNameFromRef(answer)).deepCopy();
-
         }
+
         extractSingleOneOfFromAnyOf(answer);
+        removeEmptyProperties(answer);
+        removeNotFromOneOf(answer);
         answer.set("$schema", rootSchema.get("$schema"));
         populateDefinitions(answer, definitions);
+
         var writer = new StringWriter();
         try {
             JsonGenerator gen = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
@@ -120,6 +114,58 @@ public class CamelYamlDslSchemaProcessor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Remove the empty properties from the definition, as it's not supported by the
+     * form library. This happens when the properties are supposed to be handled
+     * separately, in a oneOf definition, for example.
+     * An example:
+     * ```
+     * {
+     * properties: {
+     * deadLetterChannel: { },
+     * defaultErrorHandler: { }
+     * }
+     * }
+     *
+     * @param definitionWithEmptyProperties the definition containing the empty properties to be removed
+     */
+    private void removeEmptyProperties(ObjectNode definitionWithEmptyProperties) {
+        if (!definitionWithEmptyProperties.has("properties")) {
+            return;
+        }
+
+        var propertiesObject = definitionWithEmptyProperties.withObject("/properties");
+        List<String> propToRemove = new ArrayList<>();
+        propertiesObject.fields().forEachRemaining(field -> {
+            if (field.getValue().isEmpty()) {
+                propToRemove.add(field.getKey());
+            }
+        });
+        propToRemove.forEach(propertiesObject::remove);
+    }
+
+    /**
+     * Remove "not" from the OneOf definition, as it's not supported by the
+     * form library. The "not" is only useful for the Source code editor.
+     *
+     * @param definitionContainingOneOf the definition to be cleaned
+     */
+    private void removeNotFromOneOf(ObjectNode definitionContainingOneOf) {
+        if (!definitionContainingOneOf.has("oneOf")) {
+            return;
+        }
+
+        ArrayNode cleanAnyOf = jsonMapper.createArrayNode();
+        var oneOfDefinitionArray = definitionContainingOneOf.withArray("/oneOf");
+        for (var def : oneOfDefinitionArray) {
+            if (def.has("not")) {
+                continue;
+            }
+            cleanAnyOf.add(def);
+        }
+        definitionContainingOneOf.set("oneOf", cleanAnyOf);
     }
 
     private String getNameFromRef(ObjectNode parent) {
@@ -152,9 +198,7 @@ public class CamelYamlDslSchemaProcessor {
      * root definitions.
      * It's a workaround for the current Camel YAML DSL JSON schema, where some
      * AnyOf definition
-     * contains only one OneOf definition. This can be removed once
-     * https://github.com/KaotoIO/kaoto/issues/948
-     * is resolved.
+     * contains only one OneOf definition.
      * This is done mostly for the errorHandler definition, f.i.
      * ```
      * {
@@ -214,7 +258,7 @@ public class CamelYamlDslSchemaProcessor {
      * "$comment" in the property schema</li>
      * </ul>
      *
-     * @return
+     * @return A map of processor definitions
      */
     public Map<String, ObjectNode> getProcessors() throws Exception {
         var definitions = yamlDslSchema
@@ -235,8 +279,16 @@ public class CamelYamlDslSchemaProcessor {
             var processor = relocatedDefinitions.withObject("/" + processorFQCN);
             processor = extractFromOneOf(processorFQCN, processor);
             processor.remove("oneOf");
-            processor = extractFromAnyOfOneOf(processorFQCN, processor);
-            processor.remove("anyOf");
+
+            /* Preparation for TokenizerDefinition, this could be propagated to all EIPs in the future */
+            if (processorFQCN.equals(TOKENIZER_DEFINITION)) {
+                removeEmptyProperties(processor);
+                extractSingleOneOfFromAnyOf(processor);
+                removeNotFromOneOf(processor);
+            }
+
+            processAndRemoveAnyOfForSubCatalogs(processorFQCN, processor);
+
             var processorProperties = processor.withObject("/properties");
             Set<String> propToRemove = new HashSet<>();
             var propertyBlockList = processorPropertyBlockList.get(processorFQCN);
@@ -316,10 +368,12 @@ public class CamelYamlDslSchemaProcessor {
         for (var def : oneOf) {
             if (def.get("type").asText().equals("object")) {
                 var objectDef = (ObjectNode) def;
-                if (definition.has("title"))
+                if (definition.has("title")) {
                     objectDef.set("title", definition.get("title"));
-                if (definition.has("description"))
+                }
+                if (definition.has("description")) {
                     objectDef.set("description", definition.get("description"));
+                }
                 return objectDef;
             }
         }
@@ -328,9 +382,19 @@ public class CamelYamlDslSchemaProcessor {
                 name));
     }
 
-    private ObjectNode extractFromAnyOfOneOf(String name, ObjectNode definition) throws Exception {
+    /**
+     * Process the "anyOf" definition for the sub-catalogs, such as expressions, languages,
+     * data formats, and errorHandler.
+     * It puts a "$comment" in the schema to indicate the type of the sub-catalog and then removes
+     * the "anyOf" definition.
+     *
+     * @param name       the FQCN of the definition, for instance "org.apache.camel.model.LoadBalanceDefinition"
+     * @param definition the definition that potentially could have "anyOf" definition, referencing to another
+     *                   sub-catalogs
+     */
+    private void processAndRemoveAnyOfForSubCatalogs(String name, ObjectNode definition) {
         if (!definition.has("anyOf")) {
-            return definition;
+            return;
         }
         var anyOfOneOf = definition.withArray("/anyOf").get(0).withArray("/oneOf");
         for (var def : anyOfOneOf) {
@@ -355,7 +419,6 @@ public class CamelYamlDslSchemaProcessor {
             }
         }
         definition.remove("anyOf");
-        return definition;
     }
 
     private void sanitizeDefinitions(String processorFQCN, ObjectNode processor) throws Exception {
@@ -373,7 +436,7 @@ public class CamelYamlDslSchemaProcessor {
 
             var definition = (ObjectNode) entry.getValue();
             definition = extractFromOneOf(definitionName, definition);
-            definition = extractFromAnyOfOneOf(definitionName, definition);
+            processAndRemoveAnyOfForSubCatalogs(definitionName, definition);
             var definitionProperties = definition.withObject("/properties");
             var propToRemove = new HashSet<String>();
             for (var property : definitionProperties.properties()) {
@@ -529,7 +592,7 @@ public class CamelYamlDslSchemaProcessor {
      * <li>If the processor property is expression aware, it puts "expression" as a
      * "$comment" in the property schema</li>
      *
-     * @return
+     * @return A map of the entity name and the schema
      */
     public Map<String, ObjectNode> getEntities() throws Exception {
         var definitions = yamlDslSchema
@@ -548,8 +611,7 @@ public class CamelYamlDslSchemaProcessor {
             var yamlInDefinition = relocatedDefinitions.withObject("/" + yamlInFQCN);
             yamlInDefinition = extractFromOneOf(yamlInFQCN, yamlInDefinition);
             yamlInDefinition.remove("oneOf");
-            yamlInDefinition = extractFromAnyOfOneOf(yamlInFQCN, yamlInDefinition);
-            yamlInDefinition.remove("anyOf");
+            processAndRemoveAnyOfForSubCatalogs(yamlInFQCN, yamlInDefinition);
             Set<String> propToRemove = new HashSet<>();
             var yamlInProperties = yamlInDefinition.withObject("/properties");
             for (var yamlInPropertyEntry : yamlInProperties.properties()) {

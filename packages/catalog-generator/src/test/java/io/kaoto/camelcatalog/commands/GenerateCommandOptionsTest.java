@@ -41,7 +41,7 @@ public class GenerateCommandOptionsTest {
         generateCommandOptions.configure(args);
         String outputDir = Util.getNormalizedFolder("outputDir");
 
-        assertEquals(outputDir, configBean.getOutputFolder().toString());
+        assertEquals(outputDir, configBean.getOutputFolder().toPath().toString());
         assertEquals("catalogName", configBean.getCatalogsName());
         assertEquals("kameletsVersion", configBean.getKameletsVersion());
     }

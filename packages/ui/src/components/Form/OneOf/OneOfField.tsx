@@ -1,6 +1,6 @@
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { GuaranteedProps, connectField } from 'uniforms';
+import { HTMLFieldProps, connectField } from 'uniforms';
 import { useAppliedSchema, useSchemaBridgeContext } from '../../../hooks';
 import { KaotoSchemaDefinition } from '../../../models';
 import { SchemaBridgeProvider } from '../../../providers/schema-bridge.provider';
@@ -10,9 +10,16 @@ import { CustomAutoForm, CustomAutoFormRef } from '../CustomAutoForm';
 import { SchemaService } from '../schema.service';
 import { OneOfSchemaList } from './OneOfSchemaList';
 
-interface OneOfComponentProps extends GuaranteedProps<unknown> {
-  oneOf: KaotoSchemaDefinition['schema'][];
-}
+type OneOfComponentProps = HTMLFieldProps<
+  object,
+  HTMLDivElement,
+  {
+    properties?: Record<string, unknown>;
+    helperText?: string;
+    itemProps?: object;
+    oneOf: KaotoSchemaDefinition['schema'][];
+  }
+>;
 
 const applyDefinitionsToSchema = (
   schema?: KaotoSchemaDefinition['schema'],
@@ -27,7 +34,7 @@ const applyDefinitionsToSchema = (
   });
 };
 
-const OneOfComponent: FunctionComponent<OneOfComponentProps> = ({ name: propsName, oneOf, onChange }) => {
+export const OneOfField = connectField(({ name: propsName, oneOf, onChange }: OneOfComponentProps) => {
   const formRef = useRef<CustomAutoFormRef>(null);
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -106,6 +113,4 @@ const OneOfComponent: FunctionComponent<OneOfComponentProps> = ({ name: propsNam
       )}
     </OneOfSchemaList>
   );
-};
-
-export const OneOfField = connectField(OneOfComponent as unknown as Parameters<typeof connectField>[0]);
+});

@@ -26,16 +26,16 @@ import org.apache.camel.tooling.model.Kind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CamelYamlDSLKeysComparatorTest {
+class CamelYamlDSLKeysComparatorTest {
     private DefaultCamelCatalog api;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.api = new DefaultCamelCatalog();
     }
 
     @Test
-    public void sort_keys_using_the_catalog_index() throws Exception {
+    void sort_keys_using_the_catalog_index() throws Exception {
         var aggregateCatalogModel = (EipModel) api.model(Kind.eip, "aggregate");
 
         List<String> aggregateKeysFromCamelYAMLDsl = List.of("aggregateController", "aggregationRepository",

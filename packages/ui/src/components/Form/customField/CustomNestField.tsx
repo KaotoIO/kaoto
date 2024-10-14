@@ -20,16 +20,20 @@
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
 import { useContext } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
+import { FilteredFieldContext } from '../../../providers';
 import { getFieldGroups } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
-import './CustomNestField.scss';
-import { FilteredFieldContext } from '../../../providers';
 import { CustomExpandableSection } from './CustomExpandableSection';
+import './CustomNestField.scss';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
   HTMLDivElement,
-  { properties?: Record<string, unknown>; helperText?: string; itemProps?: object }
+  {
+    properties?: Record<string, unknown>;
+    helperText?: string;
+    itemProps?: object;
+  }
 >;
 
 export const CustomNestField = connectField(
@@ -56,7 +60,7 @@ export const CustomNestField = connectField(
     if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (
-      <Card isFlat className="custom-nest-field" data-testid={'nest-field'} {...filterDOMProps(props)}>
+      <Card isFlat className="custom-nest-field" data-testid="nest-field" {...filterDOMProps(props)}>
         <CardHeader>
           <CardTitle>{label}</CardTitle>
         </CardHeader>

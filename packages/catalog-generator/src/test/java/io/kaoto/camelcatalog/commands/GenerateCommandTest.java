@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,7 +85,8 @@ class GenerateCommandTest {
             File expectedFolder = new File(tempDir, "camel-main/4.8.0");
             verify(builder, times(1)).withOutputDirectory(expectedFolder);
 
-            assertEquals(catalogDefinition.getFileName(), "camel-main/4.8.0/index.json");
+            String expectedFile = Path.of("camel-main", "4.8.0", "index.json").toString();
+            assertEquals(catalogDefinition.getFileName(), expectedFile);
         }
     }
 
@@ -123,7 +125,9 @@ class GenerateCommandTest {
             assertEquals(catalogLibraryEntry.name(), "test-camel-catalog");
             assertEquals(catalogLibraryEntry.version(), "4.8.0");
             assertEquals(catalogLibraryEntry.runtime(), "Main");
-            assertEquals(catalogLibraryEntry.fileName(), "camel-main/4.8.0/index.json");
+
+            String expectedFile = Path.of("camel-main", "4.8.0", "index.json").toString();
+            assertEquals(catalogLibraryEntry.fileName(), expectedFile);
         }
     }
 }

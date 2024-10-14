@@ -6,41 +6,57 @@ const checkThatArrayContainsAllTags = (tileTags: string[], searchTags: string[])
 export const filterTiles = (
   tiles: ITile[],
   options?: { searchTerm?: string; searchTags?: string[]; selectedProviders?: string[] },
-): Record<string, ITile[]> => {
+): ITile[] => {
   const { searchTerm = '', searchTags = [], selectedProviders = [] } = options ?? {};
   const searchTermLowercase = searchTerm.toLowerCase();
 
-  return tiles.reduce(
-    (acc, tile) => {
-      /** Filter by selected tags */
-      const doesTagsMatches = searchTags.length ? checkThatArrayContainsAllTags(tile.tags, searchTags) : true;
+  // Step 1: Score each tile based on how well it matches the search term
+  const scoredTiles = tiles.map((tile) => {
+    let score = 0;
 
-      /** Filter by providers */
-      let doesProviderMatch = true;
-      if (selectedProviders.length) {
-        doesProviderMatch =
-          tile.provider === undefined
-            ? selectedProviders.includes('Community')
-            : selectedProviders.includes(tile.provider);
-      }
+    // Score based on name
+    const nameLower = tile.name.toLowerCase();
+    if (nameLower.startsWith(searchTermLowercase)) {
+      score += 100;
+    } else if (nameLower.includes(searchTermLowercase)) {
+      score += 40;
+    }
 
-      /** Determine whether the tile should be included in the filtered list */
-      const shouldInclude =
-        doesTagsMatches &&
-        doesProviderMatch &&
-        (!searchTermLowercase ||
-          tile.name.toLowerCase().includes(searchTermLowercase) ||
-          tile.title.toLowerCase().includes(searchTermLowercase) ||
-          tile.description?.toLowerCase().includes(searchTermLowercase) ||
-          tile.tags.some((tag) => tag.toLowerCase().includes(searchTermLowercase)));
+    // Score based on title
+    if (tile.title?.toLowerCase().includes(searchTermLowercase)) {
+      score += 40;
+    }
 
-      acc[tile.type] = acc[tile.type] ?? [];
-      if (shouldInclude) {
-        acc[tile.type].push(tile);
-      }
+    // Score based on description
+    if (tile.description?.toLowerCase().includes(searchTermLowercase)) {
+      score += 10;
+    }
 
-      return acc;
-    },
-    {} as Record<ITile['type'], ITile[]>,
-  );
+    return { tile, score };
+  });
+
+  // Step 2: Filter tiles based on score, tags, and providers
+  const filteredTiles = scoredTiles.filter(({ tile, score }) => {
+    // Exclude tiles with no match
+    if (score <= 0) return false;
+
+    // Filter by selected tags
+    const doesTagsMatch = searchTags.length ? checkThatArrayContainsAllTags(tile.tags, searchTags) : true;
+
+    // Filter by selected providers
+    let doesProviderMatch = true;
+    if (selectedProviders.length) {
+      doesProviderMatch =
+        tile.provider === undefined
+          ? selectedProviders.includes('Community')
+          : selectedProviders.includes(tile.provider);
+    }
+
+    return doesTagsMatch && doesProviderMatch;
+  });
+
+  // Step 3: Sort the filtered tiles by score in descending order
+  const tilesResult: ITile[] = filteredTiles.sort((a, b) => b.score - a.score).map(({ tile }) => tile);
+
+  return tilesResult;
 };

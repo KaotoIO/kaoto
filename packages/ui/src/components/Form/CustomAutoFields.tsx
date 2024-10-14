@@ -1,14 +1,14 @@
 import { AutoField } from '@kaoto-next/uniforms-patternfly';
+import { Card, CardBody } from '@patternfly/react-core';
 import { ComponentType, createElement, useContext } from 'react';
 import { useForm } from 'uniforms';
-import { KaotoSchemaDefinition } from '../../models';
-import { Card, CardBody } from '@patternfly/react-core';
-import { getFieldGroups } from '../../utils';
-import { CatalogKind } from '../../models';
+import { CatalogKind, KaotoSchemaDefinition } from '../../models';
 import { CanvasFormTabsContext, FilteredFieldContext } from '../../providers';
+import { getFieldGroups } from '../../utils';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
 import { NoFieldFound } from './NoFieldFound';
+import { OneOfField } from './OneOf/OneOfField';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -28,11 +28,7 @@ export function CustomAutoFields({
   const rootField = schema.getField('');
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
-
-  /** Special handling for oneOf schemas */
-  if (Array.isArray((rootField as KaotoSchemaDefinition['schema']).oneOf)) {
-    return createElement(element, props, [createElement(autoField!, { key: '', name: '' })]);
-  }
+  const oneOf = (rootField as KaotoSchemaDefinition['schema']).oneOf;
 
   const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
   const actualFields = (fields ?? schema.getSubfields()).filter(
@@ -78,6 +74,9 @@ export function CustomAutoFields({
           </Card>
         </CustomExpandableSection>
       ))}
+
+      {/* Special handling for oneOf schemas */}
+      {Array.isArray(oneOf) && <OneOfField name="" fields={fields} oneOf={oneOf} {...props} />}
     </>,
   );
 }

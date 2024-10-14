@@ -1,3 +1,5 @@
+/* stylelint-disable */
+
 .custom-node {
   &__image {
     display: flex;
@@ -21,8 +23,23 @@
   }
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .custom-node__label--disabled {
   font-style: italic;
   text-decoration: line-through;
+}
+
+.custom-node__label {
+  z-index: 20;
+}
+
+/* Ensure selected state has higher specificity */
+.custom-node__label--selected, .custom-node__label--selected:hover {
+  --pf-topology__node__label__background--Stroke: var(--pf-topology__node--m-selected--node__label__background--Stroke);
+  --pf-topology__node__label__background--Fill: var(--pf-topology__node--m-selected--node__label__background--Fill);
+  --pf-topology__node__separator--Stroke: var(--pf-topology__node--m-selected--node__label__text--m-secondary--Fill);
+  --pf-topology__node__action-icon__icon--Color: var(--pf-topology__node--m-selected--action-icon__icon--Color);
+  --pf-topology__node__label__text--Fill: var(--pf-topology__node--m-selected--node__label__text--Fill);
+  --pf-topology__node__label__text--m-secondary--Fill: var(--pf-topology__node--m-selected--node__label__text--m-secondary--Fill);
+
+  z-index: 50;
 }

@@ -69,62 +69,46 @@ describe('filterTiles', () => {
     const options = { searchTerm: 'message' };
     const result = filterTiles(tiles, options);
 
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.activemq],
-      [CatalogKind.Pattern]: [tilesMap.setBody, tilesMap.split],
-      [CatalogKind.Kamelet]: [tilesMap.slackSource],
-    });
+    expect(result).toEqual([tilesMap.activemq, tilesMap.setBody, tilesMap.split, tilesMap.slackSource]);
   });
 
   it('should filter tiles by provider', () => {
     const options = { selectedProviders: ['Red Hat'] };
     const result = filterTiles(tiles, options);
 
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.cron],
-      [CatalogKind.Pattern]: [],
-      [CatalogKind.Kamelet]: [],
-    });
+    expect(result).toEqual([tilesMap.cron]);
   });
 
   it('should return tiles without provider when community is selected', () => {
     const options = { selectedProviders: ['Community'] };
     const result = filterTiles(tiles, options);
 
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.activemq, tilesMap.cometd, tilesMap.hazelcast],
-      [CatalogKind.Pattern]: [tilesMap.setBody, tilesMap.split],
-      [CatalogKind.Kamelet]: [tilesMap.beerSource, tilesMap.slackSource],
-    });
+    expect(result).toEqual([
+      tilesMap.activemq,
+      tilesMap.cometd,
+      tilesMap.hazelcast,
+      tilesMap.setBody,
+      tilesMap.split,
+      tilesMap.beerSource,
+      tilesMap.slackSource,
+    ]);
   });
 
   it('should filter tiles by a single tag', () => {
     const options = { searchTags: ['messaging'] };
     const result = filterTiles(tiles, options);
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.activemq, tilesMap.cometd, tilesMap.hazelcast],
-      [CatalogKind.Pattern]: [],
-      [CatalogKind.Kamelet]: [],
-    });
+    expect(result).toEqual([tilesMap.activemq, tilesMap.cometd, tilesMap.hazelcast]);
   });
 
   it('should filter tiles by multiple tags', () => {
     const options = { searchTags: ['messaging', 'clustering'] };
     const result = filterTiles(tiles, options);
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.hazelcast],
-      [CatalogKind.Pattern]: [],
-      [CatalogKind.Kamelet]: [],
-    });
+    expect(result).toEqual([tilesMap.hazelcast]);
   });
 
   it('should filter tiles by search term and tags', () => {
     const options = { searchTerm: 'cr', searchTags: ['scheduling'] };
     const result = filterTiles(tiles, options);
-    expect(result).toEqual({
-      [CatalogKind.Component]: [tilesMap.cron],
-      [CatalogKind.Pattern]: [],
-      [CatalogKind.Kamelet]: [],
-    });
+    expect(result).toEqual([tilesMap.cron]);
   });
 });

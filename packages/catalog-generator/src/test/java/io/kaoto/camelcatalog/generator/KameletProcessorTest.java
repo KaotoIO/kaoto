@@ -29,8 +29,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class KameletProcessorTest {
-    private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string" );
+class KameletProcessorTest {
+    private static final List<String> ALLOWED_ENUM_TYPES = List.of("integer", "number", "string");
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());;
 
     private ObjectNode processKamelet(String name) throws Exception {
@@ -59,7 +59,7 @@ public class KameletProcessorTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         var beerSource = processKamelet("beer-source");
         assertTrue(beerSource.has("propertiesSchema"));
         var periodProp = beerSource.withObject("/propertiesSchema")
@@ -92,7 +92,7 @@ public class KameletProcessorTest {
     }
 
     @Test
-    public void testEnumParameters() throws Exception {
+    void testEnumParameters() throws Exception {
         for (var kamelet : getAllKameletFiles().values()) {
             var schema = kamelet.withObject("/propertiesSchema");
             var title = schema.get("title");

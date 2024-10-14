@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
-    "@kaoto-next/uniforms-patternfly": "^0.7.1",
+    "@kaoto-next/uniforms-patternfly": "^0.7.10",
     "@kaoto/xml-schema-ts": "workspace:*",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",

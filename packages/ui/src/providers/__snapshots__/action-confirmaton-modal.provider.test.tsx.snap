@@ -84,28 +84,40 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
   <footer
     class="pf-v5-c-modal-box__footer"
   >
-    <button
-      aria-disabled="false"
-      class="pf-v5-c-button pf-m-danger"
-      data-ouia-component-id="OUIA-Generated-Button-danger-3"
-      data-ouia-component-type="PF5/Button"
-      data-ouia-safe="true"
-      data-testid="action-confirmation-modal-btn-1"
-      type="button"
+    <div
+      class="pf-v5-l-split pf-m-gutter pf-m-wrap"
     >
-      Confirm
-    </button>
-    <button
-      aria-disabled="false"
-      class="pf-v5-c-button pf-m-link"
-      data-ouia-component-id="OUIA-Generated-Button-link-3"
-      data-ouia-component-type="PF5/Button"
-      data-ouia-safe="true"
-      data-testid="action-confirmation-modal-btn-0"
-      type="button"
-    >
-      Cancel
-    </button>
+      <div
+        class="pf-v5-l-split__item"
+      >
+        <button
+          aria-disabled="false"
+          class="pf-v5-c-button pf-m-danger"
+          data-ouia-component-id="OUIA-Generated-Button-danger-3"
+          data-ouia-component-type="PF5/Button"
+          data-ouia-safe="true"
+          data-testid="action-confirmation-modal-btn-confirm"
+          type="button"
+        >
+          Confirm
+        </button>
+      </div>
+      <div
+        class="pf-v5-l-split__item"
+      >
+        <button
+          aria-disabled="false"
+          class="pf-v5-c-button pf-m-link"
+          data-ouia-component-id="OUIA-Generated-Button-link-3"
+          data-ouia-component-type="PF5/Button"
+          data-ouia-safe="true"
+          data-testid="action-confirmation-modal-btn-cancel"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
   </footer>
 </div>
 `;

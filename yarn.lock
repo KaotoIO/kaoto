@@ -2770,19 +2770,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto-next/uniforms-patternfly@npm:^0.7.1":
-  version: 0.7.1
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.1"
+"@kaoto-next/uniforms-patternfly@npm:^0.7.10":
+  version: 0.7.10
+  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.10"
   dependencies:
     invariant: "npm:^2.2.4"
     lodash.clonedeep: "npm:^4.5.0"
-    uniforms: "npm:4.0.0-alpha.5"
   peerDependencies:
     "@patternfly/react-core": ^5.0.0
     "@patternfly/react-icons": ^5.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 10/7b3fb24da2b383dcbd7c5fcff96570f213a1e380018d297b655a9ad4853cecfe9db6d6e16c333b6b0a6b4d76dd59deb1c76108a6e7264eaba1a4a9c3610d9550
+    uniforms: 4.0.0-alpha.5
+  checksum: 10/b6035b21974272c9d207475224326a839fe6aeec44a6f31eacbeb3728f986a2e0e2a1e968703da30d3da075b25503c77e1b381567595b76db82e00bee9fc8b69
   languageName: node
   linkType: hard
 
@@ -2859,7 +2859,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.21.5"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto-next/uniforms-patternfly": "npm:^0.7.1"
+    "@kaoto-next/uniforms-patternfly": "npm:^0.7.10"
     "@kaoto/camel-catalog": "workspace:*"
     "@kaoto/xml-schema-ts": "workspace:*"
     "@kie-tools-core/editor": "npm:0.32.0"
