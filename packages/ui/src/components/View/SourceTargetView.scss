@@ -1,8 +1,10 @@
 .source-target-view {
   height: 100%;
+  overflow-x: auto;
 
   &__source-split {
     width: 30%;
+    min-width: 300px;
   }
 
   &__source-panel {
@@ -11,24 +13,40 @@
 
   &__source-panel-main {
     height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: clip;
   }
 
   &__line-blank {
     width: 10%;
+    min-width: 1px;
+    overflow-x: clip;
   }
 
   &__target-split {
     width: 60%;
+    min-width: 300px;
   }
 
   &__target-panel {
     display: flex;
     flex-flow: column;
     height: 100%;
+    min-width: 400px;
   }
 
   &__target-panel-main {
     height: 100%;
     max-height: 100%;
   }
+
+  &__truncate {
+    --pf-v5-c-truncate--MinWidth: 0;
+  }
+
+  &__divider {
+    padding-bottom: 0.5rem;
+  }
 }
+

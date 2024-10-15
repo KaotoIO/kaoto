@@ -56,14 +56,14 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
   const nodeTitle =
     nodeData instanceof MappingNodeData ? (
       <Label>
-        <Truncate content={nodeData.title ?? ''} />
+        <Truncate content={nodeData.title ?? ''} className="truncate" />
       </Label>
     ) : isDocument ? (
       <Title headingLevel="h5">
-        <Truncate content={nodeData.title ?? ''} />
+        <Truncate content={nodeData.title ?? ''} className="truncate" />
       </Title>
     ) : (
-      <Truncate content={nodeData.title ?? ''} />
+      <Truncate content={nodeData.title ?? ''} className="truncate" />
     );
 
   return (
@@ -77,7 +77,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
             className={isDocument ? 'node-header__document' : 'node-header'}
             onClick={hasChildren ? onClick : undefined}
           >
-            <Split hasGutter>
+            <Split hasGutter className="node-split">
               <SplitItem>
                 {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
               </SplitItem>

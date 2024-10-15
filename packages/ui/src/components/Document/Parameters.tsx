@@ -1,5 +1,6 @@
 import {
   ActionList,
+  ActionListGroup,
   ActionListItem,
   Button,
   Card,
@@ -22,6 +23,7 @@ import { NodeContainer } from './NodeContainer';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { DocumentType } from '../../models/datamapper/path';
 import { SourceDocument } from './SourceDocument';
+import './Document.scss';
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -56,39 +58,43 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
   }, []);
 
   return (
-    <ActionList>
-      <ActionListItem>
-        <TextInput
-          ref={inputRef}
-          id="new-parameter-name"
-          data-testid="add-new-parameter-name-input"
-          onChange={(_event, text) => setNewParameterName(text)}
-          placeholder="parameter name"
-        />
-      </ActionListItem>
-      <ActionListItem>
-        <Button
-          onClick={() => submitNewParameter()}
-          variant="link"
-          isDisabled={!isNewParameterNameValid}
-          id="add-new-parameter-submit-btn"
-          data-testid="add-new-parameter-submit-btn"
-          aria-label="Submit new parameter"
-        >
-          <CheckIcon />
-        </Button>
-      </ActionListItem>
-      <ActionListItem>
-        <Button
-          onClick={() => cancelNewParameter()}
-          variant="plain"
-          id="add-new-parameter-cancel-btn"
-          data-testid="add-new-parameter-cancel-btn"
-          aria-label={'Cancel new parameter'}
-        >
-          <TimesIcon />
-        </Button>
-      </ActionListItem>
+    <ActionList className="parameter-actions">
+      <ActionListGroup>
+        <ActionListItem>
+          <TextInput
+            ref={inputRef}
+            id="new-parameter-name"
+            data-testid="add-new-parameter-name-input"
+            onChange={(_event, text) => setNewParameterName(text)}
+            placeholder="parameter name"
+          />
+        </ActionListItem>
+      </ActionListGroup>
+      <ActionListGroup>
+        <ActionListItem>
+          <Button
+            onClick={() => submitNewParameter()}
+            variant="link"
+            isDisabled={!isNewParameterNameValid}
+            id="add-new-parameter-submit-btn"
+            data-testid="add-new-parameter-submit-btn"
+            aria-label="Submit new parameter"
+          >
+            <CheckIcon />
+          </Button>
+        </ActionListItem>
+        <ActionListItem>
+          <Button
+            onClick={() => cancelNewParameter()}
+            variant="plain"
+            id="add-new-parameter-cancel-btn"
+            data-testid="add-new-parameter-cancel-btn"
+            aria-label={'Cancel new parameter'}
+          >
+            <TimesIcon />
+          </Button>
+        </ActionListItem>
+      </ActionListGroup>
     </ActionList>
   );
 };
@@ -132,7 +138,7 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
 
   const parametersHeaderActions = useMemo(() => {
     return (
-      <ActionList isIconList={true}>
+      <ActionList isIconList={true} className="parameter-actions">
         {!isReadOnly && (
           <ActionListItem>
             <Tooltip position={'auto'} enableFlip={true} content={<div>Add a parameter</div>}>
@@ -152,7 +158,13 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
   }, [handleAddNewParameter, isReadOnly]);
 
   return (
-    <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded}>
+    <Card
+      id="card-source-parameters"
+      isCompact
+      isPlain
+      isExpanded={isSourceParametersExpanded}
+      className="parameter-card"
+    >
       <NodeContainer ref={headerRef}>
         <CardHeader
           data-testid="card-source-parameters-header"

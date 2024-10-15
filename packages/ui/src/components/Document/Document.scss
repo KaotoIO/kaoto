@@ -25,3 +25,47 @@ img {
 .toggle-icon-collapsed {
   transform: rotate(-90deg);
 }
+
+.truncate {
+  --pf-v5-c-truncate--MinWidth: 0;
+}
+
+.pf-v5-c-action-list__group {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  .pf-v5-c-button {
+    --pf-v5-c-button--PaddingLeft: 0.5rem;
+    --pf-v5-c-button--PaddingRight: 0.5rem;
+  }
+
+  .pf-v5-c-menu-toggle.pf-m-plain:not(.pf-m-text) {
+    --pf-v5-c-menu-toggle--PaddingLeft: 0.5rem;
+    --pf-v5-c-menu-toggle--PaddingRight: 0.5rem;
+  }
+}
+
+.parameter-card {
+  .pf-v5-c-card__header {
+    padding-block-start: 0;
+    padding-block-end: 0;
+    padding-inline-start: 0;
+    padding-inline-end: 0;
+  }
+}
+
+.parameter-actions {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  --pf-v5-c-action-list--child--spacer-base: 0.5rem;
+  --pf-v5-c-action-list--group--spacer-base: 0.5rem;
+  .pf-v5-c-button {
+    --pf-v5-c-button--PaddingLeft: 0.5rem;
+    --pf-v5-c-button--PaddingRight: 0.5rem;
+  }
+}
+
+.node-split {
+  width: 100%;
+  --pf-v5-l-stack--m-gutter--Gap: 0.5rem;
+}

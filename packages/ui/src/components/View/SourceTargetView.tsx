@@ -1,4 +1,5 @@
 import {
+  Divider,
   Panel,
   PanelHeader,
   PanelMain,
@@ -9,6 +10,7 @@ import {
   Text,
   TextContent,
   TextVariants,
+  Truncate,
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -28,7 +30,7 @@ export const SourceTargetView: FunctionComponent = () => {
   }, [setDefaultHandler]);
 
   return (
-    <Split className="source-target-view">
+    <Split className="source-target-view" onScroll={reloadNodeReferences}>
       <SplitItem className="source-target-view__source-split" isFilled>
         <SourcePanel />
       </SplitItem>
@@ -37,11 +39,16 @@ export const SourceTargetView: FunctionComponent = () => {
         <Panel id="panel-target" variant="bordered" isScrollable className="source-target-view__target-panel">
           <PanelHeader>
             <TextContent>
-              <Text component={TextVariants.h3}>Target</Text>
+              <Text component={TextVariants.h3}>
+                <Truncate content="Target" className="source-target-view__truncate" />
+              </Text>
             </TextContent>
           </PanelHeader>
           <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
             <Stack className="source-target-view__target-panel-main">
+              <StackItem>
+                <Divider component="div" inset={{ default: 'insetSm' }} className="source-target-view__divider" />
+              </StackItem>
               <StackItem>
                 <TargetDocument document={targetBodyDocument} />
               </StackItem>

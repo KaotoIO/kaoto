@@ -65,14 +65,14 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
   const nodeTitle =
     nodeData instanceof MappingNodeData ? (
       <Label>
-        <Truncate content={nodeData.title ?? ''} />
+        <Truncate content={nodeData.title ?? ''} className="truncate" />
       </Label>
     ) : isDocument ? (
       <Title headingLevel="h5">
-        <Truncate content={nodeData.title ?? ''} />
+        <Truncate content={nodeData.title ?? ''} className="truncate" />
       </Title>
     ) : (
-      <Truncate content={nodeData.title ?? ''} />
+      <Truncate content={nodeData.title ?? ''} className="truncate" />
     );
 
   return (
@@ -83,7 +83,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
       <NodeContainer ref={containerRef} nodeData={nodeData}>
         <div className={isDocument ? 'node-header__document' : 'node-header'}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
-            <Split hasGutter>
+            <Split hasGutter className="node-split">
               <SplitItem onClick={hasChildren ? onClick : undefined}>
                 {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
               </SplitItem>

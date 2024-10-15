@@ -5,6 +5,7 @@ import { DocumentType } from '../../../models/datamapper/path';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { FunctionComponent, MouseEvent, useCallback } from 'react';
+import '../Document.scss';
 
 type DocumentActionsProps = {
   nodeData: DocumentNodeData;
