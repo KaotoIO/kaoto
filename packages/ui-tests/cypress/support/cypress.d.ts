@@ -13,6 +13,7 @@ declare global {
     | 'insert-special'
     | 'delete'
     | 'disable'
+    | 'enable-all'
     | 'container-remove';
 
   namespace Cypress {
@@ -49,6 +50,7 @@ declare global {
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectEnableAllNodes(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertSpecialNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;

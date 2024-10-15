@@ -42,6 +42,10 @@ Cypress.Commands.add('selectDisableNode', (nodeName: string, nodeIndex?: number)
   cy.performNodeAction(nodeName, 'disable', nodeIndex);
 });
 
+Cypress.Commands.add('selectEnableAllNodes', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'enable-all', nodeIndex);
+});
+
 Cypress.Commands.add('selectInsertNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'insert', nodeIndex);
 });
