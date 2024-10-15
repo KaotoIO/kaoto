@@ -4,6 +4,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { ActionListItem, Button } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
 import { XPathEditorModal } from '../../XPath/XPathEditorModal';
+import { useCanvas } from '../../../hooks/useCanvas';
 
 type XPathEditorProps = {
   nodeData: TargetNodeData;
@@ -11,9 +12,13 @@ type XPathEditorProps = {
   onUpdate: () => void;
 };
 export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate }) => {
+  const { reloadNodeReferences } = useCanvas();
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const launchXPathEditor = useCallback(() => setIsEditorOpen(true), []);
-  const closeXPathEditor = useCallback(() => setIsEditorOpen(false), []);
+  const closeXPathEditor = useCallback(() => {
+    setIsEditorOpen(false);
+    reloadNodeReferences();
+  }, [reloadNodeReferences]);
 
   return (
     <ActionListItem key="xpath-editor">
