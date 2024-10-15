@@ -81,29 +81,28 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
       className={isDocument ? 'node-container__document' : 'node-container'}
     >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div
-          className={isDocument ? 'node-header__document' : 'node-header'}
-          onClick={hasChildren ? onClick : undefined}
-        >
+        <div className={isDocument ? 'node-header__document' : 'node-header'}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
             <Split hasGutter>
-              <SplitItem>
+              <SplitItem onClick={hasChildren ? onClick : undefined}>
                 {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
               </SplitItem>
-              <SplitItem>
+              <SplitItem onClick={hasChildren ? onClick : undefined}>
                 <GripVerticalIcon />
               </SplitItem>
               {isCollectionField && (
-                <SplitItem>
+                <SplitItem onClick={hasChildren ? onClick : undefined}>
                   <LayerGroupIcon />
                 </SplitItem>
               )}
               {isAttributeField && (
-                <SplitItem>
+                <SplitItem onClick={hasChildren ? onClick : undefined}>
                   <AtIcon />
                 </SplitItem>
               )}
-              <SplitItem isFilled>{nodeTitle}</SplitItem>
+              <SplitItem isFilled onClick={hasChildren ? onClick : undefined}>
+                {nodeTitle}
+              </SplitItem>
               <SplitItem>
                 {showNodeActions && <TargetNodeActions nodeData={nodeData} onUpdate={handleUpdate} />}
               </SplitItem>
