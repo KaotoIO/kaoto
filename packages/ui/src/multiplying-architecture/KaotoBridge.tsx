@@ -1,5 +1,6 @@
 import { ChannelType, EditorApi, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
+import { VisualizationProvider } from '@patternfly/react-topology';
 import {
   PropsWithChildren,
   forwardRef,
@@ -10,8 +11,11 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
+import { NodeInteractionAddonProvider } from '../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../components/registers/RegisterComponents';
+import { RegisterNodeInteractionAddons } from '../components/registers/RegisterNodeInteractionAddons';
+import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
+import { ControllerService } from '../components/Visualization/Canvas/controller.service';
 import { useReload } from '../hooks/reload.hook';
 import {
   CatalogLoaderProvider,
@@ -24,8 +28,6 @@ import {
   VisibleFlowsProvider,
 } from '../providers';
 import { EventNotifier } from '../utils';
-import { NodeInteractionAddonProvider } from '../components/registers/interactions/node-interaction-addon.provider';
-import { RegisterNodeInteractionAddons } from '../components/registers/RegisterNodeInteractionAddons';
 
 interface KaotoBridgeProps {
   /**
@@ -121,6 +123,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     forwardedRef,
   ) => {
     const ReloadProvider = useReload();
+    const controller = useMemo(() => ControllerService.createController(), []);
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
     const sourceCodeRef = useRef<string>('');
@@ -226,17 +229,19 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <CatalogTilesProvider>
-                <VisibleFlowsProvider>
-                  <RenderingProvider>
-                    <MetadataProvider api={metadataApi}>
-                      <RegisterComponents>
-                        <NodeInteractionAddonProvider>
-                          <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
-                        </NodeInteractionAddonProvider>
-                      </RegisterComponents>
-                    </MetadataProvider>
-                  </RenderingProvider>
-                </VisibleFlowsProvider>
+                <VisualizationProvider controller={controller}>
+                  <VisibleFlowsProvider>
+                    <RenderingProvider>
+                      <MetadataProvider api={metadataApi}>
+                        <RegisterComponents>
+                          <NodeInteractionAddonProvider>
+                            <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+                          </NodeInteractionAddonProvider>
+                        </RegisterComponents>
+                      </MetadataProvider>
+                    </RenderingProvider>
+                  </VisibleFlowsProvider>
+                </VisualizationProvider>
               </CatalogTilesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>

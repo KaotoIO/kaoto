@@ -4,7 +4,7 @@ import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
 import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/data-mapper';
-import { DataMapperPage } from './DataMapperPage';
+import { DataMapper } from './DataMapper';
 
 describe('DataMapperPage', () => {
   const vizNode = {
@@ -56,7 +56,7 @@ describe('DataMapperPage', () => {
     fileContents[metadata.xsltPath] = shipOrderToShipOrderXslt;
     render(
       <MetadataProvider api={api}>
-        <DataMapperPage vizNode={vizNode} />
+        <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
     await screen.findByTestId('card-source-parameters-header');
@@ -79,7 +79,7 @@ describe('DataMapperPage', () => {
     };
     render(
       <MetadataProvider api={api}>
-        <DataMapperPage vizNode={vizNode} />
+        <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
     await screen.findByTestId('card-source-parameters-header');
@@ -94,7 +94,7 @@ describe('DataMapperPage', () => {
   it('should not render toolbar menu in embedded mode', async () => {
     render(
       <MetadataProvider api={api}>
-        <DataMapperPage vizNode={vizNode} />
+        <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
     try {
@@ -106,7 +106,7 @@ describe('DataMapperPage', () => {
   });
 
   it('should show an error message if vizNode is not provided', async () => {
-    render(<DataMapperPage />);
+    render(<DataMapper />);
     const error = await screen.findByText('No associated DataMapper step was provided.');
     expect(error).toBeInTheDocument();
   });

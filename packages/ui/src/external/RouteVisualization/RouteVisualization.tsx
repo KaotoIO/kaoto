@@ -1,4 +1,8 @@
-import React, { useContext, useEffect, useLayoutEffect } from 'react';
+import { VisualizationProvider } from '@patternfly/react-topology';
+import React, { useContext, useEffect, useLayoutEffect, useMemo } from 'react';
+import { Visualization } from '../../components/Visualization';
+import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
+import { useReload } from '../../hooks/reload.hook';
 import {
   CatalogLoaderProvider,
   EntitiesContext,
@@ -8,9 +12,7 @@ import {
   VisibleFlowsContext,
   VisibleFlowsProvider,
 } from '../../providers';
-import { Visualization } from '../../components/Visualization';
 import { EventNotifier } from '../../utils';
-import { useReload } from '../../hooks/reload.hook';
 
 const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
@@ -26,15 +28,18 @@ const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className
 
 const Viz: React.FC<{ catalogUrl: string; className?: string }> = ({ catalogUrl, className = '' }) => {
   const ReloadProvider = useReload();
+  const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
     <ReloadProvider>
       <RuntimeProvider catalogUrl={catalogUrl}>
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
-            <VisibleFlowsProvider>
-              <VisibleFlowsVisualization className={`canvas-page ${className}`} />
-            </VisibleFlowsProvider>
+            <VisualizationProvider controller={controller}>
+              <VisibleFlowsProvider>
+                <VisibleFlowsVisualization className={`canvas-page ${className}`} />
+              </VisibleFlowsProvider>
+            </VisualizationProvider>
           </CatalogLoaderProvider>
         </SchemasLoaderProvider>
       </RuntimeProvider>

@@ -17,7 +17,7 @@ import { FunctionComponent, memo, useEffect } from 'react';
 import { Masthead, MastheadContent, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { ContextToolbar } from './ContextToolbar';
 import './DebugLayout.scss';
-import { DataMapper } from '../DataMapper';
+import { DataMapperControl } from '../DataMapperControl';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { CanvasMonitor } from './CanvasMonitor';
 import { DataMapperMonitor } from './DataMapperMonitor';
@@ -43,7 +43,7 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
         <DataMapperMonitor />
         <CanvasMonitor />
         <PageSection variant={PageSectionVariants.default} className="debug-layout">
-          <DataMapper />
+          <DataMapperControl />
         </PageSection>
       </BrowserFilePickerMetadataProvider>
     </Page>

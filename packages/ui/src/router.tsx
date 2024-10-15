@@ -38,7 +38,7 @@ export const router = createHashRouter([
         lazy: async () => import('./pages/Settings'),
       },
       {
-        path: Links.DataMapper,
+        path: `${Links.DataMapper}/:id`,
         lazy: async () => import('./pages/DataMapper'),
       },
     ],

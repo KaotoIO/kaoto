@@ -13,104 +13,23 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
-import { DataMapper } from '../../components/DataMapper/DataMapper';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { DocumentDefinition, DocumentInitializationModel } from '../../models/datamapper/document';
+import { useVisualizationController } from '@patternfly/react-topology';
+import { FunctionComponent } from 'react';
+import { useParams } from 'react-router-dom';
+import DataMapper from '../../components/DataMapper/DataMapper';
 import { IVisualizationNode } from '../../models';
-import { EntitiesContext, MetadataContext } from '../../providers';
-import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { DocumentType } from '../../models/datamapper/path';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { Loading } from '../../components/Loading';
+import { getVisualizationNodesFromGraph } from '../../utils';
 
-export interface IDataMapperProps {
-  vizNode?: IVisualizationNode;
-}
+export const DataMapperPage: FunctionComponent = () => {
+  const controller = useVisualizationController();
+  const params = useParams();
 
-export const DataMapperPage: FunctionComponent<IDataMapperProps> = ({ vizNode }) => {
-  const entitiesContext = useContext(EntitiesContext)!;
-  const ctx = useContext(MetadataContext)!;
-  const metadataId = vizNode && DataMapperMetadataService.getDataMapperMetadataId(vizNode);
-  const [metadata, setMetadata] = useState<IDataMapperMetadata>();
-  const [documentInitializationModel, setDocumentInitializationModel] = useState<DocumentInitializationModel>();
-  const [initialXsltFile, setInitialXsltFile] = useState<string>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const vizNode = getVisualizationNodesFromGraph(
+    controller.getGraph(),
+    (node: IVisualizationNode) => node.getComponentSchema()?.definition?.id === params.id,
+  )[0];
 
-  useEffect(() => {
-    if (!metadataId) return;
-    const initialize = async () => {
-      let meta = await ctx.getMetadata<IDataMapperMetadata>(metadataId);
-      if (!meta) {
-        meta = await DataMapperMetadataService.initializeDataMapperMetadata(entitiesContext, vizNode, ctx, metadataId);
-      }
-      setMetadata(meta);
-      const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);
-      setDocumentInitializationModel(initModel);
-      const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
-      setInitialXsltFile(mappingFile);
-    };
-    initialize().then(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const onUpdateDocument = useCallback(
-    (definition: DocumentDefinition) => {
-      if (!metadataId || !metadata) return;
-      switch (definition.documentType) {
-        case DocumentType.SOURCE_BODY:
-          DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
-          break;
-        case DocumentType.TARGET_BODY:
-          DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
-          break;
-        case DocumentType.PARAM:
-          DataMapperMetadataService.updateSourceParameterMetadata(
-            ctx,
-            metadataId,
-            metadata,
-            definition.name!,
-            definition,
-          );
-      }
-    },
-    [ctx, metadata, metadataId],
-  );
-
-  const onDeleteParameter = useCallback(
-    (name: string) => {
-      if (!metadataId || !metadata) return;
-      DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
-    },
-    [ctx, metadata, metadataId],
-  );
-
-  const onUpdateMappings = useCallback(
-    (xsltFile: string) => {
-      if (!metadata) return;
-      DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
-    },
-    [ctx, metadata],
-  );
-
-  return !metadataId ? (
-    <>No associated DataMapper step was provided.</>
-  ) : isLoading ? (
-    <Loading />
-  ) : (
-    <DataMapperProvider
-      documentInitializationModel={documentInitializationModel}
-      onUpdateDocument={onUpdateDocument}
-      onDeleteParameter={onDeleteParameter}
-      initialXsltFile={initialXsltFile}
-      onUpdateMappings={onUpdateMappings}
-    >
-      <DataMapperCanvasProvider>
-        <DataMapper />
-      </DataMapperCanvasProvider>
-    </DataMapperProvider>
-  );
+  return <DataMapper vizNode={vizNode} />;
 };
 
 export default DataMapperPage;
