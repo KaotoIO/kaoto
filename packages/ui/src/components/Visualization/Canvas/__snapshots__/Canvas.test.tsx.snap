@@ -61,7 +61,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -69,7 +69,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -153,7 +153,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -161,7 +161,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -245,7 +245,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -253,7 +253,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -820,7 +820,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -828,7 +828,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -912,7 +912,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -920,7 +920,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -1004,7 +1004,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -1012,7 +1012,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -2391,7 +2391,7 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -2399,7 +2399,7 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -2483,7 +2483,7 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -2491,7 +2491,7 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -2575,7 +2575,7 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -2583,7 +2583,7 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -3150,7 +3150,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -3158,7 +3158,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="892.5"
+                                height="902.5"
                                 width="870"
                                 x="-85"
                                 y="12.5"
@@ -3242,7 +3242,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -3250,7 +3250,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="627.5"
+                                height="637.5"
                                 width="750"
                                 x="-25"
                                 y="72.5"
@@ -3334,7 +3334,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
@@ -3342,7 +3342,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="195"
+                                height="205"
                                 width="360"
                                 x="305"
                                 y="445"
