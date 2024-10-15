@@ -34,44 +34,6 @@ export const ContextToolbar: FunctionComponent = () => {
     );
   }
 
-  // TODO: Remove this block when the metadata API is implemented
-  if (isDefined(metadataApi)) {
-    toolbarItems.push(
-      <ToolbarItem key="toolbar-get-metadata">
-        <Button data-testid="toolbar-get-metadata" onClick={() => metadataApi.getMetadata('key')}>
-          Get Metadata
-        </Button>
-      </ToolbarItem>,
-    );
-    toolbarItems.push(
-      <ToolbarItem key="toolbar-set-metadata">
-        <Button
-          data-testid="toolbar-set-metadata"
-          onClick={() => metadataApi.setMetadata('key', Date.now().toString())}
-        >
-          Set Metadata
-        </Button>
-      </ToolbarItem>,
-    );
-    toolbarItems.push(
-      <ToolbarItem key="toolbar-get-content">
-        <Button data-testid="toolbar-get-content" onClick={() => metadataApi.getResourceContent('file')}>
-          Get Resource
-        </Button>
-      </ToolbarItem>,
-    );
-    toolbarItems.push(
-      <ToolbarItem key="toolbar-save-content">
-        <Button
-          data-testid="toolbar-save-content"
-          onClick={() => metadataApi.saveResourceContent('file', Date.now().toString())}
-        >
-          Save Resource
-        </Button>
-      </ToolbarItem>,
-    );
-  }
-
   return (
     <Toolbar>
       <ToolbarContent>
