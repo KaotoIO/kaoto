@@ -1,9 +1,7 @@
-import { Button, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
+import { Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { sourceSchemaConfig } from '../../../models/camel';
-import { MetadataContext } from '../../../providers';
 import { EntitiesContext } from '../../../providers/entities.provider';
-import { isDefined } from '../../../utils';
 import './ContextToolbar.scss';
 import { DSLSelector } from './DSLSelector/DSLSelector';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
@@ -15,7 +13,6 @@ import { RuntimeSelector } from './RuntimeSelector/RuntimeSelector';
 export const ContextToolbar: FunctionComponent = () => {
   const { currentSchemaType } = useContext(EntitiesContext)!;
   const isMultipleRoutes = sourceSchemaConfig.config[currentSchemaType].multipleRoute;
-  const metadataApi = useContext(MetadataContext);
 
   const toolbarItems: JSX.Element[] = [
     <ToolbarItem key="toolbar-dsl-selector">
