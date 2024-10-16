@@ -56,6 +56,10 @@ export class CamelInterceptFromVisualEntity
     );
   }
 
+  getRootPath(): string {
+    return CamelInterceptFromVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }

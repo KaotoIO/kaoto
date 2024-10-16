@@ -45,43 +45,46 @@ const getDefaultRouteDefinition = (fromDefinition?: { from: FromDefinition }): {
   },
 });
 
-export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<RouteDefinition> {
+export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: RouteDefinition }> {
   id: string;
-  route: RouteDefinition;
   readonly type = EntityType.Route;
+  static readonly ROOT_PATH = 'route';
 
   constructor(routeRaw: { route: RouteDefinition } | { from: FromDefinition } | undefined) {
-    let route: RouteDefinition;
+    let routeDef: { route: RouteDefinition };
     let routeRawId: string | undefined;
     if (isCamelFrom(routeRaw)) {
-      route = getDefaultRouteDefinition(routeRaw).route;
+      routeDef = getDefaultRouteDefinition(routeRaw);
       routeRawId = routeRaw.from.id;
     } else if (isCamelRoute(routeRaw)) {
-      route = routeRaw.route;
+      routeDef = routeRaw;
       routeRawId = routeRaw.route?.id;
     } else {
-      route = getDefaultRouteDefinition().route;
+      routeDef = getDefaultRouteDefinition();
     }
 
-    super(route);
-    this.route = route;
+    super(routeDef);
     const id = routeRawId ?? getCamelRandomId('route');
     this.id = id;
-    this.route.id = this.id;
+    this.entityDef.route.id = this.id;
   }
 
   static isApplicable(routeDef: unknown): routeDef is { route: RouteDefinition } | { from: FromDefinition } {
     return isCamelRoute(routeDef) || isCamelFrom(routeDef);
   }
 
+  getRootPath(): string {
+    return CamelRouteVisualEntity.ROOT_PATH;
+  }
+
   /** Internal API methods */
   setId(routeId: string): void {
     this.id = routeId;
-    this.route.id = this.id;
+    this.entityDef.route.id = this.id;
   }
 
   toJSON(): { route: RouteDefinition } {
-    return { route: this.route };
+    return { route: this.entityDef.route };
   }
 
   addStep(options: {
@@ -91,9 +94,13 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<RouteDefin
     targetProperty?: string | undefined;
   }): void {
     /** Replace the root `from` step */
-    if (options.mode === AddStepMode.ReplaceStep && options.data.path === 'from' && isDefined(this.route.from)) {
+    if (
+      options.mode === AddStepMode.ReplaceStep &&
+      options.data.path === `${this.getRootPath()}.from` &&
+      isDefined(this.entityDef.route.from)
+    ) {
       const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
-      Object.assign(this.route.from, fromValue);
+      Object.assign(this.entityDef.route.from, fromValue);
       return;
     }
 
@@ -106,8 +113,8 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<RouteDefin
      * If there's only one path segment, it means the target is the `from` property of the route
      * therefore we replace it with an empty object
      */
-    if (path === 'from') {
-      setValue(this.route, 'from.uri', '');
+    if (path === `${this.getRootPath()}.from`) {
+      setValue(this.entityDef, `${this.getRootPath()}.from.uri`, '');
       return;
     }
 
@@ -116,10 +123,10 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<RouteDefin
 
   updateModel(path: string | undefined, value: unknown): void {
     super.updateModel(path, value);
-    if (isDefined(this.route.id)) this.id = this.route.id;
+    if (isDefined(this.entityDef.route.id)) this.id = this.entityDef.route.id;
   }
 
   protected getRootUri(): string | undefined {
-    return this.route.from?.uri;
+    return this.entityDef.route.from?.uri;
   }
 }

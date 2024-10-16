@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { ROOT_PATH, getArrayProperty, getValue, setValue } from '../../../utils';
+import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -21,10 +21,11 @@ import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './sup
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
-  constructor(public route: T) {}
+  constructor(public entityDef: T) {}
 
   abstract id: string;
   abstract type: EntityType;
+  abstract getRootPath(): string;
   abstract setId(id: string): void;
   abstract toJSON(): unknown;
   protected abstract getRootUri(): string | undefined;
@@ -35,8 +36,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (!path) return '';
+    const componentModel = getValue(this.entityDef, path);
 
-    const componentModel = getValue(this.route, path);
     const label = CamelComponentSchemaService.getNodeLabel(
       CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
       componentModel,
@@ -48,7 +49,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   getTooltipContent(path?: string): string {
     if (!path) return '';
-    const componentModel = getValue(this.route, path);
+    const componentModel = getValue(this.entityDef, path);
 
     const content = CamelComponentSchemaService.getTooltipContent(
       CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
@@ -60,7 +61,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
 
-    const componentModel = getValue(this.route, path);
+    const componentModel = getValue(this.entityDef, path);
     const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
 
     /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */
@@ -79,21 +80,21 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     if (!path) return;
     const updatedValue = CamelComponentSchemaService.getMultiValueSerializedDefinition(path, value);
 
-    setValue(this.route, path, updatedValue);
+    setValue(this.entityDef, path, updatedValue);
   }
 
   /**
    * Add a step to the route
    *
    * path examples:
-   *      from
-   *      from.steps.0.setHeader
-   *      from.steps.1.choice.when.0
-   *      from.steps.1.choice.when.0.steps.0.setHeader
-   *      from.steps.1.choice.otherwise
-   *      from.steps.1.choice.otherwise.steps.0.setHeader
-   *      from.steps.2.doTry.doCatch.0
-   *      from.steps.2.doTry.doCatch.0.steps.0.setHeader
+   *      route.from
+   *      route.from.steps.0.setHeader
+   *      route.from.steps.1.choice.when.0
+   *      route.from.steps.1.choice.when.0.steps.0.setHeader
+   *      route.from.steps.1.choice.otherwise
+   *      route.from.steps.1.choice.otherwise.steps.0.setHeader
+   *      route.from.steps.2.doTry.doCatch.0
+   *      route.from.steps.2.doTry.doCatch.0.steps.0.setHeader
    */
   addStep(options: {
     definedComponent: DefinedComponent;
@@ -120,7 +121,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
      * If the last segment is a string and the penultimate is a number, it means the target is member of an array
      * therefore we need to look for the array and insert the element at the given index + 1
      *
-     * f.i. from.steps.0.setHeader
+     * f.i. route.from.steps.0.setHeader
      * penultimate: 0
      * last: setHeader
      */
@@ -131,7 +132,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       /** If we're in Replace mode, we need to delete the existing step */
       const deleteCount = options.mode === AddStepMode.ReplaceStep ? 1 : 0;
 
-      const stepsArray: ProcessorDefinition[] = getValue(this.route, pathArray.slice(0, -2), []);
+      const stepsArray: ProcessorDefinition[] = getValue(this.entityDef, pathArray.slice(0, -2), []);
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
       return;
@@ -148,10 +149,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
      * If the last segment is a number, it means the target object is a member of an array
      * therefore we need to look for the array and remove the element at the given index
      *
-     * f.i. from.steps.1.choice.when.0
+     * f.i. route.from.steps.1.choice.when.0
      * last: 0
      */
-    let array = getValue(this.route, pathArray.slice(0, -1), []);
+    let array = getValue(this.entityDef, pathArray.slice(0, -1), []);
     if (Number.isInteger(Number(last)) && Array.isArray(array)) {
       array.splice(Number(last), 1);
 
@@ -162,11 +163,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
      * If the last segment is a word and the penultimate is a number, it means the target is an object
      * potentially a Processor, that belongs to an array, therefore we remove it entirely
      *
-     * f.i. from.steps.1.choice
+     * f.i. route.from.steps.1.choice
      * last: choice
-     * penultimate: 1
+     * penultimate: 1`
      */
-    array = getValue(this.route, pathArray.slice(0, -2), []);
+    array = getValue(this.entityDef, pathArray.slice(0, -2), []);
     if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate)) && Array.isArray(array)) {
       array.splice(Number(penultimate), 1);
 
@@ -177,11 +178,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
      * If both the last and penultimate segment are words, it means the target is a property of an object
      * therefore we delete it
      *
-     * f.i. from.steps.1.choice.otherwise
+     * f.i. route.from.steps.1.choice.otherwise
      * last: otherwise
      * penultimate: choice
      */
-    const object = getValue(this.route, pathArray.slice(0, -1), {});
+    const object = getValue(this.entityDef, pathArray.slice(0, -1), {});
     if (!Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate)) && typeof object === 'object') {
       delete object[last];
     }
@@ -195,7 +196,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
     const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
-    const canRemoveFlow = data.path === ROOT_PATH;
+    const canRemoveFlow = data.path === this.getRootPath();
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
     return {
@@ -218,8 +219,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   toVizNode(): IVisualizationNode {
-    const routeGroupNode = createVisualizationNode('route', {
-      path: ROOT_PATH,
+    const routeGroupNode = createVisualizationNode(this.getRootPath(), {
+      path: this.getRootPath(),
       entity: this,
       isGroup: true,
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
@@ -227,12 +228,12 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     });
 
     const fromNode = NodeMapperService.getVizNode(
-      'from',
+      `${this.getRootPath()}.from`,
       {
         processorName: 'from' as keyof ProcessorDefinition,
         componentName: CamelComponentSchemaService.getComponentNameFromUri(this.getRootUri()!),
       },
-      this.route,
+      this.entityDef,
     );
 
     if (!this.getRootUri()) {
@@ -270,9 +271,9 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     if (property === undefined) return;
 
     if (property.type === 'single-clause') {
-      setValue(this.route, `${options.data.path}.${property.name}`, defaultValue);
+      setValue(this.entityDef, `${options.data.path}.${property.name}`, defaultValue);
     } else {
-      const arrayPath = getArrayProperty(this.route, `${options.data.path}.${property.name}`);
+      const arrayPath = getArrayProperty(this.entityDef, `${options.data.path}.${property.name}`);
       arrayPath.unshift(defaultValue);
     }
   }

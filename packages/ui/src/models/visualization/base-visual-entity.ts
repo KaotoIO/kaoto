@@ -14,6 +14,9 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   id: string;
   type: EntityType;
 
+  /** Return the root path of the entity */
+  getRootPath: () => string;
+
   getId: () => string;
 
   setId: (id: string) => void;
