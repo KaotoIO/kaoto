@@ -1,6 +1,6 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, relative } from 'node:path';
 import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
@@ -43,5 +43,12 @@ export default defineConfig(async () => {
       emptyOutDir: true,
     },
     base: './',
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
+    },
   };
 });
