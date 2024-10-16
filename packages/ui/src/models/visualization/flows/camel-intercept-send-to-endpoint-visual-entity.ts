@@ -68,6 +68,10 @@ export class CamelInterceptSendToEndpointVisualEntity
     );
   }
 
+  getRootPath(): string {
+    return CamelInterceptSendToEndpointVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }

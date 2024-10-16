@@ -1,12 +1,6 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { FromDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import {
-  ROOT_PATH,
-  getCustomSchemaFromKamelet,
-  isDefined,
-  setValue,
-  updateKameletFromCustomSchema,
-} from '../../../utils';
+import { getCustomSchemaFromKamelet, isDefined, setValue, updateKameletFromCustomSchema } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
@@ -16,16 +10,22 @@ import { AddStepMode, IVisualizationNode, IVisualizationNodeData, VisualComponen
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
+import { NodeLabelType } from '../../settings';
 
-export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefinition> {
+export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
   id: string;
   readonly type = EntityType.Kamelet;
+  static readonly ROOT_PATH = 'template';
 
   constructor(public kamelet: IKameletDefinition) {
-    super({ id: kamelet.metadata?.name, from: kamelet?.spec.template.from });
+    super({ id: kamelet.metadata?.name, template: { from: kamelet?.spec.template.from } });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
     this.kamelet.metadata = kamelet?.metadata ?? { name: this.id };
     this.kamelet.metadata.name = kamelet?.metadata.name ?? this.id;
+  }
+
+  getRootPath(): string {
+    return KameletVisualEntity.ROOT_PATH;
   }
 
   /** Internal API methods */
@@ -38,12 +38,20 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
     return this.kamelet.metadata.name;
   }
 
-  toJSON(): { route: RouteDefinition } {
-    return { route: this.route };
+  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
+    if (path === this.getRootPath()) {
+      return this.kamelet.metadata.name;
+    }
+
+    return super.getNodeLabel(path, labelType);
+  }
+
+  toJSON(): { from: FromDefinition } {
+    return { from: this.entityDef.template.from };
   }
 
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
-    if (path === ROOT_PATH) {
+    if (path === this.getRootPath()) {
       return {
         schema: this.getRootKameletSchema(),
         definition: getCustomSchemaFromKamelet(this.kamelet),
@@ -54,15 +62,15 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
   }
 
   updateModel(path: string | undefined, value: Record<string, unknown>): void {
-    if (path === ROOT_PATH) {
+    if (path === this.getRootPath()) {
       updateKameletFromCustomSchema(this.kamelet, value);
       this.id = this.kamelet.metadata.name;
-      this.route.id = this.kamelet.metadata.name;
+      this.entityDef.id = this.kamelet.metadata.name;
       return;
     }
 
     super.updateModel(path, value);
-    if (isDefined(this.route.id)) this.id = this.route.id;
+    if (isDefined(this.entityDef.id)) this.id = this.entityDef.id;
   }
 
   addStep(options: {
@@ -72,9 +80,13 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
     targetProperty?: string | undefined;
   }): void {
     /** Replace the root `from` step */
-    if (options.mode === AddStepMode.ReplaceStep && options.data.path === 'from' && isDefined(this.route.from)) {
+    if (
+      options.mode === AddStepMode.ReplaceStep &&
+      options.data.path === `${this.getRootPath()}.from` &&
+      isDefined(this.entityDef.template.from)
+    ) {
       const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
-      Object.assign(this.route.from, fromValue);
+      Object.assign(this.entityDef.template.from, fromValue);
       return;
     }
 
@@ -87,8 +99,8 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<RouteDefiniti
      * If there's only one path segment, it means the target is the `from` property of the route
      * therefore we replace it with an empty object
      */
-    if (path === 'from') {
-      setValue(this.route, 'from.uri', '');
+    if (path === `${this.getRootPath()}.from`) {
+      setValue(this.entityDef, `${this.getRootPath()}.from.uri`, '');
       return;
     }
 

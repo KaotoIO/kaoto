@@ -19,6 +19,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.RestConfiguration;
+  static readonly ROOT_PATH = 'restConfiguration';
   private schemaValidator: ValidateFunction<RestConfiguration> | undefined;
 
   constructor(public restConfigurationDef: { restConfiguration: RestConfiguration } = { restConfiguration: {} }) {
@@ -39,9 +40,13 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
 
     return (
       objectKeys.length === 1 &&
-      'restConfiguration' in restConfigurationDef! &&
+      this.ROOT_PATH in restConfigurationDef! &&
       typeof restConfigurationDef.restConfiguration === 'object'
     );
+  }
+
+  getRootPath(): string {
+    return CamelRestConfigurationVisualEntity.ROOT_PATH;
   }
 
   getId(): string {
@@ -119,7 +124,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const restConfigurationGroupNode = NodeMapperService.getVizNode(
-      'restConfiguration',
+      this.getRootPath(),
       { processorName: 'restConfiguration' as keyof ProcessorDefinition },
       this.restConfigurationDef,
     );
