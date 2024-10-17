@@ -33,7 +33,7 @@ export class FlowService {
       });
 
       const containerId = vizNodeParam.id;
-      node = this.getContainer(containerId, {
+      node = this.getGroup(containerId, {
         label: containerId,
         children: children.map((child) => child.id),
         parentNode: vizNodeParam.getParentNode()?.id,
@@ -75,7 +75,7 @@ export class FlowService {
     return edges;
   }
 
-  private static getContainer(
+  private static getGroup(
     id: string,
     options: { label?: string; children?: string[]; parentNode?: string; data?: CanvasNode['data'] } = {},
   ): CanvasNode {
@@ -88,7 +88,7 @@ export class FlowService {
       parentNode: options.parentNode,
       data: options.data,
       style: {
-        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.8,
+        padding: CanvasDefaults.DEFAULT_GROUP_PADDING,
       },
     };
   }

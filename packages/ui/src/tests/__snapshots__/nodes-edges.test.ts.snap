@@ -1860,7 +1860,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "when-1234",
     "parentNode": "choice-1234",
     "style": {
-      "padding": 60,
+      "padding": 65,
     },
     "type": "group",
   },
@@ -2951,7 +2951,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "otherwise-1234",
     "parentNode": "choice-1234",
     "style": {
-      "padding": 60,
+      "padding": 65,
     },
     "type": "group",
   },
@@ -3500,7 +3500,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "choice-1234",
     "parentNode": "route-1234",
     "style": {
-      "padding": 60,
+      "padding": 65,
     },
     "type": "group",
   },
@@ -4906,7 +4906,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "route-1234",
     "parentNode": undefined,
     "style": {
-      "padding": 60,
+      "padding": 65,
     },
     "type": "group",
   },
