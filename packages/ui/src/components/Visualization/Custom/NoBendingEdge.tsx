@@ -1,13 +1,15 @@
 import { BaseEdge, getTopCollapsedParent, Point } from '@patternfly/react-topology';
+import { LayoutType } from '../Canvas';
 
 export class NoBendpointsEdge extends BaseEdge {
   getBendpoints(): Point[] {
     return [];
   }
+
   getStartPoint(): Point {
     if (this.getTarget() === this.getSource()) {
       const parent = getTopCollapsedParent(this.getSource());
-      const isHorizontal = this.getGraph().getLayout() === 'DagreHorizontal';
+      const isHorizontal = this.getGraph().getLayout() === LayoutType.DagreHorizontal;
       const parentPos = parent.getPosition();
       const parentSize = parent.getDimensions();
       let x, y;
@@ -29,14 +31,15 @@ export class NoBendpointsEdge extends BaseEdge {
         }
       }
       return new Point(x, y);
-    } else {
-      return super.getStartPoint();
     }
+
+    return super.getStartPoint();
   }
+
   getEndPoint(): Point {
     if (this.getTarget() === this.getSource()) {
       const parent = getTopCollapsedParent(this.getSource());
-      const isHorizontal = this.getGraph().getLayout() === 'DagreHorizontal';
+      const isHorizontal = this.getGraph().getLayout() === LayoutType.DagreHorizontal;
       const parentPos = parent.getPosition();
       const parentSize = parent.getDimensions();
       let x, y;
@@ -58,8 +61,8 @@ export class NoBendpointsEdge extends BaseEdge {
         }
       }
       return new Point(x, y);
-    } else {
-      return super.getEndPoint();
     }
+
+    return super.getEndPoint();
   }
 }

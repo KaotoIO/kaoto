@@ -1,53 +1,57 @@
-import { DefaultEdge, Edge, EdgeModel, EdgeTerminalType, observer } from '@patternfly/react-topology';
-import { Button, Tooltip } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
-import './CustomEdge.scss';
-import { addNode } from '../ContextMenu/ItemAddStep';
-import { CatalogModalContext, EntitiesContext } from '../../../../providers';
-import { useContext } from 'react';
+import {
+  Decorator,
+  DefaultEdge,
+  EdgeModel,
+  EdgeTerminalType,
+  GraphElement,
+  isEdge,
+  observer,
+} from '@patternfly/react-topology';
+import { FunctionComponent, useCallback, useContext } from 'react';
 import { IVisualizationNode } from '../../../../models';
+import { CatalogModalContext, EntitiesContext } from '../../../../providers';
+import { addNode } from '../ContextMenu/ItemAddStep';
+import { LayoutType } from '../../Canvas';
 
-interface EdgeEndProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  element: Edge<EdgeModel, any>;
+type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
+interface EdgeEndProps extends DefaultEdgeProps {
+  /** We're not providing Data to edges */
+  element: GraphElement<EdgeModel, unknown>;
 }
 
-const EdgeEnd: React.FC<EdgeEndProps> = observer(({ element, ...rest }) => {
+export const EdgeEndWithButton: FunctionComponent<EdgeEndProps> = observer(({ element, ...rest }) => {
+  if (!isEdge(element)) {
+    throw new Error('EdgeEndWithButton must be used only on Edge elements');
+  }
   const entitiesContext = useContext(EntitiesContext);
   const catalogModalContext = useContext(CatalogModalContext);
   const vizNode: IVisualizationNode = element.getSource().getData()?.vizNode;
-  const isHorizontal = element.getGraph().getLayout() === 'DagreHorizontal';
+  const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
   const endPoint = element.getEndPoint();
-  let x, y;
-  if (isHorizontal) {
-    x = endPoint.x;
-    y = endPoint.y - 12;
-  } else {
-    x = endPoint.x - 12;
-    y = endPoint.y;
-  }
-  const onAdd = () => {
+
+  const onAdd = useCallback(() => {
     addNode(catalogModalContext, entitiesContext, vizNode);
-  };
+  }, [catalogModalContext, entitiesContext, vizNode]);
+
+  let x = endPoint.x;
+  let y = endPoint.y;
+  if (isHorizontal) {
+    x += 14;
+  } else {
+    y += 4;
+  }
+
   return (
     <DefaultEdge
       element={element}
       startTerminalType={EdgeTerminalType.none}
       endTerminalType={EdgeTerminalType.none}
-      className="custom-edge"
       {...rest}
     >
       <g data-testid={`custom-edge__${element?.getId()}`}>
-        <foreignObject x={x} y={y} width="24" height="24" className="custom-edge">
-          <Tooltip content="Append">
-            <Button variant="plain" className="custom-edge__end" onClick={onAdd}>
-              <PlusIcon size={40} />
-            </Button>
-          </Tooltip>
-        </foreignObject>
+        <Decorator showBackground radius={14} x={x} y={y} icon={<PlusIcon />} onClick={onAdd} />
       </g>
     </DefaultEdge>
   );
 });
-
-export const EdgeEndWithButton: typeof DefaultEdge = EdgeEnd as typeof DefaultEdge;
