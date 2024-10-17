@@ -29,7 +29,7 @@ import layoutHorizontalIcon from '../../../assets/layout-horizontal.png';
 import layoutVerticalIcon from '../../../assets/layout-vertical.png';
 import { useLocalStorage } from '../../../hooks';
 import { LocalStorageKeys } from '../../../models';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualCamelEntity, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { VisualizationEmptyState } from '../EmptyState';
@@ -38,6 +38,9 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
+import { ActionConfirmationModalContext, EntitiesContext } from '../../../providers';
+import { deleteRoute } from '../Custom/ContextMenu/ItemDeleteGroup';
+import { deleteStep } from '../Custom/ContextMenu/ItemDeleteStep';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];
@@ -57,6 +60,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
+
+  const entitiesContext = useContext(EntitiesContext);
+  const deleteModalContext = useContext(ActionConfirmationModalContext);
 
   const controller = useVisualizationController();
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
@@ -124,6 +130,44 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       };
     }
   }, [selectedIds, controller]);
+
+  const removeNode = useCallback(
+    async (vizNode: IVisualizationNode) => {
+      if (vizNode?.getParentNode() == undefined) {
+        deleteRoute(deleteModalContext, entitiesContext, vizNode);
+      } else {
+        deleteStep(deleteModalContext, entitiesContext, vizNode);
+      }
+    },
+    [deleteModalContext, entitiesContext],
+  );
+
+  /** Handle Delete key press */
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        selectedNode &&
+        ((event.target as HTMLElement).tagName === 'MAIN' || (event.target as HTMLElement).tagName === 'g')
+      ) {
+        if (event.key === 'Delete') {
+          const vizNode: IVisualizationNode = controller.getElementById(selectedNode.id)?.getData()?.vizNode;
+          removeNode(vizNode);
+          setSelectedIds([]);
+          setSelectedNode(undefined);
+          /** TODO: Implement selection of next node after deletion when ids are fixed
+            const selectNext = vizNode?.getNextNode()?.id || vizNode?.getPreviousNode()?.id;
+            removeNode(vizNode);
+            controller.fireEvent(SELECTION_EVENT, [selectNext]);
+           */
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedNode, controller, removeNode]);
 
   const controlButtons = useMemo(() => {
     const customButtons: TopologyControlButton[] = [
