@@ -1,3 +1,5 @@
+@use '../custom';
+
 .phantom-rect {
   stroke: transparent;
   fill: transparent;
@@ -26,7 +28,32 @@
   }
 }
 
+.custom-node {
+  &__image {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+
+    img {
+      max-height: 80%;
+      max-width: 95%;
+    }
+  }
+
+  &[data-disabled='true'] &__image {
+    filter: grayscale(100%);
+  }
+
+  &--disabled {
+    --pf-topology__node_decorator--Color: var(--pf-v5-global--BackgroundColor--dark-200);
+  }
+}
+
 .custom-group {
+  @include custom.container;
+
   --custom-group--BorderColor: var(--pf-v5-global--palette--black-400);
   --custom-group--BorderSize: var(--pf-v5-global--BorderWidth--md);
   --custom-group--BorderRadius: 15px;
@@ -37,8 +64,6 @@
 
   display: flex;
   flex-flow: column;
-  height: 100%;
-  width: 100%;
   background-color: var(--custom-group--Background);
   color: var(--pf-v5-global--Color--100);
   border-radius: var(--custom-group--BorderRadius);

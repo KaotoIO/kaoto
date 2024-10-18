@@ -1,45 +1,55 @@
-/* stylelint-disable */
+@use '../custom';
 
 .custom-node {
-  &__image {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    height: 100%;
-    justify-content: center;
+  @include custom.highligth {
+    &__container {
+      @include custom.container;
 
-    img {
-      max-height: 80%;
-      max-width: 95%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: space-around;
+
+      &__image {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          border: 2px solid var(--custom-node-BorderColor);
+          border-radius: var(--custom-node-BorderRadius);
+          background-color: var(--custom-node-BackgroundColor);
+          padding: var(--pf-v5-global--spacer--sm);
+          height: 60px;
+          width: 60px;
+        }
+      }
+
+      &__label {
+        @include custom.text;
+      }
+
+      &:hover img {
+        border-color: var(--custom-node-hover-BorderColor);
+        box-shadow: var(--custom-node-Shadow);
+      }
+
+      [data-selected='true'] & img {
+        @include custom.selected;
+      }
+
+      [data-disabled='true'] & {
+        @include custom.disabled;
+      }
+    }
+
+    &__warning {
+      --pf-topology__node_decorator--Color: var(--custom-node-BorderColor);
     }
   }
 
-  &[data-disabled='true'] &__image {
-    filter: grayscale(100%);
+  &__toolbar {
+    overflow: visible;
+    text-align: center;
   }
-
-  &--disabled {
-    --pf-topology__node_decorator--Color: var(--pf-v5-global--BackgroundColor--dark-200);
-  }
-}
-
-.custom-node__label--disabled {
-  font-style: italic;
-  text-decoration: line-through;
-}
-
-.custom-node__label {
-  z-index: 20;
-}
-
-/* Ensure selected state has higher specificity */
-.custom-node__label--selected, .custom-node__label--selected:hover {
-  --pf-topology__node__label__background--Stroke: var(--pf-topology__node--m-selected--node__label__background--Stroke);
-  --pf-topology__node__label__background--Fill: var(--pf-topology__node--m-selected--node__label__background--Fill);
-  --pf-topology__node__separator--Stroke: var(--pf-topology__node--m-selected--node__label__text--m-secondary--Fill);
-  --pf-topology__node__action-icon__icon--Color: var(--pf-topology__node--m-selected--action-icon__icon--Color);
-  --pf-topology__node__label__text--Fill: var(--pf-topology__node--m-selected--node__label__text--Fill);
-  --pf-topology__node__label__text--m-secondary--Fill: var(--pf-topology__node--m-selected--node__label__text--m-secondary--Fill);
-
-  z-index: 50;
 }

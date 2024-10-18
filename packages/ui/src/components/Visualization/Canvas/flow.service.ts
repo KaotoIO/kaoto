@@ -99,8 +99,8 @@ export class FlowService {
       type: 'node',
       parentNode: options.parentNode,
       data: options.data,
-      width: CanvasDefaults.DEFAULT_NODE_DIAMETER,
-      height: CanvasDefaults.DEFAULT_NODE_DIAMETER,
+      width: CanvasDefaults.DEFAULT_NODE_WIDTH,
+      height: CanvasDefaults.DEFAULT_NODE_HEIGHT,
       shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
     };
   }

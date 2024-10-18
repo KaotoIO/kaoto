@@ -29,8 +29,8 @@ export const CustomGroupCollapsed: FunctionComponent<CustomGroupExpandedProps> =
   ({
     className,
     children,
-    collapsedWidth = CanvasDefaults.DEFAULT_NODE_DIAMETER,
-    collapsedHeight = CanvasDefaults.DEFAULT_NODE_DIAMETER,
+    collapsedWidth = CanvasDefaults.DEFAULT_NODE_WIDTH,
+    collapsedHeight = CanvasDefaults.DEFAULT_NODE_HEIGHT,
     collapsedShadowOffset = 8,
     element,
     onSelect,

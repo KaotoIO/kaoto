@@ -61,7 +61,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.3994708994708995, -0.4986772486772487) scale(0.0010582010582010583)"
+                        transform="translate(-0.4132420091324201, -0.4509132420091324) scale(0.0009132420091324201)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -78,18 +78,18 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               >
                                 <div
                                   class="custom-group"
@@ -170,18 +170,18 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               >
                                 <div
                                   class="custom-group"
@@ -262,18 +262,18 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               >
                                 <div
                                   class="custom-group"
@@ -361,16 +361,16 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 137.5 L475 268.5"
+                                d="M550 142.5 L550 283.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 137.5 L475 282.5"
+                                d="M550 142.5 L550 297.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 268.5) rotate(90)"
+                                transform="translate(550, 283.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -394,16 +394,16 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 282.5 L475 86.5"
+                                d="M550 297.5 L550 91.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 282.5 L475 72.5"
+                                d="M550 297.5 L550 77.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 86.5) rotate(270)"
+                                transform="translate(550, 91.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -427,11 +427,11 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -443,12 +443,12 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="422.5"
-                                    cy="646.5"
+                                    cx="460"
+                                    cy="671.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(422.5, 646.5)"
+                                    transform="translate(460, 671.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -486,16 +486,16 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M617.5 595 L617.5 628.5"
+                                d="M730 625 L730 653.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M617.5 595 L617.5 642.5"
+                                d="M730 625 L730 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(617.5, 628.5) rotate(90)"
+                                transform="translate(730, 653.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -519,16 +519,16 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 725 L475 818.5"
+                                d="M550 755 L550 853.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 725 L475 832.5"
+                                d="M550 755 L550 867.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 818.5) rotate(90)"
+                                transform="translate(550, 853.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -552,11 +552,11 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -568,12 +568,12 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="475"
-                                    cy="921.5"
+                                    cx="550"
+                                    cy="956.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(475, 921.5)"
+                                    transform="translate(550, 956.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -611,13 +611,13 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 100)"
+                              transform="translate(475, 100)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 245)"
+                              transform="translate(475, 255)"
                             />
                             <g
                               data-id="choice-1234"
@@ -644,13 +644,13 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(580, 520)"
+                                  transform="translate(655, 540)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(385, 520)"
+                                  transform="translate(385, 540)"
                                 />
                               </g>
                             </g>
@@ -658,7 +658,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 795)"
+                              transform="translate(475, 825)"
                             />
                           </g>
                         </g>
@@ -955,7 +955,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.3994708994708995, -0.4986772486772487) scale(0.0010582010582010583)"
+                        transform="translate(-0.4132420091324201, -0.4509132420091324) scale(0.0009132420091324201)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -972,18 +972,18 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               >
                                 <div
                                   class="custom-group"
@@ -1064,18 +1064,18 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               >
                                 <div
                                   class="custom-group"
@@ -1156,18 +1156,18 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               >
                                 <div
                                   class="custom-group"
@@ -1255,16 +1255,16 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 137.5 L475 268.5"
+                                d="M550 142.5 L550 283.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 137.5 L475 282.5"
+                                d="M550 142.5 L550 297.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 268.5) rotate(90)"
+                                transform="translate(550, 283.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1288,16 +1288,16 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 282.5 L475 86.5"
+                                d="M550 297.5 L550 91.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 282.5 L475 72.5"
+                                d="M550 297.5 L550 77.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 86.5) rotate(270)"
+                                transform="translate(550, 91.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1321,11 +1321,11 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -1337,12 +1337,12 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="422.5"
-                                    cy="646.5"
+                                    cx="460"
+                                    cy="671.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(422.5, 646.5)"
+                                    transform="translate(460, 671.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -1380,16 +1380,16 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M617.5 595 L617.5 628.5"
+                                d="M730 625 L730 653.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M617.5 595 L617.5 642.5"
+                                d="M730 625 L730 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(617.5, 628.5) rotate(90)"
+                                transform="translate(730, 653.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1413,16 +1413,16 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 725 L475 818.5"
+                                d="M550 755 L550 853.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 725 L475 832.5"
+                                d="M550 755 L550 867.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 818.5) rotate(90)"
+                                transform="translate(550, 853.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1446,11 +1446,11 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -1462,12 +1462,12 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="475"
-                                    cy="921.5"
+                                    cx="550"
+                                    cy="956.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(475, 921.5)"
+                                    transform="translate(550, 956.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -1505,13 +1505,13 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 100)"
+                              transform="translate(475, 100)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 245)"
+                              transform="translate(475, 255)"
                             />
                             <g
                               data-id="choice-1234"
@@ -1538,13 +1538,13 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(580, 520)"
+                                  transform="translate(655, 540)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(385, 520)"
+                                  transform="translate(385, 540)"
                                 />
                               </g>
                             </g>
@@ -1552,7 +1552,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 795)"
+                              transform="translate(475, 825)"
                             />
                           </g>
                         </g>
@@ -2661,7 +2661,7 @@ exports[`Canvas should render correctly 1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.3994708994708995, -0.4986772486772487) scale(0.0010582010582010583)"
+                        transform="translate(-0.4132420091324201, -0.4509132420091324) scale(0.0009132420091324201)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -2678,18 +2678,18 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               >
                                 <div
                                   class="custom-group"
@@ -2770,18 +2770,18 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               >
                                 <div
                                   class="custom-group"
@@ -2862,18 +2862,18 @@ exports[`Canvas should render correctly 1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               >
                                 <div
                                   class="custom-group"
@@ -2961,16 +2961,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 137.5 L475 268.5"
+                                d="M550 142.5 L550 283.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 137.5 L475 282.5"
+                                d="M550 142.5 L550 297.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 268.5) rotate(90)"
+                                transform="translate(550, 283.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2994,16 +2994,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 282.5 L475 86.5"
+                                d="M550 297.5 L550 91.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 282.5 L475 72.5"
+                                d="M550 297.5 L550 77.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 86.5) rotate(270)"
+                                transform="translate(550, 91.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3027,11 +3027,11 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -3043,12 +3043,12 @@ exports[`Canvas should render correctly 1`] = `
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="422.5"
-                                    cy="646.5"
+                                    cx="460"
+                                    cy="671.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(422.5, 646.5)"
+                                    transform="translate(460, 671.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -3086,16 +3086,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M617.5 595 L617.5 628.5"
+                                d="M730 625 L730 653.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M617.5 595 L617.5 642.5"
+                                d="M730 625 L730 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(617.5, 628.5) rotate(90)"
+                                transform="translate(730, 653.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3119,16 +3119,16 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 725 L475 818.5"
+                                d="M550 755 L550 853.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 725 L475 832.5"
+                                d="M550 755 L550 867.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 818.5) rotate(90)"
+                                transform="translate(550, 853.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3152,11 +3152,11 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -3168,12 +3168,12 @@ exports[`Canvas should render correctly 1`] = `
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="475"
-                                    cy="921.5"
+                                    cx="550"
+                                    cy="956.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(475, 921.5)"
+                                    transform="translate(550, 956.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -3211,13 +3211,13 @@ exports[`Canvas should render correctly 1`] = `
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 100)"
+                              transform="translate(475, 100)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 245)"
+                              transform="translate(475, 255)"
                             />
                             <g
                               data-id="choice-1234"
@@ -3244,13 +3244,13 @@ exports[`Canvas should render correctly 1`] = `
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(580, 520)"
+                                  transform="translate(655, 540)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(385, 520)"
+                                  transform="translate(385, 540)"
                                 />
                               </g>
                             </g>
@@ -3258,7 +3258,7 @@ exports[`Canvas should render correctly 1`] = `
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 795)"
+                              transform="translate(475, 825)"
                             />
                           </g>
                         </g>
@@ -3555,7 +3555,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.3994708994708995, -0.4986772486772487) scale(0.0010582010582010583)"
+                        transform="translate(-0.4132420091324201, -0.4509132420091324) scale(0.0009132420091324201)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -3572,18 +3572,18 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="route-8888"
-                                height="927.5"
-                                width="945"
+                                height="962.5"
+                                width="1095"
                                 x="-95"
-                                y="7.5"
+                                y="12.5"
                               >
                                 <div
                                   class="custom-group"
@@ -3664,18 +3664,18 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="choice"
-                                height="652.5"
-                                width="815"
+                                height="677.5"
+                                width="965"
                                 x="-30"
-                                y="72.5"
+                                y="77.5"
                               >
                                 <div
                                   class="custom-group"
@@ -3756,18 +3756,18 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             <g>
                               <rect
                                 class="phantom-rect"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               />
                               <foreignobject
                                 class="foreign-object"
                                 data-nodelabel="otherwise"
-                                height="205"
-                                width="400"
+                                height="215"
+                                width="550"
                                 x="320"
-                                y="455"
+                                y="475"
                               >
                                 <div
                                   class="custom-group"
@@ -3855,16 +3855,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 137.5 L475 268.5"
+                                d="M550 142.5 L550 283.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 137.5 L475 282.5"
+                                d="M550 142.5 L550 297.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 268.5) rotate(90)"
+                                transform="translate(550, 283.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3888,16 +3888,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 282.5 L475 86.5"
+                                d="M550 297.5 L550 91.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 282.5 L475 72.5"
+                                d="M550 297.5 L550 77.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 86.5) rotate(270)"
+                                transform="translate(550, 91.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3921,11 +3921,11 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M422.5 595 L422.5 642.5"
+                                d="M460 625 L460 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -3937,12 +3937,12 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="422.5"
-                                    cy="646.5"
+                                    cx="460"
+                                    cy="671.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(422.5, 646.5)"
+                                    transform="translate(460, 671.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -3980,16 +3980,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M617.5 595 L617.5 628.5"
+                                d="M730 625 L730 653.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M617.5 595 L617.5 642.5"
+                                d="M730 625 L730 667.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(617.5, 628.5) rotate(90)"
+                                transform="translate(730, 653.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -4013,16 +4013,16 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 725 L475 818.5"
+                                d="M550 755 L550 853.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-solid"
-                                d="M475 725 L475 832.5"
+                                d="M550 755 L550 867.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(475, 818.5) rotate(90)"
+                                transform="translate(550, 853.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -4046,11 +4046,11 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="pf-topology__edge__background"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                               />
                               <path
                                 class="pf-topology__edge__link pf-m-dashed"
-                                d="M475 870 L475 917.5"
+                                d="M550 910 L550 952.5"
                                 style="animation-duration: 0s;"
                               />
                               <g
@@ -4062,12 +4062,12 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 >
                                   <circle
                                     class="pf-topology__node__decorator__bg"
-                                    cx="475"
-                                    cy="921.5"
+                                    cx="550"
+                                    cy="956.5"
                                     r="14"
                                   />
                                   <g
-                                    transform="translate(475, 921.5)"
+                                    transform="translate(550, 956.5)"
                                   >
                                     <g
                                       class="pf-topology__node__decorator__icon"
@@ -4105,13 +4105,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 100)"
+                              transform="translate(475, 100)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 245)"
+                              transform="translate(475, 255)"
                             />
                             <g
                               data-id="choice-1234"
@@ -4138,13 +4138,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(580, 520)"
+                                  transform="translate(655, 540)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(385, 520)"
+                                  transform="translate(385, 540)"
                                 />
                               </g>
                             </g>
@@ -4152,7 +4152,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(437.5, 795)"
+                              transform="translate(475, 825)"
                             />
                           </g>
                         </g>

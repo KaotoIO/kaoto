@@ -766,12 +766,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "timer",
       },
     },
-    "height": 75,
+    "height": 85,
     "id": "timer-1234",
     "parentNode": "route-1234",
     "shape": "rect",
     "type": "node",
-    "width": 75,
+    "width": 150,
   },
   {
     "data": {
@@ -1309,12 +1309,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "setHeader",
       },
     },
-    "height": 75,
+    "height": 85,
     "id": "setHeader-1234",
     "parentNode": "when-1234",
     "shape": "rect",
     "type": "node",
-    "width": 75,
+    "width": 150,
   },
   {
     "children": [
@@ -2400,12 +2400,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "log",
       },
     },
-    "height": 75,
+    "height": 85,
     "id": "log-1234",
     "parentNode": "otherwise-1234",
     "shape": "rect",
     "type": "node",
-    "width": 75,
+    "width": 150,
   },
   {
     "children": [
@@ -4271,12 +4271,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "sql",
       },
     },
-    "height": 75,
+    "height": 85,
     "id": "sql-1234",
     "parentNode": "route-1234",
     "shape": "rect",
     "type": "node",
-    "width": 75,
+    "width": 150,
   },
   {
     "children": [
