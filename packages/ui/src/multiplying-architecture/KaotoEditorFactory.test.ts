@@ -1,7 +1,7 @@
 jest.mock('./KaotoEditorApp');
 jest.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { ISettingsModel, NodeLabelType } from '../models';
+import { ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
@@ -15,6 +15,7 @@ describe('KaotoEditorFactory', () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
+      nodeToolbarTrigger: NodeToolbarTrigger.onHover,
     };
 
     const envelopeContext = {
@@ -39,6 +40,7 @@ describe('KaotoEditorFactory', () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
+      nodeToolbarTrigger: NodeToolbarTrigger.onHover,
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
@@ -88,6 +90,12 @@ describe('KaotoEditorFactory', () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: '',
       nodeLabel: NodeLabelType.Id,
+      nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+    };
+    const expectedSettings: ISettingsModel = {
+      catalogUrl: 'path-prefix/camel-catalog/index.json',
+      nodeLabel: NodeLabelType.Id,
+      nodeToolbarTrigger: NodeToolbarTrigger.onHover,
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
@@ -112,10 +120,7 @@ describe('KaotoEditorFactory', () => {
       envelopeContext,
       initArgs,
       expect.objectContaining({
-        settings: {
-          catalogUrl: 'path-prefix/camel-catalog/index.json',
-          nodeLabel: NodeLabelType.Id,
-        },
+        settings: expectedSettings,
       }),
     );
     expect(editor).toBeDefined();

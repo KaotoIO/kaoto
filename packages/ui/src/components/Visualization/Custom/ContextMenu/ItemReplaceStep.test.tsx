@@ -1,9 +1,9 @@
 import { fireEvent, render } from '@testing-library/react';
 import { createVisualizationNode } from '../../../../models';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
-import { ItemReplaceStep } from './ItemReplaceStep';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { ItemReplaceStep } from './ItemReplaceStep';
 
 describe('ItemReplaceStep', () => {
   const vizNode = createVisualizationNode('test', {});
@@ -34,6 +34,9 @@ describe('ItemReplaceStep', () => {
   });
 
   it('should open replace confirmation modal on click', async () => {
+    const childNode = createVisualizationNode('test', {});
+    vizNode.addChild(childNode);
+
     const wrapper = render(
       <EntitiesContext.Provider value={mockEntitiesContext}>
         <ActionConfirmationModalContext.Provider value={mockReplaceModalContext}>

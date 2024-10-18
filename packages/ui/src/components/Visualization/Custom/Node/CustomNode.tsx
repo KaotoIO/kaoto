@@ -1,30 +1,37 @@
 import { Tooltip } from '@patternfly/react-core';
-import { BanIcon } from '@patternfly/react-icons';
+import { BanIcon, WarningTriangleIcon } from '@patternfly/react-icons';
 import {
+  AnchorEnd,
+  DEFAULT_DECORATOR_RADIUS,
+  DEFAULT_LAYER,
   Decorator,
   DefaultNode,
+  Layer,
   Node,
   NodeStatus,
-  ScaleDetailsLevel,
+  Rect,
   WithSelectionProps,
   observer,
+  useAnchor,
+  useHover,
   useSelection,
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
-import clsx from 'clsx';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, MouseEvent, useContext, useRef } from 'react';
 import { SettingsContext } from '../../../../providers';
-import { doTruncateLabel } from '../../../../utils/truncate-label';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
-import './CustomNode.scss';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { TargetAnchor } from '../target-anchor';
+import './CustomNode.scss';
+import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { NodeToolbarTrigger } from '../../../../models';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
+  onContextMenu: (e: MouseEvent) => void;
 }
-const noopFn = () => {};
 
 const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...rest }) => {
   const vizNode = element.getData()?.vizNode;
@@ -32,58 +39,93 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
   const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
   const tooltipContent = vizNode?.getTooltipContent();
-  const statusDecoratorTooltip = vizNode?.getNodeValidationText();
-  const nodeStatus = !statusDecoratorTooltip || isDisabled ? NodeStatus.default : NodeStatus.warning;
-  const detailsLevel = element.getGraph().getDetailsLevel();
-  const [selected] = useSelection();
-  const id = vizNode?.getTitle();
+  const validationText = vizNode?.getNodeValidationText();
+  const doesHaveWarnings = !isDisabled && !!validationText;
+  const [isSelected, onSelect] = useSelection();
+  const [isHover, hoverRef] = useHover<SVGGElement>();
+  const boxRef = useRef<Rect>(element.getBounds());
+  const decoratorRef = useRef<SVGGElement>(null);
+  const shouldShowToolbar =
+    settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
+      ? isHover || isSelected
+      : isSelected;
+
+  useAnchor((element: Node) => {
+    return new TargetAnchor(element);
+  }, AnchorEnd.both);
+
+  const toolbarHeight = 60;
+  const toolbarWidth = 500;
+  const toolbarX = (boxRef.current.width - toolbarWidth) / 2;
+
+  if (!vizNode) {
+    return null;
+  }
 
   return (
-    <DefaultNode
-      {...rest}
-      element={element}
-      label={selected ? label : doTruncateLabel(label)}
-      scaleLabel={detailsLevel !== ScaleDetailsLevel.low}
-      labelClassName={clsx('custom-node__label', {
-        'custom-node__label--disabled': isDisabled,
-        'custom-node__label--selected': selected,
-      })}
-      showStatusDecorator={!isDisabled}
-      statusDecoratorTooltip={statusDecoratorTooltip}
-      nodeStatus={nodeStatus}
-      onStatusDecoratorClick={noopFn}
-      secondaryLabel={id !== label ? id : undefined}
-    >
+    <Layer id={DEFAULT_LAYER}>
       <g
+        ref={hoverRef}
         className="custom-node"
-        data-testid={`custom-node__${vizNode?.id}`}
+        data-testid={`custom-node__${vizNode.id}`}
         data-nodelabel={label}
+        data-selected={isSelected}
         data-disabled={isDisabled}
+        data-warning={doesHaveWarnings}
+        onClick={onSelect}
+        onContextMenu={rest.onContextMenu}
       >
-        <foreignObject
-          x="0"
-          y="0"
-          width={CanvasDefaults.DEFAULT_NODE_DIAMETER}
-          height={CanvasDefaults.DEFAULT_NODE_DIAMETER}
-        >
-          <Tooltip content={tooltipContent}>
-            <div className="custom-node__image">
+        <rect className="phantom-rect" width={boxRef.current.width} height={boxRef.current.height} />
+        <foreignObject data-nodelabel={label} width={boxRef.current.width} height={boxRef.current.height}>
+          <div className="custom-node__container">
+            <div title={tooltipContent} className="custom-node__container__image">
               <img src={vizNode?.data.icon} />
             </div>
-          </Tooltip>
+
+            <div className="custom-node__container__label">
+              <span title={label}>{label}</span>
+            </div>
+          </div>
         </foreignObject>
+
+        {shouldShowToolbar && (
+          <foreignObject
+            className="custom-node__toolbar"
+            x={toolbarX}
+            y={toolbarHeight * -1}
+            width={toolbarWidth}
+            height={toolbarHeight}
+          >
+            <StepToolbar data-testid="step-toolbar" vizNode={vizNode} />
+          </foreignObject>
+        )}
+
+        {doesHaveWarnings && (
+          <Tooltip triggerRef={decoratorRef} content={validationText}>
+            <Decorator
+              className="custom-node__warning"
+              innerRef={decoratorRef}
+              ariaLabel={NodeStatus.warning}
+              radius={DEFAULT_DECORATOR_RADIUS}
+              x={CanvasDefaults.DEFAULT_NODE_WIDTH * 0.3}
+              y={0}
+              icon={<WarningTriangleIcon />}
+              showBackground
+            />
+          </Tooltip>
+        )}
 
         {isDisabled && (
           <Decorator
-            radius={12}
-            x={CanvasDefaults.DEFAULT_NODE_DIAMETER}
+            radius={DEFAULT_DECORATOR_RADIUS}
+            x={CanvasDefaults.DEFAULT_NODE_WIDTH * 0.7}
             y={0}
-            icon={<BanIcon className="custom-node--disabled" />}
+            icon={<BanIcon />}
             showBackground
           />
         )}
       </g>
-    </DefaultNode>
+    </Layer>
   );
 });
 

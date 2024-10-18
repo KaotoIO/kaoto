@@ -7,29 +7,32 @@ import {
 } from '../../../../providers/action-confirmation-modal.provider';
 
 describe('ItemDeleteStep', () => {
-  const vizNode = createVisualizationNode('test', {});
-  const mockVizNode = {
-    removeChild: jest.fn(),
-  } as unknown as IVisualizationNode;
-
+  let vizNode: IVisualizationNode;
   const mockDeleteModalContext = {
     actionConfirmation: jest.fn(),
   };
+
+  beforeEach(() => {
+    vizNode = createVisualizationNode('test', {});
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should render delete ContextMenuItem', () => {
-    const { container } = render(<ItemDeleteStep vizNode={vizNode} loadActionConfirmationModal={false} />);
+    const { container } = render(<ItemDeleteStep vizNode={vizNode} />);
 
     expect(container).toMatchSnapshot();
   });
 
   it('should open delete confirmation modal on click', async () => {
+    const childNode = createVisualizationNode('test', {});
+    vizNode.addChild(childNode);
+
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <ItemDeleteStep vizNode={vizNode} loadActionConfirmationModal={true} />
+        <ItemDeleteStep vizNode={vizNode} />
       </ActionConfirmationModalContext.Provider>,
     );
 
@@ -42,16 +45,17 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should call removechild if deletion is confirmed', async () => {
+    const removeChildSpy = jest.spyOn(vizNode, 'removeChild');
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <ItemDeleteStep vizNode={mockVizNode} loadActionConfirmationModal={true} />
+        <ItemDeleteStep vizNode={vizNode} />
       </ActionConfirmationModalContext.Provider>,
     );
     fireEvent.click(wrapper.getByText('Delete'));
 
     await waitFor(() => {
-      expect(mockVizNode.removeChild).toHaveBeenCalled();
+      expect(removeChildSpy).toHaveBeenCalled();
     });
   });
 });
