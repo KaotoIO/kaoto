@@ -47,6 +47,7 @@ declare global {
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;

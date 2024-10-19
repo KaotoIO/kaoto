@@ -30,6 +30,11 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.wait(1000);
 });
 
+Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
+  nodeIndex = nodeIndex ?? 0;
+  cy.get('circle.pf-topology__node__decorator__bg').eq(nodeIndex).click({ force: true });
+});
+
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });

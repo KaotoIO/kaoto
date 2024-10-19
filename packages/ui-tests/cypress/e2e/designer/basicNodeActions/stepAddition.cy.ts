@@ -36,4 +36,23 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('log-action', 1);
     cy.checkCodeSpanLine('string-template-action', 1);
   });
+
+  it('Design - add steps to CamelRoute using the quick append icon', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+
+    cy.quickAppend();
+    cy.chooseFromCatalog('processor', 'choice');
+
+    cy.quickAppend();
+    cy.chooseFromCatalog('component', 'as2');
+
+    cy.quickAppend(1);
+    cy.chooseFromCatalog('component', 'amqp');
+
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('choice:', 1);
+    cy.checkCodeSpanLine('uri: amqp', 1);
+    cy.checkCodeSpanLine('uri: as2', 1);
+  });
 });
