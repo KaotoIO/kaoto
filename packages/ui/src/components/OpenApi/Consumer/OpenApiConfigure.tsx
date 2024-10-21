@@ -157,7 +157,7 @@ export const OpenApiConfigure: FunctionComponent<Props> = (props) => {
     if (value !== '') {
       if (value.startsWith('openapi:')) {
         const spec: OpenApi = parse(value);
-        populateOperations();
+        populateOperations(spec);
         setOpenApi(spec);
         setOpenApiError('');
       } else if (value.match('.*"openapi":.*')) {
@@ -237,6 +237,9 @@ export const OpenApiConfigure: FunctionComponent<Props> = (props) => {
         },
       };
       contextNode.updateModel(newDefinition);
+
+      entitiesContext?.updateSourceCodeFromEntities();
+      entitiesContext?.updateEntitiesFromCamelResource();
     } else {
       contextNode.getChildren()?.forEach((child) => {
         configureRestOpenApiClientRecurse(child);
