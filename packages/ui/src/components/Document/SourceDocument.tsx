@@ -9,6 +9,7 @@ import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { useCanvas } from '../../hooks/useCanvas';
 import { VisualizationService } from '../../services/visualization.service';
 import './Document.scss';
+import { useDataMapper } from '../../hooks/useDataMapper';
 
 type DocumentProps = {
   document: IDocument;
@@ -16,18 +17,33 @@ type DocumentProps = {
 };
 
 export const SourceDocument: FunctionComponent<DocumentProps> = ({ document, isReadOnly }) => {
+  const { initialExpandedFieldRank } = useDataMapper();
   const nodeData = new DocumentNodeData(document);
-  return <SourceDocumentNode nodeData={nodeData} isReadOnly={isReadOnly} />;
+  return (
+    <SourceDocumentNode
+      nodeData={nodeData}
+      isReadOnly={isReadOnly}
+      initialExpandedRank={initialExpandedFieldRank}
+      rank={0}
+    />
+  );
 };
 
 type DocumentNodeProps = {
   nodeData: NodeData;
   isReadOnly: boolean;
+  initialExpandedRank: number;
+  rank: number;
 };
 
-export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, isReadOnly }) => {
+export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
+  nodeData,
+  isReadOnly,
+  initialExpandedRank,
+  rank,
+}) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(rank > initialExpandedRank);
 
   const onClick = useCallback(() => {
     setCollapsed(!collapsed);
@@ -35,8 +51,11 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
   }, [collapsed, reloadNodeReferences]);
 
   const isDocument = nodeData instanceof DocumentNodeData;
-  const children = VisualizationService.generateNodeDataChildren(nodeData);
-  const hasChildren = children.length > 0;
+  const hasChildren =
+    isDocument ||
+    (nodeData instanceof FieldNodeData &&
+      (nodeData.field.fields.length > 0 || nodeData.field.namedTypeFragmentRefs.length > 0));
+  const children = collapsed ? [] : VisualizationService.generateNodeDataChildren(nodeData);
   const isCollectionField = nodeData instanceof FieldNodeData && nodeData.field.maxOccurs > 1;
   const isAttributeField = nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
 
@@ -102,7 +121,13 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeD
         {hasChildren && !collapsed && (
           <div className={isDocument ? 'node-children__document' : 'node-children'}>
             {children.map((child) => (
-              <SourceDocumentNode nodeData={child} key={child.id} isReadOnly={isReadOnly} />
+              <SourceDocumentNode
+                nodeData={child}
+                key={child.id}
+                isReadOnly={isReadOnly}
+                initialExpandedRank={initialExpandedRank}
+                rank={rank + 1}
+              />
             ))}
           </div>
         )}

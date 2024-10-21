@@ -1,5 +1,5 @@
 import { SourceDocument } from './SourceDocument';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BODY_DOCUMENT_ID, PrimitiveDocument } from '../../models/datamapper/document';
@@ -30,4 +30,20 @@ describe('SourceDocument', () => {
     );
     expect(await screen.findByText('OrderPerson')).toBeTruthy();
   });
+
+  it('should render camel-spring.xsd doc till 2nd level', async () => {
+    const document = TestUtil.createCamelSpringXsdSourceDoc();
+    render(
+      <DataMapperProvider>
+        <DataMapperCanvasProvider>
+          <SourceDocument document={document} isReadOnly={false} />
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>,
+    );
+    await waitFor(async () => {
+      const aggregates = await screen.findAllByText('aggregate');
+      expect(aggregates.length).toEqual(2);
+    });
+    expect(await screen.findByText('correlationExpression')).toBeTruthy();
+  }, 10000);
 });

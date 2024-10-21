@@ -1,3 +1,4 @@
+export { QNameMap } from './utils/ObjectMap';
 export { XmlSchema } from './XmlSchema';
 export { XmlSchemaAll } from './particle/XmlSchemaAll';
 export { XmlSchemaAny } from './particle/XmlSchemaAny';
@@ -10,7 +11,10 @@ export { XmlSchemaAttributeOrGroupRef } from './attribute/XmlSchemaAttributeOrGr
 export { XmlSchemaChoice } from './particle/XmlSchemaChoice';
 export { XmlSchemaChoiceMember } from './particle/XmlSchemaChoiceMember';
 export { XmlSchemaCollection } from './XmlSchemaCollection';
+export { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
+export { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
 export { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+export { XmlSchemaContentModel } from './XmlSchemaContentModel';
 export { XmlSchemaElement } from './particle/XmlSchemaElement';
 export { XmlSchemaGroup } from './XmlSchemaGroup';
 export { XmlSchemaGroupParticle } from './particle/XmlSchemaGroupParticle';
@@ -20,5 +24,8 @@ export { XmlSchemaParticle } from './particle/XmlSchemaParticle';
 export { XmlSchemaRef } from './utils/XmlSchemaRef';
 export { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 export { XmlSchemaSequenceMember } from './particle/XmlSchemaSequenceMember';
+export { XmlSchemaSimpleContentExtension } from './simple/XmlSchemaSimpleContentExtension';
+export { XmlSchemaSimpleContentRestriction } from './simple/XmlSchemaSimpleContentRestriction';
 export { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+export { XmlSchemaType } from './XmlSchemaType';
 export { XmlSchemaUse } from './XmlSchemaUse';

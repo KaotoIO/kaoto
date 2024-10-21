@@ -5,6 +5,8 @@ import {
   DocumentInitializationModel,
   IDocument,
   IField,
+  IParentType,
+  ITypeFragment,
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
@@ -123,5 +125,29 @@ export class DocumentService {
       Object.entries(namespaceMap).find(([prefix, uri]) => prefix && uri && field.namespaceURI === uri);
     if (nsPair) answer += nsPair[0] + ':';
     return answer + field.name;
+  }
+
+  static getOwnerDocument<DocumentType extends IDocument>(docOrField: IParentType): DocumentType {
+    return ('ownerDocument' in docOrField ? docOrField.ownerDocument : docOrField) as DocumentType;
+  }
+
+  static resolveTypeFragment(field: IField) {
+    if (field.namedTypeFragmentRefs.length === 0) return field;
+    const doc = DocumentService.getOwnerDocument(field);
+    field.namedTypeFragmentRefs.forEach((ref) => {
+      const fragment = doc.namedTypeFragments[ref];
+      DocumentService.adoptTypeFragment(field, fragment);
+    });
+    field.namedTypeFragmentRefs = [];
+    return field;
+  }
+
+  private static adoptTypeFragment(field: IField, fragment: ITypeFragment) {
+    const doc = DocumentService.getOwnerDocument(field);
+    fragment.fields.forEach((f) => f.adopt(field));
+    fragment.namedTypeFragmentRefs.forEach((childRef) => {
+      const childFragment = doc.namedTypeFragments[childRef];
+      DocumentService.adoptTypeFragment(field, childFragment);
+    });
   }
 }

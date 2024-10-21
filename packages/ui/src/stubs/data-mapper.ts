@@ -26,6 +26,9 @@ export const testDocumentXsd = fs
 export const noTopElementXsd = fs
   .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/NoTopElement.xsd')
   .toString();
+export const camelSpringXsd = fs
+  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/camel-spring.xsd')
+  .toString();
 export const shipOrderToShipOrderXslt = fs
   .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl')
   .toString();
@@ -33,6 +36,14 @@ export const shipOrderToShipOrderXslt = fs
 export class TestUtil {
   static createSourceOrderDoc() {
     return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', shipOrderXsd);
+  }
+
+  static createCamelSpringXsdSourceDoc() {
+    return XmlSchemaDocumentService.createXmlSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'camel-spring.xsd',
+      camelSpringXsd,
+    );
   }
 
   static createTargetOrderDoc() {

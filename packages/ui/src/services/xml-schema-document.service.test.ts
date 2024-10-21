@@ -3,7 +3,7 @@ import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
 
-import { shipOrderXsd, testDocumentXsd } from '../stubs/data-mapper';
+import { camelSpringXsd, shipOrderXsd, testDocumentXsd } from '../stubs/data-mapper';
 
 describe('XmlSchemaDocumentService', () => {
   it('should parse ShipOrder XML schema', () => {
@@ -35,6 +35,34 @@ describe('XmlSchemaDocumentService', () => {
     const fields: XmlSchemaField[] = [];
     XmlSchemaDocumentService.populateElement(document, fields, testDoc);
     expect(fields.length > 0).toBeTruthy();
+  });
+
+  it('should parse camel-spring.xsd XML schema', () => {
+    const document = XmlSchemaDocumentService.createXmlSchemaDocument(
+      DocumentType.TARGET_BODY,
+      BODY_DOCUMENT_ID,
+      camelSpringXsd,
+    );
+    expect(document).toBeDefined();
+    expect(document.fields.length).toEqual(1);
+    const aggregate = document.fields[0];
+    expect(aggregate.fields.length).toBe(0);
+    expect(aggregate.namedTypeFragmentRefs.length).toEqual(1);
+    expect(aggregate.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}aggregateDefinition');
+    const aggregateDef = document.namedTypeFragments[aggregate.namedTypeFragmentRefs[0]];
+    expect(aggregateDef.fields.length).toEqual(100);
+    expect(aggregateDef.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}output');
+    const outputDef = document.namedTypeFragments[aggregateDef.namedTypeFragmentRefs[0]];
+    expect(outputDef.fields.length).toEqual(0);
+    expect(outputDef.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}processorDefinition');
+    const processorDef = document.namedTypeFragments[outputDef.namedTypeFragmentRefs[0]];
+    expect(processorDef.fields.length).toEqual(2);
+    expect(processorDef.namedTypeFragmentRefs[0]).toEqual(
+      '{http://camel.apache.org/schema/spring}optionalIdentifiedDefinition',
+    );
+    const optionalIdentifiedDef = document.namedTypeFragments[processorDef.namedTypeFragmentRefs[0]];
+    expect(optionalIdentifiedDef.fields.length).toEqual(3);
+    expect(optionalIdentifiedDef.namedTypeFragmentRefs.length).toEqual(0);
   });
 
   it('should create XML Schema Document', () => {

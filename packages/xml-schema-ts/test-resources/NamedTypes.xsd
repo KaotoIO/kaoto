@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="io.kaoto.datamapper.poc.test" xmlns:ns0="io.kaoto.datamapper.poc.test">
+
+    <xs:element name="Element1" type="ns0:complexType1" />
+
+    <xs:simpleType name="simpleType1">
+        <xs:restriction/>
+    </xs:simpleType>
+    <xs:complexType name="complexType1">
+        <xs:sequence>
+            <xs:element name="Element1Simple1" type="simpleType1"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -30,6 +30,13 @@ export interface IField {
   maxOccurs: number;
   namespacePrefix: string | null;
   namespaceURI: string | null;
+  namedTypeFragmentRefs: string[];
+  adopt: (parent: IField) => IField;
+}
+
+export interface ITypeFragment {
+  fields: IField[];
+  namedTypeFragmentRefs: string[];
 }
 
 export interface IDocument {
@@ -39,6 +46,7 @@ export interface IDocument {
   schemaType: string;
   fields: IField[];
   path: NodePath;
+  namedTypeFragments: Record<string, ITypeFragment>;
 }
 
 export abstract class BaseDocument implements IDocument {
@@ -52,6 +60,7 @@ export abstract class BaseDocument implements IDocument {
   name: string = '';
   schemaType = '';
   path: NodePath;
+  namedTypeFragments: Record<string, ITypeFragment> = {};
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
@@ -73,6 +82,8 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   type = Types.AnyType;
   path: NodePath;
   id: string;
+  namedTypeFragmentRefs = [];
+  adopt = () => this;
 }
 
 export class BaseField implements IField {
@@ -95,6 +106,21 @@ export class BaseField implements IField {
   defaultValue: string | null = null;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
+  namedTypeFragmentRefs: string[] = [];
+  adopt = (parent: IField) => {
+    const adopted = new BaseField(parent, parent.ownerDocument, this.name);
+    adopted.isAttribute = this.isAttribute;
+    adopted.type = this.type;
+    adopted.minOccurs = this.minOccurs;
+    adopted.maxOccurs = this.maxOccurs;
+    adopted.defaultValue = this.defaultValue;
+    adopted.namespacePrefix = this.namespacePrefix;
+    adopted.namespaceURI = this.namespaceURI;
+    adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    adopted.fields = this.fields.map((child) => child.adopt(adopted));
+    parent.fields.push(adopted);
+    return adopted;
+  };
 }
 
 export enum DocumentDefinitionType {

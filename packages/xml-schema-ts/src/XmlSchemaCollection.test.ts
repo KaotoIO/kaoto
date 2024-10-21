@@ -12,6 +12,8 @@ import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 describe('XmlSchemaCollection', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../test-resources/ShipOrder.xsd').toString();
   const testXsd = fs.readFileSync(__dirname + '/../test-resources/TestDocument.xsd').toString();
+  const namedTypesXsd = fs.readFileSync(__dirname + '/../test-resources/NamedTypes.xsd').toString();
+  const camelSpringXsd = fs.readFileSync(__dirname + '/../test-resources/camel-spring.xsd').toString();
 
   it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
@@ -91,5 +93,31 @@ describe('XmlSchemaCollection', () => {
     expect(testDocumentAttributes.length).toBe(1);
     const attrGroupRef = (testDocumentAttributes[0] as XmlSchemaAttributeGroupRef).getRef();
     expect(attrGroupRef.getTarget()).toBeTruthy();
+  });
+
+  it('should parse NamedTypes XML schema', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(namedTypesXsd, () => {});
+    const elements = xmlSchema.getElements();
+    expect(elements.size).toEqual(1);
+    const element1 = elements.get(new QName('io.kaoto.datamapper.poc.test', 'Element1'));
+    const element1ComplexType = element1!.getSchemaType() as XmlSchemaComplexType;
+    const element1Sequence = element1ComplexType.getParticle() as XmlSchemaSequence;
+    const element1SequenceMembers = element1Sequence.getItems();
+    expect(element1SequenceMembers.length).toEqual(1);
+    const element1Simple1 = element1SequenceMembers[0] as XmlSchemaElement;
+    const element1Simple1SchemaType = element1Simple1.getSchemaType();
+    expect(element1Simple1.getWireName()?.getNamespaceURI()).toEqual('');
+    expect(element1Simple1.getWireName()?.getLocalPart()).toEqual('Element1Simple1');
+  });
+
+  it('should parse camel-spring XML schema', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(camelSpringXsd, () => {});
+    const aggregate = xmlSchema.getElements().get(new QName('http://camel.apache.org/schema/spring', 'aggregate'));
+    const aggregateComplexType = aggregate!.getSchemaType() as XmlSchemaComplexType;
+    expect(aggregateComplexType.getParticle()).toBeNull();
+    const aggregateComplexContent = aggregateComplexType.getContentModel()?.getContent();
+    // TODO
   });
 });

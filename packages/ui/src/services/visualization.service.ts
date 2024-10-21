@@ -23,6 +23,7 @@ import {
 } from '../models/datamapper/mapping';
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import { MappingService } from './mapping.service';
+import { DocumentService } from './document.service';
 
 type MappingNodePairType = {
   sourceNode?: SourceNodeDataType;
@@ -95,6 +96,7 @@ export class VisualizationService {
             .map((m) => VisualizationService.createNodeDataFromMappingItem(parent, m))
         : [];
     } else if (parent instanceof FieldNodeData) {
+      DocumentService.resolveTypeFragment(parent.field);
       return VisualizationService.doGenerateNodeDataFromFields(
         parent,
         parent.field.fields,

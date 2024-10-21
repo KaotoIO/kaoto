@@ -17,19 +17,21 @@ type DocumentProps = {
 };
 
 export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) => {
-  const { mappingTree } = useDataMapper();
+  const { initialExpandedFieldRank, mappingTree } = useDataMapper();
   const nodeData = new TargetDocumentNodeData(document, mappingTree);
 
-  return <TargetDocumentNode nodeData={nodeData} />;
+  return <TargetDocumentNode nodeData={nodeData} initialExpandedRank={initialExpandedFieldRank} rank={0} />;
 };
 
 type DocumentNodeProps = {
   nodeData: TargetNodeData;
+  initialExpandedRank: number;
+  rank: number;
 };
 
-const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) => {
+const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, initialExpandedRank, rank }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(rank > initialExpandedRank);
 
   const onClick = useCallback(() => {
     setCollapsed(!collapsed);
@@ -113,7 +115,12 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData }) 
         {hasChildren && !collapsed && (
           <div className={isDocument ? 'node-children__document' : 'node-children'}>
             {children.map((child) => (
-              <TargetDocumentNode nodeData={child} key={child.id} />
+              <TargetDocumentNode
+                nodeData={child}
+                key={child.id}
+                initialExpandedRank={initialExpandedRank}
+                rank={rank + 1}
+              />
             ))}
           </div>
         )}
