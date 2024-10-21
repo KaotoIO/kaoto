@@ -22,7 +22,10 @@ export class CamelComponentFilterService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {
-    if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
+    if (
+      mode === AddStepMode.ReplaceStep &&
+      (visualEntityData.path === 'route.from' || visualEntityData.path === 'template.from')
+    ) {
       /**
        * For the `from` step we want to show only components which are not `producerOnly`,
        * as this mean that they can be used only as a producer.
@@ -89,7 +92,7 @@ export class CamelComponentFilterService {
     const camelComponentFilter = this.getCamelCompatibleComponents(mode, visualEntityData, definition);
 
     /** For the `from` step we want to add kamelet:source and leverage the existing getCamelCompatibleComponents method */
-    if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'from') {
+    if (mode === AddStepMode.ReplaceStep && visualEntityData.path === 'template.from') {
       return (item: ITile) => {
         return (item.type === CatalogKind.Kamelet && item.name === 'source') || camelComponentFilter(item);
       };
