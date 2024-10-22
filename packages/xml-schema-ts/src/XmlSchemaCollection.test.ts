@@ -8,12 +8,16 @@ import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import { screen } from '@testing-library/react';
 
 describe('XmlSchemaCollection', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../test-resources/ShipOrder.xsd').toString();
   const testXsd = fs.readFileSync(__dirname + '/../test-resources/TestDocument.xsd').toString();
   const namedTypesXsd = fs.readFileSync(__dirname + '/../test-resources/NamedTypes.xsd').toString();
   const camelSpringXsd = fs.readFileSync(__dirname + '/../test-resources/camel-spring.xsd').toString();
+  const orderXsdEmptyFirstLine = fs
+    .readFileSync(__dirname + '/../test-resources/ShipOrderEmptyFirstLine.xsd')
+    .toString();
 
   it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
@@ -119,5 +123,16 @@ describe('XmlSchemaCollection', () => {
     expect(aggregateComplexType.getParticle()).toBeNull();
     const aggregateComplexContent = aggregateComplexType.getContentModel()?.getContent();
     // TODO
+  });
+
+  it('should parse ShipOrderEmptyFirstLine.xsd', () => {
+    const collection = new XmlSchemaCollection();
+    try {
+      collection.read(orderXsdEmptyFirstLine, () => {});
+    } catch (error) {
+      expect(error.message).toContain('an XML declaration must be at the start of the document');
+      return;
+    }
+    fail('No error was thrown');
   });
 });

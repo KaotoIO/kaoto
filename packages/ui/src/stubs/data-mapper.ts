@@ -32,6 +32,9 @@ export const camelSpringXsd = fs
 export const shipOrderToShipOrderXslt = fs
   .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl')
   .toString();
+export const shipOrderEmptyFirstLineXsd = fs
+  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd')
+  .toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {

@@ -6,7 +6,7 @@ import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
-import { noTopElementXsd, shipOrderXsd } from '../../../stubs/data-mapper';
+import { noTopElementXsd, shipOrderEmptyFirstLineXsd, shipOrderXsd } from '../../../stubs/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -98,5 +98,35 @@ describe('AttachSchemaButton', () => {
     await screen.findByTestId('attach-schema-sourceBody-Body-button');
     expect(capturedAlerts.length).toEqual(1);
     expect(capturedAlerts[0].title).toContain('no top level Element');
+  });
+
+  it('should show a toast alert for XML parse error', async () => {
+    mockReadFileAsString.mockResolvedValue(shipOrderEmptyFirstLineXsd);
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <TestAlertCapture>
+              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            </TestAlertCapture>
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+    const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([shipOrderEmptyFirstLineXsd])], 'ShipOrderEmptyFirstLine.xsd', {
+      type: 'text/plain',
+    });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+    screen.debug();
+    await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    expect(capturedAlerts.length).toEqual(1);
+    expect(capturedAlerts[0].title).toContain('an XML declaration must be at the start of the document');
   });
 });

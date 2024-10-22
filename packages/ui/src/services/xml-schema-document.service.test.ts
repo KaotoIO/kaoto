@@ -2,8 +2,7 @@ import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.
 import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
-
-import { camelSpringXsd, shipOrderXsd, testDocumentXsd } from '../stubs/data-mapper';
+import { camelSpringXsd, shipOrderXsd, shipOrderEmptyFirstLineXsd, testDocumentXsd } from '../stubs/data-mapper';
 
 describe('XmlSchemaDocumentService', () => {
   it('should parse ShipOrder XML schema', () => {
@@ -75,5 +74,20 @@ describe('XmlSchemaDocumentService', () => {
     expect(doc.documentId).toEqual('ShipOrder.xsd');
     expect(doc.name).toEqual('ShipOrder.xsd');
     expect(doc.fields.length).toEqual(1);
+  });
+
+  it('should throw an error if there is a parse error on the XML schema', () => {
+    try {
+      XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        'ShipOrderEmptyFirstLine.xsd',
+        shipOrderEmptyFirstLineXsd,
+      );
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      expect(error.message).toContain('an XML declaration must be at the start of the document');
+      return;
+    }
+    expect(true).toBeFalsy();
   });
 });

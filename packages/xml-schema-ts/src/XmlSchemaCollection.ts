@@ -382,6 +382,11 @@ export class XmlSchemaCollection {
   read(content: string, validator: (schema: XmlSchema) => void): XmlSchema {
     const parser = new DOMParser();
     const document = parser.parseFromString(content, 'text/xml');
+    const error = document.querySelector('parsererror');
+    if (error)
+      throw new Error(
+        `XML Parser Error: ${error.textContent ?? 'The XML schema file had a parse error, but there was no reason provided'}`,
+      );
     const builder = new SchemaBuilder(this, validator);
     return builder.build(document);
   }
