@@ -9,6 +9,7 @@ import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 import { screen } from '@testing-library/react';
+import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
 
 describe('XmlSchemaCollection', () => {
   const orderXsd = fs.readFileSync(__dirname + '/../test-resources/ShipOrder.xsd').toString();
@@ -121,8 +122,13 @@ describe('XmlSchemaCollection', () => {
     const aggregate = xmlSchema.getElements().get(new QName('http://camel.apache.org/schema/spring', 'aggregate'));
     const aggregateComplexType = aggregate!.getSchemaType() as XmlSchemaComplexType;
     expect(aggregateComplexType.getParticle()).toBeNull();
-    const aggregateComplexContent = aggregateComplexType.getContentModel()?.getContent();
-    // TODO
+    const aggregateComplexContent = aggregateComplexType
+      .getContentModel()
+      ?.getContent() as XmlSchemaComplexContentExtension;
+    expect(aggregateComplexContent.getBaseTypeName()?.getLocalPart()).toEqual('output');
+    expect(aggregateComplexContent.getAttributes().length).toEqual(22);
+    const particle = aggregateComplexContent.getParticle() as XmlSchemaSequence;
+    expect(particle.getItems().length).toEqual(6);
   });
 
   it('should parse ShipOrderEmptyFirstLine.xsd', () => {
