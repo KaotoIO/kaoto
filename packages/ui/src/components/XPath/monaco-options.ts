@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor';
 
-export const xpathEditorTheme = {
+export const xpathEditorTheme: monaco.editor.IStandaloneThemeData = {
   base: 'vs',
   inherit: true,
   rules: [
@@ -17,10 +17,11 @@ export const xpathEditorTheme = {
     'editor.selectionBackground': '#88000030',
     'editor.inactiveSelectionBackground': '#88000015',
   },
-} as monaco.editor.IStandaloneThemeData;
+};
 
-export const xpathEditorConstrufctionOption = {
+export const xpathEditorConstrufctionOption: monaco.editor.IStandaloneEditorConstructionOptions = {
   language: 'xpath',
+  automaticLayout: true,
   wordWrap: 'on',
   scrollBeyondLastColumn: 0,
   scrollbar: {
@@ -29,4 +30,4 @@ export const xpathEditorConstrufctionOption = {
     vertical: 'auto',
     verticalHasArrows: false,
   },
-} as monaco.editor.IStandaloneEditorConstructionOptions;
+};
