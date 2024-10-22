@@ -93,14 +93,16 @@ export class DataMapperMetadataService {
     return new Promise((resolve) => {
       const definitionType = documentMetadata.type ? documentMetadata.type : DocumentDefinitionType.Primitive;
       const definitionFiles: Record<string, string> = {};
-      const fileReadingPromises = documentMetadata.filePath.map((path) =>
-        api
-          .getResourceContent(path)
-          .then((value) => {
-            if (value) definitionFiles[path] = value;
-          })
-          .catch((reason) => console.log(`Could not read a file "${path}": ${reason}`)),
-      );
+      const fileReadingPromises = !documentMetadata.filePath
+        ? []
+        : documentMetadata.filePath.map((path) =>
+            api
+              .getResourceContent(path)
+              .then((value) => {
+                if (value) definitionFiles[path] = value;
+              })
+              .catch((reason) => console.log(`Could not read a file "${path}": ${reason}`)),
+          );
       Promise.allSettled(fileReadingPromises).then(() => {
         const answer = new DocumentDefinition(documentType, definitionType, name, definitionFiles);
         resolve(answer);
