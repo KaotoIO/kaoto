@@ -42,6 +42,9 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
           ...xpathEditorConstrufctionOption,
           theme: themeName,
           value: mapping.expression,
+          minimap: {
+            enabled: false,
+          },
         });
         newEditor.onDidChangeModelContent((_e) => onChange(newEditor.getModel()?.getValue()));
         return newEditor;
