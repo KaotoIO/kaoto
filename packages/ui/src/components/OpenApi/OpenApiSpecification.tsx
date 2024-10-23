@@ -37,16 +37,16 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState } from 
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import { useNavigate } from 'react-router-dom';
 import { parse } from 'yaml';
-import { BaseVisualCamelEntity, CamelRouteVisualEntity } from '../../../models';
-import { EntityType } from '../../../models/camel/entities';
-import { SourceSchemaType } from '../../../models/camel/source-schema-type';
-import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
-import { FlowTemplateService } from '../../../models/visualization/flows/support/flow-templates-service';
-import { EntitiesContext } from '../../../providers/entities.provider';
-import { SettingsContext } from '../../../providers';
-import { Links } from '../../../router/links.models';
-import { isDefined } from '../../../utils';
-import PaginationTop from '../../Visualization/Pagination/PaginationTop';
+import { BaseVisualCamelEntity, CamelRouteVisualEntity } from '../../models';
+import { EntityType } from '../../models/camel/entities';
+import { SourceSchemaType } from '../../models/camel/source-schema-type';
+import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { FlowTemplateService } from '../../models/visualization/flows/support/flow-templates-service';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { SettingsContext } from '../../providers';
+import { Links } from '../../router/links.models';
+import { isDefined } from '../../utils';
+import PaginationTop from '../Visualization/Pagination/PaginationTop';
 
 interface Props {
   updateSpecification: (spec: string, url: string) => void;
@@ -184,7 +184,6 @@ export const OpenApiSpecification: FunctionComponent<Props> = (props) => {
 
     const apicurioRegistryUrl = settingsAdapter.getSettings().apicurioRegistryUrl;
 
-    // TODO: Place this URL in a config file.
     fetch(apicurioRegistryUrl + '/apis/registry/v2/search/artifacts', { method: 'GET', mode: 'cors' })
       .then((res) => res.json() as Promise<ApicurioArtifactSearchResult>)
       .then((apicurioArtifactSearchResult) => {

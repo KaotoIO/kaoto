@@ -33,7 +33,7 @@ import { EntityType } from '../../../models/camel/entities';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { isDefined } from '../../../utils';
 import PaginationTop from '../../Visualization/Pagination/PaginationTop';
-import { OpenApiSpecification } from './OpenApiSpecification';
+import { OpenApiSpecification } from '../OpenApiSpecification';
 
 interface Props {
   openApiConfigureToggle: () => void;

@@ -50,7 +50,7 @@ import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel
 import { FlowTemplateService } from '../../../models/visualization/flows/support/flow-templates-service';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import { isDefined } from '../../../utils';
-import { OpenApiSpecification } from './OpenApiSpecification';
+import { OpenApiSpecification } from '../OpenApiSpecification';
 import PaginationTop from '../../Visualization/Pagination/PaginationTop';
 
 interface Props {
