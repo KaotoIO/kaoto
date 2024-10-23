@@ -75,6 +75,20 @@ Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add('checkCatalogEntryExists', (_nodeType: string, name: string) => {
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
+  cy.get(`#${name}`).should('exist');
+});
+
+Cypress.Commands.add('checkCatalogEntryNotExists', (_nodeType: string, name: string) => {
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
+  cy.get(`#${name}`).should('not.exist');
+});
+
+Cypress.Commands.add('closeCatalogModal', () => {
+  cy.get('[data-ouia-component-id="CatalogModal-ModalBoxCloseButton"]').click();
+});
+
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
   cy.get(`[data-nodelabel="${nodeName}"]`).parent().eq(nodeIndex).rightclick({ force: true });
