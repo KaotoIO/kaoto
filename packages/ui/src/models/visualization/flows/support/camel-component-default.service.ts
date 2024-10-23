@@ -3,6 +3,7 @@ import { parse } from 'yaml';
 import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
+import { XSLT_COMPONENT_NAME } from '../../../../utils';
 
 /**
  * CamelComponentDefaultService
@@ -167,7 +168,7 @@ export class CamelComponentDefaultService {
             steps:
               - to:
                   id: ${getCamelRandomId('kaoto-datamapper-xslt')}
-                  uri: xslt
+                  uri: ${XSLT_COMPONENT_NAME}
                   parameters: {}
           `);
 

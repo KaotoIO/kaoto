@@ -10,6 +10,11 @@ import { TestUtil } from '../../../stubs/data-mapper';
 
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
     const doc = TestUtil.createTargetOrderDoc();
     const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const docData = new TargetDocumentNodeData(doc, tree);

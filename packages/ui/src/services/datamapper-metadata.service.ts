@@ -10,6 +10,7 @@ import { IDataMapperMetadata, IDocumentMetadata } from '../models/datamapper/met
 import { IMetadataApi } from '../providers';
 import { EMPTY_XSL } from './mapping-serializer.service';
 import { EntitiesContextResult } from '../hooks';
+import { XSLT_COMPONENT_NAME } from '../utils';
 
 export class DataMapperMetadataService {
   static readonly SCHEMA_NAME_PATTERN = '**/*.{xsd,xml,XSD,XML}';
@@ -28,11 +29,11 @@ export class DataMapperMetadataService {
     return new Promise((resolve) => {
       const model = vizNode.getComponentSchema()?.definition;
       // eslint-disable-next-line
-      const xsltStep = model.steps.find((step: any) => step.to?.uri?.startsWith('xslt'));
+      const xsltStep = model.steps.find((step: any) => step.to?.uri?.startsWith(XSLT_COMPONENT_NAME));
       const splitted = xsltStep?.to?.uri?.split(':');
       let xsltFileName = `${metadataId}.xsl`;
       if (splitted.length < 2) {
-        xsltStep.to.uri = `xslt:${xsltFileName}`;
+        xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${xsltFileName}`;
         vizNode.updateModel(model);
         entitiesContext.updateSourceCodeFromEntities();
       } else {
