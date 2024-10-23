@@ -174,7 +174,7 @@ describe('CanvasForm', () => {
       fireEvent.click(closeSideBarButton);
     });
 
-    expect(camelRouteVisualEntity.route.description).toBeUndefined();
+    expect(camelRouteVisualEntity.entityDef.route.description).toBeUndefined();
   });
 
   it("should serialize empty strings(with space characters) `' '` as `undefined`", async () => {
@@ -209,7 +209,7 @@ describe('CanvasForm', () => {
       fireEvent.click(closeSideBarButton);
     });
 
-    expect(camelRouteVisualEntity.route.description).toBeUndefined();
+    expect(camelRouteVisualEntity.entityDef.route.description).toBeUndefined();
   });
 
   it('should allow consumers to update the Camel Route ID', async () => {

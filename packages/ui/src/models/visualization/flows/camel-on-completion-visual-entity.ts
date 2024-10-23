@@ -41,6 +41,10 @@ export class CamelOnCompletionVisualEntity
     );
   }
 
+  getRootPath(): string {
+    return CamelOnCompletionVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }

@@ -30,6 +30,11 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.wait(1000);
 });
 
+Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
+  nodeIndex = nodeIndex ?? 0;
+  cy.get('circle.pf-topology__node__decorator__bg').eq(nodeIndex).click({ force: true });
+});
+
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });
@@ -40,6 +45,10 @@ Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex?: number) 
 
 Cypress.Commands.add('selectDisableNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'disable', nodeIndex);
+});
+
+Cypress.Commands.add('selectEnableAllNodes', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'enable-all', nodeIndex);
 });
 
 Cypress.Commands.add('selectInsertNode', (nodeName: string, nodeIndex?: number) => {

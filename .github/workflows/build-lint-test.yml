@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
           cache: 'maven'
 
       # Install dependencies
@@ -44,11 +44,10 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
 
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
-        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog --exclude @kaoto/camel-catalog-plugin run build
+        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog run build
 
       # Build lib
       - name: Build @kaoto/kaoto package in lib mode

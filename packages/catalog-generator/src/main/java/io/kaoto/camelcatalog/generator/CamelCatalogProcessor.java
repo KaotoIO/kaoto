@@ -22,6 +22,7 @@ import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.EipModel.EipOptionModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
@@ -200,11 +201,24 @@ public class CamelCatalogProcessor {
      * @throws Exception
      */
     public String getDataFormatCatalog() throws Exception {
+        var catalogMap = new LinkedHashMap<String, EipModel>();
+        for (var name : camelCatalog.findDataFormatNames()) {
+            var modelCatalog = camelCatalog.dataFormatModel(name);
+            catalogMap.put(modelCatalog.getName(), camelCatalog.eipModel(name));
+        }
         var answer = jsonMapper.createObjectNode();
         var dataFormatSchemaMap = schemaProcessor.getDataFormats();
         for (var entry : dataFormatSchemaMap.entrySet()) {
             var dataFormatName = entry.getKey();
             var dataFormatSchema = entry.getValue();
+            EipModel eipModel = catalogMap.get(dataFormatName);
+            List<EipOptionModel> eipModelOptions = Arrays.asList();
+            if (eipModel != null) {
+                eipModelOptions = eipModel.getOptions();
+            }
+
+            sortPropertiesAccordingToCamelCatalog(dataFormatSchema, eipModelOptions); 
+
             var dataFormatCatalog = (EipModel) camelCatalog.model(Kind.eip, dataFormatName);
             if (dataFormatCatalog == null) {
                 throw new Exception("DataFormat " + dataFormatName + " is not found in Camel model catalog.");
@@ -212,6 +226,8 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(dataFormatCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", dataFormatSchema);
+            // setting required property to all the dataformats schema
+            setRequiredToPropertiesSchema(dataFormatSchema, catalogTree);
             answer.set(dataFormatName, catalogTree);
         }
         StringWriter writer = new StringWriter();
@@ -230,9 +246,22 @@ public class CamelCatalogProcessor {
     public String getLanguageCatalog() throws Exception {
         var answer = jsonMapper.createObjectNode();
         var languageSchemaMap = schemaProcessor.getLanguages();
+        var catalogMap = new LinkedHashMap<String, EipModel>();
+        for (var name : camelCatalog.findLanguageNames()) {
+            var modelCatalog = camelCatalog.languageModel(name);
+            catalogMap.put(modelCatalog.getName(), camelCatalog.eipModel(name));
+        }
         for (var entry : languageSchemaMap.entrySet()) {
             var languageName = entry.getKey();
             var languageSchema = entry.getValue();
+            EipModel eipModel = catalogMap.get(languageName);
+            List<EipOptionModel> eipModelOptions = Arrays.asList();
+            if (eipModel != null) {
+                eipModelOptions = eipModel.getOptions();
+            }
+
+            sortPropertiesAccordingToCamelCatalog(languageSchema, eipModelOptions); 
+
             var languageCatalog = (EipModel) camelCatalog.model(Kind.eip, languageName);
             if (languageCatalog == null) {
                 throw new Exception("Language " + languageName + " is not found in Camel model catalog.");
@@ -240,6 +269,8 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(languageCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", languageSchema);
+            // setting required property to all the languages schema
+            setRequiredToPropertiesSchema(languageSchema, catalogTree);
             answer.set(languageName, catalogTree);
         }
         StringWriter writer = new StringWriter();
@@ -346,7 +377,13 @@ public class CamelCatalogProcessor {
                     required.add(propertyName);
                 }
 
-                propertySchema.put("group", catalogOp.getGroup());
+                /* In Apache Camel previous to 4.5.0, the displayName is stored in the label property */
+                if (catalogOp.getLabel() != null) {
+                    propertySchema.put("group", catalogOp.getLabel());
+                } else if (catalogOp.getGroup() != null) {
+                    propertySchema.put("group", catalogOp.getGroup());
+                }
+
                 sortedSchemaProperties.set(propertyName, propertySchema);
             }
 
@@ -426,7 +463,7 @@ public class CamelCatalogProcessor {
                     processEntityParameters(entityName, entitySchema, entityCatalog);
             }
 
-            sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog);
+            sortPropertiesAccordingToCamelCatalog(entitySchema, entityCatalog.getOptions());
 
             var json = JsonMapper.asJsonObject(entityCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
@@ -624,11 +661,11 @@ public class CamelCatalogProcessor {
         }
     }
 
-    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, EipModel entityCatalog) {
+    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, List<EipOptionModel> entityCatalogOptions) {
         var sortedSchemaProperties = jsonMapper.createObjectNode();
         var camelYamlDslProperties = entitySchema.withObject("/properties").properties().stream().map(Map.Entry::getKey)
                 .sorted(
-                        new CamelYamlDSLKeysComparator(entityCatalog.getOptions()))
+                        new CamelYamlDSLKeysComparator(entityCatalogOptions))
                 .toList();
 
         for (var propertyName : camelYamlDslProperties) {
@@ -676,11 +713,26 @@ public class CamelCatalogProcessor {
             var json = JsonMapper.asJsonObject(loadBalancerCatalog).toJson();
             var catalogTree = (ObjectNode) jsonMapper.readTree(json);
             catalogTree.set("propertiesSchema", loadBalancerSchema);
+            // setting required property to all the load-balancers schema
+            setRequiredToPropertiesSchema(loadBalancerSchema, catalogTree);
             answer.set(loadBalancerName, catalogTree);
         }
         StringWriter writer = new StringWriter();
         var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
         jsonMapper.writeTree(jsonGenerator, answer);
         return writer.toString();
+    }
+
+    private void setRequiredToPropertiesSchema(ObjectNode camelYamlDslSchema, ObjectNode catalogModel) {
+        List<String> required = new ArrayList<>();
+        var camelYamlDslProperties = camelYamlDslSchema.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).toList();
+        for (var propertyName : camelYamlDslProperties) {
+            var catalogPropertySchema = catalogModel.withObject("/properties").withObject("/" + propertyName);
+            if (catalogPropertySchema.has("required") && catalogPropertySchema.get("required").asBoolean()) {
+                required.add(propertyName);
+            }
+        }
+        catalogModel.withObject("/propertiesSchema").set("required", jsonMapper.valueToTree(required));
     }
 }

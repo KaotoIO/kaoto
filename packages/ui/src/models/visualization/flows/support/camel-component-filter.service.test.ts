@@ -21,7 +21,7 @@ describe('CamelComponentFilterService', () => {
   describe('getCamelCompatibleComponents', () => {
     it('should not provide ProducerOnly components', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
-        path: 'from',
+        path: 'route.from',
         processorName: 'from' as keyof ProcessorDefinition,
         label: 'timer',
       });
@@ -31,7 +31,7 @@ describe('CamelComponentFilterService', () => {
 
     it('should not provide consumerOnly components', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
-        path: 'from.steps.2.to',
+        path: 'route.from.steps.2.to',
         processorName: 'to',
         label: 'log',
       });
@@ -49,7 +49,7 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
-          path: 'from.steps.0.choice',
+          path: 'route.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
         },
@@ -63,7 +63,7 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
-          path: 'from.steps.0.choice',
+          path: 'route.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
         },
@@ -89,7 +89,7 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step before an existing step', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.PrependStep, {
-        path: 'from.steps.0.to',
+        path: 'route.from.steps.0.to',
         processorName: 'to',
         label: 'timer',
       });
@@ -105,7 +105,7 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step after an existing step', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.AppendStep, {
-        path: 'from.steps.1.to',
+        path: 'route.from.steps.1.to',
         processorName: 'to',
         label: 'timer',
       });
@@ -123,7 +123,7 @@ describe('CamelComponentFilterService', () => {
   describe('getKameletCompatibleComponents', () => {
     it('should not provide ProducerOnly components', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.ReplaceStep, {
-        path: 'from',
+        path: 'template.from',
         processorName: 'from' as keyof ProcessorDefinition,
         label: 'timer',
       });
@@ -138,7 +138,7 @@ describe('CamelComponentFilterService', () => {
 
     it('should not provide consumerOnly components', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.ReplaceStep, {
-        path: 'from.steps.2.to',
+        path: 'template.from.steps.2.to',
         processorName: 'to',
         label: 'log',
       });
@@ -157,7 +157,7 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
-          path: 'from.steps.0.choice',
+          path: 'template.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
         },
@@ -171,7 +171,7 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
-          path: 'from.steps.0.choice',
+          path: 'template.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
         },
@@ -183,7 +183,7 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step before an existing step', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.PrependStep, {
-        path: 'from.steps.0.to',
+        path: 'template.from.steps.0.to',
         processorName: 'to',
         label: 'timer',
       });
@@ -200,7 +200,7 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step after an existing step', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.AppendStep, {
-        path: 'from.steps.1.to',
+        path: 'template.from.steps.1.to',
         processorName: 'to',
         label: 'timer',
       });

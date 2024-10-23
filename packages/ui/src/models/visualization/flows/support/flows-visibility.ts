@@ -1,3 +1,5 @@
+import { isDefined } from '../../../../utils';
+
 export interface IVisibleFlowsInformation {
   singleFlowId: string | undefined;
   visibleFlowsCount: number;
@@ -44,6 +46,14 @@ export type VisibleFlowAction =
   | { type: 'initVisibleFlows'; flowsIds: string[] }
   | { type: 'renameFlow'; flowId: string; newName: string };
 
+const ensureAtLeastOneVisibleFlow = (state: IVisibleFlows) => {
+  const entries = Object.keys(state);
+  if (entries.length > 0 && Object.values(state).every((visible) => !visible)) {
+    state[entries[0]] = true;
+  }
+  return state;
+};
+
 export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
   let visibleFlows: IVisibleFlows;
   switch (action.type) {
@@ -69,15 +79,19 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
       return {};
 
     case 'initVisibleFlows':
+      if (
+        action.flowsIds.length === Object.keys(state).length &&
+        action.flowsIds.every((flowId) => isDefined(state[flowId]))
+      ) {
+        return ensureAtLeastOneVisibleFlow(state);
+      }
+
       visibleFlows = action.flowsIds.reduce((acc, flowId) => {
         acc[flowId] = state[flowId] ?? false;
         return acc;
       }, {} as IVisibleFlows);
-      if (Object.values(visibleFlows).every((visible) => !visible) && action.flowsIds.length > 0) {
-        visibleFlows[action.flowsIds[0]] = true;
-      }
 
-      return visibleFlows;
+      return ensureAtLeastOneVisibleFlow(visibleFlows);
 
     case 'renameFlow':
       // eslint-disable-next-line no-case-declarations

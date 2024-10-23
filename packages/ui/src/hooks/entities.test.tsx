@@ -3,7 +3,7 @@ import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
-import { EventNotifier, setValue } from '../utils';
+import { EventNotifier } from '../utils';
 import { useEntities } from './entities';
 
 describe('useEntities', () => {
@@ -52,7 +52,7 @@ describe('useEntities', () => {
     });
 
     act(() => {
-      setValue(result.current.visualEntities[0], 'route.from.parameters.bindingMode', 'off');
+      result.current.visualEntities[0].updateModel('route.from.parameters.bindingMode', 'off');
       result.current.updateSourceCodeFromEntities();
     });
 

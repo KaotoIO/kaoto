@@ -1,5 +1,4 @@
 // @ts-check
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { dirname, relative } from 'node:path';
 import { defineConfig } from 'vite';
@@ -32,13 +31,6 @@ export default defineConfig(async () => {
           };
         }),
       }),
-      codecovVitePlugin({
-        enableBundleAnalysis: true,
-        bundleName: '@kaoto/kaoto',
-        // eslint-disable-next-line no-undef
-        uploadToken: process.env.CODECOV_TOKEN,
-        gitService: 'github',
-      }),
     ],
     define: {
       __GIT_HASH: JSON.stringify(lastCommitInfo.hash),
@@ -51,5 +43,12 @@ export default defineConfig(async () => {
       emptyOutDir: true,
     },
     base: './',
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
+    },
   };
 });

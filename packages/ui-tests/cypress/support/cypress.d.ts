@@ -13,6 +13,7 @@ declare global {
     | 'insert-special'
     | 'delete'
     | 'disable'
+    | 'enable-all'
     | 'container-remove';
 
   namespace Cypress {
@@ -46,9 +47,11 @@ declare global {
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectEnableAllNodes(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertSpecialNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;

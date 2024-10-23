@@ -47,6 +47,10 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     };
   }
 
+  getRootPath(): string {
+    return ROOT_PATH;
+  }
+
   /** Internal API methods */
   getId(): string {
     return this.id;
@@ -60,7 +64,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   getNodeLabel(path?: string): string {
     if (!path) return '';
 
-    if (path === ROOT_PATH) {
+    if (path === this.getRootPath()) {
       return this.id;
     }
 
@@ -77,7 +81,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
   getComponentSchema(path?: string): VisualComponentSchema | undefined {
     if (!path) return undefined;
-    if (path === ROOT_PATH) {
+    if (path === this.getRootPath()) {
       return {
         schema: this.getRootPipeSchema(),
         definition: getCustomSchemaFromPipe(this.pipe),
@@ -99,7 +103,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   updateModel(path: string | undefined, value: Record<string, unknown>): void {
     if (!path) return;
 
-    if (path === ROOT_PATH) {
+    if (path === this.getRootPath()) {
       updatePipeFromCustomSchema(this.pipe, value);
       this.id = this.pipe.metadata!.name as string;
       return;
@@ -187,14 +191,14 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     return {
       /** Pipe cannot have a Kamelet before the source property */
-      canHavePreviousStep: data.path !== ROOT_PATH && data.path !== 'source',
+      canHavePreviousStep: data.path !== this.getRootPath() && data.path !== 'source',
       /** Pipe cannot have a Kamelet after the sink property */
-      canHaveNextStep: data.path !== ROOT_PATH && data.path !== 'sink',
+      canHaveNextStep: data.path !== this.getRootPath() && data.path !== 'sink',
       canHaveChildren: false,
       canHaveSpecialChildren: false,
-      canReplaceStep: data.path !== ROOT_PATH,
-      canRemoveStep: data.path !== ROOT_PATH,
-      canRemoveFlow: data.path === ROOT_PATH,
+      canReplaceStep: data.path !== this.getRootPath(),
+      canRemoveStep: data.path !== this.getRootPath(),
+      canRemoveFlow: data.path === this.getRootPath(),
       canBeDisabled: false,
     };
   }
@@ -208,7 +212,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
   toVizNode(): IVisualizationNode {
     const pipeGroupNode = createVisualizationNode(this.id, {
-      path: ROOT_PATH,
+      path: this.getRootPath(),
       entity: this,
       isGroup: true,
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),

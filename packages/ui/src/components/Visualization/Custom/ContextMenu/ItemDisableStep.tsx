@@ -12,7 +12,6 @@ interface ItemDisableStepProps extends PropsWithChildren<IDataTestID> {
 
 export const ItemDisableStep: FunctionComponent<ItemDisableStepProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-
   const isDisabled = !!props.vizNode.getComponentSchema()?.definition?.disabled;
 
   const onToggleDisableNode = useCallback(() => {

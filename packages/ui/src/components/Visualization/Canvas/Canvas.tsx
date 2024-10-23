@@ -190,6 +190,16 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     setSelectedNode(undefined);
   }, []);
 
+  const handleCanvasClick = useCallback(
+    (event: React.MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'rect') {
+        handleCloseSideBar();
+      }
+    },
+    [handleCloseSideBar],
+  );
+
   const isSidebarOpen = useMemo(() => selectedNode !== undefined, [selectedNode]);
 
   return (
@@ -203,6 +213,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       sideBar={<CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} />}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+      onClick={handleCanvasClick}
     >
       <VisualizationSurface state={{ selectedIds }} />
 

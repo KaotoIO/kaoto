@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.kaoto.camelcatalog.generator;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -235,7 +250,7 @@ public class CatalogGenerator {
         var root = jsonMapper.createObjectNode();
 
         try {
-            kamelets.forEach(kamelet -> {
+            sortKamelets(kamelets).forEach(kamelet -> {
                 processKameletFile(kamelet, root);
             });
 
@@ -276,6 +291,22 @@ public class CatalogGenerator {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
+    }
+
+    private List<String> sortKamelets(List<String> kamelets) {
+        return kamelets.stream().sorted(
+            (k1, k2) -> {
+                try {
+                    JsonNode kameletNode1 = yamlMapper.readTree(k1);
+                    JsonNode kameletNode2 = yamlMapper.readTree(k2);
+                    String kamelet1 = kameletNode1.get("metadata").get("name").asText().toLowerCase();
+                    String kamelet2 = kameletNode2.get("metadata").get("name").asText().toLowerCase();
+                    return kamelet1.compareTo(kamelet2);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
+                return 0;
+            }).toList();
     }
 
     private void processK8sSchema(CatalogDefinition index) {

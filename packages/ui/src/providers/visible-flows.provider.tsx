@@ -1,13 +1,4 @@
-import {
-  FunctionComponent,
-  PropsWithChildren,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-} from 'react';
+import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import {
   IVisibleFlows,
   VisibleFlowsReducer,
@@ -24,7 +15,6 @@ export interface VisibleFLowsContextResult {
 export const VisibleFlowsContext = createContext<VisibleFLowsContextResult | undefined>(undefined);
 
 export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const isMountingRef = useRef(true);
   const entitiesContext = useContext(EntitiesContext);
   const visualEntitiesIds = useMemo(
     () => entitiesContext?.visualEntities.map((entity) => entity.id) ?? [],
@@ -37,10 +27,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   }, [dispatch]);
 
   useEffect(() => {
-    if (!isMountingRef.current) {
-      visualFlowsApi.initVisibleFlows(visualEntitiesIds);
-    }
-    isMountingRef.current = false;
+    visualFlowsApi.initVisibleFlows(visualEntitiesIds);
   }, [visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {

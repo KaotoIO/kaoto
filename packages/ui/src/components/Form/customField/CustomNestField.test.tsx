@@ -82,33 +82,31 @@ describe('CustomNestField', () => {
       .filter((textbox) => textbox.getAttribute('label') === 'Pattern');
     expect(inputPatternElement).toHaveLength(1);
   });
-});
 
-describe('CustomNestField', () => {
-  const mockSchema = {
-    title: 'Test',
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      parameters: {
-        type: 'object',
-        title: 'Endpoint Properties',
-        description: 'Endpoint properties description',
-        properties: {
-          timerName: {
-            title: 'Timer Name',
-            description: 'The name of the timer',
-            type: 'string',
+  it('should not render the advanced properties button if no advanced properties are provided', () => {
+    const mockSchema = {
+      title: 'Test',
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        parameters: {
+          type: 'object',
+          title: 'Endpoint Properties',
+          description: 'Endpoint properties description',
+          properties: {
+            timerName: {
+              title: 'Timer Name',
+              description: 'The name of the timer',
+              type: 'string',
+            },
           },
         },
       },
-    },
-  };
+    };
 
-  const schemaService = new SchemaService();
-  const schemaBridge = schemaService.getSchemaBridge(mockSchema);
+    const schemaService = new SchemaService();
+    const schemaBridge = schemaService.getSchemaBridge(mockSchema);
 
-  it('should not render the advanced properties button if no advanced properties are provided', () => {
     render(
       <AutoField.componentDetectorContext.Provider value={CustomAutoFieldDetector}>
         <AutoForm schema={schemaBridge!}>

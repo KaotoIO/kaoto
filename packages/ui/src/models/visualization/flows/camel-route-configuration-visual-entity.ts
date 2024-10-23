@@ -41,8 +41,7 @@ export class CamelRouteConfigurationVisualEntity
     public routeConfigurationDef: { routeConfiguration: RouteConfigurationDefinition } = { routeConfiguration: {} },
   ) {
     super(routeConfigurationDef);
-    const id =
-      routeConfigurationDef.routeConfiguration.id ?? getCamelRandomId(CamelRouteConfigurationVisualEntity.ROOT_PATH);
+    const id = routeConfigurationDef.routeConfiguration.id ?? getCamelRandomId(this.getRootPath());
     this.id = id;
     this.routeConfigurationDef.routeConfiguration.id = id;
   }
@@ -67,6 +66,10 @@ export class CamelRouteConfigurationVisualEntity
     );
   }
 
+  getRootPath(): string {
+    return CamelRouteConfigurationVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }
@@ -76,7 +79,7 @@ export class CamelRouteConfigurationVisualEntity
   }
 
   getTooltipContent(path?: string): string {
-    if (path === CamelRouteConfigurationVisualEntity.ROOT_PATH) {
+    if (path === this.getRootPath()) {
       return 'routeConfiguration';
     }
 
@@ -84,7 +87,7 @@ export class CamelRouteConfigurationVisualEntity
   }
 
   getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
-    if (path === CamelRouteConfigurationVisualEntity.ROOT_PATH) {
+    if (path === this.getRootPath()) {
       const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');
       return {
         schema: schema?.propertiesSchema || {},
@@ -110,7 +113,7 @@ export class CamelRouteConfigurationVisualEntity
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    if (data.path === CamelRouteConfigurationVisualEntity.ROOT_PATH) {
+    if (data.path === this.getRootPath()) {
       return {
         canHavePreviousStep: false,
         canHaveNextStep: false,
@@ -141,34 +144,32 @@ export class CamelRouteConfigurationVisualEntity
 
   toVizNode(): IVisualizationNode {
     const routeConfigurationGroupNode = createVisualizationNode(this.id, {
-      path: CamelRouteConfigurationVisualEntity.ROOT_PATH,
+      path: this.getRootPath(),
       entity: this,
       isGroup: true,
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
-      processorName: CamelRouteConfigurationVisualEntity.ROOT_PATH,
+      processorName: this.getRootPath(),
     });
     routeConfigurationGroupNode.setTitle('Route Configuration');
 
-    CamelComponentSchemaService.getProcessorStepsProperties(
-      CamelRouteConfigurationVisualEntity.ROOT_PATH as keyof ProcessorDefinition,
-    ).forEach((stepsProperty) => {
-      const childEntities = getValue(this.routeConfigurationDef.routeConfiguration, stepsProperty.name, []);
-      if (!Array.isArray(childEntities)) return;
+    CamelComponentSchemaService.getProcessorStepsProperties(this.getRootPath() as keyof ProcessorDefinition).forEach(
+      (stepsProperty) => {
+        const childEntities = getValue(this.routeConfigurationDef.routeConfiguration, stepsProperty.name, []);
+        if (!Array.isArray(childEntities)) return;
 
-      childEntities.forEach((childEntity, index) => {
-        const childNode = NodeMapperService.getVizNode(
-          `${CamelRouteConfigurationVisualEntity.ROOT_PATH}.${stepsProperty.name}.${index}.${
-            Object.keys(childEntity)[0]
-          }`,
-          {
-            processorName: stepsProperty.name as keyof ProcessorDefinition,
-          },
-          this.routeConfigurationDef,
-        );
+        childEntities.forEach((childEntity, index) => {
+          const childNode = NodeMapperService.getVizNode(
+            `${this.getRootPath()}.${stepsProperty.name}.${index}.${Object.keys(childEntity)[0]}`,
+            {
+              processorName: stepsProperty.name as keyof ProcessorDefinition,
+            },
+            this.routeConfigurationDef,
+          );
 
-        routeConfigurationGroupNode.addChild(childNode);
-      });
-    });
+          routeConfigurationGroupNode.addChild(childNode);
+        });
+      },
+    );
 
     return routeConfigurationGroupNode;
   }

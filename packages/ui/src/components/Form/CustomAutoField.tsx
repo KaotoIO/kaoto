@@ -1,16 +1,15 @@
 import { BoolField, DateField, ListField, RadioField, TextField } from '@kaoto-next/uniforms-patternfly';
 import { createAutoField } from 'uniforms';
 import { getValue } from '../../utils';
-import { OneOfField } from './OneOf/OneOfField';
 import { BeanReferenceField } from './bean/BeanReferenceField';
+import { CustomLongTextField } from './customField/CustomLongTextField';
 import { CustomNestField } from './customField/CustomNestField';
 import { DisabledField } from './customField/DisabledField';
+import { PasswordField } from './customField/PasswordField';
 import { TypeaheadField } from './customField/TypeaheadField';
 import { ExpressionAwareNestField } from './expression/ExpressionAwareNestField';
 import { ExpressionField } from './expression/ExpressionField';
 import { PropertiesField } from './properties/PropertiesField';
-import { CustomLongTextField } from './customField/CustomLongTextField';
-import { PasswordField } from './customField/PasswordField';
 
 // Name of the properties that should load CustomLongTextField
 const CustomLongTextProps = ['Expression', 'Description', 'Query'];
@@ -20,10 +19,6 @@ const CustomLongTextProps = ['Expression', 'Description', 'Query'];
  * In case a field is not supported, it will render a DisabledField
  */
 export const CustomAutoField = createAutoField((props) => {
-  if (Array.isArray(props.oneOf) && props.oneOf.length > 0) {
-    return OneOfField;
-  }
-
   if (props.options) {
     return props.checkboxes && props.fieldType !== Array ? RadioField : TypeaheadField;
   }

@@ -28,14 +28,33 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
 
   /**
    * Retrieve resource content
-   * @param path The path of the resource
+   * @param path The path of the resource relatively to the currently edited Camel file
    */
   getResourceContent(path: string): Promise<string | undefined>;
 
   /**
    * Save resource content
-   * @param path The path of the resource
+   * @param path The path of the resource relatively to the currently edited Camel file
    * @param content The content to be saved
    */
   saveResourceContent(path: string, content: string): Promise<void>;
+
+  /**
+   * Delete resource
+   * @param path The path of the resource relatively to the currently edited Camel file
+   * @return If the deletion was done succesfully
+   */
+  deleteResource(path: string): Promise<boolean>;
+
+  /**
+   * Show a file picker and ask the user to select one or more files available.
+   * @param include The filter expression for the files to include
+   * @param exclude The filter expression for the files to exclude
+   * @param options The options to pass over. In VS Code, it is directly delivered as QuickPickOptions
+   */
+  askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined>;
 }

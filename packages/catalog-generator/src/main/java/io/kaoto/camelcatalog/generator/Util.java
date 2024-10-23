@@ -19,8 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FilenameUtils;
-
 public class Util {
     public static String generateHash(byte[] content) throws Exception {
         if (content == null)
@@ -44,8 +42,7 @@ public class Util {
 
         // Resolve the relative path
         Path absolutePath = currentDirectory.resolve(folder);
-        String normalizedfolder = FilenameUtils.separatorsToUnix(absolutePath.toString());
 
-        return normalizedfolder;
+        return absolutePath.toString();
     }
 }
