@@ -8,12 +8,25 @@ import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import { DocumentService } from '../document.service';
 import { DocumentType } from '../../models/datamapper/path';
 
+export interface XPathValidationResult {
+  lexErrors: string[];
+  parseErrors: string[];
+}
+
 export class XPathService {
   static parser = new XPath2Parser();
   static functions = XPATH_2_0_FUNCTIONS;
 
   static parse(xpath: string): XPathParserResult {
     return XPathService.parser.parseXPath(xpath);
+  }
+
+  static validate(xpath: string): XPathValidationResult {
+    const parseResult = XPathService.parse(xpath);
+    return {
+      lexErrors: parseResult.lexErrors.map((e) => e.message),
+      parseErrors: parseResult.parseErrors.map((e) => e.message),
+    };
   }
 
   static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {

@@ -18,4 +18,18 @@ describe('XPathInputAction', () => {
     expect(mapping.expression).toEqual('/ShipOrder');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
   });
+
+  it('should show error popover button if xpath has a parse error', async () => {
+    const tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const mapping = new ValueSelector(tree);
+    mapping.expression = '{{';
+    const onUpdateMock = jest.fn();
+    render(<XPathInputAction mapping={mapping} onUpdate={onUpdateMock} />);
+    const btn = await screen.findByTestId('xpath-input-error-btn');
+    act(() => {
+      fireEvent.click(btn);
+    });
+    const error = await screen.findByRole('dialog');
+    expect(error).toBeInTheDocument();
+  });
 });
