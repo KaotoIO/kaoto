@@ -152,7 +152,7 @@ export const OpenApiCreate: FunctionComponent<Props> = (props) => {
         populateOperations(spec);
         setOpenApi(spec);
         setOpenApiError('');
-      } else if (value.match('.*"openapi":.*')) {
+      } else if (value.startsWith('"openapi":')) {
         const spec: OpenApi = JSON.parse(value);
         populateOperations(spec);
         setOpenApi(spec);
