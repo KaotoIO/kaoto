@@ -345,7 +345,10 @@ export class MappingService {
     sourceBody: IDocument,
   ) {
     const sourceXPath = sourceExpressionItem.expression;
-    return XPathService.extractFieldPaths(sourceXPath).reduce((acc, xpath) => {
+    const validationResult = XPathService.validate(sourceXPath);
+    if (!validationResult.getCst()) return [];
+    const fieldPaths = XPathService.extractFieldPaths(sourceXPath);
+    return fieldPaths.reduce((acc, xpath) => {
       const absolutePath =
         sourceExpressionItem.contextPath && !xpath.startsWith('$') && !xpath.startsWith('/')
           ? sourceExpressionItem.contextPath + '/' + xpath

@@ -12,19 +12,19 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import { XPathService } from '../../../services/xpath/xpath.service';
+import { ValidatedXPathParseResult, XPathService } from '../../../services/xpath/xpath.service';
 
 type XPathInputProps = {
   mapping: ExpressionItem;
   onUpdate: () => void;
 };
 export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, onUpdate }) => {
-  const [errors, setErrors] = useState<string[]>([]);
+  const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
 
   const validateXPath = useCallback(() => {
     if (mapping.expression) {
-      const validationErrors = XPathService.validate(mapping.expression);
-      setErrors([...validationErrors.lexErrors, ...validationErrors.parseErrors]);
+      const result = XPathService.validate(mapping.expression);
+      setValidationResult(result);
     }
   }, [mapping.expression]);
 
@@ -48,14 +48,8 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
   }, []);
 
   const errorContent = useMemo(() => {
-    return (
-      <List>
-        {errors.map((e) => (
-          <ListItem key={e}>{e}</ListItem>
-        ))}
-      </List>
-    );
-  }, [errors]);
+    return <List>{validationResult?.getErrors().map((e) => <ListItem key={e}>{e}</ListItem>)}</List>;
+  }, [validationResult]);
 
   return (
     <ActionListItem key="xpath-input">
@@ -70,7 +64,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
             onMouseMove={stopPropagation}
           />
         </InputGroupItem>
-        {errors.length > 0 && (
+        {!validationResult?.getCst() && (
           <InputGroupItem>
             <Popover bodyContent={errorContent}>
               <Button

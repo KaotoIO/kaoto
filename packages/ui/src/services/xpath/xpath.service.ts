@@ -8,9 +8,29 @@ import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import { DocumentService } from '../document.service';
 import { DocumentType } from '../../models/datamapper/path';
 
-export interface XPathValidationResult {
-  lexErrors: string[];
-  parseErrors: string[];
+export class ValidatedXPathParseResult {
+  constructor(public parserResult: XPathParserResult) {}
+  dataMapperErrors: string[] = [];
+
+  hasErrors(): boolean {
+    return (
+      this.parserResult.lexErrors.length > 0 ||
+      this.parserResult.parseErrors.length > 0 ||
+      this.dataMapperErrors.length > 0
+    );
+  }
+
+  getErrors(): string[] {
+    return [
+      ...this.parserResult.lexErrors.map((e) => e.message),
+      ...this.parserResult.parseErrors.map((e) => e.message),
+      ...this.dataMapperErrors,
+    ];
+  }
+
+  getCst(): CstNode {
+    return this.parserResult.cst;
+  }
 }
 
 export class XPathService {
@@ -21,12 +41,21 @@ export class XPathService {
     return XPathService.parser.parseXPath(xpath);
   }
 
-  static validate(xpath: string): XPathValidationResult {
-    const parseResult = XPathService.parse(xpath);
-    return {
-      lexErrors: parseResult.lexErrors.map((e) => e.message),
-      parseErrors: parseResult.parseErrors.map((e) => e.message),
-    };
+  static validate(xpath: string): ValidatedXPathParseResult {
+    const parserResult = XPathService.parse(xpath);
+    const validationResult = new ValidatedXPathParseResult(parserResult);
+    if (validationResult.hasErrors()) return validationResult;
+
+    try {
+      XPathService.extractFieldPaths(xpath);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const errorString =
+        'DataMapper internal error: failed to extract field paths from a valid XPath expression: ' +
+        ('message' in error ? error.message : error.toString());
+      validationResult.dataMapperErrors.push(errorString);
+    }
+    return validationResult;
   }
 
   static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {
@@ -114,9 +143,20 @@ export class XPathService {
     }
     return Object.entries(node.children).reduce((acc, [key, value]) => {
       if (key === 'PathExpr') {
-        acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
+        const parenthesizedExpr = XPathService.getNode(value[0], [
+          'RelativePathExpr',
+          'StepExpr',
+          'FilterExpr',
+          'ParenthesizedExpr',
+        ]);
+        if (parenthesizedExpr && 'children' in parenthesizedExpr) {
+          const expr = parenthesizedExpr.children['Expr'];
+          expr && expr.length > 0 && acc.push(...XPathService.collectPathExpressions(expr[0] as CstNode));
+        } else {
+          acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
+        }
       } else {
-        value.map((child) => {
+        value.forEach((child) => {
           if ('children' in child) {
             acc.push(...XPathService.collectPathExpressions(child));
           }
@@ -135,9 +175,11 @@ export class XPathService {
       'FunctionCall',
     ]);
     if (functionCall && 'children' in functionCall) {
-      return functionCall.children.ExprSingle.flatMap((arg) =>
-        'children' in arg ? XPathService.collectPathExpressions(arg) : [],
-      );
+      return functionCall.children.ExprSingle
+        ? functionCall.children.ExprSingle.flatMap((arg) =>
+            'children' in arg ? XPathService.collectPathExpressions(arg) : [],
+          )
+        : [];
     }
     return [pathExprNode];
   }

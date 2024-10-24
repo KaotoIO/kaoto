@@ -18,6 +18,39 @@ describe('XPathService', () => {
     });
   });
 
+  describe('validate()', () => {
+    it('should detect parse error', () => {
+      const result = XPathService.validate('((');
+      expect(result.hasErrors()).toBeTruthy();
+    });
+
+    it('should validate with empty string literal', () => {
+      const result = XPathService.validate("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      // parser error says it's redundant, possibly a bug in the parser
+      expect(result.hasErrors()).toBeTruthy();
+      expect(result.getCst()).toBeDefined();
+    });
+
+    it('should not get error with valid parenthesis', () => {
+      let result = XPathService.validate('(/Hello)');
+      expect(result.hasErrors()).toBeFalsy();
+      result = XPathService.validate('((/Hello))');
+      expect(result.hasErrors()).toBeFalsy();
+    });
+
+    it('should not get error with empty parenthesis', () => {
+      let result = XPathService.validate('()');
+      expect(result.hasErrors()).toBeFalsy();
+      result = XPathService.validate('(())');
+      expect(result.hasErrors()).toBeFalsy();
+    });
+
+    it('should not get error with empty function call', () => {
+      const result = XPathService.validate('upper-case()');
+      expect(result.hasErrors()).toBeFalsy();
+    });
+  });
+
   describe('extractFieldPaths()', () => {
     it('extract field', () => {
       const paths = XPathService.extractFieldPaths('/aaa/bbb/ccc');

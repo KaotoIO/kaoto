@@ -13,7 +13,7 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { ExpressionItem } from '../../models/datamapper';
 import './XPathEditorModal.scss';
-import { XPathService } from '../../services/xpath/xpath.service';
+import { ValidatedXPathParseResult, XPathService } from '../../services/xpath/xpath.service';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
 type XPathEditorModalProps = {
@@ -31,12 +31,12 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   mapping,
   onUpdate,
 }) => {
-  const [errors, setErrors] = useState<string[]>([]);
+  const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
 
   const validateXPath = useCallback(() => {
     if (mapping.expression) {
-      const validationErrors = XPathService.validate(mapping.expression);
-      setErrors([...validationErrors.lexErrors, ...validationErrors.parseErrors]);
+      const validationResult = XPathService.validate(mapping.expression);
+      setValidationResult(validationResult);
     }
   }, [mapping.expression]);
 
@@ -45,21 +45,15 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   }, [validateXPath]);
 
   const errorContent = useMemo(() => {
-    return (
-      <List>
-        {errors.map((e) => (
-          <ListItem key={e}>{e}</ListItem>
-        ))}
-      </List>
-    );
-  }, [errors]);
+    return <List>{validationResult?.getErrors().map((e) => <ListItem key={e}>{e}</ListItem>)}</List>;
+  }, [validationResult]);
 
   const header = useMemo(
     () => (
       <>
         <Title id="xpath-editor-modal" headingLevel="h1" size={TitleSizes['2xl']}>
           XPath Editor: {title}
-          {errors.length > 0 && (
+          {validationResult?.getCst() && (
             <Popover bodyContent={errorContent}>
               <Button
                 data-testid="xpath-editor-error-btn"
@@ -72,7 +66,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
         </Title>
       </>
     ),
-    [errorContent, errors.length, title],
+    [errorContent, title, validationResult],
   );
 
   return (
