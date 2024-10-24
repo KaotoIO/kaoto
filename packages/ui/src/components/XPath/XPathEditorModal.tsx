@@ -77,6 +77,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
 
   return (
     <Modal
+      aria-label="XPath Editor Modal"
       className="xpath-editor-modal"
       position="top"
       header={header}
