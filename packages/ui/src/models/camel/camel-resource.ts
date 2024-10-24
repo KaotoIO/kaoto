@@ -20,6 +20,7 @@ export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
   getEntities(): BaseCamelEntity[];
   addNewEntity(entityType?: EntityType): string;
+  addExistingEntity(entity: BaseCamelEntity): void;
   removeEntity(id?: string): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;

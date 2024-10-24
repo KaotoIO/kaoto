@@ -14,6 +14,11 @@ export class CamelComponentFilterService {
     'interceptSendToEndpoint',
     'onException',
     'onCompletion',
+    'get',
+    'post',
+    'put',
+    'patch',
+    'head',
   ];
 
   static getCamelCompatibleComponents(
@@ -46,6 +51,7 @@ export class CamelComponentFilterService {
         choice: ['when'],
         doTry: ['doCatch'],
         routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
+        route: ['get', 'post', 'put', 'delete', 'patch', 'head'],
       };
 
       /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */
