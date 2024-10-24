@@ -1,6 +1,6 @@
 import { CSSProperties, forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { NodeData } from '../../models/datamapper/visualization';
+import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;
@@ -75,7 +75,7 @@ type NodeContainerProps = PropsWithChildren & {
 };
 
 export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(({ children, nodeData }, forwardedRef) => {
-  return nodeData ? (
+  return nodeData && !(nodeData instanceof DocumentNodeData && !nodeData.isPrimitive) ? (
     <div ref={forwardedRef}>
       <DnDContainer nodeData={nodeData}>{children}</DnDContainer>
     </div>
