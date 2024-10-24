@@ -1,0 +1,56 @@
+@use '../custom';
+
+.custom-group {
+  @include custom.highligth {
+    &__container {
+      @include custom.container;
+
+      border: 2px solid var(--custom-node-BorderColor);
+      border-radius: var(--custom-node-BorderRadius);
+      background-color: var(--custom-node-BackgroundColor);
+      text-align: left;
+
+      &__title {
+        display: flex;
+        position: relative;
+        align-items: center;
+        font-weight: bold;
+
+        img {
+          display: inline-block;
+          position: relative;
+          margin: var(--pf-v5-global--spacer--xs);
+          max-height: 32px;
+          max-width: 32px;
+        }
+
+        span {
+          @include custom.text;
+
+          border: 2px solid var(--custom-node-BorderColor);
+          padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+          border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+          background-color: var(--pf-v5-global--palette--blue-50);
+        }
+      }
+
+      &:hover {
+        border-color: var(--custom-node-hover-BorderColor);
+        box-shadow: var(--custom-node-Shadow);
+      }
+
+      [data-selected='true'] & {
+        @include custom.selected;
+      }
+
+      [data-disabled='true'] & {
+        @include custom.disabled;
+      }
+    }
+  }
+
+  &__toolbar {
+    overflow: visible;
+    text-align: center;
+  }
+}

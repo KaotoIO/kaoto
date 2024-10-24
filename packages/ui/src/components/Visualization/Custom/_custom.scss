@@ -1,3 +1,15 @@
+.phantom-rect {
+  stroke: transparent;
+  fill: transparent;
+}
+
+.disabled-step-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: var(--pf-v5-global--spacer--xs);
+}
+
 @mixin highligth {
   --custom-node-BorderColor: var(--pf-v5-global--BorderColor--100);
   --custom-node-BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
@@ -10,7 +22,7 @@
   }
 
   &[data-warning='true'] {
-    --custom-node-BorderColor: var(--pf-v5-global--warning-color--100);
+    --custom-node-BorderColor: var(--pf-v5-global--danger-color--100);
   }
 
   @content;
@@ -32,7 +44,6 @@
 @mixin disabled {
   filter: grayscale(100%);
   font-style: italic;
-  text-decoration: line-through;
 }
 
 @mixin text {
