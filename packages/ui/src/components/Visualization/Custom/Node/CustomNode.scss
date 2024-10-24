@@ -10,31 +10,30 @@
       justify-content: space-around;
 
       &__image {
+        position: relative;
         display: flex;
         flex-flow: column;
         align-items: center;
         justify-content: center;
+        border: 2px solid var(--custom-node-BorderColor);
+        border-radius: var(--custom-node-BorderRadius);
+        background-color: var(--custom-node-BackgroundColor);
+        align-self: center;
 
         img {
-          border: 2px solid var(--custom-node-BorderColor);
-          border-radius: var(--custom-node-BorderRadius);
-          background-color: var(--custom-node-BackgroundColor);
+          border-radius: inherit;
           padding: var(--pf-v5-global--spacer--sm);
           height: 60px;
           width: 60px;
         }
       }
 
-      &__label {
-        @include custom.text;
-      }
-
-      &:hover img {
+      &:hover &__image {
         border-color: var(--custom-node-hover-BorderColor);
         box-shadow: var(--custom-node-Shadow);
       }
 
-      [data-selected='true'] & img {
+      [data-selected='true'] & &__image {
         @include custom.selected;
       }
 
@@ -43,8 +42,19 @@
       }
     }
 
-    &__warning {
-      --pf-topology__node_decorator--Color: var(--custom-node-BorderColor);
+    &__label {
+      @include custom.text;
+
+      text-align: center;
+      background-color: var(--custom-node-BackgroundColor);
+
+      &__error {
+        color: var(--custom-node-BorderColor);
+
+        & > span:first-of-type {
+          margin-right: var(--pf-v5-global--spacer--xs);
+        }
+      }
     }
   }
 

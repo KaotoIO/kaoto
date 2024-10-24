@@ -3,6 +3,8 @@ import {
   BanIcon,
   CheckIcon,
   CodeBranchIcon,
+  CompressArrowsAltIcon,
+  ExpandArrowsAltIcon,
   PlusIcon,
   PowerOffIcon,
   SyncAltIcon,
@@ -20,11 +22,20 @@ import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
 import './StepToolbar.scss';
 
 interface IStepToolbar extends IDataTestID {
-  className?: string;
   vizNode: IVisualizationNode;
+  className?: string;
+  isCollapsed?: boolean;
+  /** Toggle node collapse / expand */
+  onCollapseToggle?: () => void;
 }
 
-export const StepToolbar: FunctionComponent<IStepToolbar> = ({ vizNode, className, 'data-testid': dataTestId }) => {
+export const StepToolbar: FunctionComponent<IStepToolbar> = ({
+  vizNode,
+  className,
+  isCollapsed = false,
+  onCollapseToggle,
+  'data-testid': dataTestId,
+}) => {
   const { canHaveChildren, canHaveSpecialChildren, canBeDisabled, canReplaceStep, canRemoveStep, canRemoveFlow } =
     vizNode.getNodeInteraction();
   const { onInsertStep } = useInsertStep(vizNode);
@@ -78,15 +89,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({ vizNode, classNam
             event.stopPropagation();
           }}
         >
-          {isDisabled ? (
-            <>
-              <CheckIcon />
-            </>
-          ) : (
-            <>
-              <BanIcon />
-            </>
-          )}
+          {isDisabled ? <CheckIcon /> : <BanIcon />}
         </Button>
       )}
 
@@ -117,6 +120,21 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({ vizNode, classNam
           }}
         >
           <SyncAltIcon />
+        </Button>
+      )}
+
+      {onCollapseToggle && (
+        <Button
+          className="step-toolbar__button"
+          data-testid="step-toolbar-button-collapse"
+          variant="secondary"
+          title={isCollapsed ? 'Expand step' : 'Collapse step'}
+          onClick={(event) => {
+            onCollapseToggle();
+            event.stopPropagation();
+          }}
+        >
+          {isCollapsed ? <ExpandArrowsAltIcon /> : <CompressArrowsAltIcon />}
         </Button>
       )}
 
