@@ -37,6 +37,8 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
     if (mapping.expression) {
       const validationResult = XPathService.validate(mapping.expression);
       setValidationResult(validationResult);
+    } else {
+      setValidationResult(undefined);
     }
   }, [mapping.expression]);
 
@@ -53,7 +55,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
       <>
         <Title id="xpath-editor-modal" headingLevel="h1" size={TitleSizes['2xl']}>
           XPath Editor: {title}
-          {validationResult?.getCst() && (
+          {validationResult && !validationResult.getCst() && (
             <Popover bodyContent={errorContent}>
               <Button
                 data-testid="xpath-editor-error-btn"

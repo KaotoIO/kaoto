@@ -25,6 +25,8 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
     if (mapping.expression) {
       const result = XPathService.validate(mapping.expression);
       setValidationResult(result);
+    } else {
+      setValidationResult(undefined);
     }
   }, [mapping.expression]);
 
@@ -64,7 +66,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
             onMouseMove={stopPropagation}
           />
         </InputGroupItem>
-        {!validationResult?.getCst() && (
+        {validationResult && !validationResult.getCst() && (
           <InputGroupItem>
             <Popover bodyContent={errorContent}>
               <Button
