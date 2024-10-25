@@ -1,5 +1,4 @@
-import { createVisualizationNode } from '../../../models/visualization';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { FlowService } from './flow.service';
 
 describe('FlowService', () => {
@@ -86,18 +85,7 @@ describe('FlowService', () => {
     });
 
     it('should return a group node for a multiple nodes VisualizationNode with a group', () => {
-      const routeNode = createVisualizationNode('route', {
-        entity: { getId: () => 'myId' } as BaseVisualCamelEntity,
-        isGroup: true,
-      });
-
-      const fromNode = createVisualizationNode('timer', {
-        path: 'from',
-        icon: undefined,
-        processorName: 'from',
-        componentName: 'timer',
-      });
-      routeNode.addChild(fromNode);
+      const routeNode = new CamelRouteVisualEntity({ from: { uri: 'timer:clock', steps: [] } }).toVizNode();
 
       const { nodes, edges } = FlowService.getFlowDiagram(routeNode);
 

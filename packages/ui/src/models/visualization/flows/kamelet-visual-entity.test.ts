@@ -2,7 +2,6 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { ROOT_PATH } from '../../../utils';
 import { SourceSchemaType } from '../../camel';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
@@ -84,6 +83,16 @@ describe('KameletVisualEntity', () => {
     expect(kameletVisualEntity.kamelet.metadata.name).toEqual('new-id');
   });
 
+  it('should return the node label when querying the ROOT_PATH', () => {
+    const kamelet = new KameletVisualEntity(kameletDef);
+    expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH)).toEqual('My Kamelet');
+  });
+
+  it('should return the node label when querying a different path', () => {
+    const kamelet = new KameletVisualEntity(kameletDef);
+    expect(kamelet.getNodeLabel('template.from')).toEqual('timer');
+  });
+
   describe('getComponentSchema when querying the ROOT_PATH', () => {
     let entityCatalogMap: Record<string, ICamelProcessorDefinition>;
     beforeEach(async () => {
@@ -98,7 +107,7 @@ describe('KameletVisualEntity', () => {
 
     it('should return the kamelet root schema when querying the ROOT_PATH', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getComponentSchema(ROOT_PATH)?.schema).toEqual(
+      expect(kamelet.getComponentSchema(KameletVisualEntity.ROOT_PATH)?.schema).toEqual(
         entityCatalogMap.KameletConfiguration.propertiesSchema,
       );
     });

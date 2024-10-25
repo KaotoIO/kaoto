@@ -16,6 +16,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.ErrorHandler;
+  static readonly ROOT_PATH = 'errorHandler';
 
   constructor(public errorHandlerDef: { errorHandler: ErrorHandlerDeserializer } = { errorHandler: {} }) {
     const id = getCamelRandomId('errorHandler');
@@ -32,6 +33,10 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return (
       objectKeys.length === 1 && 'errorHandler' in errorHandlerDef! && typeof errorHandlerDef.errorHandler === 'object'
     );
+  }
+
+  getRootPath(): string {
+    return CamelErrorHandlerVisualEntity.ROOT_PATH;
   }
 
   getId(): string {
@@ -125,7 +130,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const errorHandlerGroupNode = NodeMapperService.getVizNode(
-      'errorHandler',
+      this.getRootPath(),
       { processorName: 'errorHandler' as keyof ProcessorDefinition },
       this.errorHandlerDef,
     );

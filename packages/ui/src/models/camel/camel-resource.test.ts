@@ -59,7 +59,7 @@ describe('createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
-    expect(vis.route.from?.uri).toBeDefined();
+    expect(vis.entityDef.route.from?.uri).toBeDefined();
   });
 
   // TODO

@@ -3,29 +3,26 @@
 exports[`createCamelResource should create an empty KameletResource if no args is specified 1`] = `
 [
   {
-    "route": {
-      "from": {
-        "id": "from-1234",
-        "parameters": {
-          "period": "{{period}}",
-          "timerName": "user",
-        },
-        "steps": [
-          {
-            "to": {
-              "parameters": {
-                "httpUri": "random-data-api.com/api/v2/users",
-              },
-              "uri": "https",
-            },
-          },
-          {
-            "to": "kamelet:sink",
-          },
-        ],
-        "uri": "timer",
+    "from": {
+      "id": "from-1234",
+      "parameters": {
+        "period": "{{period}}",
+        "timerName": "user",
       },
-      "id": "kamelet-1234",
+      "steps": [
+        {
+          "to": {
+            "parameters": {
+              "httpUri": "random-data-api.com/api/v2/users",
+            },
+            "uri": "https",
+          },
+        },
+        {
+          "to": "kamelet:sink",
+        },
+      ],
+      "uri": "timer",
     },
   },
 ]

@@ -134,9 +134,9 @@ describe('AbstractCamelVisualEntity', () => {
   describe('updateModel', () => {
     it('should update the model with the new value', () => {
       const newUri = 'timer';
-      abstractVisualEntity.updateModel('from', { uri: newUri });
+      abstractVisualEntity.updateModel('route.from', { uri: newUri });
 
-      expect(abstractVisualEntity.route.from.uri).toEqual(newUri);
+      expect(abstractVisualEntity.entityDef.route.from.uri).toEqual(newUri);
     });
 
     it('should delegate the serialization to the `CamelComponentSchemaService`', () => {

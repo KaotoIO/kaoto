@@ -39,6 +39,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
     ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
+  private static readonly ERROR_RELATED_ENTITIES = [EntityType.OnException, EntityType.ErrorHandler];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
     b: unknown,
@@ -93,7 +94,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
       if (supportedEntity) {
         const entity = new supportedEntity.Entity();
-        this.entities.push(entity);
+
+        /** Error related entities should be added at the beginning of the list */
+        if (CamelRouteResource.ERROR_RELATED_ENTITIES.includes(entityType)) {
+          this.entities.unshift(entity);
+        } else {
+          this.entities.push(entity);
+        }
         return entity.id;
       }
     }

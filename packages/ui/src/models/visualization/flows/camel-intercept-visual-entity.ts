@@ -39,6 +39,10 @@ export class CamelInterceptVisualEntity
     return objectKeys.length === 1 && this.ROOT_PATH in interceptDef! && typeof interceptDef.intercept === 'object';
   }
 
+  getRootPath(): string {
+    return CamelInterceptVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }

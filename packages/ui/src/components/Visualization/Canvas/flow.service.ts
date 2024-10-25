@@ -33,7 +33,7 @@ export class FlowService {
       });
 
       const containerId = vizNodeParam.id;
-      node = this.getContainer(containerId, {
+      node = this.getGroup(containerId, {
         label: containerId,
         children: children.map((child) => child.id),
         parentNode: vizNodeParam.getParentNode()?.id,
@@ -64,15 +64,18 @@ export class FlowService {
 
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
+    const nodeInteractions = vizNodeParam.getNodeInteraction();
 
     if (vizNodeParam.getNextNode() !== undefined) {
       edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
+    } else if (nodeInteractions.canHaveNextStep) {
+      edges.push(this.getEdgeEnd(vizNodeParam.id));
     }
 
     return edges;
   }
 
-  private static getContainer(
+  private static getGroup(
     id: string,
     options: { label?: string; children?: string[]; parentNode?: string; data?: CanvasNode['data'] } = {},
   ): CanvasNode {
@@ -85,7 +88,7 @@ export class FlowService {
       parentNode: options.parentNode,
       data: options.data,
       style: {
-        padding: CanvasDefaults.DEFAULT_NODE_DIAMETER * 0.8,
+        padding: CanvasDefaults.DEFAULT_GROUP_PADDING,
       },
     };
   }
@@ -109,6 +112,16 @@ export class FlowService {
       source,
       target,
       edgeStyle: EdgeStyle.solid,
+    };
+  }
+
+  private static getEdgeEnd(source: string): CanvasEdge {
+    return {
+      id: `${source}-end`,
+      type: 'edge-end',
+      source,
+      target: source,
+      edgeStyle: EdgeStyle.dashed,
     };
   }
 }
