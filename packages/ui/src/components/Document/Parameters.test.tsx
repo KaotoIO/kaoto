@@ -51,6 +51,50 @@ describe('Parameters', () => {
     expect(notexist).toBeFalsy();
   });
 
+  it('should show validation error for invalid parameter name', async () => {
+    const mockUpdateDocument = jest.fn();
+    const mockDeleteParameter = jest.fn();
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={false} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+    expect(mockUpdateDocument.mock.calls.length).toEqual(0);
+    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
+    const addButton = await screen.findByTestId('add-parameter-button');
+    act(() => {
+      fireEvent.click(addButton);
+    });
+    let paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    act(() => {
+      fireEvent.change(paramNameInput, { target: { value: 'testparam1::' } });
+    });
+    expect(screen.getByTestId('new-parameter-helper-text-invalid')).toBeInTheDocument();
+    let submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    expect(submitButton.disabled).toBeTruthy();
+    act(() => {
+      fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
+    });
+    expect(submitButton.disabled).toBeFalsy();
+    act(() => {
+      fireEvent.click(submitButton);
+    });
+    act(() => {
+      fireEvent.click(addButton);
+    });
+    paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    act(() => {
+      fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
+    });
+    expect(screen.getByTestId('new-parameter-helper-text-duplicate')).toBeInTheDocument();
+    submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    expect(submitButton.disabled).toBeTruthy();
+  });
+
   it('should attach and detach a schema', async () => {
     render(
       <BrowserFilePickerMetadataProvider>

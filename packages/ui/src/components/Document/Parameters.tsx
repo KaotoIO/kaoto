@@ -8,6 +8,8 @@ import {
   CardExpandableContent,
   CardHeader,
   CardTitle,
+  HelperText,
+  HelperTextItem,
   Stack,
   StackItem,
   TextInput,
@@ -24,6 +26,14 @@ import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { DocumentType } from '../../models/datamapper/path';
 import { SourceDocument } from './SourceDocument';
 import './Document.scss';
+import { qname } from 'xml-name-validator';
+
+enum ParameterNameValidation {
+  EMPTY,
+  OK,
+  DUPLICATE,
+  INVALID,
+}
 
 type AddNewParameterPlaceholderProps = {
   onComplete: () => void;
@@ -47,9 +57,24 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
     onComplete();
   }, [onComplete]);
 
-  const isNewParameterNameValid = useMemo(() => {
-    return newParameterName !== '' && !sourceParameterMap.has(newParameterName);
+  const newParameterNameValidation: ParameterNameValidation = useMemo(() => {
+    if (newParameterName === '') return ParameterNameValidation.EMPTY;
+    if (sourceParameterMap.has(newParameterName)) return ParameterNameValidation.DUPLICATE;
+    if (!qname(newParameterName)) return ParameterNameValidation.INVALID;
+    return ParameterNameValidation.OK;
   }, [newParameterName, sourceParameterMap]);
+
+  const textInputValidatedProp = useMemo(() => {
+    switch (newParameterNameValidation) {
+      case ParameterNameValidation.OK:
+        return 'success';
+      case ParameterNameValidation.EMPTY:
+        return 'default';
+      case ParameterNameValidation.DUPLICATE:
+      case ParameterNameValidation.INVALID:
+        return 'error';
+    }
+  }, [newParameterNameValidation]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +92,20 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
             data-testid="add-new-parameter-name-input"
             onChange={(_event, text) => setNewParameterName(text)}
             placeholder="parameter name"
+            validated={textInputValidatedProp}
           />
+          <HelperText data-testid="new-parameter-helper-text">
+            {newParameterNameValidation === ParameterNameValidation.DUPLICATE && (
+              <HelperTextItem data-testid="new-parameter-helper-text-duplicate" variant="error">
+                Parameter &apos;{newParameterName}&apos; already exists
+              </HelperTextItem>
+            )}
+            {newParameterNameValidation === ParameterNameValidation.INVALID && (
+              <HelperTextItem data-testid="new-parameter-helper-text-invalid" variant="error">
+                Invalid parameter name &apos;{newParameterName}&apos;: it must be a valid QName
+              </HelperTextItem>
+            )}
+          </HelperText>
         </ActionListItem>
       </ActionListGroup>
       <ActionListGroup>
@@ -75,7 +113,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
           <Button
             onClick={() => submitNewParameter()}
             variant="link"
-            isDisabled={!isNewParameterNameValid}
+            isDisabled={newParameterNameValidation !== ParameterNameValidation.OK}
             id="add-new-parameter-submit-btn"
             data-testid="add-new-parameter-submit-btn"
             aria-label="Submit new parameter"

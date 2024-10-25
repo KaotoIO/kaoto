@@ -2888,6 +2888,7 @@ __metadata:
     "@types/react": "npm:^18.2.25"
     "@types/react-dom": "npm:^18.2.10"
     "@types/uuid": "npm:^10.0.0"
+    "@types/xml-name-validator": "npm:^4.0.3"
     "@vitejs/plugin-react": "npm:^4.0.3"
     ajv: "npm:^8.12.0"
     ajv-formats: "npm:^3.0.0"
@@ -2937,6 +2938,7 @@ __metadata:
     vite-plugin-dts: "npm:^4.0.2"
     vite-plugin-static-copy: "npm:^1.0.6"
     xml-formatter: "npm:^3.6.2"
+    xml-name-validator: "npm:^5.0.0"
     yaml: "npm:^2.3.2"
     zustand: "npm:^4.3.9"
   peerDependencies:
@@ -6426,6 +6428,13 @@ __metadata:
   version: 3.0.0
   resolution: "@types/wrap-ansi@npm:3.0.0"
   checksum: 10/8aa644946ca4e859668c36b8e2bcf2ac4bdee59dac760414730ea57be8a93ae9166ebd40a088f2ab714843aaea2a2a67f0e6e6ec11cfc9c8701b2466ca1c4089
+  languageName: node
+  linkType: hard
+
+"@types/xml-name-validator@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "@types/xml-name-validator@npm:4.0.3"
+  checksum: 10/2a89715fcc09731506c295d21f65f553c303ef61c61a8979ff87c2098d77f0e229f0ab1e1ce4019b9ffb7575ddb6c55cc1f98951f768338a662f8c34bdc5f09b
   languageName: node
   linkType: hard
 
@@ -19275,6 +19284,13 @@ __metadata:
   version: 4.0.0
   resolution: "xml-name-validator@npm:4.0.0"
   checksum: 10/f9582a3f281f790344a471c207516e29e293c6041b2c20d84dd6e58832cd7c19796c47e108fd4fd4b164a5e72ad94f2268f8ace8231cde4a2c6428d6aa220f92
+  languageName: node
+  linkType: hard
+
+"xml-name-validator@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "xml-name-validator@npm:5.0.0"
+  checksum: 10/43f30f3f6786e406dd665acf08cd742d5f8a46486bd72517edb04b27d1bcd1599664c2a4a99fc3f1e56a3194bff588b12f178b7972bc45c8047bdc4c3ac8d4a1
   languageName: node
   linkType: hard
 

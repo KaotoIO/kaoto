@@ -57,6 +57,7 @@
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",
+    "@types/xml-name-validator": "^4.0.3",
     "ajv": "^8.12.0",
     "ajv-formats": "^3.0.0",
     "chevrotain": "10.5.0",
@@ -75,6 +76,7 @@
     "usehooks-ts": "^3.0.0",
     "uuid": "^10.0.0",
     "xml-formatter": "^3.6.2",
+    "xml-name-validator": "^5.0.0",
     "yaml": "^2.3.2",
     "zustand": "^4.3.9"
   },
