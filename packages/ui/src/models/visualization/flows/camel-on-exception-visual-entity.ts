@@ -41,6 +41,10 @@ export class CamelOnExceptionVisualEntity
     );
   }
 
+  getRootPath(): string {
+    return CamelOnExceptionVisualEntity.ROOT_PATH;
+  }
+
   getId(): string {
     return this.id;
   }

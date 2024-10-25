@@ -176,29 +176,26 @@ exports[`KameletResource should create a new KameletResource with a kamelet 1`] 
 exports[`KameletResource should get the visual entities (Camel Route Visual Entity) 1`] = `
 [
   {
-    "route": {
-      "from": {
-        "id": "from-1234",
-        "parameters": {
-          "period": "{{period}}",
-          "timerName": "user",
-        },
-        "steps": [
-          {
-            "to": {
-              "parameters": {
-                "httpUri": "random-data-api.com/api/v2/users",
-              },
-              "uri": "https",
-            },
-          },
-          {
-            "to": "kamelet:sink",
-          },
-        ],
-        "uri": "timer",
+    "from": {
+      "id": "from-1234",
+      "parameters": {
+        "period": "{{period}}",
+        "timerName": "user",
       },
-      "id": "kamelet-1234",
+      "steps": [
+        {
+          "to": {
+            "parameters": {
+              "httpUri": "random-data-api.com/api/v2/users",
+            },
+            "uri": "https",
+          },
+        },
+        {
+          "to": "kamelet:sink",
+        },
+      ],
+      "uri": "timer",
     },
   },
 ]

@@ -30,6 +30,11 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.wait(1000);
 });
 
+Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
+  nodeIndex = nodeIndex ?? 0;
+  cy.get('circle.pf-topology__node__decorator__bg').eq(nodeIndex).click({ force: true });
+});
+
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });
@@ -40,6 +45,10 @@ Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex?: number) 
 
 Cypress.Commands.add('selectDisableNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'disable', nodeIndex);
+});
+
+Cypress.Commands.add('selectEnableAllNodes', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'enable-all', nodeIndex);
 });
 
 Cypress.Commands.add('selectInsertNode', (nodeName: string, nodeIndex?: number) => {
@@ -64,6 +73,20 @@ Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
   cy.get(`#${name}`).should('be.visible').click();
   // wait for the canvas rerender
   cy.wait(1000);
+});
+
+Cypress.Commands.add('checkCatalogEntryExists', (_nodeType: string, name: string) => {
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
+  cy.get(`#${name}`).should('exist');
+});
+
+Cypress.Commands.add('checkCatalogEntryNotExists', (_nodeType: string, name: string) => {
+  cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
+  cy.get(`#${name}`).should('not.exist');
+});
+
+Cypress.Commands.add('closeCatalogModal', () => {
+  cy.get('[data-ouia-component-id="CatalogModal-ModalBoxCloseButton"]').click();
 });
 
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {

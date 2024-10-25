@@ -56,7 +56,8 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.editorDeleteLine(7, 4);
     cy.openDesignPage();
     cy.showAllRoutes();
-    cy.get('[data-id^="log"]').should('have.length', 1);
+    /** We check how many nodes are remaining */
+    cy.get('[data-id^="log"][data-kind="node"]').should('have.length', 1);
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
   });
 

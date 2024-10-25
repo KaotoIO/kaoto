@@ -13,6 +13,7 @@ declare global {
     | 'insert-special'
     | 'delete'
     | 'disable'
+    | 'enable-all'
     | 'container-remove';
 
   namespace Cypress {
@@ -45,10 +46,13 @@ declare global {
       toggleExpandGroup(groupName: string, groupIndex?: number): Chainable<JQuery<Element>>;
       fitToScreen(): Chainable<JQuery<Element>>;
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
+      closeCatalogModal(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectEnableAllNodes(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertSpecialNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectInsertNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectPrependNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
@@ -62,6 +66,8 @@ declare global {
       hoverOnRuntime(type: string): Chainable<JQuery<Element>>;
       checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
+      checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
+      checkCatalogEntryNotExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
       interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;
       addExpressionResultType(value: string, index?: number): Chainable<JQuery<Element>>;
