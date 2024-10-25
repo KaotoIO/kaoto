@@ -276,5 +276,35 @@ describe('MappingSerializerService', () => {
         .iterateNext();
       expect(chooseOtherwiseSelect?.nodeValue).toEqual('Title');
     });
+
+    it('should serialize mappings with respecting Document field order', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      mappingTree = MappingSerializerService.deserialize(
+        shipOrderToShipOrderXslt,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const shipOrderItem = mappingTree.children[0];
+      shipOrderItem.children = shipOrderItem.children.reverse();
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      const shipOrderSelect = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/*',
+        xsltDocument,
+        null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      );
+      const xslAttribute = shipOrderSelect.iterateNext() as Element;
+      expect(xslAttribute!.nodeName).toEqual('xsl:attribute');
+      const xslIf = shipOrderSelect.iterateNext() as Element;
+      expect(xslIf!.nodeName).toEqual('xsl:if');
+      expect(xslIf!.getAttribute('test')).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      const shipTo = shipOrderSelect.iterateNext() as Element;
+      expect(shipTo!.nodeName).toEqual('ShipTo');
+      const xslForEach = shipOrderSelect.iterateNext() as Element;
+      expect(xslForEach!.nodeName).toEqual('xsl:for-each');
+      expect(xslForEach.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');
+    });
   });
 });

@@ -54,7 +54,7 @@ export class MappingService {
     return [];
   }
 
-  private static getConditionalFields(mapping: ConditionItem): IField[] {
+  static getConditionalFields(mapping: ConditionItem): IField[] {
     return MappingService.getConditionalFieldItems(mapping).map((item) => item.field);
   }
 

@@ -94,7 +94,6 @@ describe('AttachSchemaButton', () => {
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
-    screen.debug();
     await screen.findByTestId('attach-schema-sourceBody-Body-button');
     expect(capturedAlerts.length).toEqual(1);
     expect(capturedAlerts[0].title).toContain('no top level Element');
@@ -124,7 +123,6 @@ describe('AttachSchemaButton', () => {
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
-    screen.debug();
     await screen.findByTestId('attach-schema-sourceBody-Body-button');
     expect(capturedAlerts.length).toEqual(1);
     expect(capturedAlerts[0].title).toContain('an XML declaration must be at the start of the document');
