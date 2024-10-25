@@ -139,6 +139,35 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
   }
 
+  isDraggableNode(path?: string) {
+    if (path === 'route.from' || path === 'template.from') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  switchSteps(options: { draggedNodePath: string; droppedNodePath?: string }) {
+    if (options.droppedNodePath === undefined) return;
+
+    const pathArray = options.droppedNodePath.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      const componentPath = options.draggedNodePath.split('.');
+      const componentModel = getValue(this.entityDef, componentPath?.slice(0, -1));
+
+      /** Remove the dragged node */
+      this.removeStep(options.draggedNodePath);
+
+      /** Add the dragged node before the drop target */
+      const desiredStartIndex = Number(penultimate);
+      const stepsArray: ProcessorDefinition[] = getValue(this.entityDef, pathArray.slice(0, -2), []);
+      stepsArray.splice(desiredStartIndex, 0, componentModel);
+    }
+  }
+
   removeStep(path?: string): void {
     if (!path) return;
     const pathArray = path.split('.');

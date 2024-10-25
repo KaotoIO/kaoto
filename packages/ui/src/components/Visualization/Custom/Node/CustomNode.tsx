@@ -3,11 +3,20 @@ import { BanIcon } from '@patternfly/react-icons';
 import {
   Decorator,
   DefaultNode,
+  DragObjectWithType,
+  DragSourceSpec,
+  DragSpecOperationType,
+  DropTargetSpec,
+  EditableDragOperationType,
+  GraphElement,
+  GraphElementProps,
   Node,
   NodeStatus,
   ScaleDetailsLevel,
   WithSelectionProps,
   observer,
+  useDndDrop,
+  useDragNode,
   useSelection,
   withContextMenu,
   withSelection,
@@ -20,6 +29,7 @@ import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import './CustomNode.scss';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 
 interface CustomNodeProps extends WithSelectionProps {
   element: Node<CanvasNode, CanvasNode['data']>;
@@ -28,6 +38,7 @@ const noopFn = () => {};
 
 const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...rest }) => {
   const vizNode = element.getData()?.vizNode;
+  const entitiesContext = useEntityContext();
   const settingsAdapter = useContext(SettingsContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
   const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
@@ -37,11 +48,61 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, ...r
   const detailsLevel = element.getGraph().getDetailsLevel();
   const [selected] = useSelection();
   const id = vizNode?.getTitle();
+  const nodeDragSourceSpec: DragSourceSpec<
+    DragObjectWithType,
+    DragSpecOperationType<EditableDragOperationType>,
+    GraphElement,
+    object,
+    GraphElementProps
+  > = {
+    item: { type: '#node#' },
+    begin: () => {
+      const node = element as Node;
+
+      // Hide connected edges when dragging starts
+      node.getSourceEdges().forEach((edge) => edge.setVisible(false));
+      node.getTargetEdges().forEach((edge) => edge.setVisible(false));
+    },
+    canDrag: () => {
+      return element.getData()?.vizNode?.canDragNode() ? true : false;
+    },
+    end: () => {
+      const node = element as Node;
+
+      // Show edges again after dropping
+      node.getSourceEdges().forEach((edge) => edge.setVisible(true));
+      node.getTargetEdges().forEach((edge) => edge.setVisible(true));
+    },
+  };
+
+  const nodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
+    accept: ['#node#'],
+    canDrop: (item) => {
+      const targetNode = element as Node;
+      const draggedNode = item as Node;
+      // Ensure that the node is not dropped onto itself
+      return draggedNode !== targetNode;
+    },
+    drop: (item) => {
+      const draggedNodePath = item.getData().vizNode.data.path;
+
+      // Switch the positions of the dragged and target nodes
+      element.getData()?.vizNode?.switchSteps(draggedNodePath);
+
+      /** Update entity */
+      entitiesContext.updateEntitiesFromCamelResource();
+    },
+  };
+
+  const [_, dragNodeRef] = useDragNode(nodeDragSourceSpec);
+  const [__, dropNodeRef] = useDndDrop(nodeDropTargetSpec);
 
   return (
     <DefaultNode
       {...rest}
       element={element}
+      dragNodeRef={dragNodeRef}
+      dndDropRef={dropNodeRef}
       label={selected ? label : doTruncateLabel(label)}
       scaleLabel={detailsLevel !== ScaleDetailsLevel.low}
       labelClassName={clsx('custom-node__label', {
