@@ -66,7 +66,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
             onMouseMove={stopPropagation}
           />
         </InputGroupItem>
-        {validationResult && !validationResult.getCst() && (
+        {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
           <InputGroupItem>
             <Popover bodyContent={errorContent}>
               <Button

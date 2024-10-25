@@ -44,7 +44,7 @@ export class XPathService {
   static validate(xpath: string): ValidatedXPathParseResult {
     const parserResult = XPathService.parse(xpath);
     const validationResult = new ValidatedXPathParseResult(parserResult);
-    if (validationResult.hasErrors()) return validationResult;
+    if (!validationResult.getCst()) return validationResult;
 
     try {
       XPathService.extractFieldPaths(xpath);

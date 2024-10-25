@@ -346,7 +346,7 @@ export class MappingService {
   ) {
     const sourceXPath = sourceExpressionItem.expression;
     const validationResult = XPathService.validate(sourceXPath);
-    if (!validationResult.getCst()) return [];
+    if (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) return [];
     const fieldPaths = XPathService.extractFieldPaths(sourceXPath);
     return fieldPaths.reduce((acc, xpath) => {
       const absolutePath =

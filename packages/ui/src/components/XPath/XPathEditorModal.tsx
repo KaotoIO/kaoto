@@ -55,7 +55,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
       <>
         <Title id="xpath-editor-modal" headingLevel="h1" size={TitleSizes['2xl']}>
           XPath Editor: {title}
-          {validationResult && !validationResult.getCst() && (
+          {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
             <Popover bodyContent={errorContent}>
               <Button
                 data-testid="xpath-editor-error-btn"
