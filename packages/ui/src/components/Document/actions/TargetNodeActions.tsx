@@ -15,6 +15,7 @@ type TargetNodeActionsProps = {
 
 export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ nodeData, onUpdate }) => {
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
+  const allowConditionMenu = VisualizationService.allowConditionMenu(nodeData);
   const isDeletable = VisualizationService.isDeletableNode(nodeData);
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
     event.stopPropagation();
@@ -28,7 +29,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ n
           <XPathEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
         </>
       )}
-      <ConditionMenuAction nodeData={nodeData} onUpdate={onUpdate} />
+      {allowConditionMenu && <ConditionMenuAction nodeData={nodeData} onUpdate={onUpdate} />}
       {isDeletable && <DeleteMappingItemAction nodeData={nodeData} onDelete={onUpdate} />}
     </ActionListGroup>
   );

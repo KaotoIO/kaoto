@@ -185,6 +185,22 @@ export class VisualizationService {
     }
   }
 
+  static allowConditionMenu(nodeData: TargetNodeData) {
+    if (nodeData instanceof TargetFieldNodeData || nodeData instanceof TargetDocumentNodeData) {
+      const isForEachField =
+        'parent' in nodeData &&
+        nodeData.parent instanceof MappingNodeData &&
+        nodeData.parent.mapping instanceof ForEachItem;
+      return !isForEachField && !VisualizationService.getExpressionItemForNode(nodeData);
+    }
+    const mappingNodeData = nodeData as MappingNodeData;
+    return (
+      !(mappingNodeData.mapping instanceof WhenItem) &&
+      !(mappingNodeData.mapping instanceof OtherwiseItem) &&
+      !(mappingNodeData.mapping instanceof ForEachItem)
+    );
+  }
+
   static allowValueSelector(nodeData: TargetNodeData) {
     return (
       !VisualizationService.isChooseNode(nodeData) &&

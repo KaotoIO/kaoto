@@ -202,5 +202,27 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren[1] instanceof TargetFieldNodeData).toBeTruthy();
       });
     });
+
+    describe('allowConditionMenu()', () => {
+      it('should test condition menu is allowed', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(VisualizationService.allowConditionMenu(targetDocNode)).toBeTruthy();
+        expect(VisualizationService.allowConditionMenu(targetDocChildren[0] as TargetNodeData)).toBeTruthy();
+        expect(shipOrderChildren.length).toEqual(4);
+        const orderIdNode = shipOrderChildren[0] as TargetFieldNodeData;
+        expect(orderIdNode.title).toEqual('OrderId');
+        expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeFalsy();
+        const ifNode = shipOrderChildren[1] as MappingNodeData;
+        expect(ifNode.title).toEqual('if');
+        expect(VisualizationService.allowConditionMenu(ifNode)).toBeTruthy();
+        const shipToNode = shipOrderChildren[2] as TargetFieldNodeData;
+        expect(shipToNode.title).toEqual('ShipTo');
+        expect(VisualizationService.allowConditionMenu(shipToNode)).toBeFalsy();
+        const forEachNode = shipOrderChildren[3] as MappingNodeData;
+        expect(forEachNode.title).toEqual('for-each');
+        expect(VisualizationService.allowConditionMenu(forEachNode)).toBeFalsy();
+      });
+    });
   });
 });
