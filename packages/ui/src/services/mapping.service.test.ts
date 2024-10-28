@@ -142,6 +142,16 @@ describe('MappingService', () => {
       const orderIdValueSelector = orderIdFieldItem.children[0] as ValueSelector;
       expect(orderIdValueSelector.expression).toEqual('/ns0:ShipOrder/@OrderId');
     });
+
+    it('should populate namespace if not exists', () => {
+      tree.namespaceMap = {};
+      const orderIdFieldItem = tree.children[0].children[0];
+      orderIdFieldItem.children = [];
+      MappingService.mapToField(sourceDoc.fields[0].fields[0], orderIdFieldItem);
+      expect(orderIdFieldItem.children[0] instanceof ValueSelector);
+      const orderIdValueSelector = orderIdFieldItem.children[0] as ValueSelector;
+      expect(orderIdValueSelector.expression).toEqual('/ns0:ShipOrder/@OrderId');
+    });
   });
 
   describe('createValueSelector()', () => {

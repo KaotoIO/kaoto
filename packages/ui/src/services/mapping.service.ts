@@ -256,6 +256,9 @@ export class MappingService {
   }
 
   private static registerNamespaceFromField(mappingTree: MappingTree, field: IField) {
+    if (field.parent && !('documentType' in field.parent)) {
+      MappingService.registerNamespaceFromField(mappingTree, field.parent);
+    }
     if (!field.namespaceURI) return;
     const existingns = Object.entries(mappingTree.namespaceMap).find(
       ([_prefix, uri]) => field.namespaceURI && uri === field.namespaceURI,
