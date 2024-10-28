@@ -150,4 +150,8 @@ export class DocumentService {
       DocumentService.adoptTypeFragment(field, childFragment);
     });
   }
+
+  static isNonPrimitiveField(parent: IParentType) {
+    return parent && !('documentType' in parent);
+  }
 }
