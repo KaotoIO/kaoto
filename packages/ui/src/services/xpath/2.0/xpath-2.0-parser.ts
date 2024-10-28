@@ -29,38 +29,41 @@ createToken({
   group: Lexer.SKIPPED,
 });
 
+/* In order to refer NCName from keywords for longer_alt, declare earlier here, but push as a last one later */
+const NCName = orgCreateToken({ name: 'NCName', pattern: fragments['Name'] });
+
 const Comma = createToken({ name: 'Comma', pattern: /,/ });
-const Return = createToken({ name: 'Returns', pattern: /return/ });
-const For = createToken({ name: 'For', pattern: /for/ });
+const Return = createToken({ name: 'Returns', pattern: /return/, longer_alt: NCName });
+const For = createToken({ name: 'For', pattern: /for/, longer_alt: NCName });
 const Dollar = createToken({ name: 'Dollar', pattern: /\$/ });
-const Intersect = createToken({ name: 'Intersect', pattern: /intersect/ });
-const Instance = createToken({ name: 'Instance', pattern: /instance/ });
-const In = createToken({ name: 'In', pattern: /in/ });
-const Some = createToken({ name: 'Some', pattern: /some/ });
-const Every = createToken({ name: 'Every', pattern: /every/ });
-const Satisfies = createToken({ name: 'Satisfies', pattern: /satisfies/ });
-const If = createToken({ name: 'If', pattern: /if/ });
-const Then = createToken({ name: 'Then', pattern: /then/ });
-const Else = createToken({ name: 'Else', pattern: /else/ });
+const Intersect = createToken({ name: 'Intersect', pattern: /intersect/, longer_alt: NCName });
+const Instance = createToken({ name: 'Instance', pattern: /instance/, longer_alt: NCName });
+const In = createToken({ name: 'In', pattern: /in/, longer_alt: NCName });
+const Some = createToken({ name: 'Some', pattern: /some/, longer_alt: NCName });
+const Every = createToken({ name: 'Every', pattern: /every/, longer_alt: NCName });
+const Satisfies = createToken({ name: 'Satisfies', pattern: /satisfies/, longer_alt: NCName });
+const If = createToken({ name: 'If', pattern: /if/, longer_alt: NCName });
+const Then = createToken({ name: 'Then', pattern: /then/, longer_alt: NCName });
+const Else = createToken({ name: 'Else', pattern: /else/, longer_alt: NCName });
 const LParen = createToken({ name: 'LParen', pattern: /\(/ });
 const RParen = createToken({ name: 'RParen', pattern: /\)/ });
-const Or = createToken({ name: 'Or', pattern: /or/ });
-const And = createToken({ name: 'And', pattern: /and/ });
-const To = createToken({ name: 'To', pattern: /to/ });
+const Or = createToken({ name: 'Or', pattern: /or/, longer_alt: NCName });
+const And = createToken({ name: 'And', pattern: /and/, longer_alt: NCName });
+const To = createToken({ name: 'To', pattern: /to/, longer_alt: NCName });
 const Plus = createToken({ name: 'Plus', pattern: /\+/ });
 const Minus = createToken({ name: 'Minus', pattern: /-/ });
 const Asterisk = createToken({ name: 'Asterisk', pattern: /\*/ });
-const Div = createToken({ name: 'Div', pattern: /div/ });
-const Idiv = createToken({ name: 'Tdiv', pattern: /idiv/ });
-const Mod = createToken({ name: 'Mod', pattern: /mod/ });
-const Union = createToken({ name: 'Union', pattern: /union/ });
+const Div = createToken({ name: 'Div', pattern: /div/, longer_alt: NCName });
+const Idiv = createToken({ name: 'Tdiv', pattern: /idiv/, longer_alt: NCName });
+const Mod = createToken({ name: 'Mod', pattern: /mod/, longer_alt: NCName });
+const Union = createToken({ name: 'Union', pattern: /union/, longer_alt: NCName });
 const Pipe = createToken({ name: 'Pipe', pattern: /\|/ });
-const Except = createToken({ name: 'Except', pattern: /except/ });
-const Of = createToken({ name: 'Of', pattern: /of/ });
-const Treat = createToken({ name: 'Treat', pattern: /treat/ });
-const Castable = createToken({ name: 'Castable', pattern: /castable/ });
-const As = createToken({ name: 'As', pattern: /as/ });
-const Cast = createToken({ name: 'Cast', pattern: /cast/ });
+const Except = createToken({ name: 'Except', pattern: /except/, longer_alt: NCName });
+const Of = createToken({ name: 'Of', pattern: /of/, longer_alt: NCName });
+const Treat = createToken({ name: 'Treat', pattern: /treat/, longer_alt: NCName });
+const Castable = createToken({ name: 'Castable', pattern: /castable/, longer_alt: NCName });
+const As = createToken({ name: 'As', pattern: /as/, longer_alt: NCName });
+const Cast = createToken({ name: 'Cast', pattern: /cast/, longer_alt: NCName });
 const Equal = createToken({ name: 'Equal', pattern: /=/ });
 const NotEqual = createToken({ name: 'NotEqual', pattern: /!=/ });
 const Precede = createToken({ name: 'Precede', pattern: /<</ });
@@ -69,52 +72,58 @@ const LessThan = createToken({ name: 'LessThan', pattern: /</ });
 const Follow = createToken({ name: 'Precede', pattern: />>/ });
 const GreaterThanEqual = createToken({ name: 'GreaterThanEqual', pattern: />=/ });
 const GreaterThan = createToken({ name: 'GreaterThan', pattern: />/ });
-const Eq = createToken({ name: 'Eq', pattern: /eq/ });
-const Ne = createToken({ name: 'Ne', pattern: /ne/ });
-const Lt = createToken({ name: 'Lt', pattern: /lt/ });
-const Le = createToken({ name: 'Le', pattern: /le/ });
-const Gt = createToken({ name: 'Gt', pattern: /gt/ });
-const Ge = createToken({ name: 'Ge', pattern: /ge/ });
-const Is = createToken({ name: 'Is', pattern: /is/ });
+const Eq = createToken({ name: 'Eq', pattern: /eq/, longer_alt: NCName });
+const Ne = createToken({ name: 'Ne', pattern: /ne/, longer_alt: NCName });
+const Lt = createToken({ name: 'Lt', pattern: /lt/, longer_alt: NCName });
+const Le = createToken({ name: 'Le', pattern: /le/, longer_alt: NCName });
+const Gt = createToken({ name: 'Gt', pattern: /gt/, longer_alt: NCName });
+const Ge = createToken({ name: 'Ge', pattern: /ge/, longer_alt: NCName });
+const Is = createToken({ name: 'Is', pattern: /is/, longer_alt: NCName });
 const DoubleSlash = createToken({ name: 'DoubleSlash', pattern: /\/\// });
 const Slash = createToken({ name: 'Slash', pattern: /\// });
 const DoubleColon = createToken({ name: 'DoubleColon', pattern: /::/ });
 const Colon = createToken({ name: 'Colon', pattern: /:/ });
-const Child = createToken({ name: 'Child', pattern: /child/ });
-const DescendantOrSelf = createToken({ name: 'DescendantOrSelf', pattern: /descendant-or-self/ });
-const Descendant = createToken({ name: 'Descendant', pattern: /descendant/ });
-const Attribute = createToken({ name: 'Attribute', pattern: /attribute/ });
-const Self = createToken({ name: 'Self', pattern: /self/ });
-const FollowingSibling = createToken({ name: 'FollowingSibling', pattern: /following-sibling/ });
-const Following = createToken({ name: 'Following', pattern: /followed-sibling/ });
-const Namespace = createToken({ name: 'Namespace', pattern: /namespace/ });
-const Parent = createToken({ name: 'Parent', pattern: /parent/ });
-const AncestorOrSelf = createToken({ name: 'AncestorOrSelf', pattern: /ancestor-or-self/ });
-const Ancestor = createToken({ name: 'Ancestor', pattern: /ancestor/ });
-const PrecedingSibling = createToken({ name: 'PrecedingSibling', pattern: /preceding-sibling/ });
-const Preceding = createToken({ name: 'Preceding', pattern: /preceding/ });
+const Child = createToken({ name: 'Child', pattern: /child/, longer_alt: NCName });
+const DescendantOrSelf = createToken({ name: 'DescendantOrSelf', pattern: /descendant-or-self/, longer_alt: NCName });
+const Descendant = createToken({ name: 'Descendant', pattern: /descendant/, longer_alt: NCName });
+const Attribute = createToken({ name: 'Attribute', pattern: /attribute/, longer_alt: NCName });
+const Self = createToken({ name: 'Self', pattern: /self/, longer_alt: NCName });
+const FollowingSibling = createToken({ name: 'FollowingSibling', pattern: /following-sibling/, longer_alt: NCName });
+const Following = createToken({ name: 'Following', pattern: /followed-sibling/, longer_alt: NCName });
+const Namespace = createToken({ name: 'Namespace', pattern: /namespace/, longer_alt: NCName });
+const Parent = createToken({ name: 'Parent', pattern: /parent/, longer_alt: NCName });
+const AncestorOrSelf = createToken({ name: 'AncestorOrSelf', pattern: /ancestor-or-self/, longer_alt: NCName });
+const Ancestor = createToken({ name: 'Ancestor', pattern: /ancestor/, longer_alt: NCName });
+const PrecedingSibling = createToken({ name: 'PrecedingSibling', pattern: /preceding-sibling/, longer_alt: NCName });
+const Preceding = createToken({ name: 'Preceding', pattern: /preceding/, longer_alt: NCName });
 const ContextItemExpr = createToken({ name: 'ContextItemExpr', pattern: /\./ });
 const AbbrevReverseStep = createToken({ name: 'AbbrevReverseStep', pattern: /\.\./ });
 const At = createToken({ name: 'At', pattern: /@/ });
 const LSquare = createToken({ name: 'LSquare', pattern: /\[/ });
 const RSquare = createToken({ name: 'RSquare', pattern: /]/ });
 const Question = createToken({ name: 'Question', pattern: /\?/ });
-const Item = createToken({ name: 'Item', pattern: /item/ });
-const Node = createToken({ name: 'Node', pattern: /node/ });
-const DocumentNode = createToken({ name: 'DocumentNode', pattern: /document-node/ });
-const Text = createToken({ name: 'Text', pattern: /text/ });
-const Comment = createToken({ name: 'Comment', pattern: /comment/ });
-const ProcessingInstruction = createToken({ name: 'ProcessingInstruction', pattern: /processing-instruction/ });
-const SchemaAttribute = createToken({ name: 'SchemaAttribute', pattern: /schema-attribute/ });
-const Element = createToken({ name: 'Element', pattern: /element/ });
-const SchemaElement = createToken({ name: 'SchemaElement', pattern: /schema-element/ });
-const EmptySequence = createToken({ name: 'EmptySequence', pattern: /empty-sequence/ });
+const Item = createToken({ name: 'Item', pattern: /item/, longer_alt: NCName });
+const Node = createToken({ name: 'Node', pattern: /node/, longer_alt: NCName });
+const DocumentNode = createToken({ name: 'DocumentNode', pattern: /document-node/, longer_alt: NCName });
+const Text = createToken({ name: 'Text', pattern: /text/, longer_alt: NCName });
+const Comment = createToken({ name: 'Comment', pattern: /comment/, longer_alt: NCName });
+const ProcessingInstruction = createToken({
+  name: 'ProcessingInstruction',
+  pattern: /processing-instruction/,
+  longer_alt: NCName,
+});
+const SchemaAttribute = createToken({ name: 'SchemaAttribute', pattern: /schema-attribute/, longer_alt: NCName });
+const Element = createToken({ name: 'Element', pattern: /element/, longer_alt: NCName });
+const SchemaElement = createToken({ name: 'SchemaElement', pattern: /schema-element/, longer_alt: NCName });
+const EmptySequence = createToken({ name: 'EmptySequence', pattern: /empty-sequence/, longer_alt: NCName });
 
-const NCName = createToken({ name: 'NCName', pattern: fragments['Name'] });
 const StringLiteral = createToken({ name: 'StringLiteral', pattern: fragments['StringLiteral'] });
 const IntegerLiteral = createToken({ name: 'IntegerLiteral', pattern: fragments['Digits'] });
 const DecimalLiteral = createToken({ name: 'DecimalLiteral', pattern: fragments['DecimalLiteral'] });
 const DoubleLiteral = createToken({ name: 'DoubleLiteral', pattern: fragments['DoubleLiteral'] });
+
+/** DO NOT CHANGE @see {@link NCName} */
+allTokens.push(NCName);
 
 /**
  * XPath 2.0 Parser which implements the EBNF defined in the W3C specification
@@ -352,6 +361,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
   private RelativePathExpr = this.RULE('RelativePathExpr', () => {
     this.SUBRULE(this.StepExpr);
     this.MANY(() => this.SUBRULE2(this.ChildPathSegmentExpr));
+    this.OPTION(() => this.CONSUME(Slash));
   });
 
   private StepExpr = this.RULE('StepExpr', () => {

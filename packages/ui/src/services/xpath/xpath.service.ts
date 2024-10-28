@@ -51,7 +51,7 @@ export class XPathService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const errorString =
-        'DataMapper internal error: failed to extract field paths from a valid XPath expression: ' +
+        'DataMapper internal error: failed to render a mapping line from a valid XPath expression: ' +
         ('message' in error ? error.message : error.toString());
       validationResult.dataMapperErrors.push(errorString);
     }

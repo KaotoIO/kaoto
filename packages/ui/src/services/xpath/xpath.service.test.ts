@@ -16,6 +16,21 @@ describe('XPathService', () => {
       const result = XPathService.parse('/aaa/bbb/ccc');
       expect(result.cst).toBeDefined();
     });
+
+    it('should parse a field which contains a reserved word in its spell', () => {
+      let result = XPathService.parse('/shiporder/orderperson');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+      result = XPathService.parse('/shiporder/orderperson/');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+      result = XPathService.parse('/from/me/to/you');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+    });
   });
 
   describe('validate()', () => {
@@ -26,7 +41,7 @@ describe('XPathService', () => {
 
     it('should validate with empty string literal', () => {
       const result = XPathService.validate("/ns0:ShipOrder/ns0:OrderPerson != ''");
-      // parser error says it's redundant, possibly a bug in the parser
+      // TODO parser error says it's redundant, possibly a bug in the parser
       expect(result.hasErrors()).toBeTruthy();
       expect(result.getCst()).toBeDefined();
     });
