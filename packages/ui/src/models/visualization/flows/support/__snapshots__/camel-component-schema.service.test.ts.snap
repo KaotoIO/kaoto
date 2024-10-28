@@ -831,6 +831,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "title": "Auto Create",
             "type": "boolean",
           },
+          "autoCreateStepwise": {
+            "default": false,
+            "deprecated": false,
+            "description": "When auto-creating directories should each subdirectory be created one at a time. This may be needed due to security issues on some file-shares.",
+            "group": "advanced",
+            "title": "Auto Create Stepwise",
+            "type": "boolean",
+          },
           "backoffErrorThreshold": {
             "deprecated": false,
             "description": "The number of subsequent error polls (failed due some error) that should happen before the backoffMultipler should kick-in.",
@@ -1514,6 +1522,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Automatically create missing directories in the file's pathname. For the file consumer, that means creating the starting directory. For the file producer, it means the directory the files should be written to.",
             "group": "advanced",
             "title": "Auto Create",
+            "type": "boolean",
+          },
+          "autoCreateStepwise": {
+            "default": false,
+            "deprecated": false,
+            "description": "When auto-creating directories should each subdirectory be created one at a time. This may be needed due to security issues on some file-shares.",
+            "group": "advanced",
+            "title": "Auto Create Stepwise",
             "type": "boolean",
           },
           "backoffErrorThreshold": {
