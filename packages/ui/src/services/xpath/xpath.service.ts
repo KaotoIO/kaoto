@@ -143,18 +143,7 @@ export class XPathService {
     }
     return Object.entries(node.children).reduce((acc, [key, value]) => {
       if (key === 'PathExpr') {
-        const parenthesizedExpr = XPathService.getNode(value[0], [
-          'RelativePathExpr',
-          'StepExpr',
-          'FilterExpr',
-          'ParenthesizedExpr',
-        ]);
-        if (parenthesizedExpr && 'children' in parenthesizedExpr) {
-          const expr = parenthesizedExpr.children['Expr'];
-          expr && expr.length > 0 && acc.push(...XPathService.collectPathExpressions(expr[0] as CstNode));
-        } else {
-          acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
-        }
+        acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
       } else {
         value.forEach((child) => {
           if ('children' in child) {
@@ -167,13 +156,21 @@ export class XPathService {
   }
 
   private static extractPathExprNode(pathExprNode: CstNode) {
+    const filterExpr = XPathService.getNode(pathExprNode, ['RelativePathExpr', 'StepExpr', 'FilterExpr']);
+    if (!filterExpr) return [pathExprNode];
+
+    const literal = XPathService.getNode(filterExpr, ['Literal']);
+    if (literal) return [];
+
+    // Extract contents in parenthesis
+    const parenthesizedExpr = XPathService.getNode(filterExpr, ['ParenthesizedExpr']);
+    if (parenthesizedExpr && 'children' in parenthesizedExpr) {
+      const expr = parenthesizedExpr.children['Expr'];
+      return expr && expr.length > 0 ? XPathService.collectPathExpressions(expr[0] as CstNode) : [];
+    }
+
     // Extract arguments in FunctionCall
-    const functionCall = XPathService.getNode(pathExprNode, [
-      'RelativePathExpr',
-      'StepExpr',
-      'FilterExpr',
-      'FunctionCall',
-    ]);
+    const functionCall = XPathService.getNode(filterExpr, ['FunctionCall']);
     if (functionCall && 'children' in functionCall) {
       return functionCall.children.ExprSingle
         ? functionCall.children.ExprSingle.flatMap((arg) =>
@@ -181,6 +178,7 @@ export class XPathService {
           )
         : [];
     }
+
     return [pathExprNode];
   }
 

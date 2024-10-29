@@ -17,7 +17,7 @@ describe('XPathService', () => {
       expect(result.cst).toBeDefined();
     });
 
-    it('should parse a field which contains a reserved word in its spell', () => {
+    it('should parse a field which contains a reserved word in its spelling', () => {
       let result = XPathService.parse('/shiporder/orderperson');
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
@@ -27,6 +27,13 @@ describe('XPathService', () => {
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
       result = XPathService.parse('/from/me/to/you');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+    });
+
+    it('should parse xpath with string literal', () => {
+      const result = XPathService.parse("'Hello', /shiporder/orderperson, '!'");
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
