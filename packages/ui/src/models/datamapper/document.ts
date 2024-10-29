@@ -47,6 +47,7 @@ export interface IDocument {
   fields: IField[];
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment>;
+  totalFieldCount: number;
 }
 
 export abstract class BaseDocument implements IDocument {
@@ -61,6 +62,7 @@ export abstract class BaseDocument implements IDocument {
   schemaType = '';
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment> = {};
+  abstract totalFieldCount: number;
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
@@ -83,6 +85,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   path: NodePath;
   id: string;
   namedTypeFragmentRefs = [];
+  totalFieldCount = 1;
   adopt = () => this;
 }
 

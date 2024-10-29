@@ -40,6 +40,8 @@ export interface IDataMapperContext {
 
   initialExpandedFieldRank: number;
   setInitialExpandedFieldRank: (rank: number) => void;
+  maxTotalFieldCountToExpandAll: number;
+  setMaxTotalFieldCountToExpandAll: (rank: number) => void;
 
   sourceParameterMap: Map<string, IDocument>;
   refreshSourceParameters: () => void;
@@ -68,6 +70,7 @@ export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
 type DataMapperProviderProps = PropsWithChildren & {
   defaultInitialExpandedFieldRank?: number;
+  defaultMaxTotalFieldCountToExpandAll?: number;
   documentInitializationModel?: DocumentInitializationModel;
   onUpdateDocument?: (definition: DocumentDefinition) => void;
   onDeleteParameter?: (name: string) => void;
@@ -77,6 +80,7 @@ type DataMapperProviderProps = PropsWithChildren & {
 
 export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   defaultInitialExpandedFieldRank = 1,
+  defaultMaxTotalFieldCountToExpandAll = 100,
   documentInitializationModel,
   onUpdateDocument,
   onDeleteParameter,
@@ -88,6 +92,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
   const [initialExpandedFieldRank, setInitialExpandedFieldRank] = useState<number>(defaultInitialExpandedFieldRank);
+  const [maxTotalFieldCountToExpandAll, setMaxTotalFieldCountToExpandAll] = useState<number>(
+    defaultMaxTotalFieldCountToExpandAll,
+  );
 
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(true);
@@ -232,6 +239,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setActiveView,
       initialExpandedFieldRank,
       setInitialExpandedFieldRank,
+      maxTotalFieldCountToExpandAll,
+      setMaxTotalFieldCountToExpandAll,
       sourceParameterMap,
       isSourceParametersExpanded,
       setSourceParametersExpanded,
@@ -254,6 +263,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     isLoading,
     activeView,
     initialExpandedFieldRank,
+    maxTotalFieldCountToExpandAll,
     sourceParameterMap,
     isSourceParametersExpanded,
     refreshSourceParameters,

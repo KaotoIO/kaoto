@@ -29,6 +29,7 @@ describe('SourceDocument', () => {
       </DataMapperProvider>,
     );
     expect(await screen.findByText('OrderPerson')).toBeTruthy();
+    expect(await screen.findByText('Country')).toBeInTheDocument();
   });
 
   it('should render camel-spring.xsd doc till 2nd level', async () => {

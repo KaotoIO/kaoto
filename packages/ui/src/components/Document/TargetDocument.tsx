@@ -17,21 +17,36 @@ type DocumentProps = {
 };
 
 export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) => {
-  const { initialExpandedFieldRank, mappingTree } = useDataMapper();
+  const { initialExpandedFieldRank, mappingTree, maxTotalFieldCountToExpandAll } = useDataMapper();
   const nodeData = new TargetDocumentNodeData(document, mappingTree);
 
-  return <TargetDocumentNode nodeData={nodeData} initialExpandedRank={initialExpandedFieldRank} rank={0} />;
+  return (
+    <TargetDocumentNode
+      nodeData={nodeData}
+      expandAll={document.totalFieldCount < maxTotalFieldCountToExpandAll}
+      initialExpandedRank={initialExpandedFieldRank}
+      rank={0}
+    />
+  );
 };
 
 type DocumentNodeProps = {
   nodeData: TargetNodeData;
+  expandAll: boolean;
   initialExpandedRank: number;
   rank: number;
 };
 
-const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, initialExpandedRank, rank }) => {
+const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
+  nodeData,
+  expandAll,
+  initialExpandedRank,
+  rank,
+}) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
-  const [collapsed, setCollapsed] = useState(rank > initialExpandedRank);
+  const shouldCollapseByDefault =
+    !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
+  const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
 
   const onClick = useCallback(() => {
     setCollapsed(!collapsed);
@@ -40,8 +55,8 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, in
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
+  const hasChildren = VisualizationService.hasChildren(nodeData);
   const children = VisualizationService.generateNodeDataChildren(nodeData) as TargetNodeData[];
-  const hasChildren = children.length > 0;
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
 
@@ -118,6 +133,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ nodeData, in
               <TargetDocumentNode
                 nodeData={child}
                 key={child.id}
+                expandAll={expandAll}
                 initialExpandedRank={initialExpandedRank}
                 rank={rank + 1}
               />

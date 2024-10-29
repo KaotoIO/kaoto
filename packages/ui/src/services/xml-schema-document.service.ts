@@ -42,6 +42,7 @@ export class XmlSchemaDocument extends BaseDocument {
   rootElement: XmlSchemaElement;
   fields: XmlSchemaField[] = [];
   namedTypeFragments: Record<string, XmlSchemaTypeFragment> = {};
+  totalFieldCount = 0;
 
   constructor(
     public xmlSchema: XmlSchema,
@@ -111,6 +112,7 @@ export class XmlSchemaDocumentService {
 
     const ownerDoc = DocumentService.getOwnerDocument<XmlSchemaDocument>(parent);
     const cachedTypeFragments = ownerDoc.namedTypeFragments;
+    ownerDoc.totalFieldCount++;
     XmlSchemaDocumentService.populateSchemaType(cachedTypeFragments, field, resolvedElement.getSchemaType());
   }
 
@@ -183,6 +185,9 @@ export class XmlSchemaDocumentService {
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     fields.push(field);
+
+    const ownerDoc = DocumentService.getOwnerDocument<XmlSchemaDocument>(parent);
+    ownerDoc.totalFieldCount++;
 
     const use = attr.getUse();
     switch (use) {

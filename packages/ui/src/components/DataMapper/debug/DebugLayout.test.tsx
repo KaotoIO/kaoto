@@ -57,7 +57,7 @@ describe('DebugLayout', () => {
     );
     await screen.findAllByText('ShipOrder');
     const targetNodes = screen.getAllByTestId(/node-target-.*/);
-    expect(targetNodes.length).toEqual(6);
+    expect(targetNodes.length).toEqual(20);
     expect(mappingLinks.length).toEqual(11);
     const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
     expect(nodeRefsLog.length).toBeGreaterThan(0);

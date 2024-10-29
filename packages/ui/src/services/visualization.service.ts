@@ -137,6 +137,23 @@ export class VisualizationService {
     return nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
   }
 
+  static isRecursiveField(nodeData: NodeData) {
+    return nodeData instanceof FieldNodeData && DocumentService.isRecursiveField(nodeData.field);
+  }
+
+  static hasChildren(nodeData: NodeData) {
+    if (nodeData instanceof DocumentNodeData) return DocumentService.hasFields(nodeData.document);
+    if (nodeData instanceof FieldNodeData) return DocumentService.hasChildren(nodeData.field);
+    if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
+    return false;
+  }
+
+  static shouldCollapseByDefault(nodeData: NodeData, initialExpandedRank: number, rank: number) {
+    if (nodeData instanceof DocumentNodeData) return false;
+    const isRecursiveField = VisualizationService.isRecursiveField(nodeData);
+    return isRecursiveField || rank > initialExpandedRank;
+  }
+
   static allowIfChoose(nodeData: TargetNodeData) {
     if (nodeData instanceof MappingNodeData) {
       const mapping = nodeData.mapping;

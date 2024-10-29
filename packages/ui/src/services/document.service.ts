@@ -154,4 +154,19 @@ export class DocumentService {
   static isNonPrimitiveField(parent: IParentType) {
     return parent && !('documentType' in parent);
   }
+
+  static isRecursiveField(field: IField) {
+    const name = field.name;
+    const namespace = field.namespaceURI;
+    const stack = DocumentService.getFieldStack(field);
+    return !!stack.find((f) => f.name === name && f.namespaceURI === namespace);
+  }
+
+  static hasFields(document: IDocument) {
+    return !(document instanceof PrimitiveDocument) && document.fields.length > 0;
+  }
+
+  static hasChildren(field: IField) {
+    return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
+  }
 }

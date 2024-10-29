@@ -1,4 +1,4 @@
-import { DocumentNodeData, FieldNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
+import { DocumentNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { IDocument } from '../../models/datamapper/document';
 import { Label, Split, SplitItem, Title, Truncate } from '@patternfly/react-core';
@@ -17,12 +17,13 @@ type DocumentProps = {
 };
 
 export const SourceDocument: FunctionComponent<DocumentProps> = ({ document, isReadOnly }) => {
-  const { initialExpandedFieldRank } = useDataMapper();
+  const { initialExpandedFieldRank, maxTotalFieldCountToExpandAll } = useDataMapper();
   const nodeData = new DocumentNodeData(document);
   return (
     <SourceDocumentNode
       nodeData={nodeData}
       isReadOnly={isReadOnly}
+      expandAll={document.totalFieldCount < maxTotalFieldCountToExpandAll}
       initialExpandedRank={initialExpandedFieldRank}
       rank={0}
     />
@@ -32,6 +33,7 @@ export const SourceDocument: FunctionComponent<DocumentProps> = ({ document, isR
 type DocumentNodeProps = {
   nodeData: NodeData;
   isReadOnly: boolean;
+  expandAll: boolean;
   initialExpandedRank: number;
   rank: number;
 };
@@ -39,11 +41,14 @@ type DocumentNodeProps = {
 export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   nodeData,
   isReadOnly,
+  expandAll,
   initialExpandedRank,
   rank,
 }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
-  const [collapsed, setCollapsed] = useState(rank > initialExpandedRank);
+  const shouldCollapseByDefault =
+    !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
+  const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
 
   const onClick = useCallback(() => {
     setCollapsed(!collapsed);
@@ -51,13 +56,10 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   }, [collapsed, reloadNodeReferences]);
 
   const isDocument = nodeData instanceof DocumentNodeData;
-  const hasChildren =
-    isDocument ||
-    (nodeData instanceof FieldNodeData &&
-      (nodeData.field.fields.length > 0 || nodeData.field.namedTypeFragmentRefs.length > 0));
+  const hasChildren = VisualizationService.hasChildren(nodeData);
   const children = collapsed ? [] : VisualizationService.generateNodeDataChildren(nodeData);
-  const isCollectionField = nodeData instanceof FieldNodeData && nodeData.field.maxOccurs > 1;
-  const isAttributeField = nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
+  const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isAttributeField = VisualizationService.isAttributeField(nodeData);
 
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -127,6 +129,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
                 isReadOnly={isReadOnly}
                 initialExpandedRank={initialExpandedRank}
                 rank={rank + 1}
+                expandAll={expandAll}
               />
             ))}
           </div>
