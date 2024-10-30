@@ -24,11 +24,10 @@ import { Links } from '../../router/links.models';
 export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const navigate = useNavigate();
   const metadata = useContext(MetadataContext);
-  const id = vizNode?.getComponentSchema()?.definition?.id;
 
   const onClick = useCallback(() => {
-    navigate(`${Links.DataMapper}/${id}`);
-  }, [navigate, id]);
+    navigate(`${Links.DataMapper}/${vizNode?.getComponentSchema()?.definition?.id}`);
+  }, [navigate, vizNode]);
 
   return metadata ? (
     <Button variant="primary" onClick={onClick} icon={<WrenchIcon />}>

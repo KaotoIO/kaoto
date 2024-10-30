@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { ROOT_PATH } from '../../../../utils';
+import { DATAMAPPER_ID_PREFIX, ROOT_PATH, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -293,6 +293,19 @@ describe('CamelComponentSchemaService', () => {
       ['from.steps.3.choice.when.0', {}, { processorName: 'when' }],
       ['from.steps.3.choice.otherwise', {}, { processorName: 'otherwise' }],
       ['from.steps.3.choice.otherwise', undefined, { processorName: 'otherwise' }],
+      ['from.steps.0.step', undefined, { processorName: 'step' }],
+      ['from.steps.0.step', { id: 'step-1234' }, { processorName: 'step' }],
+      ['from.steps.0.step', { id: `${DATAMAPPER_ID_PREFIX}-1234`, steps: [] }, { processorName: 'step' }],
+      [
+        'from.steps.0.step',
+        { id: `modified-${DATAMAPPER_ID_PREFIX}-1234`, steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:mapping.xsl` } }] },
+        { processorName: 'step' },
+      ],
+      [
+        'from.steps.0.step',
+        { id: `${DATAMAPPER_ID_PREFIX}-1234`, steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:mapping.xsl` } }] },
+        { processorName: DATAMAPPER_ID_PREFIX },
+      ],
     ])('should return the processor and component name for %s', (path, definition, result) => {
       const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
 

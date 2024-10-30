@@ -1,6 +1,14 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
-import { CamelUriHelper, ParsedParameters, ROOT_PATH, getValue, isDefined } from '../../../../utils';
+import {
+  CamelUriHelper,
+  ParsedParameters,
+  ROOT_PATH,
+  getValue,
+  isDefined,
+  isDataMapperNode,
+  DATAMAPPER_ID_PREFIX,
+} from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
@@ -264,6 +272,12 @@ export class CamelComponentSchemaService {
   private static getCamelElement(processorName: keyof ProcessorDefinition, definition: any): ICamelElementLookupResult {
     if (!isDefined(definition)) {
       return { processorName };
+    }
+
+    if (processorName === 'step' && isDataMapperNode(definition)) {
+      return {
+        processorName: DATAMAPPER_ID_PREFIX,
+      };
     }
 
     switch (processorName) {
