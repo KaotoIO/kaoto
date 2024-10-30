@@ -3,8 +3,8 @@
     "model" : {
       "kind" : "model",
       "name" : "kaoto-datamapper",
-      "title" : "Kaoto data mapper",
-      "description" : "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+      "title" : "Kaoto Data Mapper",
+      "description" : "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
       "deprecated" : false,
       "label" : "transformation",
       "javaType" : "org.apache.camel.model.StepDefinition",
@@ -71,8 +71,8 @@
       }
     },
     "propertiesSchema" : {
-      "title" : "Kaoto data mapper",
-      "description" : "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+      "title" : "Kaoto Data Mapper",
+      "description" : "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
