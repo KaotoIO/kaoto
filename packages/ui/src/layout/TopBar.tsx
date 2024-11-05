@@ -14,10 +14,11 @@ import {
   MenuToggleElement,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { EllipsisVIcon, ExternalLinkAltIcon, GithubIcon } from '@patternfly/react-icons';
+import { EllipsisVIcon, ExternalLinkAltIcon, FireIcon, GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
+import camelLogo from '../assets/camel-logo.svg';
 import logo from '../assets/logo-kaoto.png';
 import { useComponentLink } from '../hooks/ComponentLink';
 import { Links } from '../router/links.models';
@@ -114,7 +115,26 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Feedback</span>
                 </DropdownItem>
               </a>
+
               <Divider component="li" key="separator1" />
+              <a href="https://camel.apache.org/camel-core/getting-started/index.html" target="_blank" rel="noreferrer">
+                <DropdownItem key="camel">
+                  <Icon isInline>
+                    <img src={camelLogo} />
+                  </Icon>
+                  &nbsp;<span className="pf-u-mr-lg">Apache Camel</span>
+                </DropdownItem>
+              </a>
+              <a href="https://hawt.io/docs/get-started.html" target="_blank" rel="noreferrer">
+                <DropdownItem key="hawtio">
+                  <Icon isInline>
+                    <FireIcon />
+                  </Icon>
+                  &nbsp;<span className="pf-u-mr-lg">Hawtio</span>
+                </DropdownItem>
+              </a>
+
+              <Divider component="li" key="separator2" />
               <Link data-testid="settings-link" to={Links.Settings}>
                 <DropdownItem id="settings" key="settings">
                   Settings
