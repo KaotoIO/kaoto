@@ -1,5 +1,7 @@
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+import { YamlCamelResourceSerializer } from '../../serializers';
+import { CamelResourceSerializer } from '../../serializers/camel-resource-serializer';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
@@ -11,6 +13,7 @@ import { CamelInterceptVisualEntity } from '../visualization/flows/camel-interce
 import { CamelOnCompletionVisualEntity } from '../visualization/flows/camel-on-completion-visual-entity';
 import { CamelOnExceptionVisualEntity } from '../visualization/flows/camel-on-exception-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../visualization/flows/camel-rest-configuration-visual-entity';
+import { CamelRestVisualEntity } from '../visualization/flows/camel-rest-visual-entity';
 import { CamelRouteConfigurationVisualEntity } from '../visualization/flows/camel-route-configuration-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
@@ -20,8 +23,6 @@ import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BaseVisualCamelEntityDefinition, BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelResourceSerializer } from '../../serializers/camel-resource-serializer';
-import { YamlCamelResourceSerializer } from '../../serializers';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   static readonly SUPPORTED_ENTITIES: { type: EntityType; group: string; Entity: BaseVisualCamelEntityConstructor }[] =
@@ -39,6 +40,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity },
       { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity },
       { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
+      { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
     ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   private static readonly ERROR_RELATED_ENTITIES = [EntityType.OnException, EntityType.ErrorHandler];

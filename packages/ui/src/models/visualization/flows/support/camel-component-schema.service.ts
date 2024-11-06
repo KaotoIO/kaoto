@@ -14,6 +14,7 @@ import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
+import { CamelComponentFilterService } from './camel-component-filter.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
 
 export class CamelComponentSchemaService {
@@ -30,6 +31,7 @@ export class CamelComponentSchemaService {
     'interceptSendToEndpoint',
     'onException',
     'onCompletion',
+    ...CamelComponentFilterService.REST_DSL_METHODS,
   ];
   static DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
 
@@ -215,6 +217,9 @@ export class CamelComponentSchemaService {
           { name: 'onException', type: 'array-clause' },
           { name: 'onCompletion', type: 'array-clause' },
         ];
+
+      case 'rest' as keyof ProcessorDefinition:
+        return CamelComponentFilterService.REST_DSL_METHODS.map((method) => ({ name: method, type: 'array-clause' }));
 
       default:
         return [];

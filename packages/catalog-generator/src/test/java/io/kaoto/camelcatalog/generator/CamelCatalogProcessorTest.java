@@ -176,6 +176,35 @@ class CamelCatalogProcessorTest {
     }
 
     @Test
+    void testRestProcessors() throws Exception {
+        var restGetProcessorSchema = processorCatalog
+                .withObject("/get")
+                .withObject("propertiesSchema");
+        var restPostProcessorSchema = processorCatalog
+                .withObject("/post")
+                .withObject("propertiesSchema");
+        var restPutProcessorSchema = processorCatalog
+                .withObject("/put")
+                .withObject("propertiesSchema");
+        var restDeleteProcessorSchema = processorCatalog
+                .withObject("/delete")
+                .withObject("propertiesSchema");
+        var restHeadProcessorSchema = processorCatalog
+                .withObject("/head")
+                .withObject("propertiesSchema");
+        var restPatchProcessorSchema = processorCatalog
+                .withObject("/patch")
+                .withObject("propertiesSchema");
+
+        assertFalse(restGetProcessorSchema.isEmpty(), "get processor schema should not be empty");
+        assertFalse(restPostProcessorSchema.isEmpty(), "post processor schema should not be empty");
+        assertFalse(restPutProcessorSchema.isEmpty(), "put processor schema should not be empty");
+        assertFalse(restDeleteProcessorSchema.isEmpty(), "delete processor schema should not be empty");
+        assertFalse(restHeadProcessorSchema.isEmpty(), "head processor schema should not be empty");
+        assertFalse(restPatchProcessorSchema.isEmpty(), "patch processor schema should not be empty");
+    }
+
+    @Test
     void testDataFormatEnumParameter() throws Exception {
         checkEnumParameters(dataFormatCatalog);
     }

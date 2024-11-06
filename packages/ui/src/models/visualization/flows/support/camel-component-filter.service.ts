@@ -4,6 +4,7 @@ import { AddStepMode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
+  static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
   private static SPECIAL_CHILDREN = [
     'when',
     'otherwise',
@@ -14,6 +15,7 @@ export class CamelComponentFilterService {
     'interceptSendToEndpoint',
     'onException',
     'onCompletion',
+    ...this.REST_DSL_METHODS,
   ];
 
   static getCamelCompatibleComponents(
@@ -46,6 +48,7 @@ export class CamelComponentFilterService {
         choice: ['when'],
         doTry: ['doCatch'],
         routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
+        rest: this.REST_DSL_METHODS,
       };
 
       /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */
