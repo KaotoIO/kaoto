@@ -217,7 +217,7 @@ public class CamelCatalogProcessor {
                 eipModelOptions = eipModel.getOptions();
             }
 
-            sortPropertiesAccordingToCamelCatalog(dataFormatSchema, eipModelOptions); 
+            sortPropertiesAccordingToCamelCatalog(dataFormatSchema, eipModelOptions);
 
             var dataFormatCatalog = (EipModel) camelCatalog.model(Kind.eip, dataFormatName);
             if (dataFormatCatalog == null) {
@@ -260,7 +260,7 @@ public class CamelCatalogProcessor {
                 eipModelOptions = eipModel.getOptions();
             }
 
-            sortPropertiesAccordingToCamelCatalog(languageSchema, eipModelOptions); 
+            sortPropertiesAccordingToCamelCatalog(languageSchema, eipModelOptions);
 
             var languageCatalog = (EipModel) camelCatalog.model(Kind.eip, languageName);
             if (languageCatalog == null) {
@@ -362,12 +362,17 @@ public class CamelCatalogProcessor {
                     continue;
                 }
 
+                sortedSchemaProperties.set(propertyName, propertySchema);
+
                 var catalogOpOptional = eipModel.getOptions().stream()
                         .filter(op -> op.getName().equals(propertyName)).findFirst();
+
                 if (catalogOpOptional.isEmpty()) {
-                    throw new Exception(
+                    LOGGER.warning(
                             String.format("Option '%s' not found for processor '%s'", propertyName, processorFQCN));
+                    continue;
                 }
+
                 var catalogOp = catalogOpOptional.get();
                 if ("object".equals(catalogOp.getType()) && !catalogOp.getJavaType().startsWith("java.util.Map")
                         && !propertySchema.has("$comment")) {
@@ -383,8 +388,6 @@ public class CamelCatalogProcessor {
                 } else if (catalogOp.getGroup() != null) {
                     propertySchema.put("group", catalogOp.getGroup());
                 }
-
-                sortedSchemaProperties.set(propertyName, propertySchema);
             }
 
             var json = JsonMapper.asJsonObject(eipModel).toJson();

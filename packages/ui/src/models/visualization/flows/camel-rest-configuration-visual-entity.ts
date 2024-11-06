@@ -151,8 +151,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return restConfigurationGroupNode;
   }
 
-  toJSON(): unknown {
-    return this.restConfigurationDef;
+  toJSON(): { restConfiguration: RestConfiguration } {
+    return { restConfiguration: this.restConfigurationDef.restConfiguration };
   }
 
   private getValidatorFunction(

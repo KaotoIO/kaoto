@@ -182,6 +182,14 @@ export class CamelComponentDefaultService {
                   parameters: {}
           `);
 
+      case 'delete' as keyof ProcessorDefinition:
+      case 'get' as keyof ProcessorDefinition:
+      case 'head' as keyof ProcessorDefinition:
+      case 'patch' as keyof ProcessorDefinition:
+      case 'post' as keyof ProcessorDefinition:
+      case 'put' as keyof ProcessorDefinition:
+        return { id: getCamelRandomId(processorName) } as ProcessorDefinition;
+
       default:
         return {
           [processorName]: {

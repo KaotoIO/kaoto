@@ -32,6 +32,7 @@ public class CamelYamlDslSchemaProcessor {
     private static final String PROCESSOR_DEFINITION = "org.apache.camel.model.ProcessorDefinition";
     private static final String TOKENIZER_DEFINITION = "org.apache.camel.model.TokenizerDefinition";
     private static final String ROUTE_CONFIGURATION_DEFINITION = "org.apache.camel.model.RouteConfigurationDefinition";
+    private static final String REST_DEFINITION = "org.apache.camel.model.rest.RestDefinition";
     private static final String LOAD_BALANCE_DEFINITION = "org.apache.camel.model.LoadBalanceDefinition";
     private static final String EXPRESSION_SUB_ELEMENT_DEFINITION =
             "org.apache.camel.model.ExpressionSubElementDefinition";
@@ -58,7 +59,20 @@ public class CamelYamlDslSchemaProcessor {
             "org.apache.camel.model.ToDefinition",
             List.of("uri", "parameters"),
             "org.apache.camel.model.WireTapDefinition",
-            List.of("uri", "parameters"));
+            List.of("uri", "parameters"),
+            "org.apache.camel.model.rest.GetDefinition",
+            List.of("to"),
+            "org.apache.camel.model.rest.PostDefinition",
+            List.of("to"),
+            "org.apache.camel.model.rest.PutDefinition",
+            List.of("to"),
+            "org.apache.camel.model.rest.DeleteDefinition",
+            List.of("to"),
+            "org.apache.camel.model.rest.HeadDefinition",
+            List.of("to"),
+            "org.apache.camel.model.rest.PatchDefinition",
+            List.of("to"));
+
     private final List<String> processorReferenceBlockList = List.of(PROCESSOR_DEFINITION);
 
     public CamelYamlDslSchemaProcessor(ObjectMapper mapper, ObjectNode yamlDslSchema) throws Exception {
@@ -269,6 +283,7 @@ public class CamelYamlDslSchemaProcessor {
                 .withObject(PROCESSOR_DEFINITION)
                 .withObject("/properties");
         addRouteConfigurationProcessors(relocatedDefinitions, processors);
+        addRestProcessors(relocatedDefinitions, processors);
 
         var answer = new LinkedHashMap<String, ObjectNode>();
         for (var processorEntry : processors) {
@@ -352,6 +367,24 @@ public class CamelYamlDslSchemaProcessor {
         processors.setAll(interceptSendToEndpointProcessor);
         processors.setAll(onExceptionProcessor);
         processors.setAll(onCompletionProcessor);
+    }
+
+    private void addRestProcessors(ObjectNode relocatedDefinitions, ObjectNode processors) {
+        var restProcessor = relocatedDefinitions
+                .withObject(REST_DEFINITION)
+                .withObject("/properties");
+        var restGetProcessor = restProcessor.withObject("get").withObject("items");
+        var restPostProcessor = restProcessor.withObject("post").withObject("items");
+        var restPutProcessor = restProcessor.withObject("put").withObject("items");
+        var restDeleteProcessor = restProcessor.withObject("delete").withObject("items");
+        var restHeadProcessor = restProcessor.withObject("head").withObject("items");
+        var restPatchProcessor = restProcessor.withObject("patch").withObject("items");
+        processors.set("get", restGetProcessor);
+        processors.set("post", restPostProcessor);
+        processors.set("put", restPutProcessor);
+        processors.set("delete", restDeleteProcessor);
+        processors.set("head", restHeadProcessor);
+        processors.set("patch", restPatchProcessor);
     }
 
     private ObjectNode extractFromOneOf(String name, ObjectNode definition) throws Exception {
