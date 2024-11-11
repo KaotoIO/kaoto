@@ -5,6 +5,8 @@ import { BaseVisualCamelEntityDefinition } from '../../../../models/camel/camel-
 import { EntityType } from '../../../../models/camel/entities';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { SELECTION_EVENT, useVisualizationController } from '@patternfly/react-topology';
+import { getVisualizationNodesFromGraph } from '../../../../utils';
 
 export const NewEntity: FunctionComponent = () => {
   const { camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
@@ -13,6 +15,7 @@ export const NewEntity: FunctionComponent = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const groupedEntities = useRef<BaseVisualCamelEntityDefinition>(camelResource.getCanvasEntityList());
+  const controller = useVisualizationController();
 
   const onSelect = useCallback(
     (_event: unknown, entityType: string | number | undefined) => {
@@ -26,7 +29,14 @@ export const NewEntity: FunctionComponent = () => {
        * supported
        */
       const newId = camelResource.addNewEntity(entityType as EntityType);
-      visibleFlowsContext.visualFlowsApi.hideAllFlows();
+      setTimeout(() => {
+        const result = getVisualizationNodesFromGraph(
+          controller.getGraph(),
+          (vizNode) => vizNode.data.entity?.id === newId,
+        );
+        controller.fireEvent(SELECTION_EVENT, [result[0]?.id]);
+      }, 300);
+
       visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
       updateEntitiesFromCamelResource();
       setIsOpen(false);
