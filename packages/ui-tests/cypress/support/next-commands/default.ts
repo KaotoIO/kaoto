@@ -153,5 +153,4 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
       cy.get('.pf-m-danger').click();
     }
   });
-  cy.closeFlowsListIfVisible();
 });
