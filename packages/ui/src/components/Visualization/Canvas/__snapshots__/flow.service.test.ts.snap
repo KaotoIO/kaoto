@@ -68,12 +68,12 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
         "title": "child1",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "child1-1234",
     "parentNode": "group-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "data": {
@@ -141,12 +141,12 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
         "title": "child2",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "child2-1234",
     "parentNode": "group-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "children": [
@@ -223,7 +223,7 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
     "label": "group-1234",
     "parentNode": undefined,
     "style": {
-      "padding": 65,
+      "padding": 40,
     },
     "type": "group",
   },
@@ -418,12 +418,12 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
         "title": "node",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "node-1234",
     "parentNode": undefined,
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
 ]
 `;
@@ -465,12 +465,12 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a simple V
         "title": "node",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "node-1234",
     "parentNode": undefined,
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
 ]
 `;
@@ -523,12 +523,12 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a two-node
         "title": "node",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "node-1234",
     "parentNode": undefined,
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
 ]
 `;
