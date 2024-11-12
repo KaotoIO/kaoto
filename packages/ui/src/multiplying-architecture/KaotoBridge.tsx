@@ -137,6 +137,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
         saveResourceContent,
         deleteResource,
         askUserForFileSelection,
+        shouldSaveSchema: false,
       }),
       [getMetadata, setMetadata, getResourceContent, saveResourceContent, deleteResource, askUserForFileSelection],
     );

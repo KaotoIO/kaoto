@@ -47,10 +47,15 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     return Promise.resolve(fileContentsRef.current && fileContentsRef.current[path]);
   }, []);
 
-  const metadataApi = {
+  const metadataApi: IMetadataApi = {
     askUserForFileSelection: askUserForFileSelection,
     getResourceContent: getResourceContent,
-  } as IMetadataApi;
+    shouldSaveSchema: true,
+    getMetadata: () => Promise.resolve(undefined),
+    setMetadata: () => Promise.resolve(),
+    deleteResource: () => Promise.resolve(true),
+    saveResourceContent: () => Promise.resolve(),
+  };
 
   return (
     <MetadataContext.Provider value={metadataApi}>

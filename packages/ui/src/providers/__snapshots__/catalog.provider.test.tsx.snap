@@ -19,7 +19,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 1`] = `
   "model": {
     "abstract": false,
     "deprecated": false,
-    "description": "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+    "description": "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
     "input": true,
     "javaType": "org.apache.camel.model.StepDefinition",
     "kind": "model",
@@ -27,7 +27,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 1`] = `
     "name": "kaoto-datamapper",
     "output": true,
     "supportLevel": "Stable",
-    "title": "Kaoto data mapper",
+    "title": "Kaoto Data Mapper",
   },
   "properties": {
     "description": {
@@ -148,7 +148,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 1`] = `
     "$comment": "steps",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
-    "description": "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+    "description": "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
     "properties": {
       "description": {
         "description": "Sets the description of this node",
@@ -164,7 +164,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 1`] = `
       },
     },
     "required": [],
-    "title": "Kaoto data mapper",
+    "title": "Kaoto Data Mapper",
     "type": "object",
   },
 }
@@ -189,7 +189,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 2`] = `
   "model": {
     "abstract": false,
     "deprecated": false,
-    "description": "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+    "description": "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
     "input": true,
     "javaType": "org.apache.camel.model.StepDefinition",
     "kind": "model",
@@ -197,7 +197,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 2`] = `
     "name": "kaoto-datamapper",
     "output": true,
     "supportLevel": "Stable",
-    "title": "Kaoto data mapper",
+    "title": "Kaoto Data Mapper",
   },
   "properties": {
     "description": {
@@ -318,7 +318,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 2`] = `
     "$comment": "steps",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
-    "description": "The Kaoto data mapper pattern process data mapping using a set of Camel processors",
+    "description": "The Kaoto Data Mapper maps and transforms data using a set of Camel processors",
     "properties": {
       "description": {
         "description": "Sets the description of this node",
@@ -334,7 +334,7 @@ exports[`CatalogLoaderProvider should load the CamelCatalogService 2`] = `
       },
     },
     "required": [],
-    "title": "Kaoto data mapper",
+    "title": "Kaoto Data Mapper",
     "type": "object",
   },
 }

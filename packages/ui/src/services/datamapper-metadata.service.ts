@@ -142,13 +142,14 @@ export class DataMapperMetadataService {
       filePath: filePaths,
     };
     const metadataPromise = api.setMetadata(metadataId, metadata);
-    const filePromises = definition.definitionFiles
-      ? Object.entries(definition.definitionFiles).map(([path, content]) => {
-          api
-            .saveResourceContent(path, content)
-            .catch((error) => console.log(`Could not save a file "${path}": ${error}`));
-        })
-      : [];
+    const filePromises =
+      api.shouldSaveSchema && definition.definitionFiles
+        ? Object.entries(definition.definitionFiles).map(([path, content]) => {
+            api
+              .saveResourceContent(path, content)
+              .catch((error) => console.log(`Could not save a file "${path}": ${error}`));
+          })
+        : [];
     return new Promise((resolve) => {
       Promise.allSettled([metadataPromise, ...filePromises]).then(() => resolve(answer));
     });

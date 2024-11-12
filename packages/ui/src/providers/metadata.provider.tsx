@@ -44,6 +44,16 @@ export interface IMetadataApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * A flag indicates that if the schema file needs to be saved or not. If it's running inside the VS Code,
+   * the schema file is supposed to be read from existing workspace file, therefore it should not save it and overwrite.
+   * On the other hand, if it's running in the browser, the schema file is uploaded directly from the browser, therefore
+   * it needs to be saved to some store.
+   * TODO The file saving in the browser is not implemented yet. If we implement the browser side to be same as what's done
+   *      in VS Code, i.e. expecting schema files already in some store and just pick from there, we can remove this.
+   */
+  shouldSaveSchema: boolean;
 }
 
 export const MetadataContext = createContext<IMetadataApi | undefined>(undefined);
