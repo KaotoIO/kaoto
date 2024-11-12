@@ -14,7 +14,6 @@
         display: flex;
         flex-flow: column;
         align-items: center;
-        justify-content: center;
         border: 2px solid var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);
         background-color: var(--custom-node-BackgroundColor);
@@ -28,7 +27,8 @@
         }
       }
 
-      &:hover &__image {
+      &:hover &__image,
+      [data-selected='true'] & &__image {
         border-color: var(--custom-node-hover-BorderColor);
         box-shadow: var(--custom-node-Shadow);
       }
@@ -47,6 +47,8 @@
 
       text-align: center;
       background-color: var(--custom-node-BackgroundColor);
+      padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+      border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
 
       &__error {
         color: var(--custom-node-BorderColor);

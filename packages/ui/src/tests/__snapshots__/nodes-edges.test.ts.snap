@@ -766,12 +766,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "timer",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "timer-1234",
     "parentNode": "route-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "data": {
@@ -1309,12 +1309,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "setHeader",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "setHeader-1234",
     "parentNode": "when-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "children": [
@@ -1860,7 +1860,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "when-1234",
     "parentNode": "choice-1234",
     "style": {
-      "padding": 65,
+      "padding": 40,
     },
     "type": "group",
   },
@@ -2400,12 +2400,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "log",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "log-1234",
     "parentNode": "otherwise-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "children": [
@@ -2951,7 +2951,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "otherwise-1234",
     "parentNode": "choice-1234",
     "style": {
-      "padding": 65,
+      "padding": 40,
     },
     "type": "group",
   },
@@ -3500,7 +3500,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "choice-1234",
     "parentNode": "route-1234",
     "style": {
-      "padding": 65,
+      "padding": 40,
     },
     "type": "group",
   },
@@ -4271,12 +4271,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "title": "sql",
       },
     },
-    "height": 85,
+    "height": 75,
     "id": "sql-1234",
     "parentNode": "route-1234",
     "shape": "rect",
     "type": "node",
-    "width": 150,
+    "width": 90,
   },
   {
     "children": [
@@ -4906,7 +4906,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "label": "route-1234",
     "parentNode": undefined,
     "style": {
-      "padding": 65,
+      "padding": 40,
     },
     "type": "group",
   },
