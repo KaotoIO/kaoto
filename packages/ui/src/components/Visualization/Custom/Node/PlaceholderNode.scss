@@ -9,6 +9,10 @@
       align-items: center;
       justify-content: center;
 
+      &__dropTarget {
+        @include custom.drop-target;
+      }
+
       &__image {
         border: 2px dashed var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);

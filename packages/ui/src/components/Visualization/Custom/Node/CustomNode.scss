@@ -9,6 +9,10 @@
       flex-flow: column nowrap;
       justify-content: space-around;
 
+      &__dropTarget {
+        @include custom.drop-target;
+      }
+
       &__image {
         position: relative;
         display: flex;

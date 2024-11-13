@@ -11,6 +11,7 @@
   --custom-node-BorderRadius: 10px;
   --custom-node-hover-BorderColor: var(--pf-v5-global--primary-color--light-100);
   --custom-node-Shadow: var(--pf-v5-global--BoxShadow--md);
+  --custom-node-dropTarget-BorderColor: var(--pf-v5-global--palette--light-green-500);
 
   &[data-selected='true'] {
     --custom-node-BorderColor: var(--pf-v5-global--primary-color--dark-100);
@@ -61,4 +62,9 @@
 
     @content;
   }
+}
+
+@mixin drop-target {
+  border: 3px dashed var(--custom-node-dropTarget-BorderColor);
+  border-radius: 5px;
 }
