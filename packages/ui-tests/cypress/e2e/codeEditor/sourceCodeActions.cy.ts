@@ -12,7 +12,7 @@ describe('Test source code editor', () => {
 
     // CHECK that the code editor contains the new timer source step
     cy.openDesignPage();
-    cy.get('[data-id^="json-deserialize-action"]').should('not.exist');
+    cy.checkNodeExist('json-deserialize-action', 0);
   });
 
   it('User adds step to the YAML', () => {
@@ -27,7 +27,7 @@ describe('Test source code editor', () => {
     cy.openDesignPage();
 
     // CHECK the insert-field-action step was added
-    cy.get('[data-type="node"][data-id^="insert-field-action"]').should('have.length', 1);
+    cy.checkNodeExist('insert-field-action', 1);
   });
 
   it('User removes step from the YAML', () => {
@@ -36,7 +36,7 @@ describe('Test source code editor', () => {
     cy.editorDeleteLine(12, 6);
     cy.openDesignPage();
     // CHECK the kafka-sink step was removed
-    cy.get('[data-type="node"][data-id^="sink-"]').should('have.length', 1);
+    cy.checkNodeExist('kafka-sink', 0);
   });
 
   it('User edits step in the YAML', () => {
@@ -48,8 +48,8 @@ describe('Test source code editor', () => {
     cy.openDesignPage();
 
     // CHECK the kafka-sink step was replaced by the aws s3 sink step
-    cy.get('[data-type="node"][data-id^="kafka-sink"]').should('not.exist');
-    cy.get('[data-type="node"][data-id^="aws-s3-sink"]').should('have.length', 1);
+    cy.checkNodeExist('kafka-sink', 0);
+    cy.checkNodeExist('aws-s3-sink', 1);
   });
 
   it('User Deletes branch in the YAML', () => {
@@ -59,8 +59,8 @@ describe('Test source code editor', () => {
     cy.openDesignPage();
 
     // CHECK branch with digitalocean and set header step was deleted
-    cy.get('[data-type="node"][data-id^="digitalocean"]').should('not.exist');
-    cy.get('[data-type="node"][data-id^="setHeader"]').should('not.exist');
+    cy.checkNodeExist('digitalocean', 0);
+    cy.checkNodeExist('setHeader', 0);
   });
 
   it('User Add a new branch in the YAML', () => {
@@ -73,7 +73,7 @@ describe('Test source code editor', () => {
     cy.openDesignPage();
 
     // CHECK branch with atlasmap was created
-    cy.get('[data-type="node"][data-id^="atlasmap"]').should('have.length', 1);
+    cy.checkNodeExist('atlasmap', 1);
   });
 
   it('User undoes a change and redoes a change', () => {
@@ -102,7 +102,7 @@ describe('Test source code editor', () => {
     cy.openDesignPage();
 
     // CHECK the kafka-sink and timer-source were imported
-    cy.get('[data-type="node"][data-id^="kafka-sink"]').should('have.length', 1);
-    cy.get('[data-type="node"][data-id^="timer-source"]').should('have.length', 1);
+    cy.checkNodeExist('kafka-sink', 1);
+    cy.checkNodeExist('timer-source', 1);
   });
 });

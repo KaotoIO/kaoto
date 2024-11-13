@@ -6,10 +6,7 @@ describe('Test for errorHandler configuration container', () => {
   it('ErrorHandler types check', () => {
     cy.selectCamelRouteType('Error Handling', 'errorHandler');
 
-    cy.get('[data-id^="errorHandler"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
 
     cy.get('#-oneof-toggle').click();
@@ -30,10 +27,7 @@ describe('Test for errorHandler configuration container', () => {
   it('Root Default error handler configuration', () => {
     cy.selectCamelRouteType('Error Handling', 'errorHandler');
 
-    cy.get('[data-id^="errorHandler"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
 
     cy.get('#-oneof-toggle').click();

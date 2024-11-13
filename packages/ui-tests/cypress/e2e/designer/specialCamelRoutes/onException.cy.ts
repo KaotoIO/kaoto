@@ -29,10 +29,8 @@ describe('Test for root on exception container', () => {
     cy.uploadFixture('flows/camelRoute/onException.yaml');
     cy.openDesignPage();
 
-    cy.get('[data-id^="onException"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.get(`[data-testid^="custom-node__onException"]`).click({ force: true });
+
     cy.selectFormTab('All');
     cy.selectInTypeaheadField('redeliveryPolicy.retriesExhaustedLogLevel', 'INFO');
     cy.selectInTypeaheadField('redeliveryPolicy.retryAttemptedLogLevel', 'INFO');
