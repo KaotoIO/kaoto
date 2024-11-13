@@ -18,6 +18,11 @@ type ConditionMenuProps = {
   onUpdate: () => void;
 };
 
+const DEFAULT_POPPER_PROPS = {
+  position: 'end',
+  preventOverflow: true,
+} as const;
+
 export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
   const allowIfChoose = VisualizationService.allowIfChoose(nodeData);
@@ -84,6 +89,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           )}
           isOpen={isActionMenuOpen}
           onOpenChange={(isOpen: boolean) => setIsActionMenuOpen(isOpen)}
+          popperProps={DEFAULT_POPPER_PROPS}
           zIndex={100}
         >
           <DropdownList>
