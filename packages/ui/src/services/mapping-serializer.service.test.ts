@@ -13,7 +13,7 @@ import {
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
 
-import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { shipOrderToShipOrderXslt, shipOrderToShipOrderInvalidForEachXslt, TestUtil } from '../stubs/data-mapper';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -164,6 +164,20 @@ describe('MappingSerializerService', () => {
       expect(priceFieldItem.children.length).toEqual(1);
       selector = priceFieldItem.children[0] as ValueSelector;
       expect(selector.expression).toEqual('Price');
+    });
+
+    it('should deserialize incomplete XSLT', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      mappingTree = MappingSerializerService.deserialize(
+        shipOrderToShipOrderInvalidForEachXslt,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
+      expect(forEachItem.expression).toEqual('');
+      const itemSelector = forEachItem.children[0].children[0] as ValueSelector;
+      expect(itemSelector.expression).toEqual('/ns0:ShipOrder/Item');
     });
   });
 

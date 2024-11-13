@@ -7,11 +7,19 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
 } from '../models/datamapper/visualization';
-import { ChooseItem, FieldItem, IfItem, MappingTree, ValueSelector } from '../models/datamapper/mapping';
+import {
+  ChooseItem,
+  ExpressionItem,
+  FieldItem,
+  ForEachItem,
+  IfItem,
+  MappingTree,
+  ValueSelector,
+} from '../models/datamapper/mapping';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { IDocument } from '../models/datamapper/document';
-import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { shipOrderToShipOrderInvalidForEachXslt, shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -172,6 +180,88 @@ describe('VisualizationService', () => {
         expect(tree.children[0].children[0].children[0] instanceof ValueSelector).toBeTruthy();
         const selector = tree.children[0].children[0].children[0] as ValueSelector;
         expect(selector.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+      });
+
+      it("should engage regular mapping even if it's dropped to a for-each wrapped collection field", () => {
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        const sourceItem = sourceShipOrderChildren[3] as FieldNodeData;
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+        VisualizationService.applyForEach(targetItem);
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const forEach = targetShipOrderChildren[3] as MappingNodeData;
+        const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach);
+        VisualizationService.engageMapping(tree, sourceItem, forEachChildren[0] as TargetFieldNodeData);
+        expect((forEach.mapping as ExpressionItem).expression).toEqual('');
+        expect(((forEachChildren[0] as TargetFieldNodeData).mapping!.children[0] as ValueSelector).expression).toEqual(
+          '/ns0:ShipOrder/Item',
+        );
+      });
+
+      it('should not remove for-each targeted field item when selector is removed', () => {
+        MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        let forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
+        expect(forEachItem.children.length).toEqual(1);
+        expect(forEachItem.expression).toEqual('');
+        let targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          targetShipOrderChildren[3],
+        );
+        let itemItem = targetForEachChildren[0] as TargetFieldNodeData;
+        expect((itemItem.mapping?.children[0] as ValueSelector).expression).toEqual('/ns0:ShipOrder/Item');
+        VisualizationService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
+        expect(forEachItem).toBeDefined();
+        expect(forEachItem.children.length).toEqual(1);
+        expect(forEachItem.expression).toEqual('');
+        targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
+        itemItem = targetForEachChildren[0] as TargetFieldNodeData;
+        expect(itemItem.mapping).toBeDefined();
+        expect(itemItem.mapping?.children.length).toEqual(0);
+      });
+
+      it('should not remove for-each targeted field item when descendent is removed', () => {
+        MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        let targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          targetShipOrderChildren[3],
+        );
+        let targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
+        VisualizationService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
+        VisualizationService.engageMapping(
+          tree,
+          sourceItemChildren[0] as FieldNodeData,
+          targetItemChildren[0] as TargetFieldNodeData,
+        );
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
+        targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
+        expect(
+          ((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).expression,
+        ).toEqual('/ns0:ShipOrder/Item/Title');
+        VisualizationService.deleteMappingItem(targetItemChildren[0] as TargetNodeData);
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
+        expect(forEachItem).toBeDefined();
+        expect(forEachItem.children.length).toEqual(1);
+        expect(forEachItem.expression).toEqual('');
+        targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
+        targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
+        expect((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).toBeUndefined();
       });
     });
   });
