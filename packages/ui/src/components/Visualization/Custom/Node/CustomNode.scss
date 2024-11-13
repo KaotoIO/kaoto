@@ -9,6 +9,11 @@
       flex-flow: column nowrap;
       justify-content: space-around;
 
+      &__dropTarget {
+        border: 3px dashed var(--pf-v5-global--BorderColor--100);
+        border-radius: 5px;
+      }
+
       &__image {
         position: relative;
         display: flex;

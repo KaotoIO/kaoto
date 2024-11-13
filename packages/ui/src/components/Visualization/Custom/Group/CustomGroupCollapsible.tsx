@@ -2,7 +2,7 @@ import { isNode, observer } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { useCollapseStep } from '../hooks/collapse-step.hook';
 import { CustomNodeWithSelection } from '../Node/CustomNode';
-import { CustomGroupExpanded } from './CustomGroupExpanded';
+import { CustomGroupExpendedWithDndDrop } from './CustomGroupExpanded';
 import { CustomGroupProps } from './Group.models';
 
 export const CustomGroupCollapsible: FunctionComponent<CustomGroupProps> = observer(
@@ -26,7 +26,7 @@ export const CustomGroupCollapsible: FunctionComponent<CustomGroupProps> = obser
     }
 
     return (
-      <CustomGroupExpanded
+      <CustomGroupExpendedWithDndDrop
         {...rest}
         element={element}
         onCollapseToggle={() => {
