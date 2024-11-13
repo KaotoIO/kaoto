@@ -13,16 +13,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AlertVariant, Button, Tooltip } from '@patternfly/react-core';
+import { AlertVariant, Button } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext } from 'react';
 
 import { ImportIcon } from '@patternfly/react-icons';
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { DocumentType } from '../../../models/datamapper/path';
 import { useCanvas } from '../../../hooks/useCanvas';
+import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentDefinitionType } from '../../../models/datamapper/document';
-import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
+import { DocumentType } from '../../../models/datamapper/path';
 import { MetadataContext } from '../../../providers';
+import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
 import { DocumentService } from '../../../services/document.service';
 
 type AttachSchemaProps = {
@@ -75,15 +75,14 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   ]);
 
   return (
-    <Tooltip position={'auto'} enableFlip={true} content={<div>{hasSchema ? 'Update schema' : 'Attach a schema'}</div>}>
-      <Button
-        variant="plain"
-        aria-label={hasSchema ? 'Update schema' : 'Attach schema'}
-        data-testid={`attach-schema-${documentType}-${documentId}-button`}
-        onClick={onClick}
-      >
-        <ImportIcon />
-      </Button>
-    </Tooltip>
+    <Button
+      variant="plain"
+      title={hasSchema ? 'Update schema' : 'Attach a schema'}
+      aria-label={hasSchema ? 'Update schema' : 'Attach schema'}
+      data-testid={`attach-schema-${documentType}-${documentId}-button`}
+      onClick={onClick}
+    >
+      <ImportIcon />
+    </Button>
   );
 };

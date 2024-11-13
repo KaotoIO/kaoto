@@ -13,15 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
+import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentDefinition, DocumentDefinitionType } from '../../../models/datamapper/document';
 import { DocumentType } from '../../../models/datamapper/path';
-import { useCanvas } from '../../../hooks/useCanvas';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -50,16 +50,16 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
 
   return (
     <>
-      <Tooltip position={'auto'} enableFlip={true} content={<div>Detach schema</div>}>
-        <Button
-          variant="plain"
-          aria-label="Detach schema"
-          data-testid={`detach-schema-${documentType}-${documentId}-button`}
-          onClick={openModal}
-        >
-          <ExportIcon />
-        </Button>
-      </Tooltip>
+      <Button
+        variant="plain"
+        title="Detach schema"
+        aria-label="Detach schema"
+        data-testid={`detach-schema-${documentType}-${documentId}-button`}
+        onClick={openModal}
+      >
+        <ExportIcon />
+      </Button>
+
       <Modal
         variant={ModalVariant.small}
         isOpen={isModalOpen}

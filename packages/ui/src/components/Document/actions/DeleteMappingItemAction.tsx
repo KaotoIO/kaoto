@@ -1,11 +1,11 @@
-import { FunctionComponent, useCallback } from 'react';
-import { ActionListItem, Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
+import { ActionListItem, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useCallback } from 'react';
+import { useCanvas } from '../../../hooks/useCanvas';
 import { useToggle } from '../../../hooks/useToggle';
+import { ConditionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
-import { useCanvas } from '../../../hooks/useCanvas';
-import { ConditionItem } from '../../../models/datamapper/mapping';
 
 type DeleteItemProps = {
   nodeData: TargetNodeData;
@@ -29,11 +29,9 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
 
   return (
     <ActionListItem key="delete-item">
-      <Tooltip position={'auto'} enableFlip={true} content={<div>{title}</div>}>
-        <Button variant="plain" aria-label={title} data-testid="delete-mapping-btn" onClick={openModal}>
-          <TrashIcon />
-        </Button>
-      </Tooltip>
+      <Button variant="plain" title={title} aria-label={title} data-testid="delete-mapping-btn" onClick={openModal}>
+        <TrashIcon />
+      </Button>
       <Modal
         variant={ModalVariant.small}
         isOpen={isModalOpen}

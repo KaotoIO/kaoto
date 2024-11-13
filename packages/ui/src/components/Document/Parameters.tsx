@@ -13,20 +13,19 @@ import {
   Stack,
   StackItem,
   TextInput,
-  Tooltip,
 } from '@patternfly/react-core';
+import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { qname } from 'xml-name-validator';
+import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
-import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
 import { DocumentDefinition, DocumentDefinitionType } from '../../models/datamapper/document';
-import { useCanvas } from '../../hooks/useCanvas';
-import { NodeContainer } from './NodeContainer';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { DocumentType } from '../../models/datamapper/path';
-import { SourceDocument } from './SourceDocument';
+import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import './Document.scss';
-import { qname } from 'xml-name-validator';
+import { NodeContainer } from './NodeContainer';
+import { SourceDocument } from './SourceDocument';
 
 enum ParameterNameValidation {
   EMPTY,
@@ -179,16 +178,15 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
       <ActionList isIconList={true} className="parameter-actions">
         {!isReadOnly && (
           <ActionListItem>
-            <Tooltip position={'auto'} enableFlip={true} content={<div>Add a parameter</div>}>
-              <Button
-                variant="plain"
-                aria-label="Add parameter"
-                data-testid={`add-parameter-button`}
-                onClick={() => handleAddNewParameter()}
-              >
-                <PlusIcon />
-              </Button>
-            </Tooltip>
+            <Button
+              variant="plain"
+              title="Add parameter"
+              aria-label="Add parameter"
+              data-testid="add-parameter-button"
+              onClick={() => handleAddNewParameter()}
+            >
+              <PlusIcon />
+            </Button>
           </ActionListItem>
         )}
       </ActionList>

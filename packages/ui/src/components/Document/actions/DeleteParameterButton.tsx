@@ -1,12 +1,12 @@
-import { FunctionComponent, useCallback } from 'react';
-import { Button, Modal, ModalVariant, Tooltip } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
-import { useToggle } from '../../../hooks/useToggle';
+import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
+import { useToggle } from '../../../hooks/useToggle';
 import { MappingService } from '../../../services/mapping.service';
 
-import { DocumentType } from '../../../models/datamapper/path';
 import { useCanvas } from '../../../hooks/useCanvas';
+import { DocumentType } from '../../../models/datamapper/path';
 
 type DeleteParameterProps = {
   parameterName: string;
@@ -36,16 +36,16 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
 
   return (
     <>
-      <Tooltip position={'auto'} enableFlip={true} content={<div>Delete parameter</div>}>
-        <Button
-          variant="plain"
-          aria-label="Delete parameter"
-          data-testid={`delete-parameter-${parameterName}-button`}
-          onClick={openModal}
-        >
-          <TrashIcon />
-        </Button>
-      </Tooltip>
+      <Button
+        variant="plain"
+        title="Delete parameter"
+        aria-label="Delete parameter"
+        data-testid={`delete-parameter-${parameterName}-button`}
+        onClick={openModal}
+      >
+        <TrashIcon />
+      </Button>
+
       <Modal
         variant={ModalVariant.small}
         isOpen={isModalOpen}
