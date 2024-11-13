@@ -3,6 +3,18 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+
+    &[data-draggable='false'] [data-drag-handler] {
+      display: none;
+    }
+
+    &[data-draggable='true'] {
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
   }
 
   &__container {
@@ -21,8 +33,8 @@
     padding: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--md);
   }
 
-  &__drag {
-    padding: var(--pf-v5-global--spacer--md);
+  &__spacer {
+    margin: var(--pf-v5-global--spacer--sm) 0 var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
   }
 
   &__target__actions {

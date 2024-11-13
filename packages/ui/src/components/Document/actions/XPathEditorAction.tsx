@@ -23,10 +23,9 @@ export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeDat
   return (
     <ActionListItem key="xpath-editor">
       <Button
-        size="sm"
         variant="plain"
-        component="small"
-        aria-label="XPath Editor"
+        title="Edit XPath"
+        aria-label="Edit XPath"
         data-testid={`edit-xpath-button-${nodeData.id}`}
         onClick={launchXPathEditor}
         className="document-field__button"

@@ -1,16 +1,17 @@
-import { Icon, Label, Title, Truncate } from '@patternfly/react-core';
+import { Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { IDocument } from '../../models/datamapper/document';
-import { DocumentNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
+import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { VisualizationService } from '../../services/visualization.service';
 import { DocumentActions } from './actions/DocumentActions';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
+import { NodeTitle } from './NodeTitle';
 
 type DocumentProps = {
   document: IDocument;
@@ -61,7 +62,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   const children = collapsed ? [] : VisualizationService.generateNodeDataChildren(nodeData);
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
-
+  const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeReference = useRef<NodeReference>({
@@ -75,36 +76,31 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   const nodeRefId = nodeData.path.toString();
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
-  const nodeTitle =
-    nodeData instanceof MappingNodeData ? (
-      <Label>
-        <Truncate content={nodeData.title ?? ''} className="truncate" />
-      </Label>
-    ) : isDocument ? (
-      <Title headingLevel="h5">
-        <Truncate content={nodeData.title ?? ''} className="truncate" />
-      </Title>
-    ) : (
-      <Truncate content={nodeData.title ?? ''} className="truncate" />
-    );
-
   return (
     <div data-testid={`node-source-${nodeData.id}`} className={clsx({ node__container: !isDocument })}>
       <NodeContainer ref={containerRef} nodeData={nodeData}>
         <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
-            <section className="node__row">
+            <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && <AngleDownIcon className={clsx({ 'toggle-icon-collapsed': collapsed })} />}
 
-              <Icon className="node__drag">
+              <Icon className="node__spacer" data-drag-handler>
                 <GripVerticalIcon />
               </Icon>
 
-              {isCollectionField && <LayerGroupIcon />}
+              {isCollectionField && (
+                <Icon className="node__spacer">
+                  <LayerGroupIcon />
+                </Icon>
+              )}
 
-              {isAttributeField && <AtIcon />}
+              {isAttributeField && (
+                <Icon className="node__spacer">
+                  <AtIcon />
+                </Icon>
+              )}
 
-              {nodeTitle}
+              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
 
               {!isReadOnly && isDocument ? (
                 <DocumentActions className="node__target__actions" nodeData={nodeData} />
