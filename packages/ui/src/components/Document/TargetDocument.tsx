@@ -1,16 +1,17 @@
-import { IDocument } from '../../models/datamapper/document';
-import { FunctionComponent, useCallback, useRef, useState } from 'react';
-import { useDataMapper } from '../../hooks/useDataMapper';
-import { MappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
-import { TargetNodeActions } from './actions/TargetNodeActions';
-import { NodeContainer } from './NodeContainer';
-import { Label, Split, SplitItem, Title, Truncate } from '@patternfly/react-core';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
-import { useCanvas } from '../../hooks/useCanvas';
-import { VisualizationService } from '../../services/visualization.service';
+import { Icon, Label, Title, Truncate } from '@patternfly/react-core';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
+import clsx from 'clsx';
+import { FunctionComponent, useCallback, useRef, useState } from 'react';
+import { useCanvas } from '../../hooks/useCanvas';
+import { useDataMapper } from '../../hooks/useDataMapper';
+import { IDocument } from '../../models/datamapper/document';
+import { MappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
+import { NodeReference } from '../../providers/datamapper-canvas.provider';
+import { VisualizationService } from '../../services/visualization.service';
 import { DocumentActions } from './actions/DocumentActions';
+import { TargetNodeActions } from './actions/TargetNodeActions';
 import './Document.scss';
+import { NodeContainer } from './NodeContainer';
 
 type DocumentProps = {
   document: IDocument;
@@ -49,6 +50,8 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
 
   const onClick = useCallback(() => {
+    if (!hasChildren) return;
+
     setCollapsed(!collapsed);
     reloadNodeReferences();
   }, [collapsed, reloadNodeReferences]);
@@ -93,42 +96,36 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
     );
 
   return (
-    <div
-      data-testid={`node-target-${nodeData.id}`}
-      className={isDocument ? 'node-container__document' : 'node-container'}
-    >
+    <div data-testid={`node-target-${nodeData.id}`} className={clsx({ node__container: !isDocument })}>
       <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className={isDocument ? 'node-header__document' : 'node-header'}>
+        <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
-            <Split hasGutter className="node-split">
-              <SplitItem onClick={hasChildren ? onClick : undefined}>
-                {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
-              </SplitItem>
-              <SplitItem onClick={hasChildren ? onClick : undefined}>
+            <section className="node__row">
+              {hasChildren && <AngleDownIcon className={clsx({ 'toggle-icon-collapsed': collapsed })} />}
+
+              <Icon className="node__drag">
                 <GripVerticalIcon />
-              </SplitItem>
-              {isCollectionField && (
-                <SplitItem onClick={hasChildren ? onClick : undefined}>
-                  <LayerGroupIcon />
-                </SplitItem>
+              </Icon>
+
+              {isCollectionField && <LayerGroupIcon />}
+
+              {isAttributeField && <AtIcon />}
+
+              {nodeTitle}
+
+              {showNodeActions ? (
+                <TargetNodeActions className="node__target__actions" nodeData={nodeData} onUpdate={handleUpdate} />
+              ) : (
+                <span className="node__target__actions" />
               )}
-              {isAttributeField && (
-                <SplitItem onClick={hasChildren ? onClick : undefined}>
-                  <AtIcon />
-                </SplitItem>
-              )}
-              <SplitItem isFilled onClick={hasChildren ? onClick : undefined}>
-                {nodeTitle}
-              </SplitItem>
-              <SplitItem>
-                {showNodeActions && <TargetNodeActions nodeData={nodeData} onUpdate={handleUpdate} />}
-              </SplitItem>
-              <SplitItem>{isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} />}</SplitItem>
-            </Split>
+
+              {isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} />}
+            </section>
           </NodeContainer>
         </div>
+
         {hasChildren && !collapsed && (
-          <div className={isDocument ? 'node-children__document' : 'node-children'}>
+          <div className={clsx({ node__children: !isDocument })}>
             {children.map((child) => (
               <TargetDocumentNode
                 nodeData={child}

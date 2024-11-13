@@ -20,7 +20,6 @@ type ConditionMenuProps = {
 
 export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
-  const onToggleActionMenu = useCallback(() => setIsActionMenuOpen(!isActionMenuOpen), [isActionMenuOpen]);
   const allowIfChoose = VisualizationService.allowIfChoose(nodeData);
   const allowForEach = VisualizationService.allowForEach(nodeData);
   const isChooseNode = nodeData instanceof MappingNodeData && nodeData.mapping instanceof ChooseItem;
@@ -29,8 +28,17 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
   const hasValueSelector = VisualizationService.hasValueSelector(nodeData);
   const isValueSelectorNode = VisualizationService.isValueSelectorNode(nodeData);
 
+  const onToggleActionMenu = useCallback(
+    (event: MouseEvent | undefined) => {
+      event?.stopPropagation();
+      setIsActionMenuOpen(!isActionMenuOpen);
+    },
+    [isActionMenuOpen],
+  );
+
   const onSelectAction = useCallback(
-    (_event: MouseEvent | undefined, value: string | number | undefined) => {
+    (event: MouseEvent | undefined, value: string | number | undefined) => {
+      event?.stopPropagation();
       switch (value) {
         case 'selector':
           VisualizationService.applyValueSelector(nodeData);

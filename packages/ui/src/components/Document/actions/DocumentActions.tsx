@@ -8,10 +8,11 @@ import { FunctionComponent, MouseEvent, useCallback } from 'react';
 import '../Document.scss';
 
 type DocumentActionsProps = {
+  className?: string;
   nodeData: DocumentNodeData;
 };
 
-export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ nodeData }) => {
+export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ className, nodeData }) => {
   const documentType = nodeData.document.documentType;
   const documentId = nodeData.document.documentId;
   const handleStopPropagation = useCallback((event: MouseEvent) => {
@@ -19,7 +20,11 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ nodeD
   }, []);
 
   return (
-    <ActionListGroup key={`document-actions-${documentType}-${documentId}`} onClick={handleStopPropagation}>
+    <ActionListGroup
+      key={`document-actions-${documentType}-${documentId}`}
+      onClick={handleStopPropagation}
+      className={className}
+    >
       <ActionListItem>
         <AttachSchemaButton
           documentType={documentType}

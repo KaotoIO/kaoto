@@ -1,15 +1,16 @@
-import { DocumentNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
-import { FunctionComponent, useCallback, useRef, useState } from 'react';
-import { IDocument } from '../../models/datamapper/document';
-import { Label, Split, SplitItem, Title, Truncate } from '@patternfly/react-core';
-import { DocumentActions } from './actions/DocumentActions';
+import { Icon, Label, Title, Truncate } from '@patternfly/react-core';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
-import { NodeContainer } from './NodeContainer';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
+import clsx from 'clsx';
+import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
-import { VisualizationService } from '../../services/visualization.service';
-import './Document.scss';
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { IDocument } from '../../models/datamapper/document';
+import { DocumentNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
+import { NodeReference } from '../../providers/datamapper-canvas.provider';
+import { VisualizationService } from '../../services/visualization.service';
+import { DocumentActions } from './actions/DocumentActions';
+import './Document.scss';
+import { NodeContainer } from './NodeContainer';
 
 type DocumentProps = {
   document: IDocument;
@@ -88,40 +89,34 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
     );
 
   return (
-    <NodeContainer ref={containerRef} nodeData={nodeData}>
-      <div
-        className={isDocument ? 'node-container__document' : 'node-container'}
-        data-testid={`node-source-${nodeData.id}`}
-      >
-        <NodeContainer ref={headerRef} nodeData={nodeData}>
-          <div
-            className={isDocument ? 'node-header__document' : 'node-header'}
-            onClick={hasChildren ? onClick : undefined}
-          >
-            <Split hasGutter className="node-split">
-              <SplitItem>
-                {hasChildren && <AngleDownIcon className={`${collapsed ? 'toggle-icon-collapsed' : ''}`} />}
-              </SplitItem>
-              <SplitItem>
+    <div data-testid={`node-source-${nodeData.id}`} className={clsx({ node__container: !isDocument })}>
+      <NodeContainer ref={containerRef} nodeData={nodeData}>
+        <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
+          <NodeContainer ref={headerRef} nodeData={nodeData}>
+            <section className="node__row">
+              {hasChildren && <AngleDownIcon className={clsx({ 'toggle-icon-collapsed': collapsed })} />}
+
+              <Icon className="node__drag">
                 <GripVerticalIcon />
-              </SplitItem>
-              {isCollectionField && (
-                <SplitItem>
-                  <LayerGroupIcon />
-                </SplitItem>
+              </Icon>
+
+              {isCollectionField && <LayerGroupIcon />}
+
+              {isAttributeField && <AtIcon />}
+
+              {nodeTitle}
+
+              {!isReadOnly && isDocument ? (
+                <DocumentActions className="node__target__actions" nodeData={nodeData} />
+              ) : (
+                <span className="node__target__actions" />
               )}
-              {isAttributeField && (
-                <SplitItem>
-                  <AtIcon />
-                </SplitItem>
-              )}
-              <SplitItem isFilled>{nodeTitle}</SplitItem>
-              {!isReadOnly && <SplitItem>{isDocument && <DocumentActions nodeData={nodeData} />}</SplitItem>}
-            </Split>
-          </div>
-        </NodeContainer>
+            </section>
+          </NodeContainer>
+        </div>
+
         {hasChildren && !collapsed && (
-          <div className={isDocument ? 'node-children__document' : 'node-children'}>
+          <div className={clsx({ node__children: !isDocument })}>
             {children.map((child) => (
               <SourceDocumentNode
                 nodeData={child}
@@ -134,7 +129,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
             ))}
           </div>
         )}
-      </div>
-    </NodeContainer>
+      </NodeContainer>
+    </div>
   );
 };

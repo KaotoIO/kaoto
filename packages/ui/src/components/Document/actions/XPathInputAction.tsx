@@ -13,6 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { ValidatedXPathParseResult, XPathService } from '../../../services/xpath/xpath.service';
+import './XPathInputAction.scss';
 
 type XPathInputProps = {
   mapping: ExpressionItem;
@@ -36,11 +37,11 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
 
   const handleXPathChange = useCallback(
     (event: FormEvent, value: string) => {
+      event.stopPropagation();
       if (mapping) {
         mapping.expression = value;
         onUpdate();
       }
-      event.stopPropagation();
     },
     [mapping, onUpdate],
   );
@@ -54,9 +55,9 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
   }, [validationResult]);
 
   return (
-    <ActionListItem key="xpath-input">
+    <ActionListItem key="xpath-input" className="input-group">
       <InputGroup>
-        <InputGroupItem>
+        <InputGroupItem className="input-group__text">
           <TextInput
             data-testid="transformation-xpath-input"
             id="xpath"

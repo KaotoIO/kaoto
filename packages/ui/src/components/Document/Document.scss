@@ -1,21 +1,34 @@
-.node-container {
-  padding: 5px;
-  padding-left: 10px;
-}
+.node {
+  &__row {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
 
-.node-header {
-  border-bottom: 1px solid gray;
-  border-left: 1px solid gray;
-  padding-left: 10px;
-  display: flex;
-  flex-flow: row;
-}
+  &__container {
+    padding: 5px;
+    padding-left: var(--pf-v5-global--spacer--md);
+  }
 
-.node-children {
-  border-bottom: 1px solid gray;
-  border-left: 1px solid gray;
-  padding: 5px;
-  padding-left: 10px;
+  &__header,
+  &__children {
+    border-bottom: 1px solid var(--pf-v5-global--palette--black-300);
+    border-left: 1px solid var(--pf-v5-global--palette--black-300);
+    padding-left: var(--pf-v5-global--spacer--md);
+  }
+
+  &__children {
+    padding: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--md);
+  }
+
+  &__drag {
+    padding: var(--pf-v5-global--spacer--md);
+  }
+
+  &__target__actions {
+    flex-grow: 1;
+    justify-content: end;
+  }
 }
 
 img {
@@ -30,6 +43,7 @@ img {
   --pf-v5-c-truncate--MinWidth: 0;
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .pf-v5-c-action-list__group {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -46,26 +60,22 @@ img {
 }
 
 .parameter-card {
+  /* stylelint-disable-next-line selector-class-pattern */
   .pf-v5-c-card__header {
-    padding-block-start: 0;
-    padding-block-end: 0;
-    padding-inline-start: 0;
-    padding-inline-end: 0;
+    padding-block: 0;
+    padding-inline: 0;
   }
 }
 
 .parameter-actions {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+
   --pf-v5-c-action-list--child--spacer-base: 0.5rem;
   --pf-v5-c-action-list--group--spacer-base: 0.5rem;
+
   .pf-v5-c-button {
     --pf-v5-c-button--PaddingLeft: 0.5rem;
     --pf-v5-c-button--PaddingRight: 0.5rem;
   }
-}
-
-.node-split {
-  width: 100%;
-  --pf-v5-l-stack--m-gutter--Gap: 0.5rem;
 }

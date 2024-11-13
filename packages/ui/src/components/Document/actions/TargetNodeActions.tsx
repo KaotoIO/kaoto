@@ -9,11 +9,12 @@ import { VisualizationService } from '../../../services/visualization.service';
 import '../Document.scss';
 
 type TargetNodeActionsProps = {
+  className?: string;
   nodeData: TargetNodeData;
   onUpdate: () => void;
 };
 
-export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ nodeData, onUpdate }) => {
+export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ className, nodeData, onUpdate }) => {
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
   const allowConditionMenu = VisualizationService.allowConditionMenu(nodeData);
   const isDeletable = VisualizationService.isDeletableNode(nodeData);
@@ -22,7 +23,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ n
   }, []);
 
   return (
-    <ActionListGroup key={`target-node-actions-${nodeData.id}`} onKeyDown={handleStopPropagation}>
+    <ActionListGroup key={`target-node-actions-${nodeData.id}`} onKeyDown={handleStopPropagation} className={className}>
       {expressionItem && (
         <>
           <XPathInputAction mapping={expressionItem} onUpdate={onUpdate} />

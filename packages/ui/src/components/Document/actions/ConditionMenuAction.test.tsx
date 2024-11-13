@@ -1,12 +1,12 @@
-import { ConditionMenuAction } from './ConditionMenuAction';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MappingNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../../models/datamapper/visualization';
+import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import { DocumentType } from '../../../models/datamapper/path';
-import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
-import { VisualizationService } from '../../../services/visualization.service';
+import { MappingNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping.service';
+import { VisualizationService } from '../../../services/visualization.service';
 import { TestUtil } from '../../../stubs/data-mapper';
+import { ConditionMenuAction } from './ConditionMenuAction';
 
 describe('ConditionMenuAction', () => {
   const targetDoc = TestUtil.createTargetOrderDoc();
@@ -137,5 +137,46 @@ describe('ConditionMenuAction', () => {
     waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
+  });
+
+  it('should stop event propagation upon context menu toggle', () => {
+    const stopPropagationSpy = jest.fn();
+    const nodeData = new TargetFieldNodeData(
+      documentNodeData,
+      targetDoc.fields[0].fields[3],
+      new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
+    );
+
+    const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+
+    act(() => {
+      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle, { stopPropagation: stopPropagationSpy });
+    });
+
+    waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+  });
+
+  it('should stop event propagation upon selecting a menu option', () => {
+    const stopPropagationSpy = jest.fn();
+    const nodeData = new TargetFieldNodeData(
+      documentNodeData,
+      targetDoc.fields[0].fields[3],
+      new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
+    );
+
+    const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+
+    act(() => {
+      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle, { stopPropagation: jest.fn() });
+    });
+
+    act(() => {
+      const selectorOption = wrapper.getByTestId('transformation-actions-selector');
+      fireEvent.click(selectorOption, { stopPropagation: stopPropagationSpy });
+    });
+
+    waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
   });
 });
