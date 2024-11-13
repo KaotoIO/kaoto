@@ -37,7 +37,7 @@ describe('Test for Multi route actions from the code editor', () => {
 
     // CHECK the new empty route was added
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
-    cy.get('g[data-layer-id="default"] text').should('exist').contains('from: Unknown');
+    cy.get('g[data-layer-id="default"]').should('exist').contains('from: Unknown');
   });
 
   it('User deletes second route from multi-route using code editor', () => {
@@ -57,7 +57,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openDesignPage();
     cy.showAllRoutes();
     /** We check how many nodes are remaining */
-    cy.get('[data-id^="log"][data-kind="node"]').should('have.length', 1);
+    cy.checkNodeExist('log', 1);
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
   });
 
@@ -69,7 +69,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openDesignPage();
 
     // CHECK the set-header step was added
-    cy.get('[data-type="node"][data-id^="setHeader"]').should('have.length', 1);
+    cy.checkNodeExist('setHeader', 1);
   });
 
   it('User adds step to the second route using code editor', () => {
@@ -81,6 +81,6 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openDesignPage();
     cy.showAllRoutes();
     // CHECK the insert-field-action step was added
-    cy.get('[data-type="node"][data-id^="setBody"]').should('have.length', 1);
+    cy.checkNodeExist('setBody', 1);
   });
 });

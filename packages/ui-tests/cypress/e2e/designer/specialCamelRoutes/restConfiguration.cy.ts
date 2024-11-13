@@ -6,10 +6,8 @@ describe('Test for root on rest configuration container', () => {
   it('Root rest configuration', () => {
     cy.selectCamelRouteType('Rest', 'restConfiguration');
 
-    cy.get('[data-id^="restConfiguration"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('restConfiguration');
+
     cy.selectFormTab('All');
 
     cy.selectInTypeaheadField('component', 'coap');

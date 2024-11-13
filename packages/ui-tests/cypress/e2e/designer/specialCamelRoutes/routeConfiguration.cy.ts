@@ -6,10 +6,8 @@ describe('Test for root route configuration container', () => {
   it('Root route configuration', () => {
     cy.selectCamelRouteType('Configuration', 'routeConfiguration');
 
-    cy.get('[data-id^="routeConfiguration"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.openStepConfigurationTab('routeConfiguration');
+
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');
