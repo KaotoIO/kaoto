@@ -90,6 +90,18 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return;
   }
 
+  canDragNode(_path?: string) {
+    return false;
+  }
+
+  canDropOnNode(_path?: string) {
+    return false;
+  }
+
+  moveNodeTo(_options: { draggedNodePath: string; droppedNodePath?: string }) {
+    return;
+  }
+
   removeStep(): void {
     return;
   }
