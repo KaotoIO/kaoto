@@ -175,32 +175,52 @@ export class MappingService {
     parent.children = parent.children.map((m) => (m !== wrapped ? m : chooseItem));
   }
 
+  static addIf(parent: MappingParentType, mapping?: MappingItem) {
+    const ifItem = new IfItem(parent);
+    parent.children.push(ifItem);
+    ifItem.children.push(mapping ? mapping : MappingService.createValueSelector(ifItem));
+  }
+
   static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {
     const chooseItem = new ChooseItem(parent, mapping && mapping instanceof FieldItem ? mapping.field : undefined);
-    const whenItem = MappingService.addWhen(chooseItem);
-    const otherwiseItem = MappingService.addOtherwise(chooseItem);
+    MappingService.addWhen(chooseItem, mapping);
+    MappingService.addOtherwise(chooseItem, mapping?.clone());
     if (mapping) {
-      whenItem.children = [mapping];
-      mapping.parent = whenItem;
-      otherwiseItem.children = [mapping.clone()];
       parent.children = parent.children.map((m) => (m !== mapping ? m : chooseItem));
     }
     if (!parent.children.includes(chooseItem)) parent.children.push(chooseItem);
   }
 
-  static addWhen(item: ChooseItem) {
-    const whenItem = new WhenItem(item);
-    item.field && whenItem.children.push(new FieldItem(whenItem, item.field));
-    item.children.push(whenItem);
+  static addWhen(chooseItem: ChooseItem, mapping?: MappingItem, field?: IField) {
+    const whenItem = new WhenItem(chooseItem);
+
+    if (mapping) {
+      whenItem.children.push(mapping);
+    } else {
+      if (field) {
+        MappingService.createFieldItem(whenItem, field);
+      } else {
+        whenItem.children.push(MappingService.createValueSelector(whenItem));
+      }
+    }
+    chooseItem.children.push(whenItem);
     return whenItem;
   }
 
-  static addOtherwise(item: ChooseItem) {
-    const newChildren = item.children.filter((c) => !(c instanceof OtherwiseItem));
-    const otherwiseItem = new OtherwiseItem(item);
-    item.field && otherwiseItem.children.push(new FieldItem(otherwiseItem, item.field));
+  static addOtherwise(chooseItem: ChooseItem, mapping?: MappingItem, field?: IField) {
+    const newChildren = chooseItem.children.filter((c) => !(c instanceof OtherwiseItem));
+    const otherwiseItem = new OtherwiseItem(chooseItem);
+    if (mapping) {
+      otherwiseItem.children.push(mapping);
+    } else {
+      if (field) {
+        MappingService.createFieldItem(otherwiseItem, field);
+      } else {
+        otherwiseItem.children.push(MappingService.createValueSelector(otherwiseItem));
+      }
+    }
     newChildren.push(otherwiseItem);
-    item.children = newChildren;
+    chooseItem.children = newChildren;
     return otherwiseItem;
   }
 
@@ -297,9 +317,11 @@ export class MappingService {
   }
 
   static deleteMappingItem(item: MappingParentType) {
-    if (item instanceof MappingItem) {
-      item.children = item.children.filter((child) => !(child instanceof ValueSelector));
-      (item instanceof ConditionItem || item.parent instanceof FieldItem) && MappingService.deleteFromParent(item);
+    item.children = item.children.filter((child) => !(child instanceof ValueSelector));
+    const isConditionItem = item instanceof ConditionItem;
+    const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
+    if (isConditionItem || isParentFieldItem) {
+      MappingService.deleteFromParent(item);
     }
   }
 

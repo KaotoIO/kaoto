@@ -11,7 +11,6 @@ import {
 } from '@patternfly/react-core';
 import { EllipsisVIcon } from '@patternfly/react-icons';
 import { ChooseItem } from '../../../models/datamapper/mapping';
-import { MappingService } from '../../../services/mapping.service';
 
 type ConditionMenuProps = {
   nodeData: TargetNodeData;
@@ -58,10 +57,10 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           VisualizationService.applyForEach(nodeData as TargetFieldNodeData);
           break;
         case 'when':
-          MappingService.addWhen(nodeData.mapping as ChooseItem);
+          VisualizationService.applyWhen(nodeData);
           break;
         case 'otherwise':
-          MappingService.addOtherwise(nodeData.mapping as ChooseItem);
+          VisualizationService.applyOtherwise(nodeData);
           break;
       }
       onUpdate();

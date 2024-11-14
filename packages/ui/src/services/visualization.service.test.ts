@@ -14,12 +14,15 @@ import {
   ForEachItem,
   IfItem,
   MappingTree,
+  OtherwiseItem,
   ValueSelector,
+  WhenItem,
 } from '../models/datamapper/mapping';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { IDocument } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/datamapper/document';
 import { shipOrderToShipOrderInvalidForEachXslt, shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { DocumentType } from '../models/datamapper/path';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -74,6 +77,25 @@ describe('VisualizationService', () => {
         expect(ifChildren.length).toEqual(1);
         expect(ifChildren[0].title).toEqual('OrderId');
       });
+
+      it('should add If on primitive target body', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        VisualizationService.applyIf(targetDocNode);
+
+        expect(VisualizationService.hasChildren(targetDocNode)).toBeTruthy();
+        let targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        expect(targetDocChildren.length).toEqual(1);
+        const ifItem = (targetDocChildren[0] as MappingNodeData).mapping;
+        expect(ifItem instanceof IfItem).toBeTruthy();
+        expect(ifItem.name).toEqual('if');
+
+        targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(ifChildren.length).toEqual(1);
+        expect((ifChildren[0] as MappingNodeData).mapping instanceof ValueSelector).toBeTruthy();
+      });
     });
 
     describe('applyChooseWhenOtherwise()', () => {
@@ -106,10 +128,145 @@ describe('VisualizationService', () => {
         expect(otherwiseChildren[0].title).toEqual('OrderPerson');
       });
 
-      it('should add Choose-When-Otherwise on Document', () => {
-        expect(tree.children.length).toEqual(0);
+      it('should add Choose-When-Otherwise on primitive target body', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyChooseWhenOtherwise(targetDocNode);
-        expect(tree.children[0] instanceof ChooseItem).toBeTruthy();
+
+        expect(VisualizationService.hasChildren(targetDocNode)).toBeTruthy();
+        let targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        expect(targetDocChildren.length).toEqual(1);
+        const chooseItem = (targetDocChildren[0] as MappingNodeData).mapping;
+        expect(chooseItem instanceof ChooseItem).toBeTruthy();
+        expect(chooseItem.name).toEqual('choose');
+
+        targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(chooseChildren.length).toEqual(2);
+        const whenItem = (chooseChildren[0] as MappingNodeData).mapping;
+        expect(whenItem instanceof WhenItem).toBeTruthy();
+        expect(whenItem.children[0] instanceof ValueSelector).toBeTruthy();
+
+        const otherwiseItem = (chooseChildren[1] as MappingNodeData).mapping;
+        expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+        expect(otherwiseItem.children[0] instanceof ValueSelector).toBeTruthy();
+      });
+    });
+
+    describe('applyWhen()', () => {
+      it('should addWhen', () => {
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        VisualizationService.applyChooseWhenOtherwise(targetShipOrderChildren[1] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        VisualizationService.applyWhen(targetShipOrderChildren[1] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[1]);
+        expect(chooseChildren.length).toEqual(3);
+
+        const whenItem1 = (chooseChildren[0] as MappingNodeData).mapping;
+        expect(whenItem1 instanceof WhenItem).toBeTruthy();
+        expect(whenItem1.children.length).toEqual(1);
+        expect(whenItem1.children[0] instanceof FieldItem).toBeTruthy();
+
+        const whenItem2 = (chooseChildren[1] as MappingNodeData).mapping;
+        expect(whenItem2 instanceof WhenItem).toBeTruthy();
+        expect(whenItem2.children.length).toEqual(1);
+        expect(whenItem2.children[0] instanceof FieldItem).toBeTruthy();
+
+        const otherwiseItem = (chooseChildren[2] as MappingNodeData).mapping;
+        expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+        expect(otherwiseItem.children.length).toEqual(1);
+        expect(otherwiseItem.children[0] instanceof FieldItem).toBeTruthy();
+      });
+
+      it('should add When in primitive target body choose', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        VisualizationService.applyChooseWhenOtherwise(targetDocNode);
+
+        let targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        VisualizationService.applyWhen(targetDocChildren[0] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(chooseChildren.length).toEqual(3);
+
+        const whenItem1 = (chooseChildren[0] as MappingNodeData).mapping;
+        expect(whenItem1 instanceof WhenItem).toBeTruthy();
+        expect(whenItem1.children.length).toEqual(1);
+        expect(whenItem1.children[0] instanceof ValueSelector).toBeTruthy();
+
+        const whenItem2 = (chooseChildren[1] as MappingNodeData).mapping;
+        expect(whenItem2 instanceof WhenItem).toBeTruthy();
+        expect(whenItem2.children.length).toEqual(1);
+        expect(whenItem2.children[0] instanceof ValueSelector).toBeTruthy();
+
+        const otherwiseItem = (chooseChildren[2] as MappingNodeData).mapping;
+        expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+        expect(otherwiseItem.children.length).toEqual(1);
+        expect(otherwiseItem.children[0] instanceof ValueSelector).toBeTruthy();
+      });
+    });
+
+    describe('applyOtherwise()', () => {
+      it('should add Otherwise', () => {
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        VisualizationService.applyChooseWhenOtherwise(targetShipOrderChildren[1] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        let chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[1]);
+        VisualizationService.deleteMappingItem(chooseChildren[1] as MappingNodeData);
+        VisualizationService.applyOtherwise(targetShipOrderChildren[1] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[1]);
+        expect(chooseChildren.length).toEqual(2);
+
+        const whenItem = (chooseChildren[0] as MappingNodeData).mapping;
+        expect(whenItem instanceof WhenItem).toBeTruthy();
+        expect(whenItem.children.length).toEqual(1);
+        expect(whenItem.children[0] instanceof FieldItem).toBeTruthy();
+
+        const otherwiseItem = (chooseChildren[1] as MappingNodeData).mapping;
+        expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+        expect(otherwiseItem.children.length).toEqual(1);
+        expect(otherwiseItem.children[0] instanceof FieldItem).toBeTruthy();
+      });
+
+      it('should add Otherwise in primitive target body choose', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        VisualizationService.applyChooseWhenOtherwise(targetDocNode);
+
+        let targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        let chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        VisualizationService.deleteMappingItem(chooseChildren[1] as MappingNodeData);
+        VisualizationService.applyOtherwise(targetDocChildren[0] as TargetNodeData);
+
+        targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(chooseChildren.length).toEqual(2);
+
+        const whenItem = (chooseChildren[0] as MappingNodeData).mapping;
+        expect(whenItem instanceof WhenItem).toBeTruthy();
+        expect(whenItem.children.length).toEqual(1);
+        expect(whenItem.children[0] instanceof ValueSelector).toBeTruthy();
+
+        const otherwiseItem = (chooseChildren[1] as MappingNodeData).mapping;
+        expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+        expect(otherwiseItem.children.length).toEqual(1);
+        expect(otherwiseItem.children[0] instanceof ValueSelector).toBeTruthy();
       });
     });
 
@@ -140,6 +297,46 @@ describe('VisualizationService', () => {
 
         expect(tree.children.length).toEqual(1);
         expect(tree.children[0].children[0] instanceof ValueSelector).toBeTruthy();
+      });
+
+      it('should apply value selector on primitive target body', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        VisualizationService.applyValueSelector(targetDocNode);
+
+        expect(VisualizationService.hasChildren(targetDocNode)).toBeFalsy();
+        const targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
+        expect(targetDocChildren.length).toEqual(0);
+      });
+    });
+
+    describe('getExpressionItemForNode()', () => {
+      it('should return ValueSelector for primitive target body', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        VisualizationService.engageMapping(tree, sourceShipOrderChildren[1] as FieldNodeData, targetDocNode);
+
+        const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
+        expect(expressionItem?.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+      });
+    });
+
+    describe('deleteMappingItem()', () => {
+      it('should delete primitive target body mapping', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        VisualizationService.engageMapping(tree, sourceShipOrderChildren[1] as FieldNodeData, targetDocNode);
+
+        VisualizationService.deleteMappingItem(targetDocNode);
+        const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
+        expect(expressionItem).toBeUndefined();
       });
     });
 

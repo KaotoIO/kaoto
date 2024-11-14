@@ -40,9 +40,11 @@ export class MappingSerializerService {
   private static sortMappingItem(left: MappingItem, right: MappingItem) {
     const leftFields =
       left instanceof FieldItem ? [left.field] : MappingService.getConditionalFields(left as ConditionItem);
+    if (leftFields.length === 0) return 1;
     if (leftFields.find((f) => f.isAttribute)) return -1;
     const rightFields =
       right instanceof FieldItem ? [right.field] : MappingService.getConditionalFields(right as ConditionItem);
+    if (rightFields.length === 0) return -1;
     if (rightFields.find((f) => f.isAttribute)) return 1;
     const leftFirst = leftFields.sort(MappingSerializerService.sortFields)[0];
     const rightFirst = rightFields.sort(MappingSerializerService.sortFields)[0];
