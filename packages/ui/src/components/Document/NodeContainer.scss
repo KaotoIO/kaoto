@@ -1,0 +1,20 @@
+@use '../../styles/dnd';
+
+.droppable-container {
+  color: var(--pf-v5-global--primary-color--200);
+  border-width: thin;
+  border-style: dashed;
+  border-color: var(--pf-v5-global--primary-color--200);
+  background-color: var(--pf-v5-global--palette--blue-50);
+}
+
+.draggable-container {
+  font-weight: bold;
+  color: var(--pf-v5-global--primary-color--100);
+  border-width: thin;
+  border-style: solid;
+  border-color: var(--pf-v5-global--primary-color--200);
+  background-color: var(--pf-v5-global--palette--black-200);
+
+  @include dnd.cursor-grab;
+}

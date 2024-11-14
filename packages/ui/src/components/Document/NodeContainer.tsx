@@ -1,31 +1,32 @@
-import { CSSProperties, forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import clsx from 'clsx';
+import { forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
+import { isDefined } from '../../utils';
+import './NodeContainer.scss';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;
 };
 
 type BaseContainerProps = PropsWithChildren & {
+  className?: string;
   id: string;
   nodeData: NodeData;
 };
 
-export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ id, nodeData, children }) => {
+export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ className, id, nodeData, children }) => {
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
     id: `droppable-${id}`,
     data: nodeData,
   });
-  const droppableStyle = {
-    color: isOver ? 'var(--pf-v5-global--primary-color--200)' : undefined,
-    borderWidth: isOver ? 'thin' : undefined,
-    borderStyle: isOver ? 'dashed' : undefined,
-    borderColor: isOver ? 'var(--pf-v5-global--primary-color--200)' : undefined,
-    backgroundColor: isOver ? 'var(--pf-v5-global--palette--blue-50)' : undefined,
-    height: '100%',
-  } as CSSProperties;
+
   return (
-    <div id={`droppable-${id}`} ref={setDroppableNodeRef} style={droppableStyle}>
+    <div
+      id={`droppable-${id}`}
+      ref={setDroppableNodeRef}
+      className={clsx(className, { 'droppable-container': isOver })}
+    >
       {children}
     </div>
   );
@@ -42,19 +43,14 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
     data: nodeData,
   });
 
-  const draggableStyle = transform
-    ? ({
-        fontWeight: 'bold',
-        color: 'var(--pf-v5-global--primary-color--100)',
-        borderWidth: 'thin',
-        borderStyle: 'solid',
-        borderColor: 'var(--pf-v5-global--primary-color--200)',
-        backgroundColor: 'var(--pf-v5-global--palette--black-200)',
-      } as CSSProperties)
-    : undefined;
-
   return (
-    <div id={`draggable-${id}`} ref={setDraggableNodeRef} style={draggableStyle} {...listeners} {...attributes}>
+    <div
+      id={`draggable-${id}`}
+      ref={setDraggableNodeRef}
+      className={clsx({ 'draggable-container': isDefined(transform) })}
+      {...listeners}
+      {...attributes}
+    >
       {children}
     </div>
   );

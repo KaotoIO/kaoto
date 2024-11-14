@@ -1,3 +1,5 @@
+@use '../../styles/dnd';
+
 .node {
   &__row {
     display: flex;
@@ -9,11 +11,7 @@
     }
 
     &[data-draggable='true'] {
-      cursor: grab;
-
-      &:active {
-        cursor: grabbing;
-      }
+      @include dnd.cursor-grab;
     }
   }
 
@@ -47,8 +45,12 @@ img {
   transition: transform 0.5s ease-in-out;
 }
 
-.toggle-icon-collapsed {
-  transform: rotate(-90deg);
+.toggle-icon {
+  cursor: pointer;
+
+  &--collapsed {
+    transform: rotate(-90deg);
+  }
 }
 
 .truncate {

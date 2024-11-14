@@ -82,7 +82,9 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
         <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
             <section className="node__row" data-draggable={isDraggable}>
-              {hasChildren && <AngleDownIcon className={clsx({ 'toggle-icon-collapsed': collapsed })} />}
+              {hasChildren && (
+                <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
+              )}
 
               <Icon className="node__spacer" data-drag-handler>
                 <GripVerticalIcon />

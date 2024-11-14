@@ -1,7 +1,14 @@
+@use '../../styles/dnd';
+
+.menu-item-drag {
+  @include dnd.cursor-grab;
+}
+
 .xpath-editor-layout-grid {
   height: 90%;
 }
 
 .xpath-editor-layout-tab-content {
+  position: relative;
   height: 100%;
 }

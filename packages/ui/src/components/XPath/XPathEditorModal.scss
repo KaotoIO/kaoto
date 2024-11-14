@@ -1,3 +1,9 @@
 .xpath-editor-modal {
   height: 90%;
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
 }

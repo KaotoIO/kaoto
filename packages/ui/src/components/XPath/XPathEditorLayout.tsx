@@ -1,4 +1,3 @@
-import { FunctionComponent, MouseEvent, useCallback, useMemo, useState } from 'react';
 import {
   //Bullseye,
   //Button,
@@ -13,17 +12,18 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
+import { FunctionComponent, MouseEvent, useCallback, useMemo, useState } from 'react';
 //import { ArrowRightIcon } from '@patternfly/react-icons';
-import { ExpressionItem } from '../../models/datamapper/mapping';
-import { XPathService } from '../../services/xpath/xpath.service';
-import { FunctionGroup } from '../../services/xpath/xpath-parser';
-import { SourcePanel } from '../View/SourcePanel';
-import { DroppableContainer, DraggableContainer } from '../Document/NodeContainer';
-import { XPathEditor } from './XPathEditor';
-import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
 import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
+import { ExpressionItem } from '../../models/datamapper/mapping';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
+import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
+import { FunctionGroup } from '../../services/xpath/xpath-parser';
+import { XPathService } from '../../services/xpath/xpath.service';
+import { DraggableContainer, DroppableContainer } from '../Document/NodeContainer';
+import { SourcePanel } from '../View/SourcePanel';
+import { XPathEditor } from './XPathEditor';
 import './XPathEditorLayout.scss';
 
 type XPathEditorLayoutProps = {
@@ -82,7 +82,11 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
                             id={`${value}-${index}-${func.name}`}
                             nodeData={new FunctionNodeData(func)}
                           >
-                            <MenuItem key={`${value}-${index}`} description={func.description}>
+                            <MenuItem
+                              className="menu-item-drag"
+                              key={`${value}-${index}`}
+                              description={func.description}
+                            >
                               {func.displayName}
                             </MenuItem>
                           </DraggableContainer>
@@ -103,7 +107,11 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
           */}
         </GridItem>
         <GridItem key={1} span={6} rowSpan={10}>
-          <DroppableContainer id="xpath-editor" nodeData={new EditorNodeData(mapping)}>
+          <DroppableContainer
+            id="xpath-editor"
+            className="xpath-editor-layout-tab-content"
+            nodeData={new EditorNodeData(mapping)}
+          >
             <XPathEditor mapping={mapping} onChange={handleExpressionChange} />
           </DroppableContainer>
         </GridItem>

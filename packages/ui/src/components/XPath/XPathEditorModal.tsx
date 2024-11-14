@@ -15,6 +15,7 @@ import { ExpressionItem } from '../../models/datamapper';
 import './XPathEditorModal.scss';
 import { ValidatedXPathParseResult, XPathService } from '../../services/xpath/xpath.service';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import { QuestionCircleIcon } from '@patternfly/react-icons';
 
 type XPathEditorModalProps = {
   isOpen: boolean;
@@ -52,21 +53,24 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
 
   const header = useMemo(
     () => (
-      <>
-        <Title id="xpath-editor-modal" headingLevel="h1" size={TitleSizes['2xl']}>
-          XPath Editor: {title}
-          {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
-            <Popover bodyContent={errorContent}>
-              <Button
-                data-testid="xpath-editor-error-btn"
-                variant={ButtonVariant.link}
-                isDanger
-                icon={<ExclamationCircleIcon />}
-              />
-            </Popover>
-          )}
-        </Title>
-      </>
+      <section id="xpath-editor-modal" className="xpath-editor-modal__header">
+        <h1 className="pf-v5-c-title pf-m-3xl">XPath Editor: {title}</h1>
+
+        <Popover bodyContent={<p>Grab a field or a function from the left panel and drag it to the right panel</p>}>
+          <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<QuestionCircleIcon />} />
+        </Popover>
+
+        {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
+          <Popover bodyContent={errorContent}>
+            <Button
+              data-testid="xpath-editor-error-btn"
+              variant={ButtonVariant.link}
+              isDanger
+              icon={<ExclamationCircleIcon />}
+            />
+          </Popover>
+        )}
+      </section>
     ),
     [errorContent, title, validationResult],
   );
