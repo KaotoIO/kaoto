@@ -1,3 +1,5 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { EntitiesContextResult } from '../hooks';
 import { IVisualizationNode } from '../models';
 import {
   BODY_DOCUMENT_ID,
@@ -8,9 +10,9 @@ import {
 } from '../models/datamapper';
 import { IDataMapperMetadata, IDocumentMetadata } from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
+import { isDefined, isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
+import type { XsltComponentDef } from '../utils/is-xslt-component';
 import { EMPTY_XSL } from './mapping-serializer.service';
-import { EntitiesContextResult } from '../hooks';
-import { XSLT_COMPONENT_NAME } from '../utils';
 
 export class DataMapperMetadataService {
   static readonly SCHEMA_NAME_PATTERN = '**/*.{xsd,xml,XSD,XML}';
@@ -20,39 +22,40 @@ export class DataMapperMetadataService {
     return `${vizNode.getId()}-${model.id}`; // routeId-stepId
   }
 
-  static initializeDataMapperMetadata(
+  static async initializeDataMapperMetadata(
     entitiesContext: EntitiesContextResult,
     vizNode: IVisualizationNode,
     api: IMetadataApi,
     metadataId: string,
   ): Promise<IDataMapperMetadata> {
-    return new Promise((resolve) => {
-      const model = vizNode.getComponentSchema()?.definition;
-      // eslint-disable-next-line
-      const xsltStep = model.steps.find((step: any) => step.to?.uri?.startsWith(XSLT_COMPONENT_NAME));
-      const splitted = xsltStep?.to?.uri?.split(':');
-      let xsltFileName = `${metadataId}.xsl`;
-      if (splitted.length < 2) {
-        xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${xsltFileName}`;
-        vizNode.updateModel(model);
-        entitiesContext.updateSourceCodeFromEntities();
-      } else {
-        xsltFileName = splitted[1];
-      }
-      const metadata = {
-        sourceBody: {
-          type: DocumentDefinitionType.Primitive,
-        },
-        sourceParameters: {},
-        targetBody: {
-          type: DocumentDefinitionType.Primitive,
-        },
-        xsltPath: xsltFileName,
-      } as IDataMapperMetadata;
-      const metadataPromise = api.setMetadata(metadataId, metadata);
-      const contentPromise = api.saveResourceContent(metadata.xsltPath, EMPTY_XSL);
-      Promise.allSettled([metadataPromise, contentPromise]).then(() => resolve(metadata));
-    });
+    const model = vizNode.getComponentSchema()?.definition;
+    const xsltStep = (model.steps as ProcessorDefinition[] | undefined)?.find(isXSLTComponent);
+    let documentName = this.getXSLTDocumentName(xsltStep);
+
+    if (isDefined(xsltStep) && !isDefined(documentName)) {
+      /** At this point, the Kaoto Data Mapper is not yet configured, hence we create the XSLT mapping document name */
+      documentName = `${metadataId}.xsl`;
+      xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${documentName}`;
+      vizNode.updateModel(model);
+      entitiesContext.updateSourceCodeFromEntities();
+    }
+
+    const metadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+      },
+      xsltPath: documentName,
+    } as IDataMapperMetadata;
+
+    const metadataPromise = api.setMetadata(metadataId, metadata);
+    const contentPromise = api.saveResourceContent(metadata.xsltPath, EMPTY_XSL);
+    await Promise.allSettled([metadataPromise, contentPromise]);
+
+    return metadata;
   }
 
   static loadDocuments(api: IMetadataApi, metadata: IDataMapperMetadata): Promise<DocumentInitializationModel> {
@@ -83,6 +86,15 @@ export class DataMapperMetadataService {
         resolve(answer);
       });
     });
+  }
+
+  static getXSLTDocumentName(xsltStep?: XsltComponentDef): string | undefined {
+    if (!xsltStep) {
+      return undefined;
+    }
+
+    const [_componentUri, uriFileName] = xsltStep.to.uri.split(':');
+    return uriFileName;
   }
 
   private static doLoadDocument(
