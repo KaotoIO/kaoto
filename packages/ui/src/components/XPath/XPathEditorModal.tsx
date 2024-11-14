@@ -6,8 +6,6 @@ import {
   Modal,
   ModalVariant,
   Popover,
-  Title,
-  TitleSizes,
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { XPathEditorLayout } from './XPathEditorLayout';
