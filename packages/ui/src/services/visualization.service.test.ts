@@ -63,6 +63,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren.length).toEqual(4);
         expect(shipOrderChildren[0].title).toEqual('OrderId');
         VisualizationService.applyIf(shipOrderChildren[0] as TargetNodeData);
+
         expect(tree.children[0].name).toEqual('field-ShipOrder');
         expect(tree.children[0].children[0].name).toEqual('if');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
@@ -83,18 +84,22 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren.length).toEqual(4);
         expect(shipOrderChildren[1].title).toEqual('OrderPerson');
         VisualizationService.applyChooseWhenOtherwise(shipOrderChildren[1] as TargetNodeData);
+
         expect(tree.children[0].name).toEqual('field-ShipOrder');
         expect(tree.children[0].children[0].name).toEqual('choose');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+
         expect(shipOrderChildren[1].title).toEqual('choose');
         const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[1]);
         expect(chooseChildren.length).toEqual(2);
+
         expect(chooseChildren[0].title).toEqual('when');
         const whenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[0]);
         expect(whenChildren.length).toEqual(1);
         expect(whenChildren[0].title).toEqual('OrderPerson');
+
         expect(chooseChildren[1].title).toEqual('otherwise');
         const otherwiseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
         expect(otherwiseChildren.length).toEqual(1);
@@ -116,6 +121,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren.length).toEqual(4);
         expect(shipOrderChildren[3].title).toEqual('Item');
         VisualizationService.applyForEach(shipOrderChildren[3] as TargetFieldNodeData);
+
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
@@ -131,6 +137,7 @@ describe('VisualizationService', () => {
         expect(tree.children.length).toEqual(0);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         VisualizationService.applyValueSelector(docChildren[0] as TargetNodeData);
+
         expect(tree.children.length).toEqual(1);
         expect(tree.children[0].children[0] instanceof ValueSelector).toBeTruthy();
       });
@@ -143,6 +150,7 @@ describe('VisualizationService', () => {
         let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         VisualizationService.applyIf(targetShipOrderChildren[1] as TargetNodeData);
+
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const ifItem = tree.children[0].children[0] as IfItem;
@@ -152,6 +160,7 @@ describe('VisualizationService', () => {
           sourceShipOrderChildren[1] as FieldNodeData,
           targetShipOrderChildren[1] as TargetNodeData,
         );
+
         expect(ifItem.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
       });
 
@@ -159,6 +168,7 @@ describe('VisualizationService', () => {
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
         expect(tree.children.length).toEqual(0);
         VisualizationService.engageMapping(tree, sourceDocChildren[0] as FieldNodeData, targetDocNode);
+
         expect(tree.children[0] instanceof ValueSelector).toBeTruthy();
         const selector = tree.children[0] as ValueSelector;
         expect(selector.expression).toEqual('/ns0:ShipOrder');
@@ -175,6 +185,7 @@ describe('VisualizationService', () => {
           sourceShipOrderChildren[1] as FieldNodeData,
           targetShipOrderChildren[1] as TargetNodeData,
         );
+
         expect(tree.children[0] instanceof FieldItem).toBeTruthy();
         expect(tree.children[0].children[0] instanceof FieldItem).toBeTruthy();
         expect(tree.children[0].children[0].children[0] instanceof ValueSelector).toBeTruthy();
@@ -190,11 +201,13 @@ describe('VisualizationService', () => {
         let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
         VisualizationService.applyForEach(targetItem);
+
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const forEach = targetShipOrderChildren[3] as MappingNodeData;
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach);
         VisualizationService.engageMapping(tree, sourceItem, forEachChildren[0] as TargetFieldNodeData);
+
         expect((forEach.mapping as ExpressionItem).expression).toEqual('');
         expect(((forEachChildren[0] as TargetFieldNodeData).mapping!.children[0] as ValueSelector).expression).toEqual(
           '/ns0:ShipOrder/Item',
@@ -203,6 +216,7 @@ describe('VisualizationService', () => {
 
       it('should not remove for-each targeted field item when selector is removed', () => {
         MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
@@ -215,6 +229,7 @@ describe('VisualizationService', () => {
         let itemItem = targetForEachChildren[0] as TargetFieldNodeData;
         expect((itemItem.mapping?.children[0] as ValueSelector).expression).toEqual('/ns0:ShipOrder/Item');
         VisualizationService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
+
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
@@ -229,6 +244,7 @@ describe('VisualizationService', () => {
 
       it('should not remove for-each targeted field item when descendent is removed', () => {
         MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
@@ -245,6 +261,7 @@ describe('VisualizationService', () => {
           sourceItemChildren[0] as FieldNodeData,
           targetItemChildren[0] as TargetFieldNodeData,
         );
+
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
@@ -253,6 +270,7 @@ describe('VisualizationService', () => {
           ((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).expression,
         ).toEqual('/ns0:ShipOrder/Item/Title');
         VisualizationService.deleteMappingItem(targetItemChildren[0] as TargetNodeData);
+
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
@@ -276,6 +294,7 @@ describe('VisualizationService', () => {
       it('should test if or choose is allowed', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
         expect(VisualizationService.allowIfChoose(targetDocNode)).toBeTruthy();
         expect(VisualizationService.allowIfChoose(targetDocChildren[0] as TargetNodeData)).toBeTruthy();
         expect(VisualizationService.allowIfChoose(shipOrderChildren[1] as TargetNodeData)).toBeFalsy();
@@ -288,6 +307,7 @@ describe('VisualizationService', () => {
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         expect(shipOrderChildren[1] instanceof MappingNodeData).toBeTruthy();
         VisualizationService.deleteMappingItem(shipOrderChildren[1] as TargetNodeData);
+
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         expect(shipOrderChildren[1] instanceof TargetFieldNodeData).toBeTruthy();
       });
@@ -299,16 +319,20 @@ describe('VisualizationService', () => {
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         expect(VisualizationService.allowConditionMenu(targetDocNode)).toBeTruthy();
         expect(VisualizationService.allowConditionMenu(targetDocChildren[0] as TargetNodeData)).toBeTruthy();
+
         expect(shipOrderChildren.length).toEqual(4);
         const orderIdNode = shipOrderChildren[0] as TargetFieldNodeData;
         expect(orderIdNode.title).toEqual('OrderId');
         expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeFalsy();
+
         const ifNode = shipOrderChildren[1] as MappingNodeData;
         expect(ifNode.title).toEqual('if');
         expect(VisualizationService.allowConditionMenu(ifNode)).toBeTruthy();
+
         const shipToNode = shipOrderChildren[2] as TargetFieldNodeData;
         expect(shipToNode.title).toEqual('ShipTo');
         expect(VisualizationService.allowConditionMenu(shipToNode)).toBeFalsy();
+
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
         expect(VisualizationService.allowConditionMenu(forEachNode)).toBeFalsy();
