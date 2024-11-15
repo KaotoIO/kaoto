@@ -9,27 +9,38 @@ import { DocumentService } from '../document.service';
 import { DocumentType } from '../../models/datamapper/path';
 
 export class ValidatedXPathParseResult {
-  constructor(public parserResult: XPathParserResult) {}
+  constructor(public parserResult?: XPathParserResult) {}
   dataMapperErrors: string[] = [];
+  warnings: string[] = [];
 
   hasErrors(): boolean {
     return (
-      this.parserResult.lexErrors.length > 0 ||
-      this.parserResult.parseErrors.length > 0 ||
+      (this.parserResult && this.parserResult.lexErrors.length > 0) ||
+      (this.parserResult && this.parserResult?.parseErrors.length > 0) ||
       this.dataMapperErrors.length > 0
     );
   }
 
   getErrors(): string[] {
-    return [
-      ...this.parserResult.lexErrors.map((e) => e.message),
-      ...this.parserResult.parseErrors.map((e) => e.message),
-      ...this.dataMapperErrors,
-    ];
+    const answer = [];
+    if (this.parserResult) {
+      answer.push(...this.parserResult.lexErrors.map((e) => e.message));
+      answer.push(...this.parserResult.parseErrors.map((e) => e.message));
+    }
+    answer.push(...this.dataMapperErrors);
+    return answer;
   }
 
-  getCst(): CstNode {
-    return this.parserResult.cst;
+  hasWarnings(): boolean {
+    return this.warnings.length > 0;
+  }
+
+  getWarnings(): string[] {
+    return this.warnings;
+  }
+
+  getCst(): CstNode | undefined {
+    return this.parserResult?.cst;
   }
 }
 
@@ -42,6 +53,11 @@ export class XPathService {
   }
 
   static validate(xpath: string): ValidatedXPathParseResult {
+    if (!xpath) {
+      const answer = new ValidatedXPathParseResult();
+      answer.warnings.push('Empty Expression');
+      return answer;
+    }
     const parserResult = XPathService.parse(xpath);
     const validationResult = new ValidatedXPathParseResult(parserResult);
     if (!validationResult.getCst()) return validationResult;
