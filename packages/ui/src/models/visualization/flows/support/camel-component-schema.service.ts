@@ -91,8 +91,9 @@ export class CamelComponentSchemaService {
       return description;
     }
 
+    const semanticString = CamelUriHelper.getSemanticString(camelElementLookup, definition);
     if (camelElementLookup.componentName !== undefined) {
-      return camelElementLookup.componentName;
+      return semanticString ?? camelElementLookup.componentName;
     }
 
     const uriString = CamelUriHelper.getUriString(definition);
@@ -112,7 +113,8 @@ export class CamelComponentSchemaService {
 
       case 'to':
       case 'toD':
-        return uriString ?? camelElementLookup.processorName;
+      case 'poll':
+        return semanticString ?? uriString ?? camelElementLookup.processorName;
 
       default:
         return camelElementLookup.processorName;
@@ -289,6 +291,7 @@ export class CamelComponentSchemaService {
 
       case 'to':
       case 'toD':
+      case 'poll':
         /** The To processor is using `to: timer:tick?period=1000` form */
         if (typeof definition === 'string') {
           return {

@@ -99,12 +99,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
 
   if (nodeInteractions.canRemoveStep) {
     items.push(
-      <ItemDeleteStep
-        key="context-menu-item-delete"
-        data-testid="context-menu-item-delete"
-        vizNode={vizNode}
-        loadActionConfirmationModal={isStepWithChildren}
-      />,
+      <ItemDeleteStep key="context-menu-item-delete" data-testid="context-menu-item-delete" vizNode={vizNode} />,
     );
   }
   if (nodeInteractions.canRemoveFlow) {

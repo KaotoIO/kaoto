@@ -90,7 +90,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
     };
 
-    controller.fromModel(model, true);
+    controller.fromModel(model, false);
     setInitialized(true);
   }, [controller, entities, visibleFlows]);
 

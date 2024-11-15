@@ -3,9 +3,15 @@ export const enum NodeLabelType {
   Description = 'description',
 }
 
+export const enum NodeToolbarTrigger {
+  onHover = 'onHover',
+  onSelection = 'onSelection',
+}
+
 export interface ISettingsModel {
   catalogUrl: string;
   nodeLabel: NodeLabelType;
+  nodeToolbarTrigger: NodeToolbarTrigger;
 }
 
 export interface AbstractSettingsAdapter {
@@ -16,6 +22,7 @@ export interface AbstractSettingsAdapter {
 export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
   nodeLabel: NodeLabelType = NodeLabelType.Description;
+  nodeToolbarTrigger: NodeToolbarTrigger = NodeToolbarTrigger.onHover;
 
   constructor(options: Partial<ISettingsModel> = {}) {
     Object.assign(this, options);

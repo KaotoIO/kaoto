@@ -73,6 +73,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
               >
                 <button
                   aria-controls="expandable-section-content"
+                  aria-expanded="false"
                   class="pf-v5-c-expandable-section__toggle"
                   id="expandable-section-toggle"
                   type="button"
@@ -186,6 +187,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
             >
               <button
                 aria-controls="expandable-section-content"
+                aria-expanded="false"
                 class="pf-v5-c-expandable-section__toggle"
                 id="expandable-section-toggle"
                 type="button"
