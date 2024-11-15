@@ -11,7 +11,7 @@ export const MainMenuToolbarItem: FunctionComponent = () => {
       <Dropdown
         toggle={(toggleRef) => (
           <MenuToggle ref={toggleRef} id="main-menu-toggle" data-testid="main-menu-button" onClick={onToggle}>
-            Data Mapper
+            DataMapper
           </MenuToggle>
         )}
         isOpen={isOpen}

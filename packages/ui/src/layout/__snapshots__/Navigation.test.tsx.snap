@@ -66,7 +66,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
               >
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-25"
+                  data-ouia-component-id="OUIA-Generated-NavItem-29"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -81,7 +81,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
                 </li>
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-26"
+                  data-ouia-component-id="OUIA-Generated-NavItem-30"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -98,7 +98,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item pf-v5-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-27"
+            data-ouia-component-id="OUIA-Generated-NavItem-31"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -112,7 +112,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-28"
+            data-ouia-component-id="OUIA-Generated-NavItem-32"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -126,7 +126,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item pf-v5-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-29"
+            data-ouia-component-id="OUIA-Generated-NavItem-33"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -139,8 +139,22 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
             </a>
           </li>
           <li
+            class="pf-v5-c-nav__item pf-v5-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-34"
+            data-ouia-component-type="PF5/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v5-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-30"
+            data-ouia-component-id="OUIA-Generated-NavItem-35"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -225,7 +239,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
               >
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-7"
+                  data-ouia-component-id="OUIA-Generated-NavItem-8"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -240,7 +254,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
                 </li>
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-8"
+                  data-ouia-component-id="OUIA-Generated-NavItem-9"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -257,7 +271,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-9"
+            data-ouia-component-id="OUIA-Generated-NavItem-10"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -271,7 +285,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-10"
+            data-ouia-component-id="OUIA-Generated-NavItem-11"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -285,7 +299,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item pf-v5-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-11"
+            data-ouia-component-id="OUIA-Generated-NavItem-12"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -299,7 +313,21 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-12"
+            data-ouia-component-id="OUIA-Generated-NavItem-13"
+            data-ouia-component-type="PF5/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v5-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
+            class="pf-v5-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-14"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -384,7 +412,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
               >
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-19"
+                  data-ouia-component-id="OUIA-Generated-NavItem-22"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -399,7 +427,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
                 </li>
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-20"
+                  data-ouia-component-id="OUIA-Generated-NavItem-23"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -416,7 +444,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item pf-v5-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-21"
+            data-ouia-component-id="OUIA-Generated-NavItem-24"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -430,7 +458,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-22"
+            data-ouia-component-id="OUIA-Generated-NavItem-25"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -444,7 +472,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-23"
+            data-ouia-component-id="OUIA-Generated-NavItem-26"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -457,8 +485,22 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
             </a>
           </li>
           <li
+            class="pf-v5-c-nav__item pf-v5-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-27"
+            data-ouia-component-type="PF5/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v5-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-24"
+            data-ouia-component-id="OUIA-Generated-NavItem-28"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -543,7 +585,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
               >
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-13"
+                  data-ouia-component-id="OUIA-Generated-NavItem-15"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -558,7 +600,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
                 </li>
                 <li
                   class="pf-v5-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-14"
+                  data-ouia-component-id="OUIA-Generated-NavItem-16"
                   data-ouia-component-type="PF5/NavItem"
                   data-ouia-safe="true"
                 >
@@ -575,7 +617,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item pf-v5-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-15"
+            data-ouia-component-id="OUIA-Generated-NavItem-17"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -589,7 +631,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-16"
+            data-ouia-component-id="OUIA-Generated-NavItem-18"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -603,7 +645,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-17"
+            data-ouia-component-id="OUIA-Generated-NavItem-19"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -616,8 +658,22 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
             </a>
           </li>
           <li
+            class="pf-v5-c-nav__item pf-v5-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-20"
+            data-ouia-component-type="PF5/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v5-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
             class="pf-v5-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-18"
+            data-ouia-component-id="OUIA-Generated-NavItem-21"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >
@@ -777,6 +833,20 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
           <li
             class="pf-v5-c-nav__item"
             data-ouia-component-id="OUIA-Generated-NavItem-6"
+            data-ouia-component-type="PF5/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v5-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
+            class="pf-v5-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-7"
             data-ouia-component-type="PF5/NavItem"
             data-ouia-safe="true"
           >

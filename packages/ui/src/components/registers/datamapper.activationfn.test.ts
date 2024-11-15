@@ -21,7 +21,7 @@ describe('datamapperActivationFn', () => {
     expect(result).toBe(false);
   });
 
-  it('should return `true` if stepDefinition is a Data Mapper node', () => {
+  it('should return `true` if stepDefinition is a DataMapper node', () => {
     const result = datamapperActivationFn({
       getComponentSchema: () => ({
         definition: datamapperRouteDefinitionStub.from.steps[0].step as Step,

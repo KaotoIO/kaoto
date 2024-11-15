@@ -33,7 +33,7 @@ export class DataMapperMetadataService {
     let documentName = this.getXSLTDocumentName(xsltStep);
 
     if (isDefined(xsltStep) && !isDefined(documentName)) {
-      /** At this point, the Kaoto Data Mapper is not yet configured, hence we create the XSLT mapping document name */
+      /** At this point, the Kaoto DataMapper is not yet configured, hence we create the XSLT mapping document name */
       documentName = `${metadataId}.xsl`;
       xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${documentName}`;
       vizNode.updateModel(model);

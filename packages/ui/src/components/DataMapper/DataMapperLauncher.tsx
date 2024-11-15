@@ -71,7 +71,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           label="Document"
           labelIcon={
             <Popover
-              bodyContent="The name of the XSLT document that is used by the Kaoto Data Mapper"
+              bodyContent="The name of the XSLT document that is used by the Kaoto DataMapper"
               triggerAction="hover"
               withFocusTrap={false}
             >
@@ -82,7 +82,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           <TextInput
             readOnly
             value={xsltDocument}
-            title="The name of the XSLT document that is used by the Kaoto Data Mapper"
+            title="The name of the XSLT document that is used by the Kaoto DataMapper"
             validated={isXsltDocumentDefined ? ValidatedOptions.default : ValidatedOptions.error}
           />
           {!isXsltDocumentDefined && (
@@ -98,8 +98,8 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
 
       <Button
         variant="primary"
-        title="Click to launch the Kaoto Data Mapper editor"
-        aria-label="Launch the Kaoto Data Mapper editor"
+        title="Click to launch the Kaoto DataMapper editor"
+        aria-label="Launch the Kaoto DataMapper editor"
         onClick={onClick}
         icon={<WrenchIcon />}
       >
