@@ -95,6 +95,12 @@ describe('XPathService', () => {
       expect(paths[1]).toEqual('aaa/bbb/ddd');
       expect(paths[2]).toEqual('$param1/eee/fff');
     });
+
+    it('extract primitive source body', () => {
+      const paths = XPathService.extractFieldPaths('.');
+      expect(paths.length).toEqual(1);
+      expect(paths[0]).toEqual('/');
+    });
   });
 
   it('getXPathFunctionDefinitions()', () => {

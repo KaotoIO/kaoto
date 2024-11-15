@@ -148,11 +148,14 @@ export class XPathService {
     const parsed = XPathService.parse(expression);
     if (!parsed.cst) return [];
     const paths = XPathService.collectPathExpressions(parsed.cst);
-    return paths.map((node) => XPathService.pathExprToString(node));
+    return paths.map((node) => {
+      if ('image' in node && node.image === '.') return '/';
+      if ('children' in node) return XPathService.pathExprToString(node);
+    });
   }
 
   private static collectPathExpressions(node: CstNode) {
-    const answer: CstNode[] = [];
+    const answer: CstElement[] = [];
     if (node.name === 'PathExpr') {
       answer.push(...XPathService.extractPathExprNode(node));
       return answer;
@@ -168,15 +171,18 @@ export class XPathService {
         });
       }
       return acc;
-    }, [] as CstNode[]);
+    }, [] as CstElement[]);
   }
 
-  private static extractPathExprNode(pathExprNode: CstNode) {
+  private static extractPathExprNode(pathExprNode: CstNode): CstElement[] {
     const filterExpr = XPathService.getNode(pathExprNode, ['RelativePathExpr', 'StepExpr', 'FilterExpr']);
     if (!filterExpr) return [pathExprNode];
 
     const literal = XPathService.getNode(filterExpr, ['Literal']);
     if (literal) return [];
+
+    const contextItemExpr = XPathService.getNode(filterExpr, ['ContextItemExpr']);
+    if (contextItemExpr) return [contextItemExpr];
 
     // Extract contents in parenthesis
     const parenthesizedExpr = XPathService.getNode(filterExpr, ['ParenthesizedExpr']);
