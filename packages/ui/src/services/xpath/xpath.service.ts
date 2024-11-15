@@ -144,14 +144,18 @@ export class XPathService {
     return answer;
   }
 
-  static extractFieldPaths(expression: string) {
+  static extractFieldPaths(expression: string): string[] {
     const parsed = XPathService.parse(expression);
     if (!parsed.cst) return [];
     const paths = XPathService.collectPathExpressions(parsed.cst);
-    return paths.map((node) => {
-      if ('image' in node && node.image === '.') return '/';
-      if ('children' in node) return XPathService.pathExprToString(node);
-    });
+    return paths.reduce((acc, node) => {
+      if ('children' in node) {
+        acc.push(XPathService.pathExprToString(node));
+      } else if ('image' in node && node.image === '.') {
+        acc.push('/');
+      }
+      return acc;
+    }, [] as string[]);
   }
 
   private static collectPathExpressions(node: CstNode) {
