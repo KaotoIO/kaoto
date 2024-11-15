@@ -172,7 +172,12 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   switchSteps(options: { draggedNodePath: string; droppedNodePath?: string | undefined }) {
-    if (options.droppedNodePath === undefined) return;
+    if (
+      options.droppedNodePath === undefined ||
+      options.droppedNodePath === 'source' ||
+      options.droppedNodePath === 'sink'
+    )
+      return;
 
     const step = getValue(this.pipe.spec!, options.draggedNodePath);
     /** Remove the dragged node */
