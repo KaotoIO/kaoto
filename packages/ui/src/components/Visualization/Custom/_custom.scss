@@ -1,0 +1,52 @@
+.disabled-step-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: var(--pf-v5-global--spacer--xs);
+}
+
+@mixin highligth {
+  --custom-node-BorderColor: var(--pf-v5-global--BorderColor--100);
+  --custom-node-BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
+  --custom-node-BorderRadius: 10px;
+  --custom-node-hover-BorderColor: var(--pf-v5-global--primary-color--light-100);
+  --custom-node-Shadow: var(--pf-v5-global--BoxShadow--md);
+
+  &[data-selected='true'] {
+    --custom-node-BorderColor: var(--pf-v5-global--primary-color--dark-100);
+  }
+
+  &[data-warning='true'] {
+    --custom-node-BorderColor: var(--pf-v5-global--danger-color--100);
+  }
+
+  foreignObject:first-of-type {
+    overflow: visible;
+  }
+
+  @content;
+}
+
+@mixin container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: auto;
+  cursor: pointer;
+}
+
+@mixin selected {
+  border: 3px solid var(--custom-node-BorderColor);
+}
+
+@mixin disabled {
+  filter: grayscale(100%);
+  font-style: italic;
+}
+
+@mixin text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}

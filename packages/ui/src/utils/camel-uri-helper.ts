@@ -1,5 +1,7 @@
-import get from 'lodash/get';
 import { getParsedValue } from './get-parsed-value';
+import { ICamelElementLookupResult } from '../models/visualization/flows/support/camel-component-types';
+import { getValue } from './get-value';
+import { isDefined } from './is-defined';
 
 export type ParsedParameters = Record<string, string | boolean | number>;
 
@@ -15,11 +17,28 @@ export class CamelUriHelper {
       return value;
     }
 
-    const uriString = get(value, 'uri');
+    const uriString = getValue(value, 'uri');
 
     /** For object-based processor definitions, we can return the `uri` property if not empty */
     if (typeof uriString === 'string' && uriString !== '') {
       return uriString;
+    }
+
+    return undefined;
+  }
+
+  static getSemanticString<T>(
+    camelElementLookup: ICamelElementLookupResult,
+    value: T | undefined | null,
+  ): string | undefined {
+    /** For string-based processor definitions, we return undefined */
+    if (!isDefined(value) || typeof value === 'string') {
+      return undefined;
+    }
+
+    switch (camelElementLookup.componentName) {
+      case 'direct':
+        return getValue(value, 'parameters.name');
     }
 
     return undefined;

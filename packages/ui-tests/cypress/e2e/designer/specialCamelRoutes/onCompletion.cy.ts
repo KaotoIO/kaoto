@@ -6,10 +6,7 @@ describe('Test for onCompletion configuration container', () => {
   it('Root onCompletion configuration', () => {
     cy.selectCamelRouteType('Configuration', 'onCompletion');
 
-    cy.get('[data-id^="onCompletion"]')
-      .find('.pf-topology__node__label')
-      .find('.pf-topology__node__label__background')
-      .click();
+    cy.get(`[data-testid^="custom-node__onCompletion"]`).click({ force: true });
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');

@@ -102,7 +102,7 @@ describe('Test for Multi route actions from the canvas', () => {
 
     cy.showAllRoutes();
     /** We check how many nodes are remaining */
-    cy.get('[data-id^="log"][data-kind="node"]').should('have.length', 3);
+    cy.checkNodeExist('log', 3);
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
   });
 });

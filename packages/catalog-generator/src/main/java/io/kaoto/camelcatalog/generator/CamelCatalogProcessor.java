@@ -482,7 +482,8 @@ public class CamelCatalogProcessor {
             throws Exception {
         var catalogOp = entityCatalog.getOptions().stream().filter(op -> op.getName().equals(propertyName)).findFirst();
         if (catalogOp.isEmpty()) {
-            throw new Exception(String.format("Option '%s' not found for '%s'", propertyName, entityCatalog.getName()));
+            LOGGER.warning(String.format("Option '%s' not found for '%s'", propertyName, entityCatalog.getName()));
+            return;
         }
         var catalogOption = catalogOp.get();
         if (catalogOption.getDisplayName() != null)

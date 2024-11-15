@@ -4,12 +4,16 @@ Cypress.Commands.add('fitToScreen', () => {
 
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
   stepIndex = stepIndex ?? 0;
-  cy.get(`[data-nodelabel="${step}"]`).eq(stepIndex).click({ force: true });
+  cy.get(`g[data-nodelabel="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
-Cypress.Commands.add('toggleExpandGroup', (groupName: string, groupIndex?: number) => {
-  groupIndex = groupIndex ?? 0;
-  cy.get(`[data-testid="collapseButton-${groupName}"]`).eq(groupIndex).click({ force: true });
+Cypress.Commands.add('openRootConfigurationTab', (step: string) => {
+  cy.get(`g[data-grouplabel="${step}"]`).click({ force: true });
+});
+
+Cypress.Commands.add('toggleExpandGroup', (groupName: string) => {
+  cy.get(`span[title="${groupName}"]`).click({ force: true });
+  cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
@@ -22,7 +26,7 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.get('body').then(($body) => {
     if ($body.find('.pf-m-danger').length) {
       // Delete Confirmation Modal appeared, click on the confirm button
-      cy.get('.pf-m-danger').click();
+      cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
     }
   });
   cy.get(nodeName).should('not.exist');
@@ -91,13 +95,13 @@ Cypress.Commands.add('closeCatalogModal', () => {
 
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get(`[data-nodelabel="${nodeName}"]`).parent().eq(nodeIndex).rightclick({ force: true });
+  cy.get(`foreignObject[data-nodelabel="${nodeName}"]`).eq(nodeIndex).rightclick({ force: true });
   cy.get(`[data-testid="context-menu-item-${action}"]`).click();
 });
 
 Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
   nodesCount = nodesCount ?? 1;
-  cy.get(`[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
+  cy.get(`foreignObject[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
 });
 
 Cypress.Commands.add('checkEdgeExists', (sourceName: string, targetName: string) => {

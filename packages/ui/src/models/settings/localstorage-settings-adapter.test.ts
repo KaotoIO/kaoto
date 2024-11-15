@@ -1,6 +1,6 @@
 import { LocalStorageKeys } from '../local-storage-keys';
 import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
-import { NodeLabelType, SettingsModel } from './settings.model';
+import { NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
 
 describe('LocalStorageSettingsAdapter', () => {
   it('should create an instance with the default settings', () => {
@@ -11,7 +11,11 @@ describe('LocalStorageSettingsAdapter', () => {
 
   it('should save and retrieve settings', () => {
     const adapter = new LocalStorageSettingsAdapter();
-    const newSettings: SettingsModel = { catalogUrl: 'http://example.com', nodeLabel: NodeLabelType.Description };
+    const newSettings: SettingsModel = {
+      catalogUrl: 'http://example.com',
+      nodeLabel: NodeLabelType.Description,
+      nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+    };
 
     adapter.saveSettings(newSettings);
 
@@ -30,7 +34,11 @@ describe('LocalStorageSettingsAdapter', () => {
     const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
 
     const adapter = new LocalStorageSettingsAdapter();
-    const newSettings: SettingsModel = { catalogUrl: 'http://example.com', nodeLabel: NodeLabelType.Description };
+    const newSettings: SettingsModel = {
+      catalogUrl: 'http://example.com',
+      nodeLabel: NodeLabelType.Description,
+      nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+    };
 
     adapter.saveSettings(newSettings);
 
