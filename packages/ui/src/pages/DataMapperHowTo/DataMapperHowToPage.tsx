@@ -17,17 +17,17 @@ import { Bullseye, List, ListComponent, ListItem, OrderType, Stack, StackItem, T
 import { FunctionComponent } from 'react';
 import icon_component_datamapper from '../../assets/components/datamapper.png';
 import './DataMapperHowToPage.scss';
-import catalog_datamapper from './images/kaoto-datamapper-catalog.png';
-import datamapper_step from './images/datamapper-step.png';
-import configure_button from './images/configure-button.png';
-import kaoto_design from './images/kaoto-design.png';
-import source_target from './images/source-target.png';
-import add_parameter from './images/add-parameter.png';
-import add_parameter_confirm from './images/add_parameter_confirm.png';
-import attach_schema_source_body from './images/attach-schema-source-body.png';
-import attach_schema_target_body from './images/attach-schema-target-body.png';
-import attach_schema_parameter from './images/attach-schema-parameter.png';
-import data_mapping from './images/data-mapping.png';
+import catalog_datamapper from '../../assets/data-mapper/kaoto-datamapper-catalog.png';
+import datamapper_step from '../../assets/data-mapper/datamapper-step.png';
+import configure_button from '../../assets/data-mapper/configure-button.png';
+import kaoto_design from '../../assets/data-mapper/kaoto-design.png';
+import source_target from '../../assets/data-mapper/source-target.png';
+import add_parameter from '../../assets/data-mapper/add-parameter.png';
+import add_parameter_confirm from '../../assets/data-mapper/add_parameter_confirm.png';
+import attach_schema_source_body from '../../assets/data-mapper/attach-schema-source-body.png';
+import attach_schema_target_body from '../../assets/data-mapper/attach-schema-target-body.png';
+import attach_schema_parameter from '../../assets/data-mapper/attach-schema-parameter.png';
+import data_mapping from '../../assets/data-mapper/data-mapping.png';
 
 export const DataMapperHowToPage: FunctionComponent = () => {
   return (
