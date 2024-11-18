@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for sidebar setHeaders step configuration', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -12,14 +14,14 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.openStepConfigurationTab('setHeaders');
     cy.selectFormTab('All');
 
-    cy.get('[data-testid="list-add-field"]').click();
+    cy.get(selectors.LIST_ADD_FIELD).click();
 
     cy.selectExpression('Simple');
     cy.interactWithExpressionInputObject('expression', `{{}random(1,100)}`);
     cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
     cy.addExpressionResultType('java.lang.String');
 
-    cy.get('[data-testid="list-add-field"]').click();
+    cy.get(selectors.LIST_ADD_FIELD).click();
 
     cy.selectExpression('Constant', 1);
     cy.interactWithExpressionInputObject('expression', `constant`, 1);

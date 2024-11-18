@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for Multi route actions from the code editor', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -9,9 +11,9 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.uploadFixture('flows/malformed/camelRoute/missingId.yaml');
     cy.openDesignPage();
 
-    cy.get('span[data-testid="flows-list-route-id"]').should('contain.text', 'route-');
-    cy.get('span[data-testid="flows-list-route-id"]').should('contain.text', 'route-');
-    cy.get('span[data-testid="flows-list-route-id"]')
+    cy.get(selectors.SPAN_FLOW_LIST_ROUTE_ID).should('contain.text', 'route-');
+    cy.get(selectors.SPAN_FLOW_LIST_ROUTE_ID).should('contain.text', 'route-');
+    cy.get(selectors.SPAN_FLOW_LIST_ROUTE_ID)
       .invoke('text')
       .then((text) => {
         const routeIdText = text.trim();

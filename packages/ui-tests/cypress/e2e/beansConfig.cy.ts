@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for Bean support', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -6,7 +8,7 @@ describe('Test for Bean support', () => {
   it('Beans - create a new bean using bean editor', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openBeans();
-    cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
+    cy.get(selectors.METADATA_ADD_BEANS_BTN).eq(0).click();
     cy.get(`input[name="name"]`).clear().type('test');
     cy.get(`input[name="type"]`).clear().type('org.acme');
 

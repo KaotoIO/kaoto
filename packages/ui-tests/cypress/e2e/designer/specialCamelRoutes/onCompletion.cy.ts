@@ -7,7 +7,6 @@ describe('Test for onCompletion configuration container', () => {
     cy.selectCamelRouteType('Configuration', 'onCompletion');
 
     cy.openGroupConfigurationTab('onCompletion');
-
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');

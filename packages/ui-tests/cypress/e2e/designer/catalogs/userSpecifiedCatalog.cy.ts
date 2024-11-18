@@ -1,10 +1,12 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for user specified Quarkus catalog type', () => {
   // Specify custom catalog URL
   before(() => {
     cy.openHomePage();
     cy.openSettings();
     cy.interactWithConfigInputObject('catalogUrl', Cypress.config().baseUrl + '/camel-catalog/index.json');
-    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.get(selectors.SETTINGS_FORM_SAVE_BTN).click();
     cy.waitSchemasLoading();
   });
 
@@ -12,7 +14,7 @@ describe('Tests for user specified Quarkus catalog type', () => {
   after(() => {
     cy.openSettings();
     cy.get('input[name="catalogUrl"]').clear();
-    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.get(selectors.SETTINGS_FORM_SAVE_BTN).click();
     cy.waitSchemasLoading();
   });
 

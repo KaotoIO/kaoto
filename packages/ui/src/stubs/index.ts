@@ -5,3 +5,4 @@ export * from './pipe';
 export * from './TestProvidersWrapper';
 export * from './TestRuntimeProviderWrapper';
 export * from './tiles';
+export * from './selectors';

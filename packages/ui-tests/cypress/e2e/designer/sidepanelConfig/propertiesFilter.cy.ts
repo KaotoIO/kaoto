@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for side panel step filtering', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -16,12 +18,12 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="description"]`).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
-    cy.get(`.expression-metadata-editor`).should('exist');
-    cy.get('.pf-v5-c-card__header-toggle').click();
+    cy.get(selectors.EXPRESSION_METADATA_EDITOR).should('exist');
+    cy.get(selectors.CARD_HEADER_TOGGLE).click();
 
     // filter fields
     cy.filterFields('name');
-    cy.get(`.expression-metadata-editor`).should('exist');
+    cy.get(selectors.EXPRESSION_METADATA_EDITOR).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="id"]`).should('not.exist');
     cy.get(`textarea[name="description"]`).should('not.exist');
@@ -42,12 +44,12 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="description"]`).should('exist');
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
-    cy.get(`.expression-metadata-editor`).should('exist');
-    cy.get('.pf-v5-c-card__header-toggle').click();
+    cy.get(selectors.EXPRESSION_METADATA_EDITOR).should('exist');
+    cy.get(selectors.CARD_HEADER_TOGGLE).click();
 
     // filter fields
     cy.filterFields('DISABLED');
-    cy.get(`.expression-metadata-editor`).should('exist');
+    cy.get(selectors.EXPRESSION_METADATA_EDITOR).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
     cy.get(`input[name="name"]`).should('not.exist');
     cy.get(`input[name="id"]`).should('not.exist');
@@ -113,7 +115,7 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectFormTab('Required');
 
-    cy.get('.pf-v5-c-alert__title').should('contain', 'No Required fields found');
+    cy.get(selectors.ALERT_TITLE).should('contain', 'No Required fields found');
   });
 
   it('Side panel to retain user specified fields filter', () => {

@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Settings: About', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -5,15 +7,15 @@ describe('Settings: About', () => {
 
   it('Close and reopen about modal', () => {
     cy.openAboutModal();
-    cy.get('[data-testid="about-modal"]').should('be.visible');
+    cy.get(selectors.ABOUT_MODAL).should('be.visible');
     cy.closeAboutModal();
-    cy.get('[data-testid="about-modal"]').should('not.exist');
+    cy.get(selectors.ABOUT_MODAL).should('not.exist');
   });
 
   it('Check that the about modal contains the correct information', () => {
     cy.openAboutModal();
 
-    cy.get('[data-testid="about-modal"]').should('be.visible');
+    cy.get(selectors.ABOUT_MODAL).should('be.visible');
 
     cy.get('[alt="Kaoto Logo"]')
       .should('be.visible')
@@ -23,7 +25,7 @@ describe('Settings: About', () => {
 
     // Check the version
     cy.readFile('package.json').then((Package) => {
-      cy.get('[data-testid="about-version"]').should('have.text', Package.version);
+      cy.get(selectors.ABOUT_VERSION).should('have.text', Package.version);
     });
 
     // Check information Grid
