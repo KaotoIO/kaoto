@@ -2792,6 +2792,7 @@ __metadata:
     chromatic: "npm:^11.0.0"
     cypress: "npm:^13.11.0"
     cypress-file-upload: "npm:^5.0.8"
+    cypress-vite: "npm:^1.5.0"
     eslint: "npm:^9.10.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-prettier: "npm:^5.2.1"
@@ -8160,6 +8161,18 @@ __metadata:
   peerDependencies:
     cypress: ">3.0.0"
   checksum: 10/c2f66b6de7572ef1b2c609bf76ad63831ee20d7a8a2f144eccc2a7a1fb21994c2f5524ad4921a731bbd2e362aa6ff932506fa8c93c875bc1c0edda383e1125ba
+  languageName: node
+  linkType: hard
+
+"cypress-vite@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "cypress-vite@npm:1.5.0"
+  dependencies:
+    chokidar: "npm:^3.5.3"
+    debug: "npm:^4.3.4"
+  peerDependencies:
+    vite: ^2.9.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+  checksum: 10/905f903ccdd00d12f1b5b91d75123a9dfc3b33e678a9fbe89be244ad802c8ec46c876ac389900b385d3ca421310d4ea15c77f802be794549e1975de1f04b5848
   languageName: node
   linkType: hard
 
