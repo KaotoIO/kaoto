@@ -28,12 +28,12 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     const modalCustoms = findModalCustomizationRecursively(vizNode, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );
-    const modalAnswer: string | undefined = ACTION_ID_CONFIRM;
+    let modalAnswer: string | undefined = ACTION_ID_CONFIRM;
     if (hasChildren) {
       const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
       const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
       /** Open delete confirm modal, get the confirmation  */
-      const modalAnswer = await replaceModalContext?.actionConfirmation({
+      modalAnswer = await replaceModalContext?.actionConfirmation({
         title: 'Replace step?',
         text: 'Step and its children will be lost.',
         additionalModalText,
@@ -59,7 +59,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [catalogModalContext, entitiesContext, hasChildren, replaceModalContext, vizNode]);
+  }, [catalogModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, replaceModalContext, vizNode]);
 
   const value = useMemo(
     () => ({

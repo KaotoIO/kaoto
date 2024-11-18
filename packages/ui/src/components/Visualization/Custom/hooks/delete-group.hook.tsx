@@ -38,7 +38,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode) => {
 
     entitiesContext?.camelResource.removeEntity(flowId);
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, flowId]);
+  }, [deleteModalContext, entitiesContext, flowId, getRegisteredInteractionAddons, vizNode]);
 
   const value = useMemo(
     () => ({

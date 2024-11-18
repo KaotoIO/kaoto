@@ -21,12 +21,12 @@ export const useDeleteStep = (vizNode: IVisualizationNode) => {
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );
 
-    const modalAnswer: string | undefined = ACTION_ID_CONFIRM;
+    let modalAnswer: string | undefined = ACTION_ID_CONFIRM;
     if (hasChildren || modalCustoms.length > 0) {
       const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
       const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
       /** Open delete confirm modal, get the confirmation  */
-      const modalAnswer = await deleteModalContext?.actionConfirmation({
+      modalAnswer = await deleteModalContext?.actionConfirmation({
         title: 'Permanently delete step?',
         text: 'Step and its children will be lost.',
         additionalModalText,
