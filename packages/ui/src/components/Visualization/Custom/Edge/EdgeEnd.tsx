@@ -8,11 +8,10 @@ import {
   isEdge,
   observer,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent } from 'react';
 import { IVisualizationNode } from '../../../../models';
-import { CatalogModalContext, EntitiesContext } from '../../../../providers';
-import { addNode } from '../ContextMenu/ItemAddStep';
 import { LayoutType } from '../../Canvas';
+import { useAddStep } from '../hooks/add-step.hook';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
 interface EdgeEndProps extends DefaultEdgeProps {
@@ -24,15 +23,11 @@ export const EdgeEndWithButton: FunctionComponent<EdgeEndProps> = observer(({ el
   if (!isEdge(element)) {
     throw new Error('EdgeEndWithButton must be used only on Edge elements');
   }
-  const entitiesContext = useContext(EntitiesContext);
-  const catalogModalContext = useContext(CatalogModalContext);
   const vizNode: IVisualizationNode = element.getSource().getData()?.vizNode;
   const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
   const endPoint = element.getEndPoint();
 
-  const onAdd = useCallback(() => {
-    addNode(catalogModalContext, entitiesContext, vizNode);
-  }, [catalogModalContext, entitiesContext, vizNode]);
+  const { onAddStep } = useAddStep(vizNode);
 
   let x = endPoint.x;
   let y = endPoint.y;
@@ -50,7 +45,7 @@ export const EdgeEndWithButton: FunctionComponent<EdgeEndProps> = observer(({ el
       {...rest}
     >
       <g data-testid={`custom-edge__${element?.getId()}`}>
-        <Decorator showBackground radius={14} x={x} y={y} icon={<PlusIcon />} onClick={onAdd} />
+        <Decorator showBackground radius={14} x={x} y={y} icon={<PlusIcon />} onClick={onAddStep} />
       </g>
     </DefaultEdge>
   );
