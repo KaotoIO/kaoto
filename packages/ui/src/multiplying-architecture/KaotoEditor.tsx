@@ -3,13 +3,13 @@ import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import icon_component_datamapper from '../assets/components/datamapper.png';
 import bean from '../assets/eip/bean.png';
 import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { EntitiesContext } from '../providers/entities.provider';
 import { Links } from '../router/links.models';
 import './KaotoEditor.scss';
-import icon_component_datamapper from '../assets/components/datamapper.png';
 
 const enum TabList {
   Design,
@@ -34,7 +34,9 @@ export const KaotoEditor = () => {
   const currentLocation = useLocation();
   const secondSlashIndex = currentLocation.pathname.indexOf('/', 1);
   const currentPath = currentLocation.pathname.substring(0, secondSlashIndex !== -1 ? secondSlashIndex : undefined);
-  // const isDataMapperActive = currentPath === Links.DataMapper;
+  const dataMapperLink = currentLocation.pathname.startsWith(Links.DataMapper)
+    ? currentLocation.pathname
+    : Links.DataMapper;
 
   const availableTabs = useMemo(() => {
     if (!resource) {
@@ -69,6 +71,7 @@ export const KaotoEditor = () => {
         {availableTabs.design && (
           <Link data-testid="design-tab" to={Links.Home}>
             <Tab
+              id="design-tab"
               eventKey={Links.Home}
               title={
                 <>
@@ -88,6 +91,7 @@ export const KaotoEditor = () => {
         {availableTabs.beans && (
           <Link data-testid="beans-tab" to={Links.Beans}>
             <Tab
+              id="beans-tab"
               eventKey={Links.Beans}
               title={
                 <>
@@ -107,6 +111,7 @@ export const KaotoEditor = () => {
         {availableTabs.metadata && (
           <Link data-testid="metadata-tab" to={Links.Metadata}>
             <Tab
+              id="metadata-tab"
               eventKey={Links.Metadata}
               title={
                 <>
@@ -124,6 +129,7 @@ export const KaotoEditor = () => {
         {availableTabs.errorHandler && (
           <Link data-testid="error-handler-tab" to={Links.PipeErrorHandler}>
             <Tab
+              id="error-handler-tab"
               eventKey={Links.PipeErrorHandler}
               title={
                 <>
@@ -139,8 +145,9 @@ export const KaotoEditor = () => {
         )}
 
         {availableTabs.kaotoDataMapper && (
-          <Link data-testid="datamapper-tab" to={Links.DataMapper}>
+          <Link data-testid="datamapper-tab" to={dataMapperLink}>
             <Tab
+              id="datamapper-tab"
               eventKey={Links.DataMapper}
               title={
                 <>
