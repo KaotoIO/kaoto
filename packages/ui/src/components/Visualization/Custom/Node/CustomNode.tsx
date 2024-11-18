@@ -79,6 +79,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
         data-nodelabel={label}
         data-selected={isSelected}
         data-disabled={isDisabled}
+        data-toolbar-open={shouldShowToolbar}
         data-warning={doesHaveWarnings}
         onClick={onSelect}
         onContextMenu={onContextMenu}
