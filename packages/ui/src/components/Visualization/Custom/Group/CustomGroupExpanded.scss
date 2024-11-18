@@ -41,6 +41,7 @@
       }
 
       &:hover,
+      [data-toolbar-open='true'] &,
       [data-selected='true'] & {
         border-color: var(--custom-node-hover-BorderColor);
         box-shadow: var(--custom-node-Shadow);
