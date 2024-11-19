@@ -90,7 +90,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('eip-action');
+    cy.openRootConfigurationTab('Produces periodic events about random users!');
 
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('name', 'test.name');

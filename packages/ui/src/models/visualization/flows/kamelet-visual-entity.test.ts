@@ -6,6 +6,7 @@ import { SourceSchemaType } from '../../camel';
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../kamelets-catalog';
+import { NodeLabelType } from '../../settings';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { KameletVisualEntity } from './kamelet-visual-entity';
@@ -83,14 +84,29 @@ describe('KameletVisualEntity', () => {
     expect(kameletVisualEntity.kamelet.metadata.name).toEqual('new-id');
   });
 
-  it('should return the node label when querying the ROOT_PATH', () => {
-    const kamelet = new KameletVisualEntity(kameletDef);
-    expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH)).toEqual('My Kamelet');
-  });
+  describe('getNodeLabel', () => {
+    it('should return the ID as node label when querying the ROOT_PATH by default', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH)).toEqual('My Kamelet');
+    });
 
-  it('should return the node label when querying a different path', () => {
-    const kamelet = new KameletVisualEntity(kameletDef);
-    expect(kamelet.getNodeLabel('template.from')).toEqual('timer');
+    it('should return the description as node label when querying the ROOT_PATH', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toEqual(
+        'My Kamelet Description',
+      );
+    });
+
+    it('should fallback to the id as node label when there is no description available', () => {
+      kameletDef.spec.definition.description = undefined;
+      const kamelet = new KameletVisualEntity(kameletDef);
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toEqual('My Kamelet');
+    });
+
+    it('should return the node label when querying a different path', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      expect(kamelet.getNodeLabel('template.from')).toEqual('timer');
+    });
   });
 
   describe('getComponentSchema when querying the ROOT_PATH', () => {

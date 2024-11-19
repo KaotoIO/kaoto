@@ -167,7 +167,7 @@ describe('Canvas', () => {
       await jest.runAllTimersAsync();
     });
 
-    const kamelet = result?.getByText('user-source');
+    const kamelet = result?.getByText('Produces periodic events about random users!');
     if (!kamelet) {
       fail('Kamelet not found');
     }

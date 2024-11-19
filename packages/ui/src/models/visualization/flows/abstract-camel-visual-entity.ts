@@ -36,6 +36,15 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (!path) return '';
+    if (path === this.getRootPath()) {
+      const description: string | undefined = getValue(this.entityDef, `${this.getRootPath()}.description`);
+      if (labelType === NodeLabelType.Description && description) {
+        return description;
+      }
+
+      return this.id;
+    }
+
     const componentModel = getValue(this.entityDef, path);
 
     const label = CamelComponentSchemaService.getNodeLabel(
