@@ -43,6 +43,7 @@ export class XmlSchemaDocument extends BaseDocument {
   fields: XmlSchemaField[] = [];
   namedTypeFragments: Record<string, XmlSchemaTypeFragment> = {};
   totalFieldCount = 0;
+  isNamespaceAware = true;
 
   constructor(
     public xmlSchema: XmlSchema,

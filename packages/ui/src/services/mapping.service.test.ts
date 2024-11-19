@@ -87,6 +87,120 @@ describe('MappingService', () => {
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
       expect(tree.children[0].children.length).toEqual(4);
     });
+
+    it('should not remove for-each mapping contents (source)', () => {
+      sourceDoc = TestUtil.createSourceOrderDoc();
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+      const shipOrderItem = tree.children[0];
+      const forEachItem = shipOrderItem.children[3];
+      expect(forEachItem.parent).toEqual(shipOrderItem);
+      expect(forEachItem.children.length).toEqual(1);
+
+      const itemItem = forEachItem.children[0];
+      expect(itemItem.parent).toEqual(forEachItem);
+      expect(itemItem.children.length).toEqual(4);
+      const titleItem = itemItem.children[0];
+      expect(titleItem.parent).toEqual(itemItem);
+      expect(titleItem.children.length).toEqual(1);
+      expect((titleItem.children[0] as ValueSelector).expression).toEqual('Title');
+
+      const chooseItem = itemItem.children[1];
+      expect(chooseItem.parent).toEqual(itemItem);
+      expect(chooseItem.children.length).toEqual(2);
+      const whenItem = chooseItem.children[0] as WhenItem;
+      expect(whenItem.parent).toEqual(chooseItem);
+      expect(whenItem.expression).toEqual("Note != ''");
+      expect((whenItem.children[0].children[0] as ValueSelector).expression).toEqual('Note');
+      const otherwiseItem = chooseItem.children[1] as OtherwiseItem;
+      expect(otherwiseItem.parent).toEqual(chooseItem);
+      expect((otherwiseItem.children[0].children[0] as ValueSelector).expression).toEqual('Title');
+
+      const quantityItem = itemItem.children[2];
+      expect(quantityItem.parent).toEqual(itemItem);
+      expect(quantityItem.children.length).toEqual(1);
+      expect((quantityItem.children[0] as ValueSelector).expression).toEqual('Quantity');
+
+      const priceItem = itemItem.children[3];
+      expect(priceItem.parent).toEqual(itemItem);
+      expect(priceItem.children.length).toEqual(1);
+      expect((priceItem.children[0] as ValueSelector).expression).toEqual('Price');
+
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(11);
+      links.forEach((link) => expect(link.sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy());
+    });
+
+    it('should not remove for-each mapping contents (target)', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+      const shipOrderItem = tree.children[0];
+      const forEachItem = shipOrderItem.children[3];
+      expect(forEachItem.parent).toEqual(shipOrderItem);
+      expect(forEachItem.children.length).toEqual(1);
+
+      const itemItem = forEachItem.children[0];
+      expect(itemItem.parent).toEqual(forEachItem);
+      expect(itemItem.children.length).toEqual(4);
+      const titleItem = itemItem.children[0];
+      expect(titleItem.parent).toEqual(itemItem);
+      expect(titleItem.children.length).toEqual(1);
+      expect((titleItem.children[0] as ValueSelector).expression).toEqual('Title');
+
+      const chooseItem = itemItem.children[1];
+      expect(chooseItem.parent).toEqual(itemItem);
+      expect(chooseItem.children.length).toEqual(2);
+      const whenItem = chooseItem.children[0] as WhenItem;
+      expect(whenItem.parent).toEqual(chooseItem);
+      expect(whenItem.expression).toEqual("Note != ''");
+      expect((whenItem.children[0].children[0] as ValueSelector).expression).toEqual('Note');
+      const otherwiseItem = chooseItem.children[1] as OtherwiseItem;
+      expect(otherwiseItem.parent).toEqual(chooseItem);
+      expect((otherwiseItem.children[0].children[0] as ValueSelector).expression).toEqual('Title');
+
+      const quantityItem = itemItem.children[2];
+      expect(quantityItem.parent).toEqual(itemItem);
+      expect(quantityItem.children.length).toEqual(1);
+      expect((quantityItem.children[0] as ValueSelector).expression).toEqual('Quantity');
+
+      const priceItem = itemItem.children[3];
+      expect(priceItem.parent).toEqual(itemItem);
+      expect(priceItem.children.length).toEqual(1);
+      expect((priceItem.children[0] as ValueSelector).expression).toEqual('Price');
+
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(11);
+      links.forEach((link) => expect(link.targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy());
+    });
+
+    it("should not remove for-each targeted field when it doesn't have children (source)", () => {
+      const shipOrderItem = tree.children[0];
+      const forEachItem = shipOrderItem.children[3];
+      shipOrderItem.children = [forEachItem];
+      const itemItem = forEachItem.children[0];
+      itemItem.children = [];
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+      expect(forEachItem.parent).toEqual(shipOrderItem);
+      expect(forEachItem.children.length).toEqual(1);
+
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy();
+    });
+
+    it("should not remove for-each targeted field when it doesn't have children (target)", () => {
+      const shipOrderItem = tree.children[0];
+      const forEachItem = shipOrderItem.children[3];
+      shipOrderItem.children = [forEachItem];
+      const itemItem = forEachItem.children[0];
+      itemItem.children = [];
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+      expect(forEachItem.parent).toEqual(shipOrderItem);
+      expect(forEachItem.children.length).toEqual(1);
+
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy();
+    });
   });
 
   describe('addChooseWhenOtherwise()', () => {

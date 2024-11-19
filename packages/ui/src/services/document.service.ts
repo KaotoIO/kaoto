@@ -97,6 +97,27 @@ export class DocumentService {
     return !!parent.fields.find((f) => f === child || DocumentService.isDescendant(f, child));
   }
 
+  static getCompatibleField(document: IDocument, field: IField): IField | undefined {
+    if (document instanceof PrimitiveDocument) return field instanceof PrimitiveDocument ? document : undefined;
+    if (field instanceof PrimitiveDocument) return undefined;
+
+    let left: IField | undefined = undefined;
+    const fieldStack = DocumentService.getFieldStack(field, true);
+    for (const right of fieldStack.reverse()) {
+      const parent: IParentType = left ? left : document;
+      left = parent.fields.find((leftTest: IField) => {
+        const isAttributeOrElementMatching = leftTest.isAttribute === right.isAttribute;
+        const isNamespaceMatching =
+          !leftTest.ownerDocument.isNamespaceAware ||
+          !right.ownerDocument.isNamespaceAware ||
+          leftTest.namespaceURI === right.namespaceURI;
+        return isAttributeOrElementMatching && isNamespaceMatching && leftTest.name === right.name;
+      });
+      if (!left) return undefined;
+    }
+    return left;
+  }
+
   static getFieldFromPathSegments(document: IDocument, pathSegments: string[]) {
     let parent: IDocument | IField = document;
     for (const segment of pathSegments) {

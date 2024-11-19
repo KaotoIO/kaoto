@@ -48,6 +48,7 @@ export interface IDocument {
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment>;
   totalFieldCount: number;
+  isNamespaceAware: boolean;
 }
 
 export abstract class BaseDocument implements IDocument {
@@ -63,6 +64,7 @@ export abstract class BaseDocument implements IDocument {
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment> = {};
   abstract totalFieldCount: number;
+  abstract isNamespaceAware: boolean;
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
@@ -86,6 +88,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   id: string;
   namedTypeFragmentRefs = [];
   totalFieldCount = 1;
+  isNamespaceAware = false;
   adopt = () => this;
 }
 

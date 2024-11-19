@@ -113,30 +113,54 @@ export class MappingService {
   private static doRemoveStaleMappingsForTargetDocument(item: MappingTree | MappingItem, document: IDocument) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForTargetDocument(child, document);
-      if (child instanceof FieldItem && DocumentService.hasField(document, child.field) && child.children.length > 0) {
+      let compatibleField: IField | undefined = undefined;
+      if (child instanceof FieldItem) {
+        compatibleField = DocumentService.getCompatibleField(document, child.field);
+        if (compatibleField) {
+          child = MappingService.updateFieldItemField(child, compatibleField);
+        }
+      }
+      if (compatibleField && child.children.length > 0) {
         acc.push(child);
-      } else if (child instanceof ConditionItem) {
+      } else if (child.parent instanceof ConditionItem || child instanceof ConditionItem) {
         acc.push(child);
       }
       return acc;
     }, [] as MappingItem[]);
+  }
+
+  private static updateFieldItemField(item: FieldItem, newField: IField): FieldItem {
+    const updated = MappingService.createFieldItem(item.parent, newField);
+    MappingService.adaptChildren(item, updated);
+    item.parent.children = item.parent.children.map((child) => (child === item ? updated : child));
+    return updated;
+  }
+
+  private static adaptChildren(from: MappingItem, to: MappingItem) {
+    to.children = from.children.map((child) => {
+      child.parent = to;
+      return child;
+    });
   }
 
   private static doRemoveStaleMappingsForSourceDocument(item: MappingTree | MappingItem, document: IDocument) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForSourceDocument(child, document);
-      if ('expression' in child && MappingService.hasStaleSourceField(child.expression as string, document)) {
+      if (child instanceof ExpressionItem && MappingService.hasStaleSourceField(child, document)) {
         return acc;
       }
-      if (child instanceof FieldItem && child.children.length === 0) return acc;
+      if (!(child.parent instanceof ConditionItem) && child instanceof FieldItem && child.children.length === 0) {
+        return acc;
+      }
       acc.push(child);
       return acc;
     }, [] as MappingItem[]);
   }
 
-  private static hasStaleSourceField(expression: string, document: IDocument) {
-    const stalePath = XPathService.extractFieldPaths(expression).find((xpath) => {
-      const parsedPath = new Path(xpath);
+  private static hasStaleSourceField(expressionItem: ExpressionItem, document: IDocument) {
+    const stalePath = XPathService.extractFieldPaths(expressionItem.expression).find((xpath) => {
+      const absPath = MappingService.getAbsolutePath(expressionItem, xpath);
+      const parsedPath = new Path(absPath);
       if (
         (document.documentType === DocumentType.SOURCE_BODY && !parsedPath.parameterName) ||
         (document.documentType === DocumentType.PARAM && parsedPath.parameterName === document.documentId)
@@ -246,6 +270,12 @@ export class MappingService {
     return index == -1 ? absPath : absPath.substring(index + parentPath.length + 1);
   }
 
+  private static getAbsolutePath(condition: MappingItem, xpath: string): string {
+    return condition.contextPath && !xpath.startsWith('$') && !xpath.startsWith('/')
+      ? condition.contextPath + '/' + xpath
+      : xpath;
+  }
+
   static mapToDocument(mappingTree: MappingTree, source: PrimitiveDocument | IField) {
     let valueSelector = mappingTree.children.find((mapping) => mapping instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
@@ -269,7 +299,7 @@ export class MappingService {
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
   }
 
-  static createFieldItem(parentItem: MappingItem, field: IField) {
+  static createFieldItem(parentItem: MappingParentType, field: IField) {
     const fieldItem = new FieldItem(parentItem, field);
     parentItem.children.push(fieldItem);
     return fieldItem;
@@ -380,10 +410,7 @@ export class MappingService {
     if (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) return [];
     const fieldPaths = XPathService.extractFieldPaths(sourceXPath);
     return fieldPaths.reduce((acc, xpath) => {
-      const absolutePath =
-        sourceExpressionItem.contextPath && !xpath.startsWith('$') && !xpath.startsWith('/')
-          ? sourceExpressionItem.contextPath + '/' + xpath
-          : xpath;
+      const absolutePath = MappingService.getAbsolutePath(sourceExpressionItem, xpath);
       const path = new Path(absolutePath);
       const document = path.parameterName ? sourceParameterMap.get(path.parameterName) : sourceBody;
       const sourceNodePath =
