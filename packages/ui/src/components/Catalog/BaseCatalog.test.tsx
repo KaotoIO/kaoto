@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CatalogLayout } from './Catalog.models';
 import { BaseCatalog } from './BaseCatalog';
 import { longTileList } from '../../stubs';
@@ -103,6 +103,8 @@ describe('BaseCatalog', () => {
       screen.getAllByRole('listitem').filter((li) => li.classList.contains('catalog-data-list-item')),
     ).toHaveLength(20);
 
-    expect(screen.getByRole('button', { name: 'Go to next page' })).toBeDisabled();
+    waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Go to next page' })).toBeDisabled();
+    });
   });
 });
