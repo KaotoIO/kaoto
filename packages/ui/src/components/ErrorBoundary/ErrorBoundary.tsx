@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           {this.props.fallback}
           <ExpandableSection
             toggleText={this.state.isExpanded ? 'Show less' : 'Show more'}
-            toggleId="expandable-section-toggle"
+            toggleId="error-boundary-expandable-section-toggle"
             contentId="expandable-section-content"
             onToggle={this.onToggle}
             isExpanded={this.state.isExpanded}

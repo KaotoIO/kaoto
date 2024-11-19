@@ -48,7 +48,7 @@ export const LoadDefaultCatalog: FunctionComponent<PropsWithChildren<ILoadDefaul
           </EmptyStateActions>
           <ExpandableSection
             toggleText="Error details"
-            toggleId="expandable-section-toggle"
+            toggleId="error-details-expandable-section-toggle"
             contentId="expandable-section-content"
           >
             <code>
