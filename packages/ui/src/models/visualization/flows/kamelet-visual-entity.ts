@@ -40,7 +40,14 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
 
   getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (path === this.getRootPath()) {
-      return this.kamelet.metadata.name;
+      const id: string | undefined = this.kamelet.metadata.name;
+      const description: string | undefined = this.kamelet.spec.definition.description;
+
+      if (labelType === NodeLabelType.Description && isDefined(description)) {
+        return description;
+      }
+
+      return id;
     }
 
     return super.getNodeLabel(path, labelType);

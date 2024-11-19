@@ -222,14 +222,14 @@ describe('Camel Route', () => {
       camelEntity.entityDef.route.description = 'This is a route description';
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('This is a route description');
+      expect(vizNode.getNodeLabel(NodeLabelType.Description)).toEqual('This is a route description');
     });
 
     it('should use the default group label if the id is not available', () => {
       camelEntity.entityDef.route.id = undefined;
       const vizNode = camelEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('route');
+      expect(vizNode.getNodeLabel()).toEqual('route-8888');
     });
 
     it('should use the uri as the node label', () => {
