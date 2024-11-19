@@ -69,6 +69,13 @@ async function main() {
   }
 
   const indexDefinitionFileName = catalogLibraryIndex.definitions[0].fileName;
+
+  /**
+   * In windows, path starting with C:\ are not supported
+   * We need to add file:// to the path to make it work
+   * [pathToFileURL](https://nodejs.org/api/url.html#url_url_pathtofileurl_path)
+   * Related issue: https://github.com/nodejs/node/issues/31710
+   */
   const indexFileUri = pathToFileURL(`./dist/camel-catalog/${indexDefinitionFileName}`).toString();
   const indexDefinitionContent: CatalogDefinition = (await import(indexFileUri, { assert: { type: 'json' } })).default;
 
@@ -77,17 +84,9 @@ async function main() {
       return;
     }
 
-    const baseFolder = indexDefinitionFileName.substring(0, indexDefinitionFileName.lastIndexOf('/'));
-    const schemaFile = resolve(`./dist/camel-catalog/${baseFolder}/${schema.file}`);
-
-    /**
-     * In windows, path starting with C:\ are not supported
-     * We need to add file:// to the path to make it work
-     * [pathToFileURL](https://nodejs.org/api/url.html#url_url_pathtofileurl_path)
-     * Related issue: https://github.com/nodejs/node/issues/31710
-     */
-    const schemaFileUri = pathToFileURL(schemaFile).toString();
-    const schemaContent = (await import(schemaFileUri, { assert: { type: 'json' } })).default;
+    const baseFolder = indexFileUri.substring(0, indexFileUri.lastIndexOf('/'));
+    const schemaFile = `${baseFolder}/${schema.file}`;
+    const schemaContent = (await import(schemaFile, { assert: { type: 'json' } })).default;
 
     addTitleToDefinitions(schemaContent);
 
