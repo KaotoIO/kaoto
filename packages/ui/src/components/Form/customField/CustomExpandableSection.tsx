@@ -1,17 +1,23 @@
-import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 import { ExpandableSection, capitalize } from '@patternfly/react-core';
+import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
 interface CustomExpandableSectionProps extends PropsWithChildren {
   groupName: string;
-  isGroupExpanded: boolean;
+  isGroupExpanded?: boolean;
 }
 
-export const CustomExpandableSection: FunctionComponent<CustomExpandableSectionProps> = (props) => {
+const WHITESPACE_REGEX = /\s/g;
+
+export const CustomExpandableSection: FunctionComponent<CustomExpandableSectionProps> = ({
+  groupName,
+  isGroupExpanded = false,
+  children,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    setIsExpanded(props.isGroupExpanded);
-  }, [props.isGroupExpanded]);
+    setIsExpanded(isGroupExpanded);
+  }, [isGroupExpanded]);
 
   const onToggle = (_event: React.MouseEvent, isExpanded: boolean) => {
     setIsExpanded(isExpanded);
@@ -19,13 +25,13 @@ export const CustomExpandableSection: FunctionComponent<CustomExpandableSectionP
 
   return (
     <ExpandableSection
-      toggleText={capitalize(`${props.groupName} properties`)}
-      toggleId="expandable-section-toggle"
+      toggleText={capitalize(`${groupName} properties`)}
+      toggleId={`expandable-section-toggle-${groupName.replace(WHITESPACE_REGEX, '-')}`}
       contentId="expandable-section-content"
       onToggle={onToggle}
       isExpanded={isExpanded}
     >
-      {props.children}
+      {children}
     </ExpandableSection>
   );
 };
