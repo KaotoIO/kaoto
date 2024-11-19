@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import cloneDeep from 'lodash/cloneDeep';
-import { CamelUriHelper, ParsedParameters, ROOT_PATH, getValue, isDefined } from '../../../../utils';
+import { CamelUriHelper, ParsedParameters, getValue, isDefined } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
@@ -43,11 +43,6 @@ export class CamelComponentSchemaService {
     const splitPath = path.split('.');
     const lastPathSegment = splitPath[splitPath.length - 1];
     const pathAsIndex = Number.parseInt(lastPathSegment, 10);
-
-    /** If path is `#` it means the root of the Camel Route */
-    if (path === ROOT_PATH) {
-      return { processorName: 'route' as keyof ProcessorDefinition };
-    }
 
     /**
      * If the last path segment is NaN, it means this is a Camel Processor
