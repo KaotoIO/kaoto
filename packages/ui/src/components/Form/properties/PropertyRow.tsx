@@ -1,4 +1,4 @@
-import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput, Tooltip } from '@patternfly/react-core';
+import { Button, HelperText, HelperTextItem, Split, SplitItem, TextInput } from '@patternfly/react-core';
 import { CheckIcon, PencilAltIcon, TimesIcon, TrashIcon } from '@patternfly/react-icons';
 import { Td, TdProps, TreeRowWrapper } from '@patternfly/react-table';
 import { FormEvent, useState } from 'react';
@@ -149,49 +149,45 @@ export function PropertyRow({
           {isEditing
             ? [
                 <SplitItem key={`${getKey()}-property-edit-confirm-${nodeName}`}>
-                  <Tooltip content="Confirm edit">
-                    <Button
-                      data-testid={`${getKey()}-property-edit-confirm-${nodeName}-btn`}
-                      icon={<CheckIcon />}
-                      variant="link"
-                      isDisabled={isUserInputInvalid()}
-                      onClick={commitUserInput}
-                    />
-                  </Tooltip>
+                  <Button
+                    title="Confirm edit"
+                    data-testid={`${getKey()}-property-edit-confirm-${nodeName}-btn`}
+                    icon={<CheckIcon />}
+                    variant="link"
+                    isDisabled={isUserInputInvalid()}
+                    onClick={commitUserInput}
+                  />
                 </SplitItem>,
                 <SplitItem key={`${getKey()}-property-edit-cancel-${nodeName}`}>
-                  <Tooltip content="Cancel edit">
-                    <Button
-                      data-testid={`${getKey()}-property-edit-cancel-${nodeName}-btn`}
-                      icon={<TimesIcon />}
-                      variant="link"
-                      onClick={cancelEditing}
-                    />
-                  </Tooltip>
+                  <Button
+                    title="Cancel edit"
+                    data-testid={`${getKey()}-property-edit-cancel-${nodeName}-btn`}
+                    icon={<TimesIcon />}
+                    variant="link"
+                    onClick={cancelEditing}
+                  />
                 </SplitItem>,
               ]
             : [
                 <SplitItem key={`${getKey()}-property-edit-${nodeName}`}>
-                  <Tooltip content="Edit property">
-                    <Button
-                      data-testid={`${getKey()}-property-edit-${nodeName}-btn`}
-                      icon={<PencilAltIcon />}
-                      variant="link"
-                      onClick={() => setIsEditing(true)}
-                    />
-                  </Tooltip>
+                  <Button
+                    title="Edit property"
+                    data-testid={`${getKey()}-property-edit-${nodeName}-btn`}
+                    icon={<PencilAltIcon />}
+                    variant="link"
+                    onClick={() => setIsEditing(true)}
+                  />
                 </SplitItem>,
-                <SplitItem key={`${getKey()}-property-edit-spacer-${nodeName}`}></SplitItem>,
+                <SplitItem key={`${getKey()}-property-edit-spacer-${nodeName}`} />,
               ]}
           <SplitItem key={`${getKey()}-property-delete-${nodeName}`}>
-            <Tooltip content="Delete property">
-              <Button
-                data-testid={`${getKey()}-delete-${nodeName}-btn`}
-                icon={<TrashIcon />}
-                variant="link"
-                onClick={() => handleTrashClick(parentModel, nodeName)}
-              ></Button>
-            </Tooltip>
+            <Button
+              title="Delete property"
+              data-testid={`${getKey()}-delete-${nodeName}-btn`}
+              icon={<TrashIcon />}
+              variant="link"
+              onClick={() => handleTrashClick(parentModel, nodeName)}
+            />
           </SplitItem>
         </Split>
       </Td>

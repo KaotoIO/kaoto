@@ -1983,15 +1983,15 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                             <div
                               class="pf-v5-c-menu-toggle pf-m-full-width pf-m-split-button pf-m-action"
                             >
-                              <div
-                                style="display: contents;"
+                              <button
+                                aria-label="DSL list"
+                                class="pf-v5-c-menu-toggle__button"
+                                data-testid="dsl-list-btn"
+                                id="dsl-list-btn"
+                                type="button"
                               >
-                                <button
-                                  aria-label="DSL list"
-                                  class="pf-v5-c-menu-toggle__button"
-                                  data-testid="dsl-list-btn"
-                                  id="dsl-list-btn"
-                                  type="button"
+                                <div
+                                  title="Add a new Camel Route route"
                                 >
                                   <svg
                                     aria-hidden="true"
@@ -2011,8 +2011,8 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                                   >
                                     New
                                   </span>
-                                </button>
-                              </div>
+                                </div>
+                              </button>
                               <button
                                 aria-expanded="false"
                                 class="pf-v5-c-menu-toggle__button"

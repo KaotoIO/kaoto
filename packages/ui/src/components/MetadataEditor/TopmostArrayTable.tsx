@@ -1,5 +1,4 @@
-import './MetadataEditor.scss';
-import { Button, EmptyState, EmptyStateBody, Tooltip, Truncate } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateBody, Truncate } from '@patternfly/react-core';
 import { PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import {
   InnerScrollContainer,
@@ -12,6 +11,7 @@ import {
   Thead,
   Tr,
 } from '@patternfly/react-table';
+import './MetadataEditor.scss';
 
 type TopmostArrayTableProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,14 +58,13 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                   </Th>
                 ))}
               <Td modifier="nowrap" key="buttons" isActionCell>
-                <Tooltip content={`Add new ${props.name}`}>
-                  <Button
-                    data-testid={'metadata-add-' + props.name + '-btn'}
-                    icon={<PlusCircleIcon />}
-                    variant="link"
-                    onClick={() => handleAddNew()}
-                  ></Button>
-                </Tooltip>
+                <Button
+                  title={`Add new ${props.name}`}
+                  data-testid={'metadata-add-' + props.name + '-btn'}
+                  icon={<PlusCircleIcon />}
+                  variant="link"
+                  onClick={() => handleAddNew()}
+                />
               </Td>
             </Tr>
           </Thead>
@@ -102,14 +101,13 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                       </Td>
                     ))}
                   <Td key="buttons" isActionCell>
-                    <Tooltip content={`Delete ${props.name}`}>
-                      <Button
-                        data-testid={'metadata-delete-' + index + '-btn'}
-                        icon={<TrashIcon />}
-                        variant="link"
-                        onClick={() => handleTrashClick(index)}
-                      ></Button>
-                    </Tooltip>
+                    <Button
+                      title={`Delete ${props.name}`}
+                      data-testid={'metadata-delete-' + index + '-btn'}
+                      icon={<TrashIcon />}
+                      variant="link"
+                      onClick={() => handleTrashClick(index)}
+                    />
                   </Td>
                 </Tr>
               ))
