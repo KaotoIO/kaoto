@@ -84,6 +84,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
             value={xsltDocument}
             title="The name of the XSLT document that is used by the Kaoto DataMapper"
             validated={isXsltDocumentDefined ? ValidatedOptions.default : ValidatedOptions.error}
+            id="xslt-document-path"
           />
           {!isXsltDocumentDefined && (
             <HelperText>
