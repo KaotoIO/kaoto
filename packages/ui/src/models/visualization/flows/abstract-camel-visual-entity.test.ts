@@ -4,6 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
+import { NodeLabelType } from '../../settings';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -22,7 +23,47 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   beforeEach(() => {
-    abstractVisualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson.route));
+    abstractVisualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
+  });
+
+  describe('getNodeLabel', () => {
+    it('should return an empty string if the path is `undefined`', () => {
+      const result = abstractVisualEntity.getNodeLabel(undefined);
+
+      expect(result).toEqual('');
+    });
+
+    it('should return an empty string if the path is empty', () => {
+      const result = abstractVisualEntity.getNodeLabel('');
+
+      expect(result).toEqual('');
+    });
+
+    it('should return the ID as a node label by default', () => {
+      const result = abstractVisualEntity.getNodeLabel('route');
+
+      expect(result).toEqual('route-8888');
+    });
+
+    it('should return the description as a node label', () => {
+      const routeDefinition = cloneDeep(camelRouteJson);
+      routeDefinition.route.description = 'description';
+      abstractVisualEntity = new CamelRouteVisualEntity(routeDefinition);
+
+      const result = abstractVisualEntity.getNodeLabel('route', NodeLabelType.Description);
+
+      expect(result).toEqual('description');
+    });
+
+    it('should return the ID as a node label if description is empty', () => {
+      const routeDefinition = cloneDeep(camelRouteJson);
+      routeDefinition.route.description = '';
+      abstractVisualEntity = new CamelRouteVisualEntity(routeDefinition);
+
+      const result = abstractVisualEntity.getNodeLabel('route', NodeLabelType.Description);
+
+      expect(result).toEqual('route-8888');
+    });
   });
 
   describe('getNodeInteraction', () => {

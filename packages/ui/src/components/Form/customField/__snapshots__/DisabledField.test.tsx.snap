@@ -31,7 +31,7 @@ exports[`DisabledField should render 1`] = `
           aria-controls="expandable-section-content"
           aria-expanded="false"
           class="pf-v5-c-expandable-section__toggle"
-          id="expandable-section-toggle"
+          id="expandable-section-toggle-test"
           type="button"
         >
           <span
@@ -54,11 +54,11 @@ exports[`DisabledField should render 1`] = `
           <span
             class="pf-v5-c-expandable-section__toggle-text"
           >
-            Show properties
+            Test properties
           </span>
         </button>
         <div
-          aria-labelledby="expandable-section-toggle"
+          aria-labelledby="expandable-section-toggle-test"
           class="pf-v5-c-expandable-section__content"
           hidden=""
           id="expandable-section-content"

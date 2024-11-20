@@ -152,11 +152,11 @@ export const PropertiesField = connectField((props: IPropertiesField) => {
           <Badge isRead>{Object.keys(propertiesModel).length}</Badge>
         </>
       }
-      toggleId="expandable-section-toggle"
+      toggleId={`expandable-section-toggle-${props.name}`}
       contentId="expandable-section-content"
       onToggle={(_event, isExpanded) => setFieldExpanded(isExpanded)}
       isExpanded={isFieldExpanded}
-      data-testid={'expandable-section-' + props.name}
+      data-testid={`expandable-section-${props.name}`}
     >
       <Stack hasGutter>
         <StackItem isFilled>

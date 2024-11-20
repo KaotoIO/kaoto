@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { DATAMAPPER_ID_PREFIX, ROOT_PATH, XSLT_COMPONENT_NAME } from '../../../../utils';
+import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelProcessorDefinition } from '../../../camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -65,7 +65,7 @@ describe('CamelComponentSchemaService', () => {
 
     it('should build the appropriate schema for `route` entity', () => {
       const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-      const rootPath = ROOT_PATH;
+      const rootPath = 'route';
       const routeDefinition = {
         id: 'route-1234',
         from: {
@@ -282,7 +282,8 @@ describe('CamelComponentSchemaService', () => {
 
   describe('getCamelComponentLookup', () => {
     it.each([
-      [ROOT_PATH, { from: { uri: 'timer' } }, { processorName: 'route' }],
+      ['route', { from: { uri: 'timer' } }, { processorName: 'route' }],
+      ['intercept', { id: 'intercept-8888', steps: [] }, { processorName: 'intercept' }],
       ['from', { uri: 'timer' }, { processorName: 'from', componentName: 'timer' }],
       ['from.steps.0.to', { uri: 'log' }, { processorName: 'to', componentName: 'log' }],
       ['from.steps.1.toD', { uri: 'log' }, { processorName: 'toD', componentName: 'log' }],

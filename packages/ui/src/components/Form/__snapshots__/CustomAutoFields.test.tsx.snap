@@ -607,7 +607,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           aria-controls="expandable-section-content"
           aria-expanded="false"
           class="pf-v5-c-expandable-section__toggle"
-          id="expandable-section-toggle"
+          id="expandable-section-toggle-processor-consumer-(advanced)"
           type="button"
         >
           <span
@@ -634,7 +634,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           </span>
         </button>
         <div
-          aria-labelledby="expandable-section-toggle"
+          aria-labelledby="expandable-section-toggle-processor-consumer-(advanced)"
           class="pf-v5-c-expandable-section__content"
           hidden=""
           id="expandable-section-content"
@@ -935,7 +935,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           aria-controls="expandable-section-content"
           aria-expanded="false"
           class="pf-v5-c-expandable-section__toggle"
-          id="expandable-section-toggle"
+          id="expandable-section-toggle-processor-advanced"
           type="button"
         >
           <span
@@ -962,7 +962,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           </span>
         </button>
         <div
-          aria-labelledby="expandable-section-toggle"
+          aria-labelledby="expandable-section-toggle-processor-advanced"
           class="pf-v5-c-expandable-section__content"
           hidden=""
           id="expandable-section-content"
@@ -1412,7 +1412,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           aria-controls="expandable-section-content"
           aria-expanded="false"
           class="pf-v5-c-expandable-section__toggle"
-          id="expandable-section-toggle"
+          id="expandable-section-toggle-processor-scheduler"
           type="button"
         >
           <span
@@ -1439,7 +1439,7 @@ exports[`CustomAutoFields renders \`AutoFields\` for common fields 1`] = `
           </span>
         </button>
         <div
-          aria-labelledby="expandable-section-toggle"
+          aria-labelledby="expandable-section-toggle-processor-scheduler"
           class="pf-v5-c-expandable-section__content"
           hidden=""
           id="expandable-section-content"

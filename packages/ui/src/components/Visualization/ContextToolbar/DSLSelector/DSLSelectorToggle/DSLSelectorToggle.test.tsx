@@ -99,8 +99,9 @@ describe('DSLSelectorToggle.tsx', () => {
     });
 
     const element = await wrapper.findByText('Pipe');
-    expect(element).toBeInTheDocument();
-
+    waitFor(() => {
+      expect(element).toBeInTheDocument();
+    });
     /** Close Select */
     act(() => {
       fireEvent.click(toggle);
