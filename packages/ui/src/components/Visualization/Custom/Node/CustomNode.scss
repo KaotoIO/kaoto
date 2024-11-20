@@ -28,6 +28,7 @@
       }
 
       &:hover &__image,
+      [data-toolbar-open='true'] & &__image,
       [data-selected='true'] & &__image {
         border-color: var(--custom-node-hover-BorderColor);
         box-shadow: var(--custom-node-Shadow);

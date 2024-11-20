@@ -64,6 +64,7 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
           data-grouplabel={label}
           data-selected={isSelected}
           data-disabled={isDisabled}
+          data-toolbar-open={shouldShowToolbar}
           onClick={onSelect}
           onContextMenu={onContextMenu}
         >

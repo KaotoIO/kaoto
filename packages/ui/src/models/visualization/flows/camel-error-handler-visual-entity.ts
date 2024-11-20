@@ -48,6 +48,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   getNodeLabel(): string {
+    const id: string | undefined = getValue(this.errorHandlerDef.errorHandler, 'id');
     const deadLetterChannelId: string | undefined = getValue(this.errorHandlerDef.errorHandler, 'deadLetterChannel.id');
     const defaultErrorHandlerId: string | undefined = getValue(
       this.errorHandlerDef.errorHandler,
@@ -70,7 +71,8 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
       jtaTransactionErrorHandlerId ??
       noErrorHandlerId ??
       refErrorHandlerId ??
-      springTransactionErrorHandlerId;
+      springTransactionErrorHandlerId ??
+      id;
 
     if (!errorHandlerId?.trim()) errorHandlerId = 'errorHandler';
     return errorHandlerId;

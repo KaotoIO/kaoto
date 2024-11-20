@@ -75,7 +75,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                   aria-controls="expandable-section-content"
                   aria-expanded="false"
                   class="pf-v5-c-expandable-section__toggle"
-                  id="expandable-section-toggle"
+                  id="error-details-expandable-section-toggle"
                   type="button"
                 >
                   <span
@@ -102,7 +102,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                   </span>
                 </button>
                 <div
-                  aria-labelledby="expandable-section-toggle"
+                  aria-labelledby="error-details-expandable-section-toggle"
                   class="pf-v5-c-expandable-section__content"
                   hidden=""
                   id="expandable-section-content"
@@ -189,7 +189,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                 aria-controls="expandable-section-content"
                 aria-expanded="false"
                 class="pf-v5-c-expandable-section__toggle"
-                id="expandable-section-toggle"
+                id="error-details-expandable-section-toggle"
                 type="button"
               >
                 <span
@@ -216,7 +216,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                 </span>
               </button>
               <div
-                aria-labelledby="expandable-section-toggle"
+                aria-labelledby="error-details-expandable-section-toggle"
                 class="pf-v5-c-expandable-section__content"
                 hidden=""
                 id="expandable-section-content"

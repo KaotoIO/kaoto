@@ -48,8 +48,11 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   const validationText = vizNode?.getNodeValidationText();
   const doesHaveWarnings = !isDisabled && !!validationText;
   const [isSelected, onSelect] = useSelection();
-  const [isGHover, gHoverRef] = useHover<SVGGElement>();
-  const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>();
+  const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
+  const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
+    CanvasDefaults.HOVER_DELAY_IN,
+    CanvasDefaults.HOVER_DELAY_OUT,
+  );
   const childCount = element.getAllNodeChildren().length;
   const boxRef = useRef<Rect>(element.getBounds());
   const shouldShowToolbar =
@@ -79,6 +82,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
         data-nodelabel={label}
         data-selected={isSelected}
         data-disabled={isDisabled}
+        data-toolbar-open={shouldShowToolbar}
         data-warning={doesHaveWarnings}
         onClick={onSelect}
         onContextMenu={onContextMenu}
