@@ -131,6 +131,7 @@ public class CamelCatalogVersionLoader {
         ClassLoader classLoader = kaotoVersionManager.getClassLoader();
         URL resourceURL = classLoader.getResource(Constants.CAMEL_YAML_DSL_ARTIFACT);
         if (resourceURL == null) {
+        	LOGGER.log(Level.SEVERE, "No " + Constants.CAMEL_YAML_DSL_ARTIFACT + " file found in the classpath");
             return false;
         }
 
