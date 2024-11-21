@@ -94,8 +94,13 @@ describe('KameletSchemaService', () => {
   });
 
   describe('getNodeLabel', () => {
-    it('should return the Kamelet name as the node label', () => {
-      const result = KameletSchemaService.getNodeLabel(
+    it.each([
+      ['source', 'source', undefined],
+      ['sink', 'sink', undefined],
+      ['', 'steps.0', undefined],
+      [
+        'beer-source',
+        'source',
         {
           ref: {
             kind: 'Kamelet',
@@ -103,16 +108,11 @@ describe('KameletSchemaService', () => {
             name: 'beer-source',
           },
         },
-        'source',
-      );
+      ],
+    ])('should return the %s for the %s label', (expected, path, step) => {
+      const result = KameletSchemaService.getNodeLabel(step, path);
 
-      expect(result).toEqual('beer-source');
-    });
-
-    it('should return the Kamelet name as the node label', () => {
-      const result = KameletSchemaService.getNodeLabel(undefined, 'sink');
-
-      expect(result).toEqual('sink: Unknown');
+      expect(result).toEqual(expected);
     });
   });
 

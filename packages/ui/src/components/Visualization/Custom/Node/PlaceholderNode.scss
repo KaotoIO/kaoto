@@ -1,0 +1,35 @@
+@use '../custom';
+
+.placeholder-node {
+  @include custom.highligth {
+    &__container {
+      @include custom.container;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &__image {
+        border: 2px dashed var(--custom-node-BorderColor);
+        border-radius: var(--custom-node-BorderRadius);
+        background-color: var(--custom-node-BackgroundColor);
+        padding: var(--pf-v5-global--spacer--md);
+        color: var(--pf-topology__edge--Stroke);
+      }
+
+      &:hover &__image {
+        border-color: var(--custom-node-hover-BorderColor);
+        box-shadow: var(--custom-node-Shadow);
+      }
+    }
+
+    &__label {
+      @include custom.label {
+        background-color: var(--custom-node-BackgroundColor);
+        padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+        border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+        font-style: italic;
+      }
+    }
+  }
+}

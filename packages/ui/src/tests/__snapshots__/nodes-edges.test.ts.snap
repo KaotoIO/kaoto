@@ -4923,32 +4923,11 @@ exports[`Nodes and Edges should generate edges for steps with branches 2`] = `
     "type": "edge",
   },
   {
-    "edgeStyle": "dashed",
-    "id": "setHeader-1234-end",
-    "source": "setHeader-1234",
-    "target": "setHeader-1234",
-    "type": "edge-end",
-  },
-  {
-    "edgeStyle": "dashed",
-    "id": "log-1234-end",
-    "source": "log-1234",
-    "target": "log-1234",
-    "type": "edge-end",
-  },
-  {
     "edgeStyle": "solid",
     "id": "choice-1234-to-sql-1234",
     "source": "choice-1234",
     "target": "sql-1234",
     "type": "edge",
-  },
-  {
-    "edgeStyle": "dashed",
-    "id": "sql-1234-end",
-    "source": "sql-1234",
-    "target": "sql-1234",
-    "type": "edge-end",
   },
 ]
 `;

@@ -44,9 +44,21 @@
   font-style: italic;
 }
 
-@mixin text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
+@mixin label {
+  text-align: center;
+
+  & &__text {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    cursor: pointer;
+
+    span:not([data-warning='true']) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @content;
+  }
 }

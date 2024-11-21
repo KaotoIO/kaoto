@@ -26,8 +26,8 @@ describe('Tests for Design page', () => {
     cy.removeNodeByName('json-deserialize-action');
     cy.removeNodeByName('kafka-source');
     cy.removeNodeByName('kafka-sink');
-    cy.checkNodeExist('source: Unknown', 1);
-    cy.checkNodeExist('sink: Unknown', 1);
+    cy.checkNodeExist('source', 1);
+    cy.checkNodeExist('sink', 1);
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('json-deserialize-action', 0);

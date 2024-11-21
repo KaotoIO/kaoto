@@ -1,5 +1,5 @@
 import { Icon } from '@patternfly/react-core';
-import { BanIcon } from '@patternfly/react-icons';
+import { ArrowDownIcon, ArrowRightIcon, BanIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   GROUPS_LAYER,
@@ -14,10 +14,12 @@ import {
   useSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useRef } from 'react';
-import { IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
+import { LayoutType } from '../../Canvas';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { AddStepIcon } from '../Edge/AddStepIcon';
 import { TargetAnchor } from '../target-anchor';
 import './CustomGroupExpanded.scss';
 import { CustomGroupProps } from './Group.models';
@@ -44,6 +46,9 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
         ? isGHover || isToolbarHover || isSelected
         : isSelected;
+    const shouldShowAddStep =
+      shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
+    const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
@@ -57,6 +62,12 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
     const toolbarWidth = Math.max(CanvasDefaults.STEP_TOOLBAR_WIDTH, boxRef.current.width);
     const toolbarX = boxRef.current.x + (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
+    const addStepX = isHorizontal
+      ? boxRef.current.x + boxRef.current.width
+      : boxRef.current.x + (boxRef.current.width - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2;
+    const addStepY = isHorizontal
+      ? boxRef.current.y + (boxRef.current.height - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
+      : boxRef.current.y + boxRef.current.height;
 
     return (
       <Layer id={GROUPS_LAYER}>
@@ -79,8 +90,8 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
             height={boxRef.current.height}
           >
             <div className="custom-group__container">
-              <div className="custom-group__container__title" title={tooltipContent}>
-                <img src={vizNode.data.icon} />
+              <div className="custom-group__container__text" title={tooltipContent}>
+                <img alt={tooltipContent} src={vizNode.data.icon} />
                 <span title={label}>{label}</span>
               </div>
 
@@ -110,6 +121,24 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
                 />
               </foreignObject>
             </Layer>
+          )}
+
+          {shouldShowAddStep && (
+            <foreignObject
+              x={addStepX}
+              y={addStepY}
+              width={CanvasDefaults.ADD_STEP_ICON_SIZE}
+              height={CanvasDefaults.ADD_STEP_ICON_SIZE}
+            >
+              <AddStepIcon
+                vizNode={vizNode}
+                mode={AddStepMode.AppendStep}
+                title="Add step"
+                data-testid="quick-append-step"
+              >
+                <Icon size="lg">{isHorizontal ? <ArrowRightIcon /> : <ArrowDownIcon />}</Icon>
+              </AddStepIcon>
+            </foreignObject>
           )}
         </g>
       </Layer>

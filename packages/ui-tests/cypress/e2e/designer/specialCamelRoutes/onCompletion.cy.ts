@@ -6,7 +6,8 @@ describe('Test for onCompletion configuration container', () => {
   it('Root onCompletion configuration', () => {
     cy.selectCamelRouteType('Configuration', 'onCompletion');
 
-    cy.get(`[data-testid^="custom-node__onCompletion"]`).click({ force: true });
+    cy.openGroupConfigurationTab('onCompletion');
+
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');

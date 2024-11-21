@@ -37,7 +37,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('camel-route');
+    cy.openGroupConfigurationTab('camel-route');
 
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('description', 'test.description');
@@ -90,7 +90,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('Produces periodic events about random users!');
+    cy.openGroupConfigurationTab('Produces periodic events about random users!');
 
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('name', 'test.name');
@@ -130,7 +130,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.uploadFixture('flows/pipe/basic.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('pipe');
+    cy.openGroupConfigurationTab('pipe');
 
     cy.selectFormTab('All');
     cy.get(`input[name="name"]`).clear();

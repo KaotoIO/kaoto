@@ -6,7 +6,7 @@ describe('Test for interceptSendToEndpoint configuration container', () => {
   it('Root interceptSendToEndpoint configuration', () => {
     cy.selectCamelRouteType('Configuration', 'interceptSendToEndpoint');
 
-    cy.get(`[data-testid^="custom-node__interceptSendToEndpoint"]`).click({ force: true });
+    cy.openGroupConfigurationTab('interceptSendToEndpoint');
 
     cy.selectFormTab('All');
 

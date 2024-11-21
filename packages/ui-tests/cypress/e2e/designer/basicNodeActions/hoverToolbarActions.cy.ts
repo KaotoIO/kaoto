@@ -49,7 +49,7 @@ describe('Test toolbar on hover actions', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('camel-route');
+    cy.openGroupConfigurationTab('camel-route');
 
     cy.get('[data-testid="step-toolbar-button-delete-group"]').click();
     cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
@@ -64,7 +64,7 @@ describe('Test toolbar on hover actions', () => {
     cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('choice');
+    cy.openGroupConfigurationTab('choice');
 
     cy.get('[data-testid="step-toolbar-button-add-special"]').click();
 
@@ -77,7 +77,7 @@ describe('Test toolbar on hover actions', () => {
     cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
-    cy.openRootConfigurationTab('choice');
+    cy.openGroupConfigurationTab('choice');
 
     cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
     cy.checkNodeExist('when', 0);

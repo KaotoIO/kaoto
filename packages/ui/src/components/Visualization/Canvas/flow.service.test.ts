@@ -89,11 +89,17 @@ describe('FlowService', () => {
 
       const { nodes, edges } = FlowService.getFlowDiagram(routeNode);
 
-      expect(nodes).toHaveLength(2);
-      expect(edges).toHaveLength(0);
+      expect(nodes).toHaveLength(3);
+      expect(nodes[0].data?.vizNode?.data.path).toEqual('route.from');
+      expect(nodes[1].data?.vizNode?.data.path).toEqual('route.from.steps.0.placeholder');
+      expect(nodes[2].data?.vizNode?.data.path).toEqual('route');
+
+      expect(edges).toHaveLength(1);
+      expect(edges[0].source).toEqual('timer-1234');
+      expect(edges[0].target).toEqual('route.from.steps-1234');
 
       const group = nodes[nodes.length - 1];
-      expect(group.children).toEqual(['timer-1234']);
+      expect(group.children).toEqual(['timer-1234', 'route.from.steps-1234']);
       expect(group.group).toBeTruthy();
     });
   });

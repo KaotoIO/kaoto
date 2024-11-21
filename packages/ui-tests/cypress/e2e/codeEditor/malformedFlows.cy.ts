@@ -55,7 +55,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/wrongIndentProperties.yaml');
     cy.openDesignPage();
-    cy.checkNodeExist('source: Unknown', 1);
+    cy.checkNodeExist('source', 1);
 
     // verify the route wasn't removed and left for the user to repair
     cy.openSourceCode();
@@ -66,8 +66,8 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/wrongIndentSource.yaml');
     cy.openDesignPage();
-    cy.checkNodeExist('source: Unknown', 1);
-    cy.checkNodeExist('sink: Unknown', 1);
+    cy.checkNodeExist('source', 1);
+    cy.checkNodeExist('sink', 1);
 
     // verify the route wasn't removed and left for the user to repair
     cy.openSourceCode();
