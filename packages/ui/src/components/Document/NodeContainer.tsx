@@ -4,6 +4,7 @@ import { forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
 import { isDefined } from '../../utils';
 import './NodeContainer.scss';
+import { VisualizationService } from '../../services/visualization.service';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;
@@ -57,9 +58,10 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
 };
 
 const DnDContainer: FunctionComponent<DnDContainerProps> = ({ nodeData, children }) => {
+  const dndId = VisualizationService.generateDndId(nodeData);
   return (
-    <DroppableContainer id={nodeData.id} nodeData={nodeData}>
-      <DraggableContainer id={nodeData.id} nodeData={nodeData}>
+    <DroppableContainer id={dndId} nodeData={nodeData}>
+      <DraggableContainer id={dndId} nodeData={nodeData}>
         {children}
       </DraggableContainer>
     </DroppableContainer>

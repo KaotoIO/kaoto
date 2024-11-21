@@ -120,12 +120,16 @@ describe('VisualizationService', () => {
         expect(chooseChildren[0].title).toEqual('when');
         const whenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[0]);
         expect(whenChildren.length).toEqual(1);
-        expect(whenChildren[0].title).toEqual('OrderPerson');
+        const whenOrderPerson = whenChildren[0] as MappingNodeData;
+        expect(whenOrderPerson.title).toEqual('OrderPerson');
+        expect(whenOrderPerson.mapping.parent instanceof WhenItem).toBeTruthy();
 
         expect(chooseChildren[1].title).toEqual('otherwise');
         const otherwiseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
         expect(otherwiseChildren.length).toEqual(1);
-        expect(otherwiseChildren[0].title).toEqual('OrderPerson');
+        const otherwiseOrderPerson = otherwiseChildren[0] as MappingNodeData;
+        expect(otherwiseOrderPerson.title).toEqual('OrderPerson');
+        expect(otherwiseOrderPerson.mapping.parent instanceof OtherwiseItem).toBeTruthy();
       });
 
       it('should add Choose-When-Otherwise on primitive target body', () => {
@@ -533,6 +537,23 @@ describe('VisualizationService', () => {
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
         expect(VisualizationService.allowConditionMenu(forEachNode)).toBeFalsy();
+      });
+    });
+
+    describe('generateDndId()', () => {
+      it('should generate unique ID for when and otherwise children', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
+        const forEachItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
+        const forEachChooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachItemChildren[1]);
+        const whenChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChooseChildren[0]);
+        const otherwiseChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChooseChildren[1]);
+
+        const whenChildDndId = VisualizationService.generateDndId(whenChildren[0]);
+        expect(whenChildDndId).toContain('when');
+        const otherwiseChildDndId = VisualizationService.generateDndId(otherwiseChildren[0]);
+        expect(otherwiseChildDndId).toContain('otherwise');
       });
     });
   });

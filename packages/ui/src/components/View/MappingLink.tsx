@@ -103,11 +103,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
   );
 
   const refreshLinks = useCallback(() => {
-    const answer: LineProps[] = MappingService.extractMappingLinks(
-      mappingTree,
-      sourceParameterMap,
-      sourceBodyDocument,
-    ).reduce((acc, { sourceNodePath, targetNodePath }) => {
+    const links = MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument);
+    const answer: LineProps[] = links.reduce((acc, { sourceNodePath, targetNodePath }) => {
       const sourceClosestPath = getClosestExpandedPath(sourceNodePath);
       const targetClosestPath = getClosestExpandedPath(targetNodePath);
       if (sourceClosestPath && targetClosestPath) {

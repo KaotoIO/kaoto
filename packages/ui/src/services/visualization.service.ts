@@ -324,4 +324,8 @@ export class VisualizationService {
     const parentItem = VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
+
+  static generateDndId(nodeData: NodeData) {
+    return nodeData instanceof DocumentNodeData ? nodeData.id : nodeData.path.pathSegments.join('-');
+  }
 }

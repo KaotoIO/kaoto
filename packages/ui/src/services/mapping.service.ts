@@ -195,7 +195,9 @@ export class MappingService {
     const otherwiseItem = MappingService.addOtherwise(chooseItem);
     whenItem.children = [wrapped];
     wrapped.parent = whenItem;
-    otherwiseItem.children = [wrapped.clone()];
+    const otherwiseWrapped = wrapped.clone();
+    otherwiseWrapped.parent = otherwiseItem;
+    otherwiseItem.children = [otherwiseWrapped];
     parent.children = parent.children.map((m) => (m !== wrapped ? m : chooseItem));
   }
 
