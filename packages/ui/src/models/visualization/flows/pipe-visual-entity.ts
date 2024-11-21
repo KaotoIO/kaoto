@@ -220,13 +220,13 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const sourceNode = this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);
     const stepNodes = this.getVizNodesFromSteps(this.pipe.spec!.steps);
     const sinkNode = this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
-    /** If there are no steps, we link the `source` and the `sink` together */
 
     pipeGroupNode.setTitle('Pipe');
     pipeGroupNode.addChild(sourceNode);
     stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
     pipeGroupNode.addChild(sinkNode);
 
+    /** If there are no steps, we link the `source` and the `sink` together */
     if (stepNodes.length === 0) {
       sourceNode.setNextNode(sinkNode);
       sinkNode.setPreviousNode(sourceNode);
@@ -270,13 +270,9 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return vizNode;
   }
 
-  private getVizNodesFromSteps(steps?: PipeStep[]): IVisualizationNode[] {
-    if (!Array.isArray(steps)) {
-      return [] as IVisualizationNode[];
-    }
-
-    return steps?.reduce((acc, kamelet) => {
-      const vizNode = this.getVizNodeFromStep(kamelet, 'steps.' + acc.length);
+  private getVizNodesFromSteps(steps: PipeStep[] = []): IVisualizationNode[] {
+    return steps.reduce((acc, kamelet, index) => {
+      const vizNode = this.getVizNodeFromStep(kamelet, `steps.${index}`);
 
       const previousVizNode = acc[acc.length - 1];
       if (previousVizNode !== undefined) {

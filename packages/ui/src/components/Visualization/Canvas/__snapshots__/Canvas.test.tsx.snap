@@ -30,23 +30,6 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="225%"
-                        id="DecoratorDropShadowHoverFilterId"
-                        width="225%"
-                        x="-62.5%"
-                        y="-62.5%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.5"
-                          stdDeviation="5"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -61,7 +44,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4385382059800665, -0.5431893687707642) scale(0.00132890365448505)"
+                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -85,19 +68,20 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="752.5"
-                                width="750"
-                                x="-45"
+                                height="772.5"
+                                width="705"
+                                x="-40"
                                 y="32.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="route"
                                   >
                                     <img
+                                      alt="route"
                                       src=""
                                     />
                                     <span
@@ -126,66 +110,26 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="527.5"
-                                width="670"
-                                x="-5"
+                                height="542.5"
+                                width="625"
+                                x="0"
                                 y="72.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="choice"
                                   >
                                     <img
+                                      alt="choice"
                                       src=""
                                     />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__otherwise-1234"
-                              data-toolbar-open="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="380"
-                                x="245"
-                                y="405"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__title"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      src=""
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -203,21 +147,19 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 112.5 L390 243.5"
+                                class="custom-edge__background"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 112.5 L390 257.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 243.5) rotate(90)"
+                                transform="translate(367.5, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -227,6 +169,44 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="174"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -236,21 +216,19 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 257.5 L390 86.5"
+                                class="custom-edge__background"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 257.5 L390 72.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 86.5) rotate(270)"
+                                transform="translate(367.5, 86.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -260,65 +238,44 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M330 520 L330 567.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M330 520 L330 567.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__log-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="154"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="330"
-                                    cy="571.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(330, 571.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -328,21 +285,19 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M540 520 L540 553.5"
+                                class="custom-edge__background"
+                                d="M500 535 L500 582.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M540 520 L540 567.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M500 535 L500 582.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(540, 553.5) rotate(90)"
+                                transform="translate(500, 568.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -352,6 +307,44 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="480"
+                                y="542.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -361,21 +354,19 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 600 L390 693.5"
+                                class="custom-edge__background"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 600 L390 707.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 693.5) rotate(90)"
+                                transform="translate(367.5, 713.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -385,65 +376,44 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="direct-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M390 745 L390 792.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M390 745 L390 792.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__direct-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="645.25"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="390"
-                                    cy="796.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(390, 796.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -455,13 +425,13 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 75)"
+                              transform="translate(322.5, 75)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 220)"
+                              transform="translate(322.5, 230)"
                             />
                             <g
                               data-id="choice-1234"
@@ -482,13 +452,13 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(495, 445)"
+                                  transform="translate(455, 460)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(285, 445)"
+                                  transform="translate(275, 460)"
                                 />
                               </g>
                             </g>
@@ -496,7 +466,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 670)"
+                              transform="translate(322.5, 690)"
                             />
                           </g>
                         </g>
@@ -762,23 +732,6 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="225%"
-                        id="DecoratorDropShadowHoverFilterId"
-                        width="225%"
-                        x="-62.5%"
-                        y="-62.5%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.5"
-                          stdDeviation="5"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -793,7 +746,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4385382059800665, -0.5431893687707642) scale(0.00132890365448505)"
+                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -817,19 +770,20 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="752.5"
-                                width="750"
-                                x="-45"
+                                height="772.5"
+                                width="705"
+                                x="-40"
                                 y="32.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="route"
                                   >
                                     <img
+                                      alt="route"
                                       src=""
                                     />
                                     <span
@@ -858,66 +812,26 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="527.5"
-                                width="670"
-                                x="-5"
+                                height="542.5"
+                                width="625"
+                                x="0"
                                 y="72.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="choice"
                                   >
                                     <img
+                                      alt="choice"
                                       src=""
                                     />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__otherwise-1234"
-                              data-toolbar-open="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="380"
-                                x="245"
-                                y="405"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__title"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      src=""
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -935,21 +849,19 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 112.5 L390 243.5"
+                                class="custom-edge__background"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 112.5 L390 257.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 243.5) rotate(90)"
+                                transform="translate(367.5, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -959,6 +871,44 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="174"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -968,21 +918,19 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 257.5 L390 86.5"
+                                class="custom-edge__background"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 257.5 L390 72.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 86.5) rotate(270)"
+                                transform="translate(367.5, 86.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -992,65 +940,44 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M330 520 L330 567.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M330 520 L330 567.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__log-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="154"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="330"
-                                    cy="571.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(330, 571.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -1060,21 +987,19 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M540 520 L540 553.5"
+                                class="custom-edge__background"
+                                d="M500 535 L500 582.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M540 520 L540 567.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M500 535 L500 582.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(540, 553.5) rotate(90)"
+                                transform="translate(500, 568.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1084,6 +1009,44 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="480"
+                                y="542.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -1093,21 +1056,19 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 600 L390 693.5"
+                                class="custom-edge__background"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 600 L390 707.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 693.5) rotate(90)"
+                                transform="translate(367.5, 713.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1117,65 +1078,44 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="direct-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M390 745 L390 792.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M390 745 L390 792.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__direct-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="645.25"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="390"
-                                    cy="796.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(390, 796.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -1187,13 +1127,13 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 75)"
+                              transform="translate(322.5, 75)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 220)"
+                              transform="translate(322.5, 230)"
                             />
                             <g
                               data-id="choice-1234"
@@ -1214,13 +1154,13 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(495, 445)"
+                                  transform="translate(455, 460)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(285, 445)"
+                                  transform="translate(275, 460)"
                                 />
                               </g>
                             </g>
@@ -1228,7 +1168,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 670)"
+                              transform="translate(322.5, 690)"
                             />
                           </g>
                         </g>
@@ -2306,23 +2246,6 @@ exports[`Canvas should render correctly 1`] = `
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="225%"
-                        id="DecoratorDropShadowHoverFilterId"
-                        width="225%"
-                        x="-62.5%"
-                        y="-62.5%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.5"
-                          stdDeviation="5"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -2337,7 +2260,7 @@ exports[`Canvas should render correctly 1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4385382059800665, -0.5431893687707642) scale(0.00132890365448505)"
+                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -2361,19 +2284,20 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="752.5"
-                                width="750"
-                                x="-45"
+                                height="772.5"
+                                width="705"
+                                x="-40"
                                 y="32.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="route"
                                   >
                                     <img
+                                      alt="route"
                                       src=""
                                     />
                                     <span
@@ -2402,66 +2326,26 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="527.5"
-                                width="670"
-                                x="-5"
+                                height="542.5"
+                                width="625"
+                                x="0"
                                 y="72.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="choice"
                                   >
                                     <img
+                                      alt="choice"
                                       src=""
                                     />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__otherwise-1234"
-                              data-toolbar-open="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="380"
-                                x="245"
-                                y="405"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__title"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      src=""
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -2479,21 +2363,19 @@ exports[`Canvas should render correctly 1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 112.5 L390 243.5"
+                                class="custom-edge__background"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 112.5 L390 257.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 243.5) rotate(90)"
+                                transform="translate(367.5, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2503,6 +2385,44 @@ exports[`Canvas should render correctly 1`] = `
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="174"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -2512,21 +2432,19 @@ exports[`Canvas should render correctly 1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 257.5 L390 86.5"
+                                class="custom-edge__background"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 257.5 L390 72.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 86.5) rotate(270)"
+                                transform="translate(367.5, 86.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2536,65 +2454,44 @@ exports[`Canvas should render correctly 1`] = `
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M330 520 L330 567.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M330 520 L330 567.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__log-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="154"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="330"
-                                    cy="571.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(330, 571.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -2604,21 +2501,19 @@ exports[`Canvas should render correctly 1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M540 520 L540 553.5"
+                                class="custom-edge__background"
+                                d="M500 535 L500 582.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M540 520 L540 567.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M500 535 L500 582.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(540, 553.5) rotate(90)"
+                                transform="translate(500, 568.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2628,6 +2523,44 @@ exports[`Canvas should render correctly 1`] = `
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="480"
+                                y="542.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -2637,21 +2570,19 @@ exports[`Canvas should render correctly 1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 600 L390 693.5"
+                                class="custom-edge__background"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 600 L390 707.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 693.5) rotate(90)"
+                                transform="translate(367.5, 713.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2661,65 +2592,44 @@ exports[`Canvas should render correctly 1`] = `
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="direct-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M390 745 L390 792.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M390 745 L390 792.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__direct-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="645.25"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="390"
-                                    cy="796.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(390, 796.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -2731,13 +2641,13 @@ exports[`Canvas should render correctly 1`] = `
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 75)"
+                              transform="translate(322.5, 75)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 220)"
+                              transform="translate(322.5, 230)"
                             />
                             <g
                               data-id="choice-1234"
@@ -2758,13 +2668,13 @@ exports[`Canvas should render correctly 1`] = `
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(495, 445)"
+                                  transform="translate(455, 460)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(285, 445)"
+                                  transform="translate(275, 460)"
                                 />
                               </g>
                             </g>
@@ -2772,7 +2682,7 @@ exports[`Canvas should render correctly 1`] = `
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 670)"
+                              transform="translate(322.5, 690)"
                             />
                           </g>
                         </g>
@@ -3038,23 +2948,6 @@ exports[`Canvas should render correctly with more routes  1`] = `
                   <svg
                     class="pf-topology-visualization-surface__svg"
                   >
-                    <defs>
-                      <filter
-                        height="225%"
-                        id="DecoratorDropShadowHoverFilterId"
-                        width="225%"
-                        x="-62.5%"
-                        y="-62.5%"
-                      >
-                        <fedropshadow
-                          dx="0"
-                          dy="3"
-                          flood-color="#030303"
-                          flood-opacity="0.5"
-                          stdDeviation="5"
-                        />
-                      </filter>
-                    </defs>
                     <g
                       data-id="g1"
                       data-kind="graph"
@@ -3069,7 +2962,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4385382059800665, -0.5431893687707642) scale(0.00132890365448505)"
+                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -3093,19 +2986,20 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="752.5"
-                                width="750"
-                                x="-45"
+                                height="772.5"
+                                width="705"
+                                x="-40"
                                 y="32.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="route"
                                   >
                                     <img
+                                      alt="route"
                                       src=""
                                     />
                                     <span
@@ -3134,66 +3028,26 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="527.5"
-                                width="670"
-                                x="-5"
+                                height="542.5"
+                                width="625"
+                                x="0"
                                 y="72.5"
                               >
                                 <div
                                   class="custom-group__container"
                                 >
                                   <div
-                                    class="custom-group__container__title"
+                                    class="custom-group__container__text"
                                     title="choice"
                                   >
                                     <img
+                                      alt="choice"
                                       src=""
                                     />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="otherwise-1234"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__otherwise-1234"
-                              data-toolbar-open="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="380"
-                                x="245"
-                                y="405"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__title"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      src=""
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -3211,21 +3065,19 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 112.5 L390 243.5"
+                                class="custom-edge__background"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 112.5 L390 257.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 112.5 L367.5 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 243.5) rotate(90)"
+                                transform="translate(367.5, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3235,6 +3087,44 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="174"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -3244,21 +3134,19 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 257.5 L390 86.5"
+                                class="custom-edge__background"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 257.5 L390 72.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 267.5 L367.5 72.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 86.5) rotate(270)"
+                                transform="translate(367.5, 86.5) rotate(270)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3268,65 +3156,44 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="log-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M330 520 L330 567.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M330 520 L330 567.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__log-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="154"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="330"
-                                    cy="571.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(330, 571.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -3336,21 +3203,19 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M540 520 L540 553.5"
+                                class="custom-edge__background"
+                                d="M500 535 L500 582.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M540 520 L540 567.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M500 535 L500 582.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(540, 553.5) rotate(90)"
+                                transform="translate(500, 568.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3360,6 +3225,44 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   stroke-width="0"
                                 />
                               </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="480"
+                                y="542.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -3369,21 +3272,19 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             style="z-index: 0;"
                           >
                             <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
+                              class="custom-edge"
                             >
                               <path
-                                class="pf-topology__edge__background"
-                                d="M390 600 L390 693.5"
+                                class="custom-edge__background"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <path
-                                class="pf-topology__edge__link pf-m-solid"
-                                d="M390 600 L390 707.5"
-                                style="animation-duration: 0s;"
+                                class="custom-edge__body"
+                                d="M367.5 615 L367.5 727.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(390, 693.5) rotate(90)"
+                                transform="translate(367.5, 713.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3393,65 +3294,44 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   stroke-width="0"
                                 />
                               </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="direct-1234-end"
-                            data-kind="edge"
-                            data-type="edge-end"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="pf-topology__edge"
-                              data-test-id="edge-handler"
-                            >
-                              <path
-                                class="pf-topology__edge__background"
-                                d="M390 745 L390 792.5"
-                              />
-                              <path
-                                class="pf-topology__edge__link pf-m-dashed"
-                                d="M390 745 L390 792.5"
-                                style="animation-duration: 0s;"
-                              />
-                              <g
-                                data-testid="custom-edge__direct-1234-end"
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="347.5"
+                                y="645.25"
                               >
-                                <g
-                                  class="pf-topology__node__decorator"
-                                  role="button"
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
                                 >
-                                  <circle
-                                    class="pf-topology__node__decorator__bg"
-                                    cx="390"
-                                    cy="796.5"
-                                    r="14"
-                                  />
-                                  <g
-                                    transform="translate(390, 796.5)"
+                                  <div
+                                    class="add-step-icon__icon"
                                   >
-                                    <g
-                                      class="pf-topology__node__decorator__icon"
-                                      style="font-size: 20px;"
-                                      transform="translate(-10, -10)"
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
                                     >
-                                      <svg
-                                        aria-hidden="true"
-                                        class="pf-v5-svg"
-                                        fill="currentColor"
-                                        height="1em"
-                                        role="img"
-                                        viewBox="0 0 448 512"
-                                        width="1em"
+                                      <span
+                                        class="pf-v5-c-icon__content"
                                       >
-                                        <path
-                                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                        />
-                                      </svg>
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
                             </g>
                           </g>
                           <g
@@ -3463,13 +3343,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="timer-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 75)"
+                              transform="translate(322.5, 75)"
                             />
                             <g
                               data-id="set-header-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 220)"
+                              transform="translate(322.5, 230)"
                             />
                             <g
                               data-id="choice-1234"
@@ -3490,13 +3370,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-id="amqp-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(495, 445)"
+                                  transform="translate(455, 460)"
                                 />
                                 <g
                                   data-id="log-1234"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(285, 445)"
+                                  transform="translate(275, 460)"
                                 />
                               </g>
                             </g>
@@ -3504,7 +3384,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="direct-1234"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(345, 670)"
+                              transform="translate(322.5, 690)"
                             />
                           </g>
                         </g>

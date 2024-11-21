@@ -1,0 +1,25 @@
+@use '../custom';
+
+.custom-edge {
+  @include custom.highligth {
+    &__background {
+      stroke-width: 10px;
+      stroke: transparent;
+      fill: none;
+    }
+
+    &__body {
+      stroke: var(--pf-topology__edge--Stroke);
+      stroke-width: 1;
+      fill: none;
+    }
+
+    & &__add-step {
+      display: none;
+    }
+
+    &:hover &__add-step {
+      display: flex;
+    }
+  }
+}

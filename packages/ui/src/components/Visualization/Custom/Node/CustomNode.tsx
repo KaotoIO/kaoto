@@ -1,5 +1,5 @@
 import { Icon } from '@patternfly/react-core';
-import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import type { DefaultNode, ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 import {
   AnchorEnd,
@@ -15,16 +15,16 @@ import {
   useHover,
   useSelection,
   withContextMenu,
-  withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useRef } from 'react';
-import { IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { CanvasNode } from '../../Canvas/canvas.models';
+import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { AddStepIcon } from '../Edge/AddStepIcon';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
 
@@ -59,6 +59,9 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
     settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
       ? isGHover || isToolbarHover || isSelected
       : isSelected;
+  const shouldShowAddStep =
+    shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
+  const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
 
   useAnchor((element: Node) => {
     return new TargetAnchor(element);
@@ -90,7 +93,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
         <foreignObject data-nodelabel={label} width={boxRef.current.width} height={boxRef.current.height}>
           <div className="custom-node__container">
             <div title={tooltipContent} className="custom-node__container__image">
-              <img src={vizNode.data.icon} />
+              <img alt={tooltipContent} src={vizNode.data.icon} />
 
               {isDisabled && (
                 <Icon className="disabled-step-icon">
@@ -106,14 +109,15 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
           y={boxRef.current.height - 1}
           width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
           height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
+          className="custom-node__label"
         >
           <div
-            className={clsx('custom-node__label', {
-              'custom-node__label__error': doesHaveWarnings,
+            className={clsx('custom-node__label__text', {
+              'custom-node__label__text__error': doesHaveWarnings,
             })}
           >
             {doesHaveWarnings && (
-              <Icon title={validationText}>
+              <Icon title={validationText} data-warning={doesHaveWarnings}>
                 <ExclamationCircleIcon />
               </Icon>
             )}
@@ -141,10 +145,28 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
           </Layer>
         )}
 
+        {shouldShowAddStep && (
+          <foreignObject
+            x={boxRef.current.width - 8}
+            y={(boxRef.current.height - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2}
+            width={CanvasDefaults.ADD_STEP_ICON_SIZE}
+            height={CanvasDefaults.ADD_STEP_ICON_SIZE}
+          >
+            <AddStepIcon
+              vizNode={vizNode}
+              mode={AddStepMode.AppendStep}
+              title="Add step"
+              data-testid="quick-append-step"
+            >
+              <Icon size="lg">{isHorizontal ? <ArrowRightIcon /> : <ArrowDownIcon />}</Icon>
+            </AddStepIcon>
+          </foreignObject>
+        )}
+
         {childCount && <LabelBadge badge={`${childCount}`} x={0} y={0} />}
       </g>
     </Layer>
   );
 });
 
-export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNode));
+export const CustomNodeWithSelection = withContextMenu(NodeContextMenuFn)(CustomNode);

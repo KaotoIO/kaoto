@@ -1,15 +1,6 @@
-import {
-  BreadthFirstLayout,
-  ColaLayout,
-  ConcentricLayout,
-  DagreGroupsLayout,
-  DefaultEdge,
-  ForceLayout,
-  GridLayout,
-  ModelKind,
-  Visualization,
-} from '@patternfly/react-topology';
+import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-topology';
 import { CustomGroupWithSelection } from '../Custom';
+import { CustomEdge } from '../Custom/Edge/CustomEdge';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
@@ -64,7 +55,7 @@ describe('ControllerService', () => {
     it('should return the correct component for an edge', () => {
       const component = ControllerService.baselineComponentFactory(ModelKind.edge, 'edge');
 
-      expect(component).toBe(DefaultEdge);
+      expect(component).toBe(CustomEdge);
     });
 
     it('should return undefined for an unknown type', () => {
@@ -75,16 +66,9 @@ describe('ControllerService', () => {
   });
 
   it.each([
-    [LayoutType.BreadthFirst, BreadthFirstLayout],
-    [LayoutType.Cola, ColaLayout],
-    [LayoutType.ColaNoForce, ColaLayout],
-    [LayoutType.ColaGroups, ColaLayout],
-    [LayoutType.Concentric, ConcentricLayout],
     [LayoutType.DagreVertical, DagreGroupsLayout],
     [LayoutType.DagreHorizontal, DagreGroupsLayout],
-    [LayoutType.Force, ForceLayout],
-    [LayoutType.Grid, GridLayout],
-    ['unknown' as LayoutType, ColaLayout],
+    ['unknown' as LayoutType, DagreGroupsLayout],
   ] as const)('baselineLayoutFactory [%s]', (type, layout) => {
     const newController = ControllerService.createController();
     newController.fromModel(

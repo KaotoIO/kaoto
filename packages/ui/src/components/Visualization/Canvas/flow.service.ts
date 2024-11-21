@@ -56,20 +56,23 @@ export class FlowService {
     const parentNode =
       vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
 
-    return this.getNode(vizNodeParam.id, {
+    const canvasNode = this.getNode(vizNodeParam.id, {
       parentNode,
       data: { vizNode: vizNodeParam },
     });
+
+    if (vizNodeParam.data.isPlaceholder) {
+      canvasNode.type = 'node-placeholder';
+    }
+
+    return canvasNode;
   }
 
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
-    const nodeInteractions = vizNodeParam.getNodeInteraction();
 
     if (vizNodeParam.getNextNode() !== undefined) {
       edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
-    } else if (nodeInteractions.canHaveNextStep) {
-      edges.push(this.getEdgeEnd(vizNodeParam.id));
     }
 
     return edges;
@@ -112,16 +115,6 @@ export class FlowService {
       source,
       target,
       edgeStyle: EdgeStyle.solid,
-    };
-  }
-
-  private static getEdgeEnd(source: string): CanvasEdge {
-    return {
-      id: `${source}-end`,
-      type: 'edge-end',
-      source,
-      target: source,
-      edgeStyle: EdgeStyle.dashed,
     };
   }
 }

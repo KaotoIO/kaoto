@@ -75,10 +75,11 @@ describe('BaseNodeMapper', () => {
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.doTry');
 
       const doTryNode = vizNode.getChildren()?.[0];
-      expect(doTryNode?.getChildren()).toHaveLength(3);
-      expect(doTryNode?.getChildren()?.[0].data.path).toBe('from.steps.0.doTry.doCatch.0');
-      expect(doTryNode?.getChildren()?.[1].data.path).toBe('from.steps.0.doTry.doCatch.1');
-      expect(doTryNode?.getChildren()?.[2].data.path).toBe('from.steps.0.doTry.doFinally');
+      expect(doTryNode?.getChildren()).toHaveLength(4);
+      expect(doTryNode?.getChildren()?.[0].data.path).toBe('from.steps.0.doTry.steps.0.placeholder');
+      expect(doTryNode?.getChildren()?.[1].data.path).toBe('from.steps.0.doTry.doCatch.0');
+      expect(doTryNode?.getChildren()?.[2].data.path).toBe('from.steps.0.doTry.doCatch.1');
+      expect(doTryNode?.getChildren()?.[3].data.path).toBe('from.steps.0.doTry.doFinally');
     });
   });
 });
