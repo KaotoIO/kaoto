@@ -2871,7 +2871,7 @@ __metadata:
     lodash.isempty: "npm:^4.4.0"
     lodash.memoize: "npm:^4.1.2"
     lodash.set: "npm:^4.3.2"
-    monaco-editor: "npm:^0.50.0"
+    monaco-editor: "npm:^0.52.0"
     monaco-yaml: "npm:^5.1.1"
     postcss: "npm:^8.4.45"
     prettier: "npm:^3.0.0"
@@ -13457,10 +13457,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.50.0":
-  version: 0.50.0
-  resolution: "monaco-editor@npm:0.50.0"
-  checksum: 10/594f2a3812147c1ef41c4dba444c649c32af95c3eb09529049bb7a2cb38e1747facbae0a459a07140e77cf9d73df41f034399804f9123f9cfff45394321a3983
+"monaco-editor@npm:^0.52.0":
+  version: 0.52.0
+  resolution: "monaco-editor@npm:0.52.0"
+  checksum: 10/ec9a543b07e70bb3339c7e20f4f84aad045776057820daced36537efd8e50b8d9cd448988e68a4870bdc3db9c15ae3ae05201c8ed8e4ca8e87f74ee2fefb8cad
   languageName: node
   linkType: hard
 
