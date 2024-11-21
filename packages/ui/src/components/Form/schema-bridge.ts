@@ -2,7 +2,7 @@ import { JSONSchema4 } from 'json-schema';
 import { joinName } from 'uniforms';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { resolveRefIfNeeded } from '../../utils';
-import memoize from 'lodash/memoize';
+import { memoize } from 'lodash';
 
 export class SchemaBridge extends JSONSchemaBridge {
   /**
