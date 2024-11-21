@@ -1,4 +1,4 @@
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { updatePipeFromCustomSchema, getCustomSchemaFromPipe } from './';
 

@@ -1,6 +1,6 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
-import get from 'lodash/get';
-import set from 'lodash/set';
+import { get } from 'lodash';
+import { set } from 'lodash';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import {

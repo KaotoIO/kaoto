@@ -1,5 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { CamelUriHelper, ParsedParameters, getValue, isDefined } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
