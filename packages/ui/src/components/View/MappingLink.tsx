@@ -1,8 +1,19 @@
-import { CSSProperties, FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  FunctionComponent,
+  MutableRefObject,
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import { MappingService } from '../../services/mapping.service';
+import { Circle, LinePath } from '@visx/shape';
+import { curveMonotoneX } from '@visx/curve';
 
 type LineCoord = {
   x1: number;
@@ -14,15 +25,22 @@ type LineCoord = {
 type LineProps = LineCoord & {
   sourceNodePath: string;
   targetNodePath: string;
+  svgRef?: RefObject<SVGSVGElement>;
 };
 
-const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodePath, targetNodePath }) => {
+const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodePath, targetNodePath, svgRef }) => {
+  const { mappingLinkCanvasRef } = useCanvas();
   const [isOver, setIsOver] = useState<boolean>(false);
   const lineStyle = {
     stroke: 'gray',
     strokeWidth: isOver ? 6 : 3,
     pointerEvents: 'auto' as CSSProperties['pointerEvents'],
   };
+  const dotRadius = isOver ? 6 : 3;
+  const svgRect = svgRef?.current?.getBoundingClientRect();
+  const canvasRect = mappingLinkCanvasRef?.current?.getBoundingClientRect();
+  const canvasLeft = canvasRect ? canvasRect.left - (svgRect ? svgRect.left : 0) : undefined;
+  const canvasRight = canvasRect ? canvasRect.right - (svgRect ? svgRect.left : 0) : undefined;
 
   const onMouseEnter = useCallback(() => {
     setIsOver(true);
@@ -33,18 +51,27 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
   }, []);
 
   return (
-    <path
-      onClick={() => {}}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      data-testid={`mapping-link-${x1}-${y1}-${x2}-${y2}`}
-      d={`M${x1},${y1},${x2},${y2}`}
-      style={lineStyle}
-    >
-      <title>
-        Source: {sourceNodePath}, Target: {targetNodePath}
-      </title>
-    </path>
+    <>
+      <Circle r={dotRadius} cx={x1} cy={y1} />
+      <LinePath<[number, number]>
+        data={[
+          [x1, y1],
+          [canvasLeft ? canvasLeft : x1, y1],
+          [canvasRight ? canvasRight : x2, y2],
+          [x2, y2],
+        ]}
+        x={(d) => d[0]}
+        y={(d) => d[1]}
+        curve={curveMonotoneX}
+        style={lineStyle}
+        onClick={() => {}}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        data-testid={`mapping-link-${x1}-${y1}-${x2}-${y2}`}
+        xlinkTitle={`Source: ${sourceNodePath}, Target: ${targetNodePath}`}
+      />
+      <Circle r={dotRadius} cx={x2} cy={y2} />
+    </>
   );
 };
 
@@ -154,6 +181,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
         {lineCoordList.map((lineProps, index) => (
           <MappingLink
             key={index}
+            svgRef={svgRef}
             x1={lineProps.x1}
             y1={lineProps.y1}
             x2={lineProps.x2}

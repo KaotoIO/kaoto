@@ -12,7 +12,7 @@ import {
   TextVariants,
   Truncate,
 } from '@patternfly/react-core';
-import { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent, useEffect, useRef } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { MappingLinksContainer } from './MappingLink';
 import './SourceTargetView.scss';
@@ -23,7 +23,9 @@ import { TargetDocument } from '../Document/TargetDocument';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
-  const { reloadNodeReferences, setDefaultHandler } = useCanvas();
+  const { reloadNodeReferences, setDefaultHandler, setMappingLinkCanvasRef } = useCanvas();
+  const mappingLinkCanvasRef = useRef<HTMLDivElement>(null);
+  setMappingLinkCanvasRef(mappingLinkCanvasRef);
 
   useEffect(() => {
     setDefaultHandler(new SourceTargetDnDHandler());
@@ -34,7 +36,9 @@ export const SourceTargetView: FunctionComponent = () => {
       <SplitItem className="source-target-view__source-split" isFilled>
         <SourcePanel />
       </SplitItem>
-      <SplitItem className="source-target-view__line-blank" />
+      <SplitItem className="source-target-view__line-blank">
+        <div ref={mappingLinkCanvasRef} />
+      </SplitItem>
       <SplitItem className="source-target-view__target-split" isFilled>
         <Panel id="panel-target" variant="bordered" isScrollable className="source-target-view__target-panel">
           <PanelHeader>

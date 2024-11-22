@@ -58,6 +58,7 @@
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",
     "@types/xml-name-validator": "^4.0.3",
+    "@visx/shape": "^3.12.0",
     "ajv": "^8.12.0",
     "ajv-formats": "^3.0.0",
     "chevrotain": "10.5.0",
