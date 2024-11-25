@@ -270,5 +270,19 @@ describe('InlineEdit', () => {
 
       expect(preventDefaultSpy).toHaveBeenCalled();
     });
+
+    it('should set the edit icon title', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} editTitle="Edit" />);
+
+      const editButton = wrapper.getByTestId('inline--edit');
+      expect(editButton).toHaveAttribute('title', 'Edit');
+    });
+
+    it('should set the text title', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} textTitle="Edit" />);
+
+      const textSpan = wrapper.getByTestId(DATA_TESTID);
+      expect(textSpan).toHaveAttribute('title', 'Edit');
+    });
   });
 });

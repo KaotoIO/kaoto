@@ -1,7 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { CamelResource, CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/camel/entities';
-import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
+import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsMenu } from './FlowsMenu';
 
@@ -92,7 +92,7 @@ describe('FlowsMenu.tsx', () => {
 
     const { Provider } = TestProvidersWrapper({
       camelResource: singleFlowCamelResource,
-      visibleFlowsContext: { visibleFlows: { ['route-1234']: true } } as unknown as VisibleFLowsContextResult,
+      visibleFlowsContext: { visibleFlows: { ['route-1234']: true } } as unknown as VisibleFlowsContextResult,
     });
     const wrapper = render(
       <Provider>
@@ -110,7 +110,7 @@ describe('FlowsMenu.tsx', () => {
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
     const wrapper = render(
       <Provider>
@@ -127,7 +127,7 @@ describe('FlowsMenu.tsx', () => {
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
     const wrapper = render(
       <Provider>
@@ -144,7 +144,7 @@ describe('FlowsMenu.tsx', () => {
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
     const wrapper = render(
       <Provider>

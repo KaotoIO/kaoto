@@ -1,14 +1,11 @@
-.flows-menu-display {
-  display: inline-grid;
-  max-width: 300px;
-  margin: 0 8px;
-  text-align: left;
-}
-
-.flows-menu-truncate {
-  min-width: 0;
-}
-
 .flows-menu {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 300px;
+
+  .flows-menu-display {
+    margin: 0 8px;
+    text-align: left;
+  }
 }
