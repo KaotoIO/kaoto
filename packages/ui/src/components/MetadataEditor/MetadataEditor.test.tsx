@@ -1,7 +1,7 @@
 import { MetadataEditor } from './MetadataEditor';
 import { mockModel, mockSchema } from './TestUtil';
 import { fireEvent, render, screen } from '@testing-library/react';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 
 describe('MetadataEditor.tsx', () => {
   test('component renders', () => {

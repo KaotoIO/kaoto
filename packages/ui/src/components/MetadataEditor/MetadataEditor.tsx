@@ -1,5 +1,5 @@
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { SchemaBridgeProvider } from '../../providers/schema-bridge.provider';
 import { CustomAutoForm, CustomAutoFormRef } from '../Form/CustomAutoForm';

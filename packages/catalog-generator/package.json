@@ -1,6 +1,6 @@
 {
   "name": "@kaoto/camel-catalog",
-  "version": "2.3.0-dev",
+  "version": "2.3.0-RC1",
   "type": "commonjs",
   "description": "Camel Catalog and schemas for Kaoto",
   "repository": "https://github.com/KaotoIO/kaoto",
@@ -13,13 +13,15 @@
     ".": "./dist",
     "./index.json": "./dist/camel-catalog/index.json",
     "./types": "./dist/types/index.ts",
+    "./catalog-index.d.ts": "./dist/types/catalog-index.d.ts",
     "./package.json": "./package.json",
     "./*.json": "./dist/camel-catalog/*.json"
   },
   "scripts": {
     "build": "yarn clean && yarn build:default:catalog && yarn build:ts",
     "build:mvn": "./mvnw clean package --no-transfer-progress",
-    "build:default:catalog": "yarn run build:mvn; java -jar ./target/catalog-generator-0.0.1-SNAPSHOT.jar -o ./dist/camel-catalog -n \"Default Kaoto catalog\"",
+    "build:catalog": "node ./scripts/build-catalogs.mjs",
+    "build:default:catalog": "yarn run build:mvn; yarn run build:catalog",
     "build:ts": "node --loader ts-node/esm ./scripts/json-schema-to-typescript.mts",
     "lint": "yarn eslint \"scripts/**/*.{mts,ts}\"",
     "lint:fix": "yarn lint --fix",

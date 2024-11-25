@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import { pipeJson } from '../../../stubs/pipe';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';

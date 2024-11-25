@@ -4,7 +4,7 @@ import { CamelComponentFilterService } from '../visualization/flows/support/came
 import { createCamelResource } from './camel-resource';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 
 describe('KameletResource', () => {
   it('should create a new KameletResource', () => {
