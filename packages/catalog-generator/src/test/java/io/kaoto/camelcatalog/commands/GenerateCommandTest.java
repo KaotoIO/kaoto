@@ -85,7 +85,8 @@ class GenerateCommandTest {
             File expectedFolder = new File(tempDir, "camel-main/4.8.0");
             verify(builder, times(1)).withOutputDirectory(expectedFolder);
 
-            String expectedFile = Path.of("camel-main", "4.8.0", "index.json").toString();
+            /* This path will be used to relatively load the subsequent files, it always needs to use `/` */
+            String expectedFile = "camel-main/4.8.0/index.json";
             assertEquals(catalogDefinition.getFileName(), expectedFile);
         }
     }
@@ -126,7 +127,8 @@ class GenerateCommandTest {
             assertEquals(catalogLibraryEntry.version(), "4.8.0");
             assertEquals(catalogLibraryEntry.runtime(), "Main");
 
-            String expectedFile = Path.of("camel-main", "4.8.0", "index.json").toString();
+            /* This path will be used to relatively load the subsequent files, it always needs to use `/` */
+            String expectedFile = "camel-main/4.8.0/index.json";
             assertEquals(catalogLibraryEntry.fileName(), expectedFile);
         }
     }
