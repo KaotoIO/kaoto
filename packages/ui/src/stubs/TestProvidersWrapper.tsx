@@ -3,12 +3,12 @@ import { EntitiesContextResult } from '../hooks';
 import { CamelResource } from '../models/camel/camel-resource';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
-import { EntitiesContext, VisibleFLowsContextResult, VisibleFlowsContext } from '../providers';
+import { EntitiesContext, VisibleFlowsContextResult, VisibleFlowsContext } from '../providers';
 import { camelRouteJson } from './camel-route';
 
 interface TestProviderWrapperProps extends PropsWithChildren {
   camelResource?: CamelResource;
-  visibleFlowsContext?: VisibleFLowsContextResult;
+  visibleFlowsContext?: VisibleFlowsContextResult;
 }
 
 interface TestProvidersWrapperResult {
@@ -26,7 +26,8 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
   const updateSourceCodeFromEntitiesSpy = jest.fn();
 
   const dispatchSpy = jest.fn();
-  const visibleFlowsContext: VisibleFLowsContextResult = {
+  const visibleFlowsContext: VisibleFlowsContextResult = {
+    allFlowsVisible: props.visibleFlowsContext?.allFlowsVisible ?? false,
     visibleFlows: props.visibleFlowsContext?.visibleFlows ?? {},
     visualFlowsApi: props.visibleFlowsContext?.visualFlowsApi ?? new VisualFlowsApi(dispatchSpy),
   };

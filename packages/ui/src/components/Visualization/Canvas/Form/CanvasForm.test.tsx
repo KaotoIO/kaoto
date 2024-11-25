@@ -151,7 +151,9 @@ describe('CanvasForm', () => {
 
     render(
       <EntitiesProvider>
-        <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        >
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
@@ -186,7 +188,9 @@ describe('CanvasForm', () => {
 
     render(
       <EntitiesProvider>
-        <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        >
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
@@ -222,7 +226,9 @@ describe('CanvasForm', () => {
 
     render(
       <EntitiesProvider>
-        <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        >
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
@@ -260,7 +266,9 @@ describe('CanvasForm', () => {
 
     render(
       <EntitiesProvider>
-        <VisibleFlowsContext.Provider value={{ visibleFlows: { [flowId]: true }, visualFlowsApi }}>
+        <VisibleFlowsContext.Provider
+          value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        >
           <CanvasFormTabsProvider>
             <CanvasForm selectedNode={selectedNode} />
           </CanvasFormTabsProvider>
