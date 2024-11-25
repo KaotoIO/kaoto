@@ -47,7 +47,7 @@ const PasswordFieldComponent = ({ onChange, ...props }: PasswordFieldProps) => {
           placeholder={props.placeholder}
           ref={props.inputRef}
           type={passwordHidden ? 'password' : 'text'}
-          value={props.value}
+          value={props.value ?? ''}
           {...filterDOMProps(props)}
         />
         <FormHelperText>

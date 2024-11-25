@@ -1,7 +1,7 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { getValue } from './get-value';
 import { setValue } from './set-value';
-import set from 'lodash/set';
+import { set } from 'lodash';
 
 export const getCustomSchemaFromPipe = (pipe: Pipe) => {
   const name: string = getValue(pipe, 'metadata.name', '');

@@ -34,8 +34,11 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const [isSelected, onSelect] = useSelection();
-    const [isGHover, gHoverRef] = useHover<SVGGElement>();
-    const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>();
+    const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
+    const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
+      CanvasDefaults.HOVER_DELAY_IN,
+      CanvasDefaults.HOVER_DELAY_OUT,
+    );
     const boxRef = useRef<Rect>(element.getBounds());
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover

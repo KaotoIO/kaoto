@@ -1,5 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash';
 import {
   CamelUriHelper,
   DATAMAPPER_ID_PREFIX,
