@@ -2,10 +2,13 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/camel/entities';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
+import {
+  ActionConfirmationModalContext,
+  ActionConfirmationModalContextProvider,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 
 describe('FlowsList.tsx', () => {
   let camelResource: CamelRouteResource;
@@ -117,7 +120,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    act(() => {
+    await act(async () => {
       fireEvent.click(wrapper.getByTestId('delete-btn-route-1234'));
     });
 
@@ -125,6 +128,52 @@ describe('FlowsList.tsx', () => {
       title: 'Permanently delete flow?',
       text: 'All steps will be lost.',
     });
+  });
+
+  it('should delete a flow when clicking the delete icon and then clicking delete', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <ActionConfirmationModalContextProvider>
+          <FlowsList />
+        </ActionConfirmationModalContextProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+      fireEvent.click(deleteBtn);
+    });
+
+    await act(async () => {
+      const actionConfirmationModalBtnConfirm = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
+      fireEvent.click(actionConfirmationModalBtnConfirm);
+    });
+
+    expect(camelResource.getVisualEntities()).toHaveLength(1);
+  });
+
+  it('should not delete a flow when clicking the delete icon and then clicking cancel', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <ActionConfirmationModalContextProvider>
+          <FlowsList />
+        </ActionConfirmationModalContextProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+      fireEvent.click(deleteBtn);
+    });
+
+    await act(async () => {
+      const actionConfirmationModalBtnCancel = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
+      fireEvent.click(actionConfirmationModalBtnCancel);
+    });
+
+    expect(camelResource.getVisualEntities()).toHaveLength(2);
   });
 
   it('should toggle the visibility of a flow clicking on the Eye icon', async () => {
@@ -148,7 +197,7 @@ describe('FlowsList.tsx', () => {
 
     const toggleFlowId = await wrapper.findByTestId('toggle-btn-route-1234');
 
-    act(() => {
+    await act(async () => {
       fireEvent.click(toggleFlowId);
     });
 
