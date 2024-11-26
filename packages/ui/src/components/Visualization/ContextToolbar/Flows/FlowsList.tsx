@@ -2,15 +2,18 @@ import { Button, Icon } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useRef } from 'react';
+import { ValidationResult } from '../../../../models';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
+import {
+  ACTION_ID_CONFIRM,
+  ActionConfirmationModalContext,
+} from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { InlineEdit } from '../../../InlineEdit';
+import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
 import './FlowsList.scss';
 import { FlowsListEmptyState } from './FlowsListEmptyState';
-import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
-import { ValidationResult } from '../../../../models';
 
 interface IFlowsList {
   onClose?: () => void;
@@ -110,7 +113,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                     text: 'All steps will be lost.',
                   });
 
-                  if (!isDeleteConfirmed) return;
+                  if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
                   camelResource.removeEntity(flow.id);
                   updateEntitiesFromCamelResource();
