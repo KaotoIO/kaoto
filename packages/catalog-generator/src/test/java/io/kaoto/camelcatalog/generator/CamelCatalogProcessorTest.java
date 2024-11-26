@@ -359,4 +359,12 @@ class CamelCatalogProcessorTest {
     void testLoadBalancerEnumParameter() throws Exception {
         checkEnumParameters(loadBalancerCatalog);
     }
+
+    @Test
+    void testMarshalEip() {
+        var marshalProperties = processorCatalog.withObject("/marshal").withObject("/propertiesSchema");
+        var marshalOneOfDef = marshalProperties.withArray("/oneOf");
+
+        assertEquals(41, marshalOneOfDef.size());
+    }
 }

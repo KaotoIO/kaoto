@@ -8,11 +8,12 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useMemo, useState } from 'react';
 import { OneOfSchemas } from '../../../utils/get-oneof-schema-list';
 import { isDefined } from '../../../utils/is-defined';
 import { SchemaService } from '../schema.service';
 import './OneOfSchemaList.scss';
+import { TypeaheadField } from '../customField/TypeaheadField';
 
 interface OneOfComponentProps extends PropsWithChildren {
   name: string;

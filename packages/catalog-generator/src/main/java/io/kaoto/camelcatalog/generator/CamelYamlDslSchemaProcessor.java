@@ -30,7 +30,6 @@ import java.util.*;
  */
 public class CamelYamlDslSchemaProcessor {
     private static final String PROCESSOR_DEFINITION = "org.apache.camel.model.ProcessorDefinition";
-    private static final String TOKENIZER_DEFINITION = "org.apache.camel.model.TokenizerDefinition";
     private static final String ROUTE_CONFIGURATION_DEFINITION = "org.apache.camel.model.RouteConfigurationDefinition";
     private static final String REST_DEFINITION = "org.apache.camel.model.rest.RestDefinition";
     private static final String LOAD_BALANCE_DEFINITION = "org.apache.camel.model.LoadBalanceDefinition";
@@ -44,6 +43,10 @@ public class CamelYamlDslSchemaProcessor {
     private final ObjectMapper jsonMapper;
     private final ObjectNode yamlDslSchema;
     private final List<String> processorBlocklist = List.of("org.apache.camel.model.KameletDefinition");
+    static final String TOKENIZER_DEFINITION = "org.apache.camel.model.TokenizerDefinition";
+    static final String MARSHAL_DEFINITION = "org.apache.camel.model.MarshalDefinition";
+    static final String UNMARSHAL_DEFINITION = "org.apache.camel.model.UnmarshalDefinition";
+    private static final List<String> VALIDATED_ONE_OF = List.of(TOKENIZER_DEFINITION, MARSHAL_DEFINITION, UNMARSHAL_DEFINITION);
 
     /**
      * The processor properties those should be handled separately, i.e. remove from
@@ -296,7 +299,7 @@ public class CamelYamlDslSchemaProcessor {
             processor.remove("oneOf");
 
             /* Preparation for TokenizerDefinition, this could be propagated to all EIPs in the future */
-            if (processorFQCN.equals(TOKENIZER_DEFINITION)) {
+            if (VALIDATED_ONE_OF.contains(processorFQCN)) {
                 removeEmptyProperties(processor);
                 extractSingleOneOfFromAnyOf(processor);
                 removeNotFromOneOf(processor);
@@ -434,12 +437,6 @@ public class CamelYamlDslSchemaProcessor {
             if (def.has("$ref") && def.get("$ref").asText()
                     .equals("#/definitions/org.apache.camel.model.language.ExpressionDefinition")) {
                 definition.put("$comment", "expression");
-                break;
-            }
-            var refParent = def.findParent("$ref");
-            if (refParent != null
-                    && refParent.get("$ref").asText().startsWith("#/definitions/org.apache.camel.model.dataformat")) {
-                definition.put("$comment", "dataformat");
                 break;
             }
             if (LOAD_BALANCE_DEFINITION.equals(name)) {
