@@ -3,7 +3,6 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../../providers/schema-bridge.provider';
 import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../../utils';
 import { CustomAutoForm, CustomAutoFormRef } from '../../../Form/CustomAutoForm';
-import { DataFormatEditor } from '../../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../../Form/loadBalancer/LoadBalancerEditor';
 import { StepExpressionEditor } from '../../../Form/stepExpression/StepExpressionEditor';
 import { UnknownNode } from '../../Custom/UnknownNode';
@@ -47,13 +46,12 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
   const stepFeatures = useMemo(() => {
     const comment = visualComponentSchema?.schema?.['$comment'] ?? '';
     const isExpressionAwareStep = comment.includes('expression');
-    const isDataFormatAwareStep = comment.includes('dataformat');
     const isLoadBalanceAwareStep = comment.includes('loadbalance');
     const isUnknownComponent =
       !isDefined(visualComponentSchema) ||
       !isDefined(visualComponentSchema.schema) ||
       Object.keys(visualComponentSchema.schema).length === 0;
-    return { isExpressionAwareStep, isDataFormatAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
+    return { isExpressionAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
   }, [visualComponentSchema]);
 
   const handleOnChangeIndividualProp = useCallback(
@@ -83,9 +81,6 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
         <SchemaBridgeProvider schema={processedSchema} parentRef={divRef}>
           {stepFeatures.isExpressionAwareStep && (
             <StepExpressionEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-          )}
-          {stepFeatures.isDataFormatAwareStep && (
-            <DataFormatEditor selectedNode={props.selectedNode} formMode={selectedTab} />
           )}
           {stepFeatures.isLoadBalanceAwareStep && (
             <LoadBalancerEditor selectedNode={props.selectedNode} formMode={selectedTab} />
