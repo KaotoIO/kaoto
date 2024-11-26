@@ -33,8 +33,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
   const isValueSelectorNode = VisualizationService.isValueSelectorNode(nodeData);
 
   const onToggleActionMenu = useCallback(
-    (event: MouseEvent | undefined) => {
-      event?.stopPropagation();
+    (_event: MouseEvent | undefined) => {
       setIsActionMenuOpen(!isActionMenuOpen);
     },
     [isActionMenuOpen],

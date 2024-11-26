@@ -50,16 +50,17 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
     !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
   const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
 
+  const isDocument = VisualizationService.isDocumentNode(nodeData);
+  const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
+  const hasChildren = VisualizationService.hasChildren(nodeData);
+
   const onClick = useCallback(() => {
     if (!hasChildren) return;
 
     setCollapsed(!collapsed);
     reloadNodeReferences();
-  }, [collapsed, reloadNodeReferences]);
+  }, [collapsed, hasChildren, reloadNodeReferences]);
 
-  const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
-  const hasChildren = VisualizationService.hasChildren(nodeData);
   const children = VisualizationService.generateNodeDataChildren(nodeData) as TargetNodeData[];
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
@@ -86,30 +87,32 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   return (
     <div data-testid={`node-target-${nodeData.id}`} className={clsx({ node__container: !isDocument })}>
       <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
+        <div className={clsx({ node__header: !isDocument })}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
             <section className="node__row" data-draggable={isDraggable}>
-              {hasChildren && (
-                <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
-              )}
+              <span onClick={onClick}>
+                {hasChildren && (
+                  <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
+                )}
 
-              <Icon className="node__spacer" data-drag-handler>
-                <GripVerticalIcon />
-              </Icon>
-
-              {isCollectionField && (
-                <Icon className="node__spacer">
-                  <LayerGroupIcon />
+                <Icon className="node__spacer" data-drag-handler>
+                  <GripVerticalIcon />
                 </Icon>
-              )}
 
-              {isAttributeField && (
-                <Icon className="node__spacer">
-                  <AtIcon />
-                </Icon>
-              )}
+                {isCollectionField && (
+                  <Icon className="node__spacer">
+                    <LayerGroupIcon />
+                  </Icon>
+                )}
 
-              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+                {isAttributeField && (
+                  <Icon className="node__spacer">
+                    <AtIcon />
+                  </Icon>
+                )}
+
+                <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+              </span>
 
               {showNodeActions ? (
                 <TargetNodeActions className="node__target__actions" nodeData={nodeData} onUpdate={handleUpdate} />
