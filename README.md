@@ -9,7 +9,7 @@
   <a href="https://kaoto.io"><img src="https://img.shields.io/badge/Kaoto.io-Visit-white?color=indigo&style=for-the-badge" alt="Zulip"/></a>
 </p><br/>
 
-<h2 align="center">Visual Editor for <a href="https://camel.apache.org">Apache Camel</a></h2>
+<h2 align="center">Kaoto - The Integration Designer for <a href="https://camel.apache.org">Apache Camel</a></h2>
 
 <p align="center">
   <a style="font-weight: bold" href="https://kaoto.io/docs/installation">Documentation</a> |
