@@ -65,6 +65,9 @@ describe('Test for Multi route actions from the canvas', () => {
 
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
 
+    cy.cancelDeleteRoute(0);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
+
     cy.deleteRoute(0);
     cy.deleteRoute(0);
     cy.deleteRoute(0);
