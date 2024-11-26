@@ -36,10 +36,8 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
 
   const handleExpressionChange = useCallback(
     (expression?: string) => {
-      if (expression) {
-        mapping.expression = expression;
-        onUpdate();
-      }
+      mapping.expression = expression ?? '';
+      onUpdate();
     },
     [mapping, onUpdate],
   );
