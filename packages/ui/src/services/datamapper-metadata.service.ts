@@ -19,7 +19,7 @@ export class DataMapperMetadataService {
 
   static getDataMapperMetadataId(vizNode: IVisualizationNode) {
     const model = vizNode.getComponentSchema()?.definition;
-    return `${vizNode.getId()}-${model.id}`; // routeId-stepId
+    return model.id;
   }
 
   static async initializeDataMapperMetadata(
