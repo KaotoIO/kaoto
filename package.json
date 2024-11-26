@@ -1,7 +1,7 @@
 {
   "name": "kaoto",
   "version": "2.3.0-RC1",
-  "description": "Next version of the UI of the Kaoto project",
+  "description": "Kaoto - The Integration Designer for Apache Camel",
   "repository": "https://github.com/KaotoIO/kaoto",
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
