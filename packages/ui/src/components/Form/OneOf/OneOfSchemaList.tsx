@@ -1,19 +1,10 @@
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  MenuToggle,
-  MenuToggleElement,
-  Text,
-  TextContent,
-  TextVariants,
-} from '@patternfly/react-core';
+import { MenuToggle, MenuToggleElement, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useMemo, useState } from 'react';
 import { OneOfSchemas } from '../../../utils/get-oneof-schema-list';
 import { isDefined } from '../../../utils/is-defined';
+import { Typeahead, TypeaheadOptions } from '../../Typeahead';
 import { SchemaService } from '../schema.service';
 import './OneOfSchemaList.scss';
-import { TypeaheadField } from '../customField/TypeaheadField';
 
 interface OneOfComponentProps extends PropsWithChildren {
   name: string;
@@ -32,10 +23,10 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const onSelect = useCallback(
-    (_event: unknown, value: string | number | undefined) => {
+    (value: string) => {
       setIsOpen(false);
       onSchemaChanged(undefined);
-      onSchemaChanged(value as string);
+      onSchemaChanged(value);
     },
     [onSchemaChanged],
   );
@@ -65,6 +56,16 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
     [isOpen, name, onToggleClick, selectedSchemaName],
   );
 
+  const options = useMemo(() => {
+    return oneOfSchemas.map((schemaDef): TypeaheadOptions => {
+      return {
+        value: schemaDef.name,
+        description: schemaDef.description,
+        isSelected: schemaDef.name === selectedSchemaName,
+      };
+    });
+  }, [oneOfSchemas, selectedSchemaName]);
+
   useEffect(() => {
     if (oneOfSchemas.length === 1 && isDefined(oneOfSchemas[0]) && !selectedSchemaName) {
       onSchemaChanged(oneOfSchemas[0].name);
@@ -77,7 +78,7 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
 
   return (
     <>
-      <Dropdown
+      {/* <Dropdown
         id={`${name}-oneof-select`}
         data-testid={`${name}-oneof-select`}
         isOpen={isOpen}
@@ -101,7 +102,15 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
             );
           })}
         </DropdownList>
-      </Dropdown>
+      </Dropdown> */}
+
+      <Typeahead
+        value={selectedSchemaName}
+        options={options}
+        canCreateNewOption={false}
+        data-testid={`${name}-oneof-select`}
+        onChange={onSelect}
+      />
 
       {children}
     </>
