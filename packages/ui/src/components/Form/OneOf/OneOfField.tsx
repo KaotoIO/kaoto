@@ -53,9 +53,6 @@ export const OneOfField = connectField(({ name: propsName, oneOf, onChange }: On
   const onSchemaChanged = useCallback(
     (schemaName: string | undefined) => {
       if (schemaName === selectedSchemaName) return;
-      /** Remove existing properties */
-      const path = propsName === '' ? ROOT_PATH : `${propsName}.${selectedSchemaName}`;
-      onChange(undefined, path);
 
       if (!isDefined(schemaName)) {
         setSelectedSchema(undefined);
@@ -63,12 +60,24 @@ export const OneOfField = connectField(({ name: propsName, oneOf, onChange }: On
         return;
       }
 
+      /** Remove existing properties */
+      const currentSchema = oneOfSchemas.find((schema) => schema.name === selectedSchemaName);
+      if (isDefined(currentSchema) && isDefined(appliedSchema)) {
+        const cleanModel = Object.keys(currentSchema.schema.properties ?? []).reduce((acc, key) => {
+          acc[key] = undefined;
+          return acc;
+        }, appliedSchema.model);
+
+        const path = propsName === '' ? ROOT_PATH : `${propsName}.${selectedSchemaName}`;
+        onChange(cleanModel, path);
+      }
+
       const selectedSchema = oneOfSchemas.find((schema) => schema.name === schemaName);
       const schemaWithDefinitions = applyDefinitionsToSchema(selectedSchema?.schema, schemaBridge?.schema);
       setSelectedSchema(schemaWithDefinitions);
       setSelectedSchemaName(schemaName);
     },
-    [onChange, oneOfSchemas, propsName, schemaBridge?.schema, selectedSchemaName],
+    [appliedSchema, onChange, oneOfSchemas, propsName, schemaBridge?.schema, selectedSchemaName],
   );
 
   useEffect(() => {
@@ -78,6 +87,8 @@ export const OneOfField = connectField(({ name: propsName, oneOf, onChange }: On
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
       const updatedPath = propsName === '' ? path : `${propsName}.${path}`;
+      console.log(path, updatedPath, value);
+
       onChange(value, updatedPath);
     },
     [onChange, propsName],

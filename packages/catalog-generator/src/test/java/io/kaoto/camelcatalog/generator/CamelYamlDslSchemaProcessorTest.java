@@ -162,7 +162,7 @@ class CamelYamlDslSchemaProcessorTest {
 
         var marshal = processorMap.get("org.apache.camel.model.MarshalDefinition");
         assertFalse(marshal.has("anyOf"));
-        assertEquals("dataformat", marshal.get("$comment").asText());
+        assertTrue(marshal.has("oneOf"));
 
         var toD = processorMap.get("org.apache.camel.model.ToDynamicDefinition");
         assertTrue(toD.withObject("/properties").has("uri"));

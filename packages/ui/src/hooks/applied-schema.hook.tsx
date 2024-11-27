@@ -32,6 +32,7 @@ export const useAppliedSchema = (fieldName: string, oneOfSchemas: OneOfSchemas[]
     }
 
     const foundSchema = oneOfSchemas[index];
+    console.log(JSON.stringify(form.model, null, 2));
 
     return {
       index,
