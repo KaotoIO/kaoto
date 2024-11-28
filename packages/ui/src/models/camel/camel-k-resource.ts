@@ -11,6 +11,7 @@ import { MetadataEntity } from '../visualization/metadata';
 import { BaseVisualCamelEntityDefinition, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { CamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 
 export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
 
@@ -25,14 +26,19 @@ export const CAMEL_K_K8S_API_VERSION_V1 = 'camel.apache.org/v1';
 
 export abstract class CamelKResource implements CamelResource {
   static readonly PARAMETERS_ORDER = ['apiVersion', 'kind', 'metadata', 'spec', 'source', 'steps', 'sink'];
+  // static serializer = new YamlResourceSerializer();
   readonly sortFn = createCamelPropertiesSorter(CamelKResource.PARAMETERS_ORDER) as (a: unknown, b: unknown) => number;
   protected resource: CamelKType;
   private metadata?: MetadataEntity;
-  private comments: string[] = [];
 
-  constructor(resource?: CamelKType) {
-    if (resource) {
-      this.resource = resource;
+  constructor(
+    parsedResource: unknown,
+    private readonly serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
+  ) {
+    this.serializer = serializer;
+
+    if (parsedResource) {
+      this.resource = parsedResource as CamelKType;
     } else {
       this.resource = {
         apiVersion: CAMEL_K_K8S_API_VERSION_V1,
@@ -94,12 +100,15 @@ export abstract class CamelKResource implements CamelResource {
   getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): TileFilter | undefined {
     return undefined;
   }
-
-  setComments(comments: string[]) {
-    this.comments = comments;
+  getSerializer() {
+    return this.serializer;
   }
 
-  getComments(): string[] {
-    return this.comments;
+  setSerializer(_serializer: CamelResourceSerializer): void {
+    /** Not supported by default */
+  }
+
+  toString(): string {
+    return this.serializer.serialize(this);
   }
 }

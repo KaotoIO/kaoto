@@ -62,7 +62,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
      * the CamelRouteVisualEntity.
      */
     set(this.resource, 'metadata.name', this.flow.getId());
-    set(this.resource, 'spec.template.from', this.flow.entityDef.template.from);
+    set(this.resource, 'spec.template.from', this.flow.route.from);
     set(this.resource, 'spec.template.beans', this.beans?.parent.beans);
     return this.resource as IKameletDefinition;
   }

@@ -1,19 +1,19 @@
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
-import { camelRouteJson } from '../../stubs/camel-route';
+import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
-import { createCamelResource } from './camel-resource';
 import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { CamelResourceFactory } from './camel-resource-factory';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
+    const resource = new CamelRouteResource(camelRouteYaml);
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getVisualEntities().length).toEqual(1);
     expect(resource.getEntities().length).toEqual(0);
@@ -39,7 +39,7 @@ describe('CamelRouteResource', () => {
       [null, undefined],
       [[], undefined],
     ])('should return the appropriate entity for: %s', (json, expected) => {
-      const resource = new CamelRouteResource(json);
+      const resource = new CamelRouteResource(JSON.stringify(json));
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
 
       if (typeof expected === 'function') {
@@ -98,14 +98,14 @@ describe('CamelRouteResource', () => {
   });
 
   it('should return visual entities', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
+    const resource = new CamelRouteResource(camelRouteYaml);
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CamelRouteVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
   });
 
   it('should return entities', () => {
-    const resource = new CamelRouteResource(beansJson);
+    const resource = new CamelRouteResource(JSON.stringify(beansJson));
     expect(resource.getEntities()).toHaveLength(1);
     expect(resource.getEntities()[0]).toBeInstanceOf(BeansEntity);
     expect(resource.getVisualEntities()).toHaveLength(0);
@@ -113,7 +113,7 @@ describe('CamelRouteResource', () => {
 
   describe('toJSON', () => {
     it('should return JSON', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource(camelRouteYaml);
       expect(resource.toJSON()).toMatchSnapshot();
     });
 
@@ -141,7 +141,7 @@ describe('CamelRouteResource', () => {
 
   describe('removeEntity', () => {
     it('should not do anything if the ID is not provided', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource(camelRouteYaml);
 
       resource.removeEntity();
 
@@ -149,7 +149,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should not do anything when providing a non existing ID', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource(camelRouteYaml);
 
       resource.removeEntity('non-existing-id');
 
@@ -157,7 +157,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should allow to remove an entity', () => {
-      const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
+      const resource = new CamelRouteResource(JSON.stringify([camelRouteJson, camelFromJson]));
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
@@ -166,7 +166,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should NOT create a new entity after deleting them all', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource(camelRouteYaml);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
@@ -179,7 +179,7 @@ describe('CamelRouteResource', () => {
     it('should delegate to the CamelComponentFilterService', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
-      const resource = createCamelResource(camelRouteJson);
+      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
 
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
@@ -209,17 +209,9 @@ describe('CamelRouteResource', () => {
       [{ anotherUnknownContent: {} }],
       [{}],
     ])('should not throw error when calling: %s', (json) => {
-      const resource = new CamelRouteResource(json);
+      const resource = new CamelRouteResource(JSON.stringify(json));
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
       expect(firstEntity.toJSON()).not.toBeUndefined();
-    });
-  });
-
-  describe('comments', () => {
-    it('should set and get comments', () => {
-      const resource = new CamelRouteResource();
-      resource.setComments(['a', 'b']);
-      expect(resource.getComments()).toEqual(['a', 'b']);
     });
   });
 });
