@@ -20,6 +20,8 @@ import { BeansEntity, isBeans } from '../visualization/metadata';
 import { BaseVisualCamelEntityDefinition, BeansAwareResource, CamelResource } from './camel-resource';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { CamelResourceSerializer } from '../../serializers/camel-resource-serializer';
+import { YamlCamelResourceSerializer } from '../../serializers';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
   static readonly SUPPORTED_ENTITIES: { type: EntityType; group: string; Entity: BaseVisualCamelEntityConstructor }[] =
@@ -46,12 +48,15 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   ) => number;
   private entities: BaseCamelEntity[] = [];
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
-  private comments: string[] = [];
+  private serializer: CamelResourceSerializer;
 
-  constructor(json?: unknown) {
-    if (!json) return;
-    const rawEntities = Array.isArray(json) ? json : [json];
-    this.entities = rawEntities.reduce((acc, rawItem) => {
+  constructor(code?: string, serializer?: CamelResourceSerializer) {
+    this.serializer = serializer ?? new YamlCamelResourceSerializer();
+    if (!code) return;
+
+    const parsedCode = this.serializer.parse(code);
+    const entities = Array.isArray(parsedCode) ? parsedCode : [parsedCode];
+    this.entities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {
         acc.push(entity);
@@ -87,6 +92,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     );
 
     return this.resolvedEntities;
+  }
+
+  getSerializer(): CamelResourceSerializer {
+    return this.serializer;
+  }
+  setSerializer(serializer: CamelResourceSerializer): void {
+    this.serializer = serializer;
   }
 
   addNewEntity(entityType?: EntityType): string {
@@ -137,6 +149,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     return this.entities.map((entity) => entity.toJSON());
   }
 
+  toString() {
+    return this.serializer.serialize(this);
+  }
+
   createBeansEntity(): BeansEntity {
     const newBeans = { beans: [] };
     const beansEntity = new BeansEntity(newBeans);
@@ -168,14 +184,6 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     definition?: any,
   ): TileFilter {
     return CamelComponentFilterService.getCamelCompatibleComponents(mode, visualEntityData, definition);
-  }
-
-  setComments(comments: string[]): void {
-    this.comments = comments;
-  }
-
-  getComments(): string[] {
-    return this.comments;
   }
 
   private getEntity(rawItem: unknown): BaseCamelEntity | undefined {

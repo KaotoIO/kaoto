@@ -98,12 +98,4 @@ describe('KameletResource', () => {
     expect(model.spec.template.beans).toBeUndefined();
     expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
   });
-
-  describe('comments', () => {
-    it('should set and get comments', () => {
-      const resource = new KameletResource();
-      resource.setComments(['a', 'b']);
-      expect(resource.getComments()).toEqual(['a', 'b']);
-    });
-  });
 });
