@@ -35,8 +35,6 @@ export abstract class CamelKResource implements CamelResource {
     parsedResource: unknown,
     private readonly serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
   ) {
-    this.serializer = serializer;
-
     if (parsedResource) {
       this.resource = parsedResource as CamelKType;
     } else {

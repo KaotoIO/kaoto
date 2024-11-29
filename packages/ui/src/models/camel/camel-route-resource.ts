@@ -50,12 +50,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
   private serializer: CamelResourceSerializer;
 
-  constructor(code?: string, serializer?: CamelResourceSerializer) {
+  constructor(code?: unknown, serializer?: CamelResourceSerializer) {
     this.serializer = serializer ?? new YamlCamelResourceSerializer();
     if (!code) return;
 
-    const parsedCode = this.serializer.parse(code);
-    const entities = Array.isArray(parsedCode) ? parsedCode : [parsedCode];
+    const entities = Array.isArray(code) ? code : [code];
     this.entities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {

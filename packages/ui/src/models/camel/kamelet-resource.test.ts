@@ -1,10 +1,10 @@
 import { kameletJson } from '../../stubs/kamelet-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
-import { createCamelResource } from './camel-resource';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { cloneDeep } from 'lodash';
+import { CamelKResourceFactory } from './camel-k-resource-factory';
+import cloneDeep from 'lodash/cloneDeep';
 
 describe('KameletResource', () => {
   it('should create a new KameletResource', () => {
@@ -78,7 +78,7 @@ describe('KameletResource', () => {
     it('should delegate to the CamelComponentFilterService', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
 
-      const resource = createCamelResource(kameletJson);
+      const resource = CamelKResourceFactory.getCamelKResource(kameletJson)!;
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
 
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);

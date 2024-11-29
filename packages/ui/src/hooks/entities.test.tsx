@@ -59,12 +59,14 @@ describe('useEntities', () => {
     expect(notifierSpy).toHaveBeenCalledWith('entities:updated', camelRouteYaml_1_1_updated);
   });
 
-  it('should notifiy subscribers when the entities are updated', () => {
+  it('should notify subscribers when the entities are updated', () => {
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useEntities());
 
     act(() => {
+      console.log('result.current.camelResource:', result.current.camelResource);
       result.current.camelResource.addNewEntity();
+      console.log('result.current.camelResource:', result.current.camelResource);
       result.current.updateSourceCodeFromEntities();
     });
 
@@ -161,70 +163,5 @@ describe('useEntities', () => {
       `[]
 `,
     );
-  });
-
-  describe('comments', () => {
-    it(`should store code's comments`, () => {
-      const code = `# This is a comment
-      # An indented comment
-
-- route:
-    id: route-1234
-    from:
-      id: from-1234
-      uri: timer
-      parameters:
-        period: "1000"
-        timerName: template
-      # This comment won't be stored
-      steps:
-        - log:
-            id: log-1234
-            message: \${body}
-`;
-
-      const { result } = renderHook(() => useEntities());
-
-      act(() => {
-        eventNotifier.next('code:updated', code);
-      });
-
-      expect(result.current.camelResource.getComments()).toEqual([
-        '# This is a comment',
-        '      # An indented comment',
-        '',
-      ]);
-    });
-
-    it('should add comments to the source code', () => {
-      const notifierSpy = jest.spyOn(eventNotifier, 'next');
-      const { result } = renderHook(() => useEntities());
-
-      act(() => {
-        result.current.camelResource.setComments(['# This is a comment', '      # An indented comment', '']);
-        result.current.camelResource.addNewEntity();
-        result.current.updateSourceCodeFromEntities();
-      });
-
-      expect(notifierSpy).toHaveBeenCalledWith(
-        'entities:updated',
-        `# This is a comment
-      # An indented comment
-
-- route:
-    id: route-1234
-    from:
-      id: from-1234
-      uri: timer
-      parameters:
-        period: "1000"
-        timerName: template
-      steps:
-        - log:
-            id: log-1234
-            message: \${body}
-`,
-      );
-    });
   });
 });

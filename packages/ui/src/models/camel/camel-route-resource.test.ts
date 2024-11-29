@@ -13,7 +13,7 @@ import { CamelResourceFactory } from './camel-resource-factory';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
-    const resource = new CamelRouteResource(camelRouteYaml);
+    const resource = new CamelRouteResource(camelRouteJson);
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getVisualEntities().length).toEqual(1);
     expect(resource.getEntities().length).toEqual(0);
@@ -39,7 +39,7 @@ describe('CamelRouteResource', () => {
       [null, undefined],
       [[], undefined],
     ])('should return the appropriate entity for: %s', (json, expected) => {
-      const resource = new CamelRouteResource(JSON.stringify(json));
+      const resource = new CamelRouteResource(json);
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
 
       if (typeof expected === 'function') {
@@ -98,14 +98,14 @@ describe('CamelRouteResource', () => {
   });
 
   it('should return visual entities', () => {
-    const resource = new CamelRouteResource(camelRouteYaml);
+    const resource = new CamelRouteResource(camelRouteJson);
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CamelRouteVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
   });
 
   it('should return entities', () => {
-    const resource = new CamelRouteResource(JSON.stringify(beansJson));
+    const resource = new CamelRouteResource(beansJson);
     expect(resource.getEntities()).toHaveLength(1);
     expect(resource.getEntities()[0]).toBeInstanceOf(BeansEntity);
     expect(resource.getVisualEntities()).toHaveLength(0);
@@ -113,7 +113,7 @@ describe('CamelRouteResource', () => {
 
   describe('toJSON', () => {
     it('should return JSON', () => {
-      const resource = new CamelRouteResource(camelRouteYaml);
+      const resource = new CamelRouteResource(camelRouteJson);
       expect(resource.toJSON()).toMatchSnapshot();
     });
 
@@ -141,7 +141,7 @@ describe('CamelRouteResource', () => {
 
   describe('removeEntity', () => {
     it('should not do anything if the ID is not provided', () => {
-      const resource = new CamelRouteResource(camelRouteYaml);
+      const resource = new CamelRouteResource(camelRouteJson);
 
       resource.removeEntity();
 
@@ -149,7 +149,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should not do anything when providing a non existing ID', () => {
-      const resource = new CamelRouteResource(camelRouteYaml);
+      const resource = new CamelRouteResource(camelRouteJson);
 
       resource.removeEntity('non-existing-id');
 
@@ -157,7 +157,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should allow to remove an entity', () => {
-      const resource = new CamelRouteResource(JSON.stringify([camelRouteJson, camelFromJson]));
+      const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
@@ -166,7 +166,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should NOT create a new entity after deleting them all', () => {
-      const resource = new CamelRouteResource(camelRouteYaml);
+      const resource = new CamelRouteResource(camelRouteJson);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
@@ -209,7 +209,7 @@ describe('CamelRouteResource', () => {
       [{ anotherUnknownContent: {} }],
       [{}],
     ])('should not throw error when calling: %s', (json) => {
-      const resource = new CamelRouteResource(JSON.stringify(json));
+      const resource = new CamelRouteResource(json);
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
       expect(firstEntity.toJSON()).not.toBeUndefined();
     });

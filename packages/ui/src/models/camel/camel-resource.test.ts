@@ -70,7 +70,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
   });
 
   it('should create a Kamelet', () => {
-    const resource = CamelResourceFactory.createCamelResource(kameletJson);
+    const resource = CamelResourceFactory.createCamelResource(JSON.stringify(kameletJson));
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
     expect(resource.getVisualEntities().length).toEqual(1);
   });
