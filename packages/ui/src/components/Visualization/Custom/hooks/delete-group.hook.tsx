@@ -11,7 +11,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode) => {
   const onDeleteGroup = useCallback(async () => {
     /** Open delete confirm modal, get the confirmation  */
     const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
-      title: 'Permanently delete flow?',
+      title: "Do you want to delete the '" + vizNode.getId() + "' " + vizNode.getTitle() + '?',
       text: 'All steps will be lost.',
     });
 

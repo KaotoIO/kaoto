@@ -140,7 +140,12 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 variant="plain"
                 onClick={async (event) => {
                   const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
-                    title: 'Permanently delete flow?',
+                    title:
+                      "Do you want to delete the '" +
+                      flow.toVizNode().getId() +
+                      "' " +
+                      flow.toVizNode().getTitle() +
+                      '?',
                     text: 'All steps will be lost.',
                   });
 

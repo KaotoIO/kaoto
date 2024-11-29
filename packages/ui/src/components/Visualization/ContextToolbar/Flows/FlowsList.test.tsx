@@ -126,7 +126,7 @@ describe('FlowsList.tsx', () => {
     });
 
     expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
-      title: 'Permanently delete flow?',
+      title: "Do you want to delete the 'route-1234' route?",
       text: 'All steps will be lost.',
     });
   });
