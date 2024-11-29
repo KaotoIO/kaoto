@@ -13,7 +13,8 @@ import {
 
 export class CamelKResourceFactory {
   static getCamelKResource(json?: unknown, type?: SourceSchemaType): CamelResource | undefined {
-    const jsonRecord = json as Record<string, unknown>;
+    const jsonRecord = json ? (json as Record<string, unknown>) : {};
+
     if ((jsonRecord && typeof json === 'object' && 'kind' in jsonRecord) || type) {
       switch (jsonRecord['kind'] || type) {
         case SourceSchemaType.Integration:
@@ -24,8 +25,6 @@ export class CamelKResourceFactory {
           return new KameletBindingResource(json as KameletBindingType);
         case SourceSchemaType.Pipe:
           return new PipeResource(json as PipeType);
-        default:
-          return undefined;
       }
     }
     return undefined;

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`createCamelResource should create an empty KameletResource if no args is specified 1`] = `
+exports[`CamelResourceFactory.createCamelResource should create an empty KameletResource if no args is specified 1`] = `
 [
   {
     "from": {

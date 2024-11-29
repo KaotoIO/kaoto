@@ -1,6 +1,6 @@
 import { SourceSchemaType } from './source-schema-type';
 import { CamelResource } from './camel-resource';
-import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
+import { CamelResourceSerializer, XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { CamelRouteResource } from './camel-route-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
 
@@ -14,14 +14,14 @@ export class CamelResourceFactory {
    * @param source
    */
   static createCamelResource(source?: string, type?: SourceSchemaType): CamelResource {
-    if (XmlCamelResourceSerializer.isApplicable(source)) {
-      return new CamelRouteResource(source, new XmlCamelResourceSerializer());
-    }
+    const serializer: CamelResourceSerializer = XmlCamelResourceSerializer.isApplicable(source)
+      ? new XmlCamelResourceSerializer()
+      : new YamlCamelResourceSerializer();
 
-    const serializer = new YamlCamelResourceSerializer();
-    const resource = CamelKResourceFactory.getCamelKResource(serializer.parse(source ?? ''), type);
+    const parsedCode = source ? serializer.parse(source) : source;
+    const resource = CamelKResourceFactory.getCamelKResource(parsedCode, type);
 
     if (resource) return resource;
-    return new CamelRouteResource(source, serializer);
+    return new CamelRouteResource(parsedCode, serializer);
   }
 }

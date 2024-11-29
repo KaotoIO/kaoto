@@ -6,17 +6,6 @@ import { BaseVisualCamelEntity } from '../models/visualization/base-visual-entit
 import { EventNotifier } from '../utils';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 
-/**
- * Regular expression to match commented lines, regardless of indentation
- * Given the following examples, the regular expression should match the comments:
- * ```
- * # This is a comment
- *     # This is an indented comment
- *# This is an indented comment
- * ```
- * The regular expression should match the first three lines
- */
-
 export interface EntitiesContextResult {
   entities: BaseCamelEntity[];
   currentSchemaType: SourceSchemaType;
