@@ -127,6 +127,16 @@ export class CamelComponentDefaultService {
                 message: "\${body}"
         `);
 
+      case 'otherwise':
+      case 'doFinally':
+        return parse(`
+        id: ${getCamelRandomId(processorName)}
+        steps:
+          - log:
+              id: ${getCamelRandomId('log')}
+              message: "\${body}"
+      `);
+
       case 'log':
         return parse(`
         log:
