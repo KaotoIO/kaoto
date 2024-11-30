@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for root on exception container', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -29,7 +31,7 @@ describe('Test for root on exception container', () => {
     cy.uploadFixture('flows/camelRoute/onException.yaml');
     cy.openDesignPage();
 
-    cy.get(`[data-testid^="custom-node__onException"]`).click({ force: true });
+    cy.get(selectors.CUSTOM_NODE_ONEXCEPTION).click({ force: true });
 
     cy.selectFormTab('All');
     cy.selectInTypeaheadField('redeliveryPolicy.retriesExhaustedLogLevel', 'INFO');

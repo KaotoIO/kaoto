@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for onCompletion configuration container', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -6,7 +8,7 @@ describe('Test for onCompletion configuration container', () => {
   it('Root onCompletion configuration', () => {
     cy.selectCamelRouteType('Configuration', 'onCompletion');
 
-    cy.get(`[data-testid^="custom-node__onCompletion"]`).click({ force: true });
+    cy.get(selectors.CUSTOM_NODE_ONCOMPLETION).click({ force: true });
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');

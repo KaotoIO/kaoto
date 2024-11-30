@@ -1,4 +1,5 @@
 import 'cypress-file-upload';
+import { selectors } from '@kaoto/kaoto/testing';
 
 Cypress.Commands.add('expandWrappedSection', (sectionName: string) => {
   cy.switchWrappedSection(sectionName, false);
@@ -12,7 +13,7 @@ Cypress.Commands.add('switchWrappedSection', (sectionName: string, wrapped: bool
   cy.get(`[data-testid="expandable-section-${sectionName}"]`)
     .should('be.visible')
     .within(() => {
-      cy.get('.pf-v5-c-expandable-section__toggle').each(($button) => {
+      cy.get(selectors.EXPANDABLE_SECTION_TOGGLE).each(($button) => {
         if ($button.attr('aria-expanded') === String(wrapped)) {
           cy.wrap($button).click();
           cy.wrap($button).should('have.attr', 'aria-expanded', String(!wrapped));
@@ -47,6 +48,6 @@ Cypress.Commands.add('addMetadataField', (fieldName: string) => {
     .parent()
     .parent()
     .within(() => {
-      cy.get('[data-testid="list-add-field"]').click();
+      cy.get(selectors.LIST_ADD_FIELD).click();
     });
 });

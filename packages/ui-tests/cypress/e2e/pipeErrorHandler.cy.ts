@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for Pipe Error handler support', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -6,7 +8,7 @@ describe('Test for Pipe Error handler support', () => {
   it('ErrorHandler - create a new errorHandler using errorHandler editor', () => {
     cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
     cy.openPipeErrorHandler();
-    cy.get('.pf-v5-c-menu-toggle__toggle-icon').click();
+    cy.get(selectors.MENU_TOGGLE_TOGGLE_ICON).click();
     cy.get('[data-testid="pipe-error-handler-select-option-log"]').click();
     cy.get(`input[name="log.parameters.maximumRedeliveries"]`).clear().type('5');
     cy.get(`input[name="log.parameters.redeliveryDelay"]`).clear().type('1000');
@@ -19,7 +21,7 @@ describe('Test for Pipe Error handler support', () => {
     cy.checkCodeSpanLine('redeliveryDelay: "1000"');
 
     cy.openPipeErrorHandler();
-    cy.get('.pf-v5-c-menu-toggle__toggle-icon').click();
+    cy.get(selectors.MENU_TOGGLE_TOGGLE_ICON).click();
     cy.get('[data-testid="pipe-error-handler-select-option-sink"]').click();
     cy.get(`input[name="sink.endpoint.ref.kind"]`).clear().type('test-kind');
     cy.get(`input[name="sink.endpoint.ref.apiVersion"]`).clear().type('0.1-SNAPSHOT');
@@ -70,7 +72,7 @@ describe('Test for Pipe Error handler support', () => {
   it('ErrorHandler - select "no error handlers" - delete errorHandler', () => {
     cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openPipeErrorHandler();
-    cy.get('.pf-v5-c-menu-toggle__toggle-icon').click();
+    cy.get(selectors.MENU_TOGGLE_TOGGLE_ICON).click();
     cy.get('[data-testid="pipe-error-handler-select-option-none"]').click();
     // CHECK the first errorHandler was deleted in the code editor
     cy.openSourceCode();

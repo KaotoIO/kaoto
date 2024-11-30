@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for switching description and ID in settings page', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -7,7 +9,7 @@ describe('Tests for switching description and ID in settings page', () => {
   after(() => {
     cy.openSettings();
     cy.selectInTypeaheadField('nodeLabel', 'description');
-    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.get(selectors.SETTINGS_FORM_SAVE_BTN).click();
     cy.waitSchemasLoading();
   });
 
@@ -15,7 +17,7 @@ describe('Tests for switching description and ID in settings page', () => {
     cy.uploadFixture('flows/camelRoute/idDescriptionSettings.yaml');
     cy.openSettings();
     cy.selectInTypeaheadField('nodeLabel', 'id');
-    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.get(selectors.SETTINGS_FORM_SAVE_BTN).click();
     cy.waitSchemasLoading();
     cy.openDesignPage();
 
@@ -26,7 +28,7 @@ describe('Tests for switching description and ID in settings page', () => {
 
     cy.openSettings();
     cy.selectInTypeaheadField('nodeLabel', 'description');
-    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.get(selectors.SETTINGS_FORM_SAVE_BTN).click();
     cy.waitSchemasLoading();
     cy.openDesignPage();
 

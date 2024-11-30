@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for interceptSendToEndpoint configuration container', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -6,7 +8,7 @@ describe('Test for interceptSendToEndpoint configuration container', () => {
   it('Root interceptSendToEndpoint configuration', () => {
     cy.selectCamelRouteType('Configuration', 'interceptSendToEndpoint');
 
-    cy.get(`[data-testid^="custom-node__interceptSendToEndpoint"]`).click({ force: true });
+    cy.get(selectors.CUSTOM_NODE_INTERCEPTSENDTOENDPOINT).click({ force: true });
 
     cy.selectFormTab('All');
 

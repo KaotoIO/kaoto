@@ -51,12 +51,19 @@ jobs:
       - name: Build @kaoto/kaoto package in lib mode
         run: yarn workspace @kaoto/kaoto run build:lib
 
-      - name: 💾 Save build folder
+      - name: 💾 Save dist folder
         uses: actions/upload-artifact@v4
         with:
           name: ui-dist
           if-no-files-found: error
           path: packages/ui/dist
+
+      - name: 💾 Save lib folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-lib
+          if-no-files-found: error
+          path: packages/ui/lib
 
       - name: 💾 Save catalog build folder
         uses: actions/upload-artifact@v4
@@ -87,6 +94,12 @@ jobs:
         with:
           name: ui-dist
           path: packages/ui/dist
+
+      - name: 🗄️ Download the UI lib folder
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-lib
+          path: packages/ui/lib
 
       - name: 🗄️ Download the catalog build folder
         uses: actions/download-artifact@v4
@@ -147,6 +160,12 @@ jobs:
           name: ui-dist
           path: packages/ui/dist
 
+      - name: 🗄️ Download the UI lib folder
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-lib
+          path: packages/ui/lib
+
       - name: 🗄️ Download the catalog build folder
         uses: actions/download-artifact@v4
         with:
@@ -205,6 +224,12 @@ jobs:
         with:
           name: ui-dist
           path: packages/ui/dist
+
+      - name: 🗄️ Download the UI lib folder
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-lib
+          path: packages/ui/lib
 
       - name: 🗄️ Download the catalog build folder
         uses: actions/download-artifact@v4

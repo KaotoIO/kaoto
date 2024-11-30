@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for Design page', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -43,7 +45,7 @@ describe('Tests for Design page', () => {
 
     // CHECK that delete menu does not exist for the from node
     cy.get(`[data-nodelabel="timer"]`).parent().eq(0).rightclick({ force: true });
-    cy.get(`[data-testid="context-menu-item-delete"]`).should('not.exist');
+    cy.get(selectors.CONTEXT_MENU_ITEM_DELETE).should('not.exist');
 
     cy.checkNodeExist('timer', 1);
 
@@ -57,9 +59,9 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('log');
-    cy.get('.pf-topology-resizable-side-bar').should('be.visible');
+    cy.get(selectors.RESIZABLE_SIDE_BAR).should('be.visible');
     cy.removeNodeByName('log');
-    cy.get('.pf-topology-resizable-side-bar').should('not.exist');
+    cy.get(selectors.RESIZABLE_SIDE_BAR).should('not.exist');
 
     // Blocked by https://github.com/KaotoIO/kaoto/issues/527
     // cy.openStepConfigurationTab('timer');

@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test for node bean reference and configuration support', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -20,7 +22,7 @@ describe('Test for node bean reference and configuration support', () => {
 
       cy.addStringProperty('properties', 'test', 'value');
 
-      cy.get('[data-testid="create-bean-btn"').click();
+      cy.get(selectors.CREATE_BEAN_BTN).click();
       cy.closeStepConfigurationTab();
       cy.openSourceCode();
 

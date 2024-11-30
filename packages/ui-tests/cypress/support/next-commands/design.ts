@@ -1,5 +1,7 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 Cypress.Commands.add('fitToScreen', () => {
-  cy.get('.fit-to-screen').click();
+  cy.get(selectors.FIT_TO_SCREEN).click();
 });
 
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
@@ -17,14 +19,14 @@ Cypress.Commands.add('toggleExpandGroup', (groupName: string) => {
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
-  cy.get('[data-testid="close-side-bar"]').click({ force: true });
-  cy.get('.pf-topology-resizable-side-bar').should('not.exist');
+  cy.get(selectors.CLOSE_SIDE_BAR).click({ force: true });
+  cy.get(selectors.RESIZABLE_SIDE_BAR).should('not.exist');
 });
 
 Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'delete', nodeIndex);
   cy.get('body').then(($body) => {
-    if ($body.find('.pf-m-danger').length) {
+    if ($body.find(selectors.DANGER).length) {
       // Delete Confirmation Modal appeared, click on the confirm button
       cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
     }
@@ -36,7 +38,7 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
 
 Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get('circle.pf-topology__node__decorator__bg').eq(nodeIndex).click({ force: true });
+  cy.get(selectors.CIRCLE_TOPOLOGY_NODE_DECORATOR).eq(nodeIndex).click({ force: true });
 });
 
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
@@ -72,8 +74,8 @@ Cypress.Commands.add('selectRemoveGroup', (groupName: string, groupIndex?: numbe
 });
 
 Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
-  cy.get(`input[placeholder="Filter by name, description or tag"]`).click();
-  cy.get(`input[placeholder="Filter by name, description or tag"]`).type(name);
+  cy.get(selectors.FILTER_BY_NAME_OR_TAG).click();
+  cy.get(selectors.FILTER_BY_NAME_OR_TAG).type(name);
   cy.get(`#${name}`).should('be.visible').click();
   // wait for the canvas rerender
   cy.wait(1000);
@@ -120,14 +122,14 @@ Cypress.Commands.add('checkEdgeExists', (sourceName: string, targetName: string)
 
 Cypress.Commands.add('deleteBranch', (branchIndex) => {
   branchIndex = branchIndex ?? 0;
-  cy.get('[data-testid="stepNode__deleteBranch-btn"]').eq(branchIndex).click();
-  cy.get('[data-testid="confirmDeleteBranchDialog__btn"]').click();
+  cy.get(selectors.DELETE_BRANCH_BUTTON).eq(branchIndex).click();
+  cy.get(selectors.CONFIRM_DELETE_BRANCH_BUTTON).click();
 });
 
 Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) => {
-  cy.get('[data-testid="new-entity-list-dropdown"]').click({ force: true });
+  cy.get(selectors.NEW_ENTITY_LIST_DROPDOWN).click({ force: true });
   if (subType) {
-    cy.get('ul.pf-v5-c-menu__list')
+    cy.get(selectors.UL_MENU_LIST)
       .should('exist')
       .find(`[data-testid="new-entity-${type}"]`)
       .should('exist')
@@ -142,13 +144,13 @@ Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
   cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v5-c-menu__item`).first().click({ force: true });
   cy.waitSchemasLoading();
 
-  cy.get('[data-testid="visualization-empty-state"]').should('exist');
-  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
+  cy.get(selectors.VISUALIZATION_EMPTY_STATE).should('exist');
+  cy.get(selectors.VISUALIZATION_EMPTY_STATE).should('be.visible');
 });
 
 Cypress.Commands.add('hoverOnRuntime', (type: string) => {
-  cy.get('[data-testid="runtime-selector-list-dropdown"]').click({ force: true });
-  cy.get('ul.pf-v5-c-menu__list')
+  cy.get(selectors.RUNTIME_SELECTOR_LIST_DROPDOWN).click({ force: true });
+  cy.get(selectors.UL_MENU_LIST)
     .should('exist')
     .find(`[data-testid="runtime-selector-${type}"]`)
     .should('exist')
@@ -156,7 +158,7 @@ Cypress.Commands.add('hoverOnRuntime', (type: string) => {
 });
 
 Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
-  cy.get('.pf-v5-c-card__title-text')
+  cy.get(selectors.TITLE_TEXT)
     .eq(0)
     .within(() => {
       cy.get('.pf-v5-c-label__text').should('contain', version);

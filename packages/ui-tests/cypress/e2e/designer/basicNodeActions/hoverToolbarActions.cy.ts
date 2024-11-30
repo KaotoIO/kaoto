@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Test toolbar on hover actions', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -9,7 +11,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openStepConfigurationTab('timer');
 
-    cy.get('[data-testid="step-toolbar-button-replace"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_REPLACE).click();
     cy.chooseFromCatalog('component', 'quartz');
 
     cy.checkNodeExist('quartz', 1);
@@ -21,7 +23,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openStepConfigurationTab('setHeader');
 
-    cy.get('[data-testid="step-toolbar-button-delete"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_DELETE).click();
 
     cy.checkNodeExist('setHeader', 0);
   });
@@ -31,14 +33,14 @@ describe('Test toolbar on hover actions', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
-    cy.get('[data-testid="step-toolbar-button-disable"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_DISABLE).click();
 
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
     cy.checkConfigCheckboxObject('disabled', true);
 
     cy.openStepConfigurationTab('setHeader');
-    cy.get('[data-testid="step-toolbar-button-disable"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_DISABLE).click();
 
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
@@ -51,13 +53,13 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openRootConfigurationTab('camel-route');
 
-    cy.get('[data-testid="step-toolbar-button-delete-group"]').click();
-    cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_DELETE_GROUP).click();
+    cy.get(selectors.ACTION_CONFIRMATION_MODAL_BTN_CONFIRM).click();
 
-    cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
+    cy.get(selectors.RF_NODE_NODE).should('have.length', 0);
 
-    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
-    cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
+    cy.get(selectors.FLOWS_LIST_ROUTE_COUNT).should('have.text', '0/0');
+    cy.get(selectors.VISUALIZATION_EMPTY_STATE).should('be.visible');
   });
 
   it('Add branch using hover toolbar', () => {
@@ -66,7 +68,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openRootConfigurationTab('choice');
 
-    cy.get('[data-testid="step-toolbar-button-add-special"]').click();
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_ADD_SPECIAL).click();
 
     cy.chooseFromCatalog('processor', 'when');
     cy.checkNodeExist('when', 4);
@@ -79,12 +81,12 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openRootConfigurationTab('choice');
 
-    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_COLLAPSE).click({ force: true });
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
     cy.checkNodeExist('log', 0);
 
-    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(selectors.STEP_TOOLBAR_BUTTON_COLLAPSE).click({ force: true });
     cy.checkNodeExist('when', 3);
     cy.checkNodeExist('otherwise', 1);
     cy.checkNodeExist('log', 1);
