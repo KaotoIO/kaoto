@@ -1,11 +1,11 @@
 import { get, set } from 'lodash';
 
-export const getArrayProperty = (model: object, path: string): unknown[] => {
-  let stepsArray: unknown[] | undefined = get(model, path);
+export const getArrayProperty = <T>(model: object, path: string): T[] => {
+  let stepsArray: T[] | undefined = get(model, path);
 
   if (!Array.isArray(stepsArray)) {
     set(model, path, []);
-    stepsArray = get(model, path) as unknown[];
+    stepsArray = get(model, path) as T[];
   }
 
   return stepsArray;

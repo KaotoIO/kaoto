@@ -8,6 +8,7 @@ import { NodeLabelType } from '../../settings';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+import { AddStepMode } from '../base-visual-entity';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -15,9 +16,10 @@ describe('AbstractCamelVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });
+
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
   });
@@ -186,6 +188,163 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.updateModel('from', { uri: newUri });
 
       expect(spy).toHaveBeenCalledWith('from', { uri: newUri });
+    });
+  });
+
+  describe('addStep', () => {
+    it('should prepend a new step to the model', () => {
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'xchange',
+          type: CatalogKind.Component,
+          definition: undefined,
+        },
+        mode: AddStepMode.PrependStep,
+        data: {
+          path: 'route.from.steps.2.to',
+          icon: '/src/assets/components/log.svg',
+          processorName: 'to',
+          componentName: 'log',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
+      expect(abstractVisualEntity.entityDef.route.from.steps[2]).toMatchSnapshot();
+    });
+
+    it('should append a new step to the model', () => {
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'xchange',
+          type: CatalogKind.Component,
+          definition: undefined,
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          path: 'route.from.steps.2.to',
+          icon: '/src/assets/components/log.svg',
+          processorName: 'to',
+          componentName: 'log',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
+      expect(abstractVisualEntity.entityDef.route.from.steps[3]).toMatchSnapshot();
+    });
+
+    it('should replace a step', () => {
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'xchange',
+          type: CatalogKind.Component,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          path: 'route.from.steps.0.to',
+          icon: '/src/assets/components/log.svg',
+          processorName: 'to',
+          componentName: 'log',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[0]).toMatchSnapshot();
+    });
+
+    it('should replace a placeholder step', () => {
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'multicast',
+          type: CatalogKind.Processor,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          path: 'route.from.steps.1.choice',
+          icon: '/src/assets/components/choice.svg',
+          processorName: 'choice',
+          componentName: undefined,
+        },
+      });
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'log',
+          type: CatalogKind.Component,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          isPlaceholder: true,
+          path: 'route.from.steps.1.multicast.steps.0.placeholder',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+
+    it('should insert a new child step', () => {
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'xchange',
+          type: CatalogKind.Component,
+          definition: undefined,
+        },
+        mode: AddStepMode.InsertChildStep,
+        data: {
+          componentName: 'timer',
+          icon: '/src/assets/components/timer.svg',
+          isGroup: false,
+          path: 'route.from',
+          processorName: 'from',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
+      expect(abstractVisualEntity.entityDef.route.from.steps).toMatchSnapshot();
+    });
+
+    it('should insert a new special child step belonging to an array like when or doCatch', () => {
+      abstractVisualEntity.removeStep('route.from.steps.1.choice.when.0');
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'when',
+          type: CatalogKind.Processor,
+          definition: undefined,
+        },
+        mode: AddStepMode.InsertSpecialChildStep,
+        data: {
+          path: 'route.from.steps.1.choice',
+          icon: '/src/assets/eip/choice.png',
+          processorName: 'choice',
+          isGroup: true,
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+
+    it('should insert a new special child step belonging to a single property like otherwise or doFinally', () => {
+      abstractVisualEntity.removeStep('route.from.steps.1.choice.otherwise');
+      abstractVisualEntity.addStep({
+        definedComponent: {
+          name: 'otherwise',
+          type: CatalogKind.Processor,
+          definition: undefined,
+        },
+        mode: AddStepMode.InsertSpecialChildStep,
+        data: {
+          path: 'route.from.steps.1.choice',
+          icon: '/src/assets/eip/choice.png',
+          processorName: 'choice',
+          isGroup: true,
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
     });
   });
 });
