@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
  **/
 const CATALOGS = {
   Main: ['4.8.1', '4.4.4', '4.4.0.redhat-00046'],
-  Quarkus: ['3.16.0', '3.8.3', '3.8.0.redhat-00014'],
+  Quarkus: ['3.16.0', '3.8.3', '3.8.0.redhat-00018'],
   SpringBoot: ['4.8.1', '4.4.4', '4.4.0.redhat-00039'],
 };
 const KAMELETS_VERSION = '4.8.1';
