@@ -90,7 +90,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
         <div className={clsx({ node__header: !isDocument })}>
           <NodeContainer ref={headerRef} nodeData={nodeData}>
             <section className="node__row" data-draggable={isDraggable}>
-              <span onClick={onClick}>
+              <span className="node__row" onClick={onClick}>
                 {hasChildren && (
                   <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
                 )}
