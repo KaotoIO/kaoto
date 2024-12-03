@@ -53,7 +53,6 @@ public class GenerateCommand implements Runnable {
                     File indexFile = catalogDefinitionFolder.toPath().resolve(catalogDefinition.getFileName()).toFile();
                     String relateIndexFile = outputFolder.toPath().relativize(indexFile.toPath()).toString().replace(File.separator, "/");
 
-                    System.out.println(relateIndexFile);
 
                     catalogDefinition.setFileName(relateIndexFile);
 
