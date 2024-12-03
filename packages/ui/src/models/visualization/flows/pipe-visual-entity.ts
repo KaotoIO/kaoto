@@ -151,7 +151,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     }
 
     /** Add a new Kamelet to the Kamelets array */
-    const kameletArray = getArrayProperty(this.pipe.spec!, 'steps') as PipeStep[];
+    const kameletArray: PipeStep[] = getArrayProperty(this.pipe.spec!, 'steps');
     const index = Number(path.split('.').pop());
     if (options.mode === AddStepMode.AppendStep) {
       kameletArray.splice(index + 1, 0, step);

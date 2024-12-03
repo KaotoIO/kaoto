@@ -1,5 +1,191 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`AbstractCamelVisualEntity addStep should append a new step to the model 1`] = `
+{
+  "to": {
+    "id": "to-1234",
+    "parameters": {},
+    "uri": "xchange",
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity addStep should insert a new child step 1`] = `
+[
+  {
+    "to": {
+      "id": "to-1234",
+      "parameters": {},
+      "uri": "xchange",
+    },
+  },
+  {
+    "set-header": {
+      "name": "myChoice",
+      "simple": "\${random(2)}",
+    },
+  },
+  {
+    "choice": {
+      "otherwise": {
+        "steps": [
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "log": {
+              "id": "log-2",
+              "message": "We got a \${body}",
+            },
+          },
+        ],
+      },
+      "when": [
+        {
+          "simple": "\${header.myChoice} == 1",
+          "steps": [
+            {
+              "log": {
+                "id": "log-1",
+                "message": "We got a one.",
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    "to": {
+      "parameters": {
+        "bridgeErrorHandler": true,
+      },
+      "uri": "direct:my-route",
+    },
+  },
+]
+`;
+
+exports[`AbstractCamelVisualEntity addStep should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
+{
+  "choice": {
+    "otherwise": {
+      "id": "otherwise-1234",
+      "steps": [
+        {
+          "log": {
+            "id": "log-1234",
+            "message": "\${body}",
+          },
+        },
+      ],
+    },
+    "when": [
+      {
+        "simple": "\${header.myChoice} == 1",
+        "steps": [
+          {
+            "log": {
+              "id": "log-1",
+              "message": "We got a one.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity addStep should insert a new special child step belonging to an array like when or doCatch 1`] = `
+{
+  "choice": {
+    "otherwise": {
+      "steps": [
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "log": {
+            "id": "log-2",
+            "message": "We got a \${body}",
+          },
+        },
+      ],
+    },
+    "when": [
+      {
+        "expression": {
+          "simple": {
+            "expression": "\${header.foo} == 1",
+          },
+        },
+        "id": "when-1234",
+        "steps": [
+          {
+            "log": {
+              "id": "log-1234",
+              "message": "\${body}",
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity addStep should prepend a new step to the model 1`] = `
+{
+  "to": {
+    "id": "to-1234",
+    "parameters": {},
+    "uri": "xchange",
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity addStep should replace a placeholder step 1`] = `
+{
+  "multicast": {
+    "id": "multicast-1234",
+    "steps": [
+      {
+        "to": {
+          "id": "to-1234",
+          "parameters": {},
+          "uri": "log:InfoLogger",
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity addStep should replace a step 1`] = `
+{
+  "to": {
+    "id": "to-1234",
+    "parameters": {},
+    "uri": "xchange",
+  },
+}
+`;
+
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'from' processor 1`] = `
 {
   "canBeDisabled": false,
@@ -15,7 +201,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'intercept' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": true,
   "canHaveNextStep": false,
   "canHavePreviousStep": false,
@@ -28,7 +214,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'interceptFrom' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": true,
   "canHaveNextStep": false,
   "canHavePreviousStep": false,
@@ -41,7 +227,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'interceptSendToEndpoint' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": true,
   "canHaveNextStep": false,
   "canHavePreviousStep": false,
@@ -54,7 +240,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'log' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": false,
   "canHaveNextStep": true,
   "canHavePreviousStep": true,
@@ -67,7 +253,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'onCompletion' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": true,
   "canHaveNextStep": false,
   "canHavePreviousStep": false,
@@ -80,7 +266,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'onException' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": true,
   "canHaveNextStep": false,
   "canHavePreviousStep": false,
@@ -106,7 +292,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 
 exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'to' processor 1`] = `
 {
-  "canBeDisabled": false,
+  "canBeDisabled": true,
   "canHaveChildren": false,
   "canHaveNextStep": true,
   "canHavePreviousStep": true,

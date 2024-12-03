@@ -141,7 +141,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       /** If we're in Replace mode, we need to delete the existing step */
       const deleteCount = options.mode === AddStepMode.ReplaceStep ? 1 : 0;
 
-      const stepsArray: ProcessorDefinition[] = getValue(this.entityDef, pathArray.slice(0, -2), []);
+      const stepsArray: ProcessorDefinition[] = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
       return;
@@ -282,7 +282,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     if (property.type === 'single-clause') {
       setValue(this.entityDef, `${options.data.path}.${property.name}`, defaultValue);
     } else {
-      const arrayPath = getArrayProperty(this.entityDef, `${options.data.path}.${property.name}`);
+      const arrayPath: ProcessorDefinition[] = getArrayProperty(
+        this.entityDef,
+        `${options.data.path}.${property.name}`,
+      );
       arrayPath.unshift(defaultValue);
     }
   }
