@@ -9,6 +9,10 @@
       border-radius: var(--custom-node-BorderRadius);
       background-color: var(--custom-node-BackgroundColor);
       text-align: left;
+      
+      &__dropTarget {
+        border: 4px dashed var(--custom-node-BorderColor);
+      }
 
       @include custom.label {
         display: flex;

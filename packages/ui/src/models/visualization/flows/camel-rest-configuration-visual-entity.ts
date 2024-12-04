@@ -69,6 +69,18 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return;
   }
 
+  isDraggableNode(_path?: string) {
+    return false;
+  }
+
+  switchGroupSteps(_options: { draggedNodePath: string; droppedNodeData: IVisualizationNodeData }) {
+    return;
+  }
+
+  switchSteps(_options: { draggedNodePath: string; droppedNodePath?: string | undefined }) {
+    return;
+  }
+
   removeStep(): void {
     return;
   }
