@@ -18,12 +18,13 @@
         border-radius: var(--custom-node-BorderRadius);
         background-color: var(--custom-node-BackgroundColor);
         align-self: center;
+        padding: var(--pf-v5-global--spacer--sm);
+        height: 60px;
+        width: 60px;
 
         img {
-          border-radius: inherit;
-          padding: var(--pf-v5-global--spacer--sm);
-          height: 60px;
-          width: 60px;
+          max-width: 100%;
+          max-height: 100%;
         }
       }
 
@@ -44,18 +45,17 @@
     }
 
     &__label {
-      @include custom.text;
+      @include custom.label {
+        background-color: var(--custom-node-BackgroundColor);
+        padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+        border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
 
-      text-align: center;
-      background-color: var(--custom-node-BackgroundColor);
-      padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
-      border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+        &__error {
+          color: var(--custom-node-BorderColor);
 
-      &__error {
-        color: var(--custom-node-BorderColor);
-
-        & > span:first-of-type {
-          margin-right: var(--pf-v5-global--spacer--xs);
+          & > span:first-of-type {
+            margin-right: var(--pf-v5-global--spacer--xs);
+          }
         }
       }
     }

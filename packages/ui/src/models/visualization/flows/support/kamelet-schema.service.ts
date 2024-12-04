@@ -26,7 +26,15 @@ export class KameletSchemaService {
   }
 
   static getNodeLabel(step: PipeStep, path: string): string {
-    return step?.ref?.name ?? `${path}: Unknown`;
+    const kameletName = step?.ref?.name;
+
+    if (kameletName) {
+      return kameletName;
+    } else if (path === 'source' || path === 'sink') {
+      return path;
+    }
+
+    return '';
   }
 
   static getTooltipContent(step: PipeStep, path: string): string {

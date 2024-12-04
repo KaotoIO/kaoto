@@ -5,7 +5,6 @@ import {
   Select,
   SelectList,
   SelectOption,
-  Tooltip,
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, PropsWithChildren, Ref, useCallback, useContext, useState } from 'react';
 import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
@@ -74,28 +73,16 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       splitButtonOptions={{
         variant: 'action',
         items: [
-          <Tooltip
-            key="dsl-list-tooltip"
-            position="bottom"
-            content={
-              currentFlowType.multipleRoute ? (
-                <p>Add a new {currentFlowType.name} route</p>
-              ) : (
-                <p>The {currentFlowType.name} type does not support multiple routes</p>
-              )
-            }
+          <MenuToggleAction
+            id="dsl-list-btn"
+            key="dsl-list-btn"
+            data-testid="dsl-list-btn"
+            aria-label="DSL list"
+            onClick={onNewSameTypeRoute}
+            isDisabled={!sourceSchemaConfig.config[currentSchemaType].multipleRoute && totalFlowsCount > 0}
           >
-            <MenuToggleAction
-              id="dsl-list-btn"
-              key="dsl-list-btn"
-              data-testid="dsl-list-btn"
-              aria-label="DSL list"
-              onClick={onNewSameTypeRoute}
-              isDisabled={!sourceSchemaConfig.config[currentSchemaType].multipleRoute && totalFlowsCount > 0}
-            >
-              {props.children}
-            </MenuToggleAction>
-          </Tooltip>,
+            {props.children}
+          </MenuToggleAction>,
         ],
       }}
     />

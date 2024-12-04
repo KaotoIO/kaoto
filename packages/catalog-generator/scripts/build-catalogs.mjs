@@ -13,9 +13,9 @@ const require = createRequire(import.meta.url);
  * @type {Record<import('../dist/types').CatalogRuntime, string[]>}
  **/
 const CATALOGS = {
-  Main: ['4.8.1', '4.4.4', '4.4.0.redhat-00046'],
-  Quarkus: ['3.16.0', '3.8.3', '3.8.0.redhat-00014'],
-  SpringBoot: ['4.8.1', '4.4.4', '4.4.0.redhat-00039'],
+  Main: ['4.8.1', '4.4.4', '4.4.0.redhat-00046', '4.8.0.redhat-00017'],
+  Quarkus: ['3.16.0', '3.8.3', '3.8.0.redhat-00018'],
+  SpringBoot: ['4.8.1', '4.4.4', '4.4.0.redhat-00039', '4.8.0.redhat-00022'],
 };
 const KAMELETS_VERSION = '4.8.1';
 

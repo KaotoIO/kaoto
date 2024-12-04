@@ -9,7 +9,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
 
     cy.selectAppendNode('marshal');
     cy.chooseFromCatalog('processor', 'loadBalance');
-    cy.openStepConfigurationTab('loadBalance');
+    cy.openGroupConfigurationTab('loadBalance');
     cy.selectFormTab('All');
 
     cy.get('[data-testid="loadbalancer-config-card"] button').click();

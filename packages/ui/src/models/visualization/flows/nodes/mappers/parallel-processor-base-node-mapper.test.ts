@@ -1,4 +1,3 @@
-import { createVisualizationNode } from '../../../visualization-node';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
@@ -85,16 +84,6 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         expect(vizNode.getChildren()).toHaveLength(2);
         expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
         expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
-      });
-    });
-
-    describe('addNodeInteraction', () => {
-      it('should allow processors to have previous/next steps', () => {
-        const vizNode = createVisualizationNode('test', {});
-        mapper.addNodeInteraction(vizNode);
-
-        expect(vizNode.getNodeInteraction().canHavePreviousStep).toEqual(false);
-        expect(vizNode.getNodeInteraction().canHaveNextStep).toEqual(false);
       });
     });
   });

@@ -2,7 +2,7 @@ import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { SourceSchemaType } from '../../../../models/camel';
+import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
@@ -10,14 +10,15 @@ import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
   const sourceCodeContextApi = useContext(SourceCodeApiContext);
-  const entitiesContext = useEntityContext();
+  const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
+  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
 
   const checkBeforeAddNewFlow = useCallback(
     (flowType: SourceSchemaType) => {
-      const isSameSourceType = entitiesContext.currentSchemaType === flowType;
+      const isSameSourceType = currentSchemaType === flowType;
 
       if (isSameSourceType) {
         /**
@@ -25,10 +26,10 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          * we don't need to do anything special, just add a new flow if
          * supported
          */
-        const newId = entitiesContext.camelResource.addNewEntity();
+        const newId = camelResource.addNewEntity();
         visibleFlowsContext.visualFlowsApi.hideAllFlows();
         visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
-        entitiesContext.updateEntitiesFromCamelResource();
+        updateEntitiesFromCamelResource();
       } else {
         /**
          * If it is not the same DSL, this operation might result in
@@ -38,14 +39,22 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         setIsConfirmationModalOpen(true);
       }
     },
-    [entitiesContext, visibleFlowsContext.visualFlowsApi],
+    [camelResource, currentSchemaType, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
   );
 
   return (
     <>
       <FlowTypeSelector isStatic onSelect={checkBeforeAddNewFlow}>
-        <PlusIcon />
-        <span className="pf-v5-u-m-sm">New</span>
+        <div
+          title={
+            currentFlowType.multipleRoute
+              ? `Add a new ${currentFlowType.name} route`
+              : `The ${currentFlowType.name} type does not support multiple routes`
+          }
+        >
+          <PlusIcon />
+          <span className="pf-v5-u-m-sm">New</span>
+        </div>
       </FlowTypeSelector>
       <Modal
         variant={ModalVariant.small}

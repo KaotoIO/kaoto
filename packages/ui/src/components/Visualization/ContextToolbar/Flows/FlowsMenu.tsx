@@ -1,7 +1,6 @@
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
-import { Truncate } from '@patternfly/react-core';
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 
@@ -14,6 +13,8 @@ export const FlowsMenu: FunctionComponent = () => {
   const visibleFlowsInformation = useCallback(() => {
     return getVisibleFlowsInformation(visibleFlows);
   }, [visibleFlows]);
+
+  const { singleFlowId, visibleFlowsCount, totalFlowsCount } = visibleFlowsInformation();
 
   /** Toggle the DSL dropdown */
   const onToggleClick = () => {
@@ -40,15 +41,19 @@ export const FlowsMenu: FunctionComponent = () => {
               <Icon isInline>
                 <ListIcon />
               </Icon>
-              <span data-testid="flows-list-route-id" className="pf-v5-u-m-sm flows-menu-display">
-                <Truncate
-                  content={visibleFlowsInformation().singleFlowId ?? 'Routes'}
-                  tooltipPosition="top"
-                  className="flows-menu-truncate"
-                />
+              <span
+                title={singleFlowId ?? 'Routes'}
+                data-testid="flows-list-route-id"
+                className="pf-v5-u-m-sm flows-menu-display"
+              >
+                {`${singleFlowId ?? 'Routes'}`}
               </span>
-              <Badge data-testid="flows-list-route-count" isRead>
-                {visibleFlowsInformation().visibleFlowsCount}/{visibleFlowsInformation().totalFlowsCount}
+              <Badge
+                title={`Showing ${visibleFlowsCount} out of ${totalFlowsCount} flows`}
+                data-testid="flows-list-route-count"
+                isRead
+              >
+                {visibleFlowsCount}/{totalFlowsCount}
               </Badge>
             </div>
           </MenuToggleAction>,
@@ -58,14 +63,7 @@ export const FlowsMenu: FunctionComponent = () => {
   );
 
   return (
-    <Select
-      id="flows-list-select"
-      isOpen={isOpen}
-      onOpenChange={(isOpen) => {
-        setIsOpen(isOpen);
-      }}
-      toggle={toggle}
-    >
+    <Select id="flows-list-select" isOpen={isOpen} onOpenChange={setIsOpen} toggle={toggle}>
       <FlowsList
         onClose={() => {
           setIsOpen(false);

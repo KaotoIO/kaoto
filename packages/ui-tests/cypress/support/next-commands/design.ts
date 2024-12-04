@@ -4,11 +4,12 @@ Cypress.Commands.add('fitToScreen', () => {
 
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
   stepIndex = stepIndex ?? 0;
-  cy.get(`g[data-nodelabel="${step}"]`).eq(stepIndex).click({ force: true });
+  cy.get(`g[data-nodelabel^="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
-Cypress.Commands.add('openRootConfigurationTab', (step: string) => {
-  cy.get(`g[data-grouplabel="${step}"]`).click({ force: true });
+Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex?: number) => {
+  groupIndex = groupIndex ?? 0;
+  cy.get(`g[data-grouplabel^="${group}"]`).eq(groupIndex).click({ force: true });
 });
 
 Cypress.Commands.add('toggleExpandGroup', (groupName: string) => {
@@ -36,7 +37,7 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
 
 Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get('circle.pf-topology__node__decorator__bg').eq(nodeIndex).click({ force: true });
+  cy.get('[data-testid="quick-append-step"]').eq(nodeIndex).click({ force: true });
 });
 
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {

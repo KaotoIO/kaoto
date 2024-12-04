@@ -93,8 +93,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getNodeInteraction(): NodeInteraction;
 
-  setNodeInteraction(nodeInteraction: NodeInteraction): void;
-
   getComponentSchema(): VisualComponentSchema | undefined;
 
   /** Returnt fields that should be omitted when configuring this entity */

@@ -7,12 +7,13 @@ import {
 import { initVisibleFlows } from '../utils';
 import { EntitiesContext } from './entities.provider';
 
-export interface VisibleFLowsContextResult {
+export interface VisibleFlowsContextResult {
   visibleFlows: IVisibleFlows;
+  allFlowsVisible: boolean;
   visualFlowsApi: VisualFlowsApi;
 }
 
-export const VisibleFlowsContext = createContext<VisibleFLowsContextResult | undefined>(undefined);
+export const VisibleFlowsContext = createContext<VisibleFlowsContextResult | undefined>(undefined);
 
 export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
@@ -22,6 +23,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   );
 
   const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, {}, () => initVisibleFlows(visualEntitiesIds));
+  const allFlowsVisible = Object.values(visibleFlows).every((visible) => visible);
   const visualFlowsApi = useMemo(() => {
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
@@ -33,9 +35,10 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   const value = useMemo(() => {
     return {
       visibleFlows,
+      allFlowsVisible,
       visualFlowsApi,
     };
-  }, [visibleFlows, visualFlowsApi]);
+  }, [allFlowsVisible, visibleFlows, visualFlowsApi]);
 
   return <VisibleFlowsContext.Provider value={value}>{props.children}</VisibleFlowsContext.Provider>;
 };

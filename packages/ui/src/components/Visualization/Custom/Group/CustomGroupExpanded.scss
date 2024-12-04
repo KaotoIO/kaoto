@@ -10,10 +10,9 @@
       background-color: var(--custom-node-BackgroundColor);
       text-align: left;
 
-      &__title {
+      @include custom.label {
         display: flex;
         position: relative;
-        align-items: center;
         font-weight: bold;
         background-color: var(--pf-v5-global--primary-color--light-100);
         padding: calc(var(--pf-v5-global--spacer--xs) / 2) var(--pf-v5-global--spacer--xs);
@@ -29,8 +28,6 @@
         }
 
         span {
-          @include custom.text;
-
           margin: 0 var(--pf-v5-global--spacer--sm);
         }
 

@@ -22,6 +22,8 @@ import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
 import './InlineEdit.scss';
 
 interface IInlineEdit extends IDataTestID {
+  editTitle?: string;
+  textTitle?: string;
   value?: string;
   validator?: (value: string) => ValidationResult;
   onChange?: (value: string) => void;
@@ -116,6 +118,8 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
       {isReadOnly ? (
         <>
           <span
+            title={props.textTitle}
+            aria-label={props.textTitle}
             data-clickable={typeof props.onClick === 'function'}
             data-testid={props['data-testid']}
             onClick={props.onClick}
@@ -124,6 +128,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
           </span>
           &nbsp;&nbsp;
           <Button
+            title={props.editTitle}
             variant="plain"
             data-testid={props['data-testid'] + '--edit'}
             onClick={onEdit}

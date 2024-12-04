@@ -73,7 +73,7 @@ export class BaseNodeMapper implements INodeMapper {
   protected getChildrenFromBranch(path: string, entityDefinition: unknown): IVisualizationNode[] {
     const stepsList = getValue(entityDefinition, path, []) as ProcessorDefinition[];
 
-    return stepsList.reduce((accStepsNodes, step, index) => {
+    const branchVizNodes = stepsList.reduce((accStepsNodes, step, index) => {
       const singlePropertyName = Object.keys(step)[0];
       const childPath = `${path}.${index}.${singlePropertyName}`;
       const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
@@ -92,6 +92,23 @@ export class BaseNodeMapper implements INodeMapper {
       accStepsNodes.push(vizNode);
       return accStepsNodes;
     }, [] as IVisualizationNode[]);
+
+    /** Empty steps branch placeholder */
+    if (branchVizNodes.length === 0) {
+      const previousNode = branchVizNodes[branchVizNodes.length - 1];
+      const placeholderNode = createVisualizationNode(path, {
+        isPlaceholder: true,
+        path: `${path}.${branchVizNodes.length}.placeholder`,
+      });
+      branchVizNodes.push(placeholderNode);
+
+      if (previousNode) {
+        previousNode.setNextNode(placeholderNode);
+        placeholderNode.setPreviousNode(previousNode);
+      }
+    }
+
+    return branchVizNodes;
   }
 
   protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
