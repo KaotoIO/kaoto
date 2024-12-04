@@ -4,7 +4,7 @@ import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
-import { VisibleFLowsContextResult } from '../../../providers/visible-flows.provider';
+import { VisibleFlowsContextResult } from '../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
@@ -26,7 +26,7 @@ describe('Canvas', () => {
   it('should render correctly', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
+      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -53,7 +53,7 @@ describe('Canvas', () => {
     const { Provider } = TestProvidersWrapper({
       visibleFlowsContext: {
         visibleFlows: { ['route-8888']: true, ['route-9999']: false },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -85,7 +85,7 @@ describe('Canvas', () => {
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-8888']: true },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -146,7 +146,7 @@ describe('Canvas', () => {
       camelResource: kameletResource,
       visibleFlowsContext: {
         visibleFlows: { ['user-source']: true },
-      } as unknown as VisibleFLowsContextResult,
+      } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -200,7 +200,7 @@ describe('Canvas', () => {
   describe('Catalog button', () => {
     it('should be present if `CatalogModalContext` is provided', async () => {
       const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
       });
 
       let result: RenderResult | undefined;
@@ -227,7 +227,7 @@ describe('Canvas', () => {
 
     it('should NOT be present if `CatalogModalContext` is NOT provided', async () => {
       const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFLowsContextResult,
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
       });
 
       let result: RenderResult | undefined;
@@ -254,7 +254,7 @@ describe('Canvas', () => {
   describe('Empty state', () => {
     it('should render empty state when there is no visual entity', async () => {
       const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFLowsContextResult,
+        visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFlowsContextResult,
       });
 
       let result: RenderResult | undefined;
@@ -279,7 +279,7 @@ describe('Canvas', () => {
 
     it('should render empty state when there is no visible flows', async () => {
       const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: false } } as unknown as VisibleFLowsContextResult,
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: false } } as unknown as VisibleFlowsContextResult,
       });
       let result: RenderResult | undefined;
 

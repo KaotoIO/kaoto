@@ -1,7 +1,7 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
 import { dirname, relative } from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, normalizePath } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
 import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files';
@@ -19,11 +19,12 @@ export default defineConfig(async () => {
       react(),
       viteStaticCopy({
         targets: camelCatalogFiles.map((file) => {
+          const normalizedFile = normalizePath(file);
           const relativePath = relative(basePath, file);
-          const dest = './camel-catalog/' + dirname(relativePath);
+          const dest = normalizePath('./camel-catalog/' + dirname(relativePath));
 
           return {
-            src: file,
+            src: normalizedFile,
             dest,
             transform: (content, filename) => {
               return JSON.stringify(JSON.parse(content));

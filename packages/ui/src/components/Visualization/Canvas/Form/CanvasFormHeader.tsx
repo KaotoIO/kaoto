@@ -1,19 +1,10 @@
-import {
-  Button,
-  Grid,
-  GridItem,
-  SearchInput,
-  Title,
-  ToggleGroup,
-  ToggleGroupItem,
-  Tooltip,
-} from '@patternfly/react-core';
+import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
 import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
 import { FilteredFieldContext } from '../../../../providers/filtered-field.provider';
-import { FormTabsModes } from './canvasformtabs.modes';
 import './CanvasFormHeader.scss';
+import { FormTabsModes } from './canvasformtabs.modes';
 
 interface CanvasFormHeaderProps {
   nodeId: string;
@@ -43,15 +34,14 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props
       {canvasFormTabsContext && (
         <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
           {Object.entries(FormTabsModes).map(([mode, tooltip]) => (
-            <Tooltip key={mode} content={tooltip}>
-              <ToggleGroupItem
-                key={mode}
-                text={mode}
-                buttonId={mode}
-                isSelected={canvasFormTabsContext.selectedTab === mode}
-                onChange={canvasFormTabsContext.onTabChange}
-              />
-            </Tooltip>
+            <ToggleGroupItem
+              title={tooltip}
+              key={mode}
+              text={mode}
+              buttonId={mode}
+              isSelected={canvasFormTabsContext.selectedTab === mode}
+              onChange={canvasFormTabsContext.onTabChange}
+            />
           ))}
         </ToggleGroup>
       )}

@@ -41,13 +41,16 @@ describe('Tests for Design page', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
+    cy.openStepConfigurationTab('log');
     cy.quickAppend();
     cy.chooseFromCatalog('processor', 'choice');
 
+    cy.openGroupConfigurationTab('choice');
     cy.quickAppend();
     cy.chooseFromCatalog('component', 'as2');
 
-    cy.quickAppend(1);
+    cy.openStepConfigurationTab('as2');
+    cy.quickAppend();
     cy.chooseFromCatalog('component', 'amqp');
 
     cy.openSourceCode();

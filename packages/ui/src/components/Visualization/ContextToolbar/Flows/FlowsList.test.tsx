@@ -6,7 +6,7 @@ import {
   ActionConfirmationModalContext,
   ActionConfirmationModalContextProvider,
 } from '../../../../providers/action-confirmation-modal.provider';
-import { VisibleFLowsContextResult } from '../../../../providers/visible-flows.provider';
+import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
 
@@ -68,7 +68,8 @@ describe('FlowsList.tsx', () => {
       resId = id;
     });
 
-    const visibleFlowsContext: VisibleFLowsContextResult = {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
@@ -125,7 +126,7 @@ describe('FlowsList.tsx', () => {
     });
 
     expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
-      title: 'Permanently delete flow?',
+      title: "Do you want to delete the 'route-1234' route?",
       text: 'All steps will be lost.',
     });
   });
@@ -183,7 +184,8 @@ describe('FlowsList.tsx', () => {
       resId = id;
     });
 
-    const visibleFlowsContext: VisibleFLowsContextResult = {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
@@ -205,7 +207,8 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should render the appropriate Eye icon', async () => {
-    const visibleFlowsContext: VisibleFLowsContextResult = {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi: new VisualFlowsApi(jest.fn),
     };
@@ -229,7 +232,8 @@ describe('FlowsList.tsx', () => {
     const visualFlowsApi = new VisualFlowsApi(jest.fn);
     const renameSpy = jest.spyOn(visualFlowsApi, 'renameFlow');
 
-    const visibleFlowsContext: VisibleFLowsContextResult = {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
@@ -263,5 +267,95 @@ describe('FlowsList.tsx', () => {
     expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
     expect(camelResource.getVisualEntities()[0].id).toEqual('new-name');
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show all flows when not all flows are visible', async () => {
+    const visualFlowsApi = new VisualFlowsApi(jest.fn);
+    const showAllFlowsSpy = jest.spyOn(visualFlowsApi, 'showAllFlows');
+
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi,
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
+
+    act(() => {
+      fireEvent.click(toggleAllFlows);
+    });
+
+    expect(showAllFlowsSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should hide all flows when all flows are visible', async () => {
+    const visualFlowsApi = new VisualFlowsApi(jest.fn);
+    const hideAllFlowsSpy = jest.spyOn(visualFlowsApi, 'hideAllFlows');
+
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: true,
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
+      visualFlowsApi,
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
+
+    act(() => {
+      fireEvent.click(toggleAllFlows);
+    });
+
+    expect(hideAllFlowsSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should set the appropriate title when all flows are visible', async () => {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: true,
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
+      visualFlowsApi: new VisualFlowsApi(jest.fn),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
+
+    expect(toggleAllFlows).toHaveAttribute('title', 'Hide all flows');
+  });
+
+  it('should set the appropriate title when some flows are visible', async () => {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
+      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visualFlowsApi: new VisualFlowsApi(jest.fn),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
+
+    expect(toggleAllFlows).toHaveAttribute('title', 'Show all flows');
   });
 });

@@ -1,7 +1,7 @@
-import { Button, Tooltip, TooltipProps } from '@patternfly/react-core';
+import { Exception } from '@kaoto/camel-catalog/types';
+import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
 import { toPng } from 'html-to-image';
-import { Exception } from '@kaoto/camel-catalog/types';
 
 export const defaultTooltipText = 'Export as image';
 
@@ -37,16 +37,9 @@ export function FlowExportImage() {
     }
   };
 
-  const tooltipProps: TooltipProps = {
-    position: 'bottom',
-    content: <div>{defaultTooltipText}</div>,
-  };
-
   return (
-    <Tooltip {...tooltipProps}>
-      <Button onClick={onClick} variant="control" data-testid="exportImageButton">
-        <ImageIcon />
-      </Button>
-    </Tooltip>
+    <Button title="Export as image" onClick={onClick} variant="control" data-testid="exportImageButton">
+      <ImageIcon />
+    </Button>
   );
 }

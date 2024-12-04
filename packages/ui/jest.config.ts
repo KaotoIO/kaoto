@@ -187,6 +187,9 @@ export default {
   // This option allows use of a custom test runner
   // testRunner: 'jest-circus/runner',
 
+  // Default timeout of a test in milliseconds.
+  testTimeout: 10_000,
+
   // A map from regular expressions to paths to transformers
   // transform: undefined,
   transform: {
@@ -201,6 +204,7 @@ export default {
     '\\\\node_modules/(?!(@patternfly|yaml)/)\\\\',
   ],
 
+  workerThreads: false,
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
 

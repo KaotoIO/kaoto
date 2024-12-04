@@ -69,64 +69,55 @@ exports[`CanvasForm should render 1`] = `
           role="group"
         >
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Required fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="true"
+              class="pf-v5-c-toggle-group__button pf-m-selected"
+              id="Required"
+              type="button"
             >
-              <button
-                aria-pressed="true"
-                class="pf-v5-c-toggle-group__button pf-m-selected"
-                id="Required"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Required
-                </span>
-              </button>
-            </div>
+                Required
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows All fields"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="All"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="All"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  All
-                </span>
-              </button>
-            </div>
+                All
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Modified fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="Modified"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="Modified"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Modified
-                </span>
-              </button>
-            </div>
+                Modified
+              </span>
+            </button>
           </div>
         </div>
         <div
@@ -351,64 +342,55 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
           role="group"
         >
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Required fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="true"
+              class="pf-v5-c-toggle-group__button pf-m-selected"
+              id="Required"
+              type="button"
             >
-              <button
-                aria-pressed="true"
-                class="pf-v5-c-toggle-group__button pf-m-selected"
-                id="Required"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Required
-                </span>
-              </button>
-            </div>
+                Required
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows All fields"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="All"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="All"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  All
-                </span>
-              </button>
-            </div>
+                All
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Modified fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="Modified"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="Modified"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Modified
-                </span>
-              </button>
-            </div>
+                Modified
+              </span>
+            </button>
           </div>
         </div>
         <div
@@ -616,64 +598,55 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
           role="group"
         >
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Required fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="true"
+              class="pf-v5-c-toggle-group__button pf-m-selected"
+              id="Required"
+              type="button"
             >
-              <button
-                aria-pressed="true"
-                class="pf-v5-c-toggle-group__button pf-m-selected"
-                id="Required"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Required
-                </span>
-              </button>
-            </div>
+                Required
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows All fields"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="All"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="All"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  All
-                </span>
-              </button>
-            </div>
+                All
+              </span>
+            </button>
           </div>
           <div
-            style="display: contents;"
+            class="pf-v5-c-toggle-group__item"
+            title="Shows Modified fields only"
           >
-            <div
-              class="pf-v5-c-toggle-group__item"
+            <button
+              aria-pressed="false"
+              class="pf-v5-c-toggle-group__button"
+              id="Modified"
+              type="button"
             >
-              <button
-                aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
-                id="Modified"
-                type="button"
+              <span
+                class="pf-v5-c-toggle-group__text"
               >
-                <span
-                  class="pf-v5-c-toggle-group__text"
-                >
-                  Modified
-                </span>
-              </button>
-            </div>
+                Modified
+              </span>
+            </button>
           </div>
         </div>
         <div

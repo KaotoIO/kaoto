@@ -51,9 +51,10 @@ public class GenerateCommand implements Runnable {
 
                     CatalogDefinition catalogDefinition = catalogGenerator.generate();
                     File indexFile = catalogDefinitionFolder.toPath().resolve(catalogDefinition.getFileName()).toFile();
-                    File relateIndexFile = outputFolder.toPath().relativize(indexFile.toPath()).toFile();
+                    String relateIndexFile = outputFolder.toPath().relativize(indexFile.toPath()).toString().replace(File.separator, "/");
 
-                    catalogDefinition.setFileName(relateIndexFile.toString());
+
+                    catalogDefinition.setFileName(relateIndexFile);
 
                     library.addDefinition(catalogDefinition);
                 });

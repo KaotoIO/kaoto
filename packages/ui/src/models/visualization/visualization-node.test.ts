@@ -177,22 +177,6 @@ describe('VisualizationNode', () => {
   });
 
   describe('getNodeInteraction', () => {
-    it('should return the added nodeInteraction', () => {
-      const testNodeInteraction: NodeInteraction = {
-        canHavePreviousStep: true,
-        canHaveNextStep: true,
-        canHaveChildren: true,
-        canHaveSpecialChildren: true,
-        canReplaceStep: false,
-        canRemoveStep: false,
-        canRemoveFlow: false,
-        canBeDisabled: true,
-      };
-      node.setNodeInteraction(testNodeInteraction);
-
-      expect(node.getNodeInteraction()).toEqual(testNodeInteraction);
-    });
-
     it('should return node interaction from the underlying base entity', () => {
       const mockNodeInteraction: NodeInteraction = {
         canHavePreviousStep: true,

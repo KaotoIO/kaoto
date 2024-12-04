@@ -192,14 +192,14 @@ describe('Pipe', () => {
       expect(sinkNode.getTitle()).toEqual('log-sink');
     });
 
-    it('should set the node labels as `Unknown` if the uri is not available', () => {
+    it('should set the node labels when the uri is not available', () => {
       pipeVisualEntity = new PipeVisualEntity({});
 
       const sourceNode = pipeVisualEntity.toVizNode().getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
-      expect(sourceNode.getNodeLabel()).toEqual('source: Unknown');
-      expect(sinkNode!.getNodeLabel()).toEqual('sink: Unknown');
+      expect(sourceNode.getNodeLabel()).toEqual('source');
+      expect(sinkNode!.getNodeLabel()).toEqual('sink');
     });
 
     it('should populate the viz node chain with the steps', () => {

@@ -2,6 +2,7 @@ describe('Test for missing config props canvas warnings', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
+
   it('Check the canvas node warnings in Camel Route', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
@@ -12,7 +13,7 @@ describe('Test for missing config props canvas warnings', () => {
     cy.checkNodeExist('github', 1);
 
     cy.get('[data-id^="github"] g')
-      .find('span.pf-v5-c-icon')
+      .find('span[data-warning="true"].pf-v5-c-icon')
       .should('have.attr', 'title', '3 required parameters are not yet configured: [ type,repoName,repoOwner ]');
 
     cy.openStepConfigurationTab('github');
@@ -21,7 +22,7 @@ describe('Test for missing config props canvas warnings', () => {
     cy.closeStepConfigurationTab();
 
     cy.get('[data-id^="github"] g')
-      .find('span.pf-v5-c-icon')
+      .find('span[data-warning="true"].pf-v5-c-icon')
       .should('have.attr', 'title', '2 required parameters are not yet configured: [ type,repoOwner ]');
   });
 
@@ -30,7 +31,7 @@ describe('Test for missing config props canvas warnings', () => {
     cy.openDesignPage();
 
     cy.get('[data-id^="delay-action"] g')
-      .find('span.pf-v5-c-icon')
+      .find('span[data-warning="true"].pf-v5-c-icon')
       .should('have.attr', 'title', '1 required parameter is not yet configured: [ milliseconds ]');
 
     cy.openStepConfigurationTab('delay-action');
@@ -38,6 +39,6 @@ describe('Test for missing config props canvas warnings', () => {
     cy.interactWithConfigInputObject('milliseconds', '1000');
     cy.closeStepConfigurationTab();
 
-    cy.get('[data-id^="delay-action"] g').find('span.pf-v5-c-icon').should('not.exist');
+    cy.get('[data-id^="delay-action"] g').find('span[data-warning="true"].pf-v5-c-icon').should('not.exist');
   });
 });
