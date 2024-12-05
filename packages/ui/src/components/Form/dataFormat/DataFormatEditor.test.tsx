@@ -160,7 +160,7 @@ describe('DataFormatEditor', () => {
       fireEvent.change(inputElement, { target: { value: 'json' } });
     });
     dropdownItems = screen.getAllByTestId(/dataformat-dropdownitem-.*/);
-    expect(dropdownItems).toHaveLength(3);
+    expect(dropdownItems).toHaveLength(4);
   });
 
   it('should clear filter and close the dropdown with close button', async () => {
@@ -174,7 +174,7 @@ describe('DataFormatEditor', () => {
       fireEvent.change(inputElement, { target: { value: 'json' } });
     });
     let dropdownItems = screen.getAllByTestId(/dataformat-dropdownitem-.*/);
-    expect(dropdownItems).toHaveLength(3);
+    expect(dropdownItems).toHaveLength(4);
     const clearButton = screen.getByLabelText('Clear input value');
     await act(async () => {
       fireEvent.click(clearButton);
