@@ -2827,10 +2827,10 @@ __metadata:
     "@kie-tools-core/editor": "npm:0.32.0"
     "@kie-tools-core/notifications": "npm:0.32.0"
     "@patternfly/patternfly": "npm:5.4.2"
-    "@patternfly/react-code-editor": "npm:5.4.11"
-    "@patternfly/react-core": "npm:5.4.8"
+    "@patternfly/react-code-editor": "npm:5.4.14"
+    "@patternfly/react-core": "npm:5.4.11"
     "@patternfly/react-icons": "npm:5.4.2"
-    "@patternfly/react-table": "npm:5.4.9"
+    "@patternfly/react-table": "npm:5.4.12"
     "@patternfly/react-topology": "npm:5.4.1"
     "@swc/core": "npm:^1.7.14"
     "@swc/jest": "npm:^0.2.36"
@@ -3700,12 +3700,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-code-editor@npm:5.4.11":
-  version: 5.4.11
-  resolution: "@patternfly/react-code-editor@npm:5.4.11"
+"@patternfly/react-code-editor@npm:5.4.14":
+  version: 5.4.14
+  resolution: "@patternfly/react-code-editor@npm:5.4.14"
   dependencies:
     "@monaco-editor/react": "npm:^4.6.0"
-    "@patternfly/react-core": "npm:^5.4.8"
+    "@patternfly/react-core": "npm:^5.4.11"
     "@patternfly/react-icons": "npm:^5.4.2"
     "@patternfly/react-styles": "npm:^5.4.1"
     react-dropzone: "npm:14.2.3"
@@ -3713,24 +3713,24 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/ed6b19d2a43804f961545f461799c520841b03532704f3638fb02d8caa61ed8548727e98a92d58c48e08158a52595894f1f52edf9738cb489af42c957582130b
+  checksum: 10/8bfdd9f0dd48eae6108e72418364243b761d1daf8c0ffb0d63c640d30019c94f79a274f75be23e80904b0f8805ea11ec8f54ee81639b39d50c2d156997ea9cda
   languageName: node
   linkType: hard
 
-"@patternfly/react-core@npm:5.4.8":
-  version: 5.4.8
-  resolution: "@patternfly/react-core@npm:5.4.8"
+"@patternfly/react-core@npm:5.4.11":
+  version: 5.4.11
+  resolution: "@patternfly/react-core@npm:5.4.11"
   dependencies:
     "@patternfly/react-icons": "npm:^5.4.2"
     "@patternfly/react-styles": "npm:^5.4.1"
     "@patternfly/react-tokens": "npm:^5.4.1"
-    focus-trap: "npm:7.6.0"
+    focus-trap: "npm:7.6.2"
     react-dropzone: "npm:^14.2.3"
     tslib: "npm:^2.7.0"
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/5ebdacafe6353da3a2c9e46193e9ca5332fa06bb2593caf50ae48e36e43c2eaa99d0a6d0f771e7ac24821c23de012224fab1aaee9ba6199bc5dda81f85a6035e
+  checksum: 10/7a951695af3c1e605bba8b885ad1cefd51ad676faec9ccfaf0f97d6f1ee6c40fe7d89ccf029ba32eda475c107ea1c7c924a477bbb0704848611d512e2efe9a5e
   languageName: node
   linkType: hard
 
@@ -3758,11 +3758,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@patternfly/react-table@npm:5.4.9":
-  version: 5.4.9
-  resolution: "@patternfly/react-table@npm:5.4.9"
+"@patternfly/react-table@npm:5.4.12":
+  version: 5.4.12
+  resolution: "@patternfly/react-table@npm:5.4.12"
   dependencies:
-    "@patternfly/react-core": "npm:^5.4.8"
+    "@patternfly/react-core": "npm:^5.4.11"
     "@patternfly/react-icons": "npm:^5.4.2"
     "@patternfly/react-styles": "npm:^5.4.1"
     "@patternfly/react-tokens": "npm:^5.4.1"
@@ -3771,7 +3771,7 @@ __metadata:
   peerDependencies:
     react: ^17 || ^18
     react-dom: ^17 || ^18
-  checksum: 10/9512ac4c7ecf9cc1613cc55b073315bdd2d638b8989a70076e15eda2dc0406af9afb65fc8ef38c8a8f353fbb1fa324542d308130483c55af2eafec412dd0f8f4
+  checksum: 10/f8fd90024d87739753eeb7d83abbe939b3692059c3d933ebb3eeb019eb26e2fba4cf492b900dbdc8d694f89d78eec1aa9df230cfa3cbb580f5b0936d6ec32e4d
   languageName: node
   linkType: hard
 
@@ -10066,12 +10066,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap@npm:7.6.0":
-  version: 7.6.0
-  resolution: "focus-trap@npm:7.6.0"
+"focus-trap@npm:7.6.2":
+  version: 7.6.2
+  resolution: "focus-trap@npm:7.6.2"
   dependencies:
     tabbable: "npm:^6.2.0"
-  checksum: 10/f1a3130372b259d686b7d283fb80830a73f72fde678e3bb4c366eb6a1bfb5fe4cdb04ddecad2ae1b251094c172a1b7d21a7990d3fbf0b686108b2d9f0b50fecf
+  checksum: 10/7024d3c994bb1018857fdf0ae24e370b134f20e788eb5aa3315ad4a7de2407b69d56bcf0f05a5a6d86b9360a8609923b9ea80397c2710aca75b1fc88292d75d0
   languageName: node
   linkType: hard
 
