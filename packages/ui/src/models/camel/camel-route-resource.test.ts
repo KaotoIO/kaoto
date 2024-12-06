@@ -1,15 +1,15 @@
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
-import { camelRouteJson } from '../../stubs/camel-route';
+import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
-import { createCamelResource } from './camel-resource';
 import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { CamelResourceFactory } from './camel-resource-factory';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
@@ -179,7 +179,7 @@ describe('CamelRouteResource', () => {
     it('should delegate to the CamelComponentFilterService', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
-      const resource = createCamelResource(camelRouteJson);
+      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
 
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
@@ -212,14 +212,6 @@ describe('CamelRouteResource', () => {
       const resource = new CamelRouteResource(json);
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
       expect(firstEntity.toJSON()).not.toBeUndefined();
-    });
-  });
-
-  describe('comments', () => {
-    it('should set and get comments', () => {
-      const resource = new CamelRouteResource();
-      resource.setComments(['a', 'b']);
-      expect(resource.getComments()).toEqual(['a', 'b']);
     });
   });
 });
