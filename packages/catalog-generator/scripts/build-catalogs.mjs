@@ -24,7 +24,7 @@ const CATALOGS = {
   SpringBoot: ['4.9.0', '4.8.2', '4.4.4', '4.4.0.redhat-00039', '4.8.0.redhat-00022'],
 };
 // https://repo1.maven.org/maven2/org/apache/camel/kamelets/camel-kamelets/
-const KAMELETS_VERSION = '4.8.1';
+const KAMELETS_VERSION = '4.9.0';
 
 const generateCatalogs = () => {
   let camelCatalogPath = '';
