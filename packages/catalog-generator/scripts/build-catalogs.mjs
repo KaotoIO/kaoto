@@ -18,7 +18,7 @@ const CATALOGS = {
   Main: ['4.8.1', '4.4.4', '4.4.0.redhat-00046', '4.8.0.redhat-00017'],
   // https://repo1.maven.org/maven2/org/apache/camel/quarkus/camel-quarkus-catalog/
   // https://maven.repository.redhat.com/ga/org/apache/camel/quarkus/camel-quarkus-catalog/
-  Quarkus: ['3.16.0', '3.8.3', '3.8.0.redhat-00018', '3.15.0.redhat-00007'],
+  Quarkus: ['3.16.0', '3.8.4', '3.8.0.redhat-00018', '3.15.0.redhat-00007'],
   // https://repo1.maven.org/maven2/org/apache/camel/springboot/camel-catalog-provider-springboot/
   // https://maven.repository.redhat.com/ga/org/apache/camel/springboot/camel-catalog-provider-springboot/
   SpringBoot: ['4.8.1', '4.4.4', '4.4.0.redhat-00039', '4.8.0.redhat-00022'],
