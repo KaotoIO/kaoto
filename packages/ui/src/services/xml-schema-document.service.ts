@@ -28,7 +28,7 @@ import {
   XmlSchemaSimpleType,
   XmlSchemaType,
   XmlSchemaUse,
-} from '@kaoto/xml-schema-ts';
+} from '../xml-schema-ts';
 import { BaseDocument, BaseField, ITypeFragment } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { DocumentType } from '../models/datamapper/path';

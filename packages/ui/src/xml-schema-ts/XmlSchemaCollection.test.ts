@@ -1,23 +1,23 @@
-import { XmlSchemaCollection } from './XmlSchemaCollection';
 import fs from 'fs';
+import path from 'path';
 import { QName } from './QName';
-import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
-import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import { XmlSchemaCollection } from './XmlSchemaCollection';
 import { XmlSchemaUse } from './XmlSchemaUse';
-import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
-import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
 import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
-import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
-import { screen } from '@testing-library/react';
 import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
+import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
+import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 
 describe('XmlSchemaCollection', () => {
-  const orderXsd = fs.readFileSync(__dirname + '/../test-resources/ShipOrder.xsd').toString();
-  const testXsd = fs.readFileSync(__dirname + '/../test-resources/TestDocument.xsd').toString();
-  const namedTypesXsd = fs.readFileSync(__dirname + '/../test-resources/NamedTypes.xsd').toString();
-  const camelSpringXsd = fs.readFileSync(__dirname + '/../test-resources/camel-spring.xsd').toString();
+  const orderXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/ShipOrder.xsd')).toString();
+  const testXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/TestDocument.xsd')).toString();
+  const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/NamedTypes.xsd')).toString();
+  const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/camel-spring.xsd')).toString();
   const orderXsdEmptyFirstLine = fs
-    .readFileSync(__dirname + '/../test-resources/ShipOrderEmptyFirstLine.xsd')
+    .readFileSync(path.resolve(__dirname, 'test-resources/ShipOrderEmptyFirstLine.xsd'))
     .toString();
 
   it('should parse ShipOrder XML schema', () => {
@@ -111,7 +111,6 @@ describe('XmlSchemaCollection', () => {
     const element1SequenceMembers = element1Sequence.getItems();
     expect(element1SequenceMembers.length).toEqual(1);
     const element1Simple1 = element1SequenceMembers[0] as XmlSchemaElement;
-    const element1Simple1SchemaType = element1Simple1.getSchemaType();
     expect(element1Simple1.getWireName()?.getNamespaceURI()).toEqual('');
     expect(element1Simple1.getWireName()?.getLocalPart()).toEqual('Element1Simple1');
   });
@@ -136,7 +135,8 @@ describe('XmlSchemaCollection', () => {
     try {
       collection.read(orderXsdEmptyFirstLine, () => {});
     } catch (error) {
-      expect(error.message).toContain('an XML declaration must be at the start of the document');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((error as any).message).toContain('an XML declaration must be at the start of the document');
       return;
     }
     fail('No error was thrown');
