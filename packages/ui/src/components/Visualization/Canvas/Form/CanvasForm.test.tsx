@@ -53,7 +53,7 @@ describe('CanvasForm', () => {
 
   beforeEach(() => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[2]; // choice
   });
 
@@ -146,7 +146,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -183,7 +183,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -221,7 +221,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewId';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -261,7 +261,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewName';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram(kameletVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     render(
@@ -293,7 +293,7 @@ describe('CanvasForm', () => {
   describe('should show the User-updated field under the modified tab', () => {
     beforeEach(() => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 
@@ -630,7 +630,7 @@ describe('CanvasForm', () => {
   describe('should show the Required field under the required tab', () => {
     beforeEach(() => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = FlowService.getFlowDiagram(camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 

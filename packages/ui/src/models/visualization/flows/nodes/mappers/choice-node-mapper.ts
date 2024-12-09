@@ -20,7 +20,7 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
       isGroup: true,
     };
 
-    const vizNode = createVisualizationNode(processorName, data);
+    const vizNode = createVisualizationNode(path, data);
 
     const whenNodes = this.getChildrenFromArrayClause(`${path}.when`, entityDefinition);
     whenNodes.forEach((whenNode) => {

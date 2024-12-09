@@ -8,12 +8,22 @@ export class FlowService {
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
 
-  static getFlowDiagram(vizNode: IVisualizationNode): CanvasNodesAndEdges {
+  static getFlowDiagram(scope: string, vizNode: IVisualizationNode): CanvasNodesAndEdges {
     this.nodes = [];
     this.edges = [];
     this.visitedNodes = [];
 
     this.appendNodesAndEdges(vizNode);
+
+    this.nodes.forEach((node) => {
+      node.id = `${scope}|${node.id}`;
+      node.children = node.children?.map((child) => `${scope}|${child}`);
+      node.parentNode = node.parentNode ? `${scope}|${node.parentNode}` : undefined;
+    });
+    this.edges.forEach((edge) => {
+      edge.source = `${scope}|${edge.source}`;
+      edge.target = `${scope}|${edge.target}`;
+    });
 
     return { nodes: this.nodes, edges: this.edges };
   }
@@ -110,7 +120,7 @@ export class FlowService {
 
   private static getEdge(source: string, target: string): CanvasEdge {
     return {
-      id: `${source}-to-${target}`,
+      id: `${source} >>> ${target}`,
       type: 'edge',
       source,
       target,
