@@ -1,8 +1,9 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
-import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
+import { getCamelRandomId, getHexaDecimalRandomId } from '../../../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
+import { XSLT_COMPONENT_NAME } from '../../../../utils';
 
 /**
  * CamelComponentDefaultService
@@ -169,6 +170,17 @@ export class CamelComponentDefaultService {
           expression:
             simple: {}
         `);
+
+      case 'kaoto-datamapper' as keyof ProcessorDefinition:
+        return parse(`
+          step:
+            id: ${getHexaDecimalRandomId('kaoto-datamapper')}
+            steps:
+              - to:
+                  id: ${getCamelRandomId('kaoto-datamapper-xslt')}
+                  uri: ${XSLT_COMPONENT_NAME}
+                  parameters: {}
+          `);
 
       default:
         return {

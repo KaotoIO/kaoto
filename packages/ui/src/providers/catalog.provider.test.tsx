@@ -209,6 +209,7 @@ describe('CatalogLoaderProvider', () => {
       ) {
         expect(call[0]).toEqual(CatalogKind.Processor);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[1]).toMatchSnapshot();
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
@@ -217,6 +218,7 @@ describe('CatalogLoaderProvider', () => {
       ) {
         expect(call[0]).toEqual(CatalogKind.Pattern);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[1]).toMatchSnapshot();
         count++;
       } else if (
         Object.keys(call[1])[0].includes(

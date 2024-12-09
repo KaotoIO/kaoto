@@ -3,6 +3,7 @@ import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import icon_component_datamapper from '../assets/components/datamapper.png';
 import bean from '../assets/eip/bean.png';
 import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
@@ -15,11 +16,12 @@ const enum TabList {
   Beans,
   Metadata,
   ErrorHandler,
+  KaotoDataMapper,
 }
 
 const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
-  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans],
-  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata],
+  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.KaotoDataMapper],
+  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper],
   [SourceSchemaType.Integration]: [],
   [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
   [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
@@ -30,6 +32,11 @@ export const KaotoEditor = () => {
   const resource = entitiesContext?.camelResource;
   const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
   const currentLocation = useLocation();
+  const secondSlashIndex = currentLocation.pathname.indexOf('/', 1);
+  const currentPath = currentLocation.pathname.substring(0, secondSlashIndex !== -1 ? secondSlashIndex : undefined);
+  const dataMapperLink = currentLocation.pathname.startsWith(Links.DataMapper)
+    ? currentLocation.pathname
+    : Links.DataMapper;
 
   const availableTabs = useMemo(() => {
     if (!resource) {
@@ -38,6 +45,7 @@ export const KaotoEditor = () => {
         beans: false,
         metadata: false,
         errorHandler: false,
+        kaotoDataMapper: false,
       };
     }
 
@@ -46,6 +54,7 @@ export const KaotoEditor = () => {
       beans: SCHEMA_TABS[resource.getType()].indexOf(TabList.Beans) >= 0,
       metadata: SCHEMA_TABS[resource.getType()].indexOf(TabList.Metadata) >= 0,
       errorHandler: SCHEMA_TABS[resource.getType()].indexOf(TabList.ErrorHandler) >= 0,
+      kaotoDataMapper: SCHEMA_TABS[resource.getType()].indexOf(TabList.KaotoDataMapper) >= 0,
     };
   }, [resource]);
 
@@ -55,13 +64,14 @@ export const KaotoEditor = () => {
         inset={inset.current}
         isBox
         unmountOnExit
-        activeKey={currentLocation.pathname}
+        activeKey={currentPath}
         aria-label="Tabs in the Kaoto editor"
         role="region"
       >
         {availableTabs.design && (
           <Link data-testid="design-tab" to={Links.Home}>
             <Tab
+              id="design-tab"
               eventKey={Links.Home}
               title={
                 <>
@@ -81,6 +91,7 @@ export const KaotoEditor = () => {
         {availableTabs.beans && (
           <Link data-testid="beans-tab" to={Links.Beans}>
             <Tab
+              id="beans-tab"
               eventKey={Links.Beans}
               title={
                 <>
@@ -100,6 +111,7 @@ export const KaotoEditor = () => {
         {availableTabs.metadata && (
           <Link data-testid="metadata-tab" to={Links.Metadata}>
             <Tab
+              id="metadata-tab"
               eventKey={Links.Metadata}
               title={
                 <>
@@ -117,6 +129,7 @@ export const KaotoEditor = () => {
         {availableTabs.errorHandler && (
           <Link data-testid="error-handler-tab" to={Links.PipeErrorHandler}>
             <Tab
+              id="error-handler-tab"
               eventKey={Links.PipeErrorHandler}
               title={
                 <>
@@ -127,6 +140,26 @@ export const KaotoEditor = () => {
                 </>
               }
               aria-label="Error Handler editor"
+            />
+          </Link>
+        )}
+
+        {availableTabs.kaotoDataMapper && (
+          <Link data-testid="datamapper-tab" to={dataMapperLink}>
+            <Tab
+              id="datamapper-tab"
+              eventKey={Links.DataMapper}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <Icon>
+                      <img src={icon_component_datamapper} alt="DataMapper icon" />
+                    </Icon>
+                  </TabTitleIcon>
+                  <TabTitleText>DataMapper</TabTitleText>
+                </>
+              }
+              aria-label="DataMapper"
             />
           </Link>
         )}

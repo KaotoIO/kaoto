@@ -1,0 +1,95 @@
+@use '../../styles/dnd';
+
+.node {
+  &__row {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    &[data-draggable='false'] [data-drag-handler] {
+      display: none;
+    }
+
+    &[data-draggable='true'] {
+      @include dnd.cursor-grab;
+    }
+  }
+
+  &__container {
+    padding: 5px;
+    padding-left: var(--pf-v5-global--spacer--md);
+  }
+
+  &__header,
+  &__children {
+    border-bottom: 1px solid var(--pf-v5-global--palette--black-300);
+    border-left: 1px solid var(--pf-v5-global--palette--black-300);
+    padding-left: var(--pf-v5-global--spacer--md);
+  }
+
+  &__children {
+    padding: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--md);
+  }
+
+  &__spacer {
+    margin: var(--pf-v5-global--spacer--sm) 0 var(--pf-v5-global--spacer--sm) var(--pf-v5-global--spacer--sm);
+  }
+
+  &__target__actions {
+    flex-grow: 1;
+    justify-content: end;
+  }
+}
+
+img {
+  transition: transform 0.5s ease-in-out;
+}
+
+.toggle-icon {
+  cursor: pointer;
+
+  &--collapsed {
+    transform: rotate(-90deg);
+  }
+}
+
+.truncate {
+  --pf-v5-c-truncate--MinWidth: 0;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.pf-v5-c-action-list__group {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  .pf-v5-c-button {
+    --pf-v5-c-button--PaddingLeft: 0.5rem;
+    --pf-v5-c-button--PaddingRight: 0.5rem;
+  }
+
+  .pf-v5-c-menu-toggle.pf-m-plain:not(.pf-m-text) {
+    --pf-v5-c-menu-toggle--PaddingLeft: 0.5rem;
+    --pf-v5-c-menu-toggle--PaddingRight: 0.5rem;
+  }
+}
+
+.parameter-card {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v5-c-card__header {
+    padding-block: 0;
+    padding-inline: 0;
+  }
+}
+
+.parameter-actions {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  --pf-v5-c-action-list--child--spacer-base: 0.5rem;
+  --pf-v5-c-action-list--group--spacer-base: 0.5rem;
+
+  .pf-v5-c-button {
+    --pf-v5-c-button--PaddingLeft: 0.5rem;
+    --pf-v5-c-button--PaddingRight: 0.5rem;
+  }
+}

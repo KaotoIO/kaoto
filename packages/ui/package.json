@@ -51,12 +51,17 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
     "@kaoto-next/uniforms-patternfly": "^0.7.14",
+    "@kaoto/xml-schema-ts": "workspace:*",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",
+    "@types/xml-name-validator": "^4.0.3",
+    "@visx/shape": "^3.12.0",
     "ajv": "^8.12.0",
     "ajv-formats": "^3.0.0",
+    "chevrotain": "10.5.0",
     "clsx": "^2.1.0",
     "html-to-image": "^1.11.11",
     "lodash": "^4.17.21",
@@ -67,6 +72,8 @@
     "uniforms-bridge-json-schema": "4.0.0-alpha.6",
     "usehooks-ts": "^3.0.0",
     "uuid": "^10.0.0",
+    "xml-formatter": "^3.6.2",
+    "xml-name-validator": "^5.0.0",
     "yaml": "^2.3.2",
     "zustand": "^4.3.9"
   },

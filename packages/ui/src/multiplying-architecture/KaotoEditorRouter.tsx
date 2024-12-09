@@ -25,6 +25,14 @@ export const kaotoEditorRouter = createHashRouter([
         path: Links.PipeErrorHandler,
         lazy: async () => import('../pages/PipeErrorHandler'),
       },
+      {
+        path: Links.DataMapper,
+        lazy: async () => import('../pages/DataMapperHowTo'),
+      },
+      {
+        path: `${Links.DataMapper}/:id`,
+        lazy: async () => import('../pages/DataMapper'),
+      },
     ],
   },
 ]);
