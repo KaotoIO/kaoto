@@ -38,7 +38,7 @@ jobs:
 
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
-        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog run build
+        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog --exclude @kaoto/xml-schema-ts run build
 
       # Run tests
       - name: 🧪 Run tests
