@@ -47,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Build kaoto/xml-schema-ts library
+        run: yarn workspace @kaoto/xml-schema-ts run build
+
       # 👇 Builds the kaoto/ui in library mode
       - name: Build ui library
         run: yarn workspace @kaoto/kaoto run build:lib
