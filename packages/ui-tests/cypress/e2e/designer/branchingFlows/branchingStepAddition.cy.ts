@@ -61,7 +61,10 @@ describe('Test for Branching actions from the canvas', () => {
     cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
-    cy.checkEdgeExists('setHeader', 'activemq');
+    cy.checkEdgeExists(
+      'template.from.steps.1.choice.when.0.steps.1.setHeader',
+      'template.from.steps.1.choice.when.0.steps.2.to',
+    );
   });
 
   it('User prepends a step in a branch from the canvas (first in the branch)', () => {
@@ -73,7 +76,10 @@ describe('Test for Branching actions from the canvas', () => {
     cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
-    cy.checkEdgeExists('activemq', 'digitalocean');
+    cy.checkEdgeExists(
+      'template.from.steps.1.choice.when.0.steps.0.to',
+      'template.from.steps.1.choice.when.0.steps.1.to',
+    );
   });
 
   it('User prepends a step to a step whose previous step contains branches', () => {
@@ -85,6 +91,6 @@ describe('Test for Branching actions from the canvas', () => {
     cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
-    cy.checkEdgeExists('activemq', 'filter');
+    cy.checkEdgeExists('template.from.steps.2.to', 'template.from.steps.3.filter');
   });
 });

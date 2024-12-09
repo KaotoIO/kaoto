@@ -44,7 +44,7 @@ describe('ItemDeleteGroup', () => {
     fireEvent.click(wrapper.getByText('Delete'));
 
     expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
-      title: "Do you want to delete the 'undefined' test-1234?",
+      title: "Do you want to delete the 'undefined' test?",
       text: 'All steps will be lost.',
     });
   });

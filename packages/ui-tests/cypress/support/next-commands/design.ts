@@ -106,13 +106,13 @@ Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
 });
 
 Cypress.Commands.add('checkEdgeExists', (sourceName: string, targetName: string) => {
-  const idPattern = sourceName + '-\\d+-to-' + targetName + '-\\d+';
+  const idPattern = `${sourceName} >>> ${targetName}`;
   // Check if an element with the matching id exists
   cy.get('g').should(($elements) => {
     // Use Cypress commands to check if any element matches the id pattern
     const matchingElementExists = $elements.toArray().some((element) => {
       const dataId = Cypress.$(element).attr('data-id');
-      return dataId && dataId.match(idPattern);
+      return dataId === idPattern;
     });
     // Assert that at least one matching element exists
     expect(matchingElementExists).to.be.true;

@@ -109,7 +109,7 @@ describe('NodeContextMenu', () => {
   it('should render an ItemEnableAllSteps', () => {
     const camelResource = new CamelRouteResource([camelRouteWithDisabledSteps]);
     const visualEntity = camelResource.getVisualEntities()[0];
-    const { nodes, edges } = FlowService.getFlowDiagram(visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
 
     const model: Model = {
       nodes,

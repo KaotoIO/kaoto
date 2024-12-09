@@ -44,7 +44,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -53,7 +53,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-1234"
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -63,15 +63,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-disabled="false"
                               data-grouplabel="route-8888"
                               data-selected="false"
-                              data-testid="custom-group__route-1234"
+                              data-testid="custom-group__route"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="772.5"
-                                width="705"
-                                x="-40"
-                                y="32.5"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -95,7 +95,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234"
+                            data-id="route-8888|route.from.steps.1.choice"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -105,15 +105,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-disabled="false"
                               data-grouplabel="choice"
                               data-selected="false"
-                              data-testid="custom-group__choice-1234"
+                              data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="542.5"
-                                width="625"
-                                x="0"
-                                y="72.5"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -141,7 +141,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                           data-layer-id="default"
                         >
                           <g
-                            data-id="timer-1234-to-set-header-1234"
+                            data-id="route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -151,15 +151,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 253.5) rotate(90)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -172,7 +172,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
+                                x="305"
                                 y="174"
                               >
                                 <div
@@ -210,7 +210,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="set-header-1234-to-choice-1234"
+                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -220,15 +220,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 86.5) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -241,8 +241,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="154"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -279,7 +279,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="amqp-1234-to-amqp-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -289,15 +289,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(500, 568.5) rotate(90)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -310,8 +310,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="480"
-                                y="542.75"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -348,7 +348,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-direct-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -358,15 +358,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 713.5) rotate(90)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -379,8 +379,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="645.25"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -417,56 +417,138 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="route-1234"
+                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 1023.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                           >
                             <g
-                              data-id="timer-1234"
+                              data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 75)"
+                              transform="translate(280, 75)"
                             />
                             <g
-                              data-id="set-header-1234"
+                              data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 230)"
+                              transform="translate(280, 230)"
                             />
                             <g
-                              data-id="choice-1234"
+                              data-id="route-8888|route.from.steps.1.choice"
                               data-kind="node"
                               data-type="group"
                             >
                               <g
-                                data-id="when-1234"
-                                data-kind="node"
-                                data-type="group"
-                              />
-                              <g
-                                data-id="otherwise-1234"
+                                data-id="route-8888|route.from.steps.1.choice.when.0"
                                 data-kind="node"
                                 data-type="group"
                               >
                                 <g
-                                  data-id="amqp-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(455, 460)"
+                                  transform="translate(155, 615)"
+                                />
+                              </g>
+                              <g
+                                data-id="route-8888|route.from.steps.1.choice.otherwise"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
-                                  data-id="log-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(275, 460)"
+                                  transform="translate(405, 615)"
+                                />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
                             <g
-                              data-id="direct-1234"
+                              data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 690)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>
@@ -746,7 +828,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -755,7 +837,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-1234"
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -765,15 +847,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-disabled="false"
                               data-grouplabel="route-8888"
                               data-selected="false"
-                              data-testid="custom-group__route-1234"
+                              data-testid="custom-group__route"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="772.5"
-                                width="705"
-                                x="-40"
-                                y="32.5"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -797,7 +879,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234"
+                            data-id="route-8888|route.from.steps.1.choice"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -807,15 +889,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-disabled="false"
                               data-grouplabel="choice"
                               data-selected="false"
-                              data-testid="custom-group__choice-1234"
+                              data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="542.5"
-                                width="625"
-                                x="0"
-                                y="72.5"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -843,7 +925,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                           data-layer-id="default"
                         >
                           <g
-                            data-id="timer-1234-to-set-header-1234"
+                            data-id="route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -853,15 +935,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 253.5) rotate(90)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -874,7 +956,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
+                                x="305"
                                 y="174"
                               >
                                 <div
@@ -912,7 +994,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="set-header-1234-to-choice-1234"
+                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -922,15 +1004,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 86.5) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -943,8 +1025,8 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="154"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -981,7 +1063,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="amqp-1234-to-amqp-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -991,15 +1073,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(500, 568.5) rotate(90)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1012,8 +1094,8 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="480"
-                                y="542.75"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -1050,7 +1132,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-direct-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1060,15 +1142,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 713.5) rotate(90)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1081,8 +1163,8 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="645.25"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -1119,56 +1201,138 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route-1234"
+                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 1023.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                           >
                             <g
-                              data-id="timer-1234"
+                              data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 75)"
+                              transform="translate(280, 75)"
                             />
                             <g
-                              data-id="set-header-1234"
+                              data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 230)"
+                              transform="translate(280, 230)"
                             />
                             <g
-                              data-id="choice-1234"
+                              data-id="route-8888|route.from.steps.1.choice"
                               data-kind="node"
                               data-type="group"
                             >
                               <g
-                                data-id="when-1234"
-                                data-kind="node"
-                                data-type="group"
-                              />
-                              <g
-                                data-id="otherwise-1234"
+                                data-id="route-8888|route.from.steps.1.choice.when.0"
                                 data-kind="node"
                                 data-type="group"
                               >
                                 <g
-                                  data-id="amqp-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(455, 460)"
+                                  transform="translate(155, 615)"
+                                />
+                              </g>
+                              <g
+                                data-id="route-8888|route.from.steps.1.choice.otherwise"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
-                                  data-id="log-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(275, 460)"
+                                  transform="translate(405, 615)"
+                                />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
                             <g
-                              data-id="direct-1234"
+                              data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 690)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>
@@ -2260,7 +2424,7 @@ exports[`Canvas should render correctly 1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -2269,7 +2433,7 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-1234"
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -2279,15 +2443,15 @@ exports[`Canvas should render correctly 1`] = `
                               data-disabled="false"
                               data-grouplabel="route-8888"
                               data-selected="false"
-                              data-testid="custom-group__route-1234"
+                              data-testid="custom-group__route"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="772.5"
-                                width="705"
-                                x="-40"
-                                y="32.5"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -2311,7 +2475,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234"
+                            data-id="route-8888|route.from.steps.1.choice"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -2321,15 +2485,15 @@ exports[`Canvas should render correctly 1`] = `
                               data-disabled="false"
                               data-grouplabel="choice"
                               data-selected="false"
-                              data-testid="custom-group__choice-1234"
+                              data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="542.5"
-                                width="625"
-                                x="0"
-                                y="72.5"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -2357,7 +2521,7 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="timer-1234-to-set-header-1234"
+                            data-id="route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2367,15 +2531,15 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 253.5) rotate(90)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2388,7 +2552,7 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
+                                x="305"
                                 y="174"
                               >
                                 <div
@@ -2426,7 +2590,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="set-header-1234-to-choice-1234"
+                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2436,15 +2600,15 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 86.5) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2457,8 +2621,8 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="154"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -2495,7 +2659,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="amqp-1234-to-amqp-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2505,15 +2669,15 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(500, 568.5) rotate(90)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2526,8 +2690,8 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="480"
-                                y="542.75"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -2564,7 +2728,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-direct-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2574,15 +2738,15 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 713.5) rotate(90)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -2595,8 +2759,8 @@ exports[`Canvas should render correctly 1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="645.25"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -2633,56 +2797,138 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route-1234"
+                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 1023.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                           >
                             <g
-                              data-id="timer-1234"
+                              data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 75)"
+                              transform="translate(280, 75)"
                             />
                             <g
-                              data-id="set-header-1234"
+                              data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 230)"
+                              transform="translate(280, 230)"
                             />
                             <g
-                              data-id="choice-1234"
+                              data-id="route-8888|route.from.steps.1.choice"
                               data-kind="node"
                               data-type="group"
                             >
                               <g
-                                data-id="when-1234"
-                                data-kind="node"
-                                data-type="group"
-                              />
-                              <g
-                                data-id="otherwise-1234"
+                                data-id="route-8888|route.from.steps.1.choice.when.0"
                                 data-kind="node"
                                 data-type="group"
                               >
                                 <g
-                                  data-id="amqp-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(455, 460)"
+                                  transform="translate(155, 615)"
+                                />
+                              </g>
+                              <g
+                                data-id="route-8888|route.from.steps.1.choice.otherwise"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
-                                  data-id="log-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(275, 460)"
+                                  transform="translate(405, 615)"
+                                />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
                             <g
-                              data-id="direct-1234"
+                              data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 690)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>
@@ -2962,7 +3208,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.4045307443365696, -0.5420711974110033) scale(0.0012944983818770227)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -2971,7 +3217,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="groups"
                         >
                           <g
-                            data-id="route-1234"
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -2981,15 +3227,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-disabled="false"
                               data-grouplabel="route-8888"
                               data-selected="false"
-                              data-testid="custom-group__route-1234"
+                              data-testid="custom-group__route"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="772.5"
-                                width="705"
-                                x="-40"
-                                y="32.5"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -3013,7 +3259,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234"
+                            data-id="route-8888|route.from.steps.1.choice"
                             data-kind="node"
                             data-type="group"
                             transform="translate(0, 0)"
@@ -3023,15 +3269,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-disabled="false"
                               data-grouplabel="choice"
                               data-selected="false"
-                              data-testid="custom-group__choice-1234"
+                              data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="542.5"
-                                width="625"
-                                x="0"
-                                y="72.5"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -3059,7 +3305,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="timer-1234-to-set-header-1234"
+                            data-id="route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3069,15 +3315,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 112.5 L367.5 267.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 253.5) rotate(90)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3090,7 +3336,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
+                                x="305"
                                 y="174"
                               >
                                 <div
@@ -3128,7 +3374,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="set-header-1234-to-choice-1234"
+                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3138,15 +3384,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 267.5 L367.5 72.5"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 86.5) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3159,8 +3405,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="154"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3197,7 +3443,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="amqp-1234-to-amqp-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3207,15 +3453,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M500 535 L500 582.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(500, 568.5) rotate(90)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3228,8 +3474,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="480"
-                                y="542.75"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3266,7 +3512,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="choice-1234-to-direct-1234"
+                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3276,15 +3522,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M367.5 615 L367.5 727.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(367.5, 713.5) rotate(90)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3297,8 +3543,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="347.5"
-                                y="645.25"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3335,56 +3581,138 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route-1234"
+                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 925 L325 1037.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 1023.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v5-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v5-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v5-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
                           >
                             <g
-                              data-id="timer-1234"
+                              data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 75)"
+                              transform="translate(280, 75)"
                             />
                             <g
-                              data-id="set-header-1234"
+                              data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 230)"
+                              transform="translate(280, 230)"
                             />
                             <g
-                              data-id="choice-1234"
+                              data-id="route-8888|route.from.steps.1.choice"
                               data-kind="node"
                               data-type="group"
                             >
                               <g
-                                data-id="when-1234"
-                                data-kind="node"
-                                data-type="group"
-                              />
-                              <g
-                                data-id="otherwise-1234"
+                                data-id="route-8888|route.from.steps.1.choice.when.0"
                                 data-kind="node"
                                 data-type="group"
                               >
                                 <g
-                                  data-id="amqp-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(455, 460)"
+                                  transform="translate(155, 615)"
+                                />
+                              </g>
+                              <g
+                                data-id="route-8888|route.from.steps.1.choice.otherwise"
+                                data-kind="node"
+                                data-type="group"
+                              >
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
-                                  data-id="log-1234"
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(275, 460)"
+                                  transform="translate(405, 615)"
+                                />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
+                                  data-kind="node"
+                                  data-type="node"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
                             <g
-                              data-id="direct-1234"
+                              data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(322.5, 690)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>

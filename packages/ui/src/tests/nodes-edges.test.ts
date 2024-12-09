@@ -13,7 +13,7 @@ describe('Nodes and Edges', () => {
     const [camelRoute] = camelResource.getVisualEntities();
 
     const rootVizNode = camelRoute.toVizNode();
-    const { nodes, edges } = FlowService.getFlowDiagram(rootVizNode);
+    const { nodes, edges } = FlowService.getFlowDiagram('test', rootVizNode);
 
     expect(nodes).toMatchSnapshot();
     expect(edges).toMatchSnapshot();
