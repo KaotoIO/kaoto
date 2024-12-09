@@ -1,11 +1,12 @@
-import * as fs from 'fs';
+import fs from 'fs';
+import path from 'path';
 
 describe.skip('XML parser', () => {
   describe('DOMParser', () => {
     const parser = new DOMParser();
 
     it('should parse XML schema', () => {
-      const orderXsd = fs.readFileSync(__dirname + '/../../../../test-resources/ShipOrder.xsd').toString();
+      const orderXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/ShipOrder.xsd')).toString();
       const xmlDoc = parser.parseFromString(orderXsd, 'text/xml');
       expect(xmlDoc).toBeDefined();
       const schema = xmlDoc.getElementsByTagName('xs:schema')[0];
@@ -22,7 +23,7 @@ describe.skip('XML parser', () => {
     });
 
     it('should parse XML document', () => {
-      const orderXml = fs.readFileSync(__dirname + '/../../../../test-resources/ExampleOrder.xml').toString();
+      const orderXml = fs.readFileSync(path.resolve(__dirname, 'test-resources/ExampleOrder.xml')).toString();
       const xmlDoc = parser.parseFromString(orderXml, 'text/xml');
       expect(xmlDoc).toBeDefined();
     });

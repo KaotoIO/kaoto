@@ -556,7 +556,6 @@ export class XmlSchemaCollection {
       return null;
     }
     const uri = name.getNamespaceURI();
-    const entries = this.schemas.entries();
     for (const entry of Array.from(this.schemas.entries())) {
       if (entry[0].getNamespace() === uri) {
         const group = entry[1].getAttributeGroupByQName(name);

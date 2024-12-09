@@ -1,9 +1,10 @@
-import { parse } from 'yaml';
-import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../utils';
 import fs from 'fs';
-import { XmlSchemaDocumentService } from '../services/xml-schema-document.service';
-import { DocumentType } from '../models/datamapper/path';
+import path from 'path';
+import { parse } from 'yaml';
 import { IDocument, PrimitiveDocument } from '../models/datamapper/document';
+import { DocumentType } from '../models/datamapper/path';
+import { XmlSchemaDocumentService } from '../services/xml-schema-document.service';
+import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../utils';
 
 export const datamapperRouteDefinitionStub = parse(`
   from:
@@ -18,25 +19,25 @@ export const datamapperRouteDefinitionStub = parse(`
                 uri: ${XSLT_COMPONENT_NAME}:transform.xsl`);
 
 export const shipOrderXsd = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrder.xsd')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrder.xsd'))
   .toString();
 export const testDocumentXsd = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/TestDocument.xsd')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/TestDocument.xsd'))
   .toString();
 export const noTopElementXsd = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/NoTopElement.xsd')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/NoTopElement.xsd'))
   .toString();
 export const camelSpringXsd = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/camel-spring.xsd')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/camel-spring.xsd'))
   .toString();
 export const shipOrderToShipOrderXslt = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl'))
   .toString();
 export const shipOrderToShipOrderInvalidForEachXslt = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderToShipOrderInvalidForEach.xsl')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderInvalidForEach.xsl'))
   .toString();
 export const shipOrderEmptyFirstLineXsd = fs
-  .readFileSync(__dirname + '/../../../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd')
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
   .toString();
 
 export class TestUtil {
