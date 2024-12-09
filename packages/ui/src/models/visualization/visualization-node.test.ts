@@ -17,7 +17,7 @@ describe('VisualizationNode', () => {
   });
 
   it('should create a node with a random id', () => {
-    expect(node.id).toEqual('test-1234');
+    expect(node.id).toEqual('test');
   });
 
   it('should create a node and set the ID as the title', () => {

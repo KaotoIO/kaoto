@@ -34,7 +34,7 @@ describe('getVisualizationNodesFromGraph', () => {
 
   it('should return all visualization nodes from the graph', () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram(visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
 
     const model: Model = {
       nodes,
@@ -58,7 +58,7 @@ describe('getVisualizationNodesFromGraph', () => {
 
   it('should return all visualization nodes matching the predicate', () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram(visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
 
     const model: Model = {
       nodes,
@@ -82,7 +82,7 @@ describe('getVisualizationNodesFromGraph', () => {
 
   it('should return all visualization nodes matching a complex predicate', () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram(visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
 
     const model: Model = {
       nodes,

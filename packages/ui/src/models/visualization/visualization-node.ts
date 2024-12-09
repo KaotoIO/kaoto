@@ -1,4 +1,3 @@
-import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../camel-catalog-index';
 import { NodeLabelType } from '../settings/settings.model';
 import {
@@ -15,7 +14,7 @@ export const createVisualizationNode = <T extends IVisualizationNodeData = IVisu
   id: string,
   data: T,
 ): IVisualizationNode<T> => {
-  const vizNode = new VisualizationNode(getCamelRandomId(id), data);
+  const vizNode = new VisualizationNode(id, data);
   vizNode.setTitle(id);
 
   return vizNode;

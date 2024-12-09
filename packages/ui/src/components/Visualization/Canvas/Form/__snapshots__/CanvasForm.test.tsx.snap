@@ -23,7 +23,7 @@ exports[`CanvasForm should render 1`] = `
           >
             <img
               alt="icon"
-              class="form-header__icon-log-1234"
+              class="form-header__icon-test|route.from.steps.1.choice.when.0.steps.0.log"
               src=""
             />
             <h2
@@ -32,7 +32,7 @@ exports[`CanvasForm should render 1`] = `
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
             >
-              log
+              route.from.steps.1.choice.when.0.steps.0.log
             </h2>
           </div>
           <div
