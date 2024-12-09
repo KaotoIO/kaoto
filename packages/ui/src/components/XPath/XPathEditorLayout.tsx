@@ -1,6 +1,4 @@
 import {
-  //Bullseye,
-  //Button,
   Grid,
   GridItem,
   Menu,
@@ -13,7 +11,6 @@ import {
   TabTitleText,
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, useCallback, useMemo, useState } from 'react';
-//import { ArrowRightIcon } from '@patternfly/react-icons';
 import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
 import { ExpressionItem } from '../../models/datamapper/mapping';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
