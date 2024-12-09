@@ -32,7 +32,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     if (!schemaFiles) return;
     const fileContents: Record<string, string> = {};
     const fileContentPromises: Promise<string>[] = [];
-    Array.from(schemaFiles).map((f) => {
+    Array.from(schemaFiles).forEach((f) => {
       const promise = readFileAsString(f).then((content) => (fileContents[f.name] = content));
       fileContentPromises.push(promise);
     });

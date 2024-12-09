@@ -386,7 +386,7 @@ export class MappingService {
       answer.push(...MappingService.doExtractMappingLinks(item, targetNodePath, sourceParameterMap, sourceBody));
     }
     if ('children' in item) {
-      item.children.map((child) => {
+      item.children.forEach((child) => {
         if (
           item instanceof FieldItem &&
           !(item.field.ownerDocument instanceof PrimitiveDocument) &&

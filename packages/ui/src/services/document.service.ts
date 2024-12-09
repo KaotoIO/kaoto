@@ -30,7 +30,7 @@ export class DocumentService {
     if (!schemaFilePaths || schemaFilePaths.length === 0) return;
     const fileContents: Record<string, string> = {};
     const fileContentPromises: Promise<void>[] = [];
-    schemaFilePaths.map((path: string) => {
+    schemaFilePaths.forEach((path: string) => {
       const promise = api.getResourceContent(path).then((content: string | undefined) => {
         if (content) fileContents[path] = content;
       });
@@ -60,7 +60,7 @@ export class DocumentService {
       if (document) answer.sourceBodyDocument = document;
     }
     if (initModel.sourceParameters) {
-      Object.entries(initModel.sourceParameters).map(([key, value]) => {
+      Object.entries(initModel.sourceParameters).forEach(([key, value]) => {
         const document = DocumentService.createDocument(value);
         answer.sourceParameterMap.set(key, document ? document : new PrimitiveDocument(DocumentType.PARAM, key));
       });

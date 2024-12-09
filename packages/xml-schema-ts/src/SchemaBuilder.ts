@@ -1134,14 +1134,12 @@ export class SchemaBuilder {
     }
   }
 
-  private handleElementForm(el: Element, element: XmlSchemaElement, isQualified: boolean) {
+  private handleElementForm(el: Element, element: XmlSchemaElement, _isQualified: boolean) {
     if (el.hasAttribute('form')) {
       const formDef = el.getAttribute('form')!;
       element.setForm(xmlSchemaFormValueOf(formDef));
     }
-    isQualified = element.getForm() == XmlSchemaForm.QUALIFIED;
-
-    return isQualified;
+    return element.getForm() == XmlSchemaForm.QUALIFIED;
   }
 
   private handleElementGlobalType(el: Element, element: XmlSchemaElement) {
