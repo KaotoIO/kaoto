@@ -1,7 +1,7 @@
 import { IField } from './document';
 import { DocumentType, NodePath, Path } from './path';
 import { Types } from './types';
-import { generateRandomId } from '../../utils/generate-random-id';
+import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 
 export type MappingParentType = MappingTree | MappingItem;
 
@@ -56,7 +56,7 @@ export abstract class ConditionItem extends MappingItem {
     public parent: MappingParentType,
     public name: string,
   ) {
-    super(parent, name, generateRandomId(name, 4));
+    super(parent, name, getCamelRandomId(name, 4));
   }
   readonly isCondition = true;
 }

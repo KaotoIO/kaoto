@@ -1,6 +1,6 @@
 import { Types } from './types';
 import { DocumentType, NodePath } from './path';
-import { generateRandomId } from '../../utils/generate-random-id';
+import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
@@ -98,7 +98,7 @@ export class BaseField implements IField {
     public ownerDocument: IDocument,
     public name: string,
   ) {
-    this.id = generateRandomId(`field-${this.name}`, 4);
+    this.id = getCamelRandomId(`field-${this.name}`, 4);
     this.path = NodePath.childOf(parent.path, this.id);
   }
 
