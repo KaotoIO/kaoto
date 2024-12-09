@@ -34,14 +34,20 @@ describe('Test toolbar on hover actions', () => {
     cy.get('[data-testid="step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
+
+    // Temporary workaround since the toolbar is updated but the config form is closed
+    cy.openStepConfigurationTab('setHeader');
+
     cy.selectFormTab('All');
     cy.checkConfigCheckboxObject('disabled', true);
 
-    cy.openStepConfigurationTab('setHeader');
     cy.get('[data-testid="step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
-    cy.selectFormTab('All');
+
+    // Temporary workaround since the toolbar is updated but the config form is closed
+    cy.openStepConfigurationTab('setHeader');
+
     cy.checkConfigCheckboxObject('disabled', false);
   });
 

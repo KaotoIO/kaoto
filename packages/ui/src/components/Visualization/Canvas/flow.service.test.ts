@@ -19,7 +19,7 @@ describe('FlowService', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
       const vizNode = createVisualizationNode('node', {});
 
-      const { nodes, edges } = FlowService.getFlowDiagram(vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -32,7 +32,7 @@ describe('FlowService', () => {
       groupVizNode.addChild(child1VizNode);
       groupVizNode.addChild(child2VizNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram(groupVizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', groupVizNode);
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -43,7 +43,7 @@ describe('FlowService', () => {
       const childNode = createVisualizationNode('child', {});
       vizNode.addChild(childNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram(vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -78,7 +78,7 @@ describe('FlowService', () => {
       const logNode = createVisualizationNode('log', {});
       processNode.addChild(logNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram(vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -87,7 +87,7 @@ describe('FlowService', () => {
     it('should return a group node for a multiple nodes VisualizationNode with a group', () => {
       const routeNode = new CamelRouteVisualEntity({ from: { uri: 'timer:clock', steps: [] } }).toVizNode();
 
-      const { nodes, edges } = FlowService.getFlowDiagram(routeNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
 
       expect(nodes).toHaveLength(3);
       expect(nodes[0].data?.vizNode?.data.path).toEqual('route.from');
@@ -95,11 +95,11 @@ describe('FlowService', () => {
       expect(nodes[2].data?.vizNode?.data.path).toEqual('route');
 
       expect(edges).toHaveLength(1);
-      expect(edges[0].source).toEqual('timer-1234');
-      expect(edges[0].target).toEqual('route.from.steps-1234');
+      expect(edges[0].source).toEqual('test|route.from');
+      expect(edges[0].target).toEqual('test|route.from.steps.0.placeholder');
 
       const group = nodes[nodes.length - 1];
-      expect(group.children).toEqual(['timer-1234', 'route.from.steps-1234']);
+      expect(group.children).toEqual(['test|route.from', 'test|route.from.steps.0.placeholder']);
       expect(group.group).toBeTruthy();
     });
   });

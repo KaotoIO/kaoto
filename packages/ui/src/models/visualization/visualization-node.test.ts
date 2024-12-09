@@ -16,12 +16,24 @@ describe('VisualizationNode', () => {
     node = createVisualizationNode('test', {});
   });
 
-  it('should create a node with a random id', () => {
-    expect(node.id).toEqual('test-1234');
+  it('should create a node with the given id', () => {
+    expect(node.id).toEqual('test');
   });
 
-  it('should create a node and set the ID as the title', () => {
-    expect(node.getNodeTitle()).toEqual('test-1234');
+  describe('getNodeTitle', () => {
+    it('should delegate to the base entity to get the title', () => {
+      const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
+      const getNodeTitleSpy = jest.spyOn(visualEntity, 'getNodeTitle');
+
+      node = createVisualizationNode('test', { path: 'route.from.steps.2.to', entity: visualEntity });
+
+      expect(node.getNodeTitle()).toEqual('direct');
+      expect(getNodeTitleSpy).toHaveBeenCalledWith('route.from.steps.2.to');
+    });
+
+    it('should return the ID as title if there is no base entity', () => {
+      expect(node.getNodeTitle()).toEqual('test');
+    });
   });
 
   it('should return the base entity ID', () => {

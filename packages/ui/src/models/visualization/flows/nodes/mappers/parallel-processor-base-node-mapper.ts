@@ -22,7 +22,7 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       isGroup: true,
     };
 
-    const vizNode = createVisualizationNode(processorName, data);
+    const vizNode = createVisualizationNode(path, data);
     const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
     children.forEach((child) => {
       vizNode.addChild(child);

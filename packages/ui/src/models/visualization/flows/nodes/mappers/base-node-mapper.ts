@@ -27,7 +27,7 @@ export class BaseNodeMapper implements INodeMapper {
       componentName: componentLookup.componentName,
     };
 
-    const vizNode = createVisualizationNode(componentLookup.componentName ?? componentLookup.processorName, data);
+    const vizNode = createVisualizationNode(path, data);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName,
@@ -95,10 +95,11 @@ export class BaseNodeMapper implements INodeMapper {
 
     /** Empty steps branch placeholder */
     if (branchVizNodes.length === 0) {
+      const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
       const previousNode = branchVizNodes[branchVizNodes.length - 1];
-      const placeholderNode = createVisualizationNode(path, {
+      const placeholderNode = createVisualizationNode(placeholderPath, {
         isPlaceholder: true,
-        path: `${path}.${branchVizNodes.length}.placeholder`,
+        path: placeholderPath,
       });
       branchVizNodes.push(placeholderNode);
 
