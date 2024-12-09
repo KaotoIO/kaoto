@@ -148,6 +148,54 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
   }
 
+  isDraggableNode(path?: string) {
+    if (path === 'route.from' || path === 'template.from') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  // TBD: check and correct the logic, Currently this only works for Multicast and filter
+  switchGroupSteps(options: { draggedNodePath: string; droppedNodeData: IVisualizationNodeData }) {
+    const componentPath = options.draggedNodePath.split('.');
+    const componentModel = getValue(this.entityDef, componentPath?.slice(0, -1));
+
+    const arrayPath = getArrayProperty(this.entityDef, `${options.droppedNodeData.path}.steps`);
+    arrayPath.unshift(componentModel);
+
+    /** Remove the dragged node */
+    this.removeStep(options.draggedNodePath);
+  }
+
+  switchSteps(options: { draggedNodePath: string; droppedNodePath?: string }) {
+    if (options.droppedNodePath === undefined) return;
+
+    const pathArray = options.droppedNodePath.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    const componentPath = options.draggedNodePath.split('.');
+    const componentModel = getValue(this.entityDef, componentPath?.slice(0, -1));
+
+    /** Remove the dragged node */
+    this.removeStep(options.draggedNodePath);
+
+    let stepsArray: ProcessorDefinition[];
+
+    if (options.droppedNodePath === 'route.from' || options.droppedNodePath === 'template.from') {
+      /** Add the draged node just after the from */
+      stepsArray = getValue(this.entityDef, `${options.droppedNodePath}.steps`, []);
+      stepsArray.splice(0, 0, componentModel);
+    }
+
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      /** Add the dragged node before the drop target */
+      stepsArray = getValue(this.entityDef, pathArray.slice(0, -2), []);
+      stepsArray.splice(Number(penultimate), 0, componentModel);
+    }
+  }
+
   removeStep(path?: string): void {
     if (!path) return;
     const pathArray = path.split('.');
