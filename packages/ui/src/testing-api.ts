@@ -5,6 +5,8 @@ export * from './models/camel';
 export * from './providers';
 export * from './utils';
 export * from './stubs';
+export * from './components/DataMapper/debug';
+export * from './models/datamapper';
 export type { EntitiesContextResult } from './hooks/entities';
 export * from './components/Visualization/Canvas/controller.service';
 

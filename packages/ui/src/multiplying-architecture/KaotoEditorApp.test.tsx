@@ -7,6 +7,7 @@ import {
   KogitoEditorEnvelopeContextType,
   StateControlCommand,
 } from '@kie-tools-core/editor/dist/api';
+import { ApiRequests } from '@kie-tools-core/envelope-bus/dist/api';
 import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
@@ -51,8 +52,12 @@ describe('KaotoEditorApp', () => {
           kogitoWorkspace_newEdit: getNotificationMock(),
           kogitoWorkspace_openFile: getNotificationMock(),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        requests: {} as any,
+        requests: {
+          getMetadata: jest.fn(),
+          setMetadata: jest.fn(),
+          getResourceContent: jest.fn(),
+          saveResourceContent: jest.fn(),
+        } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
       },
@@ -193,6 +198,30 @@ describe('KaotoEditorApp', () => {
     expect(envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send).toHaveBeenCalledWith(
       StateControlCommand.REDO,
     );
+  });
+
+  it('should delegate to the channelApi getting metadata from the Kaoto metadata file', async () => {
+    await kaotoEditorApp.getMetadata('path');
+
+    expect(envelopeContext.channelApi.requests.getMetadata).toHaveBeenCalledWith('path');
+  });
+
+  it('should delegate to the channelApi setting metadata from the Kaoto metadata file', async () => {
+    await kaotoEditorApp.setMetadata('key', 'value');
+
+    expect(envelopeContext.channelApi.requests.setMetadata).toHaveBeenCalledWith('key', 'value');
+  });
+
+  it('should delegate to the channelApi getting a file resource content', async () => {
+    await kaotoEditorApp.getResourceContent('path');
+
+    expect(envelopeContext.channelApi.requests.getResourceContent).toHaveBeenCalledWith('path');
+  });
+
+  it('should delegate to the channelApi saving file resource content', async () => {
+    await kaotoEditorApp.saveResourceContent('path', 'content');
+
+    expect(envelopeContext.channelApi.requests.saveResourceContent).toHaveBeenCalledWith('path', 'content');
   });
 });
 

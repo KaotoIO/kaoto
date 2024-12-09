@@ -36,6 +36,12 @@ export class KaotoEditorApp implements Editor {
     this.sendNewEdit = this.sendNewEdit.bind(this);
     this.sendNotifications = this.sendNotifications.bind(this);
     this.sendStateControlCommand = this.sendStateControlCommand.bind(this);
+    this.getMetadata = this.getMetadata.bind(this);
+    this.setMetadata = this.setMetadata.bind(this);
+    this.getResourceContent = this.getResourceContent.bind(this);
+    this.saveResourceContent = this.saveResourceContent.bind(this);
+    this.deleteResource = this.deleteResource.bind(this);
+    this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -94,6 +100,34 @@ export class KaotoEditorApp implements Editor {
     this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command);
   }
 
+  async getMetadata<T>(key: string): Promise<T | undefined> {
+    return this.envelopeContext.channelApi.requests.getMetadata(key);
+  }
+
+  async setMetadata<T>(key: string, preferences: T): Promise<void> {
+    return this.envelopeContext.channelApi.requests.setMetadata(key, preferences);
+  }
+
+  async getResourceContent(path: string): Promise<string | undefined> {
+    return this.envelopeContext.channelApi.requests.getResourceContent(path);
+  }
+
+  async saveResourceContent(path: string, content: string): Promise<void> {
+    return this.envelopeContext.channelApi.requests.saveResourceContent(path, content);
+  }
+
+  async deleteResource(path: string): Promise<boolean> {
+    return this.envelopeContext.channelApi.requests.deleteResource(path);
+  }
+
+  async askUserForFileSelection(
+    include: string,
+    exclude?: string,
+    options?: Record<string, unknown>,
+  ): Promise<string[] | string | undefined> {
+    return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
+  }
+
   af_componentRoot() {
     return (
       <SourceCodeProvider>
@@ -106,6 +140,12 @@ export class KaotoEditorApp implements Editor {
               onNewEdit={this.sendNewEdit}
               setNotifications={this.sendNotifications}
               onStateControlCommandUpdate={this.sendStateControlCommand}
+              getMetadata={this.getMetadata}
+              setMetadata={this.setMetadata}
+              getResourceContent={this.getResourceContent}
+              saveResourceContent={this.saveResourceContent}
+              deleteResource={this.deleteResource}
+              askUserForFileSelection={this.askUserForFileSelection}
             >
               <RouterProvider router={kaotoEditorRouter} />
             </KaotoBridge>
