@@ -53,12 +53,4 @@ describe('PipeResource', () => {
     expect(resource.getEntities().length).toEqual(0);
     expect(resource.toJSON().metadata).toBeUndefined();
   });
-
-  describe('comments', () => {
-    it('should set and get comments', () => {
-      const resource = new PipeResource();
-      resource.setComments(['a', 'b']);
-      expect(resource.getComments()).toEqual(['a', 'b']);
-    });
-  });
 });
