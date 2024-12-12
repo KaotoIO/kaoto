@@ -1,10 +1,10 @@
 import { kameletJson } from '../../stubs/kamelet-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
-import { createCamelResource } from './camel-resource';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { cloneDeep } from 'lodash';
+import { CamelKResourceFactory } from './camel-k-resource-factory';
+import cloneDeep from 'lodash/cloneDeep';
 
 describe('KameletResource', () => {
   it('should create a new KameletResource', () => {
@@ -78,7 +78,7 @@ describe('KameletResource', () => {
     it('should delegate to the CamelComponentFilterService', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
 
-      const resource = createCamelResource(kameletJson);
+      const resource = CamelKResourceFactory.getCamelKResource(kameletJson)!;
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
 
       expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
@@ -97,13 +97,5 @@ describe('KameletResource', () => {
     kameletResource.deleteRouteTemplateBeansEntity();
     expect(model.spec.template.beans).toBeUndefined();
     expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
-  });
-
-  describe('comments', () => {
-    it('should set and get comments', () => {
-      const resource = new KameletResource();
-      resource.setComments(['a', 'b']);
-      expect(resource.getComments()).toEqual(['a', 'b']);
-    });
   });
 });
