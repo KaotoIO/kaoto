@@ -26,7 +26,6 @@ export const CAMEL_K_K8S_API_VERSION_V1 = 'camel.apache.org/v1';
 
 export abstract class CamelKResource implements CamelResource {
   static readonly PARAMETERS_ORDER = ['apiVersion', 'kind', 'metadata', 'spec', 'source', 'steps', 'sink'];
-  // static serializer = new YamlResourceSerializer();
   readonly sortFn = createCamelPropertiesSorter(CamelKResource.PARAMETERS_ORDER) as (a: unknown, b: unknown) => number;
   protected resource: CamelKType;
   private metadata?: MetadataEntity;

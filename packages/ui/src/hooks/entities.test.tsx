@@ -64,9 +64,7 @@ describe('useEntities', () => {
     const { result } = renderHook(() => useEntities());
 
     act(() => {
-      console.log('result.current.camelResource:', result.current.camelResource);
       result.current.camelResource.addNewEntity();
-      console.log('result.current.camelResource:', result.current.camelResource);
       result.current.updateSourceCodeFromEntities();
     });
 
@@ -162,6 +160,36 @@ describe('useEntities', () => {
       'entities:updated',
       `[]
 `,
+    );
+  });
+  it(`should store code's comments`, () => {
+    const code = `# This is a comment
+      # An indented comment
+
+- route:
+    id: route-1234
+    from:
+      id: from-1234
+      uri: timer
+      parameters:
+        period: "1000"
+        timerName: template
+      # This comment won't be stored
+      steps:
+        - log:
+            id: log-1234
+            message: \${body}
+`;
+
+    const { result } = renderHook(() => useEntities());
+
+    act(() => {
+      eventNotifier.next('code:updated', code);
+    });
+
+    expect(result.current.camelResource.toString()).toContain(
+      `# This is a comment
+      # An indented comment`,
     );
   });
 });

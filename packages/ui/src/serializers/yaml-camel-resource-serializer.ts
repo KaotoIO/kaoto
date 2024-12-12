@@ -1,6 +1,7 @@
 import { CamelResource } from '../models/camel';
 import { parse, stringify } from 'yaml';
 import { CamelResourceSerializer } from './camel-resource-serializer';
+import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   /**
@@ -13,7 +14,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
    * ```
    * The regular expression should match the first three lines
    */
-  COMMENTED_LINES_REGEXP = /^\s*#.*$/;
+  static readonly COMMENTED_LINES_REGEXP = /^\s*#.*$/;
   comments: string[] = [];
 
   static isApplicable(_code: unknown): boolean {
@@ -23,7 +24,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     return true;
   }
 
-  parse(code: string): unknown {
+  parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
     if (!code || typeof code !== 'string') return [];
 
     this.comments = this.parseComments(code);
@@ -40,11 +41,19 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     return code;
   }
 
+  getComments(): string[] {
+    return this.comments;
+  }
+
+  setComments(comments: string[]): void {
+    this.comments = comments;
+  }
+
   private parseComments(code: string): string[] {
     const lines = code.split('\n');
     const comments: string[] = [];
     for (const line of lines) {
-      if (line.trim() === '' || this.COMMENTED_LINES_REGEXP.test(line)) {
+      if (line.trim() === '' || YamlCamelResourceSerializer.COMMENTED_LINES_REGEXP.test(line)) {
         comments.push(line);
       } else {
         break;
