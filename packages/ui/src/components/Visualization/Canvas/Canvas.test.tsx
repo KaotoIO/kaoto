@@ -77,7 +77,7 @@ describe('Canvas', () => {
   });
 
   it('should be able to delete the routes', async () => {
-    const camelResource = new CamelRouteResource(camelRouteJson);
+    const camelResource = new CamelRouteResource([camelRouteJson]);
     const routeEntities = camelResource.getVisualEntities();
     const removeSpy = jest.spyOn(camelResource, 'removeEntity');
 

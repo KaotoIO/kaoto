@@ -1,6 +1,7 @@
 import { YamlCamelResourceSerializer } from './yaml-camel-resource-serializer';
 import { camelRouteJson, camelRouteYaml } from '../stubs';
 import { CamelRouteResource } from '../models/camel';
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 
 describe('YamlCamelResourceSerializer', () => {
   let serializer: YamlCamelResourceSerializer;
@@ -22,11 +23,19 @@ describe('YamlCamelResourceSerializer', () => {
 
   it('includes comments in serialized YAML string', () => {
     const entities = serializer.parse('# comment1\n' + camelRouteYaml);
-    console.log(serializer.comments);
     expect(serializer.comments.includes('# comment1')).toBeTruthy();
 
     serializer.comments.push('# Comment2');
-    const result = serializer.serialize(new CamelRouteResource(entities));
+    const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
     expect(result).toContain('# Comment2');
+  });
+
+  it('includes comments in  YAML string', () => {
+    const entities = serializer.parse('# comment1\n' + camelRouteYaml);
+    expect(serializer.comments.includes('# comment1')).toBeTruthy();
+
+    serializer.comments.push('# Comment2');
+    const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
+    expect(result).toMatchSnapshot();
   });
 });

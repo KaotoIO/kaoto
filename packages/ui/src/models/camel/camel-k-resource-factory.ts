@@ -12,7 +12,10 @@ import {
 } from '@kaoto/camel-catalog/types';
 
 export class CamelKResourceFactory {
-  static getCamelKResource(json?: unknown, type?: SourceSchemaType): CamelResource | undefined {
+  static getCamelKResource(
+    json?: IntegrationType | IKameletDefinition | KameletBindingType | PipeType,
+    type?: SourceSchemaType,
+  ): CamelResource | undefined {
     const jsonRecord = json ? (json as Record<string, unknown>) : {};
 
     if ((jsonRecord && typeof json === 'object' && 'kind' in jsonRecord) || type) {

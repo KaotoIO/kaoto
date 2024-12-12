@@ -3,6 +3,8 @@ import { CamelResource } from './camel-resource';
 import { CamelResourceSerializer, XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { CamelRouteResource } from './camel-route-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
+import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
+import { IKameletDefinition } from '../kamelets-catalog';
 
 export class CamelResourceFactory {
   /**
@@ -18,10 +20,13 @@ export class CamelResourceFactory {
       ? new XmlCamelResourceSerializer()
       : new YamlCamelResourceSerializer();
 
-    const parsedCode = source ? serializer.parse(source) : source;
-    const resource = CamelKResourceFactory.getCamelKResource(parsedCode, type);
+    const parsedCode = typeof source === 'string' ? serializer.parse(source) : source;
+    const resource = CamelKResourceFactory.getCamelKResource(
+      parsedCode as Integration | KameletBinding | Pipe | IKameletDefinition,
+      type,
+    );
 
     if (resource) return resource;
-    return new CamelRouteResource(parsedCode, serializer);
+    return new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
   }
 }

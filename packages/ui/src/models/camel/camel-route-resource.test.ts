@@ -10,10 +10,11 @@ import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 import { CamelResourceFactory } from './camel-resource-factory';
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
+    const resource = new CamelRouteResource([camelRouteJson]);
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getVisualEntities().length).toEqual(1);
     expect(resource.getEntities().length).toEqual(0);
@@ -27,18 +28,29 @@ describe('CamelRouteResource', () => {
   });
 
   describe('constructor', () => {
-    it.each([
-      [camelRouteJson, CamelRouteVisualEntity],
-      [camelFromJson, CamelRouteVisualEntity],
-      [{ from: { uri: 'direct:foo', steps: [] } }, CamelRouteVisualEntity],
-      [{ from: 'direct:foo' }, NonVisualEntity],
-      [{ from: { uri: 'direct:foo' } }, CamelRouteVisualEntity],
-      [{ beans: [] }, BeansEntity],
-      [{}, NonVisualEntity],
-      [undefined, undefined],
-      [null, undefined],
+    const testCases: [CamelYamlDsl, unknown][] = [
+      // Good cases
+      [[camelRouteJson], CamelRouteVisualEntity],
+      [[camelFromJson], CamelRouteVisualEntity],
+      [[{ from: { uri: 'direct:foo', steps: [] } }], CamelRouteVisualEntity],
+      [[{ from: { uri: 'direct:foo' } }] as CamelYamlDsl, CamelRouteVisualEntity],
+      [[{ beans: [] }], BeansEntity],
       [[], undefined],
-    ])('should return the appropriate entity for: %s', (json, expected) => {
+
+      // Temporary good cases
+      [camelRouteJson as unknown as CamelYamlDsl, CamelRouteVisualEntity],
+      [camelFromJson as unknown as CamelYamlDsl, CamelRouteVisualEntity],
+      [{ from: { uri: 'direct:foo', steps: [] } } as unknown as CamelYamlDsl, CamelRouteVisualEntity],
+      [{ from: { uri: 'direct:foo' } } as unknown as CamelYamlDsl, CamelRouteVisualEntity],
+      [{ beans: [] } as unknown as CamelYamlDsl, BeansEntity],
+
+      // Bad cases
+      [{ from: 'direct:foo' } as unknown as CamelYamlDsl, NonVisualEntity],
+      [{} as CamelYamlDsl, NonVisualEntity],
+      [undefined as unknown as CamelYamlDsl, undefined],
+      [null as unknown as CamelYamlDsl, undefined],
+    ];
+    it.each(testCases)('should return the appropriate entity for: %s', (json, expected) => {
       const resource = new CamelRouteResource(json);
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
 
@@ -98,14 +110,14 @@ describe('CamelRouteResource', () => {
   });
 
   it('should return visual entities', () => {
-    const resource = new CamelRouteResource(camelRouteJson);
+    const resource = new CamelRouteResource([camelRouteJson]);
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CamelRouteVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
   });
 
   it('should return entities', () => {
-    const resource = new CamelRouteResource(beansJson);
+    const resource = new CamelRouteResource([beansJson]);
     expect(resource.getEntities()).toHaveLength(1);
     expect(resource.getEntities()[0]).toBeInstanceOf(BeansEntity);
     expect(resource.getVisualEntities()).toHaveLength(0);
@@ -113,7 +125,7 @@ describe('CamelRouteResource', () => {
 
   describe('toJSON', () => {
     it('should return JSON', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource([camelRouteJson]);
       expect(resource.toJSON()).toMatchSnapshot();
     });
 
@@ -141,7 +153,7 @@ describe('CamelRouteResource', () => {
 
   describe('removeEntity', () => {
     it('should not do anything if the ID is not provided', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource([camelRouteJson]);
 
       resource.removeEntity();
 
@@ -149,7 +161,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should not do anything when providing a non existing ID', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource([camelRouteJson]);
 
       resource.removeEntity('non-existing-id');
 
@@ -166,7 +178,7 @@ describe('CamelRouteResource', () => {
     });
 
     it('should NOT create a new entity after deleting them all', () => {
-      const resource = new CamelRouteResource(camelRouteJson);
+      const resource = new CamelRouteResource([camelRouteJson]);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity(camelRouteEntity.id);
@@ -187,28 +199,29 @@ describe('CamelRouteResource', () => {
   });
 
   describe('toJson', () => {
-    it.each([
-      [camelRouteJson],
-      [camelFromJson],
-      [{ from: { uri: 'direct:foo', steps: [] } }],
-      [{ from: 'direct:foo' }],
-      [{ from: { uri: 'direct:foo' } }],
-      [{ beans: [] }],
-      [{ errorHandler: [] }],
-      [{ intercept: {} }],
-      [{ interceptFrom: {} }],
-      [{ interceptSendToEndpoint: {} }],
-      [{ onCompletion: {} }],
-      [{ onException: {} }],
-      [{ rest: {} }],
-      [{ restConfiguration: {} }],
-      [{ route: {} }],
-      [{ routeConfiguration: {} }],
-      [{ routeTemplate: {} }],
-      [{ templatedRoute: {} }],
-      [{ anotherUnknownContent: {} }],
-      [{}],
-    ])('should not throw error when calling: %s', (json) => {
+    const testCases: [CamelYamlDsl][] = [
+      [[camelRouteJson]],
+      [[camelFromJson]],
+      [[{ from: { uri: 'direct:foo', steps: [] } }]],
+      [{ from: 'direct:foo' } as unknown as CamelYamlDsl],
+      [{ from: { uri: 'direct:foo' } } as unknown as CamelYamlDsl],
+      [[{ beans: [] }]],
+      [[{ errorHandler: {} }]],
+      [[{ intercept: {} }]],
+      [[{ interceptFrom: {} }]],
+      [{ interceptSendToEndpoint: {} } as unknown as CamelYamlDsl],
+      [{ onCompletion: {} } as unknown as CamelYamlDsl],
+      [{ onException: {} } as unknown as CamelYamlDsl],
+      [{ rest: {} } as unknown as CamelYamlDsl],
+      [[{ restConfiguration: {} }]],
+      [{ route: {} } as unknown as CamelYamlDsl],
+      [[{ routeConfiguration: {} }]],
+      [[{ routeTemplate: {} }] as unknown as CamelYamlDsl],
+      [{ templatedRoute: {} } as unknown as CamelYamlDsl],
+      [{ anotherUnknownContent: {} } as unknown as CamelYamlDsl],
+      [{} as CamelYamlDsl],
+    ];
+    it.each(testCases)('should not throw error when calling: %s', (json) => {
       const resource = new CamelRouteResource(json);
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
       expect(firstEntity.toJSON()).not.toBeUndefined();
