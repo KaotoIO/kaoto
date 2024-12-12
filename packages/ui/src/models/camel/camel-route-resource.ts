@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
@@ -50,11 +50,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
   private serializer: CamelResourceSerializer;
 
-  constructor(code?: unknown, serializer?: CamelResourceSerializer) {
+  constructor(rawEntities?: CamelYamlDsl, serializer?: CamelResourceSerializer) {
     this.serializer = serializer ?? new YamlCamelResourceSerializer();
-    if (!code) return;
+    if (!rawEntities) return;
 
-    const entities = Array.isArray(code) ? code : [code];
+    const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
     this.entities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {
@@ -96,7 +96,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   getSerializer(): CamelResourceSerializer {
     return this.serializer;
   }
+
   setSerializer(serializer: CamelResourceSerializer): void {
+    // Preserve comments
+    serializer.setComments(this.serializer.getComments());
     this.serializer = serializer;
   }
 
