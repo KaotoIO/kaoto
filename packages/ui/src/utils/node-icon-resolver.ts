@@ -191,6 +191,7 @@ import icon_component_opensearch from '../assets/components/opensearch.svg';
 import icon_component_openshift from '../assets/components/openshift.svg';
 import icon_component_openstack from '../assets/components/openstack.svg';
 import icon_component_pinecone from '../assets/components/pinecone.svg';
+import icon_component_platformhttp from '../assets/components/platformhttp.png';
 import icon_component_policy from '../assets/components/policy.png';
 import icon_component_printer from '../assets/components/printer.svg';
 import icon_component_pulsar from '../assets/components/pulsar.svg';
@@ -707,6 +708,7 @@ export class NodeIconResolver {
       case 'pinecone':
         return icon_component_pinecone;
       case 'platform-http':
+        return icon_component_platformhttp;
       case 'plc4x':
         return icon_component_generic;
       case 'pop3':
