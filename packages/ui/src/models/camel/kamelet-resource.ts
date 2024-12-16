@@ -1,5 +1,5 @@
-import { set } from 'lodash';
 import { TileFilter } from '../../components/Catalog/Catalog.models';
+import { setValue } from '../../utils';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
@@ -61,9 +61,9 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
      * and this way the kamelet definition is updated when the user interacts with
      * the CamelRouteVisualEntity.
      */
-    set(this.resource, 'metadata.name', this.flow.getId());
-    set(this.resource, 'spec.template.from', this.flow.entityDef.template.from);
-    set(this.resource, 'spec.template.beans', this.beans?.parent.beans);
+    setValue(this.resource, 'metadata.name', this.flow.getId());
+    setValue(this.resource, 'spec.template.from', this.flow.entityDef.template.from);
+    setValue(this.resource, 'spec.template.beans', this.beans?.parent.beans);
     return this.resource as IKameletDefinition;
   }
 

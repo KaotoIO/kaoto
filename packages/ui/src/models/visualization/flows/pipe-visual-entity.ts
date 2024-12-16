@@ -1,5 +1,4 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
-import { set } from 'lodash';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import {
@@ -152,12 +151,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
     /** Replace an existing Kamelet */
     if (options.mode === AddStepMode.ReplaceStep) {
-      if (path === 'source' || path === 'sink') {
-        set(this.pipe.spec!, path, step);
-      } else {
-        set(this.pipe.spec!, path, step);
-      }
-
+      setValue(this.pipe.spec, path, step);
       return;
     }
 
@@ -180,7 +174,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
      * If the path is `source` or `sink`, we can remove it directly
      */
     if (path === 'source' || path === 'sink') {
-      set(this.pipe.spec!, path, {});
+      setValue(this.pipe.spec, path, {});
       return;
     }
     const pathArray = path.split('.');

@@ -1,7 +1,6 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { getValue } from './get-value';
 import { setValue } from './set-value';
-import { set } from 'lodash';
 
 export const getCustomSchemaFromPipe = (pipe: Pipe) => {
   const name: string = getValue(pipe, 'metadata.name', '');
@@ -19,11 +18,11 @@ export const getCustomSchemaFromPipe = (pipe: Pipe) => {
 
 export const updatePipeFromCustomSchema = (pipe: Pipe, value: Record<string, unknown>): void => {
   // Ensure 'labels' and 'annotations' are defined in 'value'
-  if (getValue(value, 'labels') === undefined) {
-    set(value, 'labels', {});
+  if (value && getValue(value, 'labels') === undefined) {
+    value.labels = {};
   }
-  if (getValue(value, 'annotations') === undefined) {
-    set(value, 'annotations', {});
+  if (value && getValue(value, 'annotations') === undefined) {
+    value.annotations = {};
   }
   const previousName: string = getValue(pipe, 'metadata.name');
   const newName: string = getValue(value, 'name');
