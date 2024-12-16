@@ -15,6 +15,9 @@ describe('LocalStorageSettingsAdapter', () => {
       catalogUrl: 'http://example.com',
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+      experimentalFeatures: {
+        enableDragAndDrop: true,
+      },
     };
 
     adapter.saveSettings(newSettings);
@@ -38,6 +41,9 @@ describe('LocalStorageSettingsAdapter', () => {
       catalogUrl: 'http://example.com',
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+      experimentalFeatures: {
+        enableDragAndDrop: true,
+      },
     };
 
     adapter.saveSettings(newSettings);

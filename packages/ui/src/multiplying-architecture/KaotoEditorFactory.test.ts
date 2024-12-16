@@ -16,6 +16,9 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      experimentalFeatures: {
+        enableDragAndDrop: false,
+      },
     };
 
     const envelopeContext = {
@@ -41,6 +44,9 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      experimentalFeatures: {
+        enableDragAndDrop: false,
+      },
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
@@ -91,11 +97,17 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: '',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      experimentalFeatures: {
+        enableDragAndDrop: false,
+      },
     };
     const expectedSettings: ISettingsModel = {
       catalogUrl: 'path-prefix/camel-catalog/index.json',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      experimentalFeatures: {
+        enableDragAndDrop: false,
+      },
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);

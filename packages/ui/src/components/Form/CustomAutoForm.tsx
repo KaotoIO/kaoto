@@ -4,6 +4,7 @@ import { useSchemaBridgeContext } from '../../hooks';
 import { IDataTestID } from '../../models';
 import { CustomAutoFieldDetector } from './CustomAutoField';
 import { CustomAutoFields } from './CustomAutoFields';
+import './CustomAutoForm.scss';
 
 interface CustomAutoFormProps extends IDataTestID {
   model: unknown;
