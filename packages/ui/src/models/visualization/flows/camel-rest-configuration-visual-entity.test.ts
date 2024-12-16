@@ -206,7 +206,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
       const vizNode = entity.toVizNode();
 
-      expect(vizNode.getTitle()).toEqual('Rest Configuration');
+      expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
     });
   });
 

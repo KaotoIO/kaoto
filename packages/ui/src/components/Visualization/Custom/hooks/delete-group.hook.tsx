@@ -24,7 +24,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode) => {
     const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
     /** Open delete confirm modal, get the confirmation  */
     const modalAnswer = await deleteModalContext?.actionConfirmation({
-      title: "Do you want to delete the '" + vizNode.getId() + "' " + vizNode.getTitle() + '?',
+      title: "Do you want to delete the '" + vizNode.getId() + "' " + vizNode.getNodeTitle() + '?',
       text: 'All steps will be lost.',
       additionalModalText,
       buttonOptions,

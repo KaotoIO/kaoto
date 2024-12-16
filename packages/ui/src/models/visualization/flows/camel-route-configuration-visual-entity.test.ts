@@ -215,7 +215,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
       const vizNode = entity.toVizNode();
 
-      expect(vizNode.getTitle()).toEqual('Route Configuration');
+      expect(vizNode.getNodeTitle()).toEqual('Route Configuration');
     });
   });
 

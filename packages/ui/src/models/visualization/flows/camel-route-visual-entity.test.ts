@@ -2,7 +2,6 @@ import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types
 import { cloneDeep } from 'lodash';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
-import { ROOT_PATH } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
@@ -197,7 +196,7 @@ describe('Camel Route', () => {
   });
 
   describe('toVizNode', () => {
-    it(`should return the group viz node and set the initial path to '${ROOT_PATH}'`, () => {
+    it(`should return the group viz node and set the initial path to '${CamelRouteVisualEntity.ROOT_PATH}'`, () => {
       const vizNode = camelEntity.toVizNode();
 
       expect(vizNode).toBeDefined();

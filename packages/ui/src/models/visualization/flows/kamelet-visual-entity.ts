@@ -6,11 +6,11 @@ import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { AddStepMode, IVisualizationNode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
+import { NodeLabelType } from '../../settings';
+import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
-import { NodeLabelType } from '../../settings';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
   id: string;
@@ -51,6 +51,14 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     }
 
     return super.getNodeLabel(path, labelType);
+  }
+
+  getNodeTitle(path?: string): string {
+    if (path === this.getRootPath()) {
+      return 'Kamelet';
+    }
+
+    return super.getNodeTitle(path);
   }
 
   toJSON(): { from: FromDefinition } {
@@ -112,13 +120,6 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     }
 
     super.removeStep(path);
-  }
-
-  toVizNode(): IVisualizationNode {
-    const vizNode = super.toVizNode();
-    vizNode.setTitle('Kamelet');
-
-    return vizNode;
   }
 
   protected getRootUri(): string | undefined {

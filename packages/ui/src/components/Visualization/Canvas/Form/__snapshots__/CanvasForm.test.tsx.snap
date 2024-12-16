@@ -32,7 +32,7 @@ exports[`CanvasForm should render 1`] = `
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
             >
-              log
+              Logger
             </h2>
           </div>
           <div
@@ -305,7 +305,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
             >
-              route
+              Route
             </h2>
           </div>
           <div
@@ -561,7 +561,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
               data-ouia-component-type="PF5/Title"
               data-ouia-safe="true"
             >
-              route
+              Route
             </h2>
           </div>
           <div

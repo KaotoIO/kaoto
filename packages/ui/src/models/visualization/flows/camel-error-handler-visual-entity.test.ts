@@ -174,7 +174,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
     const vizNode = entity.toVizNode();
 
-    expect(vizNode.getTitle()).toEqual('Error Handler');
+    expect(vizNode.getNodeTitle()).toEqual('Error Handler');
   });
 
   it('should serialize the errorHandler definition', () => {

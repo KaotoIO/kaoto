@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { getArrayProperty, getValue, setValue } from '../../../utils';
+import { camelCaseToSpaces, getArrayProperty, getValue, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -54,6 +54,21 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     );
 
     return label;
+  }
+
+  getNodeTitle(path?: string): string {
+    if (!path) return '';
+    if (path === this.getRootPath()) {
+      return camelCaseToSpaces(this.getRootPath(), { capitalize: true });
+    }
+
+    const componentModel = getValue(this.entityDef, path);
+
+    const title = CamelComponentSchemaService.getNodeTitle(
+      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
+    );
+
+    return title;
   }
 
   getTooltipContent(path?: string): string {

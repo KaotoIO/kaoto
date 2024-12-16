@@ -438,6 +438,23 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
+  describe('getNodeTitle', () => {
+    const specs: [ICamelElementLookupResult, string][] = [
+      [{ processorName: 'route' } as unknown as ICamelElementLookupResult, 'Route'],
+      [{ processorName: 'from' } as unknown as ICamelElementLookupResult, 'From'],
+      [{ processorName: 'tokenizer' }, 'Specialized tokenizer for AI applications'],
+      [{ processorName: 'to', componentName: 'timer' }, 'Timer'],
+      [{ processorName: 'to', componentName: 'kamelet:chuck-norris-source' }, 'Chuck Norris Source'],
+      [{ processorName: 'to', componentName: 'kamelet:chuck-norris' }, 'Kamelet'],
+    ];
+
+    it.each(specs)(`should return the %s title`, (camelElementLookup, expected) => {
+      const result = CamelComponentSchemaService.getNodeTitle(camelElementLookup);
+
+      expect(result).toEqual(expected);
+    });
+  });
+
   describe('getTooltipContent', () => {
     it('should return the component schema description', () => {
       const camelElementLookup = { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' };

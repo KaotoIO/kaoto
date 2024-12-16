@@ -36,7 +36,7 @@ const mockNode: CanvasNode = {
   type: 'node',
   data: {
     vizNode: {
-      getTitle: () => 'My Node',
+      getNodeTitle: () => 'My Node',
       getComponentSchema: () => visualComponentSchema,
       updateModel: (_value: unknown) => {},
     } as IVisualizationNode,

@@ -78,6 +78,10 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return errorHandlerId;
   }
 
+  getNodeTitle(): string {
+    return 'Error Handler';
+  }
+
   getTooltipContent(): string {
     return 'errorHandler';
   }
@@ -139,7 +143,6 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     errorHandlerGroupNode.data.entity = this;
     errorHandlerGroupNode.data.isGroup = true;
     errorHandlerGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
-    errorHandlerGroupNode.setTitle('Error Handler');
 
     return errorHandlerGroupNode;
   }

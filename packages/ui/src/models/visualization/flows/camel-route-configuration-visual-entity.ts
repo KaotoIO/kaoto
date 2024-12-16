@@ -150,7 +150,6 @@ export class CamelRouteConfigurationVisualEntity
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
       processorName: this.getRootPath(),
     });
-    routeConfigurationGroupNode.setTitle('Route Configuration');
 
     CamelComponentSchemaService.getProcessorStepsProperties(this.getRootPath() as keyof ProcessorDefinition).forEach(
       (stepsProperty) => {

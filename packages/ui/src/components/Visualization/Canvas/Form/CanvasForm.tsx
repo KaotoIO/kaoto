@@ -18,7 +18,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ selectedNode, o
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const flowIdRef = useRef<string | undefined>(undefined);
   const vizNode = selectedNode.data?.vizNode;
-  const title = vizNode?.getTitle();
+  const title = vizNode?.getNodeTitle();
 
   /** Store the flow's initial Id */
   useEffect(() => {

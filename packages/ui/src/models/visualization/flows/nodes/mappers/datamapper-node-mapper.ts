@@ -21,10 +21,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
       isGroup: false,
     };
 
-    const vizNode = createVisualizationNode(processorName, data);
-    vizNode.setTitle('Kaoto data mapper');
-
-    return vizNode;
+    return createVisualizationNode(processorName, data);
   }
 
   static isDataMapperNode(stepDefinition: Step): boolean {
