@@ -8,7 +8,6 @@ import {
   isDataMapperNode,
   isDefined,
 } from '../../../../utils';
-import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
@@ -115,14 +114,31 @@ export class CamelComponentSchemaService {
     }
   }
 
+  static getNodeTitle(camelElementLookup: ICamelElementLookupResult): string {
+    if (camelElementLookup.componentName !== undefined) {
+      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+      if (catalogLookup.catalogKind === CatalogKind.Component) {
+        return catalogLookup.definition?.component.title ?? camelElementLookup.componentName;
+      }
+
+      if (catalogLookup.catalogKind === CatalogKind.Kamelet) {
+        return (
+          (catalogLookup.definition as unknown as IKameletDefinition)?.spec.definition.title ??
+          camelElementLookup.componentName
+        );
+      }
+    }
+
+    const catalogLookup = CamelCatalogService.getComponent(CatalogKind.Processor, camelElementLookup.processorName);
+
+    return catalogLookup?.model.title ?? camelElementLookup.processorName;
+  }
+
   static getTooltipContent(camelElementLookup: ICamelElementLookupResult): string {
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
       if (catalogLookup.catalogKind === CatalogKind.Component) {
-        return (
-          (catalogLookup.definition as unknown as ICamelComponentDefinition)?.component.description ??
-          camelElementLookup.componentName
-        );
+        return catalogLookup.definition?.component.description ?? camelElementLookup.componentName;
       }
 
       if (catalogLookup.catalogKind === CatalogKind.Kamelet) {

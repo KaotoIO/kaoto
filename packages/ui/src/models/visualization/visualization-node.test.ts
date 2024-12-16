@@ -21,7 +21,7 @@ describe('VisualizationNode', () => {
   });
 
   it('should create a node and set the ID as the title', () => {
-    expect(node.getTitle()).toEqual('test');
+    expect(node.getNodeTitle()).toEqual('test-1234');
   });
 
   it('should return the base entity ID', () => {

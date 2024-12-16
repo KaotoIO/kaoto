@@ -1,3 +1,4 @@
+export * from './camel-case-to-space';
 export * from './camel-uri-helper';
 export * from './catalog-schema-loader';
 export * from './create-camel-properties-sorter';

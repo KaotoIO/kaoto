@@ -165,7 +165,7 @@ describe('Pipe', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
-      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
     });
 
     it('should use the uri as the node label', () => {
@@ -177,19 +177,19 @@ describe('Pipe', () => {
     it('should set the title to `Pipe`', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
-      expect(vizNode.getTitle()).toEqual('Pipe');
+      expect(vizNode.getNodeTitle()).toEqual('Pipe');
     });
 
-    it('should set the title to children nodes', () => {
+    it('should get the titles from children nodes', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = vizNode.getChildren()![1];
       const sinkNode = vizNode.getChildren()![2];
 
-      expect(sourceNode.getTitle()).toEqual('webhook-source');
-      expect(stepNode.getTitle()).toEqual('delay-action');
-      expect(sinkNode.getTitle()).toEqual('log-sink');
+      expect(sourceNode.getNodeTitle()).toEqual('Webhook Source');
+      expect(stepNode.getNodeTitle()).toEqual('Delay Action');
+      expect(sinkNode.getNodeTitle()).toEqual('Log Sink');
     });
 
     it('should set the node labels when the uri is not available', () => {
@@ -205,7 +205,7 @@ describe('Pipe', () => {
     it('should populate the viz node chain with the steps', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
-      expect(vizNode.data.path).toEqual('#');
+      expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();

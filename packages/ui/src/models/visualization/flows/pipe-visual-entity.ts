@@ -1,12 +1,11 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
-import { get, set } from 'lodash';
+import { set } from 'lodash';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
 import {
   getArrayProperty,
   NodeIconResolver,
   NodeIconType,
-  ROOT_PATH,
   getCustomSchemaFromPipe,
   updatePipeFromCustomSchema,
   setValue,
@@ -33,6 +32,7 @@ import { CatalogKind } from '../../catalog-kind';
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
   readonly type: EntityType = EntityType.Pipe;
+  static readonly ROOT_PATH = 'pipe';
 
   constructor(public pipe: Pipe) {
     this.id = (pipe.metadata?.name as string) ?? getCamelRandomId('pipe');
@@ -47,7 +47,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   getRootPath(): string {
-    return ROOT_PATH;
+    return PipeVisualEntity.ROOT_PATH;
   }
 
   /** Internal API methods */
@@ -67,14 +67,25 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       return this.id;
     }
 
-    const stepModel = get(this.pipe.spec, path) as PipeStep;
+    const stepModel: PipeStep = getValue(this.pipe.spec, path);
     return KameletSchemaService.getNodeLabel(stepModel, path);
+  }
+
+  getNodeTitle(path?: string): string {
+    if (!path) return '';
+
+    if (path === this.getRootPath()) {
+      return 'Pipe';
+    }
+
+    const stepModel: PipeStep = getValue(this.pipe.spec, path);
+    return KameletSchemaService.getNodeTitle(stepModel);
   }
 
   getTooltipContent(path?: string): string {
     if (!path) return '';
 
-    const stepModel = get(this.pipe.spec, path) as PipeStep;
+    const stepModel: PipeStep = getValue(this.pipe.spec, path);
     return KameletSchemaService.getTooltipContent(stepModel, path);
   }
 
@@ -87,7 +98,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       };
     }
 
-    const stepModel = get(this.pipe.spec, path) as PipeStep;
+    const stepModel: PipeStep = getValue(this.pipe.spec, path);
     return KameletSchemaService.getVisualComponentSchema(stepModel);
   }
 
@@ -181,7 +192,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
      * f.i. from.steps.1.choice.when.0
      * last: 0
      */
-    const array = get(this.pipe.spec, pathArray.slice(0, -1), []);
+    const array = getArrayProperty(this.pipe.spec!, pathArray.slice(0, -1).join('.'));
     if (Number.isInteger(Number(last)) && Array.isArray(array)) {
       array.splice(Number(last), 1);
     }
@@ -221,7 +232,6 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     const stepNodes = this.getVizNodesFromSteps(this.pipe.spec!.steps);
     const sinkNode = this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
 
-    pipeGroupNode.setTitle('Pipe');
     pipeGroupNode.addChild(sourceNode);
     stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
     pipeGroupNode.addChild(sinkNode);
@@ -264,10 +274,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       icon,
     };
 
-    const vizNode = createVisualizationNode(step?.ref?.name ?? path, data);
-    vizNode.setTitle(kameletDefinition?.metadata.name ?? '');
-
-    return vizNode;
+    return createVisualizationNode(step?.ref?.name ?? path, data);
   }
 
   private getVizNodesFromSteps(steps: PipeStep[] = []): IVisualizationNode[] {

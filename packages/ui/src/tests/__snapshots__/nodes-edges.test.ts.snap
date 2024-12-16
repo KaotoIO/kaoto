@@ -70,7 +70,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "setHeader",
                 },
               ],
               "data": {
@@ -83,7 +82,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "when",
             },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -119,7 +117,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "log",
                 },
               ],
               "data": {
@@ -132,7 +129,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "otherwise",
             },
           ],
           "data": {
@@ -246,10 +242,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": [Circular],
-            "title": "sql",
           },
           "parentNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -287,7 +281,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
             ],
             "data": {
@@ -358,10 +351,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": [Circular],
-          "title": "choice",
         },
         "parentNode": VisualizationNode {
           "DISABLED_NODE_INTERACTION": {
@@ -422,7 +413,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "setHeader",
                     },
                   ],
                   "data": {
@@ -435,7 +425,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "when",
                 },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -471,7 +460,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "log",
                     },
                   ],
                   "data": {
@@ -484,7 +472,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "otherwise",
                 },
               ],
               "data": {
@@ -516,11 +503,9 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
               "parentNode": [Circular],
               "previousNode": [Circular],
-              "title": "choice",
             },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -589,7 +574,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "nextNode": undefined,
                         "parentNode": [Circular],
                         "previousNode": undefined,
-                        "title": "setHeader",
                       },
                     ],
                     "data": {
@@ -602,7 +586,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "when",
                   },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
@@ -638,7 +621,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "nextNode": undefined,
                         "parentNode": [Circular],
                         "previousNode": undefined,
-                        "title": "log",
                       },
                     ],
                     "data": {
@@ -651,7 +633,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "otherwise",
                   },
                 ],
                 "data": {
@@ -664,9 +645,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "choice",
               },
-              "title": "sql",
             },
           ],
           "data": {
@@ -737,10 +716,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "nextNode": undefined,
           "parentNode": undefined,
           "previousNode": undefined,
-          "title": "route",
         },
         "previousNode": undefined,
-        "title": "timer",
       },
     },
     "height": 75,
@@ -841,7 +818,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "log",
                   },
                 ],
                 "data": {
@@ -854,7 +830,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "otherwise",
               },
             ],
             "data": {
@@ -919,7 +894,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": [Circular],
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "timer",
                   },
                   [Circular],
                   [Circular],
@@ -992,10 +966,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": undefined,
                 "previousNode": undefined,
-                "title": "route",
               },
               "previousNode": [Circular],
-              "title": "sql",
             },
             "parentNode": VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -1032,7 +1004,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": [Circular],
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "timer",
                 },
                 [Circular],
                 VisualizationNode {
@@ -1057,7 +1028,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": [Circular],
-                  "title": "sql",
                 },
               ],
               "data": {
@@ -1128,7 +1098,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -1187,7 +1156,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": [Circular],
-                    "title": "sql",
                   },
                 ],
                 "data": {
@@ -1258,18 +1226,13 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": undefined,
                 "previousNode": undefined,
-                "title": "route",
               },
               "previousNode": undefined,
-              "title": "timer",
             },
-            "title": "choice",
           },
           "previousNode": undefined,
-          "title": "when",
         },
         "previousNode": undefined,
-        "title": "setHeader",
       },
     },
     "height": 75,
@@ -1318,7 +1281,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": [Circular],
             "previousNode": undefined,
-            "title": "setHeader",
           },
         ],
         "data": {
@@ -1376,7 +1338,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "log",
                 },
               ],
               "data": {
@@ -1389,7 +1350,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "otherwise",
             },
           ],
           "data": {
@@ -1454,7 +1414,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": [Circular],
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "timer",
                 },
                 [Circular],
                 [Circular],
@@ -1527,10 +1486,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": [Circular],
-            "title": "sql",
           },
           "parentNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -1567,7 +1524,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
               [Circular],
               VisualizationNode {
@@ -1592,7 +1548,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
             ],
             "data": {
@@ -1663,7 +1618,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -1722,7 +1676,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": [Circular],
-                  "title": "sql",
                 },
               ],
               "data": {
@@ -1793,15 +1746,11 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": undefined,
-            "title": "timer",
           },
-          "title": "choice",
         },
         "previousNode": undefined,
-        "title": "when",
       },
     },
     "group": true,
@@ -1903,7 +1852,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "setHeader",
                   },
                 ],
                 "data": {
@@ -1916,7 +1864,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "when",
               },
               [Circular],
             ],
@@ -1982,7 +1929,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": [Circular],
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "timer",
                   },
                   [Circular],
                   [Circular],
@@ -2055,10 +2001,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": undefined,
                 "previousNode": undefined,
-                "title": "route",
               },
               "previousNode": [Circular],
-              "title": "sql",
             },
             "parentNode": VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -2095,7 +2039,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": [Circular],
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "timer",
                 },
                 [Circular],
                 VisualizationNode {
@@ -2120,7 +2063,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": [Circular],
-                  "title": "sql",
                 },
               ],
               "data": {
@@ -2191,7 +2133,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -2250,7 +2191,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": [Circular],
-                    "title": "sql",
                   },
                 ],
                 "data": {
@@ -2321,18 +2261,13 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": undefined,
                 "previousNode": undefined,
-                "title": "route",
               },
               "previousNode": undefined,
-              "title": "timer",
             },
-            "title": "choice",
           },
           "previousNode": undefined,
-          "title": "otherwise",
         },
         "previousNode": undefined,
-        "title": "log",
       },
     },
     "height": 75,
@@ -2381,7 +2316,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": [Circular],
             "previousNode": undefined,
-            "title": "log",
           },
         ],
         "data": {
@@ -2438,7 +2372,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "setHeader",
                 },
               ],
               "data": {
@@ -2451,7 +2384,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "when",
             },
             [Circular],
           ],
@@ -2517,7 +2449,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": [Circular],
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "timer",
                 },
                 [Circular],
                 [Circular],
@@ -2590,10 +2521,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": [Circular],
-            "title": "sql",
           },
           "parentNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -2630,7 +2559,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
               [Circular],
               VisualizationNode {
@@ -2655,7 +2583,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
             ],
             "data": {
@@ -2726,7 +2653,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -2785,7 +2711,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": [Circular],
-                  "title": "sql",
                 },
               ],
               "data": {
@@ -2856,15 +2781,11 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": undefined,
-            "title": "timer",
           },
-          "title": "choice",
         },
         "previousNode": undefined,
-        "title": "otherwise",
       },
     },
     "group": true,
@@ -2928,7 +2849,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "setHeader",
               },
             ],
             "data": {
@@ -2941,7 +2861,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": [Circular],
             "previousNode": undefined,
-            "title": "when",
           },
           VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -2977,7 +2896,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "log",
               },
             ],
             "data": {
@@ -2990,7 +2908,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": [Circular],
             "previousNode": undefined,
-            "title": "otherwise",
           },
         ],
         "data": {
@@ -3055,7 +2972,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
               [Circular],
               [Circular],
@@ -3128,10 +3044,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": [Circular],
-          "title": "sql",
         },
         "parentNode": VisualizationNode {
           "DISABLED_NODE_INTERACTION": {
@@ -3168,7 +3082,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": [Circular],
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "timer",
             },
             [Circular],
             VisualizationNode {
@@ -3193,7 +3106,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": [Circular],
-              "title": "sql",
             },
           ],
           "data": {
@@ -3264,7 +3176,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "nextNode": undefined,
           "parentNode": undefined,
           "previousNode": undefined,
-          "title": "route",
         },
         "previousNode": VisualizationNode {
           "DISABLED_NODE_INTERACTION": {
@@ -3323,7 +3234,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
             ],
             "data": {
@@ -3394,12 +3304,9 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": undefined,
-          "title": "timer",
         },
-        "title": "choice",
       },
     },
     "group": true,
@@ -3511,7 +3418,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "nextNode": undefined,
                         "parentNode": [Circular],
                         "previousNode": undefined,
-                        "title": "setHeader",
                       },
                     ],
                     "data": {
@@ -3524,7 +3430,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "when",
                   },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
@@ -3560,7 +3465,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "nextNode": undefined,
                         "parentNode": [Circular],
                         "previousNode": undefined,
-                        "title": "log",
                       },
                     ],
                     "data": {
@@ -3573,7 +3477,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "otherwise",
                   },
                 ],
                 "data": {
@@ -3586,11 +3489,9 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "choice",
               },
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "timer",
             },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -3638,7 +3539,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "setHeader",
                     },
                   ],
                   "data": {
@@ -3651,7 +3551,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "when",
                 },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -3687,7 +3586,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "log",
                     },
                   ],
                   "data": {
@@ -3700,7 +3598,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "otherwise",
                 },
               ],
               "data": {
@@ -3735,9 +3632,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
-              "title": "choice",
             },
             [Circular],
           ],
@@ -3809,7 +3704,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "nextNode": undefined,
           "parentNode": undefined,
           "previousNode": undefined,
-          "title": "route",
         },
         "previousNode": VisualizationNode {
           "DISABLED_NODE_INTERACTION": {
@@ -3857,7 +3751,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "setHeader",
                 },
               ],
               "data": {
@@ -3870,7 +3763,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "when",
             },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -3906,7 +3798,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "log",
                 },
               ],
               "data": {
@@ -3919,7 +3810,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "otherwise",
             },
           ],
           "data": {
@@ -3965,7 +3855,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
               [Circular],
               [Circular],
@@ -4038,7 +3927,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "nextNode": undefined,
             "parentNode": undefined,
             "previousNode": undefined,
-            "title": "route",
           },
           "previousNode": VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -4145,14 +4033,10 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": undefined,
               "previousNode": undefined,
-              "title": "route",
             },
             "previousNode": undefined,
-            "title": "timer",
           },
-          "title": "choice",
         },
-        "title": "sql",
       },
     },
     "height": 75,
@@ -4247,7 +4131,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "setHeader",
                     },
                   ],
                   "data": {
@@ -4260,7 +4143,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "when",
                 },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -4296,7 +4178,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "log",
                     },
                   ],
                   "data": {
@@ -4309,7 +4190,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "otherwise",
                 },
               ],
               "data": {
@@ -4341,15 +4221,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": [Circular],
-                "title": "sql",
               },
               "parentNode": [Circular],
               "previousNode": [Circular],
-              "title": "choice",
             },
             "parentNode": [Circular],
             "previousNode": undefined,
-            "title": "timer",
           },
           VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -4397,7 +4274,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "setHeader",
                   },
                 ],
                 "data": {
@@ -4410,7 +4286,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "when",
               },
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
@@ -4446,7 +4321,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "nextNode": undefined,
                     "parentNode": [Circular],
                     "previousNode": undefined,
-                    "title": "log",
                   },
                 ],
                 "data": {
@@ -4459,7 +4333,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": undefined,
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "otherwise",
               },
             ],
             "data": {
@@ -4491,7 +4364,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": undefined,
               "parentNode": [Circular],
               "previousNode": [Circular],
-              "title": "sql",
             },
             "parentNode": [Circular],
             "previousNode": VisualizationNode {
@@ -4517,9 +4389,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "nextNode": [Circular],
               "parentNode": [Circular],
               "previousNode": undefined,
-              "title": "timer",
             },
-            "title": "choice",
           },
           VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
@@ -4588,7 +4458,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "setHeader",
                     },
                   ],
                   "data": {
@@ -4601,7 +4470,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "when",
                 },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -4637,7 +4505,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "nextNode": undefined,
                       "parentNode": [Circular],
                       "previousNode": undefined,
-                      "title": "log",
                     },
                   ],
                   "data": {
@@ -4650,7 +4517,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "nextNode": undefined,
                   "parentNode": [Circular],
                   "previousNode": undefined,
-                  "title": "otherwise",
                 },
               ],
               "data": {
@@ -4685,11 +4551,8 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "nextNode": [Circular],
                 "parentNode": [Circular],
                 "previousNode": undefined,
-                "title": "timer",
               },
-              "title": "choice",
             },
-            "title": "sql",
           },
         ],
         "data": {
@@ -4760,7 +4623,6 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "nextNode": undefined,
         "parentNode": undefined,
         "previousNode": undefined,
-        "title": "route",
       },
     },
     "group": true,

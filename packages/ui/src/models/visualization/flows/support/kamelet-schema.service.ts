@@ -37,6 +37,12 @@ export class KameletSchemaService {
     return '';
   }
 
+  static getNodeTitle(step?: PipeStep): string {
+    const kameletDefinition = this.getKameletDefinition(step);
+
+    return kameletDefinition?.spec.definition.title ?? step?.ref?.name ?? '';
+  }
+
   static getTooltipContent(step: PipeStep, path: string): string {
     const schema = this.getKameletDefinition(step)?.propertiesSchema;
     if (schema?.description !== undefined) {

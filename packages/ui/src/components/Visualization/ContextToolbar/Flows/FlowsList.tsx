@@ -144,7 +144,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                       "Do you want to delete the '" +
                       flow.toVizNode().getId() +
                       "' " +
-                      flow.toVizNode().getTitle() +
+                      flow.toVizNode().getNodeTitle() +
                       '?',
                     text: 'All steps will be lost.',
                   });

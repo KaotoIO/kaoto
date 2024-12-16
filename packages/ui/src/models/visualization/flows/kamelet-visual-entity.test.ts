@@ -161,7 +161,7 @@ describe('KameletVisualEntity', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
       const vizNode = kamelet.toVizNode();
 
-      expect(vizNode.getTitle()).toEqual('Kamelet');
+      expect(vizNode.getNodeTitle()).toEqual('Kamelet');
     });
   });
 });

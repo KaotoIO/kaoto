@@ -23,7 +23,6 @@ import {
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
 import { camelRouteJson, kameletJson } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
 import { CanvasForm } from './CanvasForm';
@@ -77,7 +76,7 @@ describe('CanvasForm', () => {
 
   it('should render nothing if no schema is available', () => {
     const vizNode = createVisualizationNode('route', {
-      path: ROOT_PATH,
+      path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
       isGroup: true,
       processorName: 'route',
@@ -113,7 +112,7 @@ describe('CanvasForm', () => {
     };
 
     const vizNode = createVisualizationNode('route', {
-      path: ROOT_PATH,
+      path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
       isGroup: true,
       processorName: 'route',
