@@ -83,7 +83,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
               popperProps={DEFAULT_POPPER_PROPS}
             >
-              <a href="https://kaoto.io/workshop/" target="_blank" rel="noreferrer">
+              <a href="https://kaoto.io/workshop/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="tutorial">
                   <Icon isInline>
                     <ExternalLinkAltIcon />
@@ -91,7 +91,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Tutorials</span>
                 </DropdownItem>
               </a>
-              <a href="https://kaoto.io/docs/" target="_blank" rel="noreferrer">
+              <a href="https://kaoto.io/docs/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="help">
                   <Icon isInline>
                     <ExternalLinkAltIcon />
@@ -99,7 +99,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Help</span>
                 </DropdownItem>
               </a>
-              <a href="https://github.com/KaotoIO/kaoto-examples" target="_blank" rel="noreferrer">
+              <a href="https://github.com/KaotoIO/kaoto-examples" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
                     <GithubIcon />
@@ -107,7 +107,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   &nbsp;<span className="pf-u-mr-lg">Examples</span>
                 </DropdownItem>
               </a>
-              <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noreferrer">
+              <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
                     <GithubIcon />
@@ -117,15 +117,19 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               </a>
 
               <Divider component="li" key="separator1" />
-              <a href="https://camel.apache.org/camel-core/getting-started/index.html" target="_blank" rel="noreferrer">
+              <a
+                href="https://camel.apache.org/camel-core/getting-started/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <DropdownItem key="camel">
                   <Icon isInline>
-                    <img src={camelLogo} />
+                    <img src={camelLogo} alt="Camel logo" />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Apache Camel</span>
                 </DropdownItem>
               </a>
-              <a href="https://hawt.io/docs/get-started.html" target="_blank" rel="noreferrer">
+              <a href="https://hawt.io/docs/get-started.html" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="hawtio">
                   <Icon isInline>
                     <FireIcon />
@@ -140,7 +144,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                   Settings
                 </DropdownItem>
               </Link>
-              <Divider component="li" key="separator2" />
+              <Divider component="li" key="separator3" />
               <DropdownItem
                 id="about"
                 key="about"
