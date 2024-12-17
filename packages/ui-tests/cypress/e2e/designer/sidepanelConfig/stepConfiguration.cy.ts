@@ -35,4 +35,25 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('user: user');
     cy.checkCodeSpanLine('password: password');
   });
+
+  it('Disable and Enable steps using the step configuration', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+
+    cy.openStepConfigurationTab('setHeader');
+
+    /** Check the toolbar's Disable button is on "Disable step" mode now */
+    cy.get('[data-testid="step-toolbar-button-disable"]').should('have.attr', 'title', 'Disable step');
+    /** Check the node now is in disabled mode */
+    cy.get(`g[data-nodelabel="setHeader"]`).should('have.attr', 'data-disabled', 'false');
+
+    cy.selectFormTab('All');
+    cy.get('#expandable-section-toggle-processor-advanced').click();
+    cy.interactWithConfigInputObject('disabled');
+
+    /** Check the toolbar's Disable button is on "Enable step" mode now */
+    cy.get('[data-testid="step-toolbar-button-disable"]').should('have.attr', 'title', 'Enable step');
+    /** Check the node now is in disabled mode */
+    cy.get(`g[data-nodelabel="setHeader"]`).should('have.attr', 'data-disabled', 'true');
+  });
 });

@@ -18,7 +18,7 @@ import { PropertyRow } from './PropertyRow';
  * @constructor
  */
 export const PropertiesField = connectField((props: IPropertiesField) => {
-  const propertiesModel = props.value ? { ...props.value } : {};
+  const propertiesModel = props.value;
   const [isFieldExpanded, setFieldExpanded] = useState<boolean>(Object.keys(propertiesModel).length > 0);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [placeholderState, setPlaceholderState] = useState<PlaceholderState | null>(null);

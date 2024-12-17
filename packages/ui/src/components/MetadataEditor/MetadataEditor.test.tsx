@@ -195,20 +195,10 @@ describe('MetadataEditor.tsx', () => {
   });
 
   test('add string property and cancel', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beans: any[] = cloneDeep(mockModel.beansNoProp);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let changed: any;
-    render(
-      <MetadataEditor
-        name="beans"
-        schema={mockSchema.beans}
-        metadata={beans}
-        onChangeModel={(model) => {
-          changed = model;
-        }}
-      />,
-    );
+    const onChangeModelSpy = jest.fn();
+    const beans = cloneDeep(mockModel.beansNoProp);
+
+    render(<MetadataEditor name="beans" schema={mockSchema.beans} metadata={beans} onChangeModel={onChangeModelSpy} />);
     const row = screen.getByTestId('metadata-row-0');
     fireEvent.click(row);
 
@@ -221,24 +211,14 @@ describe('MetadataEditor.tsx', () => {
     const cancelBtn = screen.getByTestId('properties--placeholder-property-edit-cancel--btn');
     fireEvent.click(cancelBtn);
 
-    expect(changed[0].properties.propStr).toBeFalsy();
+    expect(onChangeModelSpy).not.toHaveBeenCalled();
   });
 
   test('add object property and cancel', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beans: any[] = cloneDeep(mockModel.beansNoProp);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let changed: any;
-    render(
-      <MetadataEditor
-        name="beans"
-        schema={mockSchema.beans}
-        metadata={beans}
-        onChangeModel={(model) => {
-          changed = model;
-        }}
-      />,
-    );
+    const onChangeModelSpy = jest.fn();
+    const beans = cloneDeep(mockModel.beansNoProp);
+
+    render(<MetadataEditor name="beans" schema={mockSchema.beans} metadata={beans} onChangeModel={onChangeModelSpy} />);
     const row = screen.getByTestId('metadata-row-0');
     fireEvent.click(row);
 
@@ -249,7 +229,7 @@ describe('MetadataEditor.tsx', () => {
     const objCancelBtn = screen.getByTestId('properties--placeholder-property-edit-cancel--btn');
     fireEvent.click(objCancelBtn);
 
-    expect(changed[0].properties.propObj).toBeFalsy();
+    expect(onChangeModelSpy).not.toHaveBeenCalled();
   });
 
   test('change string property and confirm', async () => {

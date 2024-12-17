@@ -18,8 +18,8 @@ describe('Test for missing config props canvas warnings', () => {
 
     cy.openStepConfigurationTab('github');
 
+    /** The update should happen automatically after filling a property */
     cy.interactWithConfigInputObject('parameters.repoName', 'test');
-    cy.closeStepConfigurationTab();
 
     cy.get('[data-id^="camel-route|route.from.steps.1.to"] g')
       .find('span[data-warning="true"].pf-v5-c-icon')
@@ -36,8 +36,8 @@ describe('Test for missing config props canvas warnings', () => {
 
     cy.openStepConfigurationTab('delay-action');
 
+    /** The update should happen automatically after filling a property */
     cy.interactWithConfigInputObject('milliseconds', '1000');
-    cy.closeStepConfigurationTab();
 
     cy.get('[data-id^="webhook-binding|delay-action"] g')
       .find('span[data-warning="true"].pf-v5-c-icon')

@@ -85,9 +85,6 @@ export function PropertyRow({
     setUserInputName(nodeName);
     setUserInputValue(nodeValue);
     setIsEditing(false);
-    if (isPlaceholder) {
-      onChangeModel();
-    }
   }
 
   function getKey() {

@@ -41,6 +41,7 @@ import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { customNodeDropTargetSpec } from '../customComponentUtils';
+import { useVizNodeModel } from '../../../../hooks';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -61,10 +62,8 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
     const controller = useVisualizationController();
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-    const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
-    const doesHaveWarnings = !isDisabled && !!validationText;
     const [isSelected, onSelect] = useSelection();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
@@ -134,6 +133,10 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
     if (!vizNode) {
       return null;
     }
+
+    const { model } = useVizNodeModel<{ disabled?: boolean }>(vizNode);
+    const isDisabled = !!model.disabled;
+    const doesHaveWarnings = !isDisabled && !!validationText;
 
     return (
       <Layer id={DEFAULT_LAYER}>

@@ -1,19 +1,15 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useVizNodeModel } from '../../../../hooks';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { setValue } from '../../../../utils/set-value';
 
 export const useDisableStep = (vizNode: IVisualizationNode) => {
-  const entitiesContext = useContext(EntitiesContext);
-  const isDisabled = !!vizNode.getComponentSchema()?.definition?.disabled;
+  const { model, updateModel } = useVizNodeModel<{ disabled?: boolean }>(vizNode);
+  const isDisabled = !!model.disabled;
 
   const onToggleDisableNode = useCallback(() => {
-    const newModel = vizNode.getComponentSchema()?.definition || {};
-    setValue(newModel, 'disabled', !isDisabled);
-    vizNode.updateModel(newModel);
-
-    entitiesContext?.updateEntitiesFromCamelResource();
-  }, [entitiesContext, isDisabled, vizNode]);
+    const newModel = { ...model, disabled: !isDisabled };
+    updateModel(newModel);
+  }, [isDisabled, model, updateModel]);
 
   const value = useMemo(
     () => ({
