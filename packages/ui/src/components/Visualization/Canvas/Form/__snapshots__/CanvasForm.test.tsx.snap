@@ -474,7 +474,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
                 <code
                   class="pf-v5-c-code-block__code"
                 >
-                  null
+                  {}
 
                 </code>
               </pre>
@@ -729,7 +729,10 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
               >
                 <code
                   class="pf-v5-c-code-block__code"
-                />
+                >
+                  {}
+
+                </code>
               </pre>
             </div>
           </div>

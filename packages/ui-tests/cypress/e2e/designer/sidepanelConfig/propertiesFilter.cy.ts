@@ -86,6 +86,8 @@ describe('Tests for side panel step filtering', () => {
 
     cy.get(`input[name="variableSend"]`).should('exist');
     cy.get(`input[name="variableReceive"]`).should('exist');
+    cy.checkConfigInputObject('variableSend', 'testVariableSend');
+    cy.checkConfigInputObject('variableReceive', 'testVariableReceive');
     cy.get(`textarea[name="description"]`).should('not.exist');
     cy.get(`input[name="id"]`).should('not.exist');
 
