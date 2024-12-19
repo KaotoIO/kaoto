@@ -27,6 +27,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
+import { useVizNodeModel } from '../../../../hooks';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 interface CustomNodeProps extends DefaultNodeProps, WithSelectionProps {
@@ -43,10 +44,8 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
   const settingsAdapter = useContext(SettingsContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-  const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
   const tooltipContent = vizNode?.getTooltipContent();
   const validationText = vizNode?.getNodeValidationText();
-  const doesHaveWarnings = !isDisabled && !!validationText;
   const [isSelected, onSelect] = useSelection();
   const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
   const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
@@ -75,6 +74,10 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(({ element, onCo
   if (!vizNode) {
     return null;
   }
+
+  const { model } = useVizNodeModel<{ disabled?: boolean }>(vizNode);
+  const isDisabled = !!model.disabled;
+  const doesHaveWarnings = !isDisabled && !!validationText;
 
   return (
     <Layer id={DEFAULT_LAYER}>

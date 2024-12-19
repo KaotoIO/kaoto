@@ -1,35 +1,26 @@
 import {
+  IKameletCustomProperty,
   IKameletDefinition,
-  IKameletMetadataAnnotations,
-  IKameletMetadataLabels,
+  IKameletSpecProperty,
   KameletKnownAnnotations,
   KameletKnownLabels,
-  IKameletSpecProperty,
-  IKameletCustomProperty,
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
+import { isDefined } from './is-defined';
 import { setValue } from './set-value';
 
 export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value: Record<string, unknown>): void => {
-  const previousName = getValue(kamelet, 'metadata.name');
-  const previousTitle = getValue(kamelet, 'spec.definition.title');
-  const previousDescription = getValue(kamelet, 'spec.definition.description');
+  if (!isDefined(value)) {
+    return;
+  }
 
   const newName: string = getValue(value, 'name');
   const newTitle: string = getValue(value, 'title');
   const newDescription: string = getValue(value, 'description');
 
-  setValue(kamelet, 'metadata.name', newName ?? previousName);
-  setValue(kamelet, 'spec.definition.title', newTitle ?? previousTitle);
-  setValue(kamelet, 'spec.definition.description', newDescription ?? previousDescription);
-
-  const previousAnnotations = getValue(kamelet, 'metadata.annotations', {} as IKameletMetadataAnnotations);
-  const previousIcon = previousAnnotations[KameletKnownAnnotations.Icon];
-  const previousSupportLevel = previousAnnotations[KameletKnownAnnotations.SupportLevel];
-  const previousCatalogVersion = previousAnnotations[KameletKnownAnnotations.CatalogVersion];
-  const previousProvider = previousAnnotations[KameletKnownAnnotations.Provider];
-  const previousGroup = previousAnnotations[KameletKnownAnnotations.Group];
-  const previousNamespace = previousAnnotations[KameletKnownAnnotations.Namespace];
+  setValue(kamelet, 'metadata.name', newName);
+  setValue(kamelet, 'spec.definition.title', newTitle);
+  setValue(kamelet, 'spec.definition.description', newDescription);
 
   const newIcon = getValue(value, 'icon');
   const newSupportLevel = getValue(value, 'supportLevel');
@@ -39,18 +30,17 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   const newNamespace = getValue(value, 'namespace');
 
   const customAnnotations = {
-    [KameletKnownAnnotations.Icon]: newIcon ?? previousIcon,
-    [KameletKnownAnnotations.SupportLevel]: newSupportLevel ?? previousSupportLevel,
-    [KameletKnownAnnotations.CatalogVersion]: newCatalogVersion ?? previousCatalogVersion,
-    [KameletKnownAnnotations.Provider]: newProvider ?? previousProvider,
-    [KameletKnownAnnotations.Group]: newGroup ?? previousGroup,
-    [KameletKnownAnnotations.Namespace]: newNamespace ?? previousNamespace,
+    [KameletKnownAnnotations.Icon]: newIcon,
+    [KameletKnownAnnotations.SupportLevel]: newSupportLevel,
+    [KameletKnownAnnotations.CatalogVersion]: newCatalogVersion,
+    [KameletKnownAnnotations.Provider]: newProvider,
+    [KameletKnownAnnotations.Group]: newGroup,
+    [KameletKnownAnnotations.Namespace]: newNamespace,
   };
 
-  const previousType = getValue(kamelet, 'metadata.labels', {} as IKameletMetadataLabels)[KameletKnownLabels.Type];
   const incomingLabels = getValue(value, 'labels', {});
   const newLabels = Object.assign({}, incomingLabels, {
-    [KameletKnownLabels.Type]: getValue(value, 'type', previousType),
+    [KameletKnownLabels.Type]: getValue(value, 'type'),
   });
   const newAnnotations = Object.assign({}, getValue(value, 'annotations', {}), customAnnotations);
 
