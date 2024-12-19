@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { camelCaseToSpaces, getArrayProperty, getValue, setValue } from '../../../utils';
+import { camelCaseToSpaces, getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -160,6 +160,53 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
       return;
+    }
+  }
+
+  canDragNode(path?: string) {
+    if (!isDefined(path)) return false;
+
+    return path !== 'route.from' && path !== 'template.from';
+  }
+
+  canDropOnNode(path?: string) {
+    return this.canDragNode(path);
+  }
+
+  /** To Do: combine with addstep()
+   *  Try to re-use insertChildStep()
+   */
+  moveNodeTo(options: { draggedNodePath: string; droppedNodePath?: string }) {
+    if (options.droppedNodePath === undefined) return;
+
+    const pathArray = options.droppedNodePath.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    const componentPath = options.draggedNodePath.split('.');
+    let stepsArray: ProcessorDefinition[];
+
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      const componentModel = getValue(this.entityDef, componentPath?.slice(0, -1));
+      stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
+
+      /** Remove the dragged node */
+      this.removeStep(options.draggedNodePath);
+
+      /** Add the dragged node before the drop target */
+      const desiredStartIndex = last === 'placeholder' ? 0 : Number(penultimate);
+      stepsArray.splice(desiredStartIndex, 0, componentModel);
+    }
+
+    if (Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate))) {
+      const componentModel = getValue(this.entityDef, componentPath);
+      stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
+
+      /** Remove the dragged node */
+      this.removeStep(options.draggedNodePath);
+
+      /** Add the dragged node before the drop target */
+      stepsArray.splice(Number(last), 0, componentModel);
     }
   }
 

@@ -9,6 +9,7 @@ import {
   updatePipeFromCustomSchema,
   setValue,
   getValue,
+  isDefined,
 } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
@@ -165,6 +166,29 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     } else if (options.mode === AddStepMode.PrependStep) {
       kameletArray.splice(index, 0, step);
     }
+  }
+
+  canDragNode(path?: string) {
+    if (!isDefined(path)) return false;
+
+    return path !== 'source' && path !== 'sink';
+  }
+
+  canDropOnNode(path?: string) {
+    return this.canDragNode(path);
+  }
+
+  moveNodeTo(options: { draggedNodePath: string; droppedNodePath?: string }) {
+    if (options.droppedNodePath === undefined) return;
+
+    const step = getValue(this.pipe.spec!, options.draggedNodePath);
+    const kameletArray = getArrayProperty(this.pipe.spec!, 'steps');
+
+    /** Remove the dragged node */
+    this.removeStep(options.draggedNodePath);
+
+    /** Add the dragged node at the target node index */
+    kameletArray.splice(Number(options.droppedNodePath.split('.').pop()), 0, step);
   }
 
   removeStep(path?: string): void {

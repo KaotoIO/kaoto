@@ -12,6 +12,7 @@ import {
   useAnchor,
   useHover,
   useSelection,
+  withDndDrop,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useRef } from 'react';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
@@ -23,9 +24,10 @@ import { AddStepIcon } from '../Edge/AddStepIcon';
 import { TargetAnchor } from '../target-anchor';
 import './CustomGroupExpanded.scss';
 import { CustomGroupProps } from './Group.models';
+import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 
-export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle }) => {
+export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
+  ({ element, onContextMenu, onCollapseToggle, dndDropRef, droppable }) => {
     if (!isNode(element)) {
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
@@ -41,7 +43,7 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
       CanvasDefaults.HOVER_DELAY_IN,
       CanvasDefaults.HOVER_DELAY_OUT,
     );
-    const boxRef = useRef<Rect>(element.getBounds());
+    const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
         ? isGHover || isToolbarHover || isSelected
@@ -58,7 +60,9 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
       return null;
     }
 
-    boxRef.current = element.getBounds();
+    if (!droppable || !boxRef.current) {
+      boxRef.current = element.getBounds();
+    }
     const toolbarWidth = Math.max(CanvasDefaults.STEP_TOOLBAR_WIDTH, boxRef.current.width);
     const toolbarX = boxRef.current.x + (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
@@ -83,6 +87,7 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
           onContextMenu={onContextMenu}
         >
           <foreignObject
+            ref={dndDropRef}
             data-nodelabel={label}
             x={boxRef.current.x}
             y={boxRef.current.y}
@@ -145,3 +150,5 @@ export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer
     );
   },
 );
+
+export const CustomGroupExpanded = withDndDrop(customGroupExpandedDropTargetSpec)(CustomGroupExpandedInner);
