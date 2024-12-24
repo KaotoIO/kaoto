@@ -7,9 +7,12 @@ import { SettingsModel } from '../../models/settings';
 import { SchemaBridgeProvider } from '../../providers/schema-bridge.provider';
 import { SettingsContext } from '../../providers/settings.provider';
 import { CustomAutoForm } from '../Form/CustomAutoForm';
+import { useNavigate } from 'react-router-dom';
+import { Links } from '../../router/links.models';
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
+  const navigate = useNavigate();
   const { lastRender, reloadPage } = useReloadContext();
   const [settings, setSettings] = useState(settingsAdapter.getSettings());
 
@@ -20,6 +23,7 @@ export const SettingsForm: FunctionComponent = () => {
   const onSave = useCallback(() => {
     settingsAdapter.saveSettings(settings);
     reloadPage();
+    navigate(Links.Home);
   }, [reloadPage, settings, settingsAdapter]);
 
   return (
