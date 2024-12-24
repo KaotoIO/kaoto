@@ -1,9 +1,18 @@
 import { SettingsForm } from '@kaoto/kaoto';
 import { SettingsProvider, ReloadContext, DefaultSettingsAdapter } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
+import { reactRouterOutlet, reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
 export default {
   title: 'Settings/SettingsForm',
+  decorators: [withRouter],
+  parameters: {
+    reactRouter: reactRouterParameters({
+      routing: reactRouterOutlet({
+        path: '*',
+      }),
+    }),
+  },
   component: SettingsForm,
 } as Meta<typeof SettingsForm>;
 
