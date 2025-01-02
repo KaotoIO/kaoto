@@ -2,6 +2,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { SettingsForm } from './SettingsForm';
+import { MemoryRouter } from 'react-router-dom';
 
 describe('SettingsForm', () => {
   let reloadPage: jest.Mock;
@@ -14,11 +15,13 @@ describe('SettingsForm', () => {
 
   it('should render', () => {
     const wrapper = render(
-      <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-        <SettingsProvider adapter={settingsAdapter}>
-          <SettingsForm />
-        </SettingsProvider>
-      </ReloadContext.Provider>,
+      <MemoryRouter>
+        <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
+          <SettingsProvider adapter={settingsAdapter}>
+            <SettingsForm />
+          </SettingsProvider>
+        </ReloadContext.Provider>
+      </MemoryRouter>,
     );
 
     expect(wrapper.getByTestId('settings-form')).toMatchSnapshot();
@@ -26,11 +29,13 @@ describe('SettingsForm', () => {
 
   it('should update settings upon clicking save', () => {
     const wrapper = render(
-      <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-        <SettingsProvider adapter={settingsAdapter}>
-          <SettingsForm />
-        </SettingsProvider>
-      </ReloadContext.Provider>,
+      <MemoryRouter>
+        <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
+          <SettingsProvider adapter={settingsAdapter}>
+            <SettingsForm />
+          </SettingsProvider>
+        </ReloadContext.Provider>
+      </MemoryRouter>,
     );
 
     act(() => {
@@ -48,11 +53,13 @@ describe('SettingsForm', () => {
 
   it('should not update settings if the save button was clicked', () => {
     const wrapper = render(
-      <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-        <SettingsProvider adapter={settingsAdapter}>
-          <SettingsForm />
-        </SettingsProvider>
-      </ReloadContext.Provider>,
+      <MemoryRouter>
+        <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
+          <SettingsProvider adapter={settingsAdapter}>
+            <SettingsForm />
+          </SettingsProvider>
+        </ReloadContext.Provider>
+      </MemoryRouter>,
     );
 
     act(() => {
@@ -65,11 +72,13 @@ describe('SettingsForm', () => {
 
   it('should reload the page upon clicking save', () => {
     const wrapper = render(
-      <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-        <SettingsProvider adapter={settingsAdapter}>
-          <SettingsForm />
-        </SettingsProvider>
-      </ReloadContext.Provider>,
+      <MemoryRouter>
+        <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
+          <SettingsProvider adapter={settingsAdapter}>
+            <SettingsForm />
+          </SettingsProvider>
+        </ReloadContext.Provider>
+      </MemoryRouter>,
     );
 
     act(() => {
