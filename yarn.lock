@@ -14134,8 +14134,8 @@ __metadata:
   linkType: hard
 
 "monaco-yaml@npm:^5.1.1":
-  version: 5.2.2
-  resolution: "monaco-yaml@npm:5.2.2"
+  version: 5.2.3
+  resolution: "monaco-yaml@npm:5.2.3"
   dependencies:
     jsonc-parser: "npm:^3.0.0"
     monaco-languageserver-types: "npm:^0.4.0"
@@ -14150,7 +14150,7 @@ __metadata:
     yaml: "npm:^2.0.0"
   peerDependencies:
     monaco-editor: ">=0.36"
-  checksum: 10/a950462b366f3f2654c158bcf5f136b8c13aa6a90769782fbf3772f920bebfc2f60cfcfea3428dffb002382f4cef42863109f33895d67bf38a33369f5f6fdf2e
+  checksum: 10/1745cc241c14de1b7dbccc4b6d60b1dce0e9862220cb119a6b242d05ad2d0e6399a5c7b5d128edd5290e9f45ab77692c3245b22f4f693f849846a79ea40789ee
   languageName: node
   linkType: hard
 
