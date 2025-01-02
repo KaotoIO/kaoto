@@ -153,7 +153,6 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
       cy.get('.pf-m-danger').click();
     }
   });
-  cy.closeFlowsListIfVisible();
 });
 
 Cypress.Commands.add('cancelDeleteRoute', (index: number) => {
