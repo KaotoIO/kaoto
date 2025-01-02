@@ -15757,15 +15757,15 @@ __metadata:
   linkType: hard
 
 "react-monaco-editor@npm:^0.56.0":
-  version: 0.56.0
-  resolution: "react-monaco-editor@npm:0.56.0"
+  version: 0.56.2
+  resolution: "react-monaco-editor@npm:0.56.2"
   dependencies:
     prop-types: "npm:^15.8.1"
   peerDependencies:
     "@types/react": ">=16 <= 18"
-    monaco-editor: ^0.50.0
+    monaco-editor: ^0.52.0
     react: ">=16 <= 18"
-  checksum: 10/6d6b351cb3b41b727d5f1d54c8e8bf45499e127cbaf667ff3a3fbb200cfb7eaeeca4f79a262a572b87724061ad863268ba8bd5dc89f42e22ebf9e68169b9984b
+  checksum: 10/9e891803f766ab81349e1579ffc8cd7cba27eb34ac5113aaf34798f0998629da68415f67e2a0e76057ae632fe019c355eeab89baa607e612239315381777fff4
   languageName: node
   linkType: hard
 
