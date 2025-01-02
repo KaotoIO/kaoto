@@ -14185,13 +14185,13 @@ __metadata:
   linkType: hard
 
 "msw-storybook-addon@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "msw-storybook-addon@npm:2.0.3"
+  version: 2.0.4
+  resolution: "msw-storybook-addon@npm:2.0.4"
   dependencies:
     is-node-process: "npm:^1.0.1"
   peerDependencies:
     msw: ^2.0.0
-  checksum: 10/a2d400d74d4842c9bc4789190d805fb27609451c9bd9feeb977cef3aa31233527bf32a9aeeb1d998ac58ada6b8e83556f06c65a182149e2907287318007545dd
+  checksum: 10/63a7bd165190e332e31d5a8b4503af4e6361b81d59e504f97c474327e69021a014094de281859e0c41368e269dac9cd46cebb071e54cd13fce8505f24b08a504
   languageName: node
   linkType: hard
 
