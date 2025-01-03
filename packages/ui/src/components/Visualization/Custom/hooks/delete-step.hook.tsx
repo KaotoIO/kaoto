@@ -14,6 +14,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode) => {
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const childrenNodes = vizNode.getChildren();
   const hasChildren = childrenNodes !== undefined && childrenNodes.length > 0;
+  const isPlaceholderNode = hasChildren && childrenNodes.length === 1 && childrenNodes[0].data.isPlaceholder;
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteStep = useCallback(async () => {
@@ -22,7 +23,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode) => {
     );
 
     let modalAnswer: string | undefined = ACTION_ID_CONFIRM;
-    if (hasChildren || modalCustoms.length > 0) {
+    if ((hasChildren && !isPlaceholderNode) || modalCustoms.length > 0) {
       const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
       const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
       /** Open delete confirm modal, get the confirmation  */
