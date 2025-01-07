@@ -1,4 +1,3 @@
-import '@patternfly/patternfly/patternfly-theme-dark.css';
 import '@patternfly/patternfly/patternfly.css';
 import '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
 import '@patternfly/patternfly/utilities/Display/display.css';
