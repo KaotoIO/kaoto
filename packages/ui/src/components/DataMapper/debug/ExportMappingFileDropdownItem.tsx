@@ -1,10 +1,5 @@
-import {
-	Button,
-	DropdownItem
-} from '@patternfly/react-core';
-import {
-	Modal
-} from '@patternfly/react-core/deprecated';
+import { Button, DropdownItem } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/deprecated';
 import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import { ExportIcon } from '@patternfly/react-icons';

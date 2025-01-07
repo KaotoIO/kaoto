@@ -1,11 +1,5 @@
-import {
-	ActionListItem,
-	Button
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { ActionListItem, Button } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 import { useCanvas } from '../../../hooks/useCanvas';
@@ -36,7 +30,14 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
 
   return (
     <ActionListItem key="delete-item">
-      <Button icon={<TrashIcon />} variant="plain" title={title} aria-label={title} data-testid="delete-mapping-btn" onClick={openModal} />
+      <Button
+        icon={<TrashIcon />}
+        variant="plain"
+        title={title}
+        aria-label={title}
+        data-testid="delete-mapping-btn"
+        onClick={openModal}
+      />
       <Modal
         variant={ModalVariant.small}
         isOpen={isModalOpen}

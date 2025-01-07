@@ -1,10 +1,4 @@
-import {
-  AboutModal,
-  Content,
-  Timestamp,
-  TimestampFormat,
-  TimestampTooltipVariant,
-} from '@patternfly/react-core';
+import { AboutModal, Content, Timestamp, TimestampFormat, TimestampTooltipVariant } from '@patternfly/react-core';
 import { FunctionComponent, useMemo } from 'react';
 import logo from '../assets/logo-kaoto-dark.png';
 import { GIT_DATE, GIT_HASH, KAOTO_VERSION } from '../version';

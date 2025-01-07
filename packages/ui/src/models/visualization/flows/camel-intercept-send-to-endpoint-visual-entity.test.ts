@@ -3,7 +3,7 @@ import { CamelInterceptSendToEndpointVisualEntity } from './camel-intercept-send
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 describe('CamelInterceptSendToEndpointVisualEntity', () => {
-  describe("function Object() { [native code] }", () => {
+  describe('function Object() { [native code] }', () => {
     it('should allow to create an instance out of the object definition', () => {
       const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
         interceptSendToEndpoint: { id: 'a-reference', uri: 'direct:a-reference' },

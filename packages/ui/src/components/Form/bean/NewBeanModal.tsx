@@ -1,11 +1,6 @@
 import { BeanFactory } from '@kaoto/camel-catalog/types';
-import {
-	Button
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Button } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../models';
 import { MetadataEditor } from '../../MetadataEditor';

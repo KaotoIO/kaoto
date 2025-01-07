@@ -9,7 +9,8 @@ import {
   MastheadContent,
   MastheadMain,
   MastheadProps,
-  MastheadToggle, MastheadBrand,
+  MastheadToggle,
+  MastheadBrand,
   MenuToggle,
   MenuToggleElement,
   ToolbarItem,
@@ -58,14 +59,15 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
   return (
     <>
       <Masthead id="stack-inline-masthead" display={displayObject}>
-        
-
-        <MastheadMain><MastheadToggle>
-          <Button icon={<BarsIcon />} variant="plain" onClick={props.navToggle} aria-label="Global navigation" />
-        </MastheadToggle>
-          <MastheadBrand data-codemods><MastheadLogo data-codemods component={logoLink}>
-            <img className="shell__logo" src={logo} alt="Kaoto Logo" />
-          </MastheadLogo></MastheadBrand>
+        <MastheadMain>
+          <MastheadToggle>
+            <Button icon={<BarsIcon />} variant="plain" onClick={props.navToggle} aria-label="Global navigation" />
+          </MastheadToggle>
+          <MastheadBrand data-codemods>
+            <MastheadLogo data-codemods component={logoLink}>
+              <img className="shell__logo" src={logo} alt="Kaoto Logo" />
+            </MastheadLogo>
+          </MastheadBrand>
         </MastheadMain>
 
         <MastheadContent>

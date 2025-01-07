@@ -1,7 +1,4 @@
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import {
   FunctionComponent,
   PropsWithChildren,

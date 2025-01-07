@@ -75,12 +75,13 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   ]);
 
   return (
-    <Button icon={<ImportIcon />}
+    <Button
+      icon={<ImportIcon />}
       variant="plain"
       title={hasSchema ? 'Update schema' : 'Attach a schema'}
       aria-label={hasSchema ? 'Update schema' : 'Attach schema'}
       data-testid={`attach-schema-${documentType}-${documentId}-button`}
       onClick={onClick}
-     />
+    />
   );
 };

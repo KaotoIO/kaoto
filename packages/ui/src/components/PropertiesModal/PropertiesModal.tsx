@@ -1,12 +1,5 @@
-import {
-	Tab,
-	Tabs,
-	capitalize
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalBoxBody
-} from '@patternfly/react-core/deprecated';
+import { Tab, Tabs, capitalize } from '@patternfly/react-core';
+import { Modal, ModalBoxBody } from '@patternfly/react-core/deprecated';
 import { FunctionComponent, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import {
   transformCamelComponentIntoTab,

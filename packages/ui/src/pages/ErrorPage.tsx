@@ -1,11 +1,4 @@
-import {
-  Bullseye,
-  Button,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-  Icon,
-  } from '@patternfly/react-core';
+import { Bullseye, Button, EmptyState, EmptyStateBody, EmptyStateVariant, Icon } from '@patternfly/react-core';
 import { ArrowLeftIcon } from '@patternfly/react-icons/dist/esm/icons/arrow-left-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent } from 'react';
@@ -27,7 +20,7 @@ export const ErrorPage: FunctionComponent = () => {
 
   return (
     <Bullseye id="error-page">
-      <EmptyState  headingLevel="h2" icon={ErrorIcon}  titleText="Sorry, an error occured" variant={EmptyStateVariant.sm}>
+      <EmptyState headingLevel="h2" icon={ErrorIcon} titleText="Sorry, an error occured" variant={EmptyStateVariant.sm}>
         <EmptyStateBody>
           <p>Trying to load the previous page led to the following error:</p>
           <p className="pf-u-font-family-monospace"> {error.statusText || error.message}</p>

@@ -40,7 +40,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
     });
   });
 
-  describe("function Object() { [native code] }", () => {
+  describe('function Object() { [native code] }', () => {
     it('should set id to generated id', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
