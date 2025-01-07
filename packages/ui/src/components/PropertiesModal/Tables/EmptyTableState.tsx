@@ -10,11 +10,12 @@ export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props)
   return (
     <Bullseye>
       <EmptyState
+        data-testid="empty-state"
         headingLevel="h2"
         icon={SearchIcon}
         titleText={'No properties found for ' + props.name}
         variant={EmptyStateVariant.sm}
-      ></EmptyState>
+      />
     </Bullseye>
   );
 };
