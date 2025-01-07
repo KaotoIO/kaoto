@@ -3,23 +3,23 @@
 exports[`UnknownNode renders UnknownNode component 1`] = `
 <DocumentFragment>
   <div
-    class="pf-v5-c-card"
+    class="pf-v6-c-card"
     data-ouia-component-id="OUIA-Generated-Card-1"
-    data-ouia-component-type="PF5/Card"
+    data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
   >
     <div
-      class="pf-v5-c-card__header"
+      class="pf-v6-c-card__header"
     >
       <div
-        class="pf-v5-c-card__header-main"
+        class="pf-v6-c-card__header-main"
       >
         <div
-          class="pf-v5-c-card__title"
+          class="pf-v6-c-card__title"
         >
           <div
-            class="pf-v5-c-card__title-text"
+            class="pf-v6-c-card__title-text"
           >
             Node source
           </div>
@@ -27,19 +27,19 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
       </div>
     </div>
     <div
-      class="pf-v5-c-card__body"
+      class="pf-v6-c-card__body"
     >
       <div
-        class="pf-v5-c-code-block"
+        class="pf-v6-c-code-block"
       >
         <div
-          class="pf-v5-c-code-block__content"
+          class="pf-v6-c-code-block__content"
         >
           <pre
-            class="pf-v5-c-code-block__pre"
+            class="pf-v6-c-code-block__pre"
           >
             <code
-              class="pf-v5-c-code-block__code"
+              class="pf-v6-c-code-block__code"
             >
               {}
 
@@ -49,20 +49,20 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
       </div>
     </div>
     <div
-      class="pf-v5-c-card__footer"
+      class="pf-v6-c-card__footer"
     >
       <div
-        class="pf-v5-c-alert pf-m-warning"
+        class="pf-v6-c-alert pf-m-warning"
         data-ouia-component-id="OUIA-Generated-Alert-warning-1"
-        data-ouia-component-type="PF5/Alert"
+        data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >
         <div
-          class="pf-v5-c-alert__icon"
+          class="pf-v6-c-alert__icon"
         >
           <svg
             aria-hidden="true"
-            class="pf-v5-svg"
+            class="pf-v6-svg"
             fill="currentColor"
             height="1em"
             role="img"
@@ -75,17 +75,17 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
           </svg>
         </div>
         <h4
-          class="pf-v5-c-alert__title"
+          class="pf-v6-c-alert__title"
         >
           <span
-            class="pf-v5-screen-reader"
+            class="pf-v6-screen-reader"
           >
             Warning alert:
           </span>
           Unknow node type
         </h4>
         <div
-          class="pf-v5-c-alert__description"
+          class="pf-v6-c-alert__description"
         >
           The configuration for an unknown node cannot be changed in the configuration form. Please switch to the source code and correct the node type. Another option is to replace the step in the graphical editor but in that case you will probably lose the existing configuration.
         </div>
@@ -98,23 +98,23 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
 exports[`UnknownNode renders UnknownNode component with a model 1`] = `
 <DocumentFragment>
   <div
-    class="pf-v5-c-card"
+    class="pf-v6-c-card"
     data-ouia-component-id="OUIA-Generated-Card-2"
-    data-ouia-component-type="PF5/Card"
+    data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
   >
     <div
-      class="pf-v5-c-card__header"
+      class="pf-v6-c-card__header"
     >
       <div
-        class="pf-v5-c-card__header-main"
+        class="pf-v6-c-card__header-main"
       >
         <div
-          class="pf-v5-c-card__title"
+          class="pf-v6-c-card__title"
         >
           <div
-            class="pf-v5-c-card__title-text"
+            class="pf-v6-c-card__title-text"
           >
             Node source
           </div>
@@ -122,19 +122,19 @@ exports[`UnknownNode renders UnknownNode component with a model 1`] = `
       </div>
     </div>
     <div
-      class="pf-v5-c-card__body"
+      class="pf-v6-c-card__body"
     >
       <div
-        class="pf-v5-c-code-block"
+        class="pf-v6-c-code-block"
       >
         <div
-          class="pf-v5-c-code-block__content"
+          class="pf-v6-c-code-block__content"
         >
           <pre
-            class="pf-v5-c-code-block__pre"
+            class="pf-v6-c-code-block__pre"
           >
             <code
-              class="pf-v5-c-code-block__code"
+              class="pf-v6-c-code-block__code"
             >
               prop1: value 1
 prop2: value 2
@@ -145,20 +145,20 @@ prop2: value 2
       </div>
     </div>
     <div
-      class="pf-v5-c-card__footer"
+      class="pf-v6-c-card__footer"
     >
       <div
-        class="pf-v5-c-alert pf-m-warning"
+        class="pf-v6-c-alert pf-m-warning"
         data-ouia-component-id="OUIA-Generated-Alert-warning-2"
-        data-ouia-component-type="PF5/Alert"
+        data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >
         <div
-          class="pf-v5-c-alert__icon"
+          class="pf-v6-c-alert__icon"
         >
           <svg
             aria-hidden="true"
-            class="pf-v5-svg"
+            class="pf-v6-svg"
             fill="currentColor"
             height="1em"
             role="img"
@@ -171,17 +171,17 @@ prop2: value 2
           </svg>
         </div>
         <h4
-          class="pf-v5-c-alert__title"
+          class="pf-v6-c-alert__title"
         >
           <span
-            class="pf-v5-screen-reader"
+            class="pf-v6-screen-reader"
           >
             Warning alert:
           </span>
           Unknow node type
         </h4>
         <div
-          class="pf-v5-c-alert__description"
+          class="pf-v6-c-alert__description"
         >
           The configuration for an unknown node cannot be changed in the configuration form. Please switch to the source code and correct the node type. Another option is to replace the step in the graphical editor but in that case you will probably lose the existing configuration.
         </div>

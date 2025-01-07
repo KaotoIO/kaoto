@@ -5,7 +5,7 @@
     &__container {
       @include custom.container;
 
-      border: 2px solid var(--custom-node-BorderColor);
+      border: 1px solid var(--custom-node-BorderColor);
       border-radius: var(--custom-node-BorderRadius);
       background-color: var(--custom-node-BackgroundColor);
       text-align: left;
@@ -14,33 +14,33 @@
         display: flex;
         position: relative;
         font-weight: bold;
-        background-color: var(--pf-v5-global--primary-color--light-100);
-        padding: calc(var(--pf-v5-global--spacer--xs) / 2) var(--pf-v5-global--spacer--xs);
+        background-color: var(--pf-t--global--color--nonstatus--blue--default);
+        padding: calc(var(--pf-t--global--spacer--xs) / 2) var(--pf-t--global--spacer--xs);
 
         img {
           display: inline-block;
           position: relative;
           max-height: 20px;
           max-width: 20px;
-          background-color: var(--pf-v5-global--palette--white);
+          background-color: var(--pf-t--color--white);
           border-radius: calc(var(--custom-node-BorderRadius) / 2);
-          padding: calc(var(--pf-v5-global--spacer--xs) / 2);
+          padding: calc(var(--pf-t--global--spacer--xs) / 2);
         }
 
         span {
-          margin: 0 var(--pf-v5-global--spacer--sm);
+          margin: 0 var(--pf-t--global--spacer--sm);
         }
 
         [data-selected='true'] & {
-          color: var(--pf-v5-global--palette--white);
-          background-color: var(--pf-v5-global--palette--blue-300);
+          color: var(--pf-t--color--white);
+          background-color: var(--pf-t--global--color--brand--default);
         }
       }
 
       &:hover,
       [data-toolbar-open='true'] &,
       [data-selected='true'] & {
-        border-color: var(--custom-node-hover-BorderColor);
+        border-color: var(--custom-node-BorderColor-hover);
         box-shadow: var(--custom-node-Shadow);
       }
 

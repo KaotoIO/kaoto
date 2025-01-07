@@ -1,0 +1,9 @@
+.runtime-selector {
+  &__description {
+    word-break: keep-all;
+  }
+
+  &__submenu {
+    width: max-content;
+  }
+}

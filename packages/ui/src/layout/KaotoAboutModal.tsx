@@ -1,8 +1,6 @@
 import {
   AboutModal,
-  TextContent,
-  TextList,
-  TextListItem,
+  Content,
   Timestamp,
   TimestampFormat,
   TimestampTooltipVariant,
@@ -31,29 +29,29 @@ export const KaotoAboutModal: FunctionComponent<IAboutModal> = ({ handleCloseMod
       data-testid="about-modal"
       productName="Kaoto"
     >
-      <TextContent>
-        <TextList component="dl">
-          <TextListItem component="dt">Version</TextListItem>
-          <TextListItem component="dd" data-testid="about-version">
+      <Content>
+        <Content component="dl">
+          <Content component="dt">Version</Content>
+          <Content component="dd" data-testid="about-version">
             {KAOTO_VERSION}
-          </TextListItem>
+          </Content>
           <br />
-          <TextListItem component="dt">Build info</TextListItem>
-          <TextListItem component="dt">Git commit hash</TextListItem>
-          <TextListItem component="dd" data-testid="about-git-commit-hash">
+          <Content component="dt">Build info</Content>
+          <Content component="dt">Git commit hash</Content>
+          <Content component="dd" data-testid="about-git-commit-hash">
             {GIT_HASH}
-          </TextListItem>
-          <TextListItem component="dt">Git last commit date</TextListItem>
-          <TextListItem component="dd" data-testid="about-git-last-commit-date">
+          </Content>
+          <Content component="dt">Git last commit date</Content>
+          <Content component="dd" data-testid="about-git-last-commit-date">
             <Timestamp
               date={buildDate}
               dateFormat={TimestampFormat.full}
               timeFormat={TimestampFormat.long}
               tooltip={TOOLTIP_PROPS}
             />
-          </TextListItem>
-        </TextList>
-      </TextContent>
+          </Content>
+        </Content>
+      </Content>
     </AboutModal>
   );
 };

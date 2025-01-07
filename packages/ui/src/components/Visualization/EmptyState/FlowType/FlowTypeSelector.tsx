@@ -70,9 +70,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       onClick={onToggleClick}
       isExpanded={isOpen}
       isFullWidth
-      splitButtonOptions={{
-        variant: 'action',
-        items: [
+      splitButtonItems={[
           <MenuToggleAction
             id="dsl-list-btn"
             key="dsl-list-btn"
@@ -83,8 +81,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
           >
             {props.children}
           </MenuToggleAction>,
-        ],
-      }}
+        ]}
     />
   );
 
@@ -116,7 +113,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
-                <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+                <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
                   {getDescriptionForType(sourceType) !== undefined
                     ? getDescriptionForType(sourceType)
                     : ((sourceSchema.schema?.schema as { description: string }).description ?? '')}

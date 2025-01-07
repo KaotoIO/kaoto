@@ -60,7 +60,7 @@ export const CustomNestField = connectField(
     if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (
-      <Card isFlat className="custom-nest-field" data-testid="nest-field" {...filterDOMProps(props)}>
+      <Card  className="custom-nest-field" data-testid="nest-field" {...filterDOMProps(props)}>
         <CardHeader>
           <CardTitle>{label}</CardTitle>
         </CardHeader>

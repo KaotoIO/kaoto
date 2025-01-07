@@ -48,7 +48,7 @@ export const NewEntity: FunctionComponent = () => {
           data-testid={`new-entity-${name}`}
           itemId={name}
           description={
-            <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+            <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
               {entity.description}
             </span>
           }
@@ -98,7 +98,7 @@ export const NewEntity: FunctionComponent = () => {
           isExpanded={isOpen}
         >
           <PlusIcon />
-          <span className="pf-v5-u-m-sm">New</span>
+          <span className="pf-v6-u-m-sm">New</span>
         </MenuToggle>
       }
       toggleRef={toggleRef}

@@ -3,30 +3,34 @@
 exports[`OneOfField should render 1`] = `
 <DocumentFragment>
   <form
-    class="pf-v5-c-form"
+    class="pf-v6-c-form"
     data-testid="base-form"
     novalidate=""
   >
     <button
       aria-expanded="false"
-      class="pf-v5-c-menu-toggle pf-m-full-width oneof-toggle"
+      class="pf-v6-c-menu-toggle pf-m-full-width oneof-toggle"
       data-ouia-component-id="OUIA-Generated-MenuToggle-1"
-      data-ouia-component-type="PF5/MenuToggle"
+      data-ouia-component-type="PF6/MenuToggle"
       data-ouia-safe="true"
       data-testid="-oneof-toggle"
       id="-oneof-toggle"
       type="button"
     >
       <span
-        class="pf-v5-c-menu-toggle__text"
+        class="pf-v6-c-menu-toggle__text"
       >
         <div
-          class="pf-v5-c-content"
+          class="pf-v6-c-content"
+          data-ouia-component-id="OUIA-Generated-Content-1"
+          data-ouia-component-type="PF6/Content"
+          data-ouia-safe="true"
+          data-pf-content="true"
         >
           <small
-            class=""
-            data-ouia-component-id="OUIA-Generated-Text-1"
-            data-ouia-component-type="PF5/Text"
+            class="pf-v6-c-content--small"
+            data-ouia-component-id="OUIA-Generated-Content-2"
+            data-ouia-component-type="PF6/Content"
             data-ouia-safe="true"
             data-pf-content="true"
           >
@@ -35,14 +39,14 @@ exports[`OneOfField should render 1`] = `
         </div>
       </span>
       <span
-        class="pf-v5-c-menu-toggle__controls"
+        class="pf-v6-c-menu-toggle__controls"
       >
         <span
-          class="pf-v5-c-menu-toggle__toggle-icon"
+          class="pf-v6-c-menu-toggle__toggle-icon"
         >
           <svg
             aria-hidden="true"
-            class="pf-v5-svg"
+            class="pf-v6-svg"
             fill="currentColor"
             height="1em"
             role="img"

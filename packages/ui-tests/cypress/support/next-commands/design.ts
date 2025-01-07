@@ -128,19 +128,19 @@ Cypress.Commands.add('deleteBranch', (branchIndex) => {
 Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) => {
   cy.get('[data-testid="new-entity-list-dropdown"]').click({ force: true });
   if (subType) {
-    cy.get('ul.pf-v5-c-menu__list')
+    cy.get('ul.pf-v6-c-menu__list')
       .should('exist')
       .find(`[data-testid="new-entity-${type}"]`)
       .should('exist')
       .trigger('mouseover');
   }
   subType = subType ?? type;
-  cy.get(`[data-testid="new-entity-${subType}"] button.pf-v5-c-menu__item`).click({ force: true });
+  cy.get(`[data-testid="new-entity-${subType}"] button.pf-v6-c-menu__item`).click({ force: true });
 });
 
 Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
   cy.hoverOnRuntime(type);
-  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v5-c-menu__item`).first().click({ force: true });
+  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v6-c-menu__item`).first().click({ force: true });
   cy.waitSchemasLoading();
 
   cy.get('[data-testid="visualization-empty-state"]').should('exist');
@@ -149,7 +149,7 @@ Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
 
 Cypress.Commands.add('hoverOnRuntime', (type: string) => {
   cy.get('[data-testid="runtime-selector-list-dropdown"]').click({ force: true });
-  cy.get('ul.pf-v5-c-menu__list')
+  cy.get('ul.pf-v6-c-menu__list')
     .should('exist')
     .find(`[data-testid="runtime-selector-${type}"]`)
     .should('exist')
@@ -157,9 +157,9 @@ Cypress.Commands.add('hoverOnRuntime', (type: string) => {
 });
 
 Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
-  cy.get('.pf-v5-c-card__title-text')
+  cy.get('.pf-v6-c-card__title-text')
     .eq(0)
     .within(() => {
-      cy.get('.pf-v5-c-label__text').should('contain', version);
+      cy.get('.pf-v6-c-label__text').should('contain', version);
     });
 });

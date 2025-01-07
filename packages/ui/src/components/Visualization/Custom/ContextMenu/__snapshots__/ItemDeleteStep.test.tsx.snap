@@ -3,27 +3,27 @@
 exports[`ItemDeleteStep should render delete ContextMenuItem 1`] = `
 <div>
   <li
-    class="pf-v5-c-menu__list-item"
+    class="pf-v6-c-menu__list-item"
     data-ouia-component-id="OUIA-Generated-DropdownItem-1"
-    data-ouia-component-type="PF5/DropdownItem"
+    data-ouia-component-type="PF6/DropdownItem"
     data-ouia-safe="true"
     role="none"
   >
     <button
-      class="pf-v5-c-menu__item"
+      class="pf-v6-c-menu__item"
       role="menuitem"
       tabindex="-1"
       type="button"
     >
       <span
-        class="pf-v5-c-menu__item-main"
+        class="pf-v6-c-menu__item-main"
       >
         <span
-          class="pf-v5-c-menu__item-text"
+          class="pf-v6-c-menu__item-text"
         >
           <svg
             aria-hidden="true"
-            class="pf-v5-svg"
+            class="pf-v6-svg"
             fill="currentColor"
             height="1em"
             role="img"

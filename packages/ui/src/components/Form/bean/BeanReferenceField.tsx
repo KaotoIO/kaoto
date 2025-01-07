@@ -253,7 +253,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
 
         <TextInputGroupUtilities>
           {!!inputValue && (
-            <Button
+            <Button icon={<TimesIcon aria-hidden />}
               data-testid={`${props.name}-clear-input-value-btn`}
               variant="plain"
               onClick={() => {
@@ -264,9 +264,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+             />
           )}
         </TextInputGroupUtilities>
       </TextInputGroup>

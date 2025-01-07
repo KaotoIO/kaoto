@@ -15,15 +15,15 @@ Cypress.Commands.add('addExpressionResultType', (value: string, index?: number) 
     .parent()
     .within(() => {
       cy.get('[data-fieldname="resultType"]').within(() => {
-        cy.get(`input.pf-v5-c-text-input-group__text-input`).clear();
-        cy.get(`input.pf-v5-c-text-input-group__text-input`).type(value).type('{enter}');
+        cy.get(`input.pf-v6-c-text-input-group__text-input`).clear();
+        cy.get(`input.pf-v6-c-text-input-group__text-input`).type(value).type('{enter}');
       });
     });
 });
 
 Cypress.Commands.add('checkExpressionResultType', (value: string) => {
   cy.get('[data-fieldname="resultType"]').within(() => {
-    cy.get(`input.pf-v5-c-text-input-group__text-input`).should('have.value', value);
+    cy.get(`input.pf-v6-c-text-input-group__text-input`).should('have.value', value);
   });
 });
 
@@ -62,16 +62,16 @@ Cypress.Commands.add('selectExpression', (expression: string, index?: number) =>
         .eq(0)
         .should('be.visible')
         .within(() => {
-          cy.get('button.pf-v5-c-menu-toggle__button').click();
+          cy.get('button.pf-v6-c-menu-toggle__button').click();
         });
     });
   const regex = new RegExp(`^${expression}$`);
-  cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
+  cy.get('span.pf-v6-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
   cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
-    cy.get('button.pf-v5-c-menu-toggle__button').click();
+    cy.get('button.pf-v6-c-menu-toggle__button').click();
   });
   cy.get(`#select-typeahead-${value}`).click();
 });
@@ -93,11 +93,11 @@ Cypress.Commands.add('selectDataformat', (dataformat: string) => {
 });
 
 Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
-  cy.get(`div[data-testid="${type}-config-card"] div.pf-v5-c-menu-toggle button.pf-v5-c-menu-toggle__button`)
+  cy.get(`div[data-testid="${type}-config-card"] div.pf-v6-c-menu-toggle button.pf-v6-c-menu-toggle__button`)
     .should('be.visible')
     .click();
   const regex = new RegExp(`^${format}$`);
-  cy.get('span.pf-v5-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
+  cy.get('span.pf-v6-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
 });
 
 Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {
@@ -136,8 +136,8 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
 
 Cypress.Commands.add('filterFields', (filter: string) => {
   cy.get('[data-testid="filter-fields"]').within(() => {
-    cy.get('input.pf-v5-c-text-input-group__text-input').clear();
-    cy.get('input.pf-v5-c-text-input-group__text-input').type(filter);
+    cy.get('input.pf-v6-c-text-input-group__text-input').clear();
+    cy.get('input.pf-v6-c-text-input-group__text-input').type(filter);
   });
 });
 

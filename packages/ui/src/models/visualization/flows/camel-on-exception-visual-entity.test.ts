@@ -14,7 +14,7 @@ describe('CamelOnExceptionVisualEntity', () => {
     });
   });
 
-  describe('constructor', () => {
+  describe("function Object() { [native code] }", () => {
     it('should set id to onExceptionDef.onException.id if it is defined', () => {
       const onExceptionDef: { onException: OnException } = { onException: { id: 'onExceptionId' } };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);

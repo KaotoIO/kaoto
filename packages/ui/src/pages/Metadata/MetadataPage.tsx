@@ -1,4 +1,4 @@
-import { TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { MetadataEditor } from '../../components/MetadataEditor';
 import { useSchemasStore } from '../../store';
@@ -50,6 +50,6 @@ export const MetadataPage: FunctionComponent = () => {
       onChangeModel={onChangeModel}
     />
   ) : (
-    <TextContent>Not applicable</TextContent>
+    <Content>Not applicable</Content>
   );
 };

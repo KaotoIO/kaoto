@@ -27,9 +27,7 @@ export const FlowsMenu: FunctionComponent = () => {
       ref={toggleRef}
       onClick={onToggleClick}
       isFullWidth
-      splitButtonOptions={{
-        variant: 'action',
-        items: [
+      splitButtonItems={[
           <MenuToggleAction
             id="flows-list-btn"
             key="flows-list-btn"
@@ -44,7 +42,7 @@ export const FlowsMenu: FunctionComponent = () => {
               <span
                 title={singleFlowId ?? 'Routes'}
                 data-testid="flows-list-route-id"
-                className="pf-v5-u-m-sm flows-menu-display"
+                className="pf-v6-u-m-sm flows-menu-display"
               >
                 {`${singleFlowId ?? 'Routes'}`}
               </span>
@@ -57,8 +55,7 @@ export const FlowsMenu: FunctionComponent = () => {
               </Badge>
             </div>
           </MenuToggleAction>,
-        ],
-      }}
+        ]}
     />
   );
 

@@ -60,7 +60,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
                     id={nav.title}
                     key={nav.title}
                     data-testid={nav.title}
-                    className={clsx({ 'pf-v5-u-hidden': nav.hidden?.() })}
+                    className={clsx({ 'pf-v6-u-hidden': nav.hidden?.() })}
                     hidden={nav.hidden?.()}
                     title={nav.title}
                     groupId={nav.title}
@@ -73,7 +73,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
                         key={child.title}
                         data-testid={child.title}
                         itemId={index}
-                        className={clsx({ 'pf-v5-u-hidden': child.hidden?.() })}
+                        className={clsx({ 'pf-v6-u-hidden': child.hidden?.() })}
                         hidden={child.hidden?.()}
                         isActive={currentLocation.pathname === child.to}
                       >
@@ -89,7 +89,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
               return (
                 <NavItem
                   id={nav.title}
-                  className={clsx({ 'pf-v5-u-hidden': nav.hidden?.() })}
+                  className={clsx({ 'pf-v6-u-hidden': nav.hidden?.() })}
                   hidden={nav.hidden?.()}
                   key={nav.title}
                   data-testid={nav.title}

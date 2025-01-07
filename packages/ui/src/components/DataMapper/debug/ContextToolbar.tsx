@@ -23,7 +23,7 @@ export const ContextToolbar: FunctionComponent = () => {
     <Toolbar id="data-toolbar" role={'complementary'}>
       <ToolbarContent>
         {
-          <ToolbarGroup variant="button-group" spacer={{ default: 'spacerMd' }}>
+          <ToolbarGroup variant="action-group" gap={{ default: "gapMd" }}>
             <MainMenuToolbarItem />
             <ToggleDebugToolbarItem />
           </ToolbarGroup>

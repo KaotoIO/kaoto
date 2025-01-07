@@ -3,23 +3,23 @@
 exports[`CanvasFallback renders correctly 1`] = `
 <DocumentFragment>
   <div
-    class="pf-v5-l-bullseye"
+    class="pf-v6-l-bullseye"
   >
     <div
-      class="pf-v5-c-empty-state"
+      class="pf-v6-c-empty-state"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__icon"
+            class="pf-v6-c-empty-state__icon"
           >
             <svg
               aria-hidden="true"
-              class="pf-v5-svg"
+              class="pf-v6-svg"
               fill="currentColor"
               height="1em"
               role="img"
@@ -32,17 +32,17 @@ exports[`CanvasFallback renders correctly 1`] = `
             </svg>
           </div>
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h4
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               The provided source code cannot be shown
             </h4>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__body"
+          class="pf-v6-c-empty-state__body"
         >
           <p>
             It might be that the source code is not available, or that the source code is not valid.

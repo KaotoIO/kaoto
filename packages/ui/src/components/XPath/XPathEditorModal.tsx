@@ -1,4 +1,14 @@
-import { Button, ButtonVariant, List, ListItem, Modal, ModalVariant, Popover } from '@patternfly/react-core';
+import {
+	Button,
+	ButtonVariant,
+	List,
+	ListItem,
+	Popover
+} from '@patternfly/react-core';
+import {
+	Modal,
+	ModalVariant
+} from '@patternfly/react-core/deprecated';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { ExpressionItem } from '../../models/datamapper';
@@ -44,7 +54,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   const header = useMemo(
     () => (
       <section id="xpath-editor-modal" className="xpath-editor-modal__header">
-        <h1 className="pf-v5-c-title pf-m-3xl">XPath Editor: {title}</h1>
+        <h1 className="pf-v6-c-title pf-m-3xl">XPath Editor: {title}</h1>
 
         <Popover bodyContent={<p>Grab a field or a function from the left panel and drag it to the right panel</p>}>
           <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<QuestionCircleIcon />} />

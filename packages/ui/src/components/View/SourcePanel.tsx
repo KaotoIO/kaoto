@@ -6,9 +6,8 @@ import {
   PanelMain,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  ContentVariants,
   Truncate,
 } from '@patternfly/react-core';
 import { Parameters } from '../Document/Parameters';
@@ -28,11 +27,11 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   return (
     <Panel id="panel-source" variant="bordered" isScrollable className="source-target-view__source-panel">
       <PanelHeader>
-        <TextContent>
-          <Text component={TextVariants.h3}>
+        <Content>
+          <Content component={ContentVariants.h3}>
             <Truncate content="Source" className="source-target-view__truncate" />
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </PanelHeader>
       <PanelMain onScroll={reloadNodeReferences} maxHeight="90%">
         <Stack className="source-target-view__source-panel-main">

@@ -1,4 +1,10 @@
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import {
+	Button
+} from '@patternfly/react-core';
+import {
+	Modal,
+	ModalVariant
+} from '@patternfly/react-core/deprecated';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -53,7 +59,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
           }
         >
           <PlusIcon />
-          <span className="pf-v5-u-m-sm">New</span>
+          <span className="pf-v6-u-m-sm">New</span>
         </div>
       </FlowTypeSelector>
       <Modal

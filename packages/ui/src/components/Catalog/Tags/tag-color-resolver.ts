@@ -1,6 +1,6 @@
-export type COLOR = 'blue' | 'cyan' | 'green' | 'orange' | 'purple' | 'red' | 'grey' | 'gold';
+import { LabelProps } from '@patternfly/react-core';
 
-export const getTagColor = (tag: string): COLOR => {
+export const getTagColor = (tag: string): LabelProps['color'] => {
   switch (tag.toLowerCase()) {
     case 'stable':
       return 'green';

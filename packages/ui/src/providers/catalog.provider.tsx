@@ -1,4 +1,4 @@
-import { Text, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import kaotoPatterns from '../assets/kaoto-patterns/kaoto-patterns.json';
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
@@ -118,9 +118,9 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
     <CatalogContext.Provider value={CamelCatalogService}>
       {loadingStatus === LoadingStatus.Loading && (
         <Loading>
-          <Text data-testid="loading-catalogs" component={TextVariants.h3}>
+          <Content data-testid="loading-catalogs" component={ContentVariants.h3}>
             Loading Catalogs...
-          </Text>
+          </Content>
         </Loading>
       )}
 

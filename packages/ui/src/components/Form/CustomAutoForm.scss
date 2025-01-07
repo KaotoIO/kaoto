@@ -1,5 +1,5 @@
 /* stylelint-disable-next-line selector-class-pattern */
-form.pf-v5-c-form > div:not(.pf-v5-c-form__group) {
+form.pf-v6-c-form > div:not(.pf-v6-c-form__group) {
   display: grid;
-  gap: var(--pf-v5-c-form--GridGap);
+  gap: var(--pf-v6-c-form--GridGap);
 }

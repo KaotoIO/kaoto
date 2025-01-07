@@ -4,7 +4,7 @@ import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-enti
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 describe('CamelOnCompletionVisualEntity', () => {
-  describe('constructor', () => {
+  describe("function Object() { [native code] }", () => {
     it('should allow to create an instance out of the object definition', () => {
       const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
         onCompletion: { id: 'a-reference', mode: 'AfterConsumer' },

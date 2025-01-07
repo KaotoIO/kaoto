@@ -10,7 +10,7 @@ describe('Test for errorHandler configuration container', () => {
     cy.selectFormTab('All');
 
     cy.get('#-oneof-toggle').click();
-    cy.get('ul.pf-v5-c-menu__list > li:first')
+    cy.get('ul.pf-v6-c-menu__list > li:first')
       .should('have.attr', 'data-testid', '-oneof-select-dropdownlist-Dead Letter Channel')
       .next('li')
       .should('have.attr', 'data-testid', '-oneof-select-dropdownlist-Default Error Handler')

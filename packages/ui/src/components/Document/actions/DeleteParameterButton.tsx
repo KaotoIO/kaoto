@@ -1,4 +1,10 @@
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import {
+	Button
+} from '@patternfly/react-core';
+import {
+	Modal,
+	ModalVariant
+} from '@patternfly/react-core/deprecated';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -36,15 +42,13 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
 
   return (
     <>
-      <Button
+      <Button icon={<TrashIcon />}
         variant="plain"
         title="Delete parameter"
         aria-label="Delete parameter"
         data-testid={`delete-parameter-${parameterName}-button`}
         onClick={openModal}
-      >
-        <TrashIcon />
-      </Button>
+       />
 
       <Modal
         variant={ModalVariant.small}

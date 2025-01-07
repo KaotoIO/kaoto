@@ -38,11 +38,11 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   );
 
   return (
-    <Page header={header}>
+    <Page masthead={header}>
       <BrowserFilePickerMetadataProvider>
         <DataMapperMonitor />
         <CanvasMonitor />
-        <PageSection variant={PageSectionVariants.default} className="debug-layout">
+        <PageSection hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
           <DataMapperControl />
         </PageSection>
       </BrowserFilePickerMetadataProvider>

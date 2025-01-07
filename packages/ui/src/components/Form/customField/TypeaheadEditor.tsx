@@ -185,7 +185,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
 
         <TextInputGroupUtilities>
           {!!inputValue && (
-            <Button
+            <Button icon={<TimesIcon aria-hidden />}
               data-testid="clear-input-value"
               variant="plain"
               onClick={() => {
@@ -196,9 +196,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+             />
           )}
         </TextInputGroupUtilities>
       </TextInputGroup>

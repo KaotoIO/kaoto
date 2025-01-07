@@ -40,7 +40,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     });
   });
 
-  describe('constructor', () => {
+  describe("function Object() { [native code] }", () => {
     it('should set id to generated id', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 

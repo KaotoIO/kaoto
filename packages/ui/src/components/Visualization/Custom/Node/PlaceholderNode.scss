@@ -17,12 +17,12 @@
         border: 2px dashed var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);
         background-color: var(--custom-node-BackgroundColor);
-        padding: var(--pf-v5-global--spacer--md);
+        padding: var(--pf-t--global--spacer--md);
         color: var(--pf-topology__edge--Stroke);
       }
 
       &:hover &__image {
-        border-color: var(--custom-node-hover-BorderColor);
+        border-color: var(--custom-node-BorderColor-hover);
         box-shadow: var(--custom-node-Shadow);
       }
     }
@@ -30,7 +30,7 @@
     &__label {
       @include custom.label {
         background-color: var(--custom-node-BackgroundColor);
-        padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+        padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
         border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
         font-style: italic;
       }

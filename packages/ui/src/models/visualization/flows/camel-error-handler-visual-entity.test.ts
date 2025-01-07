@@ -36,7 +36,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  describe('constructor', () => {
+  describe("function Object() { [native code] }", () => {
     it('should set id to generated id', () => {
       const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 

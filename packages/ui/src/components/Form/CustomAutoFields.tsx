@@ -69,7 +69,7 @@ export function CustomAutoFields({
           groupName={CatalogKind.Processor + ' ' + groupName}
           isGroupExpanded={isGroupExpanded}
         >
-          <Card isFlat className="nest-field-card">
+          <Card  className="nest-field-card">
             <CardBody className="nest-field-card-body">
               {groupFields.map((field) => (
                 <AutoField key={field} name={field} />

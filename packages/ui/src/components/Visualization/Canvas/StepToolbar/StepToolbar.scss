@@ -1,22 +1,21 @@
+@use '../../Custom/custom';
+
 .step-toolbar {
-  --custom-node-BorderColor: var(--pf-v5-global--BorderColor--100);
-  --custom-node-BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
-  --custom-node-BorderRadius: 10px;
-  --custom-node-Shadow: var(--pf-v5-global--BoxShadow--md);
+  @include custom.highligth {
+    display: inline-block;
+    position: relative;
+    border: 1px solid var(--custom-node-BorderColor);
+    border-radius: var(--custom-node-BorderRadius);
+    box-shadow: var(--custom-node-Shadow);
+    background-color: var(--custom-node-BackgroundColor);
+    padding: var(--pf-t--global--spacer--sm);
 
-  display: inline-block;
-  position: relative;
-  border: 2px solid var(--custom-node-BorderColor);
-  border-radius: var(--custom-node-BorderRadius);
-  box-shadow: var(--custom-node-Shadow);
-  background-color: var(--custom-node-BackgroundColor);
-  padding: var(--pf-v5-global--spacer--sm);
+    &__button {
+      margin-right: 1rem;
+    }
 
-  &__button {
-    margin-right: 1rem;
-  }
-
-  &__button:last-of-type {
-    margin-right: 0;
+    &__button:last-of-type {
+      margin-right: 0;
+    }
   }
 }

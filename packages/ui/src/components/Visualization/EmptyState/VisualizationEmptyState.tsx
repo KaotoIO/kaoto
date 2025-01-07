@@ -5,9 +5,7 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
-} from '@patternfly/react-core';
+  } from '@patternfly/react-core';
 import { CubesIcon as PatternFlyCubesIcon, EyeSlashIcon as PatternFlyEyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useMemo } from 'react';
 import { IDataTestID } from '../../../models';
@@ -27,13 +25,7 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
   return (
     <Bullseye className={props.className}>
       <Card>
-        <EmptyState data-testid={props['data-testid']}>
-          <EmptyStateHeader
-            titleText={hasRoutes ? <p>There are no visible routes</p> : <p>There are no routes defined</p>}
-            headingLevel="h4"
-            icon={<EmptyStateIcon icon={hasRoutes ? EyeSlashIcon : CubesIcon} />}
-          />
-
+        <EmptyState  headingLevel="h4" icon={hasRoutes ? EyeSlashIcon : CubesIcon}  titleText={hasRoutes ? <p>There are no visible routes</p> : <p>There are no routes defined</p>} data-testid={props['data-testid']}>
           <EmptyStateBody>
             {hasRoutes ? (
               <p>You can toggle the visibility of a route by using Routes list</p>

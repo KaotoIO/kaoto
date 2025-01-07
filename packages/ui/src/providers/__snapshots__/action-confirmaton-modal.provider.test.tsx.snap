@@ -5,53 +5,57 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
   aria-describedby="pf-modal-part-4"
   aria-labelledby="pf-modal-part-3"
   aria-modal="true"
-  class="pf-v5-c-modal-box pf-m-warning pf-m-sm"
+  class="pf-v6-c-modal-box pf-m-warning pf-m-sm"
   data-ouia-component-id="ActionConfirmationModal"
-  data-ouia-component-type="PF5/ModalContent"
+  data-ouia-component-type="PF6/ModalContent"
   data-ouia-safe="true"
   id="pf-modal-part-2"
   role="dialog"
 >
   <div
-    class="pf-v5-c-modal-box__close"
+    class="pf-v6-c-modal-box__close"
   >
     <button
       aria-disabled="false"
       aria-label="Close"
-      class="pf-v5-c-button pf-m-plain"
+      class="pf-v6-c-button pf-m-plain"
       data-ouia-component-id="ActionConfirmationModal-ModalBoxCloseButton"
-      data-ouia-component-type="PF5/Button"
+      data-ouia-component-type="PF6/Button"
       data-ouia-safe="true"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="pf-v5-svg"
-        fill="currentColor"
-        height="1em"
-        role="img"
-        viewBox="0 0 352 512"
-        width="1em"
-      >
-        <path
-          d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-        />
-      </svg>
-    </button>
-  </div>
-  <header
-    class="pf-v5-c-modal-box__header"
-  >
-    <h1
-      class="pf-v5-c-modal-box__title pf-m-icon"
-      id="pf-modal-part-3"
-    >
       <span
-        class="pf-v5-c-modal-box__title-icon"
+        class="pf-v6-c-button__icon"
       >
         <svg
           aria-hidden="true"
-          class="pf-v5-svg"
+          class="pf-v6-svg"
+          fill="currentColor"
+          height="1em"
+          role="img"
+          viewBox="0 0 352 512"
+          width="1em"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+          />
+        </svg>
+      </span>
+    </button>
+  </div>
+  <header
+    class="pf-v6-c-modal-box__header"
+  >
+    <h1
+      class="pf-v6-c-modal-box__title pf-m-icon"
+      id="pf-modal-part-3"
+    >
+      <span
+        class="pf-v6-c-modal-box__title-icon"
+      >
+        <svg
+          aria-hidden="true"
+          class="pf-v6-svg"
           fill="currentColor"
           height="1em"
           role="img"
@@ -64,57 +68,65 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
         </svg>
       </span>
       <span
-        class="pf-v5-screen-reader"
+        class="pf-v6-screen-reader"
       >
         Warning alert:
       </span>
       <span
-        class="pf-v5-c-modal-box__title-text"
+        class="pf-v6-c-modal-box__title-text"
       >
         Custom title
       </span>
     </h1>
   </header>
   <div
-    class="pf-v5-c-modal-box__body"
+    class="pf-v6-c-modal-box__body"
     id="pf-modal-part-4"
   >
     Custom text
   </div>
   <footer
-    class="pf-v5-c-modal-box__footer"
+    class="pf-v6-c-modal-box__footer"
   >
     <div
-      class="pf-v5-l-split pf-m-gutter pf-m-wrap"
+      class="pf-v6-l-split pf-m-gutter pf-m-wrap"
     >
       <div
-        class="pf-v5-l-split__item"
+        class="pf-v6-l-split__item"
       >
         <button
           aria-disabled="false"
-          class="pf-v5-c-button pf-m-danger"
+          class="pf-v6-c-button pf-m-danger"
           data-ouia-component-id="OUIA-Generated-Button-danger-3"
-          data-ouia-component-type="PF5/Button"
+          data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="action-confirmation-modal-btn-confirm"
           type="button"
         >
-          Confirm
+          <span
+            class="pf-v6-c-button__text"
+          >
+            Confirm
+          </span>
         </button>
       </div>
       <div
-        class="pf-v5-l-split__item"
+        class="pf-v6-l-split__item"
       >
         <button
           aria-disabled="false"
-          class="pf-v5-c-button pf-m-link"
+          class="pf-v6-c-button pf-m-link"
           data-ouia-component-id="OUIA-Generated-Button-link-3"
-          data-ouia-component-type="PF5/Button"
+          data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="action-confirmation-modal-btn-cancel"
           type="button"
         >
-          Cancel
+          <span
+            class="pf-v6-c-button__text"
+          >
+            Cancel
+          </span>
         </button>
       </div>
     </div>

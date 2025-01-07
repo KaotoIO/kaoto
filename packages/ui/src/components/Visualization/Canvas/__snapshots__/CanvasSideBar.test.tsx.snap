@@ -7,23 +7,23 @@ exports[`CanvasSideBar displays selected node information 1`] = `
     role="dialog"
   >
     <div
-      class="pf-v5-c-card pf-m-flat canvas-form"
+      class="pf-v6-c-card canvas-form"
       data-ouia-component-id="OUIA-Generated-Card-1"
-      data-ouia-component-type="PF5/Card"
+      data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       id=""
     >
       <div
-        class="pf-v5-c-card__header"
+        class="pf-v6-c-card__header"
       >
         <div
-          class="pf-v5-c-card__header-main"
+          class="pf-v6-c-card__header-main"
         >
           <div
-            class="pf-v5-l-grid pf-m-gutter"
+            class="pf-v6-l-grid pf-m-gutter"
           >
             <div
-              class="pf-v5-l-grid__item pf-m-11-col form-header"
+              class="pf-v6-l-grid__item pf-m-11-col form-header"
             >
               <img
                 alt="icon"
@@ -31,93 +31,97 @@ exports[`CanvasSideBar displays selected node information 1`] = `
                 src=""
               />
               <h2
-                class="pf-v5-c-title pf-m-xl form-header__title"
+                class="pf-v6-c-title pf-m-h2 form-header__title"
                 data-ouia-component-id="OUIA-Generated-Title-1"
-                data-ouia-component-type="PF5/Title"
+                data-ouia-component-type="PF6/Title"
                 data-ouia-safe="true"
               >
                 timer
               </h2>
             </div>
             <div
-              class="pf-v5-l-grid__item pf-m-1-col"
+              class="pf-v6-l-grid__item pf-m-1-col"
             >
               <button
                 aria-disabled="false"
-                class="pf-v5-c-button pf-m-plain"
+                class="pf-v6-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-1"
-                data-ouia-component-type="PF5/Button"
+                data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 data-testid="close-side-bar"
                 type="button"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v5-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 352 512"
-                  width="1em"
+                <span
+                  class="pf-v6-c-button__icon"
                 >
-                  <path
-                    d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                  />
-                </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 352 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                    />
+                  </svg>
+                </span>
               </button>
             </div>
           </div>
           <div
             aria-label="Single selectable form tabs"
-            class="pf-v5-c-toggle-group form-tabs"
+            class="pf-v6-c-toggle-group form-tabs"
             role="group"
           >
             <div
-              class="pf-v5-c-toggle-group__item"
+              class="pf-v6-c-toggle-group__item"
               title="Shows Required fields only"
             >
               <button
                 aria-pressed="true"
-                class="pf-v5-c-toggle-group__button pf-m-selected"
+                class="pf-v6-c-toggle-group__button pf-m-selected"
                 id="Required"
                 type="button"
               >
                 <span
-                  class="pf-v5-c-toggle-group__text"
+                  class="pf-v6-c-toggle-group__text"
                 >
                   Required
                 </span>
               </button>
             </div>
             <div
-              class="pf-v5-c-toggle-group__item"
+              class="pf-v6-c-toggle-group__item"
               title="Shows All fields"
             >
               <button
                 aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
+                class="pf-v6-c-toggle-group__button"
                 id="All"
                 type="button"
               >
                 <span
-                  class="pf-v5-c-toggle-group__text"
+                  class="pf-v6-c-toggle-group__text"
                 >
                   All
                 </span>
               </button>
             </div>
             <div
-              class="pf-v5-c-toggle-group__item"
+              class="pf-v6-c-toggle-group__item"
               title="Shows Modified fields only"
             >
               <button
                 aria-pressed="false"
-                class="pf-v5-c-toggle-group__button"
+                class="pf-v6-c-toggle-group__button"
                 id="Modified"
                 type="button"
               >
                 <span
-                  class="pf-v5-c-toggle-group__text"
+                  class="pf-v6-c-toggle-group__text"
                 >
                   Modified
                 </span>
@@ -125,21 +129,21 @@ exports[`CanvasSideBar displays selected node information 1`] = `
             </div>
           </div>
           <div
-            class="pf-v5-c-text-input-group filter-fields"
+            class="pf-v6-c-text-input-group filter-fields"
             data-testid="filter-fields"
           >
             <div
-              class="pf-v5-c-text-input-group__main pf-m-icon"
+              class="pf-v6-c-text-input-group__main pf-m-icon"
             >
               <span
-                class="pf-v5-c-text-input-group__text"
+                class="pf-v6-c-text-input-group__text"
               >
                 <span
-                  class="pf-v5-c-text-input-group__icon"
+                  class="pf-v6-c-text-input-group__icon"
                 >
                   <svg
                     aria-hidden="true"
-                    class="pf-v5-svg"
+                    class="pf-v6-svg"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -153,7 +157,7 @@ exports[`CanvasSideBar displays selected node information 1`] = `
                 </span>
                 <input
                   aria-label="Search input"
-                  class="pf-v5-c-text-input-group__text-input"
+                  class="pf-v6-c-text-input-group__text-input"
                   placeholder="Find properties by name"
                   type="text"
                   value=""
@@ -164,26 +168,26 @@ exports[`CanvasSideBar displays selected node information 1`] = `
         </div>
       </div>
       <div
-        class="pf-v5-c-card__body canvas-form__body"
+        class="pf-v6-c-card__body canvas-form__body"
       >
         <div
-          class="pf-v5-c-card"
+          class="pf-v6-c-card"
           data-ouia-component-id="OUIA-Generated-Card-2"
-          data-ouia-component-type="PF5/Card"
+          data-ouia-component-type="PF6/Card"
           data-ouia-safe="true"
           id=""
         >
           <div
-            class="pf-v5-c-card__header"
+            class="pf-v6-c-card__header"
           >
             <div
-              class="pf-v5-c-card__header-main"
+              class="pf-v6-c-card__header-main"
             >
               <div
-                class="pf-v5-c-card__title"
+                class="pf-v6-c-card__title"
               >
                 <div
-                  class="pf-v5-c-card__title-text"
+                  class="pf-v6-c-card__title-text"
                 >
                   Node source
                 </div>
@@ -191,19 +195,19 @@ exports[`CanvasSideBar displays selected node information 1`] = `
             </div>
           </div>
           <div
-            class="pf-v5-c-card__body"
+            class="pf-v6-c-card__body"
           >
             <div
-              class="pf-v5-c-code-block"
+              class="pf-v6-c-code-block"
             >
               <div
-                class="pf-v5-c-code-block__content"
+                class="pf-v6-c-code-block__content"
               >
                 <pre
-                  class="pf-v5-c-code-block__pre"
+                  class="pf-v6-c-code-block__pre"
                 >
                   <code
-                    class="pf-v5-c-code-block__code"
+                    class="pf-v6-c-code-block__code"
                   >
                     id: from-1234
 uri: timer
@@ -221,20 +225,20 @@ steps:
             </div>
           </div>
           <div
-            class="pf-v5-c-card__footer"
+            class="pf-v6-c-card__footer"
           >
             <div
-              class="pf-v5-c-alert pf-m-warning"
+              class="pf-v6-c-alert pf-m-warning"
               data-ouia-component-id="OUIA-Generated-Alert-warning-1"
-              data-ouia-component-type="PF5/Alert"
+              data-ouia-component-type="PF6/Alert"
               data-ouia-safe="true"
             >
               <div
-                class="pf-v5-c-alert__icon"
+                class="pf-v6-c-alert__icon"
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v5-svg"
+                  class="pf-v6-svg"
                   fill="currentColor"
                   height="1em"
                   role="img"
@@ -247,17 +251,17 @@ steps:
                 </svg>
               </div>
               <h4
-                class="pf-v5-c-alert__title"
+                class="pf-v6-c-alert__title"
               >
                 <span
-                  class="pf-v5-screen-reader"
+                  class="pf-v6-screen-reader"
                 >
                   Warning alert:
                 </span>
                 Unknow node type
               </h4>
               <div
-                class="pf-v5-c-alert__description"
+                class="pf-v6-c-alert__description"
               >
                 The configuration for an unknown node cannot be changed in the configuration form. Please switch to the source code and correct the node type. Another option is to replace the step in the graphical editor but in that case you will probably lose the existing configuration.
               </div>

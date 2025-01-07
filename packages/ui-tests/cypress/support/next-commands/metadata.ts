@@ -12,7 +12,7 @@ Cypress.Commands.add('switchWrappedSection', (sectionName: string, wrapped: bool
   cy.get(`[data-testid="expandable-section-${sectionName}"]`)
     .should('be.visible')
     .within(() => {
-      cy.get('.pf-v5-c-expandable-section__toggle').each(($button) => {
+      cy.get('.pf-v6-c-expandable-section__toggle').each(($button) => {
         if ($button.attr('aria-expanded') === String(wrapped)) {
           cy.wrap($button).click();
           cy.wrap($button).should('have.attr', 'aria-expanded', String(!wrapped));
