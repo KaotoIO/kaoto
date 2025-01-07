@@ -7,9 +7,8 @@ import {
   SplitItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  ContentVariants,
   Truncate,
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useRef } from 'react';
@@ -42,11 +41,11 @@ export const SourceTargetView: FunctionComponent = () => {
       <SplitItem className="source-target-view__target-split" isFilled>
         <Panel id="panel-target" variant="bordered" isScrollable className="source-target-view__target-panel">
           <PanelHeader>
-            <TextContent>
-              <Text component={TextVariants.h3}>
+            <Content>
+              <Content component={ContentVariants.h3}>
                 <Truncate content="Target" className="source-target-view__truncate" />
-              </Text>
-            </TextContent>
+              </Content>
+            </Content>
           </PanelHeader>
           <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
             <Stack className="source-target-view__target-panel-main">

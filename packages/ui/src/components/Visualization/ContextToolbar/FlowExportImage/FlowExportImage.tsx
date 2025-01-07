@@ -19,7 +19,7 @@ export function FlowExportImage() {
         filter: (node) => {
           {
             /**  Filter @patternfly/react-topology controls */
-            return !node?.classList?.contains('pf-v5-c-toolbar__group');
+            return !node?.classList?.contains('pf-v6-c-toolbar__group');
           }
         },
       })
@@ -38,8 +38,8 @@ export function FlowExportImage() {
   };
 
   return (
-    <Button title="Export as image" onClick={onClick} variant="control" data-testid="exportImageButton">
-      <ImageIcon />
+    <Button icon={<ImageIcon />} title="Export as image" onClick={onClick} variant="control" data-testid="exportImageButton">
+
     </Button>
   );
 }

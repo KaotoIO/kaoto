@@ -14,6 +14,16 @@ interface SourceCodeProps {
   onCodeChange?: (code: string) => void;
 }
 
+const options: CodeEditorProps['options'] = {
+  selectOnLineNumbers: true,
+  readOnly: false,
+  scrollbar: {
+    horizontal: 'visible',
+    vertical: 'visible',
+  },
+  quickSuggestions: { other: true, strings: true, comments: true },
+};
+
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const entityContext = useContext(EntitiesContext);
@@ -52,16 +62,6 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
     editor?.focus();
   }, []);
 
-  const options: Ref<CodeEditorProps['options']> = useRef({
-    selectOnLineNumbers: true,
-    readOnly: false,
-    scrollbar: {
-      horizontal: 'visible',
-      vertical: 'visible',
-    },
-    quickSuggestions: { other: true, strings: true, comments: true },
-  });
-
   const undoAction = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (editorRef.current?.getModel() as any)?.undo();
@@ -92,13 +92,10 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   return (
     <CodeEditor
       className="source-code-editor"
-      /** 100% is being set but it doesn't work properly, we need to set a fixed height */
-      height="90vh"
-      width="100%"
+      isFullHeight
       isCopyEnabled
       isDownloadEnabled
       isLanguageLabelVisible
-      allowFullScreen
       isUploadEnabled
       toolTipPosition="top"
       code={props.code}
@@ -106,7 +103,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
       customControls={customControls}
       language={Language.yaml}
       editorProps={editorProps.current!}
-      options={options.current!}
+      options={options}
       onEditorDidMount={handleEditorDidMount}
     />
   );

@@ -35,7 +35,7 @@ Cypress.Commands.add('openDesignPage', () => {
 Cypress.Commands.add('openSourceCode', () => {
   cy.expandVisualization();
   cy.get('[data-testid="Source Code"]').click();
-  cy.get('.pf-v5-c-code-editor__code').should('be.visible');
+  cy.get('.pf-v6-c-code-editor__code').should('be.visible');
 });
 
 Cypress.Commands.add('openBeans', () => {
@@ -53,8 +53,8 @@ Cypress.Commands.add('openPipeErrorHandler', () => {
 });
 
 Cypress.Commands.add('openTopbarKebabMenu', () => {
-  cy.get('div.pf-v5-c-masthead__content').within(() => {
-    cy.get('button.pf-v5-c-menu-toggle').click();
+  cy.get('div.pf-v6-c-masthead__content').within(() => {
+    cy.get('button.pf-v6-c-menu-toggle').click();
   });
 });
 
@@ -69,8 +69,8 @@ Cypress.Commands.add('openAboutModal', () => {
 });
 
 Cypress.Commands.add('closeAboutModal', () => {
-  cy.get('.pf-v5-c-about-modal-box').within(() => {
-    cy.get('button.pf-v5-c-button.pf-m-plain').click();
+  cy.get('.pf-v6-c-about-modal-box').within(() => {
+    cy.get('button.pf-v6-c-button.pf-m-plain').click();
   });
 });
 

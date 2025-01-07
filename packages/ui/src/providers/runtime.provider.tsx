@@ -1,5 +1,5 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { Text, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useMemo, useState } from 'react';
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
@@ -75,9 +75,9 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
     <RuntimeContext.Provider value={runtimeContext}>
       {loadingStatus === LoadingStatus.Loading && (
         <Loading>
-          <Text data-testid="loading-library" component={TextVariants.h3}>
+          <Content data-testid="loading-library" component={ContentVariants.h3}>
             Loading Library...
-          </Text>
+          </Content>
         </Loading>
       )}
 

@@ -17,7 +17,7 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
     cy.get(`.expression-metadata-editor`).should('exist');
-    cy.get('.pf-v5-c-card__header-toggle').click();
+    cy.get('.pf-v6-c-card__header-toggle').click();
 
     // filter fields
     cy.filterFields('name');
@@ -43,7 +43,7 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`input[name="name"]`).should('exist');
     cy.get(`input[name="disabled"]`).should('exist');
     cy.get(`.expression-metadata-editor`).should('exist');
-    cy.get('.pf-v5-c-card__header-toggle').click();
+    cy.get('.pf-v6-c-card__header-toggle').click();
 
     // filter fields
     cy.filterFields('DISABLED');
@@ -113,7 +113,7 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectFormTab('Required');
 
-    cy.get('.pf-v5-c-alert__title').should('contain', 'No Required fields found');
+    cy.get('.pf-v6-c-alert__title').should('contain', 'No Required fields found');
   });
 
   it('Side panel to retain user specified fields filter', () => {

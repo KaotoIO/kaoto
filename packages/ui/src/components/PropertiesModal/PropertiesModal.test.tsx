@@ -57,7 +57,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Poll Atom RSS feeds.');
       // tab 0
       expect(screen.getByTestId('tab-0')).toHaveTextContent('Component Options (2)');
@@ -148,7 +148,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Asterisk');
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Asterisk');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
         'Interact with Asterisk PBX Server (VoIP).',
       );
@@ -170,7 +170,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
         'Rest security basic auth definition',
       );
@@ -204,7 +204,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'ASN.1 File',
       );
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
@@ -228,7 +228,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'AWS DynamoDB Streams Source',
       );
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Receive events');
@@ -275,7 +275,7 @@ describe('PropertiesModal', () => {
       // modal uses React portals so baseElement needs to be used here
       const { baseElement } = render(<PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />);
       // info
-      expect(baseElement.getElementsByClassName('pf-v5-c-modal-box__title-text').item(0)).toHaveTextContent(
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'NATS Sink',
       );
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Send data to NATS topics.');

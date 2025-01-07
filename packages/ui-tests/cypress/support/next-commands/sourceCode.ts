@@ -1,14 +1,14 @@
 import 'cypress-file-upload';
 
 Cypress.Commands.add('waitForEditorToLoad', () => {
-  cy.get('.pf-v5-c-code-editor').should(($editor) => {
+  cy.get('.pf-v6-c-code-editor').should(($editor) => {
     expect($editor.find('div:contains("Loading...")')).to.not.exist;
   });
 });
 
 Cypress.Commands.add('editorAddText', (line, text) => {
   cy.waitForEditorToLoad();
-  cy.get('.pf-v5-c-code-editor')
+  cy.get('.pf-v6-c-code-editor')
     .click()
     .type('{ctrl}' + '{g}', { delay: 1 });
   // Select the line number where to insert the new text
@@ -27,9 +27,9 @@ Cypress.Commands.add('editorAddText', (line, text) => {
 Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
   cy.waitForEditorToLoad();
-  cy.get('.pf-v5-c-code-editor__main > input').attachFile(fixture);
+  cy.get('.pf-v6-c-code-editor__main > input').attachFile(fixture);
 
-  cy.get('.pf-v5-c-code-editor').should(($editor) => {
+  cy.get('.pf-v6-c-code-editor').should(($editor) => {
     expect($editor.find('[data-uri^="inmemory://"]')).to.exist;
   });
 });
@@ -38,7 +38,7 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
   repeatCount = repeatCount ?? 1;
   cy.waitForEditorToLoad();
   // Open the Go to Line dialog
-  cy.get('.pf-v5-c-code-editor')
+  cy.get('.pf-v6-c-code-editor')
     .click()
     .type('{ctrl}' + '{g}', { delay: 1 });
   // Type the line number to delete
@@ -55,7 +55,7 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
 Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number) => {
   linesCount = linesCount ?? 1;
   cy.waitForEditorToLoad();
-  cy.get('.pf-v5-c-code-editor').within(() => {
+  cy.get('.pf-v6-c-code-editor').within(() => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);
   });
 });
@@ -75,7 +75,7 @@ Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
 
 Cypress.Commands.add('editorScrollToTop', () => {
   cy.waitForEditorToLoad();
-  cy.get('.pf-v5-c-code-editor').click().type('{ctrl}{home}', { release: false });
+  cy.get('.pf-v6-c-code-editor').click().type('{ctrl}{home}', { release: false });
 });
 
 Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
@@ -98,7 +98,7 @@ Cypress.Commands.add('compareFileWithMonacoEditor', (filePath: string) => {
     const fileLines = fileContent.split('\n').filter((line: string) => line.trim() !== '');
 
     fileLines.forEach((line: string) => {
-      cy.get('.pf-v5-c-code-editor').within(() => {
+      cy.get('.pf-v6-c-code-editor').within(() => {
         cy.get('span:only-child').contains(line.trim()).should('have.length', 1);
       });
     });

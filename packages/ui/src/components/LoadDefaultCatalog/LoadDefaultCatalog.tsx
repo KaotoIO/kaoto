@@ -5,8 +5,6 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   ExpandableSection,
 } from '@patternfly/react-core';
@@ -31,13 +29,7 @@ export const LoadDefaultCatalog: FunctionComponent<PropsWithChildren<ILoadDefaul
 
   return (
     <Bullseye>
-      <EmptyState variant={EmptyStateVariant.lg} data-testid="load-default-catalog">
-        <EmptyStateHeader
-          titleText="The Catalog couldn't be loaded"
-          headingLevel="h4"
-          icon={<EmptyStateIcon icon={ExclamationCircleIcon} />}
-        />
-
+      <EmptyState  headingLevel="h4" icon={ExclamationCircleIcon}  titleText="The Catalog couldn't be loaded" variant={EmptyStateVariant.lg} data-testid="load-default-catalog">
         <EmptyStateBody>{props.children}</EmptyStateBody>
 
         <EmptyStateFooter>

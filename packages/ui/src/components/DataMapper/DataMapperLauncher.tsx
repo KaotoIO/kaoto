@@ -69,7 +69,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
       <Form>
         <FormGroup
           label="Document"
-          labelIcon={
+          labelHelp={
             <Popover
               bodyContent="The name of the XSLT document that is used by the Kaoto DataMapper"
               triggerAction="hover"
@@ -88,7 +88,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           />
           {!isXsltDocumentDefined && (
             <HelperText>
-              <HelperTextItem variant="error" hasIcon>
+              <HelperTextItem variant="error" >
                 This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure
                 it.
               </HelperTextItem>

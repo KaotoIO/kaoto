@@ -1,4 +1,4 @@
-import { Page, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
+import { Page, PageSection } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { LocalStorageKeys } from '../models';
@@ -47,12 +47,10 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   }, [eventNotifier]);
 
   return (
-    <Page header={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>
-      <Panel className="shell__body" isScrollable>
-        <PanelMain className="shell__body">
-          <PanelMainBody className="shell__body">{props.children}</PanelMainBody>
-        </PanelMain>
-      </Panel>
+    <Page isContentFilled masthead={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>
+      <PageSection isFilled hasBodyWrapper={false}>
+        {props.children}
+      </PageSection>
     </Page>
   );
 };

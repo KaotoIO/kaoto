@@ -1,4 +1,4 @@
-import { Text, TextVariants } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
@@ -61,9 +61,9 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
     <SchemasContext.Provider value={schemas}>
       {loadingStatus === LoadingStatus.Loading && (
         <Loading>
-          <Text data-testid="loading-schemas" component={TextVariants.h3}>
+          <Content data-testid="loading-schemas" component={ContentVariants.h3}>
             Loading Schemas...
-          </Text>
+          </Content>
         </Loading>
       )}
 

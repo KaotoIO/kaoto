@@ -1,15 +1,15 @@
 .datamapper-howto {
   flex-flow: column;
   justify-content: start;
-  font-size: var(--pf-v5-c-card__body--FontSize);
-  padding: 0 var(--pf-v5-global--spacer--md);
+  font-size: var(--pf-v6-c-card__body--FontSize);
+  padding: 0 var(--pf-t--global--spacer--md);
 
   & ol {
-    margin-bottom: calc(var(--pf-v5-global--spacer--xl) * 2);
+    margin-bottom: calc(var(--pf-t--global--spacer--xl) * 2);
 
     li {
-      margin-bottom: var(--pf-v5-global--spacer--xl);
-      border-bottom: 1px solid var(--pf-v5-global--palette--black-300);
+      margin-bottom: var(--pf-t--global--spacer--xl);
+      border-bottom: 1px solid var(--pf-v6-global--palette--black-300);
 
       &::marker {
         font-weight: bold;
@@ -18,9 +18,9 @@
   }
 
   img {
-    margin: var(--pf-v5-global--spacer--md) 0;
-    border: 1px solid var(--pf-v5-global--palette--black-300);
-    padding: var(--pf-v5-global--spacer--sm);
-    border-radius: calc(var(--pf-v5-global--BorderRadius--sm) * 2);
+    margin: var(--pf-t--global--spacer--md) 0;
+    border: 1px solid var(--pf-v6-global--palette--black-300);
+    padding: var(--pf-t--global--spacer--sm);
+    border-radius: calc(var(--pf-v6-global--BorderRadius--sm) * 2);
   }
 }

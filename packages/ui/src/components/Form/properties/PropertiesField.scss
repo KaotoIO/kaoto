@@ -9,11 +9,11 @@ $root-element: 'properties-field';
       text-overflow: ellipsis;
       white-space: nowrap;
 
-      --pf-v5-c-table--cell--PaddingLeft: 0 !important;
+      --pf-v6-c-table--cell--PaddingLeft: 0 !important;
     }
 
     .#{$root-element}__row__action[data-column-type='action'] {
-      --pf-v5-c-table--cell--PaddingRight: 0 !important;
+      --pf-v6-c-table--cell--PaddingRight: 0 !important;
     }
   }
 }

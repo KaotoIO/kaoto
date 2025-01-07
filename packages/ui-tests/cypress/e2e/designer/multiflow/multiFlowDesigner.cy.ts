@@ -40,10 +40,10 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.get('[data-testid=goto-btn-route-1234--edit]').click();
     cy.get('[data-testid=goto-btn-route-1234--text-input]').dblclick();
     cy.get('[data-testid=goto-btn-route-1234--text-input]').clear().type('route-4321');
-    cy.get('.pf-v5-c-helper-text__item-text').should('have.text', 'Name must be unique');
+    cy.get('.pf-v6-c-helper-text__item-text').should('have.text', 'Name must be unique');
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').dblclick();
     cy.get('[data-testid="goto-btn-route-1234--text-input"]').clear().type('test 2');
-    cy.get('.pf-v5-c-helper-text__item-text').should(
+    cy.get('.pf-v6-c-helper-text__item-text').should(
       'have.text',
       'Name should only contain lowercase letters, numbers, and dashes',
     );
@@ -78,7 +78,7 @@ describe('Test for Multi route actions from the canvas', () => {
 
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '0/0');
     cy.get('#flows-list-select').within(() => {
-      cy.get('h4.pf-v5-c-empty-state__title-text').should('have.text', "There's no routes to show");
+      cy.get('h4.pf-v6-c-empty-state__title-text').should('have.text', "There's no routes to show");
     });
 
     cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
@@ -90,7 +90,7 @@ describe('Test for Multi route actions from the canvas', () => {
     it("User can't create multiple routes in canvas of type " + data, () => {
       cy.switchIntegrationType(data);
       cy.get('[data-testid="dsl-list-dropdown"]').click({ force: true });
-      cy.get('.pf-v5-c-menu__item-text').contains(data).closest('button').should('be.disabled');
+      cy.get('.pf-v6-c-menu__item-text').contains(data).closest('button').should('be.disabled');
       cy.get('[data-testid="new-entity-list-dropdown"]').should('not.exist');
 
       cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/1');

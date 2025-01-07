@@ -1,4 +1,4 @@
-import { TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { MetadataEditor } from '../../components/MetadataEditor';
@@ -32,6 +32,6 @@ export const BeansPage: FunctionComponent = () => {
   return isSupported ? (
     <MetadataEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={handleChangeModel} />
   ) : (
-    <TextContent>Not applicable</TextContent>
+    <Content>Not applicable</Content>
   );
 };

@@ -3,24 +3,24 @@
 exports[`DataListItem renders correctly 1`] = `
 <li
   aria-labelledby="tile-name"
-  class="pf-v5-c-data-list__item catalog-data-list-item"
+  class="pf-v6-c-data-list__item catalog-data-list-item"
   id="tile-name-tile-type"
 >
   <div
-    class="pf-v5-c-data-list__item-row"
+    class="pf-v6-c-data-list__item-row"
   >
     <div
-      class="pf-v5-c-data-list__item-content"
+      class="pf-v6-c-data-list__item-content"
     >
       <div
-        class="pf-v5-c-data-list__cell"
+        class="pf-v6-c-data-list__cell"
       >
         <div
-          class="pf-v5-l-grid"
+          class="pf-v6-l-grid"
         >
           <div
-            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
-            style="--pf-v5-l-grid--item--Order: 1;"
+            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
+            style="--pf-v6-l-grid--item--Order: 1;"
           >
             <div
               class="catalog-data-list-item__title-div-left"
@@ -37,27 +37,27 @@ exports[`DataListItem renders correctly 1`] = `
                 tile-title
               </span>
               <div
-                class="pf-v5-c-label-group"
+                class="pf-v6-c-label-group"
               >
                 <div
-                  class="pf-v5-c-label-group__main"
+                  class="pf-v6-c-label-group__main"
                 >
                   <ul
                     aria-label="data-list-item-headers-tags"
-                    class="pf-v5-c-label-group__list"
+                    class="pf-v6-c-label-group__list"
                     role="list"
                   >
                     <li
-                      class="pf-v5-c-label-group__list-item"
+                      class="pf-v6-c-label-group__list-item"
                     >
                       <span
-                        class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+                        class="pf-v6-c-label pf-m-filled pf-m-compact catalog-data-list-item__tags"
                       >
                         <span
-                          class="pf-v5-c-label__content"
+                          class="pf-v6-c-label__content"
                         >
                           <span
-                            class="pf-v5-c-label__text"
+                            class="pf-v6-c-label__text"
                           >
                             header-tag1
                           </span>
@@ -65,16 +65,16 @@ exports[`DataListItem renders correctly 1`] = `
                       </span>
                     </li>
                     <li
-                      class="pf-v5-c-label-group__list-item"
+                      class="pf-v6-c-label-group__list-item"
                     >
                       <span
-                        class="pf-v5-c-label pf-m-compact catalog-data-list-item__tags"
+                        class="pf-v6-c-label pf-m-filled pf-m-compact catalog-data-list-item__tags"
                       >
                         <span
-                          class="pf-v5-c-label__content"
+                          class="pf-v6-c-label__content"
                         >
                           <span
-                            class="pf-v5-c-label__text"
+                            class="pf-v6-c-label__text"
                           >
                             header-tag2
                           </span>
@@ -82,16 +82,16 @@ exports[`DataListItem renders correctly 1`] = `
                       </span>
                     </li>
                     <li
-                      class="pf-v5-c-label-group__list-item"
+                      class="pf-v6-c-label-group__list-item"
                     >
                       <span
-                        class="pf-v5-c-label pf-m-outline pf-m-compact catalog-data-list-item__tags"
+                        class="pf-v6-c-label pf-m-outline pf-m-compact catalog-data-list-item__tags"
                       >
                         <span
-                          class="pf-v5-c-label__content"
+                          class="pf-v6-c-label__content"
                         >
                           <span
-                            class="pf-v5-c-label__text"
+                            class="pf-v6-c-label__text"
                           >
                             1.0
                           </span>
@@ -104,35 +104,35 @@ exports[`DataListItem renders correctly 1`] = `
             </div>
           </div>
           <div
-            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
-            style="--pf-v5-l-grid--item--Order: 3; --pf-v5-l-grid--item--Order-on-md: 2;"
+            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
+            style="--pf-v6-l-grid--item--Order: 3; --pf-v6-l-grid--item--Order-on-md: 2;"
           >
             <div
               class="catalog-data-list-item__title-div-right"
             >
               <div
-                class="pf-v5-c-label-group"
+                class="pf-v6-c-label-group"
               >
                 <div
-                  class="pf-v5-c-label-group__main"
+                  class="pf-v6-c-label-group__main"
                 >
                   <ul
                     aria-label="data-list-item-tags"
-                    class="pf-v5-c-label-group__list"
+                    class="pf-v6-c-label-group__list"
                     role="list"
                   >
                     <li
-                      class="pf-v5-c-label-group__list-item"
+                      class="pf-v6-c-label-group__list-item"
                     >
                       <span
-                        class="pf-v5-c-label pf-m-compact"
+                        class="pf-v6-c-label pf-m-filled pf-m-compact"
                       >
                         <a
-                          class="pf-v5-c-label__content"
+                          class="pf-v6-c-label__content"
                           data-testid="tag-tag1"
                         >
                           <span
-                            class="pf-v5-c-label__text"
+                            class="pf-v6-c-label__text"
                           >
                             tag1
                           </span>
@@ -140,17 +140,17 @@ exports[`DataListItem renders correctly 1`] = `
                       </span>
                     </li>
                     <li
-                      class="pf-v5-c-label-group__list-item"
+                      class="pf-v6-c-label-group__list-item"
                     >
                       <span
-                        class="pf-v5-c-label pf-m-compact"
+                        class="pf-v6-c-label pf-m-filled pf-m-compact"
                       >
                         <a
-                          class="pf-v5-c-label__content"
+                          class="pf-v6-c-label__content"
                           data-testid="tag-tag2"
                         >
                           <span
-                            class="pf-v5-c-label__text"
+                            class="pf-v6-c-label__text"
                           >
                             tag2
                           </span>
@@ -163,8 +163,8 @@ exports[`DataListItem renders correctly 1`] = `
             </div>
           </div>
           <div
-            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-11-col-on-md"
-            style="--pf-v5-l-grid--item--Order: 2; --pf-v5-l-grid--item--Order-on-md: 3;"
+            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-11-col-on-md"
+            style="--pf-v6-l-grid--item--Order: 2; --pf-v6-l-grid--item--Order-on-md: 3;"
           >
             <span
               class="catalog-data-list-item__description"
@@ -173,8 +173,8 @@ exports[`DataListItem renders correctly 1`] = `
             </span>
           </div>
           <div
-            class="pf-v5-l-grid__item pf-m-12-col-on-sm pf-m-1-col-on-md"
-            style="--pf-v5-l-grid--item--Order: 4; --pf-v5-l-grid--item--Order-on-md: 4;"
+            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-1-col-on-md"
+            style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
           >
             <span
               class="catalog-data-list-item__provider"

@@ -1,15 +1,10 @@
-import { Bullseye, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import { Bullseye, EmptyState, EmptyStateBody,  } from '@patternfly/react-core';
 import { EyeSlashIcon } from '@patternfly/react-icons';
 
 export const CanvasFallback = () => {
   return (
     <Bullseye>
-      <EmptyState>
-        <EmptyStateHeader
-          titleText="The provided source code cannot be shown"
-          headingLevel="h4"
-          icon={<EmptyStateIcon icon={EyeSlashIcon} />}
-        />
+      <EmptyState  headingLevel="h4" icon={EyeSlashIcon}  titleText="The provided source code cannot be shown">
         <EmptyStateBody>
           <p>It might be that the source code is not available, or that the source code is not valid.</p>
           <br />

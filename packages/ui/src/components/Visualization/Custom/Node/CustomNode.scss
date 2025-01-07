@@ -18,11 +18,11 @@
         display: flex;
         flex-flow: column;
         align-items: center;
-        border: 2px solid var(--custom-node-BorderColor);
+        border: 1px solid var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);
         background-color: var(--custom-node-BackgroundColor);
         align-self: center;
-        padding: var(--pf-v5-global--spacer--sm);
+        padding: var(--pf-t--global--spacer--sm);
         height: 60px;
         width: 60px;
 
@@ -35,7 +35,7 @@
       &:hover &__image,
       [data-toolbar-open='true'] & &__image,
       [data-selected='true'] & &__image {
-        border-color: var(--custom-node-hover-BorderColor);
+        border-color: var(--custom-node-BorderColor-hover);
         box-shadow: var(--custom-node-Shadow);
       }
 
@@ -51,14 +51,14 @@
     &__label {
       @include custom.label {
         background-color: var(--custom-node-BackgroundColor);
-        padding: 0 calc(var(--pf-v5-global--spacer--xs) * 0.75);
+        padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
         border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
 
         &__error {
           color: var(--custom-node-BorderColor);
 
           & > span:first-of-type {
-            margin-right: var(--pf-v5-global--spacer--xs);
+            margin-right: var(--pf-t--global--spacer--xs);
           }
         }
       }

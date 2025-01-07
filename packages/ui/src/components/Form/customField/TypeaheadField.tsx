@@ -184,7 +184,7 @@ export const TypeaheadField = connectField((props: TypeaheadProps) => {
 
         <TextInputGroupUtilities>
           {!!inputValue && (
-            <Button
+            <Button icon={<TimesIcon aria-hidden />}
               variant="plain"
               onClick={() => {
                 setSelected('');
@@ -194,9 +194,7 @@ export const TypeaheadField = connectField((props: TypeaheadProps) => {
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+             />
           )}
         </TextInputGroupUtilities>
       </TextInputGroup>

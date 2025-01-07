@@ -185,7 +185,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
               })}
             >
               {doesHaveWarnings && (
-                <Icon title={validationText} data-warning={doesHaveWarnings}>
+                <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
                   <ExclamationCircleIcon />
                 </Icon>
               )}

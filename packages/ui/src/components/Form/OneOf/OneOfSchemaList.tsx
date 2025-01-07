@@ -4,9 +4,8 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  ContentVariants,
 } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, Ref, useCallback, useEffect, useState } from 'react';
 import { OneOfSchemas } from '../../../utils/get-oneof-schema-list';
@@ -55,9 +54,9 @@ export const OneOfSchemaList: FunctionComponent<OneOfComponentProps> = ({
         isExpanded={isOpen}
       >
         {selectedSchemaName || (
-          <TextContent>
-            <Text component={TextVariants.small}>{SchemaService.DROPDOWN_PLACEHOLDER}</Text>
-          </TextContent>
+          <Content>
+            <Content component={ContentVariants.small}>{SchemaService.DROPDOWN_PLACEHOLDER}</Content>
+          </Content>
         )}
       </MenuToggle>
     ),

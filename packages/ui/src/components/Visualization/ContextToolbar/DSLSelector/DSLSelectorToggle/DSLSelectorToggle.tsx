@@ -65,7 +65,7 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
-                <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+                <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
                   {sourceSchemaConfig.config[sourceType as SourceSchemaType].description}
                 </span>
               }

@@ -7,6 +7,7 @@ import springBootLogo from '../../../../assets/springboot-logo.svg';
 import { useLocalStorage } from '../../../../hooks';
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { LocalStorageKeys } from '../../../../models';
+import './RuntimeSelector.scss';
 
 const SPACE_REGEX = /\s/g;
 const getIcon = (name: string) => {
@@ -114,9 +115,7 @@ export const RuntimeSelector: FunctionComponent = () => {
           icon={icon}
           itemId={name}
           description={
-            <span className="pf-v5-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
-              {runtime.description}
-            </span>
+            <span className="pf-v6-u-text-break-word runtime-selector__description">{runtime.description}</span>
           }
           flyoutMenu={flyoutMenu}
         >
@@ -132,13 +131,12 @@ export const RuntimeSelector: FunctionComponent = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
       menu={
-        // TODO: Workaround for flyout menu being scrollable and packed within the toolbar
-        <Menu ref={menuRef} style={{ overflowY: 'unset' }} containsFlyout onSelect={onSelect}>
+        <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
             <MenuList>
               {Object.entries(groupedRuntimes).map(([group, runtimes]) => {
                 const flyoutMenu = (
-                  <Menu onSelect={onSelect}>
+                  <Menu className="runtime-selector__submenu" onSelect={onSelect}>
                     <MenuContent>
                       <MenuList>{runtimes.map((runtimeDef) => getMenuItem(runtimeDef))}</MenuList>
                     </MenuContent>
@@ -162,10 +160,14 @@ export const RuntimeSelector: FunctionComponent = () => {
           isExpanded={isOpen}
         >
           {getIcon(runtimeContext.selectedCatalog?.name as string)}
-          <span className="pf-v5-u-m-sm">{runtimeContext.selectedCatalog?.name}</span>
+          <span className="pf-v6-u-m-sm">{runtimeContext.selectedCatalog?.name}</span>
         </MenuToggle>
       }
       toggleRef={toggleRef}
+      popperProps={{
+        minWidth: 'trigger',
+        width: 'max-content',
+      }}
     />
   );
 };

@@ -1,4 +1,4 @@
-import { TextContent } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto/camel-catalog/types';
@@ -49,6 +49,6 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
       />
     </>
   ) : (
-    <TextContent>Not applicable</TextContent>
+    <Content>Not applicable</Content>
   );
 };
