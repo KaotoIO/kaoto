@@ -9,8 +9,12 @@ interface IEmptyTableStateProps {
 export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props) => {
   return (
     <Bullseye>
-      <EmptyState  headingLevel="h2" icon={SearchIcon}  titleText={'No properties found for ' + props.name} variant={EmptyStateVariant.sm}>
-        </EmptyState>
+      <EmptyState
+        headingLevel="h2"
+        icon={SearchIcon}
+        titleText={'No properties found for ' + props.name}
+        variant={EmptyStateVariant.sm}
+      ></EmptyState>
     </Bullseye>
   );
 };

@@ -27,7 +27,7 @@ describe('CamelRouteResource', () => {
     expect(resource.getVisualEntities()).toEqual([]);
   });
 
-  describe("function Object() { [native code] }", () => {
+  describe('function Object() { [native code] }', () => {
     const testCases: [CamelYamlDsl, unknown][] = [
       // Good cases
       [[camelRouteJson], CamelRouteVisualEntity],

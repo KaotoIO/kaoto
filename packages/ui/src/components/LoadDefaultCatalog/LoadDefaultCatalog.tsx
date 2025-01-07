@@ -29,7 +29,13 @@ export const LoadDefaultCatalog: FunctionComponent<PropsWithChildren<ILoadDefaul
 
   return (
     <Bullseye>
-      <EmptyState  headingLevel="h4" icon={ExclamationCircleIcon}  titleText="The Catalog couldn't be loaded" variant={EmptyStateVariant.lg} data-testid="load-default-catalog">
+      <EmptyState
+        headingLevel="h4"
+        icon={ExclamationCircleIcon}
+        titleText="The Catalog couldn't be loaded"
+        variant={EmptyStateVariant.lg}
+        data-testid="load-default-catalog"
+      >
         <EmptyStateBody>{props.children}</EmptyStateBody>
 
         <EmptyStateFooter>

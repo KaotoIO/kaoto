@@ -27,7 +27,7 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
       id={props.tile.name}
     >
       <CardHeader
-        selectableActions={{variant: 'single', selectableActionAriaLabelledby: `Selectable ${props.tile.name}`}}
+        selectableActions={{ variant: 'single', selectableActionAriaLabelledby: `Selectable ${props.tile.name}` }}
         data-testid={'tile-header-' + props.tile.name}
         onClick={onTileClick}
       >

@@ -1,14 +1,5 @@
-import {
-	Button,
-	ButtonVariant,
-	List,
-	ListItem,
-	Popover
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Button, ButtonVariant, List, ListItem, Popover } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { ExpressionItem } from '../../models/datamapper';

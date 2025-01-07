@@ -1,10 +1,5 @@
-import {
-	Button
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Button } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { FunctionComponent } from 'react';
 
 interface ChangeDSLModalProps {

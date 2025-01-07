@@ -24,9 +24,7 @@ export function FlowClipboard() {
 
   return (
     <Tooltip {...tooltipProps}>
-      <Button icon={<CopyIcon />} onClick={onClick} variant="control" data-testid="clipboardButton">
-        
-      </Button>
+      <Button icon={<CopyIcon />} onClick={onClick} variant="control" data-testid="clipboardButton"></Button>
     </Tooltip>
   );
 }

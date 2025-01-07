@@ -38,8 +38,12 @@ export function FlowExportImage() {
   };
 
   return (
-    <Button icon={<ImageIcon />} title="Export as image" onClick={onClick} variant="control" data-testid="exportImageButton">
-
-    </Button>
+    <Button
+      icon={<ImageIcon />}
+      title="Export as image"
+      onClick={onClick}
+      variant="control"
+      data-testid="exportImageButton"
+    ></Button>
   );
 }

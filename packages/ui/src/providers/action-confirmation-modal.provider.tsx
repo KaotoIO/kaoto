@@ -1,13 +1,5 @@
-import {
-	Button,
-	ButtonVariant,
-	Split,
-	SplitItem
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Button, ButtonVariant, Split, SplitItem } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 import './action-confirmation-modal.provider.scss';
 

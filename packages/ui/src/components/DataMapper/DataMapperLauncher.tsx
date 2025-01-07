@@ -88,7 +88,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           />
           {!isXsltDocumentDefined && (
             <HelperText>
-              <HelperTextItem variant="error" >
+              <HelperTextItem variant="error">
                 This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure
                 it.
               </HelperTextItem>

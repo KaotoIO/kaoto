@@ -13,13 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {
-	Button
-} from '@patternfly/react-core';
-import {
-	Modal,
-	ModalVariant
-} from '@patternfly/react-core/deprecated';
+import { Button } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
@@ -56,13 +51,14 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
 
   return (
     <>
-      <Button icon={<ExportIcon />}
+      <Button
+        icon={<ExportIcon />}
         variant="plain"
         title="Detach schema"
         aria-label="Detach schema"
         data-testid={`detach-schema-${documentType}-${documentId}-button`}
         onClick={openModal}
-       />
+      />
 
       <Modal
         variant={ModalVariant.small}

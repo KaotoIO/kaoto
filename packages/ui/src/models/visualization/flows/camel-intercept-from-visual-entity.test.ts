@@ -3,7 +3,7 @@ import { CamelInterceptFromVisualEntity } from './camel-intercept-from-visual-en
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 describe('CamelInterceptFromVisualEntity', () => {
-  describe("function Object() { [native code] }", () => {
+  describe('function Object() { [native code] }', () => {
     it('should allow to create an instance out of the string definition', () => {
       const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({ interceptFrom: 'a-reference' });
 

@@ -71,17 +71,17 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
       isExpanded={isOpen}
       isFullWidth
       splitButtonItems={[
-          <MenuToggleAction
-            id="dsl-list-btn"
-            key="dsl-list-btn"
-            data-testid="dsl-list-btn"
-            aria-label="DSL list"
-            onClick={onNewSameTypeRoute}
-            isDisabled={!sourceSchemaConfig.config[currentSchemaType].multipleRoute && totalFlowsCount > 0}
-          >
-            {props.children}
-          </MenuToggleAction>,
-        ]}
+        <MenuToggleAction
+          id="dsl-list-btn"
+          key="dsl-list-btn"
+          data-testid="dsl-list-btn"
+          aria-label="DSL list"
+          onClick={onNewSameTypeRoute}
+          isDisabled={!sourceSchemaConfig.config[currentSchemaType].multipleRoute && totalFlowsCount > 0}
+        >
+          {props.children}
+        </MenuToggleAction>,
+      ]}
     />
   );
 
