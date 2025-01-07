@@ -48,6 +48,8 @@ export const updateKameletFromCustomSchema = (kamelet: IKameletDefinition, value
   setValue(kamelet, 'metadata.annotations', newAnnotations);
 
   const propertiesArray: IKameletCustomProperty[] = getValue(value, 'kameletProperties');
+  // TODO: When deleting the content of the property name, it turns into `undefined` instead of being removed
+  // TODO: Check how can we skip this issue
   const newProperties = propertiesArray?.reduce(
     (acc, property) => {
       if (property !== undefined) {
