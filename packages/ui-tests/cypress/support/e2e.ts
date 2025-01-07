@@ -20,6 +20,9 @@ import './next-commands/nodeConfiguration';
 import './next-commands/design';
 import './next-commands/metadata';
 
+import registerCypressGrep from '@cypress/grep/src/support';
+registerCypressGrep();
+
 Cypress.on('uncaught:exception', (_err, _runnable) => {
   // returning false here prevents Cypress from
   // failing the test

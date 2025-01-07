@@ -12,7 +12,8 @@
   "license": "Apache License v2.0",
   "scripts": {
     "e2e": "cypress open --config-file=cypress.config.ts",
-    "e2e:headless": "cypress run",
+    "e2e:headless": "cypress run --env grepTags=-weekly",
+    "e2e:headless-weekly": "cypress run --env grepTags=weekly",
     "e2e-preview": "cypress open --config-file=cypress.config.ts --config baseUrl=http://localhost:4173/",
     "e2e-preview:headless": "cypress run --config baseUrl=http://localhost:4173/",
     "lint": "yarn eslint \"cypress/**/*.{ts,tsx}\" \"stories/**/*.{ts,tsx}\"",
@@ -22,6 +23,7 @@
     "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=chpt_7a4940aa65b14ab"
   },
   "devDependencies": {
+    "@cypress/grep": "^4.1.0",
     "@eslint/js": "^9.10.0",
     "@kaoto/kaoto": "workspace:*",
     "@storybook/addon-essentials": "^8.2.8",

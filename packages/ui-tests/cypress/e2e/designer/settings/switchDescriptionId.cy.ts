@@ -4,7 +4,7 @@ describe('Tests for switching description and ID in settings page', () => {
   });
 
   // Reset nodeLabel to description
-  after(() => {
+  afterEach(() => {
     cy.openSettings();
     cy.selectInTypeaheadField('nodeLabel', 'description');
     cy.get('[data-testid="settings-form-save-btn"]').click();

@@ -1,11 +1,8 @@
-name: 🏗️ E2E Tests (Cypress)
+name: 🏗️ E2E Weekly Tests (Cypress)
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: "0 0 * * 7"
 
 jobs:
   install:
@@ -105,7 +102,7 @@ jobs:
           working-directory: packages/ui-tests
           wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
-          env: grepTags=-weekly
+          env: grepTags=weekly
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -165,7 +162,7 @@ jobs:
           working-directory: packages/ui-tests
           wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
-          env: grepTags=-weekly
+          env: grepTags=weekly
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -225,7 +222,7 @@ jobs:
           working-directory: packages/ui-tests
           wait-on: 'http://127.0.0.1:4173'
           wait-on-timeout: 120
-          env: grepTags=-weekly
+          env: grepTags=weekly
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

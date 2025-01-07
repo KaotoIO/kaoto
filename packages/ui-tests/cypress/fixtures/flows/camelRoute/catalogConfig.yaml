@@ -1,0 +1,25 @@
+- route:
+    id: route-3933
+    from:
+      id: from-3455
+      uri: timer
+      parameters:
+        delay: "2000"
+        fixedRate: false
+        period: "2000"
+        repeatCount: "10"
+        timerName: testTimerName
+      steps:
+        - setHeader:
+            id: setHeader-2258
+            expression:
+              simple:
+                id: testId
+                expression: testExpression
+            name: testName
+        - log:
+            id: log-3491
+            description: log
+            logName: testLoggerName
+            marker: testMarker
+            message: ${body}
