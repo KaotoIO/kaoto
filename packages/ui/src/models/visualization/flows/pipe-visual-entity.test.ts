@@ -168,6 +168,17 @@ describe('Pipe', () => {
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
     });
 
+    it('should use the path as the node id', () => {
+      const vizNode = pipeVisualEntity.toVizNode();
+      const sourceNode = vizNode.getChildren()![0];
+      const stepNode = sourceNode.getNextNode()!;
+      const sinkNode = stepNode.getNextNode()!;
+
+      expect(sourceNode.id).toEqual('source');
+      expect(stepNode.id).toEqual('steps.0');
+      expect(sinkNode.id).toEqual('sink');
+    });
+
     it('should use the uri as the node label', () => {
       const vizNode = pipeVisualEntity.toVizNode();
 
