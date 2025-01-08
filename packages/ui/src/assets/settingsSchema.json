@@ -20,7 +20,7 @@
     },
     "nodeToolbarTrigger": {
       "title": "Open Node toolbar",
-      "description": "Choose when to open the Node toolbar. Can be either `onHover` or `onSelection`. If `onHover` is selected, the toolbar will be automatically open upon hoevring a node, otherwise, it will be open when selecting a node",
+      "description": "Choose when to open the Node toolbar. Can be either `onHover` or `onSelection`. If `onHover` is selected, the toolbar will be automatically open upon hovering a node, otherwise, it will be open when selecting a node",
       "default": "onHover",
       "type": "string",
       "enum": ["onHover", "onSelection"]
