@@ -21,6 +21,7 @@ export class FlowService {
       node.parentNode = node.parentNode ? `${scope}|${node.parentNode}` : undefined;
     });
     this.edges.forEach((edge) => {
+      edge.id = `${scope}|${edge.id}`;
       edge.source = `${scope}|${edge.source}`;
       edge.target = `${scope}|${edge.target}`;
     });

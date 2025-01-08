@@ -4645,14 +4645,14 @@ exports[`Nodes and Edges should generate edges for steps with branches 2`] = `
 [
   {
     "edgeStyle": "solid",
-    "id": "route.from >>> route.from.steps.0.choice",
+    "id": "test|route.from >>> route.from.steps.0.choice",
     "source": "test|route.from",
     "target": "test|route.from.steps.0.choice",
     "type": "edge",
   },
   {
     "edgeStyle": "solid",
-    "id": "route.from.steps.0.choice >>> route.from.steps.1.to",
+    "id": "test|route.from.steps.0.choice >>> route.from.steps.1.to",
     "source": "test|route.from.steps.0.choice",
     "target": "test|route.from.steps.1.to",
     "type": "edge",

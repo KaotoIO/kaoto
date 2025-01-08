@@ -102,5 +102,23 @@ describe('FlowService', () => {
       expect(group.children).toEqual(['test|route.from', 'test|route.from.steps.0.placeholder']);
       expect(group.group).toBeTruthy();
     });
+
+    it('should scope nodes & edges IDs', () => {
+      const routeNode = new CamelRouteVisualEntity({
+        route: { id: 'route-8888', from: { uri: 'timer:clock', steps: [{ to: { uri: 'log' } }] } },
+      }).toVizNode();
+
+      const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
+
+      expect(nodes).toHaveLength(3);
+      expect(nodes[0].id).toEqual('test|route.from');
+      expect(nodes[1].id).toEqual('test|route.from.steps.0.to');
+      expect(nodes[2].id).toEqual('test|route');
+
+      expect(edges).toHaveLength(1);
+      expect(edges[0].id).toEqual('test|route.from >>> route.from.steps.0.to');
+      expect(edges[0].source).toEqual('test|route.from');
+      expect(edges[0].target).toEqual('test|route.from.steps.0.to');
+    });
   });
 });

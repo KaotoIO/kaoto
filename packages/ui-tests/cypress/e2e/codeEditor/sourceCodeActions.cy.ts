@@ -36,7 +36,7 @@ describe('Test source code editor', () => {
     cy.editorDeleteLine(12, 6);
     cy.openDesignPage();
     // CHECK the kafka-sink step was removed
-    cy.checkNodeExist('kafka-sink', 0);
+    cy.checkNodeExist('integration|kafka-sink', 0);
   });
 
   it('User edits step in the YAML', () => {
