@@ -61,7 +61,7 @@ declare global {
       selectRemoveGroup(groupName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       performNodeAction(nodeName: string, action: ActionType, nodeIndex?: number): Chainable<JQuery<Element>>;
       checkNodeExist(inputName: string, nodesCount: number): Chainable<JQuery<Element>>;
-      checkEdgeExists(sourceName: string, targetName: string): Chainable<JQuery<Element>>;
+      checkEdgeExists(scope: string, sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
       selectRuntimeVersion(type: string): Chainable<JQuery<Element>>;

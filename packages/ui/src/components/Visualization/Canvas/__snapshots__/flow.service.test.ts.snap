@@ -399,7 +399,7 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
 [
   {
     "edgeStyle": "solid",
-    "id": "node >>> set-header",
+    "id": "test|node >>> set-header",
     "source": "test|node",
     "target": "test|set-header",
     "type": "edge",

@@ -62,6 +62,7 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('activemq', 1);
     cy.checkEdgeExists(
+      'eip-action',
       'template.from.steps.1.choice.when.0.steps.1.setHeader',
       'template.from.steps.1.choice.when.0.steps.2.to',
     );
@@ -77,6 +78,7 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('activemq', 1);
     cy.checkEdgeExists(
+      'eip-action',
       'template.from.steps.1.choice.when.0.steps.0.to',
       'template.from.steps.1.choice.when.0.steps.1.to',
     );
@@ -91,6 +93,6 @@ describe('Test for Branching actions from the canvas', () => {
     cy.chooseFromCatalog('component', 'activemq');
 
     cy.checkNodeExist('activemq', 1);
-    cy.checkEdgeExists('template.from.steps.2.to', 'template.from.steps.3.filter');
+    cy.checkEdgeExists('eip-action', 'template.from.steps.2.to', 'template.from.steps.3.filter');
   });
 });

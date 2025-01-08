@@ -141,7 +141,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route.from >>> route.from.steps.0.set-header"
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -210,7 +210,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -279,7 +279,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -348,7 +348,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -417,7 +417,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -925,7 +925,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route.from >>> route.from.steps.0.set-header"
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -994,7 +994,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1063,7 +1063,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1132,7 +1132,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -1201,7 +1201,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2521,7 +2521,7 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route.from >>> route.from.steps.0.set-header"
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2590,7 +2590,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2659,7 +2659,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2728,7 +2728,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -2797,7 +2797,7 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3305,7 +3305,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route.from >>> route.from.steps.0.set-header"
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3374,7 +3374,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3443,7 +3443,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3512,7 +3512,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"
@@ -3581,7 +3581,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
-                            data-id="route.from.steps.1.choice >>> route.from.steps.2.to"
+                            data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
                             style="z-index: 0;"

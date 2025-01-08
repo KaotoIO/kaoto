@@ -105,8 +105,8 @@ Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
   cy.get(`foreignObject[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
 });
 
-Cypress.Commands.add('checkEdgeExists', (sourceName: string, targetName: string) => {
-  const idPattern = `${sourceName} >>> ${targetName}`;
+Cypress.Commands.add('checkEdgeExists', (scope: string, sourceName: string, targetName: string) => {
+  const idPattern = `${scope}|${sourceName} >>> ${targetName}`;
   // Check if an element with the matching id exists
   cy.get('g').should(($elements) => {
     // Use Cypress commands to check if any element matches the id pattern
