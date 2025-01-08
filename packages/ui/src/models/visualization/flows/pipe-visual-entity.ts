@@ -292,7 +292,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       icon,
     };
 
-    return createVisualizationNode(step?.ref?.name ?? path, data);
+    return createVisualizationNode(path, data);
   }
 
   private getVizNodesFromSteps(steps: PipeStep[] = []): IVisualizationNode[] {
