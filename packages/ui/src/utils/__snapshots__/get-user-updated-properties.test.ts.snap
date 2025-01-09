@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getUserUpdatedProperties() should return only the properties which are user Modified 1`] = `
+{
+  "id": {
+    "title": "Id",
+    "type": "string",
+  },
+  "kameletProperties": {
+    "description": "Configure properties on the Kamelet",
+    "items": {
+      "properties": {
+        "default": {
+          "description": "Default value for the property",
+          "title": "Default",
+          "type": "string",
+        },
+        "description": {
+          "description": "Simple text description of the property",
+          "title": "Description",
+          "type": "string",
+        },
+        "name": {
+          "description": "Name of the property",
+          "title": "Property name",
+          "type": "string",
+        },
+        "title": {
+          "description": "Display name of the property",
+          "title": "Title",
+          "type": "string",
+        },
+        "type": {
+          "default": "string",
+          "description": "Set the expected type for this property",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+          ],
+          "title": "Property type",
+          "type": "string",
+        },
+        "x-descriptors": {
+          "description": "Specific aids for the visual tools",
+          "items": {
+            "type": "string",
+          },
+          "title": "X-descriptors",
+          "type": "array",
+        },
+      },
+      "required": [
+        "name",
+        "type",
+      ],
+      "type": "object",
+    },
+    "title": "Properties",
+    "type": "array",
+  },
+  "parameters": {
+    "description": "Endpoint properties description",
+    "properties": {
+      "exceptionHandler": {
+        "$comment": "class:org.apache.camel.spi.ExceptionHandler",
+        "title": "Exception Handler",
+        "type": "string",
+      },
+      "exchangePattern": {
+        "enum": [
+          "InOnly",
+          "InOut",
+        ],
+        "title": "Exchange Pattern",
+        "type": "string",
+      },
+      "fixedRate": {
+        "default": false,
+        "title": "Fixed Rate",
+        "type": "boolean",
+      },
+      "repeatCount": {
+        "title": "Repeat Count",
+        "type": "integer",
+      },
+      "runLoggingLevel": {
+        "default": "TRACE",
+        "enum": [
+          "TRACE",
+          "DEBUG",
+          "INFO",
+          "WARN",
+          "ERROR",
+          "OFF",
+        ],
+        "title": "Run Logging Level",
+        "type": "string",
+      },
+      "timer": {
+        "$comment": "class:java.util.Timer",
+        "title": "Timer",
+        "type": "string",
+      },
+      "timerName": {
+        "title": "Timer Name",
+        "type": "string",
+      },
+    },
+    "required": [
+      "timerName",
+      "fixedRate",
+      "repeatCount",
+      "exceptionHandler",
+      "runLoggingLevel",
+    ],
+    "title": "Endpoint Properties",
+    "type": "object",
+  },
+  "testRef": {
+    "properties": {
+      "spec": {
+        "description": "Path to the OpenApi specification file.",
+        "title": "Specification",
+        "type": "string",
+      },
+    },
+    "required": [
+      "spec",
+    ],
+    "title": "testRef",
+    "type": "object",
+  },
+  "uri": {
+    "title": "Uri",
+    "type": "string",
+  },
+  "variableReceive": {
+    "title": "Variable Receive",
+    "type": "string",
+  },
+}
+`;

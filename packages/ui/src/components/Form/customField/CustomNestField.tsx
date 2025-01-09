@@ -21,10 +21,11 @@ import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
 import { useContext } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 import { FilteredFieldContext } from '../../../providers';
-import { getFieldGroups } from '../../../utils';
+import { getFieldGroups, getFilteredProperties } from '../../../utils';
 import { CustomAutoField } from '../CustomAutoField';
 import { CustomExpandableSection } from './CustomExpandableSection';
 import './CustomNestField.scss';
+import { KaotoSchemaDefinition } from '../../../models';
 
 export type CustomNestFieldProps = HTMLFieldProps<
   object,
@@ -51,12 +52,11 @@ export const CustomNestField = connectField(
   }: CustomNestFieldProps) => {
     const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
     const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
-    const filteredProperties = Object.entries(props.properties ?? {}).filter((field) =>
-      field[0].toLowerCase().includes(cleanQueryTerm),
+    const filteredProperties = getFilteredProperties(
+      props.properties as KaotoSchemaDefinition['schema']['properties'],
+      cleanQueryTerm,
     );
-    const actualProperties = Object.fromEntries(filteredProperties);
-    const propertiesArray = getFieldGroups(actualProperties);
-
+    const propertiesArray = getFieldGroups(filteredProperties);
     if (propertiesArray.common.length === 0 && Object.keys(propertiesArray.groups).length === 0) return null;
 
     return (

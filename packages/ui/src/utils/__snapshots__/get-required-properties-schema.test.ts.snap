@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getRequiredPropertiesSchema() should return only the properties which are Required 1`] = `
+{
+  "definitions": {
+    "testRef": {
+      "properties": {
+        "spec": {
+          "description": "Path to the OpenApi specification file.",
+          "title": "Specification",
+          "type": "string",
+        },
+      },
+      "required": [
+        "spec",
+      ],
+      "title": "testRef",
+      "type": "object",
+    },
+  },
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string",
+    },
+    "labels": {
+      "additionalProperties": {
+        "default": "",
+        "type": "string",
+      },
+      "description": "Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels",
+      "title": "Additional Labels",
+      "type": "object",
+    },
+    "parameters": {
+      "description": "Endpoint properties description",
+      "properties": {
+        "exceptionHandler": {
+          "$comment": "class:org.apache.camel.spi.ExceptionHandler",
+          "title": "Exception Handler",
+          "type": "string",
+        },
+        "fixedRate": {
+          "default": false,
+          "title": "Fixed Rate",
+          "type": "boolean",
+        },
+        "repeatCount": {
+          "title": "Repeat Count",
+          "type": "integer",
+        },
+        "runLoggingLevel": {
+          "default": "TRACE",
+          "enum": [
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "OFF",
+          ],
+          "title": "Run Logging Level",
+          "type": "string",
+        },
+        "timerName": {
+          "title": "Timer Name",
+          "type": "string",
+        },
+      },
+      "required": [
+        "timerName",
+        "fixedRate",
+        "repeatCount",
+        "exceptionHandler",
+        "runLoggingLevel",
+      ],
+      "title": "Endpoint Properties",
+      "type": "object",
+    },
+    "testRef": {
+      "properties": {
+        "spec": {
+          "description": "Path to the OpenApi specification file.",
+          "title": "Specification",
+          "type": "string",
+        },
+      },
+      "required": [
+        "spec",
+      ],
+      "title": "testRef",
+      "type": "object",
+    },
+    "uri": {
+      "title": "Uri",
+      "type": "string",
+    },
+  },
+  "required": [
+    "id",
+    "uri",
+    "labels",
+  ],
+  "type": "object",
+}
+`;
