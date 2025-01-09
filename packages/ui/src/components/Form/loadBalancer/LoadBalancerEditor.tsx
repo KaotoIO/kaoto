@@ -12,12 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { LoadBalancerService } from './loadbalancer.service';
 import './LoadBalancerEditor.scss';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import {
-  getRequiredPropertiesSchema,
-  getSerializedModel,
-  getUserUpdatedPropertiesSchema,
-  isDefined,
-} from '../../../utils';
+import { getRequiredPropertiesSchema, getSerializedModel, getUserUpdatedProperties, isDefined } from '../../../utils';
 import { FormTabsModes } from '../../Visualization/Canvas/Form/canvasformtabs.modes';
 
 interface LoadBalancerEditorProps {
@@ -68,13 +63,13 @@ export const LoadBalancerEditor: FunctionComponent<LoadBalancerEditorProps> = (p
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(loadBalancerSchema ?? {});
+      return getRequiredPropertiesSchema(loadBalancerSchema, loadBalancerSchema);
     } else if (props.formMode === 'All') {
       return loadBalancerSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...loadBalancerSchema,
-        properties: getUserUpdatedPropertiesSchema(loadBalancerSchema?.properties ?? {}, loadBalancerModel ?? {}),
+        properties: getUserUpdatedProperties(loadBalancerSchema?.properties, loadBalancerModel, loadBalancerSchema),
       };
     }
   }, [props.formMode, loadBalancer]);

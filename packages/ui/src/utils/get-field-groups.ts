@@ -1,6 +1,9 @@
 import { getValue } from './get-value';
+import { isDefined } from './is-defined';
 
-export const getFieldGroups = (fields: { [name: string]: unknown }) => {
+export const getFieldGroups = (fields?: { [name: string]: unknown }) => {
+  if (!isDefined(fields)) return { common: [], groups: {} };
+
   const propertiesArray = Object.entries(fields).reduce(
     (acc, [name, definition]) => {
       const group: string = getValue(definition, 'group', '');

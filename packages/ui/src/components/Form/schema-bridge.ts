@@ -42,6 +42,7 @@ export class SchemaBridge extends JSONSchemaBridge {
         } else if (definition.$ref) {
           /** Resolve $ref if needed */
           Object.assign(definition, resolveRefIfNeeded(definition, this.schema));
+          delete definition['$ref'];
         }
       }
 

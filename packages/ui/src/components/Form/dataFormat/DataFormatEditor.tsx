@@ -12,12 +12,7 @@ import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import './DataFormatEditor.scss';
 import { DataFormatService } from './dataformat.service';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
-import {
-  getRequiredPropertiesSchema,
-  getSerializedModel,
-  getUserUpdatedPropertiesSchema,
-  isDefined,
-} from '../../../utils';
+import { getRequiredPropertiesSchema, getSerializedModel, getUserUpdatedProperties, isDefined } from '../../../utils';
 import { FormTabsModes } from '../../Visualization/Canvas/Form/canvasformtabs.modes';
 
 interface DataFormatEditorProps {
@@ -67,13 +62,13 @@ export const DataFormatEditor: FunctionComponent<DataFormatEditorProps> = (props
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(dataFormatSchema ?? {});
+      return getRequiredPropertiesSchema(dataFormatSchema, dataFormatSchema);
     } else if (props.formMode === 'All') {
       return dataFormatSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...dataFormatSchema,
-        properties: getUserUpdatedPropertiesSchema(dataFormatSchema?.properties ?? {}, dataFormatModel ?? {}),
+        properties: getUserUpdatedProperties(dataFormatSchema?.properties, dataFormatModel, dataFormatSchema),
       };
     }
   }, [props.formMode, dataFormat]);

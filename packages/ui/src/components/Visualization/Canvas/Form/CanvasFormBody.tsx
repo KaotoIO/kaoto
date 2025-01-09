@@ -1,7 +1,7 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { SchemaBridgeProvider } from '../../../../providers/schema-bridge.provider';
-import { getUserUpdatedPropertiesSchema, getRequiredPropertiesSchema, isDefined, setValue } from '../../../../utils';
+import { getUserUpdatedProperties, getRequiredPropertiesSchema, isDefined, setValue } from '../../../../utils';
 import { CustomAutoForm, CustomAutoFormRef } from '../../../Form/CustomAutoForm';
 import { DataFormatEditor } from '../../../Form/dataFormat/DataFormatEditor';
 import { LoadBalancerEditor } from '../../../Form/loadBalancer/LoadBalancerEditor';
@@ -32,11 +32,15 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
   if (selectedTab === 'Required') {
-    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema ?? {});
+    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema, visualComponentSchema?.schema);
   } else if (selectedTab === 'Modified') {
     processedSchema = {
       ...visualComponentSchema?.schema,
-      properties: getUserUpdatedPropertiesSchema(visualComponentSchema?.schema.properties ?? {}, model),
+      properties: getUserUpdatedProperties(
+        visualComponentSchema?.schema.properties,
+        model,
+        visualComponentSchema?.schema,
+      ),
     };
   }
 

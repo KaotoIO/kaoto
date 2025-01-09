@@ -1,0 +1,486 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getFilteredProperties() should return only the filtered properties 1`] = `
+{
+  "description": {
+    "description": "Sets the description of this node",
+    "title": "Description",
+    "type": "string",
+  },
+  "openApi": {
+    "additionalProperties": false,
+    "description": "To use OpenApi as contract-first with Camel Rest DSL.",
+    "properties": {
+      "description": {
+        "description": "Sets the description of this node",
+        "title": "Description",
+        "type": "string",
+      },
+    },
+    "required": [
+      "specification",
+    ],
+    "title": "Open Api",
+    "type": "object",
+  },
+  "securityDefinitions": {
+    "additionalProperties": false,
+    "description": "To configure rest security definitions.",
+    "properties": {
+      "apiKey": {
+        "additionalProperties": false,
+        "description": "Rest security basic auth definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+          "name",
+        ],
+        "title": "Api Key",
+        "type": "object",
+      },
+      "basicAuth": {
+        "additionalProperties": false,
+        "description": "Rest security basic auth definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Basic Auth",
+        "type": "object",
+      },
+      "bearer": {
+        "additionalProperties": false,
+        "description": "Rest security bearer token authentication definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Bearer Token",
+        "type": "object",
+      },
+      "mutualTLS": {
+        "additionalProperties": false,
+        "description": "Rest security mutual TLS authentication definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Mutual TLS",
+        "type": "object",
+      },
+      "oauth2": {
+        "additionalProperties": false,
+        "description": "Rest security OAuth2 definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Oauth2",
+        "type": "object",
+      },
+      "openIdConnect": {
+        "additionalProperties": false,
+        "description": "Rest security OpenID Connect definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+          "url",
+        ],
+        "title": "Open Id Connect",
+        "type": "object",
+      },
+    },
+    "title": "Rest Security Definitions",
+    "type": "object",
+  },
+}
+`;
+
+exports[`getFilteredProperties() should return only the un-omitted properties 1`] = `
+{
+  "apiDocs": {
+    "default": true,
+    "description": "Whether to include or exclude this rest operation in API documentation. This option will override what may be configured on a parent level. The default value is true.",
+    "title": "Api Docs",
+    "type": "boolean",
+  },
+  "bindingMode": {
+    "default": "off",
+    "description": "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is auto",
+    "enum": [
+      "off",
+      "auto",
+      "json",
+      "xml",
+      "json_xml",
+    ],
+    "title": "Binding Mode",
+    "type": "string",
+  },
+  "clientRequestValidation": {
+    "default": false,
+    "description": "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.",
+    "title": "Client Request Validation",
+    "type": "boolean",
+  },
+  "consumes": {
+    "description": "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level",
+    "title": "Consumes",
+    "type": "string",
+  },
+  "description": {
+    "description": "Sets the description of this node",
+    "title": "Description",
+    "type": "string",
+  },
+  "disabled": {
+    "default": false,
+    "description": "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.",
+    "title": "Disabled",
+    "type": "boolean",
+  },
+  "enableCORS": {
+    "default": false,
+    "description": "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.",
+    "title": "Enable CORS",
+    "type": "boolean",
+  },
+  "enableNoContentResponse": {
+    "default": false,
+    "description": "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.",
+    "title": "Enable No Content Response",
+    "type": "boolean",
+  },
+  "head": {
+    "items": {
+      "$ref": "#/definitions/org.apache.camel.model.rest.HeadDefinition",
+    },
+    "type": "array",
+  },
+  "id": {
+    "description": "Sets the id of this node",
+    "title": "Id",
+    "type": "string",
+  },
+  "openApi": {
+    "additionalProperties": false,
+    "description": "To use OpenApi as contract-first with Camel Rest DSL.",
+    "properties": {
+      "description": {
+        "description": "Sets the description of this node",
+        "title": "Description",
+        "type": "string",
+      },
+      "disabled": {
+        "description": "Whether to disable all the REST services from the OpenAPI contract from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.",
+        "title": "Disabled",
+        "type": "boolean",
+      },
+      "id": {
+        "description": "Sets the id of this node",
+        "title": "Id",
+        "type": "string",
+      },
+      "missingOperation": {
+        "default": "fail",
+        "description": "Whether to fail, ignore or return a mock response for OpenAPI operations that are not mapped to a corresponding route.",
+        "enum": [
+          "fail",
+          "ignore",
+          "mock",
+        ],
+        "title": "Missing Operation",
+        "type": "string",
+      },
+      "mockIncludePattern": {
+        "default": "classpath:camel-mock/**",
+        "description": "Used for inclusive filtering of mock data from directories. The pattern is using Ant-path style pattern. Multiple patterns can be specified separated by comma.",
+        "title": "Mock Include Pattern",
+        "type": "string",
+      },
+      "routeId": {
+        "description": "Sets the id of the route",
+        "title": "Route Id",
+        "type": "string",
+      },
+      "specification": {
+        "description": "Path to the OpenApi specification file.",
+        "title": "Specification",
+        "type": "string",
+      },
+    },
+    "required": [
+      "specification",
+    ],
+    "title": "Open Api",
+    "type": "object",
+  },
+  "path": {
+    "description": "Path of the rest service, such as /foo",
+    "title": "Path",
+    "type": "string",
+  },
+  "produces": {
+    "description": "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level",
+    "title": "Produces",
+    "type": "string",
+  },
+  "securityDefinitions": {
+    "additionalProperties": false,
+    "description": "To configure rest security definitions.",
+    "properties": {
+      "apiKey": {
+        "additionalProperties": false,
+        "description": "Rest security basic auth definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "inCookie": {
+            "description": "To use a cookie as the location of the API key.",
+            "title": "In Cookie",
+            "type": "boolean",
+          },
+          "inHeader": {
+            "description": "To use header as the location of the API key.",
+            "title": "In Header",
+            "type": "boolean",
+          },
+          "inQuery": {
+            "description": "To use query parameter as the location of the API key.",
+            "title": "In Query",
+            "type": "boolean",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+          "name": {
+            "description": "The name of the header or query parameter to be used.",
+            "title": "Name",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+          "name",
+        ],
+        "title": "Api Key",
+        "type": "object",
+      },
+      "basicAuth": {
+        "additionalProperties": false,
+        "description": "Rest security basic auth definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Basic Auth",
+        "type": "object",
+      },
+      "bearer": {
+        "additionalProperties": false,
+        "description": "Rest security bearer token authentication definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "format": {
+            "description": "A hint to the client to identify how the bearer token is formatted.",
+            "title": "Format",
+            "type": "string",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Bearer Token",
+        "type": "object",
+      },
+      "mutualTLS": {
+        "additionalProperties": false,
+        "description": "Rest security mutual TLS authentication definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Mutual TLS",
+        "type": "object",
+      },
+      "oauth2": {
+        "additionalProperties": false,
+        "description": "Rest security OAuth2 definition",
+        "properties": {
+          "authorizationUrl": {
+            "description": "The authorization URL to be used for this flow. This SHOULD be in the form of a URL. Required for implicit and access code flows",
+            "title": "Authorization Url",
+            "type": "string",
+          },
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "flow": {
+            "description": "The flow used by the OAuth2 security scheme. Valid values are implicit, password, application or accessCode.",
+            "enum": [
+              "implicit",
+              "password",
+              "application",
+              "clientCredentials",
+              "accessCode",
+              "authorizationCode",
+            ],
+            "title": "Flow",
+            "type": "string",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+          "refreshUrl": {
+            "description": "The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL.",
+            "title": "Refresh Url",
+            "type": "string",
+          },
+          "scopes": {
+            "description": "The available scopes for an OAuth2 security scheme",
+            "items": {
+              "$ref": "#/definitions/org.apache.camel.model.rest.RestPropertyDefinition",
+            },
+            "title": "Scopes",
+            "type": "array",
+          },
+          "tokenUrl": {
+            "description": "The token URL to be used for this flow. This SHOULD be in the form of a URL. Required for password, application, and access code flows.",
+            "title": "Token Url",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+        ],
+        "title": "Oauth2",
+        "type": "object",
+      },
+      "openIdConnect": {
+        "additionalProperties": false,
+        "description": "Rest security OpenID Connect definition",
+        "properties": {
+          "description": {
+            "description": "A short description for security scheme.",
+            "title": "Description",
+            "type": "string",
+          },
+          "key": {
+            "description": "Key used to refer to this security definition",
+            "title": "Key",
+            "type": "string",
+          },
+          "url": {
+            "description": "OpenId Connect URL to discover OAuth2 configuration values.",
+            "title": "Url",
+            "type": "string",
+          },
+        },
+        "required": [
+          "key",
+          "url",
+        ],
+        "title": "Open Id Connect",
+        "type": "object",
+      },
+    },
+    "title": "Rest Security Definitions",
+    "type": "object",
+  },
+  "securityRequirements": {
+    "description": "Sets the security requirement(s) for all endpoints.",
+    "items": {
+      "$ref": "#/definitions/org.apache.camel.model.rest.SecurityDefinition",
+    },
+    "title": "Security Requirements",
+    "type": "array",
+  },
+  "skipBindingOnErrorCode": {
+    "default": false,
+    "description": "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level",
+    "title": "Skip Binding On Error Code",
+    "type": "boolean",
+  },
+  "tag": {
+    "description": "To configure a special tag for the operations within this rest definition.",
+    "title": "Tag",
+    "type": "string",
+  },
+}
+`;

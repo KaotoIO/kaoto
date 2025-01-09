@@ -4,7 +4,7 @@ import { ComponentType, createElement, useContext } from 'react';
 import { useForm } from 'uniforms';
 import { CatalogKind, KaotoSchemaDefinition } from '../../models';
 import { CanvasFormTabsContext, FilteredFieldContext } from '../../providers';
-import { getFieldGroups } from '../../utils';
+import { getFieldGroups, getFilteredProperties, isDefined } from '../../utils';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
 import { NoFieldFound } from './NoFieldFound';
@@ -29,16 +29,20 @@ export function CustomAutoFields({
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
   const oneOf = (rootField as KaotoSchemaDefinition['schema']).oneOf;
-
   const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
-  const actualFields = (fields ?? schema.getSubfields()).filter(
-    (field) => !omitFields!.includes(field) && (field === 'parameters' || field.toLowerCase().includes(cleanQueryTerm)),
+  const schemaObject = isDefined(fields)
+    ? fields.reduce((acc: { [name: string]: unknown }, name) => {
+        acc[name] = schema.getField(name);
+        return acc;
+      }, {})
+    : (rootField as KaotoSchemaDefinition['schema']).properties;
+
+  const filteredProperties = getFilteredProperties(
+    schemaObject as KaotoSchemaDefinition['schema']['properties'],
+    cleanQueryTerm,
+    omitFields,
   );
-  const actualFieldsSchema = actualFields.reduce((acc: { [name: string]: unknown }, name) => {
-    acc[name] = schema.getField(name);
-    return acc;
-  }, {});
-  const propertiesArray = getFieldGroups(actualFieldsSchema);
+  const propertiesArray = getFieldGroups(filteredProperties);
 
   if (
     canvasFormTabsContext?.selectedTab !== 'All' &&

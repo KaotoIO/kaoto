@@ -8,12 +8,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { EntitiesContext } from '../../../providers';
-import {
-  getRequiredPropertiesSchema,
-  getSerializedModel,
-  getUserUpdatedPropertiesSchema,
-  isDefined,
-} from '../../../utils';
+import { getRequiredPropertiesSchema, getSerializedModel, getUserUpdatedProperties, isDefined } from '../../../utils';
 import { CanvasNode } from '../../Visualization/Canvas/canvas.models';
 import { TypeaheadEditor } from '../customField/TypeaheadEditor';
 import { ExpressionService } from '../expression/expression.service';
@@ -71,13 +66,13 @@ export const StepExpressionEditor: FunctionComponent<StepExpressionEditorProps> 
 
   const processedSchema = useMemo(() => {
     if (props.formMode === 'Required') {
-      return getRequiredPropertiesSchema(languageSchema ?? {});
+      return getRequiredPropertiesSchema(languageSchema, languageSchema);
     } else if (props.formMode === 'All') {
       return languageSchema;
     } else if (props.formMode === 'Modified') {
       return {
         ...languageSchema,
-        properties: getUserUpdatedPropertiesSchema(languageSchema?.properties ?? {}, languageModel ?? {}),
+        properties: getUserUpdatedProperties(languageSchema?.properties, languageModel, languageSchema),
       };
     }
   }, [props.formMode, language]);
