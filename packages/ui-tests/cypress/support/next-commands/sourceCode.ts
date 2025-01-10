@@ -27,7 +27,7 @@ Cypress.Commands.add('editorAddText', (line, text) => {
 Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
   cy.waitForEditorToLoad();
-  cy.get('.pf-v6-c-code-editor__main > input').attachFile(fixture);
+  cy.get('.pf-v6-c-code-editor__main input[type="file"]').attachFile(fixture);
 
   cy.get('.pf-v6-c-code-editor').should(($editor) => {
     expect($editor.find('[data-uri^="inmemory://"]')).to.exist;
