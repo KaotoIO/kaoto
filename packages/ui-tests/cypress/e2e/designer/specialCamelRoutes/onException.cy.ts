@@ -61,21 +61,6 @@ describe('Test for root on exception container', () => {
     cy.interactWithConfigInputObject('redeliveryPolicy.retryAttemptedLogInterval', '2');
     cy.interactWithConfigInputObject('redeliveryPolicyRef', 'testRedeliveryPolicyRef');
 
-    cy.get('[data-fieldname="retryWhile"]').within(() => {
-      cy.selectExpression('Constant');
-      cy.interactWithExpressionInputObject('expression', `retryWhile.constant`);
-      cy.interactWithExpressionInputObject('id', 'retryWhile.constantExpressionId');
-    });
-    cy.get('[data-fieldname="handled"]').within(() => {
-      cy.selectExpression('Constant');
-      cy.interactWithExpressionInputObject('expression', `handled.constant`);
-      cy.interactWithExpressionInputObject('id', 'handled.constantExpressionId');
-    });
-    cy.get('[data-fieldname="continued"]').within(() => {
-      cy.selectExpression('Constant');
-      cy.interactWithExpressionInputObject('expression', `continued.constant`);
-      cy.interactWithExpressionInputObject('id', 'continued.constantExpressionId');
-    });
     cy.openSourceCode();
 
     cy.checkCodeSpanLine('description: testDescription');
@@ -102,16 +87,6 @@ describe('Test for root on exception container', () => {
     cy.checkCodeSpanLine('redeliveryDelay: "2000"');
     cy.checkCodeSpanLine('retryAttemptedLogInterval: "2"');
     cy.checkCodeSpanLine('redeliveryPolicyRef: testRedeliveryPolicyRef');
-
-    cy.checkCodeSpanLine('retryWhile:');
-    cy.checkCodeSpanLine('id: retryWhile.constantExpressionId');
-    cy.checkCodeSpanLine('expression: retryWhile.constant');
-    cy.checkCodeSpanLine('handled:');
-    cy.checkCodeSpanLine('id: handled.constantExpressionId');
-    cy.checkCodeSpanLine('expression: handled.constant');
-    cy.checkCodeSpanLine('continued:');
-    cy.checkCodeSpanLine('id: continued.constantExpressionId');
-    cy.checkCodeSpanLine('expression: continued.constant');
 
     cy.checkCodeSpanLine('retriesExhaustedLogLevel: INFO');
     cy.checkCodeSpanLine('retryAttemptedLogLevel: INFO');

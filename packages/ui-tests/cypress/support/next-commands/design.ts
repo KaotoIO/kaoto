@@ -25,7 +25,7 @@ Cypress.Commands.add('closeStepConfigurationTab', () => {
 Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'delete', nodeIndex);
   cy.get('body').then(($body) => {
-    if ($body.find('.pf-m-danger').length) {
+    if ($body.find('[data-testid="action-confirmation-modal-btn-confirm"]').length) {
       // Delete Confirmation Modal appeared, click on the confirm button
       cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
     }
