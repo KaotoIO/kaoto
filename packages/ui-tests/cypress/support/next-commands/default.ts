@@ -153,12 +153,12 @@ Cypress.Commands.add('showAllRoutes', () => {
 Cypress.Commands.add('deleteRoute', (index: number) => {
   cy.openFlowsListIfClosed();
   cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
-    cy.wrap(buttons[index]).click();
+    cy.wrap(buttons[index]).click({ force: true });
   });
   cy.get('body').then(($body) => {
     if ($body.find('.pf-m-danger').length) {
       // Delete Confirmation Modal appeared, click on the confirm button
-      cy.get('.pf-m-danger').click();
+      cy.get('.pf-m-danger').click({ force: true });
     }
   });
   cy.closeFlowsListIfVisible();
@@ -167,11 +167,11 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
 Cypress.Commands.add('cancelDeleteRoute', (index: number) => {
   cy.openFlowsListIfClosed();
   cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
-    cy.wrap(buttons[index]).click();
+    cy.wrap(buttons[index]).click({ force: true });
   });
   cy.get('body').then(($body) => {
     if ($body.find('.pf-m-danger').length) {
-      cy.get('[data-testid="action-confirmation-modal-btn-cancel"]').click();
+      cy.get('[data-testid="action-confirmation-modal-btn-cancel"]').click({ force: true });
     }
   });
   cy.closeFlowsListIfVisible();
