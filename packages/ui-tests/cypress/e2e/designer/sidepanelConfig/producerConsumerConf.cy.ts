@@ -9,12 +9,12 @@ describe('Tests for producer/consumer sidebar config', () => {
 
     cy.openStepConfigurationTab('amqp');
     cy.selectFormTab('All');
-    cy.get('.pf-v6-c-expandable-section__toggle-text').contains('Consumer (advanced) properties').should('exist');
-    cy.get('.pf-v6-c-expandable-section__toggle-text').contains('Producer (advanced) properties').should('not.exist');
+    cy.get('.pf-v6-c-expandable-section__toggle').contains('Consumer (advanced) properties').should('exist');
+    cy.get('.pf-v6-c-expandable-section__toggle').contains('Producer (advanced) properties').should('not.exist');
 
     cy.openStepConfigurationTab('activemq6');
     cy.selectFormTab('All');
-    cy.get('.pf-v6-c-expandable-section__toggle-text').contains('Producer (advanced) properties').should('exist');
-    cy.get('.pf-v6-c-expandable-section__toggle-text').contains('Consumer (advanced) properties').should('not.exist');
+    cy.get('.pf-v6-c-expandable-section__toggle').contains('Producer (advanced) properties').should('exist');
+    cy.get('.pf-v6-c-expandable-section__toggle').contains('Consumer (advanced) properties').should('not.exist');
   });
 });

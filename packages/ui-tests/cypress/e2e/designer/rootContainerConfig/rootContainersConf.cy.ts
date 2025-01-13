@@ -111,6 +111,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.interactWithConfigInputObject('kameletProperties.0.x-descriptors.0', 'test.x-descriptors');
 
     cy.openSourceCode();
+    cy.editorScrollToTop();
 
     cy.checkCodeSpanLine('name: test.name');
     cy.checkCodeSpanLine('title: test.title');

@@ -38,6 +38,7 @@ declare global {
       toggleFlowsList(): Chainable<JQuery<Element>>;
       toggleRouteVisibility(index: number): Chainable<JQuery<Element>>;
       closeFlowsListIfVisible(): Chainable<JQuery<Element>>;
+      openFlowsListIfClosed(): Chainable<JQuery<Element>>;
       switchIntegrationType(type: string): Chainable<JQuery<Element>>;
       allignAllRoutesVisibility(switchvisibility: string): Chainable<JQuery<Element>>;
       hideAllRoutes(): Chainable<JQuery<Element>>;
