@@ -118,6 +118,14 @@ Cypress.Commands.add('closeFlowsListIfVisible', () => {
   });
 });
 
+Cypress.Commands.add('openFlowsListIfClosed', () => {
+  cy.get('body').then((body) => {
+    if (body.find('[data-testid="flows-list-table"]').length === 0) {
+      cy.toggleFlowsList();
+    }
+  });
+});
+
 Cypress.Commands.add('allignAllRoutesVisibility', (switchvisibility: string) => {
   cy.toggleFlowsList();
   cy.get('[data-testid="flows-list-table"]').then((body) => {
@@ -143,7 +151,7 @@ Cypress.Commands.add('showAllRoutes', () => {
 });
 
 Cypress.Commands.add('deleteRoute', (index: number) => {
-  cy.toggleFlowsList();
+  cy.openFlowsListIfClosed();
   cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
     cy.wrap(buttons[index]).click();
   });
@@ -157,7 +165,7 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
 });
 
 Cypress.Commands.add('cancelDeleteRoute', (index: number) => {
-  cy.toggleFlowsList();
+  cy.openFlowsListIfClosed();
   cy.get('button[data-testid^="delete-btn-route"]').then((buttons) => {
     cy.wrap(buttons[index]).click();
   });
