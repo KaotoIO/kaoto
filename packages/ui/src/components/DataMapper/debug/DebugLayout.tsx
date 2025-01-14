@@ -13,15 +13,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import {
+  Masthead,
+  MastheadBrand,
+  MastheadContent,
+  MastheadLogo,
+  Page,
+  PageSection,
+  PageSectionVariants,
+} from '@patternfly/react-core';
 import { FunctionComponent, memo, useEffect } from 'react';
-import { Masthead, MastheadContent, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
-import { ContextToolbar } from './ContextToolbar';
-import './DebugLayout.scss';
-import { DataMapperControl } from '../DataMapperControl';
+import logo from '../../../assets/logo-kaoto.png';
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { CanvasMonitor } from './CanvasMonitor';
-import { DataMapperMonitor } from './DataMapperMonitor';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
+import { DataMapperControl } from '../DataMapperControl';
+import { CanvasMonitor } from './CanvasMonitor';
+import { ContextToolbar } from './ContextToolbar';
+import { DataMapperMonitor } from './DataMapperMonitor';
+import './DebugLayout.scss';
 
 export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;
@@ -31,6 +40,11 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
 
   const header = (
     <Masthead>
+      <MastheadBrand>
+        <MastheadLogo>
+          <img className="shell__logo" src={logo} alt="Kaoto Logo" />
+        </MastheadLogo>
+      </MastheadBrand>
       <MastheadContent>
         <ContextToolbar />
       </MastheadContent>
@@ -38,11 +52,11 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   );
 
   return (
-    <Page masthead={header}>
+    <Page isContentFilled masthead={header}>
       <BrowserFilePickerMetadataProvider>
         <DataMapperMonitor />
         <CanvasMonitor />
-        <PageSection hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
+        <PageSection isFilled hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
           <DataMapperControl />
         </PageSection>
       </BrowserFilePickerMetadataProvider>
