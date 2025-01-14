@@ -1,5 +1,6 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { getValue } from './get-value';
+import { isDefined } from './is-defined';
 import { setValue } from './set-value';
 
 export const getCustomSchemaFromPipe = (pipe: Pipe) => {
@@ -17,6 +18,10 @@ export const getCustomSchemaFromPipe = (pipe: Pipe) => {
 };
 
 export const updatePipeFromCustomSchema = (pipe: Pipe, value: Record<string, unknown>): void => {
+  if (!isDefined(value)) {
+    return;
+  }
+
   // Ensure 'labels' and 'annotations' are defined in 'value'
   if (value && getValue(value, 'labels') === undefined) {
     value.labels = {};
@@ -24,9 +29,9 @@ export const updatePipeFromCustomSchema = (pipe: Pipe, value: Record<string, unk
   if (value && getValue(value, 'annotations') === undefined) {
     value.annotations = {};
   }
-  const previousName: string = getValue(pipe, 'metadata.name');
+
   const newName: string = getValue(value, 'name');
-  setValue(pipe, 'metadata.name', newName ?? previousName);
+  setValue(pipe, 'metadata.name', newName);
 
   const previousAnnotations: Record<string, unknown> = getValue(pipe, 'metadata.annotations', {});
   const previousLabels: Record<string, unknown> = getValue(pipe, 'metadata.labels', {});

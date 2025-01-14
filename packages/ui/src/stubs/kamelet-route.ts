@@ -1,4 +1,5 @@
 import { parse } from 'yaml';
+import { IKameletDefinition } from '../models/kamelets-catalog';
 
 /**
  * This is a stub Kamelet in YAML format.
@@ -53,4 +54,4 @@ spec:
  * This is a stub Kamelet in JSON format.
  * It is used to test the Canvas component.
  */
-export const kameletJson = parse(kameletYaml);
+export const kameletJson: IKameletDefinition = parse(kameletYaml);
