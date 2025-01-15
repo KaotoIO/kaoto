@@ -9,6 +9,7 @@ import { StepExpressionEditor } from '../../../Form/stepExpression/StepExpressio
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { CanvasNode } from '../canvas.models';
 import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
+import { KaotoForm } from '../FormV2/KaotoForm';
 
 interface CanvasFormTabsProps {
   selectedNode: CanvasNode;
@@ -84,27 +85,28 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
       {stepFeatures.isUnknownComponent ? (
         <UnknownNode model={model} />
       ) : (
-        <SchemaBridgeProvider schema={processedSchema} parentRef={divRef}>
-          {stepFeatures.isExpressionAwareStep && (
-            <StepExpressionEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-          )}
-          {stepFeatures.isDataFormatAwareStep && (
-            <DataFormatEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-          )}
-          {stepFeatures.isLoadBalanceAwareStep && (
-            <LoadBalancerEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-          )}
-          <CustomAutoForm
-            key={props.selectedNode.id}
-            ref={formRef}
-            model={model}
-            onChange={handleOnChangeIndividualProp}
-            sortFields={false}
-            omitFields={omitFields.current}
-            data-testid="autoform"
-          />
-          <div data-testid="root-form-placeholder" ref={divRef} />
-        </SchemaBridgeProvider>
+        // <SchemaBridgeProvider schema={processedSchema} parentRef={divRef}>
+        //   {stepFeatures.isExpressionAwareStep && (
+        //     <StepExpressionEditor selectedNode={props.selectedNode} formMode={selectedTab} />
+        //   )}
+        //   {stepFeatures.isDataFormatAwareStep && (
+        //     <DataFormatEditor selectedNode={props.selectedNode} formMode={selectedTab} />
+        //   )}
+        //   {stepFeatures.isLoadBalanceAwareStep && (
+        //     <LoadBalancerEditor selectedNode={props.selectedNode} formMode={selectedTab} />
+        //   )}
+        //   <CustomAutoForm
+        //     key={props.selectedNode.id}
+        //     ref={formRef}
+        //     model={model}
+        //     onChange={handleOnChangeIndividualProp}
+        //     sortFields={false}
+        //     omitFields={omitFields.current}
+        //     data-testid="autoform"
+        //   />
+        //   <div data-testid="root-form-placeholder" ref={divRef} />
+        // </SchemaBridgeProvider>
+        <KaotoForm schema={processedSchema} onChange={handleOnChangeIndividualProp} model={model} />
       )}
     </>
   );
