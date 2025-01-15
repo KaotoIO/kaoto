@@ -1,3 +1,5 @@
+import { selectors } from '@kaoto/kaoto/testing';
+
 describe('Tests for producer/consumer sidebar config', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -9,12 +11,12 @@ describe('Tests for producer/consumer sidebar config', () => {
 
     cy.openStepConfigurationTab('amqp');
     cy.selectFormTab('All');
-    cy.get('.pf-v5-c-expandable-section__toggle-text').contains('Consumer (advanced) properties').should('exist');
-    cy.get('.pf-v5-c-expandable-section__toggle-text').contains('Producer (advanced) properties').should('not.exist');
+    cy.get(selectors.EXPANDABLE_SECTION_TOGGLE_TEXT).contains('Consumer (advanced) properties').should('exist');
+    cy.get(selectors.EXPANDABLE_SECTION_TOGGLE_TEXT).contains('Producer (advanced) properties').should('not.exist');
 
     cy.openStepConfigurationTab('activemq6');
     cy.selectFormTab('All');
-    cy.get('.pf-v5-c-expandable-section__toggle-text').contains('Producer (advanced) properties').should('exist');
-    cy.get('.pf-v5-c-expandable-section__toggle-text').contains('Consumer (advanced) properties').should('not.exist');
+    cy.get(selectors.EXPANDABLE_SECTION_TOGGLE_TEXT).contains('Producer (advanced) properties').should('exist');
+    cy.get(selectors.EXPANDABLE_SECTION_TOGGLE_TEXT).contains('Consumer (advanced) properties').should('not.exist');
   });
 });
