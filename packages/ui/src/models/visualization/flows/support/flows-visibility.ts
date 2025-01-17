@@ -55,7 +55,6 @@ const ensureAtLeastOneVisibleFlow = (state: IVisibleFlows) => {
 };
 
 export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
-  let visibleFlows: IVisibleFlows;
   switch (action.type) {
     case 'toggleFlowVisible':
       return {
@@ -78,20 +77,20 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
     case 'clearFlows':
       return {};
 
-    case 'initVisibleFlows':
+    case 'initVisibleFlows': {
+      const firstRender = Object.keys(state).length === 0;
       if (
         action.flowsIds.length === Object.keys(state).length &&
         action.flowsIds.every((flowId) => isDefined(state[flowId]))
       ) {
-        return ensureAtLeastOneVisibleFlow(state);
+        return state;
       }
-
-      visibleFlows = action.flowsIds.reduce((acc, flowId) => {
+      const visibleFlows = action.flowsIds.reduce((acc, flowId) => {
         acc[flowId] = state[flowId] ?? false;
         return acc;
       }, {} as IVisibleFlows);
-
-      return ensureAtLeastOneVisibleFlow(visibleFlows);
+      return firstRender ? ensureAtLeastOneVisibleFlow(visibleFlows) : visibleFlows;
+    }
 
     case 'renameFlow':
       // eslint-disable-next-line no-case-declarations
