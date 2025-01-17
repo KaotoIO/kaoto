@@ -11,7 +11,6 @@ import {
   observer,
   useAnchor,
   useHover,
-  useSelection,
   withDndDrop,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useRef } from 'react';
@@ -21,13 +20,13 @@ import { LayoutType } from '../../Canvas';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { AddStepIcon } from '../Edge/AddStepIcon';
+import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import './CustomGroupExpanded.scss';
 import { CustomGroupProps } from './Group.models';
-import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, dndDropRef, droppable }) => {
+  ({ element, onContextMenu, onCollapseToggle, dndDropRef, droppable, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
@@ -37,7 +36,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
-    const [isSelected, onSelect] = useSelection();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -46,8 +44,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
-        ? isGHover || isToolbarHover || isSelected
-        : isSelected;
+        ? isGHover || isToolbarHover || selected
+        : selected;
     const shouldShowAddStep =
       shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
     const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
@@ -80,7 +78,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           className="custom-group"
           data-testid={`custom-group__${vizNode.id}`}
           data-grouplabel={label}
-          data-selected={isSelected}
+          data-selected={selected}
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           onClick={onSelect}

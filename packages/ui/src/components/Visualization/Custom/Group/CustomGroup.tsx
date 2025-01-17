@@ -7,35 +7,55 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
-import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
-import { CustomGroupCollapsible } from './CustomGroupCollapsible';
+import { CustomNodeObserver } from '../Node/CustomNode';
+import { useCollapseStep } from '../hooks/collapse-step.hook';
+import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 type IDefaultGroup = Parameters<typeof DefaultGroup>[0];
 interface ICustomGroup extends IDefaultGroup {
   element: GraphElement<CanvasNode, CanvasNode['data']>;
 }
 
-const CustomGroup: FunctionComponent<ICustomGroup> = observer(({ element, ...rest }) => {
-  const vizNode = element.getData()?.vizNode;
-  const label = vizNode?.getNodeLabel();
+const CustomGroupInner: FunctionComponent<ICustomGroup> = observer(({ element, onCollapseChange, ...rest }) => {
+  if (!isNode(element)) {
+    throw new Error('CustomGroupInner must be used only on Node elements');
+  }
 
+  const { onCollapseNode, onExpandNode } = useCollapseStep(element);
+
+  if (element.isCollapsed()) {
+    return (
+      <CustomNodeObserver
+        {...rest}
+        element={element}
+        onCollapseToggle={() => {
+          onExpandNode();
+          onCollapseChange?.(element, true);
+        }}
+      />
+    );
+  }
+
+  return (
+    <CustomGroupExpanded
+      {...rest}
+      element={element}
+      onCollapseToggle={() => {
+        onCollapseNode();
+        onCollapseChange?.(element, false);
+      }}
+    />
+  );
+});
+
+const CustomGroup: FunctionComponent<ICustomGroup> = ({ element, ...rest }: ICustomGroup) => {
   if (!isNode(element)) {
     throw new Error('CustomGroup must be used only on Node elements');
   }
 
-  return (
-    <CustomGroupCollapsible
-      {...rest}
-      element={element}
-      label={label}
-      collapsible
-      collapsedWidth={CanvasDefaults.DEFAULT_NODE_WIDTH}
-      collapsedHeight={CanvasDefaults.DEFAULT_NODE_HEIGHT}
-      hulledOutline={false}
-    />
-  );
-});
+  return <CustomGroupInner element={element} {...rest} />;
+};
 
 export const CustomGroupWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomGroup));

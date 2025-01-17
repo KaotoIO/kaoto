@@ -2,8 +2,8 @@ import { Icon } from '@patternfly/react-core';
 import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
-  DefaultNode,
   DEFAULT_LAYER,
+  DefaultNode,
   DragObjectWithType,
   DragSourceSpec,
   DragSpecOperationType,
@@ -20,27 +20,25 @@ import {
   TOP_LAYER,
   useAnchor,
   useCombineRefs,
-  useHover,
   useDragNode,
-  useSelection,
+  useHover,
   withContextMenu,
   withDndDrop,
   withSelection,
-  useVisualizationController,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useRef } from 'react';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { customNodeDropTargetSpec } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
-import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { customNodeDropTargetSpec } from '../customComponentUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -50,22 +48,20 @@ interface CustomNodeProps extends DefaultNodeProps {
   onCollapseToggle?: () => void;
 }
 
-const CustomNode: FunctionComponent<CustomNodeProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, dndDropRef, hover, droppable, canDrop }) => {
+const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
+  ({ element, onContextMenu, onCollapseToggle, dndDropRef, hover, droppable, canDrop, selected, onSelect }) => {
     if (!isNode(element)) {
-      throw new Error('CustomNode must be used only on Node elements');
+      throw new Error('CustomNodeInner must be used only on Node elements');
     }
 
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const entitiesContext = useEntityContext();
-    const controller = useVisualizationController();
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
-    const [isSelected, onSelect] = useSelection();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -75,8 +71,8 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
     const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
-        ? isGHover || isToolbarHover || isSelected
-        : isSelected;
+        ? isGHover || isToolbarHover || selected
+        : selected;
     const shouldShowAddStep =
       shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
     const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
@@ -94,9 +90,13 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
     > = {
       item: { type: '#node#' },
       begin: () => {
-        const graph = controller.getGraph();
         // Hide all edges when dragging starts
-        graph.getEdges().forEach((edge) => edge.setVisible(false));
+        element
+          .getGraph()
+          .getEdges()
+          .forEach((edge) => {
+            edge.setVisible(false);
+          });
       },
       canDrag: () => {
         if (settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop) {
@@ -110,18 +110,23 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
           const draggedNodePath = element.getData().vizNode.data.path;
           dropResult.getData()?.vizNode?.moveNodeTo(draggedNodePath);
           // Set an empty model to clear the graph
-          controller.fromModel({
+          element.getController().fromModel({
             nodes: [],
             edges: [],
           });
-          entitiesContext.updateEntitiesFromCamelResource();
+
+          requestAnimationFrame(() => {
+            entitiesContext.updateEntitiesFromCamelResource();
+          });
         } else {
           // Show all edges after dropping
-          controller
+          element
             .getGraph()
             .getEdges()
-            .forEach((edge) => edge.setVisible(true));
-          controller.getGraph().layout();
+            .forEach((edge) => {
+              edge.setVisible(true);
+            });
+          element.getGraph().layout();
         }
       },
     };
@@ -148,7 +153,7 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
           className="custom-node"
           data-testid={`custom-node__${vizNode.id}`}
           data-nodelabel={label}
-          data-selected={isSelected}
+          data-selected={selected}
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           data-warning={doesHaveWarnings}
@@ -244,6 +249,15 @@ const CustomNode: FunctionComponent<CustomNodeProps> = observer(
   },
 );
 
-export const CustomNodeWithSelection = withDndDrop(customNodeDropTargetSpec)(
-  withSelection()(withContextMenu(NodeContextMenuFn)(CustomNode)),
+const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: CustomNodeProps) => {
+  if (!isNode(element)) {
+    throw new Error('CustomNode must be used only on Node elements');
+  }
+  return <CustomNodeInner element={element} {...rest} />;
+};
+
+export const CustomNodeObserver = observer(CustomNode);
+
+export const CustomNodeWithSelection = withSelection()(
+  withDndDrop(customNodeDropTargetSpec)(withContextMenu(NodeContextMenuFn)(CustomNode)),
 );
