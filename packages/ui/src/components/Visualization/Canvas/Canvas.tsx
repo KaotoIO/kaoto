@@ -90,8 +90,16 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
     };
 
-    controller.fromModel(model, false);
-    setInitialized(true);
+    if (!initialized) {
+      controller.fromModel(model, false);
+      setInitialized(true);
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      controller.fromModel(model, true);
+      controller.getGraph().layout();
+    });
   }, [controller, entities, visibleFlows]);
 
   const handleSelection = useCallback((selectedIds: string[]) => {
