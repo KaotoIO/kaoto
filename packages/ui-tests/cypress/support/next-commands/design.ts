@@ -7,6 +7,10 @@ Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: numb
   cy.get(`g[data-nodelabel^="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
+Cypress.Commands.add('openStepConfigurationTabByPath', (path: string) => {
+  cy.get(`g[data-testid="${path}"]`).click({ force: true });
+});
+
 Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex?: number) => {
   groupIndex = groupIndex ?? 0;
   cy.get(`g[data-grouplabel^="${group}"]`).eq(groupIndex).click({ force: true });
