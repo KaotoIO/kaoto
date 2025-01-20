@@ -30,7 +30,7 @@ interface PlaceholderNodeInnerProps extends DefaultNodeProps {
 const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = observer(
   ({ element, dndDropRef, hover, canDrop }) => {
     if (!isNode(element)) {
-      throw new Error('PlaceholderNode must be used only on Node elements');
+      throw new Error('PlaceholderNodeInner must be used only on Node elements');
     }
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const settingsAdapter = useContext(SettingsContext);
@@ -93,4 +93,16 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   },
 );
 
-export const PlaceholderNode = withDndDrop(placeholderNodeDropTargetSpec)(PlaceholderNodeInner);
+const PlaceholderNode: FunctionComponent<PlaceholderNodeInnerProps> = ({
+  element,
+  ...rest
+}: PlaceholderNodeInnerProps) => {
+  if (!isNode(element)) {
+    throw new Error('PlaceholderNode must be used only on Node elements');
+  }
+  return <PlaceholderNodeInner element={element} {...rest} />;
+};
+
+export const PlaceholderNodeObserver = observer(PlaceholderNode);
+
+export const PlaceholderNodeWithDnD = withDndDrop(placeholderNodeDropTargetSpec)(PlaceholderNode);

@@ -25,12 +25,16 @@ describe('Tests for sidebar expression configuration', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.openStepConfigurationTab('setHeader');
+    cy.openStepConfigurationTab('setHeader', 0);
     cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
     cy.addExpressionResultType('java.lang.String');
     cy.interactWithConfigInputObject('trim');
+
+    // TODO: Closing the configuration panel because adding a new step keep the selection status,
+    // but closes the panel. This will be fixed in https://github.com/KaotoIO/kaoto/issues/1923
+    cy.closeStepConfigurationTab();
 
     cy.selectAppendNode('setHeader');
     cy.chooseFromCatalog('processor', 'setHeader');
