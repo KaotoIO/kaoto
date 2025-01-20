@@ -12,7 +12,7 @@ import {
   withPanZoom,
 } from '@patternfly/react-topology';
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
-import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
+import { PlaceholderNodeWithDnD } from '../Custom/Node/PlaceholderNode';
 import { LayoutType } from './canvas.models';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
 
@@ -52,7 +52,7 @@ export class ControllerService {
       case 'group':
         return CustomGroupWithSelection;
       case 'node-placeholder':
-        return PlaceholderNode;
+        return PlaceholderNodeWithDnD;
       default:
         switch (kind) {
           case ModelKind.graph:
