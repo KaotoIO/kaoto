@@ -25,7 +25,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.openStepConfigurationTab('setHeader', 0);
+    cy.openStepConfigurationTabByPath('custom-node__route.from.steps.0.setHeader');
     cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.id');
@@ -41,14 +41,14 @@ describe('Tests for sidebar expression configuration', () => {
 
     cy.checkNodeExist('setHeader', 2);
 
-    cy.openStepConfigurationTab('setHeader', 1);
+    cy.openStepConfigurationTabByPath('custom-node__route.from.steps.1.setHeader');
     cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithConfigInputObject('expression', '.name');
     cy.addExpressionResultType('java.lang.String');
     cy.interactWithConfigInputObject('trim');
 
-    cy.openStepConfigurationTab('setHeader', 0);
+    cy.openStepConfigurationTabByPath('custom-node__route.from.steps.0.setHeader');
 
     // Check the configured fields didn't disappear from the first node
     cy.checkConfigCheckboxObject('trim', true);
@@ -56,7 +56,7 @@ describe('Tests for sidebar expression configuration', () => {
     cy.checkConfigInputObject('expression', '.id');
 
     // Check the configured fields didn't disappear from the second node
-    cy.openStepConfigurationTab('setHeader', 0);
+    cy.openStepConfigurationTabByPath('custom-node__route.from.steps.1.setHeader');
     cy.checkConfigCheckboxObject('trim', true);
     cy.addExpressionResultType('java.lang.String');
     cy.checkConfigInputObject('expression', '.name');
