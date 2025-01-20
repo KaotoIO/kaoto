@@ -1,5 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CustomNode should render 1`] = `<DocumentFragment />`;
-
 exports[`CustomNode should render without error 1`] = `<DocumentFragment />`;
