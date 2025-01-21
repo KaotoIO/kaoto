@@ -1,3 +1,5 @@
+@forward '~@patternfly/patternfly/components/DragDrop/drag-drop.scss';
+
 @mixin cursor-grab {
   cursor: grab;
 

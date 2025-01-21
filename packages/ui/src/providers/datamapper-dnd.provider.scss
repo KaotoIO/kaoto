@@ -1,0 +1,17 @@
+@use '../styles/dnd';
+
+.dragging-container {
+  padding: 5px;
+  font-weight: bold;
+  color: var(--pf-t--global--icon--color--brand--default);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--pf-v6-c-draggable--m-dragging--after--BorderColor);
+  background-color: var(--pf-t--global--background--color--100);
+  border-radius: var(--pf-v6-c-draggable--m-dragging--after--BorderRadius);
+  box-shadow: var(--pf-v6-c-draggable--m-dragging--BoxShadow);
+}
+
+.pf-v6-c-draggable.dragging-container {
+  cursor: grabbing;
+}

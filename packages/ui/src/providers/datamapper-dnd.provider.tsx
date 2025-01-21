@@ -17,6 +17,7 @@ import { NodeData } from '../models/datamapper';
 import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { DataMapperDnDMonitor } from './dnd/DataMapperDndMonitor';
+import './datamapper-dnd.provider.scss';
 
 export interface IDataMapperDndContext {
   handler?: DnDHandler;
@@ -80,7 +81,9 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
         {props.children}
         <DragOverlay dropAnimation={null}>
-          <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
+          <div className={'pf-v6-c-draggable node__row dragging-container'}>
+            <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
+          </div>
         </DragOverlay>
         {debug && <DataMapperDnDMonitor />}
       </DndContext>
