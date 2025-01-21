@@ -1,6 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 import packageJson from '../../../package.json';
 
 /**
@@ -53,6 +53,14 @@ const config: StorybookConfig = {
             api: 'modern-compiler',
           },
         },
+      },
+      resolve: {
+        alias: [
+          {
+            find: '~@patternfly',
+            replacement: '@patternfly',
+          },
+        ],
       },
     };
   },
