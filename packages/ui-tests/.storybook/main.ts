@@ -57,8 +57,8 @@ const config: StorybookConfig = {
       resolve: {
         alias: [
           {
-            find: '~@patternfly',
-            replacement: '@patternfly',
+            find: /~(.*)/,
+            replacement: '$1',
           },
         ],
       },
