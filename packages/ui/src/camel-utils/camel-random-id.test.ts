@@ -44,7 +44,7 @@ describe('camel-random-id', () => {
         .mockImplementation(() => ({ getRandomValues: () => [Date.now()] }) as unknown as Crypto);
       const one = getHexaDecimalRandomId('test');
       expect(one).toMatch(/test-[0-9a-f]{1,8}/);
-      await new Promise((f) => setTimeout(f, 1));
+      await new Promise((f) => setTimeout(f, 10));
       const two = getHexaDecimalRandomId('test');
       expect(two).toMatch(/test-[0-9a-f]{1,8}/);
       expect(one).not.toEqual(two);
