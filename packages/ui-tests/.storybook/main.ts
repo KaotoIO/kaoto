@@ -1,6 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
-import { dirname, join, resolve } from 'path';
+import { dirname, join } from 'path';
 import packageJson from '../../../package.json';
 
 /**
@@ -57,8 +57,10 @@ const config: StorybookConfig = {
       resolve: {
         alias: [
           {
-            find: /~(.*)/,
-            replacement: '$1',
+            find: /^~.+/,
+            replacement: (val) => {
+              return val.replace(/^~/, '');
+            },
           },
         ],
       },
