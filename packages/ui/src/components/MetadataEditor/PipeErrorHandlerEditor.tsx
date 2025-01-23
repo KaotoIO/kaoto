@@ -57,6 +57,7 @@ export const PipeErrorHandlerEditor: FunctionComponent<PropsWithChildren<PipeErr
   return (
     <>
       <Select
+        isScrollable
         id={'pipe-error-handler-select'}
         data-testid={'pipe-error-handler-select'}
         isOpen={isOpen}

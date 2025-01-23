@@ -205,6 +205,7 @@ export const TypeaheadField = connectField((props: TypeaheadProps) => {
   return wrapField(
     props,
     <Select
+      isScrollable
       id="create-typeahead-select"
       isOpen={isOpen}
       selected={selected}

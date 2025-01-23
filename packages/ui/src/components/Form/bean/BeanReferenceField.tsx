@@ -280,6 +280,7 @@ const BeanReferenceFieldComponent = (props: BeanReferenceFieldProps) => {
     props,
     <>
       <Select
+        isScrollable
         id={`${props.name}-bean-select`}
         data-testid={`${props.name}-bean-select`}
         isOpen={isOpen}
