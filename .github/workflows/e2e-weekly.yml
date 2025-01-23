@@ -2,7 +2,7 @@ name: 🏗️ E2E Weekly Tests (Cypress)
 
 on:
   schedule:
-    - cron: "0 0 * * 7"
+    - cron: "0 0 * * 0"
 
 jobs:
   install:
