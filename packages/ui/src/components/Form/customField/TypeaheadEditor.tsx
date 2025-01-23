@@ -208,6 +208,7 @@ export const TypeaheadEditor: FunctionComponent<TypeaheadEditorProps> = (props) 
     props.selectOptions && (
       <>
         <Select
+          isScrollable
           id="typeahead-select"
           isOpen={isOpen}
           selected={selected}
