@@ -5,6 +5,7 @@ import { DisabledField } from '../fields/DisabledField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { StringField } from '../fields/StringField';
+import { PasswordField } from '../fields/PasswordField';
 import { FieldProps } from '../typings';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
@@ -13,6 +14,9 @@ export const FormComponentFactoryContext = createContext<FormComponentFactoryCon
 
 export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const factory = useCallback<FormComponentFactoryContextValue>((schema) => {
+    if (schema.format === 'password') {
+      return PasswordField;
+    }
     switch (schema.type) {
       case 'string':
       case 'number':
