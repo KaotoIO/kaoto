@@ -12,9 +12,10 @@ interface FormProps {
   schema?: KaotoSchemaDefinition['schema'];
   onChange: (propName: string, value: any) => void;
   model: any;
+  omitFields?: string[];
 }
 
-export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, model }) => {
+export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, model, omitFields = [] }) => {
   const onPropertyChange = useCallback(
     (propName: string, value: any) => {
       console.log('KaotoForm.onPropertyChange', propName, value);
@@ -29,7 +30,7 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
 
   return (
     <FormComponentFactoryProvider>
-      <SchemaDefinitionsProvider schema={schema}>
+      <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
         <SchemaProvider schema={schema}>
           <ModelContextProvider model={model} onPropertyChange={onPropertyChange}>
             <Form>

@@ -106,7 +106,12 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
         //   />
         //   <div data-testid="root-form-placeholder" ref={divRef} />
         // </SchemaBridgeProvider>
-        <KaotoForm schema={processedSchema} onChange={handleOnChangeIndividualProp} model={model} />
+        <KaotoForm
+          schema={processedSchema}
+          onChange={handleOnChangeIndividualProp}
+          model={model}
+          omitFields={omitFields.current}
+        />
       )}
     </>
   );
