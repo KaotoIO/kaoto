@@ -1,14 +1,24 @@
-import { createContext, FunctionComponent, PropsWithChildren } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useMemo } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../models';
 
-type SchemaDefinitionsContextValue = Record<string, KaotoSchemaDefinition['schema']>;
+interface SchemaDefinitionsContextValue {
+  definitions: Record<string, KaotoSchemaDefinition['schema']>;
+  omitFields: string[];
+}
 
-export const SchemaDefinitionsContext = createContext<SchemaDefinitionsContextValue>({});
+export const SchemaDefinitionsContext = createContext<SchemaDefinitionsContextValue>({
+  definitions: {},
+  omitFields: [],
+});
 
 export const SchemaDefinitionsProvider: FunctionComponent<
-  PropsWithChildren<{ schema: KaotoSchemaDefinition['schema'] }>
-> = ({ schema, children }) => {
-  const definitions: SchemaDefinitionsContextValue = schema.definitions ?? {};
+  PropsWithChildren<{ schema: KaotoSchemaDefinition['schema']; omitFields: string[] }>
+> = ({ schema, omitFields, children }) => {
+  const value = useMemo(() => {
+    const definitions: SchemaDefinitionsContextValue['definitions'] = schema.definitions ?? {};
 
-  return <SchemaDefinitionsContext.Provider value={definitions}>{children}</SchemaDefinitionsContext.Provider>;
+    return { definitions, omitFields };
+  }, [omitFields, schema.definitions]);
+
+  return <SchemaDefinitionsContext.Provider value={value}>{children}</SchemaDefinitionsContext.Provider>;
 };
