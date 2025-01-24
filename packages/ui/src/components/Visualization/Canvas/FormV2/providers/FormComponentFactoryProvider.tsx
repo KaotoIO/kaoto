@@ -27,7 +27,7 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
       case 'object':
         return ObjectField;
       case 'array':
-        return () => <div>Array field</div>;
+        return DisabledField;
     }
 
     if (Array.isArray(schema.oneOf)) {
