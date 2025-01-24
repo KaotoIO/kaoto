@@ -14,7 +14,7 @@ export const SchemaProvider: FunctionComponent<PropsWithChildren<{ schema: Kaoto
   schema,
   children,
 }) => {
-  const definitions = useContext(SchemaDefinitionsContext);
+  const { definitions, omitFields } = useContext(SchemaDefinitionsContext);
 
   const value = useMemo(() => {
     const resolvedSchema = resolveSchemaWithRef(schema, definitions);
@@ -26,8 +26,12 @@ export const SchemaProvider: FunctionComponent<PropsWithChildren<{ schema: Kaoto
       resolvedSchema.oneOf = resolvedSchema.oneOf.map((oneOfSchema) => resolveSchemaWithRef(oneOfSchema, definitions));
     }
 
+    omitFields.forEach((field) => {
+      delete resolvedSchema.properties?.[field];
+    });
+
     return { schema: resolvedSchema, definitions };
-  }, [definitions, schema]);
+  }, [definitions, omitFields, schema]);
 
   return <SchemaContext.Provider value={value}>{children}</SchemaContext.Provider>;
 };
