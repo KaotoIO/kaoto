@@ -1,11 +1,11 @@
 import { createContext, FunctionComponent, PropsWithChildren, useMemo } from 'react';
 
 export interface ModelContextValue {
-  model: any;
-  onPropertyChange: (propName: string, value: any) => void;
+  model: unknown;
+  onPropertyChange: (propName: string, value: unknown) => void;
 }
 
-export const ModelContext = createContext<ModelContextValue>({ model: {} });
+export const ModelContext = createContext<ModelContextValue>({ model: {}, onPropertyChange: () => {} });
 
 export const ModelContextProvider: FunctionComponent<PropsWithChildren<ModelContextValue>> = ({
   model,
