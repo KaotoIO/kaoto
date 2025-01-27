@@ -1,14 +1,10 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { SchemaBridgeProvider } from '../../../../providers/schema-bridge.provider';
-import { getUserUpdatedProperties, getRequiredPropertiesSchema, isDefined, setValue } from '../../../../utils';
-import { CustomAutoForm, CustomAutoFormRef } from '../../../Form/CustomAutoForm';
-import { DataFormatEditor } from '../../../Form/dataFormat/DataFormatEditor';
-import { LoadBalancerEditor } from '../../../Form/loadBalancer/LoadBalancerEditor';
-import { StepExpressionEditor } from '../../../Form/stepExpression/StepExpressionEditor';
+import { getRequiredPropertiesSchema, getUserUpdatedProperties, isDefined, setValue } from '../../../../utils';
+import { CustomAutoFormRef } from '../../../Form/CustomAutoForm';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { CanvasNode } from '../canvas.models';
-import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
 import { KaotoForm } from '../FormV2/KaotoForm';
 
 interface CanvasFormTabsProps {
@@ -18,7 +14,6 @@ interface CanvasFormTabsProps {
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const { selectedTab } = useContext(CanvasFormTabsContext) ?? { selectedTab: 'Required' };
-  const divRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<CustomAutoFormRef>(null);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getOmitFormFields() || []);
 
@@ -29,7 +24,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
       answer!.definition.parameters = {};
     }
     return answer;
-  }, [props.selectedNode.data?.vizNode, selectedTab]);
+  }, [props.selectedNode.data?.vizNode]);
   const model = visualComponentSchema?.definition;
   let processedSchema = visualComponentSchema?.schema;
   if (selectedTab === 'Required') {
@@ -85,27 +80,6 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
       {stepFeatures.isUnknownComponent ? (
         <UnknownNode model={model} />
       ) : (
-        // <SchemaBridgeProvider schema={processedSchema} parentRef={divRef}>
-        //   {stepFeatures.isExpressionAwareStep && (
-        //     <StepExpressionEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-        //   )}
-        //   {stepFeatures.isDataFormatAwareStep && (
-        //     <DataFormatEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-        //   )}
-        //   {stepFeatures.isLoadBalanceAwareStep && (
-        //     <LoadBalancerEditor selectedNode={props.selectedNode} formMode={selectedTab} />
-        //   )}
-        //   <CustomAutoForm
-        //     key={props.selectedNode.id}
-        //     ref={formRef}
-        //     model={model}
-        //     onChange={handleOnChangeIndividualProp}
-        //     sortFields={false}
-        //     omitFields={omitFields.current}
-        //     data-testid="autoform"
-        //   />
-        //   <div data-testid="root-form-placeholder" ref={divRef} />
-        // </SchemaBridgeProvider>
         <KaotoForm
           schema={processedSchema}
           onChange={handleOnChangeIndividualProp}
