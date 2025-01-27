@@ -1,7 +1,7 @@
 import { Form } from '@patternfly/react-core';
-import { FunctionComponent, useCallback } from 'react';
+import { FunctionComponent, useCallback, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../../models';
-import { isDefined, ROOT_PATH } from '../../../../utils';
+import { isDefined, ROOT_PATH, setValue } from '../../../../utils';
 import { AutoField } from './fields/AutoField';
 import { FormComponentFactoryProvider } from './providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from './providers/ModelProvider';
@@ -16,10 +16,22 @@ interface FormProps {
 }
 
 export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, model, omitFields = [] }) => {
+  const [formModel, setFormModel] = useState<unknown>(model);
+
   const onPropertyChange = useCallback(
     (propName: string, value: unknown) => {
       console.log('KaotoForm.onPropertyChange', propName, value);
+
       onChange(propName, value);
+      setFormModel((prevModel: unknown) => {
+        if (typeof prevModel !== 'object') {
+          return value;
+        }
+
+        const newModel = { ...prevModel };
+        setValue(newModel, propName, value);
+        return newModel;
+      });
     },
     [onChange],
   );
@@ -32,7 +44,7 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
     <FormComponentFactoryProvider>
       <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
         <SchemaProvider schema={schema}>
-          <ModelContextProvider model={model} onPropertyChange={onPropertyChange}>
+          <ModelContextProvider model={formModel} onPropertyChange={onPropertyChange}>
             <Form>
               <AutoField propName={ROOT_PATH} />
             </Form>
