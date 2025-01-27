@@ -20,7 +20,7 @@ export const getAppliedSchemaIndex = (
 };
 
 export const getAppliedSchemaIndexV2 = (
-  model: any,
+  model: unknown,
   oneOfSchemaList: OneOfSchemas[],
   definitions: KaotoSchemaDefinition['schema']['definitions'] = {},
 ): number => {
