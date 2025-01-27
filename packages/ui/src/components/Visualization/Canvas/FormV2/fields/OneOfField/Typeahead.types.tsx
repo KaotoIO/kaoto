@@ -1,5 +1,6 @@
 import { IDataTestID } from '../../../../../../models';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TypeaheadItem<T = any> {
   name: string;
   value: T;
