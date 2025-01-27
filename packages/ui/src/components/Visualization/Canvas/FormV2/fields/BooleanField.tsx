@@ -25,7 +25,11 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
       labelHelp={
         <Popover
           id={id}
-          headerContent={<p>{schema.title}</p>}
+          headerContent={
+            <p>
+              {schema.title} {`<${schema.type}>`}
+            </p>
+          }
           bodyContent={<p>{schema.description}</p>}
           footerContent={<p>Default: {schema.default?.toString() ?? 'no default value'}</p>}
           triggerAction="hover"
