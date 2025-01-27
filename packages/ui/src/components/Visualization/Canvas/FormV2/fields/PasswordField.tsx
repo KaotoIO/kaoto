@@ -1,17 +1,37 @@
-import { Button, FormGroup, FormGroupLabelHelp, Popover, TextInput } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
+import {
+  Button,
+  FormGroup,
+  FormGroupLabelHelp,
+  Popover,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
+} from '@patternfly/react-core';
+import { EyeIcon, EyeSlashIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useState } from 'react';
+import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
-import './PasswordField.scss';
 
-export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
   const [passwordHidden, setPasswordHidden] = useState<boolean>(true);
   const { value = '', onChange } = useFieldValue<string>(propName);
+  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${propName} field`;
+
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
+  };
+
+  const onRemove = () => {
+    if (isDefined(onRemoveProps)) {
+      onRemoveProps(propName);
+      return;
+    }
+
+    /** Clear field by removing its value */
+    onChange(undefined as unknown as string);
   };
 
   if (!schema) {
@@ -29,7 +49,11 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
       labelHelp={
         <Popover
           id={id}
-          headerContent={<p>{schema.title}</p>}
+          headerContent={
+            <p>
+              {schema.title} {`<${schema.type}>`}
+            </p>
+          }
           bodyContent={<p>{schema.description}</p>}
           footerContent={<p>Default: {schema.default?.toString() ?? 'no default value'}</p>}
           triggerAction="hover"
@@ -39,8 +63,8 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
         </Popover>
       }
     >
-      <div className="password-field">
-        <TextInput
+      <TextInputGroup>
+        <TextInputGroupMain
           type={passwordHidden ? 'password' : 'text'}
           id={propName}
           name={propName}
@@ -48,17 +72,21 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           onChange={onFieldChange}
           aria-describedby={id}
         />
-        <Button
-          data-testid={'password-show-hide-button'}
-          variant="control"
-          onClick={() => {
-            setPasswordHidden(!passwordHidden);
-          }}
-          aria-label={passwordHidden ? 'Show' : 'Hide'}
-        >
-          {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
-        </Button>
-      </div>
+
+        <TextInputGroupUtilities>
+          <Button
+            data-testid="password-show-hide-button"
+            variant="plain"
+            onClick={() => {
+              setPasswordHidden(!passwordHidden);
+            }}
+            aria-label={passwordHidden ? 'Show' : 'Hide'}
+          >
+            {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
+          </Button>
+          <Button variant="plain" onClick={onRemove} aria-label={ariaLabel} title={ariaLabel} icon={<TimesIcon />} />
+        </TextInputGroupUtilities>
+      </TextInputGroup>
     </FormGroup>
   );
 };

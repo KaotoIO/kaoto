@@ -1,11 +1,12 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../models';
+import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
-import { StringField } from '../fields/StringField';
 import { PasswordField } from '../fields/PasswordField';
+import { StringField } from '../fields/StringField';
 import { FieldProps } from '../typings';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
@@ -27,13 +28,13 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
       case 'object':
         return ObjectField;
       case 'array':
-        return DisabledField;
+        return ArrayField;
     }
 
     if (Array.isArray(schema.oneOf)) {
       return OneOfField;
     } else if (Array.isArray(schema.anyOf)) {
-      return () => <div>AnyOf field</div>;
+      return DisabledField;
     }
 
     return DisabledField;
