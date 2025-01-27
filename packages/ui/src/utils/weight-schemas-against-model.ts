@@ -14,7 +14,7 @@ const PRIMITIVE_TYPES = ['string', 'number', 'boolean'];
  * @returns The weight of the schema against the model.
  */
 export const weightSchemaAgainstModel = (
-  model: any,
+  model: unknown,
   schema: KaotoSchemaDefinition['schema'],
   definitions: Record<string, KaotoSchemaDefinition['schema']>,
 ): number => {
@@ -29,6 +29,10 @@ export const weightSchemaAgainstModel = (
     }
 
     return 0;
+  }
+
+  if (typeof model === 'object' && Object.keys(model).length === 0 && resolvedSchema.type === 'object') {
+    return 10;
   }
 
   return Object.entries(model).reduce((points, [modelKey, modelValue]) => {
