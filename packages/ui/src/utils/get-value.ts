@@ -38,7 +38,7 @@ export const safeGetValue = (model: unknown, propertyPath: string | string[], de
     }
 
     if (typeof acc === 'object' && property in acc) {
-      return acc[property];
+      return (acc as Record<string, unknown>)[property];
     }
 
     return defaultValue;
