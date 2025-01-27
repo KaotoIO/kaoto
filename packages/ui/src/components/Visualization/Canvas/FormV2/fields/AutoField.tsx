@@ -3,7 +3,7 @@ import { FormComponentFactoryContext } from '../providers/FormComponentFactoryPr
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 
-export const AutoField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+export const AutoField: FunctionComponent<FieldProps> = ({ propName, required, onRemove }) => {
   const { schema } = useContext(SchemaContext);
   const formComponentFactory = useContext(FormComponentFactoryContext);
 
@@ -16,5 +16,5 @@ export const AutoField: FunctionComponent<FieldProps> = ({ propName, required })
 
   const FieldComponent = formComponentFactory(schema);
 
-  return <FieldComponent propName={propName} required={required} />;
+  return <FieldComponent propName={propName} required={required} onRemove={onRemove} />;
 };
