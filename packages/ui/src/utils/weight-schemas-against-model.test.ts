@@ -57,4 +57,43 @@ describe('weightSchemaAgainstModel', () => {
 
     expect(points).toEqual(expectedPoints);
   });
+
+  it('should give weight to object schemas against empty model', () => {
+    const stringSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+    };
+
+    const objectSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        expression: {
+          type: 'string',
+          title: 'Expression',
+          description: 'The expression value in your chosen language syntax',
+        },
+        id: {
+          type: 'string',
+          title: 'Id',
+          description: 'Sets the id of this node',
+        },
+        resultType: {
+          type: 'string',
+          title: 'Result Type',
+          description: 'Sets the class of the result type (type from output)',
+        },
+        trim: {
+          type: 'boolean',
+          title: 'Trim',
+          description: 'Whether to trim the value to remove leading and trailing whitespaces and line breaks',
+        },
+      },
+    };
+
+    const stringResult = weightSchemaAgainstModel({}, stringSchema, {});
+    const objectResult = weightSchemaAgainstModel({}, objectSchema, {});
+
+    expect(stringResult).toEqual(0);
+    expect(objectResult).toEqual(10);
+  });
 });
