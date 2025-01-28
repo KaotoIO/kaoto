@@ -182,8 +182,8 @@ class CamelCatalogProcessorTest {
         assertEquals(1, customPropertiesSchemaRequiredFields.size(), "Size should be 1");
     }
 
-    @Disabled
     @Test
+    @Disabled("Bringing REST DSL is not implemented yet")
     void testRestProcessors() throws Exception {
         var restGetProcessorSchema = processorCatalog
                 .withObject("/get")
@@ -272,14 +272,14 @@ class CamelCatalogProcessorTest {
         assertEquals("string", aggregationStrategy.get("type").asText());
 
         var toDSchema = processorCatalog.withObject("/toD").withObject("/propertiesSchema");
-        var uri = toDSchema.withArray("/oneOf").get(1).withObject("/properties").withObject("/uri");
+        var uri = toDSchema.withObject("/properties").withObject("/uri");
         assertEquals("string", uri.get("type").asText());
-        assertFalse(toDSchema.withArray("/oneOf").get(1).withObject("/properties").has("/parameters"));
+        assertFalse(toDSchema.withObject("/properties").has("/parameters"));
 
         var toSchema = processorCatalog.withObject("/to").withObject("/propertiesSchema");
-        var toUri = toSchema.withArray("/oneOf").get(1).withObject("/properties").withObject("/uri");
+        var toUri = toSchema.withObject("/properties").withObject("/uri");
         assertEquals("string", toUri.get("type").asText());
-        assertFalse(toSchema.withArray("/oneOf").get(1).withObject("/properties").has("/parameters"));
+        assertFalse(toSchema.withObject("/properties").has("/parameters"));
     }
 
     @Test
