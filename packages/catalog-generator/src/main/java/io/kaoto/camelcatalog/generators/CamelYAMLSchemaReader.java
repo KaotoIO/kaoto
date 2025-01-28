@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class CamelYAMLSchemaReader {
 
+    private final SchemaPropertyFilter schemaPropertyFilter = new SchemaPropertyFilter();
     ObjectMapper jsonMapper = new ObjectMapper();
     ObjectNode camelYamlSchemaNode;
-    private final SchemaPropertyFilter schemaPropertyFilter = new SchemaPropertyFilter();
 
     public CamelYAMLSchemaReader(ObjectNode camelYamlSchemaNode) throws JsonProcessingException {
         this.camelYamlSchemaNode = camelYamlSchemaNode;
@@ -50,8 +50,6 @@ public class CamelYAMLSchemaReader {
 
         return eipSchemaNode;
     }
-
-
 
     /**
      * Resolve the initial $ref
@@ -102,7 +100,6 @@ public class CamelYAMLSchemaReader {
      * @param node the node to inline the required definitions from the Camel YAML DSL schema
      */
     void inlineDefinitions(ObjectNode node, ObjectNode definitions) {
-
         if (node.has("properties")) {
             var properties = (ObjectNode) node.get("properties");
             properties.fields().forEachRemaining(entry -> {
@@ -118,9 +115,43 @@ public class CamelYAMLSchemaReader {
 
         inlineArrayFields(node, "anyOf", definitions);
         inlineArrayFields(node, "oneOf", definitions);
+        removeSimpleStringSchemaFromOneOf(node);
     }
 
-    private void inlineArrayFields(ObjectNode node, String arrayName, ObjectNode definitions) {
+    /**
+     * Given a node, consolidate the schemas by removing the single string schema from definitions
+     * when there's only 2 schemas in the oneOf array.
+     * This is a workaround to avoid having a single string schema in the definitions, like
+     * in the following case:
+     * { oneOf: [ { "type": "string" }, { "type": "object", "properties": { "name": { "type": "string" } } } ] }
+     * will be transformed into
+     * { "type": "object", "properties": { "name": { "type": "string" } } }
+     *
+     * @param node the node to consolidate the schemas
+     */
+    void removeSimpleStringSchemaFromOneOf(ObjectNode node) {
+        if (!node.has("oneOf") || node.get("oneOf").size() != 2) {
+            return;
+        }
+
+        var firstSchema = (ObjectNode) node.get("oneOf").get(0);
+        var secondSchema = (ObjectNode) node.get("oneOf").get(1);
+
+        if (firstSchema.has("type") && firstSchema.get("type").asText().equals("string") && secondSchema.has("type") &&
+                secondSchema.get("type").asText().equals("object")) {
+            node.setAll(secondSchema);
+            node.remove("oneOf");
+        }
+    }
+
+    /**
+     * Inline the definitions from an array field
+     *
+     * @param node        the node to inline the required array field definitions from
+     * @param arrayName   the name of the array field, it could be `anyOf` or `oneOf`
+     * @param definitions the definitions node to add the inlined definitions
+     */
+    void inlineArrayFields(ObjectNode node, String arrayName, ObjectNode definitions) {
         if (!node.has(arrayName)) return;
 
         var array = (ArrayNode) node.get(arrayName);
@@ -137,13 +168,29 @@ public class CamelYAMLSchemaReader {
         });
     }
 
-    private void addRefDefinition(ObjectNode refParent, ObjectNode definitions) {
-        var newRefKey = refParent.get("$ref").asText().replace("#/items/definitions/", "");
+    /**
+     * Add the definition from a $ref
+     * Given a node with a $ref, add the definition to the definitions node
+     * and relocate the $ref from #/items/definitions to #/definitions
+     *
+     * @param refParent   the node with a $ref
+     * @param definitions the definitions node to add the definition
+     */
+    void addRefDefinition(ObjectNode refParent, ObjectNode definitions) {
+        /* ref: #/items/definitions/org.apache.camel.model.ToDefinition */
+        String refKey = refParent.get("$ref").asText();
+
+        /* newRefKey: org.apache.camel.model.ToDefinition */
+        String newRefKey = refKey.replace("#/items/definitions/", "");
+
         if (!definitions.has(newRefKey)) {
             var resolvedNode = getResolvedNode(refParent);
             definitions.set(newRefKey, resolvedNode);
             inlineDefinitions(resolvedNode, definitions);
         }
-        refParent.put("$ref", refParent.get("$ref").asText().replace("#/items/definitions/", "#/definitions/"));
+
+        /* Relocating the $ref from #/items/definitions to #/definitions */
+        String newRefLocation = refKey.replace("#/items/definitions/", "#/definitions/");
+        refParent.put("$ref", newRefLocation);
     }
 }

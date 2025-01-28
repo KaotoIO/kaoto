@@ -1,5 +1,9 @@
 package io.kaoto.camelcatalog.generators;
 
-public interface Generator {
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.Map;
+
+public interface Generator {
+    Map<String, ObjectNode> generate();
 }
