@@ -18,6 +18,8 @@ package io.kaoto.camelcatalog.generator;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.generators.EIPGenerator;
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.ComponentModel;
@@ -49,16 +51,19 @@ public class CamelCatalogProcessor {
     private final ObjectMapper jsonMapper;
     private final CamelCatalog camelCatalog;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
+    private final CamelCatalogVersionLoader camelCatalogVersionLoader;
     private final CatalogRuntime runtime;
     private final boolean verbose;
 
     public CamelCatalogProcessor(CamelCatalog camelCatalog, ObjectMapper jsonMapper,
-                                 CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
+                                 CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime,
+                                 boolean verbose, CamelCatalogVersionLoader camelCatalogVersionLoader) {
         this.jsonMapper = jsonMapper;
         this.camelCatalog = camelCatalog;
         this.schemaProcessor = schemaProcessor;
         this.runtime = runtime;
         this.verbose = verbose;
+        this.camelCatalogVersionLoader = camelCatalogVersionLoader;
     }
 
     /**
@@ -72,7 +77,8 @@ public class CamelCatalogProcessor {
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
-        var patternCatalog = getPatternCatalog();
+        EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        var patternCatalog = Util.getPrettyJSON(eipGenerator.generate());
         var entityCatalog = getEntityCatalog();
         var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);

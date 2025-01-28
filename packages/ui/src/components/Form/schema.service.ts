@@ -8,8 +8,6 @@ export class SchemaService {
   static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
   static readonly OMIT_FORM_FIELDS = [
     'from',
-    'expression',
-    'dataFormatType',
     'outputs',
     'steps',
     'onWhen',
