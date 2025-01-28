@@ -11,7 +11,7 @@ import { FieldWrapper } from '../FieldWrapper';
 
 export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   const { schema, definitions } = useContext(SchemaContext);
-  const { value = [], onChange } = useFieldValue<unknown[]>(propName);
+  const { value, onChange } = useFieldValue<unknown[]>(propName);
   const [itemsHash, setItemsHash] = useState<string[]>([]);
 
   const itemsSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items;
@@ -20,17 +20,22 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   }
 
   const onAdd = () => {
+    const localValue = value ?? [];
     const newItem = getItemFromSchema(itemsSchema, definitions);
-    onChange([newItem, ...value]);
+    onChange([newItem, ...localValue]);
   };
 
   const getRemoveFn = (index: number) => () => {
+    if (!Array.isArray(value)) return;
+
     const newValue = [...value];
     newValue.splice(index, 1);
     onChange(newValue);
   };
 
   useEffect(() => {
+    if (!Array.isArray(value)) return;
+
     Promise.all(value.map(getObjectHash)).then((hashes) => {
       setItemsHash(hashes);
     });

@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EIPGenerator {
+public class EIPGenerator implements Generator {
     CamelCatalog camelCatalog;
     String camelYamlSchema;
     ObjectMapper jsonMapper = new ObjectMapper()
