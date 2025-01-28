@@ -1,9 +1,7 @@
 package io.kaoto.camelcatalog.generators;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +45,7 @@ class CamelYAMLSchemaReaderTest {
         var eipSchemaForResequence = camelYAMLSchemaReader.getJSONSchema("resequence");
 
         assertTrue(eipSchemaForResequence.has("definitions"));
-        var definitionsNode = (ObjectNode)  eipSchemaForResequence.get("definitions");
+        var definitionsNode = (ObjectNode) eipSchemaForResequence.get("definitions");
 
         assertTrue(definitionsNode.has("org.apache.camel.model.config.BatchResequencerConfig"));
         assertTrue(definitionsNode.has("org.apache.camel.model.config.StreamResequencerConfig"));
@@ -61,12 +59,22 @@ class CamelYAMLSchemaReaderTest {
         var eipSchemaForAggregate = camelYAMLSchemaReader.getJSONSchema("aggregate");
 
         assertTrue(eipSchemaForAggregate.has("properties"));
-        var propertiesNode = (ObjectNode)  eipSchemaForAggregate.get("properties");
+        var propertiesNode = (ObjectNode) eipSchemaForAggregate.get("properties");
 
         assertTrue(propertiesNode.has("optimisticLockRetryPolicy"));
-        var optimisticLockRetryPolicyNode = (ObjectNode)  propertiesNode.get("optimisticLockRetryPolicy");
+        var optimisticLockRetryPolicyNode = (ObjectNode) propertiesNode.get("optimisticLockRetryPolicy");
 
         assertTrue(optimisticLockRetryPolicyNode.has("$ref"));
-        assertEquals("#/definitions/org.apache.camel.model.OptimisticLockRetryPolicyDefinition", optimisticLockRetryPolicyNode.get("$ref").asText());
+        assertEquals("#/definitions/org.apache.camel.model.OptimisticLockRetryPolicyDefinition",
+                optimisticLockRetryPolicyNode.get("$ref").asText());
+    }
+
+    @Test()
+    void shouldRemoveStringSchemasFromOneOf() {
+        var toEipSchema = camelYAMLSchemaReader.getJSONSchema("to");
+
+        assertFalse(toEipSchema.has("anyOf"));
+        assertTrue(toEipSchema.has("properties"));
+        assertTrue(toEipSchema.has("required"));
     }
 }

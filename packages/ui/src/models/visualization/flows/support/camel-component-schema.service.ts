@@ -380,7 +380,7 @@ export class CamelComponentSchemaService {
       const componentSchema: KaotoSchemaDefinition['schema'] =
         catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
-      // Filter out producer/consumer properties depenging upon the endpoint usage
+      // Filter out producer/consumer properties depending upon the endpoint usage
       const actualComponentProperties = Object.fromEntries(
         Object.entries(componentSchema.properties ?? {}).filter((property) => {
           if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
