@@ -21,13 +21,17 @@ import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CamelCatalogSchemaEnhancer {
 
     private final CamelCatalog camelCatalog;
+    private final Map<String, String> JAVA_TYPE_TO_MODEL_NAME = new LinkedHashMap<>();
 
     public CamelCatalogSchemaEnhancer(CamelCatalog camelCatalog) {
         this.camelCatalog = camelCatalog;
+        populateJavaTypeToModelNameMap();
     }
 
     /**
@@ -104,7 +108,18 @@ public class CamelCatalogSchemaEnhancer {
      * @return the Camel model
      */
     EipModel getCamelModelByJavaType(String javaType) {
-        return camelCatalog.findModelNames().stream().map(camelCatalog::eipModel)
-                .filter(model -> model != null && model.getJavaType().equals(javaType)).findFirst().orElse(null);
+        return camelCatalog.eipModel(JAVA_TYPE_TO_MODEL_NAME.get(javaType));
+    }
+
+    /**
+     * Populate the JavaType to ModelName map
+     */
+    private void populateJavaTypeToModelNameMap() {
+        camelCatalog.findModelNames().forEach(modelName -> {
+            EipModel model = camelCatalog.eipModel(modelName);
+            if (model != null) {
+                JAVA_TYPE_TO_MODEL_NAME.put(model.getJavaType(), modelName);
+            }
+        });
     }
 }
