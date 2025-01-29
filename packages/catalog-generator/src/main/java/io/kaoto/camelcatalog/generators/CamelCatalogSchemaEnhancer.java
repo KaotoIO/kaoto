@@ -20,14 +20,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CamelCatalogSchemaEnhancer {
 
     private final CamelCatalog camelCatalog;
-    private final Map<String, String> JAVA_TYPE_TO_MODEL_NAME = new LinkedHashMap<>();
+    private final Map<String, String> JAVA_TYPE_TO_MODEL_NAME = new HashMap<>();
 
     public CamelCatalogSchemaEnhancer(CamelCatalog camelCatalog) {
         this.camelCatalog = camelCatalog;
@@ -99,6 +97,54 @@ public class CamelCatalogSchemaEnhancer {
      */
     void sortPropertiesAccordingToCatalog(EipModel model, ObjectNode modelNode) {
         // TODO: Sort properties according to the Camel catalog
+    }
+
+    /**
+     * Fill the group/label information of the model in the schema
+     *
+     * @param modelName the name of the Camel model
+     * @param modelNode the JSON schema node of the model
+     */
+    void fillGroupInformation(String modelName, ObjectNode modelNode) {
+        EipModel model = camelCatalog.eipModel(modelName);
+        if (model == null) {
+            return;
+        }
+
+        fillGroupInformation(model, modelNode);
+    }
+
+    /**
+     * Fill the group/label information of the model in the schema
+     *
+     * @param model     the Camel model
+     * @param modelNode the JSON schema node of the model
+     */
+    void fillGroupInformation(EipModel model, ObjectNode modelNode) {
+        List<EipModel.EipOptionModel> modelOptions = model.getOptions();
+
+        modelNode.withObject("properties").fields().forEachRemaining(entry -> {
+            String propertyName = entry.getKey();
+
+            Optional<EipModel.EipOptionModel> modelOption =
+                    modelOptions.stream().filter(option -> option.getName().equals(propertyName)).findFirst();
+            if (modelOption.isEmpty()) {
+                return;
+            }
+
+            String group =
+                    modelOption.get().getGroup() != null ? modelOption.get().getGroup() : modelOption.get().getLabel();
+            if (group == null) {
+                return;
+            }
+
+            ObjectNode propertyNode = (ObjectNode) entry.getValue();
+            if (propertyNode.has("$comment")) {
+                propertyNode.put("$comment", propertyNode.get("$comment").asText() + "|group:" + group);
+            } else {
+                propertyNode.put("$comment", "group:" + group);
+            }
+        });
     }
 
     /**
