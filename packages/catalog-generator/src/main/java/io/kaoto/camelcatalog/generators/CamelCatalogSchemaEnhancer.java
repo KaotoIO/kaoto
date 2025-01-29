@@ -15,8 +15,10 @@
  */
 package io.kaoto.camelcatalog.generators;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.generator.CamelYamlDSLKeysComparator;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
 
@@ -26,6 +28,7 @@ public class CamelCatalogSchemaEnhancer {
 
     private final CamelCatalog camelCatalog;
     private final Map<String, String> JAVA_TYPE_TO_MODEL_NAME = new HashMap<>();
+    ObjectMapper jsonMapper = new ObjectMapper();
 
     public CamelCatalogSchemaEnhancer(CamelCatalog camelCatalog) {
         this.camelCatalog = camelCatalog;
@@ -96,7 +99,18 @@ public class CamelCatalogSchemaEnhancer {
      * @param modelNode the JSON schema node of the model
      */
     void sortPropertiesAccordingToCatalog(EipModel model, ObjectNode modelNode) {
-        // TODO: Sort properties according to the Camel catalog
+        var modelNodeProperties = modelNode.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).sorted(
+                        new CamelYamlDSLKeysComparator(model.getOptions()))
+                .toList();
+        var sortedSchemaProperties = jsonMapper.createObjectNode();
+
+        for (var propertyName : modelNodeProperties) {
+            var propertySchema = modelNode.withObject("/properties")
+                    .withObject("/" + propertyName);
+            sortedSchemaProperties.set(propertyName, propertySchema);
+        }
+        modelNode.set("properties", sortedSchemaProperties);
     }
 
     /**
