@@ -139,6 +139,10 @@ public class CamelCatalogSchemaEnhancer {
 
         modelNode.withObject("properties").fields().forEachRemaining(entry -> {
             String propertyName = entry.getKey();
+            ObjectNode propertyNode = (ObjectNode) entry.getValue();
+            if (propertyNode.isEmpty()) {
+                return;
+            }
 
             Optional<EipModel.EipOptionModel> modelOption =
                     modelOptions.stream().filter(option -> option.getName().equals(propertyName)).findFirst();
@@ -152,7 +156,6 @@ public class CamelCatalogSchemaEnhancer {
                 return;
             }
 
-            ObjectNode propertyNode = (ObjectNode) entry.getValue();
             if (propertyNode.has("$comment")) {
                 propertyNode.put("$comment", propertyNode.get("$comment").asText() + "|group:" + group);
             } else {
