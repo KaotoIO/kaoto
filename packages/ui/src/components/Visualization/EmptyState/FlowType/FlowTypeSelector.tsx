@@ -87,7 +87,6 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
 
   return (
     <Select
-      isScrollable
       id="dsl-list-select"
       isOpen={isOpen}
       selected={currentSchemaType}
