@@ -60,7 +60,7 @@ export const FlowsMenu: FunctionComponent = () => {
   );
 
   return (
-    <Select isScrollable id="flows-list-select" isOpen={isOpen} onOpenChange={setIsOpen} toggle={toggle}>
+    <Select id="flows-list-select" isOpen={isOpen} onOpenChange={setIsOpen} toggle={toggle}>
       <FlowsList
         onClose={() => {
           setIsOpen(false);
