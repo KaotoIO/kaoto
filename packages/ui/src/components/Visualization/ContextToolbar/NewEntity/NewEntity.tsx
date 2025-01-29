@@ -5,6 +5,7 @@ import { BaseVisualCamelEntityDefinition } from '../../../../models/camel/camel-
 import { EntityType } from '../../../../models/camel/entities';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import './NewEntity.scss';
 
 export const NewEntity: FunctionComponent = () => {
   const { camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
@@ -66,15 +67,14 @@ export const NewEntity: FunctionComponent = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
       menu={
-        // TODO: Workaround for flyout menu being scrollable and packed within the toolbar
-        <Menu ref={menuRef} style={{ overflowY: 'unset' }} containsFlyout onSelect={onSelect}>
+        <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
             <MenuList>
               {groupedEntities.current.common.map((entityDef) => getMenuItem(entityDef))}
 
               {Object.entries(groupedEntities.current.groups).map(([group, entities]) => {
                 const flyoutMenu = (
-                  <Menu onSelect={onSelect}>
+                  <Menu className="entities-menu__submenu" onSelect={onSelect}>
                     <MenuContent>
                       <MenuList>{entities.map((entityDef) => getMenuItem(entityDef))}</MenuList>
                     </MenuContent>
