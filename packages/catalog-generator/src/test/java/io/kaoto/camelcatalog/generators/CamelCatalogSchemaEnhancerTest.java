@@ -97,6 +97,43 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
+    void shouldFillGroupInformationForModelName() {
+        var choiceNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.ChoiceDefinition");
+
+        EipModel model = camelCatalog.eipModel("choice");
+        camelCatalogSchemaEnhancer.fillGroupInformation(model, choiceNode);
+
+        var idPropertyNode = choiceNode.withObject("properties").withObject("id");
+        var preconditionPropertyNode = choiceNode.withObject("properties").withObject("precondition");
+
+        assertTrue(idPropertyNode.has("$comment"));
+        assertTrue(preconditionPropertyNode.has("$comment"));
+        assertEquals("group:common", idPropertyNode.get("$comment").asText());
+        assertEquals("group:advanced", preconditionPropertyNode.get("$comment").asText());
+    }
+
+    @Test
+    void shouldFillGroupInformationForMode() {
+        var choiceNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.ChoiceDefinition");
+
+        camelCatalogSchemaEnhancer.fillGroupInformation("choice", choiceNode);
+
+        var idPropertyNode = choiceNode.withObject("properties").withObject("id");
+        var preconditionPropertyNode = choiceNode.withObject("properties").withObject("precondition");
+
+        assertTrue(idPropertyNode.has("$comment"));
+        assertTrue(preconditionPropertyNode.has("$comment"));
+        assertEquals("group:common", idPropertyNode.get("$comment").asText());
+        assertEquals("group:advanced", preconditionPropertyNode.get("$comment").asText());
+    }
+
+    @Test
     void shouldGetCamelModelByJavaType() {
         EipModel setHeaderModel =
                 camelCatalogSchemaEnhancer.getCamelModelByJavaType("org.apache.camel.model.SetHeaderDefinition");

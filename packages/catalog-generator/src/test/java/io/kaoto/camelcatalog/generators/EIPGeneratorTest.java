@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EIPGeneratorTest {
@@ -94,8 +95,7 @@ class EIPGeneratorTest {
     void shouldFillRequiredPropertiesFromDefinitionsIfNeeded() {
         var eipsMap = eipGenerator.generate();
 
-        ObjectNode definitions =
-                eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
+        ObjectNode definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
 
         assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("required"));
@@ -110,5 +110,33 @@ class EIPGeneratorTest {
         definitions.get("org.apache.camel.model.language.SimpleExpression").withArray("required").elements()
                 .forEachRemaining(item -> simpleExpressionRequired.add(item.asText()));
         assertTrue(simpleExpressionRequired.contains("expression"));
+    }
+
+    @Test
+    void shouldFillGroupInformation() {
+        var eipsMap = eipGenerator.generate();
+
+        var setHeaderNode = eipsMap.get("setHeader");
+        var namePropertyNode = setHeaderNode.withObject("propertiesSchema").withObject("properties").withObject("name");
+
+        assertTrue(namePropertyNode.has("$comment"));
+        assertEquals("group:common", namePropertyNode.get("$comment").asText());
+    }
+
+    @Test
+    void shouldFillGroupInformationFromDefinitions() {
+        var eipsMap = eipGenerator.generate();
+
+        var setHeaderNode = eipsMap.get("setHeader");
+        var expressionPropertiesNode = setHeaderNode.withObject("propertiesSchema").withObject("definitions")
+                .withObject("org.apache.camel.model.language.SimpleExpression").withObject("properties");
+
+        var expressionPropertyNode = expressionPropertiesNode.withObject("expression");
+        var trimPropertyNode = expressionPropertiesNode.withObject("trim");
+
+        assertTrue(expressionPropertyNode.has("$comment"));
+        assertTrue(trimPropertyNode.has("$comment"));
+        assertEquals("group:common", expressionPropertyNode.get("$comment").asText());
+        assertEquals("group:advanced", trimPropertyNode.get("$comment").asText());
     }
 }
