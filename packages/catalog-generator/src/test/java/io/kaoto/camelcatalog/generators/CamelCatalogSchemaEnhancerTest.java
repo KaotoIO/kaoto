@@ -114,20 +114,22 @@ class CamelCatalogSchemaEnhancerTest {
 
     @Test
     void shouldFillGroupInformationForModel() {
-        var choiceNode = camelYamlDslSchema
+        var setHeaderNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
-                .withObject("org.apache.camel.model.ChoiceDefinition");
+                .withObject("org.apache.camel.model.SetHeaderDefinition");
 
-        camelCatalogSchemaEnhancer.fillGroupInformation("choice", choiceNode);
+        camelCatalogSchemaEnhancer.fillGroupInformation("setHeader", setHeaderNode);
 
-        var idPropertyNode = choiceNode.withObject("properties").withObject("id");
-        var preconditionPropertyNode = choiceNode.withObject("properties").withObject("precondition");
+        var expressionPropertyNode = setHeaderNode.withObject("properties").withObject("expression");
+        var idPropertyNode = setHeaderNode.withObject("properties").withObject("id");
+        var disabledPropertyNode = setHeaderNode.withObject("properties").withObject("disabled");
 
+        assertFalse(expressionPropertyNode.has("$comment"));
         assertTrue(idPropertyNode.has("$comment"));
-        assertTrue(preconditionPropertyNode.has("$comment"));
+        assertTrue(disabledPropertyNode.has("$comment"));
         assertEquals("group:common", idPropertyNode.get("$comment").asText());
-        assertEquals("group:advanced", preconditionPropertyNode.get("$comment").asText());
+        assertEquals("group:advanced", disabledPropertyNode.get("$comment").asText());
     }
 
     @Test
