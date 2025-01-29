@@ -57,7 +57,6 @@ public class EIPGenerator implements Generator {
         getEIPNames().forEach(eipName -> {
             var eipJSON = getEIPJson(eipName);
             var eipJSONSchema = camelYAMLSchemaReader.getJSONSchema(eipName);
-
             eipJSON.set("propertiesSchema", eipJSONSchema);
 
             camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(eipName, eipJSONSchema);

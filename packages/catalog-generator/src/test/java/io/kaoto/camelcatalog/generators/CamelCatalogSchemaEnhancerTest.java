@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,9 +51,7 @@ class CamelCatalogSchemaEnhancerTest {
         var setHeaderNode = (ObjectNode) camelYamlDslSchema
                 .get("items")
                 .get("definitions")
-                .get("org.apache.camel.model.ProcessorDefinition")
-                .get("properties")
-                .get("setHeader").deepCopy();
+                .get("org.apache.camel.model.SetHeaderDefinition").deepCopy();
 
         // remove required property to simulate the case where it is not present
         setHeaderNode.remove("required");
@@ -75,9 +74,7 @@ class CamelCatalogSchemaEnhancerTest {
         var setHeaderNode = (ObjectNode) camelYamlDslSchema
                 .get("items")
                 .get("definitions")
-                .get("org.apache.camel.model.ProcessorDefinition")
-                .get("properties")
-                .get("setHeader").deepCopy();
+                .get("org.apache.camel.model.SetHeaderDefinition").deepCopy();
 
         // remove required property to simulate the case where it is not present
         setHeaderNode.remove("required");
@@ -116,7 +113,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillGroupInformationForMode() {
+    void shouldFillGroupInformationForModel() {
         var choiceNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -131,6 +128,37 @@ class CamelCatalogSchemaEnhancerTest {
         assertTrue(preconditionPropertyNode.has("$comment"));
         assertEquals("group:common", idPropertyNode.get("$comment").asText());
         assertEquals("group:advanced", preconditionPropertyNode.get("$comment").asText());
+    }
+
+    @Test
+    void shouldSortPropertiesAccordingToCatalogForModelName() {
+        var choiceNode = (ObjectNode) camelYamlDslSchema
+                .get("items")
+                .get("definitions")
+                .get("org.apache.camel.model.ChoiceDefinition").deepCopy();
+
+        camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog("choice", choiceNode);
+
+        assertTrue(choiceNode.has("properties"));
+        List<String> actualKeys = choiceNode.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).toList();
+        assertEquals(List.of("id", "description", "disabled", "when", "otherwise", "precondition"), actualKeys);
+    }
+
+    @Test
+    void shouldSortPropertiesAccordingToCatalogForModel() {
+        var choiceNode = (ObjectNode) camelYamlDslSchema
+                .get("items")
+                .get("definitions")
+                .get("org.apache.camel.model.ChoiceDefinition").deepCopy();
+
+        EipModel model = camelCatalog.eipModel("choice");
+        camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(model, choiceNode);
+
+        assertTrue(choiceNode.has("properties"));
+        List<String> actualKeys = choiceNode.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).toList();
+        assertEquals(List.of("id", "description", "disabled", "when", "otherwise", "precondition"), actualKeys);
     }
 
     @Test

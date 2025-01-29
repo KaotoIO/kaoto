@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,25 +79,22 @@ class EIPGeneratorTest {
     }
 
     @Test
-    void shouldFillRequiredPropertiesFromSchemaIfNeeded() {
+    void shouldSortPropertiesAccordingToCatalog() {
         var eipsMap = eipGenerator.generate();
 
         var setHeaderNode = eipsMap.get("setHeader");
+        List<String> expectedKeys = List.of("id", "description", "disabled", "name", "expression");
+        List<String> actualKeys = setHeaderNode.withObject("/properties").properties().stream()
+                .map(Map.Entry::getKey).toList();
 
-        List<String> requiredProperties = new ArrayList<>();
-        setHeaderNode.withObject("propertiesSchema").withArray("required").elements()
-                .forEachRemaining(node -> requiredProperties.add(node.asText()));
-
-        assertTrue(requiredProperties.contains("name"));
-        assertTrue(requiredProperties.contains("expression"));
+        assertEquals(expectedKeys, actualKeys);
     }
 
     @Test
     void shouldFillRequiredPropertiesFromDefinitionsIfNeeded() {
         var eipsMap = eipGenerator.generate();
 
-        ObjectNode definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
-
+        var definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
         assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("required"));
         List<String> constantExpressionRequired = new ArrayList<>();
@@ -138,5 +136,26 @@ class EIPGeneratorTest {
         assertTrue(trimPropertyNode.has("$comment"));
         assertEquals("group:common", expressionPropertyNode.get("$comment").asText());
         assertEquals("group:advanced", trimPropertyNode.get("$comment").asText());
+    }
+
+    @Test
+    void shouldSortPropertiesAccordingToCatalogFromDefinitions() {
+        var eipsMap = eipGenerator.generate();
+
+        var definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
+        assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
+        assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("properties"));
+        List<String> sortedPropertiesListConstant = definitions.get("org.apache.camel.model.language.ConstantExpression")
+                .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
+
+        assertEquals(List.of("id", "expression", "resultType", "trim"), sortedPropertiesListConstant);
+
+        assertTrue(definitions.has("org.apache.camel.model.language.DatasonnetExpression"));
+        assertTrue(definitions.withObject("org.apache.camel.model.language.DatasonnetExpression").has("properties"));
+        List<String> sortedPropertiesListSimple = definitions.get("org.apache.camel.model.language.DatasonnetExpression")
+                .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
+
+        assertEquals(List.of("id", "expression", "bodyMediaType", "outputMediaType", "source", "resultType", "trim"),
+                sortedPropertiesListSimple);
     }
 }
