@@ -101,7 +101,7 @@ class CamelCatalogSchemaEnhancerTest {
                 .withObject("org.apache.camel.model.ChoiceDefinition");
 
         EipModel model = camelCatalog.eipModel("choice");
-        camelCatalogSchemaEnhancer.fillGroupInformation(model, choiceNode);
+        camelCatalogSchemaEnhancer.fillPropertiesInformation(model, choiceNode);
 
         var idPropertyNode = choiceNode.withObject("properties").withObject("id");
         var preconditionPropertyNode = choiceNode.withObject("properties").withObject("precondition");
@@ -119,7 +119,7 @@ class CamelCatalogSchemaEnhancerTest {
                 .withObject("definitions")
                 .withObject("org.apache.camel.model.SetHeaderDefinition");
 
-        camelCatalogSchemaEnhancer.fillGroupInformation("setHeader", setHeaderNode);
+        camelCatalogSchemaEnhancer.fillPropertiesInformation("setHeader", setHeaderNode);
 
         var expressionPropertyNode = setHeaderNode.withObject("properties").withObject("expression");
         var idPropertyNode = setHeaderNode.withObject("properties").withObject("id");
@@ -130,6 +130,49 @@ class CamelCatalogSchemaEnhancerTest {
         assertTrue(disabledPropertyNode.has("$comment"));
         assertEquals("group:common", idPropertyNode.get("$comment").asText());
         assertEquals("group:advanced", disabledPropertyNode.get("$comment").asText());
+    }
+
+    @Test
+    void shouldFillFormatInformationForModelName() {
+        var aggregateNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.AggregateDefinition");
+
+        EipModel model = camelCatalog.eipModel("aggregate");
+        camelCatalogSchemaEnhancer.fillPropertiesInformation(model, aggregateNode);
+
+        var executorServicePropertyNode = aggregateNode.withObject("properties")
+                .withObject("executorService");
+        var timeoutCheckerExecutorServicePropertyNode = aggregateNode.withObject("properties")
+                .withObject("timeoutCheckerExecutorService");
+
+        assertTrue(executorServicePropertyNode.has("format"));
+        assertTrue(timeoutCheckerExecutorServicePropertyNode.has("format"));
+        assertEquals("bean:java.util.concurrent.ExecutorService", executorServicePropertyNode.get("format").asText());
+        assertEquals("bean:java.util.concurrent.ScheduledExecutorService",
+                timeoutCheckerExecutorServicePropertyNode.get("format").asText());
+    }
+
+    @Test
+    void shouldFillFormatInformationForModel() {
+        var aggregateNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.AggregateDefinition");
+
+        camelCatalogSchemaEnhancer.fillPropertiesInformation("aggregate", aggregateNode);
+
+        var executorServicePropertyNode = aggregateNode.withObject("properties")
+                .withObject("executorService");
+        var timeoutCheckerExecutorServicePropertyNode = aggregateNode.withObject("properties")
+                .withObject("timeoutCheckerExecutorService");
+
+        assertTrue(executorServicePropertyNode.has("format"));
+        assertTrue(timeoutCheckerExecutorServicePropertyNode.has("format"));
+        assertEquals("bean:java.util.concurrent.ExecutorService", executorServicePropertyNode.get("format").asText());
+        assertEquals("bean:java.util.concurrent.ScheduledExecutorService",
+                timeoutCheckerExecutorServicePropertyNode.get("format").asText());
     }
 
     @Test
