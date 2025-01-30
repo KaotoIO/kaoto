@@ -8,6 +8,7 @@ import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
 import { StringField } from '../fields/StringField';
 import { FieldProps } from '../typings';
+import { EnumField } from '../fields/EnumField';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
 
@@ -18,6 +19,10 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
     if (schema.format === 'password') {
       return PasswordField;
     }
+    if (schema.type === 'string' && Array.isArray(schema.enum)) {
+      return EnumField;
+    }
+
     switch (schema.type) {
       case 'string':
       case 'number':
