@@ -4,9 +4,9 @@ import { KaotoSchemaDefinition } from '../../../../../../models';
 import { isDefined } from '../../../../../../utils';
 import { OneOfSchemas } from '../../../../../../utils/get-oneof-schema-list';
 import { FieldProps } from '../../typings';
-import { SimpleSelector } from './SimpleSelector';
-import { Typeahead } from './Typeahead';
-import { TypeaheadItem } from './Typeahead.types';
+import { SimpleSelector } from '../../../../../typeahead/SimpleSelector';
+import { Typeahead } from '../../../../../typeahead/Typeahead';
+import { TypeaheadItem } from '../../../../../typeahead/Typeahead.types';
 
 interface SchemaList extends FieldProps {
   selectedSchema: OneOfSchemas | undefined;

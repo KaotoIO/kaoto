@@ -6,7 +6,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-import { isDefined } from '../../../../../../utils';
+import { isDefined } from '../../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
 export const SimpleSelector: FunctionComponent<TypeaheadProps> = ({

@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { FormEvent, FunctionComponent, MouseEventHandler, Ref, useCallback, useMemo, useRef, useState } from 'react';
-import { isDefined } from '../../../../../../utils';
+import { isDefined } from '../../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
@@ -19,6 +19,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   items,
   id,
   onChange,
+  onCleanInput,
   'data-testid': dataTestId,
 }) => {
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
@@ -57,6 +58,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   const onTextInputClear = () => {
     setInputValue('');
     setIsOpen(true);
+    onCleanInput?.();
     inputRef.current?.focus();
   };
 
