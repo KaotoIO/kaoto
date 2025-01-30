@@ -1,4 +1,4 @@
-import { IDataTestID } from '../../../../../../models';
+import { IDataTestID } from '../../models';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TypeaheadItem<T = any> {
@@ -12,4 +12,5 @@ export interface TypeaheadProps extends IDataTestID {
   items: TypeaheadItem[];
   id?: string;
   onChange?: (item?: TypeaheadItem) => void;
+  onCleanInput?: () => void;
 }
