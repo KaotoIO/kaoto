@@ -119,13 +119,13 @@ public class CamelCatalogSchemaEnhancer {
      * @param modelName the name of the Camel model
      * @param modelNode the JSON schema node of the model
      */
-    void fillGroupInformation(String modelName, ObjectNode modelNode) {
+    void fillPropertiesInformation(String modelName, ObjectNode modelNode) {
         EipModel model = camelCatalog.eipModel(modelName);
         if (model == null) {
             return;
         }
 
-        fillGroupInformation(model, modelNode);
+        fillPropertiesInformation(model, modelNode);
     }
 
     /**
@@ -134,7 +134,7 @@ public class CamelCatalogSchemaEnhancer {
      * @param model     the Camel model
      * @param modelNode the JSON schema node of the model
      */
-    void fillGroupInformation(EipModel model, ObjectNode modelNode) {
+    void fillPropertiesInformation(EipModel model, ObjectNode modelNode) {
         List<EipModel.EipOptionModel> modelOptions = model.getOptions();
 
         modelNode.withObject("properties").fields().forEachRemaining(entry -> {
@@ -150,17 +150,8 @@ public class CamelCatalogSchemaEnhancer {
                 return;
             }
 
-            String group =
-                    modelOption.get().getGroup() != null ? modelOption.get().getGroup() : modelOption.get().getLabel();
-            if (group == null) {
-                return;
-            }
-
-            if (propertyNode.has("$comment")) {
-                propertyNode.put("$comment", propertyNode.get("$comment").asText() + "|group:" + group);
-            } else {
-                propertyNode.put("$comment", "group:" + group);
-            }
+            addGroupInfo(modelOption.get(), propertyNode);
+            addFormatInfo(modelOption.get(), propertyNode);
         });
     }
 
@@ -184,5 +175,33 @@ public class CamelCatalogSchemaEnhancer {
                 JAVA_TYPE_TO_MODEL_NAME.put(model.getJavaType(), modelName);
             }
         });
+    }
+
+    private void addGroupInfo(EipModel.EipOptionModel modelOption, ObjectNode propertyNode) {
+        String group =
+                modelOption.getGroup() != null ? modelOption.getGroup() : modelOption.getLabel();
+        if (group == null) {
+            return;
+        }
+
+        if (propertyNode.has("$comment")) {
+            propertyNode.put("$comment", propertyNode.get("$comment").asText() + "|group:" + group);
+        } else {
+            propertyNode.put("$comment", "group:" + group);
+        }
+    }
+
+    private void addFormatInfo(EipModel.EipOptionModel modelOption, ObjectNode propertyNode) {
+        String bean =
+                "object".equals(modelOption.getType()) && !propertyNode.has("$ref") ?  modelOption.getJavaType() : null;
+        if (bean == null) {
+            return;
+        }
+
+        if (propertyNode.has("format")) {
+            propertyNode.put("format", propertyNode.get("format").asText() + "|bean:" + modelOption.getJavaType());
+        } else {
+            propertyNode.put("format", "bean:" + modelOption.getJavaType());
+        }
     }
 }
