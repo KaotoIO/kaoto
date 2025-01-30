@@ -122,6 +122,23 @@ class EIPGeneratorTest {
     }
 
     @Test
+    void shouldFillFormatInformation() {
+        var eipsMap = eipGenerator.generate();
+
+        var aggregateNode = eipsMap.get("aggregate");
+        var executorServicePropertyNode = aggregateNode.withObject("propertiesSchema")
+                .withObject("properties").withObject("executorService");
+        var timeoutCheckerExecutorServicePropertyNode = aggregateNode.withObject("propertiesSchema")
+                .withObject("properties").withObject("timeoutCheckerExecutorService");
+
+        assertTrue(executorServicePropertyNode.has("format"));
+        assertTrue(timeoutCheckerExecutorServicePropertyNode.has("format"));
+        assertEquals("bean:java.util.concurrent.ExecutorService", executorServicePropertyNode.get("format").asText());
+        assertEquals("bean:java.util.concurrent.ScheduledExecutorService",
+                timeoutCheckerExecutorServicePropertyNode.get("format").asText());
+    }
+
+    @Test
     void shouldFillGroupInformationFromDefinitions() {
         var eipsMap = eipGenerator.generate();
 
