@@ -61,7 +61,7 @@ public class EIPGenerator implements Generator {
 
             camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(eipName, eipJSONSchema);
             camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(eipName, eipJSONSchema);
-            camelCatalogSchemaEnhancer.fillGroupInformation(eipName, eipJSONSchema);
+            camelCatalogSchemaEnhancer.fillPropertiesInformation(eipName, eipJSONSchema);
             iterateOverDefinitions(eipJSONSchema.withObject("definitions"), (model, node) -> {
                 if (model == null) {
                     return;
@@ -69,7 +69,7 @@ public class EIPGenerator implements Generator {
 
                 camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(model, node);
                 camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(model, node);
-                camelCatalogSchemaEnhancer.fillGroupInformation(model, node);
+                camelCatalogSchemaEnhancer.fillPropertiesInformation(model, node);
             });
 
             eipMap.put(eipName, eipJSON);
