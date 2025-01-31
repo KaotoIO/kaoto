@@ -1,11 +1,11 @@
+import { Button } from '@patternfly/react-core';
+import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { isDefined, ROOT_PATH } from '../../../../../../utils';
 import { SchemaContext } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
-import { ObjectFieldInner } from './ObjectFieldInner';
-import { TrashIcon } from '@patternfly/react-icons';
-import { Button } from '@patternfly/react-core';
 import { FieldWrapper } from '../FieldWrapper';
+import { ObjectFieldGrouping } from './ObjectFieldGrouping';
 
 export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove }) => {
   const { schema } = useContext(SchemaContext);
@@ -33,7 +33,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove 
   );
 
   if (propName === ROOT_PATH || !schema.title) {
-    return <ObjectFieldInner propName={propName} />;
+    return <ObjectFieldGrouping propName={propName} />;
   }
 
   return (
@@ -45,7 +45,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove 
       defaultValue={schema.default}
       actions={actions}
     >
-      <ObjectFieldInner propName={propName} />
+      <ObjectFieldGrouping propName={propName} />
     </FieldWrapper>
   );
 };
