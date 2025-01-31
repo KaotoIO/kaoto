@@ -1,9 +1,11 @@
-.pf-topology-resizable-side-bar {
+// Fix for: https://github.com/KaotoIO/kaoto/issues/1944
+#topology-resize-panel {
+  --pf-v6-c-drawer__panel--PaddingBlockStart: 0;
+  --pf-v6-c-drawer__panel--PaddingBlockEnd: 0;
+}
+
+.canvas-sidebar {
   width: calc(100% - 10px);
   position: absolute;
   height: 100%;
-}
-/* stylelint-disable-next-line selector-class-pattern */
-.pf-v6-c-drawer__splitter pf-m-vertical {
-  border: none;
 }
