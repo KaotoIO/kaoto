@@ -1,3 +1,5 @@
+import { capitalizeString } from './capitalize-string';
+
 /**
  * Converts a camelCase string to a space separated string.
  * @param str The camelCase string to convert.
@@ -8,10 +10,10 @@ export function camelCaseToSpaces(str: string, options?: { capitalize: boolean }
     return '';
   }
 
-  let spacedString = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+  const spacedString = str.replace(/([a-z])([A-Z])/g, '$1 $2');
 
   if (options?.capitalize) {
-    spacedString = spacedString.substring(0, 1).toUpperCase() + spacedString.slice(1);
+    return capitalizeString(spacedString);
   }
 
   return spacedString;
