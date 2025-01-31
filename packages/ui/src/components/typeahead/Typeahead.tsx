@@ -16,8 +16,9 @@ import { TypeaheadProps } from './Typeahead.types';
 
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   selectedItem,
-  items,
+  items: itemsProps,
   id,
+  placeholder = 'Select or write an option',
   onChange,
   onCleanInput,
   'data-testid': dataTestId,
@@ -25,6 +26,13 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const items = useMemo(() => {
+    if (itemsProps.find((item) => item.name === selectedItem?.name) || selectedItem === undefined) {
+      return itemsProps;
+    }
+    return [...itemsProps, { name: selectedItem?.name, value: selectedItem?.value }];
+  }, [itemsProps, selectedItem]);
 
   const onItemChanged = useCallback(
     (_event: unknown, name: string | number | undefined) => {
@@ -65,7 +73,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   const filteredItems = useMemo(
     () =>
       items.filter((item) => {
-        const hasNameMatch = item.name.includes(inputValue);
+        const hasNameMatch = item.name?.includes(inputValue);
         const hasDescriptionMatch = item.description?.includes(inputValue);
 
         return !inputValue || hasNameMatch || hasDescriptionMatch;
@@ -90,6 +98,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
           id={`typeahead-select-input-${id}`}
           data-testid={`typeahead-select-input-${dataTestId}`}
           ref={inputRef}
+          placeholder={placeholder}
           onClick={onToggleClick}
           value={inputValue}
           onChange={onTextInputChange}
