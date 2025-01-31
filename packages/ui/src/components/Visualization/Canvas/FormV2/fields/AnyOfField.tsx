@@ -1,6 +1,6 @@
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../models';
-import { SchemaContext, SchemaProvider } from '../providers/SchemaProvider';
+import { SchemaProvider } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 import { AutoField } from './AutoField';
 
@@ -9,14 +9,6 @@ interface AnyOfFieldProps extends FieldProps {
 }
 
 export const AnyOfField: FunctionComponent<AnyOfFieldProps> = ({ propName, anyOf }) => {
-  const { schema } = useContext(SchemaContext);
-
-  if (!Array.isArray(schema.anyOf) || schema.anyOf.length === 0) {
-    return null;
-  } else if (!schema) {
-    return <div>AnyOfField - Schema not defined</div>;
-  }
-
   return (
     <>
       {anyOf?.map((schema, index) => {
