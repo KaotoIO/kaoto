@@ -21,7 +21,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = (props) => {
      * We cannot use the onClose property since the button has 'position: absolute'
      * and doesn't take into account the sidebar children.
      */
-    <TopologySideBar resizable>
+    <TopologySideBar resizable className="canvas-sidebar">
       <ErrorBoundary key={props.selectedNode.id} fallback={<p>Something did not work as expected</p>}>
         <FilteredFieldProvider>
           <CanvasForm selectedNode={props.selectedNode} onClose={props.onClose} />
