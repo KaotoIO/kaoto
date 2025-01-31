@@ -2,16 +2,17 @@ import { FunctionComponent, useContext } from 'react';
 import { isDefined } from '../../../../../../utils';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
-import { AnyOfField } from '../AnyOfField';
 import { AutoField } from '../AutoField';
 
-export const ObjectFieldInner: FunctionComponent<FieldProps> = ({ propName }) => {
-  const { schema } = useContext(SchemaContext);
-  if (!schema) {
-    return <div>ObjectField - Schema not defined</div>;
-  }
+interface ObjectFieldInnerProps extends FieldProps {
+  requiredProperties: string[];
+}
 
-  const requiredProperties = Array.isArray(schema.required) ? schema.required : [];
+export const ObjectFieldInner: FunctionComponent<ObjectFieldInnerProps> = ({ propName, requiredProperties }) => {
+  const { schema } = useContext(SchemaContext);
+  if (!isDefined(schema)) {
+    throw new Error(`ObjectFieldInner: schema is not defined for ${propName}`);
+  }
 
   return (
     <>
@@ -30,8 +31,6 @@ export const ObjectFieldInner: FunctionComponent<FieldProps> = ({ propName }) =>
             </SchemaProvider>
           );
         })}
-
-      {Array.isArray(schema.anyOf) && <AnyOfField propName={propName} anyOf={schema.anyOf} />}
     </>
   );
 };
