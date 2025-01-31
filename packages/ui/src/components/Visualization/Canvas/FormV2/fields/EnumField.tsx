@@ -24,7 +24,17 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
     if (!value) {
       return undefined;
     }
-    return items.find((item) => item.name === value);
+
+    // Object values are stringified. Double check later different approach.
+    if (typeof value === 'object') {
+      return {
+        value: JSON.stringify(value),
+        name: JSON.stringify(value),
+        description: '',
+      };
+    }
+
+    return items.find((item) => item.name === value) ?? { value: value, name: value, description: '' };
   }, [items, value]);
 
   const onItemChange = useCallback(
@@ -65,6 +75,7 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
       <Typeahead
         selectedItem={selectedItem}
         items={items}
+        placeholder={schema.default?.toString()}
         id={propName}
         onChange={onItemChange}
         onCleanInput={onCleanInput}
