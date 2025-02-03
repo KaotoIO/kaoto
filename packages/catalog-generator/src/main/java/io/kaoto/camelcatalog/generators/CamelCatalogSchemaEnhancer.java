@@ -15,13 +15,16 @@
  */
 package io.kaoto.camelcatalog.generators;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.RawValue;
 import io.kaoto.camelcatalog.generator.CamelYamlDSLKeysComparator;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class CamelCatalogSchemaEnhancer {
@@ -38,11 +41,12 @@ public class CamelCatalogSchemaEnhancer {
     /**
      * Fill the required properties of the model in the schema if they are not already present
      *
+     * @param modelKind the kind of the Camel model
      * @param modelName the name of the Camel model
      * @param modelNode the JSON schema node of the model
      */
-    void fillRequiredPropertiesIfNeeded(String modelName, ObjectNode modelNode) {
-        EipModel model = camelCatalog.eipModel(modelName);
+    void fillRequiredPropertiesIfNeeded(Kind modelKind, String modelName, ObjectNode modelNode) {
+        BaseModel<? extends BaseOptionModel> model = camelCatalog.model(modelKind, modelName);
         if (model == null) {
             return;
         }
@@ -56,7 +60,7 @@ public class CamelCatalogSchemaEnhancer {
      * @param model     the Camel model
      * @param modelNode the JSON schema node of the model
      */
-    void fillRequiredPropertiesIfNeeded(EipModel model, ObjectNode modelNode) {
+    void fillRequiredPropertiesIfNeeded(BaseModel<? extends BaseOptionModel> model, ObjectNode modelNode) {
         ArrayList<String> requiredProperties = new ArrayList<>();
 
         if (modelNode.has("required")) {
@@ -65,7 +69,11 @@ public class CamelCatalogSchemaEnhancer {
             });
         }
 
-        model.getOptions().forEach(option -> {
+        List<? extends BaseOptionModel> modelOptions = (model instanceof ComponentModel)
+                ? ((ComponentModel) model).getEndpointOptions()
+                : model.getOptions();
+
+        modelOptions.forEach(option -> {
             if (option.isRequired() && !requiredProperties.contains(option.getName())) {
                 requiredProperties.add(option.getName());
             }
@@ -129,13 +137,13 @@ public class CamelCatalogSchemaEnhancer {
     }
 
     /**
-     * Fill the group/label information of the model in the schema
+     * Fill the group/label/format/deprecated/default information of the model in the schema
      *
-     * @param model     the Camel model
+     * @param model     the Camel Base model
      * @param modelNode the JSON schema node of the model
      */
-    void fillPropertiesInformation(EipModel model, ObjectNode modelNode) {
-        List<EipModel.EipOptionModel> modelOptions = model.getOptions();
+    void fillPropertiesInformation(BaseModel<? extends BaseOptionModel> model, ObjectNode modelNode) {
+        List<? extends BaseOptionModel> modelOptions = model.getOptions();
 
         modelNode.withObject("properties").fields().forEachRemaining(entry -> {
             String propertyName = entry.getKey();
@@ -143,16 +151,26 @@ public class CamelCatalogSchemaEnhancer {
             if (propertyNode.isEmpty()) {
                 return;
             }
-
-            Optional<EipModel.EipOptionModel> modelOption =
+            Optional<? extends BaseOptionModel> modelOption =
                     modelOptions.stream().filter(option -> option.getName().equals(propertyName)).findFirst();
             if (modelOption.isEmpty()) {
                 return;
             }
-
-            addGroupInfo(modelOption.get(), propertyNode);
-            addFormatInfo(modelOption.get(), propertyNode);
+            fillPropertyInformation(modelOption.get(), propertyNode);
         });
+    }
+
+    /**
+     * Fill the group/label/format/deprecated/default information of the model in the property
+     *
+     * @param modelOption     the Camel Base model
+     * @param propertyNode the JSON node of the property
+     */
+    void fillPropertyInformation(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        addGroupInfo(modelOption, propertyNode);
+        addFormatInfo(modelOption, propertyNode);
+        addDeprecateInfo(modelOption, propertyNode);
+        addDefaultInfo(modelOption, propertyNode);
     }
 
     /**
@@ -177,7 +195,7 @@ public class CamelCatalogSchemaEnhancer {
         });
     }
 
-    private void addGroupInfo(EipModel.EipOptionModel modelOption, ObjectNode propertyNode) {
+    private void addGroupInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
         String group =
                 modelOption.getGroup() != null ? modelOption.getGroup() : modelOption.getLabel();
         if (group == null) {
@@ -191,17 +209,55 @@ public class CamelCatalogSchemaEnhancer {
         }
     }
 
-    private void addFormatInfo(EipModel.EipOptionModel modelOption, ObjectNode propertyNode) {
-        String bean =
-                "object".equals(modelOption.getType()) && !propertyNode.has("$ref") ?  modelOption.getJavaType() : null;
-        if (bean == null) {
-            return;
+    private void addFormatInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        List<String> format = new ArrayList<>();
+        if (propertyNode.has("format")) {
+            format.add(propertyNode.get("format").asText());
         }
 
-        if (propertyNode.has("format")) {
-            propertyNode.put("format", propertyNode.get("format").asText() + "|bean:" + modelOption.getJavaType());
-        } else {
-            propertyNode.put("format", "bean:" + modelOption.getJavaType());
+        var propertyType = modelOption.getType();
+
+        String bean =
+                "object".equals(propertyType) && !propertyNode.has("$ref") ?  modelOption.getJavaType() : null;
+
+        if (bean != null && !bean.startsWith("java.util.Map")) {
+            format.add("bean:" + bean);
+        }
+
+        if ("duration".equals(propertyType)) {
+            format.add("duration");
+            propertyNode.put("type", "string");
+        }
+
+        if (modelOption.isSecret()){
+            format.add("password");
+        }
+
+        if (!format.isEmpty()) {
+            propertyNode.put("format", String.join("|", format));
+        }
+    }
+
+    private  void addDeprecateInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        boolean isDeprecated = modelOption.isDeprecated();
+        if (isDeprecated) {
+            propertyNode.put("deprecated", true);
+        }
+    }
+
+    private void addDefaultInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        var defaultValue = modelOption.getDefaultValue();
+        if (defaultValue != null && !propertyNode.has("default")) {
+            var propertyType = modelOption.getType();
+            if ("integer".equals(propertyType) && !(defaultValue instanceof String)) {
+                propertyNode.put("default", ((BigDecimal) defaultValue).intValue());
+            } else if ("boolean".equals(propertyType)) {
+                if ("true".equals(defaultValue.toString())) {
+                    propertyNode.put("default", true);
+                }
+            } else {
+                propertyNode.put("default", defaultValue.toString());
+            }
         }
     }
 }

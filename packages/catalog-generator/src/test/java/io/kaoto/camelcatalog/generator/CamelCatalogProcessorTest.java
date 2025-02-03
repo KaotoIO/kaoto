@@ -18,6 +18,7 @@ package io.kaoto.camelcatalog.generator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.generators.ComponentGenerator;
 import io.kaoto.camelcatalog.generators.EIPGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
@@ -54,10 +55,11 @@ class CamelCatalogProcessorTest {
         CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, true);
         camelCatalogVersionLoader.loadCamelYamlDsl(catalog.getCatalogVersion());
 
+        ComponentGenerator componentGenerator = new ComponentGenerator(catalog);
         EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
         this.processor = new CamelCatalogProcessor(catalog, jsonMapper, schemaProcessor, CatalogRuntime.Main, true, camelCatalogVersionLoader);
 
-        this.componentCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getComponentCatalog());
+        this.componentCatalog = (ObjectNode) jsonMapper.readTree(Util.getPrettyJSON(componentGenerator.generate()));
         this.dataFormatCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getDataFormatCatalog());
         this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
         this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
@@ -69,7 +71,7 @@ class CamelCatalogProcessorTest {
     @Test
     void testProcessCatalog() throws Exception {
         var catalogMap = processor.processCatalog();
-        assertEquals(processor.getComponentCatalog(), catalogMap.get("components"));
+        assertEquals(Util.getPrettyJSON(this.componentCatalog), catalogMap.get("components"));
         assertEquals(processor.getDataFormatCatalog(), catalogMap.get("dataformats"));
         assertEquals(processor.getLanguageCatalog(), catalogMap.get("languages"));
         assertEquals(processor.getModelCatalog(), catalogMap.get("models"));
@@ -103,11 +105,10 @@ class CamelCatalogProcessorTest {
                 .withObject("/sql")
                 .withObject("/propertiesSchema");
         var sqlDSProperty = sqlSchema.withObject("/properties").withObject("/dataSource");
-        assertEquals("string", sqlDSProperty.get("type").asText());
-        assertEquals("class:javax.sql.DataSource", sqlDSProperty.get("$comment").asText());
+        assertEquals("object", sqlDSProperty.get("type").asText());
+        assertEquals("bean:javax.sql.DataSource", sqlDSProperty.get("format").asText());
         var sqlBEHProperty = sqlSchema.withObject("/properties").withObject("/bridgeErrorHandler");
-        assertTrue(sqlBEHProperty.get("default").isBoolean());
-        assertFalse(sqlBEHProperty.get("default").asBoolean());
+        assertFalse(sqlBEHProperty.has("default"));
         var etcdSchema = componentCatalog
                 .withObject("/etcd3")
                 .withObject("/propertiesSchema");
