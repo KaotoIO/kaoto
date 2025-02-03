@@ -9,9 +9,13 @@ import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
+import { TextAreaField } from '../fields/TextAreaField';
 import { FieldProps } from '../typings';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
+
+/* Name of the properties that should load TextAreaField */
+const TextAreaPropertyNames = ['Expression', 'Description', 'Query'];
 
 export const FormComponentFactoryContext = createContext<FormComponentFactoryContextValue | undefined>(undefined);
 
@@ -19,6 +23,8 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
   const factory = useCallback<FormComponentFactoryContextValue>((schema) => {
     if (schema.format === 'password') {
       return PasswordField;
+    } else if (schema.type === 'string' && schema.title && TextAreaPropertyNames.includes(schema.title)) {
+      return TextAreaField;
     } else if (schema.type === 'string' && Array.isArray(schema.enum)) {
       return EnumField;
     } else if (schema.type === 'object' && Object.keys(schema?.properties ?? {}).length === 0) {
