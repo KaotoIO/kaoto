@@ -7,6 +7,7 @@ import { DisabledField } from '../fields/DisabledField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
+import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { FormComponentFactoryContext, FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 
@@ -26,10 +27,10 @@ describe('FormComponentFactoryProvider', () => {
     [{ type: 'number' }, StringField],
     [{ type: 'integer' }, StringField],
     [{ type: 'boolean' }, BooleanField],
-    [{ type: 'object' }, ObjectField],
+    [{ type: 'object', properties: { name: { type: 'string' } } }, ObjectField],
+    [{ type: 'object', properties: {} }, PropertiesField],
     [{ type: 'array' }, ArrayField],
     [{ oneOf: [] }, OneOfField],
-    [{ anyOf: [] }, DisabledField],
     [{}, DisabledField],
     [{ type: 'unknown' } as unknown as KaotoSchemaDefinition['schema'], DisabledField],
   ] as [KaotoSchemaDefinition['schema'], FunctionComponent][])(
@@ -44,4 +45,14 @@ describe('FormComponentFactoryProvider', () => {
       expect(expected).toBe(Field);
     },
   );
+
+  it('should throw an error when schema has an unhandled anyOf array', () => {
+    const { result } = renderHook(() => useContext(FormComponentFactoryContext), {
+      wrapper: ({ children }) => <FormComponentFactoryProvider>{children}</FormComponentFactoryProvider>,
+    });
+
+    expect(() => result.current?.({ anyOf: [] } as unknown as KaotoSchemaDefinition['schema'])).toThrowError(
+      'FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField',
+    );
+  });
 });
