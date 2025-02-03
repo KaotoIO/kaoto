@@ -21,6 +21,7 @@ import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.Kind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +57,7 @@ class CamelCatalogSchemaEnhancerTest {
         // remove required property to simulate the case where it is not present
         setHeaderNode.remove("required");
 
-        camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded("setHeader", setHeaderNode);
+        camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.eip, "setHeader", setHeaderNode);
 
         assertTrue(setHeaderNode.has("required"));
         assertEquals(2, setHeaderNode.get("required").size());
@@ -173,6 +174,36 @@ class CamelCatalogSchemaEnhancerTest {
         assertEquals("bean:java.util.concurrent.ExecutorService", executorServicePropertyNode.get("format").asText());
         assertEquals("bean:java.util.concurrent.ScheduledExecutorService",
                 timeoutCheckerExecutorServicePropertyNode.get("format").asText());
+    }
+
+    @Test
+    void shouldFillDeprecatedInformationForEIPModel() {
+        var recipientListNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.RecipientListDefinition");
+
+        camelCatalogSchemaEnhancer.fillPropertiesInformation("RecipientList", recipientListNode);
+
+        var parallelAggregateNode = recipientListNode.withObject("properties").withObject("parallelAggregate");
+
+        assertTrue(parallelAggregateNode.has("deprecated"));
+        assertTrue(parallelAggregateNode.get("deprecated").asBoolean());
+    }
+
+    @Test
+    void shouldFillDefaultInformationForEIPModel() {
+        var multicastNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.MulticastDefinition");
+
+        camelCatalogSchemaEnhancer.fillPropertiesInformation("multicast", multicastNode);
+
+        var timeoutNode = multicastNode.withObject("properties").withObject("timeout");
+
+        assertTrue(timeoutNode.has("default"));
+        assertEquals("0", timeoutNode.get("default").asText());
     }
 
     @Test
