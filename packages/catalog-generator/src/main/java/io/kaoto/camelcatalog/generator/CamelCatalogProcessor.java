@@ -18,6 +18,7 @@ package io.kaoto.camelcatalog.generator;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.generators.ComponentGenerator;
 import io.kaoto.camelcatalog.generators.EIPGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
@@ -73,7 +74,8 @@ public class CamelCatalogProcessor {
      */
     public Map<String, String> processCatalog() throws Exception {
         var answer = new LinkedHashMap<String, String>();
-        var componentCatalog = getComponentCatalog();
+        ComponentGenerator componentGenerator = new ComponentGenerator(camelCatalog);
+        var componentCatalog = Util.getPrettyJSON(componentGenerator.generate());
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
