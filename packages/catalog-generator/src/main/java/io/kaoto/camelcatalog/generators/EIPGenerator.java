@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
+import org.apache.camel.tooling.model.Kind;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -59,7 +60,7 @@ public class EIPGenerator implements Generator {
             var eipJSONSchema = camelYAMLSchemaReader.getJSONSchema(eipName);
             eipJSON.set("propertiesSchema", eipJSONSchema);
 
-            camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(eipName, eipJSONSchema);
+            camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.eip, eipName, eipJSONSchema);
             camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(eipName, eipJSONSchema);
             camelCatalogSchemaEnhancer.fillPropertiesInformation(eipName, eipJSONSchema);
             iterateOverDefinitions(eipJSONSchema.withObject("definitions"), (model, node) -> {

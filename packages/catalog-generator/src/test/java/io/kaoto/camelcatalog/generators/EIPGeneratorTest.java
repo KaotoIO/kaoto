@@ -139,6 +139,18 @@ class EIPGeneratorTest {
     }
 
     @Test
+    void shouldFillDeprecatedInformation() {
+        var eipsMap = eipGenerator.generate();
+
+        var multicastNode = eipsMap.get("multicast");
+        var parallelAggregatePropertyNode = multicastNode.withObject("propertiesSchema")
+                .withObject("properties").withObject("parallelAggregate");
+
+        assertTrue(parallelAggregatePropertyNode.has("deprecated"));
+        assertTrue(parallelAggregatePropertyNode.get("deprecated").asBoolean());
+    }
+
+    @Test
     void shouldFillGroupInformationFromDefinitions() {
         var eipsMap = eipGenerator.generate();
 
