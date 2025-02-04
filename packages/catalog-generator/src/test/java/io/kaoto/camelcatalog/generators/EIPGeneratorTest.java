@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EIPGeneratorTest {
     EIPGenerator eipGenerator;
@@ -63,6 +62,31 @@ class EIPGeneratorTest {
         assertTrue(eipsMap.containsKey("otherwise"));
         assertTrue(eipsMap.containsKey("doCatch"));
         assertTrue(eipsMap.containsKey("doFinally"));
+    }
+
+    @Test
+    void shouldGetJsonSchema() {
+        var eipsMap = eipGenerator.generate();
+
+        var beanNode = eipsMap.get("bean");
+        assertTrue(beanNode.has("propertiesSchema"));
+
+        var beanPropertySchemaNode = beanNode.get("propertiesSchema");
+        assertFalse(beanPropertySchemaNode.has("definitions"));
+        assertTrue(beanPropertySchemaNode.has("title"));
+        assertTrue(beanPropertySchemaNode.has("description"));
+        assertTrue(beanPropertySchemaNode.has("properties"));
+    }
+
+    @Test
+    void shouldFillSchemaInformation() {
+        var eipsMap = eipGenerator.generate();
+
+        var setHeaderPropertySchemaNode = eipsMap.get("setHeader").withObject("propertiesSchema");
+        assertTrue(setHeaderPropertySchemaNode.has("$schema"));
+        assertTrue(setHeaderPropertySchemaNode.has("type"));
+        assertEquals("http://json-schema.org/draft-07/schema#", setHeaderPropertySchemaNode.get("$schema").asText());
+        assertEquals("object", setHeaderPropertySchemaNode.get("type").asText());
     }
 
     @Test
