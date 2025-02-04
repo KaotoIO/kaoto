@@ -25,13 +25,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import layoutHorizontalIcon from '../../../assets/layout-horizontal.png';
-import layoutVerticalIcon from '../../../assets/layout-vertical.png';
 import { useLocalStorage } from '../../../hooks';
 import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
+import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
+import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import { VisualizationEmptyState } from '../EmptyState';
 import './Canvas.scss';
 import { CanvasSideBar } from './CanvasSideBar';
@@ -137,11 +137,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     const customButtons: TopologyControlButton[] = [
       {
         id: 'topology-control-bar-h_layout-button',
-        icon: (
-          <Icon>
-            <img src={layoutHorizontalIcon} alt="Horizontal Layout" />
-          </Icon>
-        ),
+        icon: <HorizontalLayoutIcon />,
         tooltip: 'Horizontal Layout',
         callback: action(() => {
           setActiveLayout(LayoutType.DagreHorizontal);
@@ -151,11 +147,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
       {
         id: 'topology-control-bar-v_layout-button',
-        icon: (
-          <Icon>
-            <img src={layoutVerticalIcon} alt="Vertical Layout" />
-          </Icon>
-        ),
+        icon: <VerticalLayoutIcon />,
         tooltip: 'Vertical Layout',
         callback: action(() => {
           setActiveLayout(LayoutType.DagreVertical);
