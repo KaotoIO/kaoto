@@ -15,11 +15,9 @@
  */
 package io.kaoto.camelcatalog.generators;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.RawValue;
 import io.kaoto.camelcatalog.generator.CamelYamlDSLKeysComparator;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.*;
@@ -151,11 +149,13 @@ public class CamelCatalogSchemaEnhancer {
             if (propertyNode.isEmpty()) {
                 return;
             }
+
             Optional<? extends BaseOptionModel> modelOption =
                     modelOptions.stream().filter(option -> option.getName().equals(propertyName)).findFirst();
             if (modelOption.isEmpty()) {
                 return;
             }
+
             fillPropertyInformation(modelOption.get(), propertyNode);
         });
     }
@@ -181,6 +181,16 @@ public class CamelCatalogSchemaEnhancer {
      */
     EipModel getCamelModelByJavaType(String javaType) {
         return camelCatalog.eipModel(JAVA_TYPE_TO_MODEL_NAME.get(javaType));
+    }
+
+    /**
+     * Fill the JSON schema details of the model in the schema
+     *
+     * @param modelNode the JSON schema node of the model
+     */
+    void fillSchemaInformation(ObjectNode modelNode) {
+        modelNode.put("$schema", "http://json-schema.org/draft-07/schema#");
+        modelNode.put("type", "object");
     }
 
     /**
@@ -216,7 +226,6 @@ public class CamelCatalogSchemaEnhancer {
         }
 
         var propertyType = modelOption.getType();
-
         String bean =
                 "object".equals(propertyType) && !propertyNode.has("$ref") ?  modelOption.getJavaType() : null;
 

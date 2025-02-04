@@ -83,16 +83,19 @@ class CamelCatalogProcessorTest {
     @Test
     void testGetComponentCatalog() throws Exception {
         assertTrue(componentCatalog.size() > 300);
+
         var directModel = componentCatalog
                 .withObject("/direct")
                 .withObject("/component");
         assertEquals("Direct", directModel.get("title").asText());
+
         var as2Schema = componentCatalog
                 .withObject("/as2")
                 .withObject("/propertiesSchema");
         var as2srmaProperty = as2Schema.withObject("/properties").withObject("/signedReceiptMicAlgorithms");
         assertEquals("array", as2srmaProperty.get("type").asText());
         assertEquals("string", as2srmaProperty.withObject("/items").get("type").asText());
+
         var gdSchema = componentCatalog
                 .withObject("/google-drive")
                 .withObject("/propertiesSchema");
@@ -101,6 +104,7 @@ class CamelCatalogProcessorTest {
         assertEquals("string", gdScopesProperty.withObject("/items").get("type").asText());
         var gdSPProperty = gdSchema.withObject("/properties").withObject("/schedulerProperties");
         assertEquals("object", gdSPProperty.get("type").asText());
+
         var sqlSchema = componentCatalog
                 .withObject("/sql")
                 .withObject("/propertiesSchema");
@@ -109,6 +113,7 @@ class CamelCatalogProcessorTest {
         assertEquals("bean:javax.sql.DataSource", sqlDSProperty.get("format").asText());
         var sqlBEHProperty = sqlSchema.withObject("/properties").withObject("/bridgeErrorHandler");
         assertFalse(sqlBEHProperty.has("default"));
+
         var etcdSchema = componentCatalog
                 .withObject("/etcd3")
                 .withObject("/propertiesSchema");
@@ -266,8 +271,10 @@ class CamelCatalogProcessorTest {
     @Test
     void testGetPatternCatalog() throws Exception {
         assertTrue(processorCatalog.size() > 65 && processorCatalog.size() < 80);
+
         var choiceModel = processorCatalog.withObject("/choice").withObject("/model");
         assertEquals("choice", choiceModel.get("name").asText());
+
         var aggregateSchema = processorCatalog.withObject("/aggregate").withObject("/propertiesSchema");
         var aggregationStrategy = aggregateSchema.withObject("/properties").withObject("/aggregationStrategy");
         assertEquals("string", aggregationStrategy.get("type").asText());
@@ -281,6 +288,9 @@ class CamelCatalogProcessorTest {
         var toUri = toSchema.withObject("/properties").withObject("/uri");
         assertEquals("string", toUri.get("type").asText());
         assertFalse(toSchema.withObject("/properties").has("/parameters"));
+
+        var beanSchema = processorCatalog.withObject("/bean").withObject("/propertiesSchema");
+        assertFalse(beanSchema.has("definitions"));
     }
 
     @Test
