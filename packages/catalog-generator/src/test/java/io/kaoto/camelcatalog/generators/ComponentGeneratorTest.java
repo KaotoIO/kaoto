@@ -40,6 +40,30 @@ public class ComponentGeneratorTest {
     }
 
     @Test
+    void shouldGetComponentJSONSchema() {
+        var componentsMap = componentGenerator.generate();
+
+        var fileNode = componentsMap.get("file");
+        assertTrue(fileNode.has("propertiesSchema"));
+
+        var filePropertySchemaNode = fileNode.get("propertiesSchema");
+        assertFalse(filePropertySchemaNode.has("definitions"));
+        assertTrue(filePropertySchemaNode.has("properties"));
+        assertTrue(filePropertySchemaNode.has("required"));
+    }
+
+    @Test
+    void shouldFillSchemaInformation() {
+        var componentsMap = componentGenerator.generate();
+
+        var as2PropertySchemaNode = componentsMap.get("as2").withObject("propertiesSchema");
+        assertTrue(as2PropertySchemaNode.has("$schema"));
+        assertTrue(as2PropertySchemaNode.has("type"));
+        assertEquals("http://json-schema.org/draft-07/schema#", as2PropertySchemaNode.get("$schema").asText());
+        assertEquals("object", as2PropertySchemaNode.get("type").asText());
+    }
+
+    @Test
     void shouldFillRequiredPropertiesIfNeeded() {
         var componentsMap = componentGenerator.generate();
 

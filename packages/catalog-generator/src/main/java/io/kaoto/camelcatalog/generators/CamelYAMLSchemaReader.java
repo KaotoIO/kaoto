@@ -46,7 +46,9 @@ public class CamelYAMLSchemaReader {
         eipSchemaNode.setAll(resolvedNode);
 
         inlineDefinitions(eipSchemaNode, eipSchemaDefinitionsNode);
-        eipSchemaNode.set("definitions", eipSchemaDefinitionsNode);
+        if (!eipSchemaDefinitionsNode.isEmpty()) {
+            eipSchemaNode.set("definitions", eipSchemaDefinitionsNode);
+        }
 
         return eipSchemaNode;
     }

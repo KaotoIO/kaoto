@@ -52,9 +52,13 @@ public class ComponentGenerator implements Generator{
             var componentJson = getComponentJson(name);
             var componentJSONSchema = getComponentJSONSchema(name);
             componentJson.set("propertiesSchema", componentJSONSchema);
+
+            camelCatalogSchemaEnhancer.fillSchemaInformation(componentJSONSchema);
             camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.component, name, componentJSONSchema);
+
             componentMap.put(name, componentJson);
         });
+
         return componentMap;
     }
 

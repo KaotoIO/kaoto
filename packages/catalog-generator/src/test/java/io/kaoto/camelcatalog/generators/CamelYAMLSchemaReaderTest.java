@@ -55,6 +55,13 @@ class CamelYAMLSchemaReaderTest {
     }
 
     @Test
+    void shouldNotSetDefinitions() {
+        var eipSchemaForBean = camelYAMLSchemaReader.getJSONSchema("bean");
+
+        assertFalse(eipSchemaForBean.has("definitions"));
+    }
+
+    @Test
     void shouldRenameRefPath() {
         var eipSchemaForAggregate = camelYAMLSchemaReader.getJSONSchema("aggregate");
 
