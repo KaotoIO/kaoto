@@ -48,6 +48,21 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
+    void shouldFillSchemaInformation() {
+        var setHeaderNode = (ObjectNode) camelYamlDslSchema
+                .get("items")
+                .get("definitions")
+                .get("org.apache.camel.model.SetHeaderDefinition").deepCopy();
+
+        camelCatalogSchemaEnhancer.fillSchemaInformation(setHeaderNode);
+
+        assertTrue(setHeaderNode.has("$schema"));
+        assertTrue(setHeaderNode.has("type"));
+        assertEquals("http://json-schema.org/draft-07/schema#", setHeaderNode.get("$schema").asText());
+        assertEquals("object", setHeaderNode.get("type").asText());
+    }
+
+    @Test
     void shouldFillRequiredPropertiesIfNeededForModelName() {
         var setHeaderNode = (ObjectNode) camelYamlDslSchema
                 .get("items")
