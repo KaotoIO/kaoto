@@ -1,4 +1,3 @@
-import { Icon } from '@patternfly/react-core';
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
   Model,

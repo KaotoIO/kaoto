@@ -31,7 +31,7 @@ export function createIcon({
   svgPath,
 }: IconDefinition): ComponentClass<SVGIconProps> {
   return class SVGIcon extends Component<SVGIconProps> {
-    static displayName = name;
+    static readonly displayName = name;
 
     id = `icon-title-${currentId++}`;
 
@@ -47,10 +47,9 @@ export function createIcon({
           className={classes}
           viewBox={viewBox}
           fill="currentColor"
-          aria-labelledby={hasTitle ? this.id : null}
-          aria-hidden={hasTitle ? null : true}
+          aria-labelledby={hasTitle ? this.id : undefined}
+          aria-hidden={hasTitle ? undefined : true}
           transform={transform}
-          role="img"
           width="1em"
           height="1em"
           {...(props as Omit<SVGProps<SVGElement>, 'ref'>)} // Lie.
