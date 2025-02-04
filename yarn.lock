@@ -13204,8 +13204,8 @@ __metadata:
   linkType: hard
 
 "json-schema-to-typescript@npm:^15.0.0":
-  version: 15.0.3
-  resolution: "json-schema-to-typescript@npm:15.0.3"
+  version: 15.0.4
+  resolution: "json-schema-to-typescript@npm:15.0.4"
   dependencies:
     "@apidevtools/json-schema-ref-parser": "npm:^11.5.5"
     "@types/json-schema": "npm:^7.0.15"
@@ -13218,7 +13218,7 @@ __metadata:
     tinyglobby: "npm:^0.2.9"
   bin:
     json2ts: dist/src/cli.js
-  checksum: 10/5c8fe52bfbef4f33a9be1c9078cf639fab3be1d3c7962aa656391fe114bfa1e1dfd426a08d6ae1850ccd86676afa49e42041f53d96ffb6ba92b5b11428231276
+  checksum: 10/99544c8b2e10f1487fd685357d8333e70f5eb9c1ba96fbdcc172d8cf62dc382158276ad82648a93911562f07da7c2adf7733d4608ffdeca9525d08d7930b9880
   languageName: node
   linkType: hard
 
