@@ -54,7 +54,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
         </CardTitle>
       </CardHeader>
 
-      <CardBody className="pf-v6-c-form">{children}</CardBody>
+      {children && <CardBody className="pf-v6-c-form">{children}</CardBody>}
     </Card>
   );
 };
