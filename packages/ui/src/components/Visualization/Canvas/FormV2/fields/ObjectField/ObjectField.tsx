@@ -5,7 +5,7 @@ import { isDefined, ROOT_PATH } from '../../../../../../utils';
 import { useFieldValue } from '../../hooks/field-value';
 import { SchemaContext } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
-import { FieldWrapper } from '../FieldWrapper';
+import { ArrayFieldWrapper } from '../ArrayField/ArrayFieldWrapper';
 import { ObjectFieldGrouping } from './ObjectFieldGrouping';
 
 export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove: onRemoveProps }) => {
@@ -37,7 +37,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
   }
 
   return (
-    <FieldWrapper
+    <ArrayFieldWrapper
       propName={propName}
       type="object"
       title={schema.title}
@@ -68,6 +68,6 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
       }
     >
       {isExpanded && <ObjectFieldGrouping propName={propName} />}
-    </FieldWrapper>
+    </ArrayFieldWrapper>
   );
 };
