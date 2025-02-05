@@ -7,7 +7,7 @@ import { useFieldValue } from '../../hooks/field-value';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
 import { AutoField } from '../AutoField';
-import { FieldWrapper } from '../FieldWrapper';
+import { ArrayFieldWrapper } from './ArrayFieldWrapper';
 
 export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   const { schema, definitions } = useContext(SchemaContext);
@@ -42,7 +42,7 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   }, [value]);
 
   return (
-    <FieldWrapper
+    <ArrayFieldWrapper
       propName={propName}
       type="array"
       title={schema.title}
@@ -61,6 +61,6 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
           </SchemaProvider>
         );
       })}
-    </FieldWrapper>
+    </ArrayFieldWrapper>
   );
 };

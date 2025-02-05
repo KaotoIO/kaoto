@@ -1,0 +1,11 @@
+.kaoto-form {
+  &__label {
+    --pf-v6-c-form__label--FontSize: --pf-t--global--font--size--body--md;
+    --pf-v6-c-form__label-required--FontSize: --pf-t--global--font--size--body--lg;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-text-input-group__text-input::placeholder {
+    font-style: italic;
+  }
+}
