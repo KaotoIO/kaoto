@@ -5,7 +5,7 @@ import { getFieldGroupsV2, getFilteredProperties, isDefined } from '../../../../
 import { capitalizeString } from '../../../../../../utils/capitalize-string';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
-import { AnyOfField } from '../AnyOfField';
+import { AnyOfField } from './AnyOfField';
 import { ObjectFieldInner } from './ObjectFieldInner';
 
 const SPACE_REGEX = /\s/g;

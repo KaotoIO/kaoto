@@ -1,10 +1,10 @@
-import { FormGroup, FormGroupLabelHelp, Popover } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { Typeahead } from '../../../../typeahead/Typeahead';
+import { TypeaheadItem } from '../../../../typeahead/Typeahead.types';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
-import { Typeahead } from '../../../../typeahead/Typeahead';
-import { TypeaheadItem } from '../../../../typeahead/Typeahead.types';
+import { FieldWrapper } from './FieldWrapper';
 
 export const EnumField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
@@ -52,25 +52,14 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
     return <div>EnumField - Schema not defined</div>;
   }
 
-  const id = `${propName}-popover`;
-
   return (
-    <FormGroup
-      fieldId={propName}
-      label={`${schema.title} (${propName})`}
-      isRequired={required}
-      labelHelp={
-        <Popover
-          id={id}
-          headerContent={<p>{schema.title}</p>}
-          bodyContent={<p>{schema.description}</p>}
-          footerContent={<p>Default: {schema.default?.toString() ?? 'no default value'}</p>}
-          triggerAction="hover"
-          withFocusTrap={false}
-        >
-          <FormGroupLabelHelp aria-label={`More info for ${schema.title} field`} />
-        </Popover>
-      }
+    <FieldWrapper
+      propName={propName}
+      required={required}
+      title={schema.title}
+      type="enum"
+      description={schema.description}
+      defaultValue={schema.default?.toString()}
     >
       <Typeahead
         selectedItem={selectedItem}
@@ -80,6 +69,6 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
         onChange={onItemChange}
         onCleanInput={onCleanInput}
       />
-    </FormGroup>
+    </FieldWrapper>
   );
 };

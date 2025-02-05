@@ -1,60 +1,48 @@
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardHeaderActionsObject,
-  CardTitle,
-  FormGroupLabelHelp,
-  Popover,
-} from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, ReactNode, useMemo } from 'react';
+import { FormGroup, FormGroupLabelHelp, Popover } from '@patternfly/react-core';
+import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 import { FieldProps } from '../typings';
 
 interface FieldWrapperProps extends FieldProps {
   type: string;
-  title?: string;
+  title?: ReactNode;
   description?: string;
-  defaultValue?: unknown;
-  actions?: ReactNode;
+  defaultValue?: string;
 }
 
 export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
   propName,
+  required,
+  title,
   type,
-  title: propsTitle,
   description,
-  defaultValue,
-  actions,
+  defaultValue = 'no default value',
   children,
 }) => {
-  const title = propsTitle ?? propName;
-  const id = `${title}-popover`;
-
-  const cardActions: CardHeaderActionsObject = useMemo(() => ({ actions, hasNoOffset: false }), [actions]);
+  const id = `${propName}-popover`;
 
   return (
-    <Card>
-      <CardHeader actions={cardActions}>
-        <CardTitle>
-          {title}{' '}
-          <Popover
-            id={id}
-            headerContent={
-              <p>
-                {title} {`<${type}>`}
-              </p>
-            }
-            bodyContent={<p>{description}</p>}
-            footerContent={<p>Default: {defaultValue?.toString() ?? 'no default value'}</p>}
-            triggerAction="hover"
-            withFocusTrap={false}
-          >
-            <FormGroupLabelHelp aria-label={`More info for ${title} field`} />
-          </Popover>
-        </CardTitle>
-      </CardHeader>
-
-      {children && <CardBody className="pf-v6-c-form">{children}</CardBody>}
-    </Card>
+    <FormGroup
+      fieldId={propName}
+      label={title ?? propName}
+      isRequired={required}
+      labelHelp={
+        <Popover
+          id={id}
+          headerContent={
+            <p>
+              {title} {`<${type}>`}
+            </p>
+          }
+          bodyContent={<p>{description}</p>}
+          footerContent={<p>Default: {defaultValue}</p>}
+          triggerAction="hover"
+          withFocusTrap={false}
+        >
+          <FormGroupLabelHelp aria-label={`More info for ${title} field`} />
+        </Popover>
+      }
+    >
+      {children}
+    </FormGroup>
   );
 };
