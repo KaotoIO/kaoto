@@ -35,7 +35,13 @@ public class SchemaPropertyFilter {
             Map.entry("saga", List.of("steps")),
             Map.entry("split", List.of("steps")),
             Map.entry("step", List.of("steps")),
-            Map.entry("whenSkipSendToEndpoint", List.of("steps"))
+            Map.entry("whenSkipSendToEndpoint", List.of("steps")),
+            Map.entry("get", List.of("to")),
+            Map.entry("post", List.of("to")),
+            Map.entry("put", List.of("to")),
+            Map.entry("delete", List.of("to")),
+            Map.entry("head", List.of("to")),
+            Map.entry("patch", List.of("to"))
         );
     }
 
