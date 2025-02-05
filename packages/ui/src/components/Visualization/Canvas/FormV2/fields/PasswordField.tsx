@@ -1,18 +1,11 @@
-import {
-  Button,
-  FormGroup,
-  FormGroupLabelHelp,
-  Popover,
-  TextInputGroup,
-  TextInputGroupMain,
-  TextInputGroupUtilities,
-} from '@patternfly/react-core';
+import { Button, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useState } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
+import { FieldWrapper } from './FieldWrapper';
 
 export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
@@ -41,27 +34,13 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
   const id = `${propName}-popover`;
 
   return (
-    <FormGroup
-      fieldId={propName}
-      label={`${schema.title} (${propName})`}
-      name={`${schema.title} (${propName})`}
-      isRequired={required}
-      labelHelp={
-        <Popover
-          id={id}
-          headerContent={
-            <p>
-              {schema.title} {`<${schema.type}>`}
-            </p>
-          }
-          bodyContent={<p>{schema.description}</p>}
-          footerContent={<p>Default: {schema.default?.toString() ?? 'no default value'}</p>}
-          triggerAction="hover"
-          withFocusTrap={false}
-        >
-          <FormGroupLabelHelp aria-label={`More info for ${schema.title} field`} />
-        </Popover>
-      }
+    <FieldWrapper
+      propName={propName}
+      required={required}
+      title={schema.title}
+      type="secret"
+      description={schema.description}
+      defaultValue={schema.default?.toString()}
     >
       <TextInputGroup>
         <TextInputGroupMain
@@ -87,6 +66,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           <Button variant="plain" onClick={onRemove} aria-label={ariaLabel} title={ariaLabel} icon={<TimesIcon />} />
         </TextInputGroupUtilities>
       </TextInputGroup>
-    </FormGroup>
+    </FieldWrapper>
   );
 };
