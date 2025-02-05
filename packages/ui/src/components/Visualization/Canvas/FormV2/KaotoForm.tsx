@@ -3,6 +3,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../../models';
 import { isDefined, ROOT_PATH, setValue } from '../../../../utils';
 import { AutoField } from './fields/AutoField';
+import './KaotoForm.scss';
 import { FormComponentFactoryProvider } from './providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from './providers/ModelProvider';
 import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider';
@@ -45,7 +46,7 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
       <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
         <SchemaProvider schema={schema}>
           <ModelContextProvider model={formModel} onPropertyChange={onPropertyChange}>
-            <Form>
+            <Form className="kaoto-form kaoto-form__label">
               <AutoField propName={ROOT_PATH} />
             </Form>
           </ModelContextProvider>
