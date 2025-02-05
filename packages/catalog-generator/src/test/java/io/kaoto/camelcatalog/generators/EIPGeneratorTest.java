@@ -15,7 +15,6 @@
  */
 package io.kaoto.camelcatalog.generators;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
@@ -46,29 +45,54 @@ class EIPGeneratorTest {
     }
 
     @Test
-    void shouldContainAListOfEips() {
-        var eipsMap = eipGenerator.generate();
+    void shouldContainAListOfProcessors() {
+        var processorsMap = eipGenerator.generate();
 
-        assertTrue(eipsMap.containsKey("aggregate"));
-        assertTrue(eipsMap.containsKey("to"));
-        assertTrue(eipsMap.containsKey("setHeader"));
-        assertTrue(eipsMap.containsKey("setHeaders"));
+        assertTrue(processorsMap.containsKey("aggregate"));
+        assertTrue(processorsMap.containsKey("to"));
+        assertTrue(processorsMap.containsKey("setHeader"));
+        assertTrue(processorsMap.containsKey("setHeaders"));
 
-        assertTrue(eipsMap.containsKey("choice"));
-        assertTrue(eipsMap.containsKey("doTry"));
+        assertTrue(processorsMap.containsKey("choice"));
+        assertTrue(processorsMap.containsKey("doTry"));
 
         /* These are special cases, while they are processors, they cannot be used directly */
-        assertTrue(eipsMap.containsKey("when"));
-        assertTrue(eipsMap.containsKey("otherwise"));
-        assertTrue(eipsMap.containsKey("doCatch"));
-        assertTrue(eipsMap.containsKey("doFinally"));
+        assertTrue(processorsMap.containsKey("when"));
+        assertTrue(processorsMap.containsKey("otherwise"));
+        assertTrue(processorsMap.containsKey("doCatch"));
+        assertTrue(processorsMap.containsKey("doFinally"));
+
+        /* These are REST processors */
+        assertTrue(processorsMap.containsKey("get"));
+        assertTrue(processorsMap.containsKey("post"));
+        assertTrue(processorsMap.containsKey("put"));
+        assertTrue(processorsMap.containsKey("delete"));
+        assertTrue(processorsMap.containsKey("head"));
+        assertTrue(processorsMap.containsKey("patch"));
     }
 
     @Test
-    void shouldGetJsonSchema() {
-        var eipsMap = eipGenerator.generate();
+    void shouldGetProcessorNames() {
+        var processorList = eipGenerator.getEIPNames();
 
-        var beanNode = eipsMap.get("bean");
+        assertTrue(processorList.containsAll(List.of("filter", "multicast", "when", "doCatch", "log", "aggregate")));
+    }
+
+    @Test
+    void shouldGetModelJson() {
+        var postJson = eipGenerator.getModelJson("post");
+
+        assertFalse(postJson.isEmpty());
+        assertTrue(postJson.has("model"));
+        assertTrue(postJson.has("properties"));
+        assertFalse(postJson.has("propertiesSchema"));
+    }
+
+    @Test
+    void shouldGetJsonSchemaForBeanProcessor() {
+        var processorsMap = eipGenerator.generate();
+
+        var beanNode = processorsMap.get("bean");
         assertTrue(beanNode.has("propertiesSchema"));
 
         var beanPropertySchemaNode = beanNode.get("propertiesSchema");
@@ -79,10 +103,24 @@ class EIPGeneratorTest {
     }
 
     @Test
-    void shouldFillSchemaInformation() {
-        var eipsMap = eipGenerator.generate();
+    void shouldGetJsonSchemaForRESTGetProcessor() {
+        var processorsMap = eipGenerator.generate();
 
-        var setHeaderPropertySchemaNode = eipsMap.get("setHeader").withObject("propertiesSchema");
+        var getNode = processorsMap.get("get");
+        assertTrue(getNode.has("propertiesSchema"));
+
+        var getPropertySchemaNode = getNode.get("propertiesSchema");
+        assertTrue(getPropertySchemaNode.has("definitions"));
+        assertTrue(getPropertySchemaNode.has("title"));
+        assertTrue(getPropertySchemaNode.has("description"));
+        assertTrue(getPropertySchemaNode.has("properties"));
+    }
+
+    @Test
+    void shouldFillSchemaInformation() {
+        var processorsMap = eipGenerator.generate();
+
+        var setHeaderPropertySchemaNode = processorsMap.get("setHeader").withObject("propertiesSchema");
         assertTrue(setHeaderPropertySchemaNode.has("$schema"));
         assertTrue(setHeaderPropertySchemaNode.has("type"));
         assertEquals("http://json-schema.org/draft-07/schema#", setHeaderPropertySchemaNode.get("$schema").asText());
@@ -91,22 +129,26 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillRequiredPropertiesIfNeeded() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var setHeaderNode = eipsMap.get("setHeader");
+        var setHeaderNode = processorsMap.get("setHeader");
         List<String> requiredProperties = new ArrayList<>();
         setHeaderNode.withObject("propertiesSchema").withArray("required").elements()
                 .forEachRemaining(node -> requiredProperties.add(node.asText()));
 
         assertTrue(requiredProperties.contains("name"));
         assertTrue(requiredProperties.contains("expression"));
+
+        var deleteNode = processorsMap.get("delete");
+
+        assertFalse(deleteNode.withObject("propertiesSchema").has("required"));
     }
 
     @Test
     void shouldSortPropertiesAccordingToCatalog() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var setHeaderNode = eipsMap.get("setHeader");
+        var setHeaderNode = processorsMap.get("setHeader");
         List<String> expectedKeys = List.of("id", "description", "disabled", "name", "expression");
         List<String> actualKeys = setHeaderNode.withObject("/properties").properties().stream()
                 .map(Map.Entry::getKey).toList();
@@ -116,9 +158,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillRequiredPropertiesFromDefinitionsIfNeeded() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
+        var definitions = processorsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
         assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("required"));
         List<String> constantExpressionRequired = new ArrayList<>();
@@ -136,9 +178,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillGroupInformation() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var setHeaderNode = eipsMap.get("setHeader");
+        var setHeaderNode = processorsMap.get("setHeader");
         var namePropertyNode = setHeaderNode.withObject("propertiesSchema").withObject("properties").withObject("name");
 
         assertTrue(namePropertyNode.has("$comment"));
@@ -147,9 +189,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillFormatInformation() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var aggregateNode = eipsMap.get("aggregate");
+        var aggregateNode = processorsMap.get("aggregate");
         var executorServicePropertyNode = aggregateNode.withObject("propertiesSchema")
                 .withObject("properties").withObject("executorService");
         var timeoutCheckerExecutorServicePropertyNode = aggregateNode.withObject("propertiesSchema")
@@ -164,9 +206,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillDeprecatedInformation() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var multicastNode = eipsMap.get("multicast");
+        var multicastNode = processorsMap.get("multicast");
         var parallelAggregatePropertyNode = multicastNode.withObject("propertiesSchema")
                 .withObject("properties").withObject("parallelAggregate");
 
@@ -176,9 +218,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldFillGroupInformationFromDefinitions() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var setHeaderNode = eipsMap.get("setHeader");
+        var setHeaderNode = processorsMap.get("setHeader");
         var expressionPropertiesNode = setHeaderNode.withObject("propertiesSchema").withObject("definitions")
                 .withObject("org.apache.camel.model.language.SimpleExpression").withObject("properties");
 
@@ -193,9 +235,9 @@ class EIPGeneratorTest {
 
     @Test
     void shouldSortPropertiesAccordingToCatalogFromDefinitions() {
-        var eipsMap = eipGenerator.generate();
+        var processorsMap = eipGenerator.generate();
 
-        var definitions = eipsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
+        var definitions = processorsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
         assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("properties"));
         List<String> sortedPropertiesListConstant = definitions.get("org.apache.camel.model.language.ConstantExpression")

@@ -28,8 +28,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public class Util {
-    private static final ObjectMapper jsonMapper = new ObjectMapper()
-            .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    private static final ObjectMapper jsonMapper = new ObjectMapper();
     public static String generateHash(byte[] content) throws Exception {
         if (content == null)
             return null;
