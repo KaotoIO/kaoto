@@ -25,32 +25,60 @@ public class CamelYAMLSchemaReader {
      * 3. Evaluate all fields recursively and inline all the required definitions
      *
      * @param eipName the name of the EIP to get the JSON schema for
-     * @return the JSON schema for a given EIP, with the initial $ref resolved and all the required definitions inlined
+     * @return the JSON schema for a given Processor, with the initial $ref resolved and all the required definitions inlined
      */
-    public ObjectNode getJSONSchema(String eipName) {
-        var eipNodeRef = (ObjectNode) camelYamlSchemaNode.get("items")
+    public ObjectNode getEIPJSONSchema(String eipName) {
+        var processorNodeRef = (ObjectNode) camelYamlSchemaNode.get("items")
                 .get("definitions")
                 .get("org.apache.camel.model.ProcessorDefinition")
                 .get("properties")
                 .get(eipName);
-        if (eipNodeRef.isNull() || !eipNodeRef.has("$ref")) {
+
+        return getJSONSchema(eipName, processorNodeRef);
+    }
+
+    /**
+     * Get the JSON schema for a given Rest Processor
+     * The Camel YAML DSL schema is a JSON schema that describes the structure of the
+     * Camel YAML DSL.
+     * The steps are:
+     * 1. Get the JSON schema for a given Processor from the Camel catalog
+     * 2. Resolve the initial $ref
+     * 3. Evaluate all fields recursively and inline all the required definitions
+     *
+     * @param processorName the name of the Processor to get the JSON schema for
+     * @return the JSON schema for a given Processor, with the initial $ref resolved and all the required definitions inlined
+     */
+    public ObjectNode getRestProcessorJSONSchema(String processorName) {
+        var processorNodeRef = (ObjectNode) camelYamlSchemaNode.get("items")
+                .get("definitions")
+                .get("org.apache.camel.model.rest.RestDefinition")
+                .get("properties")
+                .get(processorName)
+                .get("items");
+
+        return getJSONSchema(processorName, processorNodeRef);
+    }
+
+    private ObjectNode getJSONSchema(String processorName, ObjectNode processorNodeRef) {
+        if (processorNodeRef == null || processorNodeRef.isMissingNode() || !processorNodeRef.has("$ref")) {
             return null;
         }
 
-        var eipSchemaNode = jsonMapper.createObjectNode();
-        var eipSchemaDefinitionsNode = jsonMapper.createObjectNode();
+        var processorSchemaNode = jsonMapper.createObjectNode();
+        var processorSchemaDefinitionsNode = jsonMapper.createObjectNode();
 
-        var resolvedNode = getResolvedNode(eipNodeRef);
+        var resolvedNode = getResolvedNode(processorNodeRef);
 
-        schemaPropertyFilter.schemaPropertyFilter(eipName, resolvedNode);
-        eipSchemaNode.setAll(resolvedNode);
+        schemaPropertyFilter.schemaPropertyFilter(processorName, resolvedNode);
+        processorSchemaNode.setAll(resolvedNode);
 
-        inlineDefinitions(eipSchemaNode, eipSchemaDefinitionsNode);
-        if (!eipSchemaDefinitionsNode.isEmpty()) {
-            eipSchemaNode.set("definitions", eipSchemaDefinitionsNode);
+        inlineDefinitions(processorSchemaNode, processorSchemaDefinitionsNode);
+        if (!processorSchemaDefinitionsNode.isEmpty()) {
+            processorSchemaNode.set("definitions", processorSchemaDefinitionsNode);
         }
 
-        return eipSchemaNode;
+        return processorSchemaNode;
     }
 
     /**
