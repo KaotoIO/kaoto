@@ -53,34 +53,49 @@ public class EIPGenerator implements Generator {
      * containing the camel JSON model and the JSON schema from the Camel YAML schema
      */
     public Map<String, ObjectNode> generate() {
-        Map<String, ObjectNode> eipMap = new LinkedHashMap<>();
+        Map<String, ObjectNode> processorMap = new LinkedHashMap<>();
 
         getEIPNames().forEach(eipName -> {
-            var eipJSON = getEIPJson(eipName);
-            var eipJSONSchema = camelYAMLSchemaReader.getJSONSchema(eipName);
-            eipJSON.set("propertiesSchema", eipJSONSchema);
+            var processorJSON = getModelJson(eipName);
+            var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
+            processorJSON.set("propertiesSchema", processorJSONSchema);
 
-            camelCatalogSchemaEnhancer.fillSchemaInformation(eipJSONSchema);
-            camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.eip, eipName, eipJSONSchema);
-            camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(eipName, eipJSONSchema);
-            camelCatalogSchemaEnhancer.fillPropertiesInformation(eipName, eipJSONSchema);
-
-            if (eipJSONSchema.has("definitions")) {
-                iterateOverDefinitions(eipJSONSchema.withObject("definitions"), (model, node) -> {
-                    if (model == null) {
-                        return;
-                    }
-
-                    camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(model, node);
-                    camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(model, node);
-                    camelCatalogSchemaEnhancer.fillPropertiesInformation(model, node);
-                });
-            }
-
-            eipMap.put(eipName, eipJSON);
+            enhanceJSONSchema(eipName, processorJSONSchema);
+            processorMap.put(eipName, processorJSON);
         });
 
-        return eipMap;
+        getRestProcessorNames().forEach(processorName -> {
+            var processorJSON = getModelJson(processorName);
+            var processorJSONSchema = camelYAMLSchemaReader.getRestProcessorJSONSchema(processorName);
+            processorJSON.set("propertiesSchema", processorJSONSchema);
+
+            enhanceJSONSchema(processorName, processorJSONSchema);
+            processorMap.put(processorName, processorJSON);
+        });
+
+        return processorMap;
+    }
+
+    /**
+     * Enhance the Processor JSON Schema
+     */
+    private void enhanceJSONSchema(String processorName, ObjectNode processorJSONSchema) {
+        camelCatalogSchemaEnhancer.fillSchemaInformation(processorJSONSchema);
+        camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.model, processorName, processorJSONSchema);
+        camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(processorName, processorJSONSchema);
+        camelCatalogSchemaEnhancer.fillPropertiesInformation(processorName, processorJSONSchema);
+
+        if (processorJSONSchema.has("definitions")) {
+            iterateOverDefinitions(processorJSONSchema.withObject("definitions"), (model, node) -> {
+                if (model == null) {
+                    return;
+                }
+
+                camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(model, node);
+                camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(model, node);
+                camelCatalogSchemaEnhancer.fillPropertiesInformation(model, node);
+            });
+        }
     }
 
     /**
@@ -93,14 +108,14 @@ public class EIPGenerator implements Generator {
      * @return the list of EIP names
      */
     List<String> getEIPNames() {
-        var iterator = this.camelYamlSchemaNode.get("items").get("definitions")
+        List<String> eipNames = new ArrayList<>();
+        var eipsIterator = this.camelYamlSchemaNode.get("items").get("definitions")
                 .get("org.apache.camel.model.ProcessorDefinition")
                 .get("properties")
                 .fields();
 
-        List<String> eipNames = new ArrayList<>();
-        while (iterator.hasNext()) {
-            var entry = iterator.next();
+        while (eipsIterator.hasNext()) {
+            var entry = eipsIterator.next();
             eipNames.add(entry.getKey());
         }
 
@@ -108,18 +123,28 @@ public class EIPGenerator implements Generator {
     }
 
     /**
-     * Get the JSON model of an EIP
+     * Get the list of REST Processors names
      *
-     * @param eipName the name of the EIP, e.g. "to", "setHeader"
-     * @return the JSON model of the EIP including its properties
+     * @return the list of Processors names
      */
-    ObjectNode getEIPJson(String eipName) {
-        String eipJson = camelCatalog.modelJSonSchema(eipName);
+    List<String> getRestProcessorNames() {
+
+        return List.of("get", "post", "put", "delete", "head", "patch");
+    }
+
+    /**
+     * Get the JSON model of a Processor
+     *
+     * @param modelName the name of the Processor, e.g. "to", "setHeader"
+     * @return the JSON model of the Processor including its properties
+     */
+    ObjectNode getModelJson(String modelName) {
+        String eipJson = camelCatalog.modelJSonSchema(modelName);
 
         try {
             return (ObjectNode) jsonMapper.readTree(eipJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(String.format("Cannot load %s JSON model", eipName), e);
+            throw new RuntimeException(String.format("Cannot load %s JSON model", modelName), e);
         }
     }
 

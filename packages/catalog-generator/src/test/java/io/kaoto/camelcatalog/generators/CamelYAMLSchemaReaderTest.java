@@ -33,7 +33,7 @@ class CamelYAMLSchemaReaderTest {
     @Test
     void shouldReturnJSONSchemaForEIP() {
         var eipName = "resequence";
-        var eipSchema = camelYAMLSchemaReader.getJSONSchema(eipName);
+        var eipSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
 
         assertNotNull(eipSchema);
         assertTrue(eipSchema.has("properties"));
@@ -42,7 +42,7 @@ class CamelYAMLSchemaReaderTest {
 
     @Test
     void shouldInlineDefinitions() {
-        var eipSchemaForResequence = camelYAMLSchemaReader.getJSONSchema("resequence");
+        var eipSchemaForResequence = camelYAMLSchemaReader.getEIPJSONSchema("resequence");
 
         assertTrue(eipSchemaForResequence.has("definitions"));
         var definitionsNode = (ObjectNode) eipSchemaForResequence.get("definitions");
@@ -56,14 +56,14 @@ class CamelYAMLSchemaReaderTest {
 
     @Test
     void shouldNotSetDefinitions() {
-        var eipSchemaForBean = camelYAMLSchemaReader.getJSONSchema("bean");
+        var eipSchemaForBean = camelYAMLSchemaReader.getEIPJSONSchema("bean");
 
         assertFalse(eipSchemaForBean.has("definitions"));
     }
 
     @Test
     void shouldRenameRefPath() {
-        var eipSchemaForAggregate = camelYAMLSchemaReader.getJSONSchema("aggregate");
+        var eipSchemaForAggregate = camelYAMLSchemaReader.getEIPJSONSchema("aggregate");
 
         assertTrue(eipSchemaForAggregate.has("properties"));
         var propertiesNode = (ObjectNode) eipSchemaForAggregate.get("properties");
@@ -78,7 +78,7 @@ class CamelYAMLSchemaReaderTest {
 
     @Test()
     void shouldRemoveStringSchemasFromOneOf() {
-        var toEipSchema = camelYAMLSchemaReader.getJSONSchema("to");
+        var toEipSchema = camelYAMLSchemaReader.getEIPJSONSchema("to");
 
         assertFalse(toEipSchema.has("anyOf"));
         assertTrue(toEipSchema.has("properties"));
