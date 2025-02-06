@@ -47,6 +47,14 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
   };
 };
 
+export const camelEntityToTile = (processorDef: ICamelProcessorDefinition): ITile => {
+  const entityTile = camelProcessorToTile(processorDef);
+  entityTile.type = CatalogKind.Entity;
+  entityTile.headerTags = ['Entity'];
+
+  return entityTile;
+};
+
 export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
   const headerTags: string[] = ['Kamelet'];
   if (kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']) {

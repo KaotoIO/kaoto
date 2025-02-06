@@ -21,13 +21,15 @@ export const FormComponentFactoryContext = createContext<FormComponentFactoryCon
 
 export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const factory = useCallback<FormComponentFactoryContextValue>((schema) => {
+    const propertiesCount = Object.keys(schema.properties ?? {}).length;
+
     if (schema.format === 'password') {
       return PasswordField;
     } else if (schema.type === 'string' && schema.title && TextAreaPropertyNames.includes(schema.title)) {
       return TextAreaField;
     } else if (schema.type === 'string' && Array.isArray(schema.enum)) {
       return EnumField;
-    } else if (schema.type === 'object' && Object.keys(schema?.properties ?? {}).length === 0) {
+    } else if (schema.type === 'object' && propertiesCount === 0) {
       /*
        * If the object has no properties, we render a generic key-value pairs field
        * This is useful for langchain4j-tools consumer components or when configuring beans entities

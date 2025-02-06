@@ -4,14 +4,14 @@ import { expressionDefinitions, setHeaderDefinitions, setHeaderSchema } from '..
 import { weightSchemaAgainstModel } from './weight-schemas-against-model';
 
 describe('weightSchemaAgainstModel', () => {
-  it('should weight `0` for an empty model', () => {
+  it('should weight `10` for an empty model', () => {
     const model = {};
     const schema: KaotoSchemaDefinition['schema'] = { type: 'object' };
     const definition = {};
 
     const result = weightSchemaAgainstModel(model, schema, definition);
 
-    expect(result).toEqual(0);
+    expect(result).toEqual(10);
   });
 
   it('should be able to weight a string only schema', () => {

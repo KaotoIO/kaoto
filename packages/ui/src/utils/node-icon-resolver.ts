@@ -237,7 +237,7 @@ export const enum NodeIconType {
   Component = 'Component',
   EIP = 'EIP',
   Kamelet = 'Kamelet',
-  VisualEntity = 'VisualEntity',
+  Entity = 'Entity',
 }
 
 export class NodeIconResolver {
@@ -257,8 +257,8 @@ export class NodeIconResolver {
         return this.getComponentIcon(elementName) ?? this.getDefaultCamelIcon();
       case NodeIconType.EIP:
         return this.getEIPIcon(elementName) ?? this.getDefaultCamelIcon();
-      case NodeIconType.VisualEntity:
-        return this.getVisualEntityIcon(elementName) ?? this.getDefaultCamelIcon();
+      case NodeIconType.Entity:
+        return this.getEntityIcon(elementName) ?? this.getDefaultCamelIcon();
     }
   }
 
@@ -1007,7 +1007,7 @@ export class NodeIconResolver {
     }
   }
 
-  private static getVisualEntityIcon(elementName: string): string | undefined {
+  private static getEntityIcon(elementName: string): string | undefined {
     switch (elementName) {
       case EntityType.Route:
         return icon_eip_route;

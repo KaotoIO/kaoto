@@ -243,7 +243,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       path: this.getRootPath(),
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
+      icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
     });
 
     const sourceNode = this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);

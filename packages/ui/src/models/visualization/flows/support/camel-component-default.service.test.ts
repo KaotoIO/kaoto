@@ -148,5 +148,14 @@ describe('CamelComponentDefaultService', () => {
       expect(removeHeadersDefault.removeHeaders.id as string).toMatch(/^removeHeaders-/);
       expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
     });
+
+    it('should return the default value for a intercept entity', () => {
+      const interceptDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'entity',
+        name: 'intercept',
+      } as DefinedComponent) as any;
+      expect(interceptDefault.intercept).toBeDefined();
+      expect(interceptDefault.intercept.id as string).toMatch(/^intercept-/);
+    });
   });
 });

@@ -82,6 +82,19 @@ describe('CamelComponentSchemaService', () => {
       expect(result).toMatchSnapshot();
     });
 
+    it('should build the appropriate schema for `intercept` entity', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const interceptPath = 'intercept';
+      const interceptDefinition = {
+        id: 'intercept-1234',
+      };
+
+      const result = CamelComponentSchemaService.getVisualComponentSchema(interceptPath, interceptDefinition);
+
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'intercept');
+      expect(result).toMatchSnapshot();
+    });
+
     it('should build the appropriate schema for standalone processors', () => {
       const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
       const logPath = 'from.steps.0.log';
