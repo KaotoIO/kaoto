@@ -351,7 +351,11 @@ export class CamelComponentSchemaService {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
+      case 'intercept' as keyof ProcessorDefinition:
+      case 'interceptFrom' as keyof ProcessorDefinition:
+      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
       case 'onException' as keyof ProcessorDefinition:
+      case 'onCompletion' as keyof ProcessorDefinition:
         catalogKind = CatalogKind.Entity;
         break;
       case 'from' as keyof ProcessorDefinition:
@@ -495,8 +499,8 @@ export class CamelComponentSchemaService {
   }
 
   static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
-    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Pattern, processorName);
+    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
 
-    return processorDefinition?.propertiesSchema?.properties?.disabled !== undefined;
+    return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
   }
 }
