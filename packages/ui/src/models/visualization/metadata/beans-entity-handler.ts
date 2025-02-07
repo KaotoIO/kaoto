@@ -6,6 +6,7 @@ import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from '../flows/camel-catalog.service';
 import { BeansEntity } from './beansEntity';
 import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
+import { isDefined, resolveSchemaWithRef } from '../../../utils';
 
 /**
  * This class is to absorb a little bit of difference between beans such as {@link BeanFactory}.
@@ -31,38 +32,29 @@ export class BeansEntityHandler {
   }
 
   getBeanSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    switch (this.type) {
-      case 'beans':
-        return CamelCatalogService.getComponent(CatalogKind.Entity, 'bean')?.propertiesSchema;
-      case 'routeTemplateBean':
-        return CamelCatalogService.getComponent(CatalogKind.Entity, 'routeTemplateBean')?.propertiesSchema;
-      default:
-        return undefined;
+    if (!isDefined(this.type)) {
+      return undefined;
     }
+
+    const rootSchema = this.getBeansSchema();
+    if (!isDefined(rootSchema?.items)) {
+      return undefined;
+    }
+
+    return resolveSchemaWithRef(rootSchema.items, rootSchema.definitions ?? {});
   }
 
   getBeansSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    switch (this.type) {
-      case 'beans': {
-        const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans');
-        return beanCatalog?.propertiesSchema;
-      }
-      case 'routeTemplateBean': {
-        const beanCatalog = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeTemplateBean');
-        const schema = beanCatalog?.propertiesSchema;
-        return !schema
-          ? undefined
-          : {
-              title: schema.title,
-              description: schema.description,
-              type: 'array',
-              definitions: schema.definitions,
-              items: schema,
-            };
-      }
-      default:
-        return undefined;
+    if (!isDefined(this.type)) {
+      return undefined;
     }
+
+    const beansSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans')?.propertiesSchema;
+    if (isDefined(beansSchema?.items)) {
+      beansSchema.items = resolveSchemaWithRef(beansSchema.items, beansSchema.definitions ?? {});
+    }
+
+    return beansSchema;
   }
 
   getBeansModel() {
