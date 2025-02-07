@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.kaoto.camelcatalog.generators.ComponentGenerator;
 import io.kaoto.camelcatalog.generators.EIPGenerator;
+import io.kaoto.camelcatalog.generators.EntityGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
@@ -81,7 +82,8 @@ public class CamelCatalogProcessor {
         var modelCatalog = getModelCatalog();
         EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
         var patternCatalog = Util.getPrettyJSON(eipGenerator.generate());
-        var entityCatalog = getEntityCatalog();
+        EntityGenerator entityGenerator = new EntityGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        var entityCatalog = Util.getPrettyJSON(entityGenerator.generate());
         var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);
         answer.put("dataformats", dataFormatCatalog);
