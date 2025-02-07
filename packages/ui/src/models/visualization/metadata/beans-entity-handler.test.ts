@@ -33,7 +33,7 @@ describe('BeansEntityHandler', () => {
       expect(beanSchema!.properties!.builderClass.title).toEqual('Builder Class');
       expect(beanSchema!.properties!.script.title).toEqual('Script');
       const beansSchema = beansHandler.getBeansSchema();
-      expect((beansSchema!.items as KaotoSchemaDefinition['schema'])['$ref']).toContain('BeanFactoryDefinition');
+      expect(beansSchema!.items as KaotoSchemaDefinition['schema']).toMatchSnapshot();
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });
