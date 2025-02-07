@@ -191,7 +191,9 @@ public class CamelCatalogSchemaEnhancer {
      */
     void fillSchemaInformation(ObjectNode modelNode) {
         modelNode.put("$schema", "http://json-schema.org/draft-07/schema#");
-        modelNode.put("type", "object");
+        if (!modelNode.has("type")) {
+            modelNode.put("type", "object");
+        }
     }
 
     /**
