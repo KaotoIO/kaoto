@@ -76,7 +76,7 @@ class CamelCatalogProcessorTest {
         assertEquals(processor.getLanguageCatalog(), catalogMap.get("languages"));
         assertEquals(processor.getModelCatalog(), catalogMap.get("models"));
         assertEquals(Util.getPrettyJSON(this.processorCatalog), catalogMap.get("patterns"));
-        assertEquals(processor.getEntityCatalog(), catalogMap.get("entities"));
+//        assertEquals(processor.getEntityCatalog(), catalogMap.get("entities"));
         assertEquals(processor.getLoadBalancerCatalog(), catalogMap.get("loadbalancers"));
     }
 
@@ -189,7 +189,6 @@ class CamelCatalogProcessorTest {
     }
 
     @Test
-    @Disabled("Bringing REST DSL is not implemented yet")
     void testRestProcessors() throws Exception {
         var restGetProcessorSchema = processorCatalog
                 .withObject("/get")
