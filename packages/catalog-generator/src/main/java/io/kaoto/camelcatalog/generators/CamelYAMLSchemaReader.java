@@ -16,6 +16,24 @@ public class CamelYAMLSchemaReader {
     }
 
     /**
+     * Get the JSON schema for a given Entity
+     * The Camel YAML DSL schema is a JSON schema that describes the structure of the
+     * Camel YAML DSL.
+     * The steps are:
+     * 1. Get the JSON schema for a given EIP from the Camel catalog
+     * 2. Resolve the initial $ref
+     * 3. Evaluate all fields recursively and inline all the required definitions
+     *
+     * @param entityName the name of the EIP to get the JSON schema for
+     * @return the JSON schema for a given Entity, with the initial $ref resolved and all the required definitions inlined
+     */
+    public ObjectNode getEntityJSONSchema(String entityName) {
+        var entityNodeRef = (ObjectNode) camelYamlSchemaNode.get("items").get("properties").get(entityName);
+
+        return getJSONSchema(entityName, entityNodeRef);
+    }
+
+    /**
      * Get the JSON schema for a given EIP
      * The Camel YAML DSL schema is a JSON schema that describes the structure of the
      * Camel YAML DSL.
@@ -130,6 +148,13 @@ public class CamelYAMLSchemaReader {
      * @param node the node to inline the required definitions from the Camel YAML DSL schema
      */
     void inlineDefinitions(ObjectNode node, ObjectNode definitions) {
+        if (node.has("type") && "array".equals(node.get("type").asText()) && node.has("items")) {
+            var items = (ObjectNode) node.get("items");
+            if (items.has("$ref")) {
+                addRefDefinition(items, definitions);
+            }
+        }
+
         if (node.has("properties")) {
             var properties = (ObjectNode) node.get("properties");
             properties.fields().forEachRemaining(entry -> {
