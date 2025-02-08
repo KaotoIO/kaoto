@@ -20,12 +20,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.kaoto.camelcatalog.generators.ComponentGenerator;
 import io.kaoto.camelcatalog.generators.EIPGenerator;
+import io.kaoto.camelcatalog.generators.EntityGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -57,6 +57,7 @@ class CamelCatalogProcessorTest {
 
         ComponentGenerator componentGenerator = new ComponentGenerator(catalog);
         EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
+        EntityGenerator entityGenerator = new EntityGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
         this.processor = new CamelCatalogProcessor(catalog, jsonMapper, schemaProcessor, CatalogRuntime.Main, true, camelCatalogVersionLoader);
 
         this.componentCatalog = (ObjectNode) jsonMapper.readTree(Util.getPrettyJSON(componentGenerator.generate()));
@@ -64,7 +65,7 @@ class CamelCatalogProcessorTest {
         this.languageCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLanguageCatalog());
         this.modelCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getModelCatalog());
         this.processorCatalog = (ObjectNode) jsonMapper.readTree(Util.getPrettyJSON(eipGenerator.generate()));
-        this.entityCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getEntityCatalog());
+        this.entityCatalog = (ObjectNode) jsonMapper.readTree(Util.getPrettyJSON(entityGenerator.generate()));
         this.loadBalancerCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getLoadBalancerCatalog());
     }
 
@@ -76,7 +77,7 @@ class CamelCatalogProcessorTest {
         assertEquals(processor.getLanguageCatalog(), catalogMap.get("languages"));
         assertEquals(processor.getModelCatalog(), catalogMap.get("models"));
         assertEquals(Util.getPrettyJSON(this.processorCatalog), catalogMap.get("patterns"));
-//        assertEquals(processor.getEntityCatalog(), catalogMap.get("entities"));
+        assertEquals(Util.getPrettyJSON(this.entityCatalog), catalogMap.get("entities"));
         assertEquals(processor.getLoadBalancerCatalog(), catalogMap.get("loadbalancers"));
     }
 
@@ -306,7 +307,6 @@ class CamelCatalogProcessorTest {
     @Test
     void testGetEntityCatalog() throws Exception {
         List.of(
-                "bean",
                 "beans",
                 "errorHandler",
                 "from",
@@ -320,13 +320,7 @@ class CamelCatalogProcessorTest {
                 "routeTemplate",
                 "templatedRoute",
                 "restConfiguration",
-                "rest",
-                "routeTemplateBean").forEach(name -> assertTrue(entityCatalog.has(name), name));
-        var bean = entityCatalog.withObject("/bean");
-        var beanScriptLanguage = bean.withObject("/propertiesSchema")
-                .withObject("/properties")
-                .withObject("/scriptLanguage");
-        assertEquals("Script Language", beanScriptLanguage.get("title").asText());
+                "rest").forEach(name -> assertTrue(entityCatalog.has(name), name));
         var beans = entityCatalog.withObject("/beans");
         var beansScript = beans.withObject("/propertiesSchema")
                 .withObject("/definitions")
@@ -334,11 +328,16 @@ class CamelCatalogProcessorTest {
                 .withObject("/properties")
                 .withObject("/script");
         assertEquals("Script", beansScript.get("title").asText());
-        var routeTemplateBean = entityCatalog.withObject("/routeTemplateBean");
-        var routeTemplateBeanType = routeTemplateBean.withObject("/propertiesSchema")
+        var from = entityCatalog.withObject("/from");
+        var uri = from.withObject("/propertiesSchema")
                 .withObject("/properties")
-                .withObject("/type");
-        assertEquals("Type", routeTemplateBeanType.get("title").asText());
+                .withObject("/uri");
+        assertEquals("group:common", uri.get("$comment").asText());
+        var restConfiguration = entityCatalog.withObject("/restConfiguration");
+        var apiComponent = restConfiguration.withObject("/propertiesSchema")
+                .withObject("/properties")
+                .withObject("/apiComponent");
+        assertEquals("Api Component", apiComponent.get("title").asText());
     }
 
     @Test
