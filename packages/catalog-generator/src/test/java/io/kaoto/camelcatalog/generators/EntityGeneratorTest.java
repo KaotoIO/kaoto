@@ -49,9 +49,12 @@ class EntityGeneratorTest {
         var entitiesMap = entityGenerator.generate();
 
         assertTrue(entitiesMap.containsKey("beans"));
-//        assertTrue(entitiesMap.containsKey("dataFormats"));
         assertTrue(entitiesMap.containsKey("errorHandler"));
         assertTrue(entitiesMap.containsKey("from"));
+
+        // special schema added to Entity catalog at later stage
+        assertFalse(entitiesMap.containsKey("KameletConfiguration"));
+        assertFalse(entitiesMap.containsKey("PipeConfiguration"));
     }
 
     @Test
@@ -72,7 +75,7 @@ class EntityGeneratorTest {
     }
 
     @Test
-    void shouldGetJsonSchemaForBeansProcessor() {
+    void shouldGetJsonSchemaForBeans() {
         var entitiesMap = entityGenerator.generate();
 
         var beanNode = entitiesMap.get("beans");
@@ -84,7 +87,19 @@ class EntityGeneratorTest {
     }
 
     @Test
-    void shouldGetJsonSchemaForRestProcessor() {
+    void shouldGetJsonSchemaForErrorHandler() {
+        var entitiesMap = entityGenerator.generate();
+
+        var errorHandlerNode = entitiesMap.get("errorHandler");
+        assertTrue(errorHandlerNode.has("propertiesSchema"));
+
+        var errorHandlerPropertySchemaNode = errorHandlerNode.get("propertiesSchema");
+        assertTrue(errorHandlerPropertySchemaNode.has("definitions"));
+        assertTrue(errorHandlerPropertySchemaNode.has("properties"));
+    }
+
+    @Test
+    void shouldGetJsonSchemaForRest() {
         var entitiesMap = entityGenerator.generate();
 
         var getNode = entitiesMap.get("rest");

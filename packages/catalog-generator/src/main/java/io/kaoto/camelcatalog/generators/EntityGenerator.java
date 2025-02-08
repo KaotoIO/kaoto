@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
-import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
 import java.io.IOException;
@@ -31,8 +30,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EntityGenerator implements Generator {
+    private static final Logger LOGGER = Logger.getLogger(EntityGenerator.class.getName());
     CamelCatalog camelCatalog;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
     String camelYamlSchema;
@@ -59,17 +61,14 @@ public class EntityGenerator implements Generator {
         Map<String, ObjectNode> EntityMap = new LinkedHashMap<>();
 
         getEntityNames().forEach(entityName -> {
-            ObjectNode entityJSON = null;
-            try {
-                entityJSON = getModelJson(entityName);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            var processorJSONSchema = camelYAMLSchemaReader.getEntityJSONSchema(entityName);
-            entityJSON.set("propertiesSchema", processorJSONSchema);
+            ObjectNode entityJSON = getModelJson(entityName);
+            if (entityJSON != null) {
+                var processorJSONSchema = camelYAMLSchemaReader.getEntityJSONSchema(entityName);
+                entityJSON.set("propertiesSchema", processorJSONSchema);
 
-            enhanceJSONSchema(entityName, processorJSONSchema);
-            EntityMap.put(entityName, entityJSON);
+                enhanceJSONSchema(entityName, processorJSONSchema);
+                EntityMap.put(entityName, entityJSON);
+            }
         });
 
         return EntityMap;
@@ -80,7 +79,7 @@ public class EntityGenerator implements Generator {
      */
     private void enhanceJSONSchema(String processorName, ObjectNode processorJSONSchema) {
         camelCatalogSchemaEnhancer.fillSchemaInformation(processorJSONSchema);
-//        camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.model, processorName, processorJSONSchema);
+        camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.model, processorName, processorJSONSchema);
         camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(processorName, processorJSONSchema);
         camelCatalogSchemaEnhancer.fillPropertiesInformation(processorName, processorJSONSchema);
 
@@ -124,12 +123,16 @@ public class EntityGenerator implements Generator {
      * @param modelName the name of the Entity, e.g. "route", "rest"
      * @return the JSON model of the Entity including its properties
      */
-    ObjectNode getModelJson(String modelName) throws IOException {
-        String entityJson;
+    ObjectNode getModelJson(String modelName) {
+        String entityJson = null;
         if ("beans".equals(modelName)) {
-            InputStream is = camelCatalog.getClass().getClassLoader()
-                    .getResourceAsStream("org/apache/camel/catalog/models-app/bean.json");
-            entityJson = new String(is.readAllBytes());
+            try {
+                InputStream is = camelCatalog.getClass().getClassLoader()
+                        .getResourceAsStream("org/apache/camel/catalog/models-app/bean.json");
+                entityJson = new String(is.readAllBytes());
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Error reading Beans definition from the catalog");
+            }
         } else {
             entityJson = camelCatalog.modelJSonSchema(modelName);
         }
@@ -137,8 +140,10 @@ public class EntityGenerator implements Generator {
         try {
             return (ObjectNode) jsonMapper.readTree(entityJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(String.format("Cannot load %s JSON model", modelName), e);
+            LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }
+
+        return  null;
     }
 
     /**
