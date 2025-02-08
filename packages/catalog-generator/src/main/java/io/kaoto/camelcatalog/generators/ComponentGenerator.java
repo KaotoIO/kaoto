@@ -25,9 +25,11 @@ import org.apache.camel.tooling.model.Kind;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ComponentGenerator implements Generator{
+    private static final Logger LOGGER = Logger.getLogger(ComponentGenerator.class.getName());
     CamelCatalog camelCatalog;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
     ObjectMapper jsonMapper = new ObjectMapper()
@@ -50,13 +52,15 @@ public class ComponentGenerator implements Generator{
 
         getComponentNames().forEach(name -> {
             var componentJson = getComponentJson(name);
-            var componentJSONSchema = getComponentJSONSchema(name);
-            componentJson.set("propertiesSchema", componentJSONSchema);
+            if (componentJson != null) {
+                var componentJSONSchema = getComponentJSONSchema(name);
+                componentJson.set("propertiesSchema", componentJSONSchema);
 
-            camelCatalogSchemaEnhancer.fillSchemaInformation(componentJSONSchema);
-            camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.component, name, componentJSONSchema);
+                camelCatalogSchemaEnhancer.fillSchemaInformation(componentJSONSchema);
+                camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.component, name, componentJSONSchema);
 
-            componentMap.put(name, componentJson);
+                componentMap.put(name, componentJson);
+            }
         });
 
         return componentMap;
@@ -81,10 +85,12 @@ public class ComponentGenerator implements Generator{
         String componentJson = camelCatalog.componentJSonSchema(componentName);
 
         try {
-            return (ObjectNode) jsonMapper.readTree(componentJson);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(String.format("Cannot load %s JSON model", componentName), e);
+            return  (ObjectNode) jsonMapper.readTree(componentJson);
+        } catch (IllegalArgumentException | JsonProcessingException e) {
+            LOGGER.log(Level.WARNING, componentName + ": component definition not found in the catalog");
         }
+
+        return null;
     }
 
     /**
