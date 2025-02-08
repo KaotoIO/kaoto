@@ -28,8 +28,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EIPGenerator implements Generator {
+    private static final Logger LOGGER = Logger.getLogger(EIPGenerator.class.getName());
     CamelCatalog camelCatalog;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
     String camelYamlSchema;
@@ -57,20 +60,24 @@ public class EIPGenerator implements Generator {
 
         getEIPNames().forEach(eipName -> {
             var processorJSON = getModelJson(eipName);
-            var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
-            processorJSON.set("propertiesSchema", processorJSONSchema);
+            if (processorJSON != null) {
+                var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
+                processorJSON.set("propertiesSchema", processorJSONSchema);
 
-            enhanceJSONSchema(eipName, processorJSONSchema);
-            processorMap.put(eipName, processorJSON);
+                enhanceJSONSchema(eipName, processorJSONSchema);
+                processorMap.put(eipName, processorJSON);
+            }
         });
 
         getRestProcessorNames().forEach(processorName -> {
             var processorJSON = getModelJson(processorName);
-            var processorJSONSchema = camelYAMLSchemaReader.getRestProcessorJSONSchema(processorName);
-            processorJSON.set("propertiesSchema", processorJSONSchema);
+            if (processorJSON != null) {
+                var processorJSONSchema = camelYAMLSchemaReader.getRestProcessorJSONSchema(processorName);
+                processorJSON.set("propertiesSchema", processorJSONSchema);
 
-            enhanceJSONSchema(processorName, processorJSONSchema);
-            processorMap.put(processorName, processorJSON);
+                enhanceJSONSchema(processorName, processorJSONSchema);
+                processorMap.put(processorName, processorJSON);
+            }
         });
 
         return processorMap;
@@ -143,9 +150,11 @@ public class EIPGenerator implements Generator {
 
         try {
             return (ObjectNode) jsonMapper.readTree(eipJson);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(String.format("Cannot load %s JSON model", modelName), e);
+        } catch (IllegalArgumentException | JsonProcessingException e) {
+            LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }
+
+        return null;
     }
 
     /**

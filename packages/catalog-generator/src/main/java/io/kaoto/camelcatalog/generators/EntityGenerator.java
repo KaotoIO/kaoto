@@ -139,7 +139,7 @@ public class EntityGenerator implements Generator {
 
         try {
             return (ObjectNode) jsonMapper.readTree(entityJson);
-        } catch (JsonProcessingException e) {
+        } catch (IllegalArgumentException | JsonProcessingException e) {
             LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }
 
