@@ -94,7 +94,7 @@ export class CamelOnCompletionVisualEntity
     );
     onCompletionGroupNode.data.entity = this;
     onCompletionGroupNode.data.isGroup = true;
-    onCompletionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    onCompletionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return onCompletionGroupNode;
   }

@@ -147,7 +147,7 @@ export class CamelRouteConfigurationVisualEntity
       path: this.getRootPath(),
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
+      icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
       processorName: this.getRootPath(),
     });
 
