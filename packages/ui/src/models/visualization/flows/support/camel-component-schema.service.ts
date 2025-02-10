@@ -356,15 +356,8 @@ export class CamelComponentSchemaService {
       case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
       case 'onException' as keyof ProcessorDefinition:
       case 'onCompletion' as keyof ProcessorDefinition:
-        catalogKind = CatalogKind.Entity;
-        break;
       case 'from' as keyof ProcessorDefinition:
-        /**
-         * The `from` processor is a special case, since it's not a ProcessorDefinition
-         * so its schema is not defined in the Camel Catalog
-         * @see CamelCatalogProcessor#getModelCatalog()
-         */
-        catalogKind = CatalogKind.Processor;
+        catalogKind = CatalogKind.Entity;
         break;
       default:
         catalogKind = CatalogKind.Pattern;
@@ -388,9 +381,9 @@ export class CamelComponentSchemaService {
       const actualComponentProperties = Object.fromEntries(
         Object.entries(componentSchema.properties ?? {}).filter((property) => {
           if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].group?.includes('producer');
+            return !property[1].$comment?.includes('producer');
           } else {
-            return !property[1].group?.includes('consumer');
+            return !property[1].$comment?.includes('consumer');
           }
         }),
       );
