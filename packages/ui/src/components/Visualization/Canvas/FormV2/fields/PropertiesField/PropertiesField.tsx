@@ -21,7 +21,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
           {schema.title} <Badge title={`${items.length} properties`}>{items.length}</Badge>
         </>
       }
-      type="boolean"
+      type="object"
       description={schema.description}
       defaultValue={schema.default?.toString()}
     >
