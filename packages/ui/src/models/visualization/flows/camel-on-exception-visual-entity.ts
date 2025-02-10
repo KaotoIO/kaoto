@@ -94,7 +94,7 @@ export class CamelOnExceptionVisualEntity
     );
     onExceptionGroupNode.data.entity = this;
     onExceptionGroupNode.data.isGroup = true;
-    onExceptionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    onExceptionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return onExceptionGroupNode;
   }

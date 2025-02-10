@@ -121,7 +121,7 @@ export class CamelInterceptSendToEndpointVisualEntity
     );
     interceptSendToEndpointGroupNode.data.entity = this;
     interceptSendToEndpointGroupNode.data.isGroup = true;
-    interceptSendToEndpointGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    interceptSendToEndpointGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return interceptSendToEndpointGroupNode;
   }

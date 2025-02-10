@@ -5,7 +5,7 @@ import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
   static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
-  private static SPECIAL_CHILDREN = [
+  private static readonly SPECIAL_PROCESSORS = [
     'when',
     'otherwise',
     'doCatch',
@@ -17,6 +17,15 @@ export class CamelComponentFilterService {
     'onCompletion',
     ...this.REST_DSL_METHODS,
   ];
+  /**
+   * specialChildren is a map of processor names and their special children.
+   */
+  static readonly SPECIAL_PROCESSORS_PARENTS_MAP = {
+    choice: ['when', 'otherwise'],
+    doTry: ['doCatch', 'doFinally'],
+    routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
+    rest: this.REST_DSL_METHODS,
+  };
 
   static getCamelCompatibleComponents(
     mode: AddStepMode,
@@ -41,23 +50,20 @@ export class CamelComponentFilterService {
     }
 
     if (mode === AddStepMode.InsertSpecialChildStep) {
-      /**
-       * specialChildren is a map of processor names and their special children.
-       */
-      const specialChildren: Record<string, string[]> = {
-        choice: ['when'],
-        doTry: ['doCatch'],
-        routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
-        rest: this.REST_DSL_METHODS,
-      };
+      const { processorName } = visualEntityData;
+      if (!(processorName in this.SPECIAL_PROCESSORS_PARENTS_MAP)) {
+        return () => false;
+      }
 
+      let childrenLookup: string[] =
+        this.SPECIAL_PROCESSORS_PARENTS_MAP[processorName as keyof typeof this.SPECIAL_PROCESSORS_PARENTS_MAP];
       /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */
       const definitionKeys = Object.keys(definition ?? {});
-      if (!definitionKeys.includes('otherwise')) {
-        specialChildren.choice.push('otherwise');
+      if (processorName === 'choice' && definitionKeys.includes('otherwise')) {
+        childrenLookup = childrenLookup.filter((child) => child !== 'otherwise');
       }
-      if (!definitionKeys.includes('doFinally')) {
-        specialChildren.doTry.push('doFinally');
+      if (processorName === 'doTry' && definitionKeys.includes('doFinally')) {
+        childrenLookup = childrenLookup.filter((child) => child !== 'doFinally');
       }
 
       /**
@@ -65,11 +71,7 @@ export class CamelComponentFilterService {
        * what kind of components we want to show.
        */
       return (item: ITile) => {
-        if (item.type !== CatalogKind.Processor || specialChildren[visualEntityData.processorName] === undefined) {
-          return false;
-        }
-
-        return specialChildren[visualEntityData.processorName].includes(item.name);
+        return childrenLookup.includes(item.name);
       };
     }
 
@@ -79,7 +81,7 @@ export class CamelComponentFilterService {
      */
     return (item: ITile) => {
       return (
-        (item.type === CatalogKind.Processor && !this.SPECIAL_CHILDREN.includes(item.name)) ||
+        (item.type === CatalogKind.Processor && !this.SPECIAL_PROCESSORS.includes(item.name)) ||
         (item.type === CatalogKind.Component && !item.tags.includes('consumerOnly')) ||
         (item.type === CatalogKind.Kamelet && !item.tags.includes('source') && item.name !== 'sink')
       );
