@@ -169,10 +169,23 @@ public class CamelCatalogSchemaEnhancer {
      * @param propertyNode the JSON node of the property
      */
     void fillPropertyInformation(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        addTitleAndDescription(modelOption, propertyNode);
         addGroupInfo(modelOption, propertyNode);
         addFormatInfo(modelOption, propertyNode);
         addDeprecateInfo(modelOption, propertyNode);
         addDefaultInfo(modelOption, propertyNode);
+    }
+
+    private void addTitleAndDescription(BaseOptionModel modelOption, ObjectNode propertyNode) {
+        var displayName = modelOption.getDisplayName();
+        if (!propertyNode.has("title") && displayName != null) {
+            propertyNode.put("title", displayName);
+        }
+
+        var description = modelOption.getDescription();
+        if (!propertyNode.has("description") && description != null) {
+            propertyNode.put("description", description);
+        }
     }
 
     /**

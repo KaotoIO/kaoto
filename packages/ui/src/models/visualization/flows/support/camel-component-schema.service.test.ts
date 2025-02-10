@@ -123,7 +123,7 @@ describe('CamelComponentSchemaService', () => {
 
       const result = CamelComponentSchemaService.getVisualComponentSchema(Path, routeDefinition);
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Processor, 'from');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'from');
       expect(result).toMatchSnapshot();
     });
 

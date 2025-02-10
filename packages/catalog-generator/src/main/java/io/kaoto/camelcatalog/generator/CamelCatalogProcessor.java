@@ -297,11 +297,7 @@ public class CamelCatalogProcessor {
                 var model = (EipModel) camelCatalog.model(Kind.eip, name);
                 var json = JsonMapper.asJsonObject(model).toJson();
                 var catalogNode = (ObjectNode) jsonMapper.readTree(json);
-                if ("from".equals(name)) {
-                    // "from" is an exception that is not a processor, therefore it's not in the
-                    // pattern catalog - put the propertiesSchema here
-                    generatePropertiesSchema(catalogNode);
-                }
+
                 answer.set(name, catalogNode);
             } catch (Exception e) {
                 throw new RuntimeException(e);
