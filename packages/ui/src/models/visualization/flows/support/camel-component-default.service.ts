@@ -37,6 +37,7 @@ export class CamelComponentDefaultService {
       case CatalogKind.Kamelet:
         return this.getDefaultValueFromKamelet(definedComponent.name);
       case CatalogKind.Processor:
+      case CatalogKind.Entity:
         return this.getDefaultValueFromProcessor(definedComponent.name as keyof ProcessorDefinition);
       default:
         return {};
