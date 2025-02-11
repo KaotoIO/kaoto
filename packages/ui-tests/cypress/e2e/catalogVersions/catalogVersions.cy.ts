@@ -4,7 +4,7 @@ describe('Test for catalog versions', () => {
   });
 
   const testData = [
-    { type: 'Main', version: 'Camel Main 4.9.0' },
+    { type: 'Main', version: 'Camel Main 4.10.0' },
     { type: 'Main', version: 'Camel Main 4.4.0.redhat-00046' },
     { type: 'Main', version: 'Camel Main 4.8.0.redhat-00017' },
     { type: 'Main', version: 'Camel Main 4.4.5' },
@@ -18,7 +18,7 @@ describe('Test for catalog versions', () => {
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.0.redhat-00022' },
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.4.5' },
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.3' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.9.0' },
+    { type: 'Spring Boot', version: 'Camel Spring Boot 4.10.0' },
   ];
   testData.forEach((data) => {
     it(`Catalog version test for ${data.version}`, { tags: ['weekly'] }, () => {
