@@ -240,17 +240,60 @@ class EIPGeneratorTest {
         var definitions = processorsMap.get("setHeader").withObject("propertiesSchema").withObject("definitions");
         assertTrue(definitions.has("org.apache.camel.model.language.ConstantExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.ConstantExpression").has("properties"));
-        List<String> sortedPropertiesListConstant = definitions.get("org.apache.camel.model.language.ConstantExpression")
-                .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
+        List<String> sortedPropertiesListConstant =
+                definitions.get("org.apache.camel.model.language.ConstantExpression")
+                        .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
 
         assertEquals(List.of("id", "expression", "resultType", "trim"), sortedPropertiesListConstant);
 
         assertTrue(definitions.has("org.apache.camel.model.language.DatasonnetExpression"));
         assertTrue(definitions.withObject("org.apache.camel.model.language.DatasonnetExpression").has("properties"));
-        List<String> sortedPropertiesListSimple = definitions.get("org.apache.camel.model.language.DatasonnetExpression")
-                .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
+        List<String> sortedPropertiesListSimple =
+                definitions.get("org.apache.camel.model.language.DatasonnetExpression")
+                        .withObject("properties").properties().stream().map(Map.Entry::getKey).toList();
 
         assertEquals(List.of("id", "expression", "bodyMediaType", "outputMediaType", "source", "resultType", "trim"),
                 sortedPropertiesListSimple);
+    }
+
+    @Test
+    void shouldSetExpressionPropertyFormatToExpressionProperty() {
+        var processorsMap = eipGenerator.generate();
+
+        var correlationExpressionPropertyNode =
+                processorsMap.get("aggregate").withObject("propertiesSchema").withObject("properties")
+                        .withObject("correlationExpression");
+
+        assertTrue(correlationExpressionPropertyNode.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatToOneOfExpression() {
+        var processorsMap = eipGenerator.generate();
+
+        var oneOfArray = processorsMap.get("setHeader").withObject("propertiesSchema").withArray("anyOf").get(0);
+
+        assertTrue(oneOfArray.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatToPropertyExpressionDefinition() {
+        var processorsMap = eipGenerator.generate();
+
+        var oneOfNode= processorsMap.get("saga").withObject("propertiesSchema").withObject("definitions")
+                .withObject("org.apache.camel.model.PropertyExpressionDefinition").withArray("anyOf").get(0);
+
+        assertTrue(oneOfNode.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatToPropertyExpression() {
+        var processorsMap = eipGenerator.generate();
+
+        var correlationExpressionNode =
+                processorsMap.get("aggregate").withObject("propertiesSchema").withObject("properties")
+                        .withObject("correlationExpression");
+
+        assertTrue(correlationExpressionNode.has("format"));
     }
 }
