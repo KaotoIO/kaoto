@@ -92,6 +92,7 @@ public class EntityGenerator implements Generator {
                 camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(model, node);
                 camelCatalogSchemaEnhancer.sortPropertiesAccordingToCatalog(model, node);
                 camelCatalogSchemaEnhancer.fillPropertiesInformation(model, node);
+                camelCatalogSchemaEnhancer.fillExpressionFormatInOneOf(node);
             });
         }
     }
