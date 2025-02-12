@@ -14,4 +14,6 @@ export interface TypeaheadProps extends IDataTestID {
   placeholder?: string;
   onChange?: (item?: TypeaheadItem) => void;
   onCleanInput?: () => void;
+  onCreate?: (value?: string, filterValue?: string) => void;
+  onCreatePrefix?: string;
 }

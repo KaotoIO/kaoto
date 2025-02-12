@@ -10,9 +10,22 @@ import {
   TextInputGroupUtilities,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { FormEvent, FunctionComponent, MouseEventHandler, Ref, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  FormEvent,
+  FunctionComponent,
+  MouseEventHandler,
+  Ref,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { isDefined } from '../../utils';
 import { TypeaheadProps } from './Typeahead.types';
+
+const createNewValue = 'create-new';
+const createNewWithNameValue = 'create-new-with-name';
 
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   selectedItem,
@@ -22,36 +35,56 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   onChange,
   onCleanInput,
   'data-testid': dataTestId,
+  onCreate,
+  onCreatePrefix,
 }) => {
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const items = useMemo(() => {
-    if (itemsProps.find((item) => item.name === selectedItem?.name) || selectedItem === undefined) {
-      return itemsProps;
+    const localArray = itemsProps.slice();
+    if (isDefined(onCreate)) {
+      localArray.push({ name: `Create new ${onCreatePrefix}`, description: '', value: createNewValue });
     }
-    return [...itemsProps, { name: selectedItem?.name, value: selectedItem?.value }];
-  }, [itemsProps, selectedItem]);
+    const isValueInArray = isDefined(itemsProps.find((item) => item.name === selectedItem?.name));
+    if (isValueInArray) {
+      return localArray;
+    }
+    if (selectedItem?.name && selectedItem?.value) {
+      localArray.unshift({ name: selectedItem.name, value: selectedItem.value });
+    }
+    return localArray;
+  }, [itemsProps, selectedItem, onCreate, createNewValue]);
+
+  useEffect(() => {
+    if (selectedItem?.name) {
+      setInputValue(selectedItem.name);
+    }
+  }, [selectedItem]);
 
   const onItemChanged = useCallback(
     (_event: unknown, name: string | number | undefined) => {
-      if (!isDefined(name)) {
+      if (name === createNewValue || name === createNewWithNameValue) {
+        onCreate?.(name, inputValue);
+        setIsOpen(false);
+        return;
+      } else if (!isDefined(name)) {
         onChange?.(undefined);
         setInputValue('');
         setIsOpen(false);
         return;
       }
 
-      const localItem = items.find((item) => item.name === name);
-      setInputValue(name.toString());
+      const localItem = items.find((item) => item.value === name);
+      setInputValue(localItem?.name ?? '');
       setIsOpen(false);
 
       if (name !== selectedItem?.name) {
         onChange?.(localItem);
       }
     },
-    [onChange, items, selectedItem?.name],
+    [onChange, items, selectedItem?.name, onCreate, inputValue],
   );
 
   const onToggleClick: MouseEventHandler<HTMLDivElement | HTMLButtonElement> = (event) => {
@@ -131,12 +164,17 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     >
       <SelectList>
         {filteredItems.map((item) => (
-          <SelectOption key={item.name} value={item.name} description={item.description}>
+          <SelectOption key={item.name} value={item.value} description={item.description}>
             {item.name}
           </SelectOption>
         ))}
 
-        {filteredItems.length === 0 && <SelectOption isDisabled>No items found</SelectOption>}
+        {filteredItems.length === 0 && onCreate && (
+          <SelectOption value={createNewWithNameValue}>
+            Create new {onCreatePrefix} &quot;{inputValue}&quot;
+          </SelectOption>
+        )}
+        {filteredItems.length === 0 && !onCreate && <SelectOption isDisabled>No items found</SelectOption>}
       </SelectList>
     </Select>
   );
