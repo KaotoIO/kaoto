@@ -11,6 +11,7 @@ import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
 import { FieldProps } from '../typings';
+import { BeanField } from '../fields/BeanField';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
 
@@ -33,6 +34,8 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
        * This is useful for langchain4j-tools consumer components or when configuring beans entities
        */
       return PropertiesField;
+    } else if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
+      return BeanField;
     }
 
     switch (schema.type) {
