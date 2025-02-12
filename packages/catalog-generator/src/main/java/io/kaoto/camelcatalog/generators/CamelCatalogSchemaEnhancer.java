@@ -165,7 +165,7 @@ public class CamelCatalogSchemaEnhancer {
     /**
      * Fill the group/label/format/deprecated/default information of the model in the property
      *
-     * @param modelOption     the Camel Base model
+     * @param modelOption  the Camel Base model
      * @param propertyNode the JSON node of the property
      */
     void fillPropertyInformation(BaseOptionModel modelOption, ObjectNode propertyNode) {
@@ -211,6 +211,32 @@ public class CamelCatalogSchemaEnhancer {
     }
 
     /**
+     * Fill the expression format property in the oneOf nodes
+     * This is used to provide a hint to the UI that this oneOf
+     * is an expression. Example of this is the "setHeader" EIP or the
+     * "resequence" EIP
+     *
+     * @param modelNode the JSON schema node of the model
+     */
+    void fillExpressionFormatInOneOf(ObjectNode modelNode) {
+        if (modelNode.has("anyOf") && modelNode.get("anyOf").isArray()) {
+            modelNode.withArray("anyOf").elements().forEachRemaining(node -> {
+                fillExpressionFormatInOneOf((ObjectNode) node);
+            });
+        }
+
+        if (!modelNode.has("oneOf")) {
+            return;
+        }
+
+        modelNode.withArray("oneOf").elements().forEachRemaining(node -> {
+            if (node.has("$ref") && node.get("$ref").asText().contains("org.apache.camel.model.language.ExpressionDefinition")) {
+                modelNode.put("format", "expression");
+            }
+        });
+    }
+
+    /**
      * Populate the JavaType to ModelName map
      */
     private void populateJavaTypeToModelNameMap() {
@@ -244,7 +270,7 @@ public class CamelCatalogSchemaEnhancer {
 
         var propertyType = modelOption.getType();
         String bean =
-                "object".equals(propertyType) && !propertyNode.has("$ref") ?  modelOption.getJavaType() : null;
+                "object".equals(propertyType) && !propertyNode.has("$ref") ? modelOption.getJavaType() : null;
 
         if (bean != null && !bean.startsWith("java.util.Map")) {
             format.add("bean:" + bean);
@@ -255,8 +281,12 @@ public class CamelCatalogSchemaEnhancer {
             propertyNode.put("type", "string");
         }
 
-        if (modelOption.isSecret()){
+        if (modelOption.isSecret()) {
             format.add("password");
+        }
+
+        if ("org.apache.camel.model.ExpressionSubElementDefinition".equals(modelOption.getJavaType())) {
+            format.add("expressionProperty");
         }
 
         if (!format.isEmpty()) {
@@ -264,7 +294,7 @@ public class CamelCatalogSchemaEnhancer {
         }
     }
 
-    private  void addDeprecateInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
+    private void addDeprecateInfo(BaseOptionModel modelOption, ObjectNode propertyNode) {
         boolean isDeprecated = modelOption.isDeprecated();
         if (isDeprecated) {
             propertyNode.put("deprecated", true);

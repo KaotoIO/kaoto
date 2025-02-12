@@ -24,17 +24,19 @@ import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.Kind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 class CamelCatalogSchemaEnhancerTest {
     private CamelCatalog camelCatalog;
     private CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
-    private ObjectMapper jsonMapper;
     private ObjectNode camelYamlDslSchema;
 
     @BeforeEach
@@ -43,7 +45,7 @@ class CamelCatalogSchemaEnhancerTest {
         camelCatalogSchemaEnhancer = new CamelCatalogSchemaEnhancer(camelCatalog);
 
         var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
-        jsonMapper = new ObjectMapper();
+        ObjectMapper jsonMapper = new ObjectMapper();
         camelYamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
     }
 
@@ -110,7 +112,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillGroupInformationForModelName() {
+    void shouldFillGroupInformationForModel() {
         var choiceNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -129,7 +131,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillGroupInformationForModel() {
+    void shouldFillGroupInformationForModelName() {
         var setHeaderNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -149,7 +151,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillFormatInformationForModelName() {
+    void shouldFillFormatInformationForModel() {
         var aggregateNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -171,7 +173,45 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillFormatInformationForModel() {
+    void shouldFillExpressionInformationForModelName() {
+        ObjectNode aggregateNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.AggregateDefinition").deepCopy();
+
+        CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancerSpy = spy(camelCatalogSchemaEnhancer);
+
+        camelCatalogSchemaEnhancerSpy.fillPropertiesInformation("aggregate", aggregateNode);
+
+        ArgumentCaptor<EipModel> modelCaptor = ArgumentCaptor.forClass(EipModel.class);
+        ArgumentCaptor<ObjectNode> modelNodeCaptor = ArgumentCaptor.forClass(ObjectNode.class);
+
+        verify(camelCatalogSchemaEnhancerSpy).fillPropertiesInformation(modelCaptor.capture(),
+                modelNodeCaptor.capture());
+
+        assertInstanceOf(EipModel.class, modelCaptor.getValue());
+        assertEquals(aggregateNode, modelNodeCaptor.getValue());
+    }
+
+    @Test
+    void shouldFillExpressionInformationForModel() {
+        var aggregateNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.AggregateDefinition");
+
+        EipModel model = camelCatalog.eipModel("aggregate");
+        camelCatalogSchemaEnhancer.fillPropertiesInformation(model, aggregateNode);
+
+        var correlationExpressionPropertyNode = aggregateNode.withObject("properties")
+                .withObject("correlationExpression");
+
+        assertTrue(correlationExpressionPropertyNode.has("format"));
+        assertEquals("expressionProperty", correlationExpressionPropertyNode.get("format").asText());
+    }
+
+    @Test
+    void shouldFillFormatInformationForModelName() {
         var aggregateNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -192,7 +232,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillDeprecatedInformationForEIPModel() {
+    void shouldFillDeprecatedInformationForEIPModelName() {
         var recipientListNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -207,7 +247,7 @@ class CamelCatalogSchemaEnhancerTest {
     }
 
     @Test
-    void shouldFillDefaultInformationForEIPModel() {
+    void shouldFillDefaultInformationForEIPModelName() {
         var multicastNode = camelYamlDslSchema
                 .withObject("items")
                 .withObject("definitions")
@@ -260,5 +300,51 @@ class CamelCatalogSchemaEnhancerTest {
         assertNotNull(setHeaderModel);
         assertEquals("setHeader", setHeaderModel.getName());
         assertFalse(setHeaderModel.getOptions().isEmpty());
+    }
+
+    @Test
+    void shouldSetExpressionFormatInExpressionAnyOfFromSetHeader() {
+        ObjectNode setHeaderNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.SetHeaderDefinition");
+
+        camelCatalogSchemaEnhancer.fillExpressionFormatInOneOf(setHeaderNode);
+
+        var firstOneOfNode = setHeaderNode.withArray("anyOf").get(0);
+
+        assertTrue(firstOneOfNode.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatInExpressionAnyOfFromResequence() {
+        ObjectNode setHeaderNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.ResequenceDefinition");
+
+        camelCatalogSchemaEnhancer.fillExpressionFormatInOneOf(setHeaderNode);
+
+        /* The first anyOf node is the one that contains the expression property */
+        var firstOneOfNode = setHeaderNode.withArray("anyOf").get(0);
+        /* The second anyOf node is the one that contains the batchConfig or streamConfig */
+        var secondOneOfNode = setHeaderNode.withArray("anyOf").get(1);
+
+        assertTrue(firstOneOfNode.has("format"));
+        assertFalse(secondOneOfNode.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatInExpressionAnyOfFromSaga() {
+        ObjectNode propertyExpressionNode = camelYamlDslSchema
+                .withObject("items")
+                .withObject("definitions")
+                .withObject("org.apache.camel.model.PropertyExpressionDefinition");
+
+        camelCatalogSchemaEnhancer.fillExpressionFormatInOneOf(propertyExpressionNode);
+
+        var firstOneOfNode = propertyExpressionNode.withArray("anyOf").get(0);
+
+        assertTrue(firstOneOfNode.has("format"));
     }
 }

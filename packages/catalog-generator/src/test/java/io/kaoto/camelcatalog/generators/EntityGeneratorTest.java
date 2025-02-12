@@ -228,4 +228,25 @@ class EntityGeneratorTest {
         assertEquals(List.of("id", "expression", "bodyMediaType", "outputMediaType", "source", "resultType", "trim"),
                 sortedPropertiesListSimple);
     }
+
+    @Test
+    void shouldSetExpressionFormatToOneOfExpressionForOnCompletion() {
+        var entitiesMap = entityGenerator.generate();
+
+        var oneOfArray = entitiesMap.get("onCompletion").withObject("propertiesSchema").withObject("definitions")
+                .withObject("org.apache.camel.model.WhenDefinition").withArray("anyOf").get(0);
+
+        assertTrue(oneOfArray.has("format"));
+    }
+
+    @Test
+    void shouldSetExpressionFormatToOneOfExpressionForOnException() {
+        var entitiesMap = entityGenerator.generate();
+
+        var oneOfArray = entitiesMap.get("onException").withObject("propertiesSchema").withObject("definitions")
+                .withObject("org.apache.camel.model.WhenDefinition").withArray("anyOf").get(0);
+
+        assertTrue(oneOfArray.has("format"));
+    }
+
 }
