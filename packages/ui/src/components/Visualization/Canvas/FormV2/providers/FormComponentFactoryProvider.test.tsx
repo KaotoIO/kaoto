@@ -4,6 +4,7 @@ import { KaotoSchemaDefinition } from '../../../../../models';
 import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
+import { ExpressionField } from '../fields/ExpressionField/ExpressionField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
@@ -29,6 +30,8 @@ describe('FormComponentFactoryProvider', () => {
     [{ type: 'boolean' }, BooleanField],
     [{ type: 'object', properties: { name: { type: 'string' } } }, ObjectField],
     [{ type: 'object', properties: {} }, PropertiesField],
+    [{ format: 'expression' }, ExpressionField],
+    [{ format: 'expressionField' }, ExpressionField],
     [{ type: 'array' }, ArrayField],
     [{ oneOf: [] }, OneOfField],
     [{}, DisabledField],
