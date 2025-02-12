@@ -4,6 +4,7 @@ import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
 import { EnumField } from '../fields/EnumField';
+import { ExpressionField } from '../fields/ExpressionField/ExpressionField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
@@ -36,6 +37,8 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
       return PropertiesField;
     } else if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
       return BeanField;
+    } else if (schema.format === 'expression' || schema.format === 'expressionProperty') {
+      return ExpressionField;
     }
 
     switch (schema.type) {
