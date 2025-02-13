@@ -11,7 +11,7 @@ describe('ExpressionService', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
   });
 
-  const stepExpressionArray: [Record<string, unknown>, Record<string, unknown>][] = [
+  const expressionsArray: [Record<string, unknown>, Record<string, unknown>][] = [
     [
       {
         name: 'MY_HEADER',
@@ -24,11 +24,9 @@ describe('ExpressionService', () => {
       },
       {
         name: 'MY_HEADER',
-        expression: {
-          simple: {
-            expression: '${body}',
-            trim: true,
-          },
+        simple: {
+          expression: '${body}',
+          trim: true,
         },
       },
     ],
@@ -41,10 +39,8 @@ describe('ExpressionService', () => {
       },
       {
         name: 'MY_HEADER',
-        expression: {
-          simple: {
-            expression: '${body}',
-          },
+        simple: {
+          expression: '${body}',
         },
       },
     ],
@@ -58,11 +54,9 @@ describe('ExpressionService', () => {
       },
       {
         name: 'MY_HEADER',
-        expression: {
-          simple: {
-            id: 'simple',
-            expression: '${body}',
-          },
+        simple: {
+          id: 'simple',
+          expression: '${body}',
         },
       },
     ],
@@ -73,22 +67,11 @@ describe('ExpressionService', () => {
       },
       {
         name: 'MY_HEADER',
-        expression: {
-          simple: {
-            expression: '${body}',
-          },
+        simple: {
+          expression: '${body}',
         },
       },
     ],
-  ];
-
-  it.each(stepExpressionArray)('should parse %s', (parentModel, expected) => {
-    const result = ExpressionService.parseStepExpressionModel(parentModel);
-
-    expect(result).toEqual(expected);
-  });
-
-  const propertyExpressionArray: [Record<string, unknown>, Record<string, unknown>][] = [
     [
       {
         simple: {
@@ -113,8 +96,8 @@ describe('ExpressionService', () => {
     ],
   ];
 
-  it.each(propertyExpressionArray)('should parse expressionProperty %s', (parentModel, expected) => {
-    const result = ExpressionService.parsePropertyExpressionModel(parentModel);
+  it.each(expressionsArray)('should parse %s', (parentModel, expected) => {
+    const result = ExpressionService.parseExpressionModel(parentModel);
 
     expect(result).toEqual(expected);
   });
