@@ -19,15 +19,15 @@ import { setNamespaces } from '../xml-utils';
 
 type Expression = { expression: string; [key: string]: unknown };
 export class ExpressionXmlSerializer {
-  static serialize(key: string, expressionObjext: unknown, doc: Document, element: Element, routeParent?: Element) {
-    if (!expressionObjext) return;
+  static serialize(key: string, expressionObject: unknown, doc: Document, element: Element, routeParent?: Element) {
+    if (!expressionObject) return;
     let expression: Element;
-    //todo comment
+    // for some cases, the expression is not wrapped in an element
     if (key !== 'expression') {
       expression = doc.createElement(key);
-      expression.append(ExpressionXmlSerializer.createExpressionElement(expressionObjext, doc, routeParent));
+      expression.append(ExpressionXmlSerializer.createExpressionElement(expressionObject, doc, routeParent));
     } else {
-      expression = ExpressionXmlSerializer.createExpressionElement(expressionObjext, doc, routeParent);
+      expression = ExpressionXmlSerializer.createExpressionElement(expressionObject, doc, routeParent);
     }
 
     element.appendChild(expression);
@@ -49,7 +49,7 @@ export class ExpressionXmlSerializer {
         setNamespaces(routeParent, value as { key: string; value: string }[]);
       }
 
-      if (properties && properties[key] && properties[key].kind === 'attribute') {
+      if (properties?.[key]?.kind === 'attribute') {
         expressionElement.setAttribute(key, String(value));
       }
     }

@@ -68,8 +68,8 @@ export class BeansXmlParser {
     let properties: { [key: string]: string } = {};
 
     Array.from(beanElement.getElementsByTagName('properties')[0].children).forEach((propertyElement) => {
-      const propName = propertyElement.getAttribute('key') || propertyElement.getAttribute('name');
-      const propValue = propertyElement.getAttribute('value') || propertyElement.getAttribute('ref');
+      const propName = propertyElement.getAttribute('key') ?? propertyElement.getAttribute('name');
+      const propValue = propertyElement.getAttribute('value') ?? propertyElement.getAttribute('ref');
 
       if (propName && propValue) {
         properties = { ...properties, [propName]: propValue };
@@ -79,7 +79,7 @@ export class BeansXmlParser {
     return properties;
   }
 
-  //todo add support for nested beans, if not change to static
+  // This might required support for nested beans, if not change to static
   transformBeansSection(beansSection: Element): BeanFactory[] {
     // Process all bean elements and populate beanFactories
     this.beans = [];

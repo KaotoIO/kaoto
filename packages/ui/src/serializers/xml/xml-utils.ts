@@ -21,24 +21,13 @@ export const ARRAY_TYPE_NAMES: Map<string, string> = new Map([['allowableValues'
 
 const DEFAULT_XMLNS = ['http://camel.apache.org/schema/spring', 'http://www.w3.org/2001/XMLSchema-instance'];
 
-// export function extractAttributesTyped<T>(element: Element): Partial<T> {
-//   const attributes = {} as Partial<T>;
-//   for (let i = 0; i < element.attributes.length; i++) {
-//     const attr = element.attributes[i];
-//     attributes[attr.name as keyof T] = attr.value;
-//   }
-//   return attributes;
-// }
-
 export function extractAttributesFromXmlElement(
   element: Element,
   properties?: Record<string, ICamelProcessorProperty>,
 ): { [p: string]: unknown } {
   const attributes: { [key: string]: string } = {};
 
-  for (let i = 0; i < element.attributes.length; i++) {
-    const attr = element.attributes[i];
-
+  for (const attr of element.attributes) {
     if (!properties || properties[attr.name]) {
       attributes[attr.name] = attr.value;
     }
@@ -75,24 +64,18 @@ export function formatXml(xml: string): string {
   let pad = 0;
 
   xml = xml.replace(reg, '$1\r\n$2$3');
-  xml
-    .replace(/\r\n/g, '\n') // Normalize line endings
-    .replace(/>\s+</g, '><')
-    .replace(/\s+/g, '')
-    .trim();
 
   return xml
     .split('\r\n')
     .map((node) => {
       let indent = 0;
-      if (node.match(/.+<\/\w[^>]*>$/)) {
-        indent = 0;
-      } else if (node.match(/^<\/\w/) && pad > 0) {
+      const openTagPattern = /^<\w[^>]*[^/]>.*$/;
+      const endTagPattern = /^<\/\w/;
+
+      if (endTagPattern.exec(node) && pad > 0) {
         pad -= 1;
-      } else if (node.match(/^<\w[^>]*[^/]>.*$/)) {
+      } else if (openTagPattern.exec(node)) {
         indent = 1;
-      } else {
-        indent = 0;
       }
       pad += indent;
 
