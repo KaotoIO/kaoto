@@ -2,13 +2,13 @@ import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService } from '../../../../../../models';
 import { isDefined } from '../../../../../../utils';
 
-type StepExpression = { expression: ExpressionDefinition; [key: string]: unknown };
-
 export class ExpressionService {
   /**
-   * Parse the expression model from the parent step model object. Since expression has several dialects,
-   * this method tries to read all possibility and merge into a single representation. Camel expression has
-   * following 4 dialects, where the 2nd and 4th doesn't allow to configure additional properties:
+   * Parse the expression model from the parent step model object or from a expression property.
+   * Since expression has several dialects, this method tries to read all possibility and merge into
+   * a single representation.
+   * Camel expression has following 4 dialects, where the 2nd and 4th doesn't allow to configure
+   * additional properties:
    * <ul>
    *   <li>---
    * ```yaml
@@ -43,41 +43,30 @@ export class ExpressionService {
    * </ul>
    * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
    * */
-  static parseStepExpressionModel(parentModel?: Record<string, unknown>): StepExpression | undefined {
+  static parseExpressionModel(parentModel?: Record<string, unknown>): ExpressionDefinition | undefined {
     if (!isDefined(parentModel)) {
       return undefined;
     }
 
-    if (parentModel.expression && Object.keys(parentModel.expression).length > 0) {
-      const [languageModelName] = Object.keys(parentModel.expression);
-      const parsedModel = this.parseLanguageModel(parentModel.expression as Record<string, unknown>, languageModelName);
+    const { expression, ...model } = parentModel;
 
-      return { ...parentModel, expression: parsedModel };
+    if (isDefined(expression) && Object.keys(expression).length > 0) {
+      const [languageModelName] = Object.keys(expression);
+      const parsedModel = this.parseLanguageModel(expression as Record<string, unknown>, languageModelName);
+
+      return { ...model, ...parsedModel };
     }
 
     const languageNames = this.getLanguageNames();
     return Object.entries(parentModel).reduce((acc, [key, value]) => {
       if (languageNames.includes(key)) {
-        acc['expression'] = this.parseLanguageModel({ [key]: value }, key);
-        return acc;
+        acc[key] = this.parseLanguageModel({ [key]: value }, key)[key];
+      } else {
+        acc[key] = value;
       }
 
-      return { ...acc, [key]: value };
-    }, {} as StepExpression);
-  }
-
-  /**
-   * Parse the property expression model from the parent parameter model object.
-   * @param parentModel The parent parameter model object which is an expression type. For example `completionPredicate` parameter contents of `aggregate` EIP.
-   */
-  static parsePropertyExpressionModel(parentModel?: Record<string, unknown>): ExpressionDefinition | undefined {
-    const rootExpression = this.parseStepExpressionModel(parentModel);
-
-    if (!isDefined(rootExpression)) {
-      return undefined;
-    }
-
-    return rootExpression.expression;
+      return acc;
+    }, {} as ExpressionDefinition);
   }
 
   private static getLanguageNames(): string[] {
