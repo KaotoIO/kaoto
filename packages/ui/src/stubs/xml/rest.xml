@@ -1,0 +1,26 @@
+<camel xmlns="http://camel.apache.org/schema/spring">
+<rest path="/say">
+    <get path="/hello">
+        <param name="name" type="query" required="true" />
+        <param name="name2" type="query" required="true" defaultValue="blah"/>
+        <responseMessage message="hello" code="200">
+            <header name="header" description="header" >
+                <allowableValues>
+                    <value>1</value>
+                    <value>2</value>
+                </allowableValues>
+            </header>
+            <examples key="example" value="value"/>
+            <examples key="example" value="value"/>
+        </responseMessage>
+        <security key="hello" scopes="scope"/>
+        <to uri="direct:hello"/>
+    </get>
+    <get path="/bye" consumes="application/json">
+        <to uri="direct:bye"/>
+    </get>
+    <post path="/bye">
+        <to uri="mock:update"/>
+    </post>
+</rest>
+</camel>
