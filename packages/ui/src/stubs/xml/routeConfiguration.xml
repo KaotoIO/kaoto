@@ -1,0 +1,9 @@
+<routeConfiguration precondition="{{activate}}">
+    <onException>
+        <exception>java.lang.IllegalArgumentException</exception>
+        <handled>
+            <constant>true</constant>
+        </handled>
+        <log message="WARN: ${exception.message}"/>
+    </onException>
+</routeConfiguration>

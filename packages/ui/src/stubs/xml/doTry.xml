@@ -1,0 +1,22 @@
+<route id="route-1137">
+    <from uri="direct:start"/>
+    <doTry>
+        <process ref="processorFail"/>
+        <to uri="mock:result"/>
+        <doCatch id="first">
+            <exception>java.io.IOException</exception>
+            <exception>java.lang.IllegalStateException</exception>
+            <onWhen>
+                <simple>${exception.message} contains 'Damn'</simple>
+            </onWhen>
+            <to uri="mock:catch"/>
+        </doCatch>
+        <doCatch id="second">
+            <exception>org.apache.camel.CamelExchangeException</exception>
+            <to uri="mock:catchCamel"/>
+        </doCatch>
+        <doFinally>
+            <to uri="mock:finally"/>
+        </doFinally>
+    </doTry>
+</route>

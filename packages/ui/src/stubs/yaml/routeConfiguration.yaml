@@ -1,0 +1,12 @@
+- routeConfiguration:
+    precondition: "{{activate}}"
+    onException:
+      - onException:
+          exception:
+            - "java.lang.IllegalArgumentException"
+          handled:
+            constant:
+                expression: "true"
+          steps:
+            - log:
+                message: "WARN: ${exception.message}"

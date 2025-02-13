@@ -1,0 +1,33 @@
+- route:
+    id: 'route-1137'
+    from:
+      uri: 'direct:start'
+      steps:
+        - doTry:
+            steps:
+              - process:
+                  ref: 'processorFail'
+              - to:
+                  uri: 'mock:result'
+            doCatch:
+              - id: 'first'
+                exception:
+                  - 'java.io.IOException'
+                  - 'java.lang.IllegalStateException'
+                onWhen:
+                  expression:
+                    simple:
+                      expression: "${exception.message} contains 'Damn'"
+                steps:
+                  - to:
+                      uri: 'mock:catch'
+              - id: 'second'
+                exception:
+                  - 'org.apache.camel.CamelExchangeException'
+                steps:
+                  - to:
+                      uri: 'mock:catchCamel'
+            doFinally:
+              steps:
+                - to:
+                    uri: 'mock:finally'

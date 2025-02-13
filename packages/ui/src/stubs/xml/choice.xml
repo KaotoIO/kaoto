@@ -1,0 +1,102 @@
+<camel>
+    <routes>
+        <route>
+            <from uri="direct:start"/>
+            <unmarshal>
+                <json library="Jackson"/>
+            </unmarshal>
+            <setHeader name="meno">
+                <constant id="kosnstanta" trim="true">blabla</constant>
+            </setHeader>
+            <choice id="cojsa">
+                <when>
+                    <simple>${body} contains 'Apple'</simple>
+                    <log message="Apple branch"/>
+                    <to uri="mock:result"/>
+                </when>
+                <when>
+                    <simple>${body} contains 'Banana'</simple>
+                    <log message="Banana branch"/>
+                    <to uri="mock:result"/>
+                </when>
+                <when>
+                    <simple id="houno">${body} contains 'Cherry'</simple>
+                    <log message="Cherry branch"/>
+                    <to uri="mock:result"/>
+                </when>
+                <otherwise>
+                    <log message="Other fruits"/>
+                    <choice id="cojsa2">
+                        <when>
+                            <simple>${body} contains 'Apple'</simple>
+                            <log message="Apple branch"/>
+                            <to uri="mock:result"/>
+                        </when>
+                    </choice>
+                    <to uri="mock:result"/>
+                </otherwise>
+            </choice>
+            <log message="Choice processing complete"/>
+            <to uri="mock:result"/>
+        </route>
+        <route>
+            <from uri="timer://cherryTimer?period=1000"/>
+            <setBody>
+                <constant>Cherry</constant>
+            </setBody>
+            <setHeader name="Fruit-Origin">
+                <constant>Spain</constant>
+            </setHeader>
+            <setHeader name="Fruit-Quality">
+                <constant>Premium</constant>
+            </setHeader>
+            <setHeader name="Fruit-Season">
+                <constant>Summer</constant>
+            </setHeader>
+            <setHeader name="Fruit-Price">
+                <constant>2.75</constant>
+            </setHeader>
+            <to uri="direct:start"/>
+        </route>
+        <route>
+            <from uri="timer://bananaTimer?period=2000"/>
+            <setBody>
+                <constant>Banana</constant>
+            </setBody>
+
+            <setHeader name="Fruit-Origin">
+                <constant>Mexico</constant>
+            </setHeader>
+            <setHeader name="Fruit-Quality">
+                <constant>Standard</constant>
+            </setHeader>
+            <setHeader name="Fruit-Season">
+                <constant>All Year</constant>
+            </setHeader>
+            <setHeader name="Fruit-Price">
+                <constant>0.99</constant>
+            </setHeader>
+            <to uri="direct:start"/>
+        </route>
+
+        <route>
+            <from uri="timer://appleTimer?period=3000"/>
+            <setBody>
+                <constant>Apple</constant>
+            </setBody>
+            <setHeader name="Fruit-Origin">
+                <constant>USA</constant>
+            </setHeader>
+            <setHeader name="Fruit-Quality">
+                <constant>Organic</constant>
+            </setHeader>
+            <setHeader name="Fruit-Season">
+                <constant>Winter</constant>
+            </setHeader>
+            <setHeader name="Fruit-Price">
+                <constant>1.50</constant>
+            </setHeader>
+            <to uri="direct:start"/>
+        </route>
+    </routes>
+</camel>
