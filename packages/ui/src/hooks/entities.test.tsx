@@ -133,7 +133,7 @@ describe('useEntities', () => {
 
   it(`should store code's comments`, () => {
     const code = `# This is a comment
-      # An indented comment
+#     An indented comment
 
 - route:
     id: route-1234
@@ -158,7 +158,7 @@ describe('useEntities', () => {
 
     expect(result.current.camelResource.toString()).toContain(
       `# This is a comment
-      # An indented comment`,
+#     An indented comment`,
     );
   });
 });

@@ -52,14 +52,14 @@ export class StepXmlSerializer {
     }
   }
 
-  static serialize(elementName: string, obj: ElementType, doc: Document, parent?: Element): Element {
+  static serialize(elementName: string, camelElement: ElementType, doc: Document, parent?: Element): Element {
     const element = doc.createElement(elementName);
 
     //unidentified might be when a new element is added from the form
-    if (!obj) return element;
-    if (obj[elementName]) {
+    if (!camelElement) return element;
+    if (camelElement[elementName]) {
       // for cases like errorHandler, intercept in the route configuration etc where the element is nested i.e intercept:{intercept:{...}}
-      obj = obj[elementName] as ElementType;
+      camelElement = camelElement[elementName] as ElementType;
     }
     const routeParent = elementName === 'route' ? element : parent;
     const properties = CamelCatalogService.getComponent(
@@ -68,15 +68,14 @@ export class StepXmlSerializer {
     )?.properties;
 
     if (!properties) {
-      this.serializeUnknownType(element, obj, doc, routeParent);
+      this.serializeUnknownType(element, camelElement, doc, routeParent);
       return element;
     }
 
-    const processor = obj as ElementType;
-    this.serializeObjectProperties(element, doc, processor, properties, routeParent);
+    this.serializeObjectProperties(element, doc, camelElement, properties, routeParent);
 
     if (elementName === 'doTry') {
-      this.decorateDoTry(obj as DoTry, element, doc);
+      this.decorateDoTry(camelElement as DoTry, element, doc);
     }
 
     return element;
@@ -175,7 +174,7 @@ export class StepXmlSerializer {
         const stepElement = this.serialize(stepKey, step, doc, routeParent);
         if (step.uri) {
           const uri = this.createUriFromParameters(step);
-          stepElement.setAttribute('uri', uri as string);
+          stepElement.setAttribute('uri', uri);
         }
         stepElements.push(stepElement);
       });
