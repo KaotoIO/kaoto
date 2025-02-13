@@ -145,7 +145,7 @@ export class StepParser {
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
-    transformer?: ElementTransformer,
+    transformer = (el: Element) => this.parseElement(el),
   ): unknown[] {
     const arrayElementName = ARRAY_TYPE_NAMES.get(name) ?? name;
     let children;
@@ -160,11 +160,7 @@ export class StepParser {
     if (!children) return [];
 
     return Array.from(children).map((el) =>
-      properties.javaType === 'java.util.List<java.lang.String>'
-        ? el.textContent
-        : transformer
-          ? transformer(el)
-          : this.parseElement(el),
+      properties.javaType === 'java.util.List<java.lang.String>' ? el.textContent : transformer(el),
     );
   }
 

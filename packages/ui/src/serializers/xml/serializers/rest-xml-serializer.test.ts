@@ -47,7 +47,7 @@ describe('RestXmlParser tests', () => {
     </get></rest>`;
     const rest = RestXmlSerializer.serialize(entity, doc);
     expect(rest).toBeDefined();
-    testSerializer(expected, rest!);
+    testSerializer(expected, rest);
   });
 
   it('serialize full rest', () => {
@@ -104,6 +104,6 @@ describe('RestXmlParser tests', () => {
 
     const rest = RestXmlSerializer.serialize(entity, doc);
     expect(rest).toBeDefined();
-    testSerializer(expected, rest!);
+    testSerializer(expected, rest);
   });
 });
