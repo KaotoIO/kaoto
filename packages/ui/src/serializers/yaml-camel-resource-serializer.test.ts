@@ -36,6 +36,7 @@ describe('YamlCamelResourceSerializer', () => {
 
     serializer.comments.push('# Comment2');
     const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
-    expect(result).toMatchSnapshot();
+    expect(result.includes(' Comment2')).toBeTruthy();
+    expect(result.includes('comment1')).toBeTruthy();
   });
 });

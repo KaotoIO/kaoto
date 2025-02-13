@@ -1,0 +1,13 @@
+- restConfiguration:
+    component: servlet
+    bindingMode: json
+    apiContextPath: api-docs
+    apiVendorExtension: "true"
+    dataFormatProperty:
+      - key: prettyPrint
+        value: "true"
+    apiProperty:
+      - key: api.version
+        value: "1.0.0"
+      - key: api.title
+        value: User API
