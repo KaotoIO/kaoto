@@ -55,7 +55,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     const comments: string[] = [];
     for (const line of lines) {
       if (line.trim() === '' || YamlCamelResourceSerializer.COMMENTED_LINES_REGEXP.test(line)) {
-        comments.push(line.replace(/^\s*#\s*/, ''));
+        comments.push(line.replace(/^\s*#*/, ''));
       } else {
         break;
       }
@@ -65,7 +65,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
 
   private insertComments(xml: string): string {
     const commentsString = this.comments
-      .flatMap((comment) => comment.split('\n').map((line) => `# ${line}`))
+      .flatMap((comment) => comment.split('\n').map((line) => (line.trim() === '' ? '' : `#${line}`)))
       .join('\n');
     return commentsString + '\n' + xml;
   }
