@@ -1,0 +1,12 @@
+<restConfiguration component="servlet" bindingMode="json"
+                   apiContextPath="api-docs"
+                   apiVendorExtension="true">
+
+    <!-- we want json output in pretty mode -->
+    <dataFormatProperty key="prettyPrint" value="true"/>
+
+    <!-- setup swagger api descriptions -->
+    <apiProperty key="api.version" value="1.0.0"/>
+    <apiProperty key="api.title" value="User API"/>
+
+</restConfiguration>
