@@ -6,4 +6,5 @@ export interface CamelResourceSerializer {
   serialize: (resource: CamelResource) => string;
   getComments: () => string[];
   setComments: (comments: string[]) => void;
+  getLabel(): string;
 }
