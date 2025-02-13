@@ -8,6 +8,7 @@ import { RedoButton } from './RedoButton';
 import './SourceCode.scss';
 import { UndoButton } from './UndoButton';
 import './workers/enable-workers';
+import { isXML } from '../../serializers/xml/kaoto-xml-parser';
 
 interface SourceCodeProps {
   code: string;
@@ -101,7 +102,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
       code={props.code}
       onCodeChange={props.onCodeChange}
       customControls={customControls}
-      language={Language.yaml}
+      language={isXML(props.code) ? Language.xml : Language.yaml}
       editorProps={editorProps.current!}
       options={options}
       onEditorDidMount={handleEditorDidMount}

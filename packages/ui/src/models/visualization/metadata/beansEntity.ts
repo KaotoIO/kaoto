@@ -19,7 +19,7 @@ export type BeansParentType = {
 
 export class BeansEntity implements BaseCamelEntity {
   readonly id = uuidv4();
-  type = EntityType.Beans;
+  readonly type = EntityType.Beans;
 
   constructor(public parent: BeansParentType) {}
 

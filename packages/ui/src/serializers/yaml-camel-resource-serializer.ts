@@ -1,3 +1,4 @@
+import { isXML } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel';
 import { parse, stringify } from 'yaml';
 import { CamelResourceSerializer } from './camel-resource-serializer';
@@ -17,11 +18,8 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   static readonly COMMENTED_LINES_REGEXP = /^\s*#.*$/;
   comments: string[] = [];
 
-  static isApplicable(_code: unknown): boolean {
-    //TODO
-    // return !isXML(code);
-
-    return true;
+  static isApplicable(code: unknown): boolean {
+    return !isXML(code);
   }
 
   parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
@@ -35,10 +33,13 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   serialize(resource: CamelResource): string {
     let code = stringify(resource, { sortMapEntries: resource.sortFn, schema: 'yaml-1.1' }) || '';
     if (this.comments.length > 0) {
-      const comments = this.comments.join('\n');
-      code = comments + '\n' + code;
+      code = this.insertComments(code);
     }
     return code;
+  }
+
+  getLabel(): string {
+    return 'YAML';
   }
 
   getComments(): string[] {
@@ -54,11 +55,18 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     const comments: string[] = [];
     for (const line of lines) {
       if (line.trim() === '' || YamlCamelResourceSerializer.COMMENTED_LINES_REGEXP.test(line)) {
-        comments.push(line);
+        comments.push(line.replace(/^\s*#\s*/, ''));
       } else {
         break;
       }
     }
     return comments;
+  }
+
+  private insertComments(xml: string): string {
+    const commentsString = this.comments
+      .flatMap((comment) => comment.split('\n').map((line) => `# ${line}`))
+      .join('\n');
+    return commentsString + '\n' + xml;
   }
 }
