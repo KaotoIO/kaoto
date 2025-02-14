@@ -3,6 +3,8 @@ import { ParsedTable } from '../../models/documentation';
 import { CommonParser } from './common-parser';
 
 export class MiscParser {
+  private static readonly KAMELET_ICON_ANNOTATION = 'camel.apache.org/kamelet.icon';
+
   static parseMetadataEntity(entity: MetadataEntity, label: string): ParsedTable[] {
     if (!entity.parent.metadata) return [];
 
@@ -36,10 +38,20 @@ export class MiscParser {
         headers: ['Name', 'Value'],
         headingLevel: 'h2',
       });
-      Object.entries(entity.parent.metadata.annotations).forEach(([annoKey, annoValue]) => {
-        annotationsTable.data.push([annoKey, annoValue]);
-      });
       parsedTables.push(annotationsTable);
+      Object.entries(entity.parent.metadata.annotations).forEach(([annoKey, annoValue]) => {
+        if (annoKey === MiscParser.KAMELET_ICON_ANNOTATION) {
+          const iconTable = new ParsedTable({
+            title: '',
+            headers: ['Metadata : Annotations : Icon'],
+            headingLevel: 'h5',
+            data: [[`![icon](${annoValue})`]],
+          });
+          parsedTables.push(iconTable);
+        } else {
+          annotationsTable.data.push([annoKey, annoValue]);
+        }
+      });
     }
 
     return parsedTables;

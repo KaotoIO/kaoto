@@ -1,12 +1,50 @@
 import { Divider, Icon, MenuItemAction, SelectGroup, SelectList, SelectOption } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
-import { BaseCamelEntity } from '../../../../models/camel/entities';
 import { DocumentationEntity } from '../../../../models/documentation';
 
-export type IEntityVisibility = {
-  entity: BaseCamelEntity;
+type IEntityOption = {
+  entityLabel: string;
   isVisible: boolean;
+  entityIndex?: number;
+  onToggleVisibility: (index?: number) => void;
+};
+
+const EntityOption: FunctionComponent<IEntityOption> = ({
+  entityLabel,
+  isVisible,
+  entityIndex,
+  onToggleVisibility,
+}) => {
+  return (
+    <SelectOption
+      data-testid={`option-${entityLabel}`}
+      actions={
+        <MenuItemAction
+          icon={
+            isVisible ? (
+              <Icon isInline>
+                <EyeIcon title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-visible`} />
+              </Icon>
+            ) : (
+              <Icon isInline>
+                <EyeSlashIcon title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hidden`} />
+              </Icon>
+            )
+          }
+          actionId="toggle"
+          aria-label="toggle"
+          onClick={(event) => {
+            onToggleVisibility(entityIndex);
+            /** Required to avoid closing the Dropdown after clicking in the icon */
+            event.stopPropagation();
+          }}
+        />
+      }
+    >
+      {entityIndex !== undefined ? entityLabel : isVisible ? 'Hide All' : 'Show All'}
+    </SelectOption>
+  );
 };
 
 type IEntitiesList = {
@@ -22,50 +60,6 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
 }) => {
   const allEntitiesVisible = !documentationEntities.find((e) => !e.isVisible);
 
-  type IEntityOption = {
-    entityLabel: string;
-    isVisible: boolean;
-    entityIndex?: number;
-    onToggleVisibility: (index?: number) => void;
-  };
-
-  const EntityOption: FunctionComponent<IEntityOption> = ({
-    entityLabel,
-    isVisible,
-    entityIndex,
-    onToggleVisibility,
-  }) => {
-    return (
-      <SelectOption
-        data-testid={`option-${entityLabel}`}
-        actions={
-          <MenuItemAction
-            icon={
-              isVisible ? (
-                <Icon isInline>
-                  <EyeIcon title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-visible`} />
-                </Icon>
-              ) : (
-                <Icon isInline>
-                  <EyeSlashIcon title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hidden`} />
-                </Icon>
-              )
-            }
-            actionId="toggle"
-            aria-label="toggle"
-            onClick={(event) => {
-              onToggleVisibility(entityIndex);
-              /** Required to avoid closing the Dropdown after clicking in the icon */
-              event.stopPropagation();
-            }}
-          />
-        }
-      >
-        {entityIndex !== undefined ? entityLabel : isVisible ? 'Hide All' : 'Show All'}
-      </SelectOption>
-    );
-  };
-
   return (
     <>
       <EntityOption
@@ -79,7 +73,7 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
         <SelectList>
           {documentationEntities.map((docEntity, index) => (
             <EntityOption
-              key={`entity-option-${docEntity.label}`}
+              key={`entity-option-${docEntity.entity!.id}`}
               entityLabel={docEntity.label}
               isVisible={docEntity.isVisible}
               entityIndex={index}

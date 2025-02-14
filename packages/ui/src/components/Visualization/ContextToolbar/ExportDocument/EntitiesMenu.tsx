@@ -57,21 +57,19 @@ export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEn
           aria-label="entities list"
           onClick={onToggleClick}
         >
-          <div>
-            <Icon isInline>
-              <ListIcon />
-            </Icon>
-            <span title="Entities" data-testid="entities-list-id" className="pf-v6-u-m-sm">
-              Entities
-            </span>
-            <Badge
-              title={`Showing ${visibleEntitiesCount} out of ${totalEntitiesCount} entities`}
-              data-testid="entities-list-entity-count"
-              isRead
-            >
-              {visibleEntitiesCount}/{totalEntitiesCount}
-            </Badge>
-          </div>
+          <Icon isInline>
+            <ListIcon />
+          </Icon>
+          <span title="Entities" data-testid="entities-list-id" className="pf-v6-u-m-sm">
+            Entities
+          </span>
+          <Badge
+            title={`Showing ${visibleEntitiesCount} out of ${totalEntitiesCount} entities`}
+            data-testid="entities-list-entity-count"
+            isRead
+          >
+            {visibleEntitiesCount}/{totalEntitiesCount}
+          </Badge>
         </MenuToggleAction>,
       ]}
     />

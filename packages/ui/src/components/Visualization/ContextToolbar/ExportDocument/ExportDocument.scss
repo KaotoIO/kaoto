@@ -18,10 +18,11 @@
   width: 100%;
 }
 
+.export-document-preview-table-th {
+  max-width: none !important;
+}
+
 .export-document-preview-modal {
   height: var(--pf-v6-c-modal-box--MaxHeight);
 }
 
-.pf-v6-c-table thead > tr:where(.pf-v6-c-table__tr) > :where(th) {
-  max-width: none;
-}

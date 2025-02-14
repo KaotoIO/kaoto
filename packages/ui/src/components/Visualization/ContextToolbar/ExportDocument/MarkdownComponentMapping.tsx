@@ -22,7 +22,7 @@ export const markdownComponentMapping: Components = {
   tbody: ({ children }) => <Tbody>{children}</Tbody>,
   tr: ({ children }) => <Tr isBorderRow>{children}</Tr>,
   th: ({ children }) => (
-    <Th hasLeftBorder hasRightBorder>
+    <Th hasLeftBorder hasRightBorder className="export-document-preview-table-th">
       {children}
     </Th>
   ),

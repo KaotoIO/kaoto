@@ -267,7 +267,7 @@ export class RouteParser {
 
     const parsedTable = new ParsedTable({
       headingLevel: level,
-      title: id ? id : 'On Exception',
+      title: id ?? 'On Exception',
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
