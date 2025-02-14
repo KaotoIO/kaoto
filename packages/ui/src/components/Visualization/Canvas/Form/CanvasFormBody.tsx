@@ -1,8 +1,6 @@
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { getRequiredPropertiesSchema, getUserUpdatedProperties, isDefined, setValue } from '../../../../utils';
-import { CustomAutoFormRef } from '../../../Form/CustomAutoForm';
+import { isDefined, setValue } from '../../../../utils';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { CanvasNode } from '../canvas.models';
 import { KaotoForm } from '../FormV2/KaotoForm';
@@ -13,8 +11,6 @@ interface CanvasFormTabsProps {
 
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const { selectedTab } = useContext(CanvasFormTabsContext) ?? { selectedTab: 'Required' };
-  const formRef = useRef<CustomAutoFormRef>(null);
   const omitFields = useRef(props.selectedNode.data?.vizNode?.getOmitFormFields() || []);
 
   const visualComponentSchema = useMemo(() => {
@@ -26,23 +22,6 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
     return answer;
   }, [props.selectedNode.data?.vizNode]);
   const model = visualComponentSchema?.definition;
-  let processedSchema = visualComponentSchema?.schema;
-  if (selectedTab === 'Required') {
-    processedSchema = getRequiredPropertiesSchema(visualComponentSchema?.schema, visualComponentSchema?.schema);
-  } else if (selectedTab === 'Modified') {
-    processedSchema = {
-      ...visualComponentSchema?.schema,
-      properties: getUserUpdatedProperties(
-        visualComponentSchema?.schema.properties,
-        model,
-        visualComponentSchema?.schema,
-      ),
-    };
-  }
-
-  useEffect(() => {
-    formRef.current?.form.reset();
-  }, [props.selectedNode.data?.vizNode, selectedTab]);
 
   const stepFeatures = useMemo(() => {
     const comment = visualComponentSchema?.schema?.['$comment'] ?? '';
@@ -81,7 +60,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
         <UnknownNode model={model} />
       ) : (
         <KaotoForm
-          schema={processedSchema}
+          schema={visualComponentSchema?.schema}
           onChange={handleOnChangeIndividualProp}
           model={model}
           omitFields={omitFields.current}
