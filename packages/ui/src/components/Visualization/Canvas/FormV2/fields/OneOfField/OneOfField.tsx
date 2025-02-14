@@ -7,15 +7,18 @@ import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
 import { AutoField } from '../AutoField';
 import { SchemaList } from './SchemaList';
+import { CanvasFormTabsContext } from '../../../../../../providers/canvas-form-tabs.provider';
 
 export const OneOfField: FunctionComponent<FieldProps> = ({ propName }) => {
+  const { selectedTab } = useContext(CanvasFormTabsContext);
   const { schema, definitions } = useContext(SchemaContext);
-  const { value, onChange } = useFieldValue<unknown>(propName);
+  const { value, onChange } = useFieldValue<Record<string, unknown>>(propName);
 
   const oneOfSchemas: OneOfSchemas[] = useMemo(
     () => getOneOfSchemaListV2(schema.oneOf ?? [], definitions),
     [definitions, schema.oneOf],
   );
+
   const appliedSchemaIndex = getAppliedSchemaIndexV2(value, oneOfSchemas, definitions);
   const presetSchema = appliedSchemaIndex === -1 ? undefined : oneOfSchemas[appliedSchemaIndex];
   const [selectedOneOfSchema, setSelectedOneOfSchema] = useState<OneOfSchemas | undefined>(presetSchema);
@@ -35,6 +38,18 @@ export const OneOfField: FunctionComponent<FieldProps> = ({ propName }) => {
 
     setSelectedOneOfSchema(schema);
   };
+
+  if (selectedTab === 'Modified') {
+    const selectedOneOfSchemaProperty = selectedOneOfSchema?.schema.properties;
+    if (selectedOneOfSchemaProperty) {
+      const hasModelDefined = Object.keys(selectedOneOfSchemaProperty).some(
+        (propName) => isDefined(value) && isDefined(value[propName]),
+      );
+      if (!hasModelDefined) {
+        return null;
+      }
+    }
+  }
 
   return (
     <SchemaList
