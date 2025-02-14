@@ -1,8 +1,26 @@
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService } from '../../../../../../models';
+import { CamelCatalogService, KaotoSchemaDefinition } from '../../../../../../models';
 import { isDefined } from '../../../../../../utils';
 
 export class ExpressionService {
+  static getExpressionsSchema(schema: KaotoSchemaDefinition['schema']): KaotoSchemaDefinition['schema'] {
+    /**
+     * Expressions are stored in a oneOf array bigger than 3 elements.
+     * Otherwise, it might be a nested structure of anyOf / oneOf.
+     */
+    if (Array.isArray(schema.oneOf) && schema.oneOf.length > 3) {
+      return schema;
+    }
+
+    if (Array.isArray(schema.anyOf) && schema.anyOf.length > 0) {
+      return this.getExpressionsSchema(schema.anyOf[0]);
+    } else if (Array.isArray(schema.oneOf)) {
+      return this.getExpressionsSchema(schema.oneOf[0]);
+    }
+
+    return {};
+  }
+
   /**
    * Parse the expression model from the parent step model object or from a expression property.
    * Since expression has several dialects, this method tries to read all possibility and merge into

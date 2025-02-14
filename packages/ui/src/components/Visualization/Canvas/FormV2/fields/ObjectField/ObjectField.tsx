@@ -38,7 +38,6 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
 
   return (
     <ArrayFieldWrapper
-      propName={propName}
       type="object"
       title={schema.title}
       description={schema.description}

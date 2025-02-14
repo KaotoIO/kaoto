@@ -12,6 +12,8 @@ interface SchemaList extends FieldProps {
   selectedSchema: OneOfSchemas | undefined;
   schemas: OneOfSchemas[];
   onChange: (schema: OneOfSchemas | undefined) => void;
+  onCleanInput?: () => void;
+  placeholder?: string;
 }
 
 export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
@@ -19,6 +21,8 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
   selectedSchema,
   schemas,
   onChange,
+  onCleanInput,
+  placeholder,
   children,
 }) => {
   const items: TypeaheadItem<KaotoSchemaDefinition['schema']>[] = useMemo(
@@ -53,9 +57,17 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
 
   return (
     <>
-      <FormGroup isStack hasNoPaddingTop label={`OneOf ${propName}`} fieldId={propName} role="group">
-        {useTypeahead && <Typeahead selectedItem={selectedItem} items={items} id={propName} onChange={onItemChange} />}
-        {!useTypeahead && (
+      <FormGroup isStack hasNoPaddingTop fieldId={propName} role="group">
+        {useTypeahead ? (
+          <Typeahead
+            selectedItem={selectedItem}
+            items={items}
+            id={propName}
+            placeholder={placeholder}
+            onChange={onItemChange}
+            onCleanInput={onCleanInput}
+          />
+        ) : (
           <SimpleSelector selectedItem={selectedItem} items={items} id={propName} onChange={onItemChange} />
         )}
       </FormGroup>

@@ -43,9 +43,8 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
 
   return (
     <ArrayFieldWrapper
-      propName={propName}
       type="array"
-      title={schema.title}
+      title={schema.title ?? propName}
       description={schema.description}
       defaultValue={schema.default}
       actions={
