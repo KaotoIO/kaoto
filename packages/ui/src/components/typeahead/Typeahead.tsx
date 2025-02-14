@@ -27,6 +27,11 @@ import { TypeaheadProps } from './Typeahead.types';
 const createNewValue = 'create-new';
 const createNewWithNameValue = 'create-new-with-name';
 
+const DEFAULT_POPPER_PROPS = {
+  position: 'end',
+  preventOverflow: true,
+} as const;
+
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   selectedItem,
   items: itemsProps,
@@ -55,7 +60,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       localArray.unshift({ name: selectedItem.name, value: selectedItem.value });
     }
     return localArray;
-  }, [itemsProps, selectedItem, onCreate, createNewValue]);
+  }, [itemsProps, onCreate, onCreatePrefix, selectedItem?.name, selectedItem?.value]);
 
   useEffect(() => {
     if (selectedItem?.name) {
@@ -161,6 +166,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       selected={selectedItem?.name}
       onSelect={onItemChanged}
       toggle={toggle}
+      popperProps={DEFAULT_POPPER_PROPS}
     >
       <SelectList>
         {filteredItems.map((item) => (
