@@ -8,29 +8,27 @@ import {
   Popover,
 } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, ReactNode, useMemo } from 'react';
-import { FieldProps } from '../../typings';
 
-interface FieldWrapperProps extends FieldProps {
-  type: 'array' | 'object';
-  title?: string;
+interface FieldWrapperProps {
+  type: 'array' | 'object' | 'expression';
+  title: string;
   description?: string;
   defaultValue?: unknown;
   actions?: ReactNode;
 }
 
 export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
-  propName,
   type,
-  title: propsTitle,
+  title,
   description,
   defaultValue,
   actions,
   children,
 }) => {
-  const title = propsTitle ?? propName;
   const id = `${title}-popover`;
 
   const cardActions: CardHeaderActionsObject = useMemo(() => ({ actions, hasNoOffset: false }), [actions]);
+  const shouldRenderChildren = Array.isArray(children) ? children.length > 0 : !!children;
 
   return (
     <Card>
@@ -54,7 +52,7 @@ export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapper
         </CardTitle>
       </CardHeader>
 
-      {children && <CardBody className="pf-v6-c-form kaoto-form__label">{children}</CardBody>}
+      {shouldRenderChildren && <CardBody className="pf-v6-c-form kaoto-form__label">{children}</CardBody>}
     </Card>
   );
 };
