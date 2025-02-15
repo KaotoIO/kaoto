@@ -76,7 +76,14 @@ export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEn
   );
 
   return (
-    <Select isScrollable id="entities-list-select" isOpen={isOpen} onOpenChange={setIsOpen} toggle={toggle}>
+    <Select
+      isScrollable
+      id="entities-list-select"
+      className="entities-list-select"
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      toggle={toggle}
+    >
       <EntitiesList
         documentationEntities={documentationEntities}
         onToggleVisibility={(index) => onToggleEntityVisibility(index)}

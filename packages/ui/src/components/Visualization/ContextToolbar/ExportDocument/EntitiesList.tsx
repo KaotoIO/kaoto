@@ -2,6 +2,7 @@ import { Divider, Icon, MenuItemAction, SelectGroup, SelectList, SelectOption } 
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 import { DocumentationEntity } from '../../../../models/documentation';
+import './EntitiesList.scss';
 
 type IEntityOption = {
   entityLabel: string;
@@ -69,7 +70,7 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
         onToggleVisibility={() => onToggleAll()}
       />
       <Divider />
-      <SelectGroup>
+      <SelectGroup className="entities-select-list">
         <SelectList>
           {documentationEntities.map((docEntity, index) => (
             <EntityOption
