@@ -60,6 +60,7 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
       <FormGroup isStack hasNoPaddingTop fieldId={propName} role="group">
         {useTypeahead ? (
           <Typeahead
+            data-testid={propName}
             selectedItem={selectedItem}
             items={items}
             id={propName}
