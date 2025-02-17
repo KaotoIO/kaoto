@@ -10,7 +10,7 @@ import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider
 import { SchemaProvider } from './providers/SchemaProvider';
 import { NoFieldFound } from '../../../Form/NoFieldFound';
 
-interface FormProps {
+export interface FormProps {
   schema?: KaotoSchemaDefinition['schema'];
   onChange: (propName: string, value: unknown) => void;
   model: unknown;

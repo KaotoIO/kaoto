@@ -62,6 +62,7 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
       defaultValue={schema.default?.toString()}
     >
       <Typeahead
+        data-testid={propName}
         selectedItem={selectedItem}
         items={items}
         placeholder={schema.default?.toString()}
