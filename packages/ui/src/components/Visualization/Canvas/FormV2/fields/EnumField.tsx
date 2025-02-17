@@ -5,10 +5,14 @@ import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 import { FieldWrapper } from './FieldWrapper';
+import { isDefined } from '../../../../../utils';
 
 export const EnumField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange } = useFieldValue<string | undefined>(propName);
+  if (!isDefined(schema)) {
+    throw new Error(`StringField: schema is not defined for ${propName}`);
+  }
 
   const items: TypeaheadItem<string>[] = useMemo(
     () =>
@@ -47,10 +51,6 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
   const onCleanInput = useCallback(() => {
     onChange(undefined);
   }, [onChange]);
-
-  if (!schema) {
-    return <div>EnumField - Schema not defined</div>;
-  }
 
   return (
     <FieldWrapper
