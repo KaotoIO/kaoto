@@ -19,6 +19,9 @@ import { RestXmlParser } from './rest-xml-parser';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import path from 'path';
+import fs from 'fs';
+import { restWithVerbsStup } from '../../../stubs/rest';
 
 describe('Rest XML Parser', () => {
   beforeAll(async () => {
@@ -27,81 +30,13 @@ describe('Rest XML Parser', () => {
   });
 
   it('should parse rest verbs correctly', () => {
-    const xml = `
-<rest path="/say" xmlns="http://camel.apache.org/schema/spring">
- <securityDefinitions>
-            <oauth2 key="oauth2" flow="application" tokenUrl="{{oauth.token.url}}">
-                             <scopes key="{{oauth.scope.service.self}}"
-                         value="{{oauth.scope.service.self}}"/>
-                 <scopes key="{{oauth.scope.test.person.data}}"
-                         value="{{oauth.scope.test.person.data}}"/>
-             </oauth2>
-         </securityDefinitions>
-    <get path="/hello">
-        <param name="name" type="query" required="true" />
-        <param name="name2" type="query" required="true" defaultValue="blah"/>
-        <security key="hello" scopes="scope"/>
-        <responseMessage message="hello" code="200">
-         <examples key="example" value="value"/>
-          <examples key="example" value="value"/>
-          <header name="header" description="header" > 
-            <allowableValues>
-              <value>1</value>
-              <value>2</value>
-          </allowableValues>
-        </header>
-       </responseMessage>
-        <to uri="direct:hello"/>
-    </get>
-  </rest>`;
+    const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
+    const xml = fs.readFileSync(xmlFilePath, 'utf-8');
 
     const doc = new DOMParser().parseFromString(xml, 'application/xml');
     const restElement = doc.getElementsByTagName('rest')[0];
     const result = RestXmlParser.parse(restElement);
 
-    expect(result).toEqual({
-      path: '/say',
-      securityDefinitions: {
-        oauth2: {
-          key: 'oauth2',
-          flow: 'application',
-          tokenUrl: '{{oauth.token.url}}',
-          scopes: [
-            { key: '{{oauth.scope.service.self}}', value: '{{oauth.scope.service.self}}' },
-            { key: '{{oauth.scope.test.person.data}}', value: '{{oauth.scope.test.person.data}}' },
-          ],
-        },
-      },
-
-      get: [
-        {
-          path: '/hello',
-          param: [
-            { name: 'name', type: 'query', required: 'true' },
-            { name: 'name2', type: 'query', required: 'true', defaultValue: 'blah' },
-          ],
-
-          security: [{ key: 'hello', scopes: 'scope' }],
-          responseMessage: [
-            {
-              message: 'hello',
-              code: '200',
-              examples: [
-                { key: 'example', value: 'value' },
-                { key: 'example', value: 'value' },
-              ],
-              header: [
-                {
-                  name: 'header',
-                  description: 'header',
-                  allowableValues: [{ value: '1' }, { value: '2' }],
-                },
-              ],
-            },
-          ],
-          to: { uri: 'direct:hello' },
-        },
-      ],
-    });
+    expect(result).toEqual(restWithVerbsStup);
   });
 });
