@@ -1,6 +1,6 @@
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
-import { YamlCamelResourceSerializer } from '../../serializers';
+import { SerializerType, XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { CamelResourceSerializer } from '../../serializers/camel-resource-serializer';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
@@ -54,10 +54,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   ) => number;
   private entities: BaseCamelEntity[] = [];
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
-  private serializer: CamelResourceSerializer;
 
-  constructor(rawEntities?: CamelYamlDsl, serializer?: CamelResourceSerializer) {
-    this.serializer = serializer ?? new YamlCamelResourceSerializer();
+  constructor(
+    rawEntities?: CamelYamlDsl,
+    private serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
+  ) {
     if (!rawEntities) return;
 
     const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
@@ -99,12 +100,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     return this.resolvedEntities;
   }
 
-  getSerializer(): CamelResourceSerializer {
-    return this.serializer;
+  getSerializerType() {
+    return this.serializer.getType();
   }
 
-  setSerializer(serializer: CamelResourceSerializer): void {
+  setSerializer(serializerType: SerializerType): void {
     // Preserve comments
+    const serializer = serializerType === 'XML' ? new XmlCamelResourceSerializer() : new YamlCamelResourceSerializer();
     serializer.setComments(this.serializer.getComments());
     this.serializer = serializer;
   }
