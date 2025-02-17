@@ -21,6 +21,9 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
 import { getDocument, testSerializer } from './serializer-test-utils';
 import { RestXmlSerializer } from './rest-xml-serializer';
+import path from 'path';
+import fs from 'fs';
+import { restWithVerbsStup } from '../../../stubs/rest';
 
 describe('RestXmlParser tests', () => {
   const doc = getDocument();
@@ -51,58 +54,10 @@ describe('RestXmlParser tests', () => {
   });
 
   it('serialize full rest', () => {
-    const expected = `
-<rest path="/say">
-    <get path="/hello">
-    <to uri="direct:hello"/>
-        <param name="name" type="query" required="true"/>
-        <param name="name2" type="query" defaultValue="blah" required="true"/>
-        <security key="hello" scopes="scope"/>
-        <responseMessage code="200"  message="hello">
-          <header  description="header"  name="header">
-            <allowableValues>
-              <value>1</value>
-              <value>2</value>
-          </allowableValues>
-        </header>
-        <examples key="example" value="value"/>
-          <examples key="example" value="value"/>
-       </responseMessage>
-    </get>
-  </rest>`;
-    const entity = {
-      path: '/say',
-      get: [
-        {
-          path: '/hello',
-          param: [
-            { name: 'name', type: 'query', required: 'true' },
-            { name: 'name2', type: 'query', required: 'true', defaultValue: 'blah' },
-          ],
-          security: [{ key: 'hello', scopes: 'scope' }],
-          responseMessage: [
-            {
-              message: 'hello',
-              code: '200',
-              examples: [
-                { key: 'example', value: 'value' },
-                { key: 'example', value: 'value' },
-              ],
-              header: [
-                {
-                  name: 'header',
-                  description: 'header',
-                  allowableValues: [{ value: '1' }, { value: '2' }],
-                },
-              ],
-            },
-          ],
-          to: { uri: 'direct:hello' },
-        },
-      ],
-    };
+    const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
+    const expected = fs.readFileSync(xmlFilePath, 'utf-8');
 
-    const rest = RestXmlSerializer.serialize(entity, doc);
+    const rest = RestXmlSerializer.serialize(restWithVerbsStup, doc);
     expect(rest).toBeDefined();
     testSerializer(expected, rest);
   });
