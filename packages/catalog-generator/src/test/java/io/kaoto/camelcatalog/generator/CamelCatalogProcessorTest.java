@@ -307,7 +307,7 @@ class CamelCatalogProcessorTest {
     @Test
     void testGetEntityCatalog() throws Exception {
         List.of(
-                "beans",
+                "bean",
                 "errorHandler",
                 "from",
                 "intercept",
@@ -321,7 +321,7 @@ class CamelCatalogProcessorTest {
                 "templatedRoute",
                 "restConfiguration",
                 "rest").forEach(name -> assertTrue(entityCatalog.has(name), name));
-        var beans = entityCatalog.withObject("/beans");
+        var beans = entityCatalog.withObject("/bean");
         var beansScript = beans.withObject("/propertiesSchema")
                 .withObject("/definitions")
                 .withObject("/org.apache.camel.model.BeanFactoryDefinition")

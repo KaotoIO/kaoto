@@ -48,7 +48,7 @@ class EntityGeneratorTest {
     void shouldContainAListOfEntities() {
         var entitiesMap = entityGenerator.generate();
 
-        assertTrue(entitiesMap.containsKey("beans"));
+        assertTrue(entitiesMap.containsKey("bean"));
         assertTrue(entitiesMap.containsKey("errorHandler"));
         assertTrue(entitiesMap.containsKey("from"));
 
@@ -75,10 +75,10 @@ class EntityGeneratorTest {
     }
 
     @Test
-    void shouldGetJsonSchemaForBeans() {
+    void shouldGetJsonSchemaForBean() {
         var entitiesMap = entityGenerator.generate();
 
-        var beanNode = entitiesMap.get("beans");
+        var beanNode = entitiesMap.get("bean");
         assertTrue(beanNode.has("propertiesSchema"));
 
         var beanPropertySchemaNode = beanNode.get("propertiesSchema");
@@ -157,7 +157,7 @@ class EntityGeneratorTest {
     void shouldFillRequiredPropertiesFromDefinitionsIfNeeded() {
         var entitiesMap = entityGenerator.generate();
 
-        var definitions = entitiesMap.get("beans").withObject("propertiesSchema").withObject("definitions");
+        var definitions = entitiesMap.get("bean").withObject("propertiesSchema").withObject("definitions");
         assertTrue(definitions.has("org.apache.camel.model.BeanFactoryDefinition"));
         assertTrue(definitions.withObject("org.apache.camel.model.BeanFactoryDefinition").has("required"));
         List<String> beanRequired = new ArrayList<>();

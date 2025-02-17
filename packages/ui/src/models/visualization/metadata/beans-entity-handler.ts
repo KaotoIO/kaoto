@@ -49,7 +49,7 @@ export class BeansEntityHandler {
       return undefined;
     }
 
-    const beansSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'beans')?.propertiesSchema;
+    const beansSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'bean')?.propertiesSchema;
     if (isDefined(beansSchema?.items)) {
       beansSchema.items = resolveSchemaWithRef(beansSchema.items, beansSchema.definitions ?? {});
     }
