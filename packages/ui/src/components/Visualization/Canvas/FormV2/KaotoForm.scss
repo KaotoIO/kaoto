@@ -5,6 +5,8 @@
   &__label {
     --pf-v6-c-form__label--FontSize: --pf-t--global--font--size--body--md;
     --pf-v6-c-form__label-required--FontSize: --pf-t--global--font--size--body--lg;
+
+    text-transform: capitalize;
   }
 
   /* stylelint-disable-next-line selector-class-pattern */

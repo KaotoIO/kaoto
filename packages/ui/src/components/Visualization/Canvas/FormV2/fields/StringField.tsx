@@ -10,7 +10,11 @@ import { FieldWrapper } from './FieldWrapper';
 export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange } = useFieldValue<string>(propName);
-  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${propName} field`;
+  const lastPropName = propName.split('.').pop();
+  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
+  if (!isDefined(schema)) {
+    throw new Error(`StringField: schema is not defined for ${propName}`);
+  }
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
@@ -25,10 +29,6 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
   };
-
-  if (!schema) {
-    return <div>StringField - Schema not defined</div>;
-  }
 
   const id = `${propName}-popover`;
 

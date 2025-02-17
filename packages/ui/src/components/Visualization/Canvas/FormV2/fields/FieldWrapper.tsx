@@ -19,18 +19,19 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   children,
 }) => {
   const id = `${propName}-popover`;
+  const label = title ?? propName.split('.').pop();
 
   return (
     <FormGroup
       fieldId={propName}
-      label={title ?? propName}
+      label={label}
       isRequired={required}
       labelHelp={
         <Popover
           id={id}
           headerContent={
-            <p>
-              {title} {`<${type}>`}
+            <p className="kaoto-form__label">
+              {label} {`<${type}>`}
             </p>
           }
           bodyContent={<p>{description}</p>}
@@ -38,7 +39,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
           triggerAction="hover"
           withFocusTrap={false}
         >
-          <FormGroupLabelHelp aria-label={`More info for ${title} field`} />
+          <FormGroupLabelHelp aria-label={`More info for ${label} field`} />
         </Popover>
       }
     >
