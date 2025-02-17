@@ -1,4 +1,14 @@
 - rest:
+    securityDefinitions:
+      oauth2:
+        flow: application
+        key: oauth2
+        scopes:
+          - key: "{{oauth.scope.service.self}}"
+            value: "{{oauth.scope.service.self}}"
+          - key: "{{oauth.scope.test.person.data}}"
+            value: "{{oauth.scope.test.person.data}}"
+        tokenUrl: "{{oauth.token.url}}"
     get:
       - param:
           - name: name

@@ -1,23 +1,22 @@
 import { FunctionComponent, RefObject, useContext, useState } from 'react';
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
-import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../../../serializers';
+import { SerializerType } from '../../../../serializers';
 import { EntitiesContext } from '../../../../providers';
+import './SerializerSelector.scss';
 
 export const SerializerSelector: FunctionComponent = () => {
   const { camelResource, updateSourceCodeFromEntities } = useContext(EntitiesContext)!;
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<'XML' | 'YAML'>(camelResource.getSerializer().getLabel() as 'XML' | 'YAML');
+  const [selected, setSelected] = useState<SerializerType>(camelResource.getSerializerType());
 
-  function onSelect(serializer: string) {
-    setSelected(serializer as 'XML' | 'YAML');
+  const onSelect = (serializer: SerializerType) => {
+    setSelected(serializer);
     if (serializer !== selected) {
-      camelResource.setSerializer(
-        serializer === 'XML' ? new XmlCamelResourceSerializer() : new YamlCamelResourceSerializer(),
-      );
+      camelResource.setSerializer(serializer);
       updateSourceCodeFromEntities();
       setIsOpen(false);
     }
-  }
+  };
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (
     <MenuToggle
@@ -36,27 +35,30 @@ export const SerializerSelector: FunctionComponent = () => {
     <Select
       id="serializer-list-select"
       isOpen={isOpen}
-      onSelect={(_event, value) => onSelect(value as string)}
-      onOpenChange={(isOpen) => setIsOpen(isOpen)}
+      onSelect={(_event, value) => {
+        onSelect(value as SerializerType);
+      }}
+      onOpenChange={(isOpen) => {
+        setIsOpen(isOpen);
+      }}
       toggle={toggle}
-      style={{ width: '20rem' }}
     >
       <SelectList>
         <SelectOption
-          key={`serializer-yaml`}
-          data-testid={`serializer-yaml`}
-          itemId={'XML'}
-          value={'XML'}
-          isDisabled={selected === 'XML'}
+          key="serializer-yaml"
+          data-testid="serializer-yaml"
+          itemId="XML"
+          value={SerializerType.XML}
+          isDisabled={selected === SerializerType.XML}
         >
           XML
         </SelectOption>
         <SelectOption
-          key={`serializer-xml`}
-          data-testid={`serializer-yaml`}
-          itemId={'YAML'}
-          value={'YAML'}
-          isDisabled={selected === 'YAML'}
+          key="serializer-xml"
+          data-testid="serializer-yaml"
+          itemId="YAML"
+          value={SerializerType.YAML}
+          isDisabled={selected === SerializerType.YAML}
         >
           YAML
         </SelectOption>

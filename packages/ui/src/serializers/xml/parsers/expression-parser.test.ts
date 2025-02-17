@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { describe } from 'node:test';
 import { ExpressionParser } from './expression-parser';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
