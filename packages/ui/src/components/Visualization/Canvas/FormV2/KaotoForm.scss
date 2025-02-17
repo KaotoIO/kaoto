@@ -8,4 +8,12 @@
   .pf-v6-c-text-input-group__text-input::placeholder {
     font-style: italic;
   }
+
+  &__empty {
+    display: none;
+  }
+
+  &:empty + &__empty {
+    display: block;
+  }
 }
