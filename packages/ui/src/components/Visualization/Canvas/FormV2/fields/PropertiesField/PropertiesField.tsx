@@ -11,6 +11,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
   const { value, onChange } = useFieldValue<KeyValueType | undefined>(propName);
 
   const items = Object.entries(value ?? {});
+  const title = schema.title ?? propName.split('.').pop();
 
   return (
     <FieldWrapper
@@ -18,7 +19,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
       required={required}
       title={
         <>
-          {schema.title} <Badge title={`${items.length} properties`}>{items.length}</Badge>
+          {title} <Badge title={`${items.length} properties`}>{items.length}</Badge>
         </>
       }
       type="object"
