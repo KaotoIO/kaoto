@@ -39,7 +39,7 @@ export class KaotoXmlParser {
     'interceptSendToEndpoint',
     'onCompletion',
   ];
-
+  static domParser = new DOMParser();
   routeXmlParser: RouteXmlParser;
   beanParser: BeansXmlParser;
 
@@ -49,23 +49,19 @@ export class KaotoXmlParser {
   }
 
   parseXML(xml: string): unknown {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xml, 'application/xml');
+    const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
 
     return this.parseFromXmlDocument(xmlDoc);
   }
 
   parseFromXmlDocument(xmlDoc: Document): unknown {
-    const rawEntities: unknown[] = [];
+    const rawEntities = [];
 
     // Process route entities
-    const routes = Array.from(xmlDoc.getElementsByTagName('route')).map((routeElement) =>
-      RouteXmlParser.parse(routeElement),
-    );
-
-    if (routes.length > 0) {
-      routes.forEach((r) => rawEntities.push({ route: r }));
-    }
+    Array.from(xmlDoc.getElementsByTagName('route')).forEach((routeElement) => {
+      const route = RouteXmlParser.parse(routeElement);
+      rawEntities.push({ route });
+    });
 
     // Process beans (bean factory)
     const beansSection = xmlDoc.getElementsByTagName('beans')[0];
@@ -75,22 +71,17 @@ export class KaotoXmlParser {
     }
 
     // Process rest entities
-    const restEntities = Array.from(xmlDoc.getElementsByTagName('rest')).map((restElement) => ({
-      rest: RestXmlParser.parse(restElement),
-    }));
-
-    if (restEntities.length > 0) {
-      rawEntities.push(...restEntities);
-    }
+    Array.from(xmlDoc.getElementsByTagName('rest')).forEach((restElement) => {
+      const rest = RestXmlParser.parse(restElement);
+      rawEntities.push({ rest });
+    });
 
     // Process route configurations
-    const routeConfigurations = Array.from(xmlDoc.getElementsByTagName('routeConfiguration')).map((routeConf) => ({
-      routeConfiguration: RouteXmlParser.parseRouteConfiguration(routeConf),
-    }));
+    Array.from(xmlDoc.getElementsByTagName('routeConfiguration')).forEach((routeConf) => {
+      const routeConfiguration = RouteXmlParser.parseRouteConfiguration(routeConf);
+      rawEntities.push({ routeConfiguration });
+    });
 
-    if (routeConfigurations.length > 0) {
-      rawEntities.push(...routeConfigurations);
-    }
     // rest of the elements
     const rootCamelElement = xmlDoc.getElementsByTagName('camel')[0];
     const children = rootCamelElement ? rootCamelElement.children : xmlDoc.children;
