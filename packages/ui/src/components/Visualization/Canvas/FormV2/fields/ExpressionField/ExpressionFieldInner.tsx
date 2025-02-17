@@ -20,6 +20,7 @@ export const ExpressionFieldInner: FunctionComponent<FieldProps> = ({ propName }
 
   return (
     <ArrayFieldWrapper
+      propName={propName}
       type="expression"
       title={selectedOneOfSchema?.name ?? 'Expression'}
       description={selectedOneOfSchema?.description}

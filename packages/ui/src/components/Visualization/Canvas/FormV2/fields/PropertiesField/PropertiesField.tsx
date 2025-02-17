@@ -4,7 +4,7 @@ import { useFieldValue } from '../../hooks/field-value';
 import { SchemaContext } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
 import { FieldWrapper } from '../FieldWrapper';
-import { KeyValue, KeyValueType } from './KeyValue';
+import { KeyValue, KeyValueType } from '../../../../../KeyValue/KeyValue';
 
 export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
@@ -26,7 +26,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
       description={schema.description}
       defaultValue={schema.default?.toString()}
     >
-      <KeyValue initialModel={value} onChange={onChange} />
+      <KeyValue propName={propName} initialModel={value} onChange={onChange} />
     </FieldWrapper>
   );
 };

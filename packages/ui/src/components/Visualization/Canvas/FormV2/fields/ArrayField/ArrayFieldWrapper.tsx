@@ -10,6 +10,7 @@ import {
 import { FunctionComponent, PropsWithChildren, ReactNode, useMemo } from 'react';
 
 interface FieldWrapperProps {
+  propName: string;
   type: 'array' | 'object' | 'expression';
   title: string;
   description?: string;
@@ -18,6 +19,7 @@ interface FieldWrapperProps {
 }
 
 export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
+  propName,
   type,
   title,
   description,
@@ -31,14 +33,14 @@ export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapper
   const shouldRenderChildren = Array.isArray(children) ? children.length > 0 : !!children;
 
   return (
-    <Card>
+    <Card data-testid={`${propName}__field-wrapper`}>
       <CardHeader actions={cardActions}>
         <CardTitle>
           {title}{' '}
           <Popover
             id={id}
             headerContent={
-              <p>
+              <p className="kaoto-form__label">
                 {title} {`<${type}>`}
               </p>
             }
@@ -52,7 +54,11 @@ export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapper
         </CardTitle>
       </CardHeader>
 
-      {shouldRenderChildren && <CardBody className="pf-v6-c-form kaoto-form__label">{children}</CardBody>}
+      {shouldRenderChildren && (
+        <CardBody data-testid={`${propName}__children`} className="pf-v6-c-form kaoto-form__label">
+          {children}
+        </CardBody>
+      )}
     </Card>
   );
 };

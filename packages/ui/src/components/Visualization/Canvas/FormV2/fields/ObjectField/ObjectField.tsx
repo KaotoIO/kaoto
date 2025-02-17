@@ -38,6 +38,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
 
   return (
     <ArrayFieldWrapper
+      propName={propName}
       type="object"
       title={schema.title}
       description={schema.description}
@@ -47,6 +48,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
           {!isExpanded && (
             <Button
               variant="plain"
+              data-testid={`${propName}__set`}
               aria-label="Set object"
               title="Set object"
               onClick={onSet}
@@ -57,6 +59,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
           {isExpanded && (
             <Button
               variant="plain"
+              data-testid={`${propName}__remove`}
               aria-label="Remove object"
               title="Remove object"
               onClick={onRemove}
