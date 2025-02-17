@@ -61,6 +61,7 @@ import {
   splitEntity,
   throttleEntity,
 } from '../../../stubs/eip-entity-snippets';
+
 describe('parser basics', () => {
   let mockDocument: Document;
   let spyComponent: jest.SpyInstance;

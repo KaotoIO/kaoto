@@ -4,7 +4,7 @@ import { BeansEntity } from '../visualization/metadata';
 import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelResourceSerializer } from '../../serializers';
+import { SerializerType } from '../../serializers';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
@@ -16,8 +16,8 @@ export interface CamelResource {
   toString(): string;
   getType(): SourceSchemaType;
   getCanvasEntityList(): BaseVisualCamelEntityDefinition;
-  getSerializer(): CamelResourceSerializer;
-  setSerializer(serializer: CamelResourceSerializer): void;
+  getSerializerType(): SerializerType;
+  setSerializer(serializer: SerializerType): void;
 
   /** Components Catalog related methods */
   getCompatibleComponents(

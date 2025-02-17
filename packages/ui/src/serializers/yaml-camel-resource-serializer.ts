@@ -1,7 +1,7 @@
 import { isXML } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel';
 import { parse, stringify } from 'yaml';
-import { CamelResourceSerializer } from './camel-resource-serializer';
+import { CamelResourceSerializer, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
@@ -38,8 +38,8 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     return code;
   }
 
-  getLabel(): string {
-    return 'YAML';
+  getType(): SerializerType {
+    return SerializerType.YAML;
   }
 
   getComments(): string[] {
