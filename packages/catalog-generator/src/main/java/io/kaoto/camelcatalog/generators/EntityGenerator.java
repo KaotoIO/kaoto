@@ -65,9 +65,9 @@ public class EntityGenerator implements Generator {
             if (entityJSON != null) {
                 var processorJSONSchema = camelYAMLSchemaReader.getEntityJSONSchema(entityName);
                 entityJSON.set("propertiesSchema", processorJSONSchema);
-
                 enhanceJSONSchema(entityName, processorJSONSchema);
-                EntityMap.put(entityName, entityJSON);
+
+                EntityMap.put("beans".equals(entityName) ? "bean" : entityName, entityJSON);
             }
         });
 
@@ -127,9 +127,8 @@ public class EntityGenerator implements Generator {
     ObjectNode getModelJson(String modelName) {
         String entityJson = null;
         if ("beans".equals(modelName)) {
-            try {
-                InputStream is = camelCatalog.getClass().getClassLoader()
-                        .getResourceAsStream("org/apache/camel/catalog/models-app/bean.json");
+            try (InputStream is = camelCatalog.getClass().getClassLoader()
+                    .getResourceAsStream("org/apache/camel/catalog/models-app/bean.json")) {
                 entityJson = new String(is.readAllBytes());
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Error reading Beans definition from the catalog");
