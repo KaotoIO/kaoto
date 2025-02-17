@@ -11,7 +11,11 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
   const { schema } = useContext(SchemaContext);
   const [passwordHidden, setPasswordHidden] = useState<boolean>(true);
   const { value = '', onChange } = useFieldValue<string>(propName);
-  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${propName} field`;
+  const lastPropName = propName.split('.').pop();
+  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
+  if (!isDefined(schema)) {
+    throw new Error(`PasswordField: schema is not defined for ${propName}`);
+  }
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
@@ -26,10 +30,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
   };
-
-  if (!schema) {
-    return <div>PasswordField - Schema not defined</div>;
-  }
 
   const id = `${propName}-popover`;
 
