@@ -8,6 +8,7 @@ import { FormComponentFactoryProvider } from './providers/FormComponentFactoryPr
 import { ModelContextProvider } from './providers/ModelProvider';
 import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider';
 import { SchemaProvider } from './providers/SchemaProvider';
+import { NoFieldFound } from '../../../Form/NoFieldFound';
 
 interface FormProps {
   schema?: KaotoSchemaDefinition['schema'];
@@ -49,6 +50,7 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
             <Form className="kaoto-form kaoto-form__label">
               <AutoField propName={ROOT_PATH} />
             </Form>
+            <NoFieldFound className="kaoto-form kaoto-form__empty" />
           </ModelContextProvider>
         </SchemaProvider>
       </SchemaDefinitionsProvider>
