@@ -1,11 +1,12 @@
 import { Button, Content, Split, SplitItem, TextInputGroup, TextInputGroupMain } from '@patternfly/react-core';
 import { PlusIcon, TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useRef, useState } from 'react';
-import { getCamelRandomId } from '../../../../../../camel-utils/camel-random-id';
+import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 
 export type KeyValueType = Record<string, string>;
 
 interface KeyValueProps {
+  propName: string;
   initialModel?: KeyValueType;
   onChange: (model: KeyValueType) => void;
 }
@@ -17,7 +18,7 @@ type KeyValueEntry = [string, string];
  * Internally it uses an array of tuples to represent the key-value pairs,
  * and it converts it to an object when calling the onChange callback.
  */
-export const KeyValue: FunctionComponent<KeyValueProps> = ({ initialModel, onChange }) => {
+export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialModel, onChange }) => {
   const [internalModel, setInternalModel] = useState<KeyValueEntry[]>(Object.entries(initialModel ?? {}));
   const currentFocusIndex = useRef<['key' | 'value', number]>(['key', -1]);
 
@@ -63,6 +64,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ initialModel, onCha
         <SplitItem>
           <Button
             variant="plain"
+            data-testid={`${propName}__add`}
             onClick={onAddNewProperty}
             aria-label="Add a new property"
             title="Add a new property"
@@ -82,8 +84,8 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ initialModel, onCha
               <TextInputGroup>
                 <TextInputGroupMain
                   type="text"
-                  id={`${key}-key`}
-                  name={`${key}-key`}
+                  id={`${propName}__${key}__key`}
+                  name={`${propName}__${key}__key`}
                   onChange={(_event, value) => {
                     onPropertyKeyChange(key, value);
                   }}
@@ -101,8 +103,8 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ initialModel, onCha
               <TextInputGroup>
                 <TextInputGroupMain
                   type="text"
-                  id={`${key}-value`}
-                  name={`${key}-value`}
+                  id={`${propName}__${key}__value`}
+                  name={`${propName}__${key}__value`}
                   onChange={(_event, value) => {
                     onPropertyValueChange(key, value);
                   }}
@@ -119,6 +121,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ initialModel, onCha
             <SplitItem>
               <Button
                 variant="plain"
+                data-testid={`${propName}__remove__${key}`}
                 onClick={() => {
                   onRemoveProperty(key);
                 }}

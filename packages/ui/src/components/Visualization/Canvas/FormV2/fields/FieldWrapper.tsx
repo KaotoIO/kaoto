@@ -23,6 +23,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
 
   return (
     <FormGroup
+      data-testid={`${propName}__field-wrapper`}
       fieldId={propName}
       label={label}
       isRequired={required}
