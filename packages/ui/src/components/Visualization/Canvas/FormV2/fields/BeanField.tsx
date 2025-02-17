@@ -2,7 +2,7 @@ import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { BeansEntityHandler } from '../../../../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext } from '../../../../../providers';
-import { getSerializedModel } from '../../../../../utils';
+import { getSerializedModel, isDefined } from '../../../../../utils';
 import { extractGroup } from '../../../../../utils/get-tagged-field-from-string';
 import { NewBeanModal } from '../../../../Form';
 import { Typeahead } from '../../../../typeahead/Typeahead';
@@ -15,6 +15,10 @@ import { FieldWrapper } from './FieldWrapper';
 export const BeanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange } = useFieldValue<string>(propName);
+  if (!isDefined(schema)) {
+    throw new Error(`BeanField: schema is not defined for ${propName}`);
+  }
+
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beanReference = value;
@@ -30,12 +34,15 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
     return beansHandler.getBeansEntity();
   }, [beansHandler]);
 
-  const items: TypeaheadItem<string | undefined>[] =
-    beansEntity?.parent.beans.map((item) => ({
-      name: item.name ? (beansHandler.getReferenceFromName(item.name) ?? '') : '',
-      description: String(item.type),
-      value: String(item.name),
-    })) ?? [];
+  const items = useMemo(() => {
+    return (
+      beansEntity?.parent.beans.map((item) => ({
+        name: item.name ? (beansHandler.getReferenceFromName(item.name) ?? '') : '',
+        description: String(item.type),
+        value: String(item.name),
+      })) ?? []
+    );
+  }, [beansEntity?.parent.beans, beansHandler]);
 
   const selectedItem = useMemo(() => {
     if (!value) {
@@ -50,7 +57,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
       };
     }
     return items.find((item) => item.name === value) ?? { value: value, name: value, description: '' };
-  }, [value]);
+  }, [items, value]);
 
   const onItemChange = useCallback(
     (item?: TypeaheadItem<string>) => {
@@ -86,7 +93,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
       onChange(beanRef ?? '');
       setInputValue(beanRef as string);
     },
-    [beansEntity, camelResource, onChange, selectedItem, beansHandler],
+    [beansHandler, onChange],
   );
 
   const handleCancelCreateBean = useCallback(() => {
@@ -95,9 +102,6 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
   }, [beanReference]);
   const javaType = schema.format ? extractGroup('bean', schema.format) : '';
 
-  if (!schema) {
-    return <div>BeanField - Schema not defined</div>;
-  }
   return (
     <FieldWrapper
       propName={propName}
@@ -108,6 +112,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
       defaultValue={schema.default?.toString()}
     >
       <Typeahead
+        data-testid={propName}
         selectedItem={selectedItem}
         items={items}
         placeholder={schema.default?.toString()}
