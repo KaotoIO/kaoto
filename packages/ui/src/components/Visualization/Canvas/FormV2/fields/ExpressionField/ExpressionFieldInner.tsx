@@ -11,7 +11,7 @@ export const ExpressionFieldInner: FunctionComponent<FieldProps> = ({ propName }
   const { selectedOneOfSchema, oneOfSchemas, onSchemaChange, shouldRender } = useOneOfField(propName);
 
   const onCleanInput = () => {
-    onSchemaChange(undefined);
+    onSchemaChange();
   };
 
   if (!shouldRender) {
