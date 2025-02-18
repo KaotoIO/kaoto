@@ -34,18 +34,14 @@ export const useOneOfField = (propName: string) => {
     }
 
     setSelectedOneOfSchema(schema);
+    onChange({} as Record<string, unknown>);
   };
 
   let shouldRender = true;
   if (selectedTab === 'Modified') {
     const selectedOneOfSchemaProperty = selectedOneOfSchema?.schema.properties;
-    if (selectedOneOfSchemaProperty) {
-      const hasModelDefined = Object.keys(selectedOneOfSchemaProperty).some(
-        (propName) => isDefined(value) && isDefined(value[propName]),
-      );
-      if (!hasModelDefined) {
-        shouldRender = false;
-      }
+    if (!selectedOneOfSchemaProperty || !isDefined(value)) {
+      shouldRender = false;
     }
   }
 
