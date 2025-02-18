@@ -54,9 +54,10 @@ describe('CatalogTilesProvider', () => {
       );
     });
 
-    expect(getCatalogByKeySpy).toHaveBeenCalledTimes(3);
+    expect(getCatalogByKeySpy).toHaveBeenCalledTimes(4);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Component);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Pattern);
+    expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Entity);
     expect(getCatalogByKeySpy).toHaveBeenCalledWith(CatalogKind.Kamelet);
   });
 

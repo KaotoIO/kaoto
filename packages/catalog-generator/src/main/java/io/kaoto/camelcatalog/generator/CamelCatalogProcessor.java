@@ -18,6 +18,10 @@ package io.kaoto.camelcatalog.generator;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.generators.ComponentGenerator;
+import io.kaoto.camelcatalog.generators.EIPGenerator;
+import io.kaoto.camelcatalog.generators.EntityGenerator;
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.ComponentModel;
@@ -49,16 +53,19 @@ public class CamelCatalogProcessor {
     private final ObjectMapper jsonMapper;
     private final CamelCatalog camelCatalog;
     private final CamelYamlDslSchemaProcessor schemaProcessor;
+    private final CamelCatalogVersionLoader camelCatalogVersionLoader;
     private final CatalogRuntime runtime;
     private final boolean verbose;
 
     public CamelCatalogProcessor(CamelCatalog camelCatalog, ObjectMapper jsonMapper,
-                                 CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime, boolean verbose) {
+                                 CamelYamlDslSchemaProcessor schemaProcessor, CatalogRuntime runtime,
+                                 boolean verbose, CamelCatalogVersionLoader camelCatalogVersionLoader) {
         this.jsonMapper = jsonMapper;
         this.camelCatalog = camelCatalog;
         this.schemaProcessor = schemaProcessor;
         this.runtime = runtime;
         this.verbose = verbose;
+        this.camelCatalogVersionLoader = camelCatalogVersionLoader;
     }
 
     /**
@@ -68,12 +75,15 @@ public class CamelCatalogProcessor {
      */
     public Map<String, String> processCatalog() throws Exception {
         var answer = new LinkedHashMap<String, String>();
-        var componentCatalog = getComponentCatalog();
+        ComponentGenerator componentGenerator = new ComponentGenerator(camelCatalog);
+        var componentCatalog = Util.getPrettyJSON(componentGenerator.generate());
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
-        var patternCatalog = getPatternCatalog();
-        var entityCatalog = getEntityCatalog();
+        EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        var patternCatalog = Util.getPrettyJSON(eipGenerator.generate());
+        EntityGenerator entityGenerator = new EntityGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        var entityCatalog = Util.getPrettyJSON(entityGenerator.generate());
         var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);
         answer.put("dataformats", dataFormatCatalog);
@@ -287,11 +297,7 @@ public class CamelCatalogProcessor {
                 var model = (EipModel) camelCatalog.model(Kind.eip, name);
                 var json = JsonMapper.asJsonObject(model).toJson();
                 var catalogNode = (ObjectNode) jsonMapper.readTree(json);
-                if ("from".equals(name)) {
-                    // "from" is an exception that is not a processor, therefore it's not in the
-                    // pattern catalog - put the propertiesSchema here
-                    generatePropertiesSchema(catalogNode);
-                }
+
                 answer.set(name, catalogNode);
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -294,7 +294,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       path: this.getRootPath(),
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity),
+      icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
       processorName: 'route',
     });
 

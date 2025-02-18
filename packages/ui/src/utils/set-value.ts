@@ -10,6 +10,15 @@ export const setValue = (obj: any, path: string | string[], value: any): void =>
 
   if (path === ROOT_PATH) {
     if (isDefined(value)) {
+      const rootObject = Object.keys(obj);
+      const valueObject = Object.keys(value);
+
+      rootObject.forEach((key) => {
+        if (!valueObject.includes(key)) {
+          delete obj[key];
+        }
+      });
+
       Object.assign(obj, value);
     } else {
       Object.keys(obj).forEach((key) => delete obj[key]);

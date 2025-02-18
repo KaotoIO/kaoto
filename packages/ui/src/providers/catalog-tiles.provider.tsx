@@ -1,8 +1,9 @@
 import { FunctionComponent, PropsWithChildren, createContext, useContext, useMemo } from 'react';
-import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
+import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models';
 import { CatalogContext } from './catalog.provider';
+import { isDefined } from '../utils';
 
 export const CatalogTilesContext = createContext<ITile[]>([]);
 
@@ -27,6 +28,12 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
      */
     Object.values(catalogService.getCatalogByKey(CatalogKind.Pattern) ?? {}).forEach((processor) => {
       combinedTiles.push(camelProcessorToTile(processor));
+    });
+    Object.values(catalogService.getCatalogByKey(CatalogKind.Entity) ?? {}).forEach((entity) => {
+      /** KameletConfiguration and PipeConfiguration schemas are stored inside the entity catalog without model or properties */
+      if (isDefined(entity.model)) {
+        combinedTiles.push(camelEntityToTile(entity));
+      }
     });
     Object.values(catalogService.getCatalogByKey(CatalogKind.Kamelet) ?? {}).forEach((kamelet) => {
       combinedTiles.push(kameletToTile(kamelet));

@@ -351,16 +351,13 @@ export class CamelComponentSchemaService {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
+      case 'intercept' as keyof ProcessorDefinition:
+      case 'interceptFrom' as keyof ProcessorDefinition:
+      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
       case 'onException' as keyof ProcessorDefinition:
-        catalogKind = CatalogKind.Entity;
-        break;
+      case 'onCompletion' as keyof ProcessorDefinition:
       case 'from' as keyof ProcessorDefinition:
-        /**
-         * The `from` processor is a special case, since it's not a ProcessorDefinition
-         * so its schema is not defined in the Camel Catalog
-         * @see CamelCatalogProcessor#getModelCatalog()
-         */
-        catalogKind = CatalogKind.Processor;
+        catalogKind = CatalogKind.Entity;
         break;
       default:
         catalogKind = CatalogKind.Pattern;
@@ -380,13 +377,13 @@ export class CamelComponentSchemaService {
       const componentSchema: KaotoSchemaDefinition['schema'] =
         catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
-      // Filter out producer/consumer properties depenging upon the endpoint usage
+      // Filter out producer/consumer properties depending upon the endpoint usage
       const actualComponentProperties = Object.fromEntries(
         Object.entries(componentSchema.properties ?? {}).filter((property) => {
           if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].group?.includes('producer');
+            return !property[1].$comment?.includes('producer');
           } else {
-            return !property[1].group?.includes('consumer');
+            return !property[1].$comment?.includes('consumer');
           }
         }),
       );
@@ -495,8 +492,8 @@ export class CamelComponentSchemaService {
   }
 
   static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
-    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Pattern, processorName);
+    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
 
-    return processorDefinition?.propertiesSchema?.properties?.disabled !== undefined;
+    return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
   }
 }

@@ -92,7 +92,7 @@ export class CamelInterceptVisualEntity
     );
     interceptGroupNode.data.entity = this;
     interceptGroupNode.data.isGroup = true;
-    interceptGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    interceptGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return interceptGroupNode;
   }
