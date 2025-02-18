@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState } from 'react';
 import { CanvasFormTabsContext } from '../../../../../providers';
-import { isDefined } from '../../../../../utils';
+import { getItemFromSchema, isDefined, setValue } from '../../../../../utils';
 import { getAppliedSchemaIndexV2 } from '../../../../../utils/get-applied-schema-index';
 import { OneOfSchemas, getOneOfSchemaListV2 } from '../../../../../utils/get-oneof-schema-list';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -25,12 +25,29 @@ export const useOneOfField = (propName: string) => {
       return;
     }
 
-    if (typeof value === 'object' && isDefined(selectedOneOfSchema?.schema.properties)) {
-      const newValue = { ...value };
-      Object.keys(selectedOneOfSchema.schema.properties).forEach((prop) => {
-        delete (newValue as Record<string, unknown>)[prop];
-      });
-      onChange(newValue);
+    if (!isDefined(schema?.schema)) {
+      if (isDefined(value) && typeof value === 'object') {
+        selectedOneOfSchema?.schema.properties &&
+          Object.keys(selectedOneOfSchema.schema.properties).forEach((prop) => delete value[prop]);
+        onChange(value);
+      }
+
+      setSelectedOneOfSchema(schema);
+      return;
+    }
+
+    let newValue = getItemFromSchema(schema?.schema, definitions);
+    if (typeof newValue === 'object') {
+      if (isDefined(value) && typeof value === 'object') {
+        newValue = { ...value };
+        selectedOneOfSchema?.schema.properties &&
+          Object.keys(selectedOneOfSchema.schema.properties).forEach(
+            (prop) => delete (newValue as Record<string, unknown>)[prop],
+          );
+      }
+
+      schema.schema.properties && Object.keys(schema.schema.properties).forEach((prop) => setValue(newValue, prop, {}));
+      onChange(newValue as Record<string, unknown>);
     }
 
     setSelectedOneOfSchema(schema);
@@ -39,13 +56,8 @@ export const useOneOfField = (propName: string) => {
   let shouldRender = true;
   if (selectedTab === 'Modified') {
     const selectedOneOfSchemaProperty = selectedOneOfSchema?.schema.properties;
-    if (selectedOneOfSchemaProperty) {
-      const hasModelDefined = Object.keys(selectedOneOfSchemaProperty).some(
-        (propName) => isDefined(value) && isDefined(value[propName]),
-      );
-      if (!hasModelDefined) {
-        shouldRender = false;
-      }
+    if (!selectedOneOfSchemaProperty || !isDefined(value)) {
+      shouldRender = false;
     }
   }
 

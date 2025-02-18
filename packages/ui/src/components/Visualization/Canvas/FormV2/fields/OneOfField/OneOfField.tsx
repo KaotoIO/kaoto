@@ -8,6 +8,10 @@ import { SchemaList } from './SchemaList';
 export const OneOfField: FunctionComponent<FieldProps> = ({ propName }) => {
   const { selectedOneOfSchema, oneOfSchemas, onSchemaChange, shouldRender } = useOneOfField(propName);
 
+  const onCleanInput = () => {
+    onSchemaChange();
+  };
+
   if (!shouldRender) {
     return null;
   }
@@ -18,6 +22,7 @@ export const OneOfField: FunctionComponent<FieldProps> = ({ propName }) => {
       selectedSchema={selectedOneOfSchema}
       schemas={oneOfSchemas}
       onChange={onSchemaChange}
+      onCleanInput={onCleanInput}
     >
       {selectedOneOfSchema && (
         <SchemaProvider schema={selectedOneOfSchema.schema}>
