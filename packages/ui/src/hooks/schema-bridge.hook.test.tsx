@@ -13,7 +13,7 @@ describe('useSchemaBridgeContext', () => {
 
     expect(() => {
       renderHook(() => useSchemaBridgeContext());
-    }).toThrowError('useSchemaBridgeContext needs to be called inside `SchemaBridgeProvider`');
+    }).toThrow('useSchemaBridgeContext needs to be called inside `SchemaBridgeProvider`');
 
     (console.error as jest.Mock).mockRestore();
   });

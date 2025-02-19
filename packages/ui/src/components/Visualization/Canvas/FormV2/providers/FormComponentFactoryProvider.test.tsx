@@ -31,7 +31,7 @@ describe('FormComponentFactoryProvider', () => {
     [{ type: 'object', properties: { name: { type: 'string' } } }, ObjectField],
     [{ type: 'object', properties: {} }, PropertiesField],
     [{ format: 'expression' }, ExpressionField],
-    [{ format: 'expressionField' }, ExpressionField],
+    [{ format: 'expressionProperty' }, ExpressionField],
     [{ type: 'array' }, ArrayField],
     [{ oneOf: [] }, OneOfField],
     [{}, DisabledField],
@@ -54,7 +54,7 @@ describe('FormComponentFactoryProvider', () => {
       wrapper: ({ children }) => <FormComponentFactoryProvider>{children}</FormComponentFactoryProvider>,
     });
 
-    expect(() => result.current?.({ anyOf: [] } as unknown as KaotoSchemaDefinition['schema'])).toThrowError(
+    expect(() => result.current?.({ anyOf: [] } as unknown as KaotoSchemaDefinition['schema'])).toThrow(
       'FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField',
     );
   });

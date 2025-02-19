@@ -21,7 +21,7 @@ describe('RootNodeMapper', () => {
   it('should throw an error when no mapper is found', () => {
     const rootNodeMapper = new RootNodeMapper();
 
-    expect(() => rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {})).toThrowError(
+    expect(() => rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {})).toThrow(
       'No mapper found for processor: log',
     );
   });
