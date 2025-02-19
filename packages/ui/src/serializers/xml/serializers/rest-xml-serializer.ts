@@ -24,15 +24,18 @@ export class RestXmlSerializer {
   private static readonly MISSING_PROPERTIES = ['param', 'security', 'responseMessage'];
 
   static serialize(rest: { [key: string]: unknown }, doc: Document): Element {
+    console.log('rest', rest);
     const element = StepXmlSerializer.serialize(RestXmlSerializer.REST_ELEMENT_NAME, rest, doc);
 
-    const restObject = rest as unknown as Rest;
+    let restObject = rest as unknown as Rest;
+    if (rest.rest) restObject = rest.rest as unknown as Rest;
+
     this.handleSecurityDefinitions(element, restObject, doc);
 
     this.REST_VERBS.forEach((verb) => {
       const verbKey = verb as keyof Rest;
       if (restObject[verbKey]) {
-        (rest[verbKey] as { [key: string]: unknown }[]).forEach((verbInstance: { [key: string]: unknown }) => {
+        (restObject[verbKey] as { [key: string]: unknown }[]).forEach((verbInstance: { [key: string]: unknown }) => {
           const verbElement = StepXmlSerializer.serialize(verb, verbInstance, doc, element);
           this.handleMissingProperties(verbElement, verbInstance, doc);
           element.appendChild(verbElement);
@@ -67,7 +70,6 @@ export class RestXmlSerializer {
 
     Object.entries(rest.securityDefinitions).forEach(([key, value]) => {
       const securityElement = StepXmlSerializer.serialize(key, value as { [key: string]: unknown }, doc, element);
-      console.log('securityElement', key, securityElement);
 
       if (securityElement) securityDefinitionsElement.appendChild(securityElement);
     });
