@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { ArrayFieldWrapper } from './ArrayFieldWrapper';
 
 describe('ArrayFieldWrapper', () => {
@@ -17,11 +17,13 @@ describe('ArrayFieldWrapper', () => {
     expect(wrapper.getByText('Test Children')).toBeInTheDocument();
   });
 
-  it('should render the popover with correct content', () => {
+  it('should render the popover with correct content', async () => {
     const wrapper = render(<ArrayFieldWrapper {...defaultProps}>Test Children</ArrayFieldWrapper>);
 
-    const popoverTrigger = wrapper.getByLabelText(`More info for Test Array Field field`);
-    fireEvent.mouseEnter(popoverTrigger);
+    await act(async () => {
+      const popoverTrigger = wrapper.getByLabelText(`More info for Test Array Field field`);
+      fireEvent.mouseEnter(popoverTrigger);
+    });
 
     expect(wrapper.getByText('Test Array Field <array>')).toBeInTheDocument();
     expect(wrapper.getByText('A test array field')).toBeInTheDocument();
