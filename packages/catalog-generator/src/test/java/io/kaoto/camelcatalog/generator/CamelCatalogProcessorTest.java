@@ -110,7 +110,7 @@ class CamelCatalogProcessorTest {
                 .withObject("/sql")
                 .withObject("/propertiesSchema");
         var sqlDSProperty = sqlSchema.withObject("/properties").withObject("/dataSource");
-        assertEquals("object", sqlDSProperty.get("type").asText());
+        assertEquals("string", sqlDSProperty.get("type").asText());
         assertEquals("bean:javax.sql.DataSource", sqlDSProperty.get("format").asText());
         var sqlBEHProperty = sqlSchema.withObject("/properties").withObject("/bridgeErrorHandler");
         assertFalse(sqlBEHProperty.has("default"));
