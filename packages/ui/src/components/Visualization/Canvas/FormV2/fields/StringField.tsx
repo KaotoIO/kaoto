@@ -12,9 +12,6 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
   const { value = '', onChange } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
-  if (!isDefined(schema)) {
-    throw new Error(`StringField: schema is not defined for ${propName}`);
-  }
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
@@ -53,7 +50,14 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
         />
 
         <TextInputGroupUtilities>
-          <Button variant="plain" onClick={onRemove} aria-label={ariaLabel} title={ariaLabel} icon={<TimesIcon />} />
+          <Button
+            variant="plain"
+            data-testid={`${propName}__clear`}
+            onClick={onRemove}
+            aria-label={ariaLabel}
+            title={ariaLabel}
+            icon={<TimesIcon />}
+          />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>

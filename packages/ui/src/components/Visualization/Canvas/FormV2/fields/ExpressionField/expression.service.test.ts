@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../../../../../../models';
+import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ExpressionService } from './expression.service';
 
@@ -9,6 +9,98 @@ describe('ExpressionService', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     const languageCatalog = catalogsMap.languageCatalog;
     CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
+  });
+
+  describe('getExpressionsSchema', () => {
+    it('should return an empty object if the schema is not an expression', () => {
+      const schema = {};
+
+      const result = ExpressionService.getExpressionsSchema(schema);
+
+      expect(result).toEqual({});
+    });
+
+    it('should return an empty schema if there is no expression oneOf', () => {
+      const schema: KaotoSchemaDefinition['schema'] = {
+        anyOf: [{ oneOf: [{ type: 'string' }] }],
+      };
+
+      const result = ExpressionService.getExpressionsSchema(schema);
+
+      expect(result).toEqual({});
+    });
+
+    it('should return the schema if the oneOf is an expression', () => {
+      const schema: KaotoSchemaDefinition['schema'] = {
+        oneOf: [
+          { simple: { type: 'string' } },
+          { csimple: { type: 'string' } },
+          { constant: { type: 'string' } },
+          { expression: { type: 'string' } },
+          { groovy: { type: 'string' } },
+        ],
+      };
+
+      const result = ExpressionService.getExpressionsSchema(schema);
+
+      expect(result).toEqual(schema);
+    });
+
+    it('should return the schema from a nested oneOf is an expression', () => {
+      const schema: KaotoSchemaDefinition['schema'] = {
+        anyOf: [
+          {
+            oneOf: [
+              { simple: { type: 'string' } },
+              { csimple: { type: 'string' } },
+              { constant: { type: 'string' } },
+              { expression: { type: 'string' } },
+              { groovy: { type: 'string' } },
+            ],
+          },
+        ],
+      };
+
+      const result = ExpressionService.getExpressionsSchema(schema);
+
+      expect(result).toEqual(schema.anyOf![0]);
+    });
+
+    it('should return the schema from two levels nested oneOf is an expression', () => {
+      const schema: KaotoSchemaDefinition['schema'] = {
+        anyOf: [
+          {
+            oneOf: [
+              {
+                anyOf: [
+                  {
+                    oneOf: [
+                      { simple: { type: 'string' } },
+                      { csimple: { type: 'string' } },
+                      { constant: { type: 'string' } },
+                      { expression: { type: 'string' } },
+                      { groovy: { type: 'string' } },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = ExpressionService.getExpressionsSchema(schema);
+
+      expect(result).toEqual({
+        oneOf: [
+          { simple: { type: 'string' } },
+          { csimple: { type: 'string' } },
+          { constant: { type: 'string' } },
+          { expression: { type: 'string' } },
+          { groovy: { type: 'string' } },
+        ],
+      });
+    });
   });
 
   const expressionsArray: [Record<string, unknown>, Record<string, unknown>][] = [

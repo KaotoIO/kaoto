@@ -13,9 +13,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
   const { value = '', onChange } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
-  if (!isDefined(schema)) {
-    throw new Error(`PasswordField: schema is not defined for ${propName}`);
-  }
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
@@ -45,8 +42,10 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
       <TextInputGroup>
         <TextInputGroupMain
           type={passwordHidden ? 'password' : 'text'}
+          role="textbox"
           id={propName}
           name={propName}
+          placeholder={schema.default?.toString()}
           value={value}
           onChange={onFieldChange}
           aria-describedby={id}
@@ -54,16 +53,24 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
 
         <TextInputGroupUtilities>
           <Button
-            data-testid="password-show-hide-button"
             variant="plain"
+            data-testid={`${propName}__toggle-visibility`}
+            aria-label={passwordHidden ? 'Show' : 'Hide'}
             onClick={() => {
               setPasswordHidden(!passwordHidden);
             }}
-            aria-label={passwordHidden ? 'Show' : 'Hide'}
           >
             {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
           </Button>
-          <Button variant="plain" onClick={onRemove} aria-label={ariaLabel} title={ariaLabel} icon={<TimesIcon />} />
+
+          <Button
+            variant="plain"
+            data-testid={`${propName}__clear`}
+            onClick={onRemove}
+            aria-label={ariaLabel}
+            title={ariaLabel}
+            icon={<TimesIcon />}
+          />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>
