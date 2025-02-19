@@ -274,6 +274,7 @@ public class CamelCatalogSchemaEnhancer {
 
         if (bean != null && !bean.startsWith("java.util.Map")) {
             format.add("bean:" + bean);
+            propertyNode.put("type", "string");
         }
 
         if ("duration".equals(propertyType)) {
