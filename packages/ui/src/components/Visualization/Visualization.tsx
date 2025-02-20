@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, JSX, PropsWithChildren, ReactNode } from 'react';
 import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
 import { CanvasFormTabsProvider } from '../../providers';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -11,6 +11,7 @@ interface CanvasProps {
   className?: string;
   entities: BaseVisualCamelEntity[];
   fallback?: ReactNode;
+  additionalToolbarControls?: JSX.Element[];
 }
 
 export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = (props) => {
@@ -18,7 +19,10 @@ export const Visualization: FunctionComponent<PropsWithChildren<CanvasProps>> = 
     <div className={`canvas-surface ${props.className ?? ''}`}>
       <CanvasFormTabsProvider>
         <ErrorBoundary fallback={props.fallback ?? <CanvasFallback />}>
-          <Canvas contextToolbar={<ContextToolbar />} entities={props.entities} />
+          <Canvas
+            contextToolbar={<ContextToolbar additionalControls={props.additionalToolbarControls} />}
+            entities={props.entities}
+          />
         </ErrorBoundary>
       </CanvasFormTabsProvider>
     </div>
