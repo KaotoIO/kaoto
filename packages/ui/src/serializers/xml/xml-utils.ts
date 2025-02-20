@@ -52,9 +52,10 @@ export function collectNamespaces(element: Element): { key: string; value: strin
 }
 
 export function setNamespaces(element: Element, namespaces: { key: string; value: string }[]): void {
-  namespaces.forEach((ns) => {
+  for (const ns of namespaces) {
+    if (!ns) continue;
     element.setAttribute(`xmlns:${ns.key}`, ns.value);
-  });
+  }
 }
 
 export function formatXml(xml: string): string {

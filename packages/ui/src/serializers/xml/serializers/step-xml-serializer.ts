@@ -169,7 +169,10 @@ export class StepXmlSerializer {
     if (!steps) return [];
     const stepElements: Element[] = [];
 
-    steps.forEach((step) => {
+    for (const step of steps) {
+      // in case of empty step
+      if (!step) continue;
+
       Object.entries(step).forEach(([stepKey, stepValue]) => {
         const step = stepValue as ElementType;
         const stepElement = this.serialize(stepKey, step, doc, routeParent);
@@ -179,7 +182,8 @@ export class StepXmlSerializer {
         }
         stepElements.push(stepElement);
       });
-    });
+    }
+
     return stepElements;
   }
 
