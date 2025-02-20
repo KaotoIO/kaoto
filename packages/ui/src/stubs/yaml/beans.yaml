@@ -11,3 +11,8 @@
       field2: f2_p
       nested.field1: nf1_p
       nested.field2: nf2_p
+  - type: org.apache.camel.dsl.xml.io.beans.GreeterMessage
+    properties:
+      msg: Hello
+  - name: bean-from-registry
+    type: org.apache.camel.dsl.xml.io.beans.Greeter
