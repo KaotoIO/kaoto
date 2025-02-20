@@ -50,12 +50,13 @@ export class KaotoXmlParser {
 
   parseXML(xml: string): unknown {
     const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
-
     return this.parseFromXmlDocument(xmlDoc);
   }
 
   parseFromXmlDocument(xmlDoc: Document): unknown {
     const rawEntities = [];
+    const rootCamelElement = xmlDoc.getElementsByTagName('camel')[0];
+    const children = rootCamelElement ? rootCamelElement.children : xmlDoc.children;
 
     // Process route entities
     Array.from(xmlDoc.getElementsByTagName('route')).forEach((routeElement) => {
@@ -66,6 +67,13 @@ export class KaotoXmlParser {
     // Process beans (bean factory)
     const beansSection = xmlDoc.getElementsByTagName('beans')[0];
     const beans: BeanFactory[] = beansSection ? this.beanParser.transformBeansSection(beansSection) : [];
+    // process beans outside of beans section
+    Array.from(children)
+      .filter((child) => child.tagName === 'bean')
+      .forEach((beanElement) => {
+        beans.push(BeansXmlParser.transformBeanFactory(beanElement));
+      });
+
     if (beans.length > 0) {
       rawEntities.push({ beans });
     }
@@ -83,8 +91,7 @@ export class KaotoXmlParser {
     });
 
     // rest of the elements
-    const rootCamelElement = xmlDoc.getElementsByTagName('camel')[0];
-    const children = rootCamelElement ? rootCamelElement.children : xmlDoc.children;
+
     Array.from(children).forEach((child) => {
       if (KaotoXmlParser.PARSABLE_ELEMENTS.includes(child.tagName)) {
         const entity = StepParser.parseElement(child);
