@@ -13,7 +13,7 @@ describe('Test for interceptSendToEndpoint configuration container', () => {
     cy.interactWithConfigInputObject('description', 'testDescription');
     cy.interactWithConfigInputObject('skipSendToOriginalEndpoint', 'testSkipSendToOriginalEndpoint');
 
-    cy.contains('button', 'Processor advanced properties').click();
+    cy.expandWrappedSection('#-Advanced');
     cy.interactWithConfigInputObject('afterUri', 'testAfterUri');
 
     cy.openSourceCode();

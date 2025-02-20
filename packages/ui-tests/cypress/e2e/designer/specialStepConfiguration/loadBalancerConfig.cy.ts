@@ -12,16 +12,14 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
     cy.openGroupConfigurationTab('loadBalance');
     cy.selectFormTab('All');
 
-    cy.get('[data-testid="loadbalancer-config-card"] button').click();
-    cy.get('[data-testid="loadbalancer-dropdownitem-roundRobinLoadBalancer"] button').click();
+    cy.get('[data-testid="typeahead-select-input-#"]').click();
+    cy.get('.pf-v6-c-menu__item-text').contains('Round Robin Load Balancer').first().click();
+    cy.get('[data-testid="#.roundRobinLoadBalancer__set"]').click();
 
-    cy.get('[data-testid="metadata-editor-form-loadbalancer"]')
-      .find('input[data-testid="text-field"]')
-      .type('roundRobinId');
-
-    cy.get(`input[name="id"]`).eq(1).clear().type('testId');
-    cy.get(`textarea[name="description"]`).clear().type('loadBalancerDescription');
-    cy.get(`input[name="inheritErrorHandler"]`).check();
+    cy.interactWithConfigInputObject('roundRobinLoadBalancer.id', 'roundRobinId');
+    cy.interactWithConfigInputObject('id', 'testId');
+    cy.interactWithConfigInputObject('description', 'loadBalancerDescription');
+    cy.interactWithConfigInputObject('inheritErrorHandler');
     cy.closeStepConfigurationTab();
 
     cy.selectInsertNode('loadBalancerDescription');

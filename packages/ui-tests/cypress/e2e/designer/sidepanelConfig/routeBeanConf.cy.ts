@@ -18,7 +18,7 @@ describe('Test for node bean reference and configuration support', () => {
       cy.get(`input[name="name"]`).clear().type('test');
       cy.get(`input[name="type"]`).clear().type('org.acme');
 
-      cy.addStringProperty('properties', 'test', 'value');
+      cy.addMetadataStringProperty('properties', 'test', 'value');
 
       cy.get('[data-testid="create-bean-btn"').click();
       cy.closeStepConfigurationTab();

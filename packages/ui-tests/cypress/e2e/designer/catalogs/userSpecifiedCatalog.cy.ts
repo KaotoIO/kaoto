@@ -3,7 +3,7 @@ describe('Tests for user specified Quarkus catalog type', () => {
   before(() => {
     cy.openHomePage();
     cy.openSettings();
-    cy.interactWithConfigInputObject('catalogUrl', Cypress.config().baseUrl + '/camel-catalog/index.json');
+    cy.get(`input[name="catalogUrl"]`).type(Cypress.config().baseUrl + '/camel-catalog/index.json');
     cy.get('[data-testid="settings-form-save-btn"]').click();
     cy.waitSchemasLoading();
   });
