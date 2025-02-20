@@ -166,6 +166,7 @@ export class StepXmlSerializer {
   }
 
   static serializeSteps(steps: ElementType[], doc: Document, routeParent?: Element): Element[] {
+    if (!steps) return [];
     const stepElements: Element[] = [];
 
     steps.forEach((step) => {
