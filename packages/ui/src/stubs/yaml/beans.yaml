@@ -16,3 +16,4 @@
       msg: Hello
   - name: bean-from-registry
     type: org.apache.camel.dsl.xml.io.beans.Greeter
+    script: TestBean bean = new TestBean();
