@@ -1,14 +1,14 @@
 import 'cypress-file-upload';
 
-Cypress.Commands.add('expandWrappedSection', (sectionName: string) => {
-  cy.switchWrappedSection(sectionName, false);
+Cypress.Commands.add('expandWrappedMetadataSection', (sectionName: string) => {
+  cy.switchWrappedMetadataSection(sectionName, false);
 });
 
-Cypress.Commands.add('closeWrappedSection', (sectionName: string) => {
-  cy.switchWrappedSection(sectionName, true);
+Cypress.Commands.add('closeWrappedMetadataSection', (sectionName: string) => {
+  cy.switchWrappedMetadataSection(sectionName, true);
 });
 
-Cypress.Commands.add('switchWrappedSection', (sectionName: string, wrapped: boolean) => {
+Cypress.Commands.add('switchWrappedMetadataSection', (sectionName: string, wrapped: boolean) => {
   cy.get(`[data-testid="expandable-section-${sectionName}"]`)
     .should('be.visible')
     .within(() => {
@@ -44,6 +44,13 @@ Cypress.Commands.add('forceSelectMetadataRow', (rowIndex: number) => {
   });
 });
 
+Cypress.Commands.add('selectInSettingsTypeaheadField', (inputGroup: string, value: string) => {
+  cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
+    cy.get('button.pf-v6-c-menu-toggle__button').click();
+  });
+  cy.get(`#select-typeahead-${value}`).click();
+});
+
 Cypress.Commands.add('addMetadataField', (fieldName: string) => {
   cy.contains('label', fieldName)
     .parent()
@@ -51,4 +58,22 @@ Cypress.Commands.add('addMetadataField', (fieldName: string) => {
     .within(() => {
       cy.get('[data-testid="list-add-field"]').click();
     });
+});
+
+Cypress.Commands.add('addMetadataStringProperty', (selector: string, key: string, value: string) => {
+  cy.expandWrappedMetadataSection(selector);
+  cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]')
+    .clear()
+    .type(key);
+
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-value-input"]')
+    .clear()
+    .type(value);
+  cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
+  cy.closeWrappedMetadataSection(selector);
 });

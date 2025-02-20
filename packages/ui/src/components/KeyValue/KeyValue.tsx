@@ -86,6 +86,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
                   type="text"
                   id={`${propName}__${key}__key`}
                   name={`${propName}__${key}__key`}
+                  data-testid={`${propName}__key`}
                   onChange={(_event, value) => {
                     onPropertyKeyChange(key, value);
                   }}
@@ -105,6 +106,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
                   type="text"
                   id={`${propName}__${key}__value`}
                   name={`${propName}__${key}__value`}
+                  data-testid={`${propName}__value`}
                   onChange={(_event, value) => {
                     onPropertyValueChange(key, value);
                   }}
