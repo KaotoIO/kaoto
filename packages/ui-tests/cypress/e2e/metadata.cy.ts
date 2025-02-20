@@ -7,8 +7,8 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
-    cy.addStringProperty('annotations', 'test-annotations', 'value-annotations');
-    cy.addStringProperty('labels', 'test-labels', 'value-labels');
+    cy.addMetadataStringProperty('annotations', 'test-annotations', 'value-annotations');
+    cy.addMetadataStringProperty('labels', 'test-labels', 'value-labels');
 
     cy.get(`input[name="creationTimestamp"]`).clear().type('testCreationTimestamp');
     cy.get(`input[name="deletionGracePeriodSeconds"]`).clear().type('1000');
@@ -110,17 +110,17 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
-    cy.expandWrappedSection('annotations');
+    cy.expandWrappedMetadataSection('annotations');
     cy.get('[data-testid="annotations-annotation-name-name-label"]').should('exist');
     cy.get('[data-testid="annotations-annotation-name-value-label"]').should('exist');
     cy.get('[data-testid="annotations-annotation-name-delete-annotation-name-btn"]').click();
-    cy.closeWrappedSection('labels');
+    cy.closeWrappedMetadataSection('labels');
 
-    cy.expandWrappedSection('labels');
+    cy.expandWrappedMetadataSection('labels');
     cy.get('[data-testid="labels-label-name-name-label"]').should('exist');
     cy.get('[data-testid="labels-label-name-value-label"]').should('exist');
     cy.get('[data-testid="labels-label-name-delete-label-name-btn"]').click();
-    cy.closeWrappedSection('labels');
+    cy.closeWrappedMetadataSection('labels');
 
     // CHECK the bean was edited in the code editor
     cy.openSourceCode();

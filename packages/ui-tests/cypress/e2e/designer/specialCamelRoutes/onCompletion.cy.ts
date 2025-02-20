@@ -14,7 +14,7 @@ describe('Test for onCompletion configuration container', () => {
     cy.interactWithConfigInputObject('onCompleteOnly');
     cy.interactWithConfigInputObject('onFailureOnly');
 
-    cy.contains('button', 'Processor advanced properties').click();
+    cy.expandWrappedSection('#-Advanced');
     cy.selectInTypeaheadField('mode', 'BeforeConsumer');
     cy.interactWithConfigInputObject('parallelProcessing');
     cy.interactWithConfigInputObject('useOriginalMessage');

@@ -10,6 +10,7 @@ describe('Tests for Design page', () => {
     cy.selectDisableNode('setHeader');
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
 
     cy.openSourceCode();
@@ -26,12 +27,15 @@ describe('Tests for Design page', () => {
 
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
     cy.openStepConfigurationTab('log');
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
 
     cy.openDesignPage();
