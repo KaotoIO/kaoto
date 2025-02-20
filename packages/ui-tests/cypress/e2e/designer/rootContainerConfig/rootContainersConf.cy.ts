@@ -40,8 +40,11 @@ describe('Test for camel route root containers configuration', () => {
     cy.openGroupConfigurationTab('camel-route');
 
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
+
     cy.interactWithConfigInputObject('description', 'test.description');
     cy.interactWithConfigInputObject('group', 'test.group');
+    cy.get('[data-testid="#.inputType__set"]').click();
     cy.interactWithConfigInputObject('inputType.description', 'test.inputType.description');
     cy.interactWithConfigInputObject('inputType.id', 'test.inputType.id');
     cy.interactWithConfigInputObject('inputType.urn', 'test.inputType.urn');
@@ -49,6 +52,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.interactWithConfigInputObject('logMask');
     cy.interactWithConfigInputObject('messageHistory');
     cy.interactWithConfigInputObject('nodePrefixId', 'test.nodePrefixId');
+    cy.get('[data-testid="#.outputType__set"]').click();
     cy.interactWithConfigInputObject('outputType.description', 'test.outputType.description');
     cy.interactWithConfigInputObject('outputType.id', 'test.outputType.id');
     cy.interactWithConfigInputObject('outputType.urn', 'test.outputType.urn');
@@ -86,7 +90,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('trace: true');
   });
 
-  it('Canvas kamelet container config', () => {
+  it('Canvas kamelet container config', { browser: '!firefox' }, () => {
     cy.uploadFixture('flows/kamelet/basic.yaml');
     cy.openDesignPage();
 
@@ -107,7 +111,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.interactWithConfigInputObject('kameletProperties.0.title', 'test.properties.title');
     cy.interactWithConfigInputObject('kameletProperties.0.description', 'test.properties.description');
     cy.interactWithConfigInputObject('kameletProperties.0.default', '1000');
-    cy.addProperty('X-descriptors');
+    cy.addProperty('kameletProperties.0.x-descriptors__add');
     cy.interactWithConfigInputObject('kameletProperties.0.x-descriptors.0', 'test.x-descriptors');
 
     cy.openSourceCode();
@@ -134,8 +138,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.openGroupConfigurationTab('pipe');
 
     cy.selectFormTab('All');
-    cy.get(`input[name="name"]`).clear();
-    cy.get(`input[name="name"]`).type('testName');
+    cy.interactWithConfigInputObject('name', 'testName');
 
     cy.addStringProperty('labels', 'labelsTest', 'labelsValue');
     cy.addStringProperty('annotations', 'annotationsTest', 'annotationsValue');

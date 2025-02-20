@@ -10,7 +10,7 @@ describe('Tests for modeline', () => {
     cy.removeNodeByName('https');
     cy.openStepConfigurationTab('kamelet:log-sink');
     cy.selectFormTab('All');
-    cy.get(`input[name="parameters.showProperties"]`).check();
+    cy.interactWithConfigInputObject('parameters.showProperties');
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('# camel-k: dependency=camel:aws-secrets-manager', 1);

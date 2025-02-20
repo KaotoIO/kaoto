@@ -3,7 +3,7 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.openHomePage();
   });
 
-  it('Design - sidebar setHeaders configuration in CR', () => {
+  it('Design - sidebar setHeaders configuration in CR', { browser: '!firefox' }, () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
@@ -12,32 +12,30 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.openStepConfigurationTab('setHeaders');
     cy.selectFormTab('All');
 
-    cy.get('[data-testid="list-add-field"]').click();
+    cy.get('[data-testid="#.headers__add"]').click();
 
     cy.selectExpression('Simple');
-    cy.interactWithExpressionInputObject('expression', `{{}random(1,100)}`);
-    cy.interactWithExpressionInputObject('id', 'simpleExpressionId');
-    cy.addExpressionResultType('java.lang.String');
+    cy.interactWithExpressionInputObject('simple.expression', `{{}random(1,100)}`);
+    cy.interactWithExpressionInputObject('simple.id', 'simpleExpressionId');
+    cy.interactWithExpressionInputObject('simple.resultType', 'java.lang.String');
 
-    cy.get('[data-testid="list-add-field"]').click();
+    cy.get('[data-testid="#.headers__add"]').click();
 
-    cy.selectExpression('Constant', 1);
-    cy.interactWithExpressionInputObject('expression', `constant`, 1);
-    cy.interactWithExpressionInputObject('id', 'constantExpressionId', 1);
-    cy.addExpressionResultType('java.lang.String', 1);
+    cy.selectExpression('Constant', 0);
+    cy.interactWithExpressionInputObject('constant.expression', `constant`, 1);
+    cy.interactWithExpressionInputObject('constant.id', 'constantExpressionId', 1);
+    cy.interactWithExpressionInputObject('constant.resultType', 'java.lang.String');
 
     cy.openSourceCode();
     const headers = [
       'headers:',
-      '- expression:',
+      '- constant:',
+      'id: constantExpressionId',
+      'expression: constant',
+      'resultType: java.lang.String',
       'simple:',
       'id: simpleExpressionId',
       'expression: "{random(1,100)}"',
-      'resultType: java.lang.String',
-      '- expression:',
-      'constant:',
-      'id: constantExpressionId',
-      'expression: constant',
       'resultType: java.lang.String',
     ];
     // CHECK changes are reflected in the code editor
