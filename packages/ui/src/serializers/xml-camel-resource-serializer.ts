@@ -29,6 +29,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   }
 
   serialize(resource: CamelResource): string {
+    console.log(resource);
     const entities: EntityDefinition[] = resource
       .getEntities()
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];
