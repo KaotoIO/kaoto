@@ -4,7 +4,6 @@ import { FolderPlusIcon, PlusCircleIcon } from '@patternfly/react-icons';
 type AddPropertyPopoverProps = {
   path: string[];
   createPlaceholder: (isObject: boolean) => void;
-  canAddObjectProperties?: boolean;
   showLabel?: boolean;
   disabled?: boolean;
 };
@@ -17,7 +16,6 @@ type AddPropertyPopoverProps = {
 export function AddPropertyButtons({
   path,
   createPlaceholder,
-  canAddObjectProperties = true,
   showLabel = false,
   disabled = false,
 }: AddPropertyPopoverProps) {
@@ -36,20 +34,18 @@ export function AddPropertyButtons({
         </Button>
       </SplitItem>
 
-      {canAddObjectProperties && (
-        <SplitItem>
-          <Button
-            title="Add object property"
-            data-testid={`properties-add-object-property-${path.join('-')}-btn`}
-            variant={'link'}
-            icon={<FolderPlusIcon />}
-            isDisabled={disabled}
-            onClick={() => createPlaceholder(true)}
-          >
-            {showLabel && 'Add object property'}
-          </Button>
-        </SplitItem>
-      )}
+      <SplitItem>
+        <Button
+          title="Add object property"
+          data-testid={`properties-add-object-property-${path.join('-')}-btn`}
+          variant={'link'}
+          icon={<FolderPlusIcon />}
+          isDisabled={disabled}
+          onClick={() => createPlaceholder(true)}
+        >
+          {showLabel && 'Add object property'}
+        </Button>
+      </SplitItem>
     </Split>
   );
 }

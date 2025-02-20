@@ -22,8 +22,6 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
 
   const onPropertyChange = useCallback(
     (propName: string, value: unknown) => {
-      console.log('KaotoForm.onPropertyChange', propName, value);
-
       onChange(propName, value);
       setFormModel((prevModel: unknown) => {
         if (typeof prevModel !== 'object') {
