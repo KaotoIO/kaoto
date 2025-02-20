@@ -158,6 +158,11 @@ export class StepXmlSerializer {
     doc: Document,
     routeParent?: Element,
   ) {
+    if (properties.javaType === 'java.lang.String' && processor[key]) {
+      this.serializeTextType(element, key, processor, doc);
+      return;
+    }
+
     const childElementKey = processor[key] ? key : properties.oneOf?.find((key) => processor[key] !== undefined);
     if (childElementKey) {
       const childElement = this.serialize(childElementKey, processor[childElementKey] as ElementType, doc, routeParent);
@@ -240,5 +245,11 @@ export class StepXmlSerializer {
 
     doTryElement.append(this.serialize('doFinally', doTry.doFinally as ElementType, doc));
     return doTryElement;
+  }
+
+  private static serializeTextType(element: Element, key: string, processor: ElementType, doc: Document) {
+    const childElement = doc.createElement(key);
+    childElement.textContent = processor[key] as string;
+    element.appendChild(childElement);
   }
 }
