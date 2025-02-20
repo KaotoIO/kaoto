@@ -11,10 +11,12 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
     cy.selectDataformat('Base64');
-    cy.interactWithDataformatInputObject('lineLength', '128');
-    cy.interactWithDataformatInputObject('id', 'simpleDataformatId');
-    cy.interactWithDataformatInputObject('lineSeparator', 'simpleLineSeparator');
-    cy.interactWithDataformatInputObject('urlSafe');
+    cy.get('[data-testid="#.base64__set"]').click();
+    cy.expandWrappedSection('#.base64-Advanced');
+    cy.interactWithDataformatInputObject('base64.lineLength', '128');
+    cy.interactWithDataformatInputObject('base64.id', 'simpleDataformatId');
+    cy.interactWithDataformatInputObject('base64.lineSeparator', 'simpleLineSeparator');
+    cy.interactWithDataformatInputObject('base64.urlSafe');
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
@@ -32,12 +34,18 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
     cy.selectDataformat('Avro');
-    cy.configureDropdownValue('library', 'avroJackson');
-    cy.interactWithDataformatInputObject('unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
-    cy.interactWithDataformatInputObject('schemaResolver', '#bean:{{}{{}schemaResolver}}');
+    cy.get('[data-testid="#.avro__set"]').click();
+    cy.expandWrappedSection('#.avro-Advanced');
+    cy.configureDropdownValue('avro.library', 'Jackson');
+    cy.interactWithDataformatInputObject('avro.unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
+    cy.configureNewBeanReference('avro.schemaResolver');
+    cy.get(`input[name="name"]`).clear().type('schemaResolver');
+    cy.get(`input[name="type"]`).clear().type('org.acme');
+    cy.get('[data-testid="create-bean-btn"').click();
+
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('library: avroJackson', 1);
+    cy.checkCodeSpanLine('library: Jackson', 1);
     cy.checkCodeSpanLine('unmarshalType: com.fasterxml.jackson.databind.JsonNode', 1);
     cy.checkCodeSpanLine('schemaResolver: "#bean:{{schemaResolver}}"', 1);
 
