@@ -1,3 +1,11 @@
+<camel>
+    <bean type="org.apache.camel.dsl.xml.io.beans.GreeterMessage">
+        <properties>
+            <property key="msg" value="Hello" />
+        </properties>
+    </bean>
+    <bean name="bean-from-registry" type="org.apache.camel.dsl.xml.io.beans.Greeter" />
+
 <beans>
     <bean name="beanFromProps" type="com.acme.MyBean"  builderClass="com.acme.MyBeanBuilder" builderMethod="createMyBean" >
         <constructors>
@@ -13,3 +21,4 @@
         </properties>
     </bean>
 </beans>
+</camel>
