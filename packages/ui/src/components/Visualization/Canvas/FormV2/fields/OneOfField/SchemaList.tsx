@@ -23,6 +23,8 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
   onChange,
   onCleanInput,
   placeholder,
+  'aria-label': ariaLabel,
+  'data-testid': dataTestId,
   children,
 }) => {
   const items: TypeaheadItem<KaotoSchemaDefinition['schema']>[] = useMemo(
@@ -60,7 +62,8 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
       <FormGroup isStack hasNoPaddingTop fieldId={propName} role="group">
         {useTypeahead ? (
           <Typeahead
-            data-testid={propName}
+            aria-label={ariaLabel}
+            data-testid={dataTestId}
             selectedItem={selectedItem}
             items={items}
             id={propName}
@@ -69,7 +72,14 @@ export const SchemaList: FunctionComponent<PropsWithChildren<SchemaList>> = ({
             onCleanInput={onCleanInput}
           />
         ) : (
-          <SimpleSelector selectedItem={selectedItem} items={items} id={propName} onChange={onItemChange} />
+          <SimpleSelector
+            aria-label={ariaLabel}
+            data-testid={dataTestId}
+            selectedItem={selectedItem}
+            items={items}
+            id={propName}
+            onChange={onItemChange}
+          />
         )}
       </FormGroup>
 

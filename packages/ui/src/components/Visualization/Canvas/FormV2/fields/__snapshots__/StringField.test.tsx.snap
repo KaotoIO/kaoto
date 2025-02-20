@@ -76,6 +76,7 @@ exports[`StringField should render 1`] = `
               aria-label="Type to filter"
               class="pf-v6-c-text-input-group__text-input"
               name="#"
+              role="textbox"
               type="text"
               value="Value"
             />

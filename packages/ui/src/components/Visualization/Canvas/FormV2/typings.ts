@@ -1,4 +1,6 @@
-export interface FieldProps {
+import { IDataTestID } from '../../../../models';
+
+export interface FieldProps extends IDataTestID {
   /** Property name, e.g. #.correlationExpression */
   propName: string;
 
