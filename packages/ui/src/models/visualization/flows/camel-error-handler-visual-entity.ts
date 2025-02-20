@@ -1,7 +1,6 @@
 import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { SchemaService } from '../../../components/Form/schema.service';
-import { useSchemasStore } from '../../../store';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
@@ -12,6 +11,8 @@ import {
   VisualComponentSchema,
 } from '../base-visual-entity';
 import { NodeMapperService } from './nodes/node-mapper.service';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CatalogKind } from '../../catalog-kind';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -107,11 +108,11 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   getComponentSchema(): VisualComponentSchema {
-    const schema = useSchemasStore.getState().schemas['errorHandler'].schema;
+    const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'errorHandler');
 
     return {
       definition: Object.assign({}, this.errorHandlerDef.errorHandler),
-      schema: schema,
+      schema: schema?.propertiesSchema ?? {},
     };
   }
 

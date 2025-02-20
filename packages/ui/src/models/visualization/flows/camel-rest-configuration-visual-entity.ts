@@ -94,7 +94,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
 
     return {
       definition: Object.assign({}, this.restConfigurationDef.restConfiguration),
-      schema: schema?.propertiesSchema || {},
+      schema: schema?.propertiesSchema ?? {},
     };
   }
 
