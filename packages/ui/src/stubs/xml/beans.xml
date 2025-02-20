@@ -4,8 +4,10 @@
             <property key="msg" value="Hello" />
         </properties>
     </bean>
-    <bean name="bean-from-registry" type="org.apache.camel.dsl.xml.io.beans.Greeter" />
 
+    <bean name="bean-from-registry" type="org.apache.camel.dsl.xml.io.beans.Greeter" >
+    <script>TestBean bean = new TestBean();</script>
+    </bean>
 <beans>
     <bean name="beanFromProps" type="com.acme.MyBean"  builderClass="com.acme.MyBeanBuilder" builderMethod="createMyBean" >
         <constructors>
