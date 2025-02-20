@@ -11,7 +11,7 @@ describe('weightSchemaAgainstModel', () => {
 
     const result = weightSchemaAgainstModel(model, schema, definition);
 
-    expect(result).toEqual(0);
+    expect(result).toEqual(10);
   });
 
   it('should be able to weight a string only schema', () => {

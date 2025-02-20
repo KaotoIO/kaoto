@@ -26,6 +26,8 @@ export const ExpressionFieldInner: FunctionComponent<FieldProps> = ({ propName }
       description={selectedOneOfSchema?.description}
       actions={
         <SchemaList
+          aria-label={`${propName} expression list`}
+          data-testid={`${propName}__expression-list`}
           propName={propName}
           selectedSchema={selectedOneOfSchema}
           schemas={oneOfSchemas}

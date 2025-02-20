@@ -44,6 +44,7 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
           <TextArea
             rows={rows}
             type="text"
+            role="textbox"
             id={propName}
             name={propName}
             placeholder={schema.default?.toString()}
