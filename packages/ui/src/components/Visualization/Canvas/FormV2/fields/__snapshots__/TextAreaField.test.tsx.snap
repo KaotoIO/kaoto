@@ -75,6 +75,7 @@ exports[`TextAreaField should render 1`] = `
               aria-invalid="false"
               id="#"
               name="#"
+              role="textbox"
               rows="2"
               type="text"
             >

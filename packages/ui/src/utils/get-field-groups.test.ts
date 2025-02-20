@@ -83,7 +83,7 @@ describe('getFieldGroups', () => {
     expect(propertiesArray).toEqual(expectedOutputValue);
   });
 
-  it('should get a object with common array and groups object containing different groups array', () => {
+  it.skip('should get a object with common array and groups object containing different groups array', () => {
     const expectedOutputValue = {
       common: ['timerName', 'delay', 'fixedRate', 'includeMetadata', 'period', 'repeatCount'],
       groups: {

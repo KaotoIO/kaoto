@@ -1214,7 +1214,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a custom exchange formatter",
             "format": "bean:org.apache.camel.spi.ExchangeFormatter",
             "title": "Exchange Formatter",
-            "type": "object",
+            "type": "string",
           },
           "groupActiveOnly": {
             "$comment": "group:producer",
@@ -1764,7 +1764,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable read-lock as a org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy implementation.",
             "format": "bean:org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy<java.io.File>",
             "title": "Exclusive Read Lock Strategy",
-            "type": "object",
+            "type": "string",
           },
           "fileExist": {
             "$comment": "group:producer",
@@ -1793,7 +1793,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable filter as a org.apache.camel.component.file.GenericFileFilter class. Will skip files if filter returns false in its accept() method.",
             "format": "bean:org.apache.camel.component.file.GenericFileFilter<java.io.File>",
             "title": "Filter",
-            "type": "object",
+            "type": "string",
           },
           "filterDirectory": {
             "$comment": "group:filter",
@@ -1849,7 +1849,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "A pluggable repository org.apache.camel.spi.IdempotentRepository which by default use MemoryIdempotentRepository if none is specified and idempotent is true.",
             "format": "bean:org.apache.camel.spi.IdempotentRepository",
             "title": "Idempotent Repository",
-            "type": "object",
+            "type": "string",
           },
           "include": {
             "$comment": "group:filter",
@@ -1925,7 +1925,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Strategy (Custom Strategy) used to move file with special naming token to use when fileExist=Move is configured. By default, there is an implementation used if no custom strategy is provided",
             "format": "bean:org.apache.camel.component.file.strategy.FileMoveExistingStrategy",
             "title": "Move Existing File Strategy",
-            "type": "object",
+            "type": "string",
           },
           "readLock": {
             "$comment": "group:lock",
@@ -1981,7 +1981,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a custom and shared thread pool for asynchronous release tasks. See more details at the readLockIdempotentReleaseDelay option.",
             "format": "bean:java.util.concurrent.ScheduledExecutorService",
             "title": "Read Lock Idempotent Release Executor Service",
-            "type": "object",
+            "type": "string",
           },
           "readLockLoggingLevel": {
             "$comment": "group:lock",
@@ -2074,7 +2074,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.",
             "format": "bean:java.util.concurrent.ScheduledExecutorService",
             "title": "Scheduled Executor Service",
-            "type": "object",
+            "type": "string",
           },
           "scheduler": {
             "$comment": "group:scheduler",
@@ -2082,7 +2082,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler",
             "format": "bean:java.lang.Object",
             "title": "Scheduler",
-            "type": "object",
+            "type": "string",
           },
           "schedulerProperties": {
             "$comment": "group:scheduler",
@@ -2107,7 +2107,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable sorter as a java.util.Comparator class.",
             "format": "bean:java.util.Comparator<org.apache.camel.component.file.GenericFile<java.io.File>>",
             "title": "Sorter",
-            "type": "object",
+            "type": "string",
           },
           "startScheduler": {
             "$comment": "group:scheduler",
@@ -2355,7 +2355,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored.",
             "format": "bean:org.apache.camel.spi.ExceptionHandler",
             "title": "Exception Handler",
-            "type": "object",
+            "type": "string",
           },
           "exchangePattern": {
             "$comment": "group:consumer (advanced)",
@@ -2385,7 +2385,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable read-lock as a org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy implementation.",
             "format": "bean:org.apache.camel.component.file.GenericFileExclusiveReadLockStrategy<java.io.File>",
             "title": "Exclusive Read Lock Strategy",
-            "type": "object",
+            "type": "string",
           },
           "extendedAttributes": {
             "$comment": "group:consumer (advanced)",
@@ -2404,7 +2404,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable filter as a org.apache.camel.component.file.GenericFileFilter class. Will skip files if filter returns false in its accept() method.",
             "format": "bean:org.apache.camel.component.file.GenericFileFilter<java.io.File>",
             "title": "Filter",
-            "type": "object",
+            "type": "string",
           },
           "filterDirectory": {
             "$comment": "group:filter",
@@ -2447,14 +2447,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "A pluggable repository org.apache.camel.spi.IdempotentRepository which by default use MemoryIdempotentRepository if none is specified and idempotent is true.",
             "format": "bean:org.apache.camel.spi.IdempotentRepository",
             "title": "Idempotent Repository",
-            "type": "object",
+            "type": "string",
           },
           "inProgressRepository": {
             "$comment": "group:consumer (advanced)",
             "description": "A pluggable in-progress repository org.apache.camel.spi.IdempotentRepository. The in-progress repository is used to account the current in progress files being consumed. By default a memory based repository is used.",
             "format": "bean:org.apache.camel.spi.IdempotentRepository",
             "title": "In Progress Repository",
-            "type": "object",
+            "type": "string",
           },
           "include": {
             "$comment": "group:filter",
@@ -2535,14 +2535,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a custom org.apache.camel.spi.ExceptionHandler to handle any thrown exceptions that happens during the file on completion process where the consumer does either a commit or rollback. The default implementation will log any exception at WARN level and ignore.",
             "format": "bean:org.apache.camel.spi.ExceptionHandler",
             "title": "On Completion Exception Handler",
-            "type": "object",
+            "type": "string",
           },
           "pollStrategy": {
             "$comment": "group:consumer (advanced)",
             "description": "A pluggable org.apache.camel.PollingConsumerPollingStrategy allowing you to provide your custom implementation to control error handling usually occurred during the poll operation before an Exchange have been created and being routed in Camel.",
             "format": "bean:org.apache.camel.spi.PollingConsumerPollStrategy",
             "title": "Poll Strategy",
-            "type": "object",
+            "type": "string",
           },
           "preMove": {
             "$comment": "group:consumer",
@@ -2567,7 +2567,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "A pluggable org.apache.camel.component.file.GenericFileProcessStrategy allowing you to implement your own readLock option or similar. Can also be used when special conditions must be met before a file can be consumed, such as a special ready file exists. If this option is set then the readLock option does not apply.",
             "format": "bean:org.apache.camel.component.file.GenericFileProcessStrategy<java.io.File>",
             "title": "Process Strategy",
-            "type": "object",
+            "type": "string",
           },
           "readLock": {
             "$comment": "group:lock",
@@ -2623,7 +2623,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a custom and shared thread pool for asynchronous release tasks. See more details at the readLockIdempotentReleaseDelay option.",
             "format": "bean:java.util.concurrent.ScheduledExecutorService",
             "title": "Read Lock Idempotent Release Executor Service",
-            "type": "object",
+            "type": "string",
           },
           "readLockLoggingLevel": {
             "$comment": "group:lock",
@@ -2722,7 +2722,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.",
             "format": "bean:java.util.concurrent.ScheduledExecutorService",
             "title": "Scheduled Executor Service",
-            "type": "object",
+            "type": "string",
           },
           "scheduler": {
             "$comment": "group:scheduler",
@@ -2730,7 +2730,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler",
             "format": "bean:java.lang.Object",
             "title": "Scheduler",
-            "type": "object",
+            "type": "string",
           },
           "schedulerProperties": {
             "$comment": "group:scheduler",
@@ -2761,7 +2761,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "description": "Pluggable sorter as a java.util.Comparator class.",
             "format": "bean:java.util.Comparator<org.apache.camel.component.file.GenericFile<java.io.File>>",
             "title": "Sorter",
-            "type": "object",
+            "type": "string",
           },
           "startScheduler": {
             "$comment": "group:scheduler",

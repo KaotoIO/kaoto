@@ -41,11 +41,13 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
       <TextInputGroup>
         <TextInputGroupMain
           type="text"
+          role="textbox"
           id={propName}
           name={propName}
           placeholder={schema.default?.toString()}
           value={value}
           onChange={onFieldChange}
+          aria-label={schema.title}
           aria-describedby={id}
         />
 
