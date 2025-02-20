@@ -23,6 +23,8 @@ export const OneOfField: FunctionComponent<FieldProps> = ({ propName }) => {
       schemas={oneOfSchemas}
       onChange={onSchemaChange}
       onCleanInput={onCleanInput}
+      aria-label={`${propName} oneof list`}
+      data-testid={`${propName}__oneof-list`}
     >
       {selectedOneOfSchema && (
         <SchemaProvider schema={selectedOneOfSchema.schema}>

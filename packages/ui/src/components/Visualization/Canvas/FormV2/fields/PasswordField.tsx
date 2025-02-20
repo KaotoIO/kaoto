@@ -48,6 +48,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           placeholder={schema.default?.toString()}
           value={value}
           onChange={onFieldChange}
+          aria-label={schema.title}
           aria-describedby={id}
         />
 
@@ -55,7 +56,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           <Button
             variant="plain"
             data-testid={`${propName}__toggle-visibility`}
-            aria-label={passwordHidden ? 'Show' : 'Hide'}
+            aria-label={passwordHidden ? `Show ${lastPropName} value` : `Hide ${lastPropName} value`}
             onClick={() => {
               setPasswordHidden(!passwordHidden);
             }}

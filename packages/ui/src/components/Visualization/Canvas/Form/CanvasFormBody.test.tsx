@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import {
   CamelCatalogService,
   CamelRouteVisualEntity,
@@ -10,11 +10,12 @@ import {
   IKameletDefinition,
 } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { VisibleFlowsProvider, CanvasFormTabsContext } from '../../../../providers';
+import { CanvasFormTabsContext, VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { SchemaService } from '../../../Form';
+import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
+import { KaotoFormPageObject } from '../FormV2/testing/KaotoFormPageObject';
 import { CanvasFormBody } from './CanvasFormBody';
 
 describe('CanvasFormBody', () => {
@@ -84,32 +85,21 @@ describe('CanvasFormBody', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const button = screen
-        .getAllByTestId('typeahead-select-input')
-        .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
-        fireEvent.click(button[0]);
-      });
-      const simple = screen.getByTestId('expression-dropdownitem-simple');
-      act(() => {
-        fireEvent.click(simple.getElementsByTagName('button')[0]);
-      });
-      const expressionInput = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      act(() => {
-        fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-      });
+
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.inputText('Expression', '${header.foo}');
+
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader!.expression as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('foo');
 
-      const filtered = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Name');
-      act(() => {
-        fireEvent.input(filtered[0], { target: { value: 'bar' } });
-      });
+      await formPageObject.inputText('Name', 'bar');
+
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader!.expression as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
     });
 
@@ -154,31 +144,20 @@ describe('CanvasFormBody', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const filtered = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Name');
-      act(() => {
-        fireEvent.input(filtered[0], { target: { value: 'bar' } });
-      });
-      expect(camelRoute.from.steps[0].setHeader!.expression).toBeUndefined();
+
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.inputText('Name', 'bar');
+
+      expect(camelRoute.from.steps[0].setHeader!.simple).toBeUndefined();
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
 
-      const button = screen
-        .getAllByTestId('typeahead-select-input')
-        .filter((input) => input.innerHTML.includes(SchemaService.DROPDOWN_PLACEHOLDER));
-      act(() => {
-        fireEvent.click(button[0]);
-      });
-      const simple = screen.getByTestId('expression-dropdownitem-simple');
-      act(() => {
-        fireEvent.click(simple.getElementsByTagName('button')[0]);
-      });
-      const expressionInput = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      act(() => {
-        fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-      });
+      await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.inputText('Expression', '${header.foo}');
+
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader!.expression as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
     });
   });
@@ -230,22 +209,17 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(button[0]);
-      });
-      const avro = screen.getByTestId('dataformat-dropdownitem-avro');
-      await act(async () => {
-        fireEvent.click(avro.getElementsByTagName('button')[0]);
-      });
-      expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'avro');
+
+      await formPageObject.inputText('Id', 'avro-id', { index: 1 });
+
+      expect((camelRoute.from.steps[0].marshal!.avro as any).id).toEqual('avro-id');
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('ms');
 
-      const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      await act(async () => {
-        fireEvent.input(idInput[1], { target: { value: 'modified' } });
-      });
-      expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
+      await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
     });
 
@@ -291,22 +265,16 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      await act(async () => {
-        fireEvent.input(idInput[0], { target: { value: 'modified' } });
-      });
-      expect(camelRoute.from.steps[0].marshal!.avro).toBeUndefined();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(button[0]);
-      });
-      const avro = screen.getByTestId('dataformat-dropdownitem-avro');
-      await act(async () => {
-        fireEvent.click(avro.getElementsByTagName('button')[0]);
-      });
-      expect(camelRoute.from.steps[0].marshal!.avro).toBeDefined();
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'avro');
+      await formPageObject.inputText('Id', 'avro-id', { index: 1 });
+
+      expect((camelRoute.from.steps[0].marshal!.avro as any).id).toEqual('avro-id');
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
     });
   });
@@ -358,22 +326,17 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(button[0]);
-      });
-      const weightedLoadBalancer = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
-      await act(async () => {
-        fireEvent.click(weightedLoadBalancer.getElementsByTagName('button')[0]);
-      });
-      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'weighted load balancer');
+
+      await formPageObject.inputText('Distribution Ratio', '3.5');
+      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('lb');
 
-      const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      await act(async () => {
-        fireEvent.input(idInput[1], { target: { value: 'modified' } });
-      });
-      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
+      await formPageObject.inputText('Id', 'modified', { index: 0 });
+      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
 
@@ -419,22 +382,16 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      const idInput = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Id');
-      await act(async () => {
-        fireEvent.input(idInput[0], { target: { value: 'modified' } });
-      });
-      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeUndefined();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
-      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(button[0]);
-      });
-      const weighted = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
-      await act(async () => {
-        fireEvent.click(weighted.getElementsByTagName('button')[0]);
-      });
-      expect(camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer).toBeDefined();
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'weighted load balancer');
+
+      await formPageObject.inputText('Distribution Ratio', '3.5');
+      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
   });

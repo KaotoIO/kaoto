@@ -30,6 +30,8 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
       <Checkbox
         id={propName}
         name={propName}
+        role="checkbox"
+        aria-label={schema.title}
         aria-describedby={id}
         isChecked={value}
         checked={value}

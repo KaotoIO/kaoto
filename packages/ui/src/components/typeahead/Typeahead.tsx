@@ -39,6 +39,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   placeholder = 'Select or write an option',
   onChange,
   onCleanInput,
+  'aria-label': ariaLabel,
   'data-testid': dataTestId,
   onCreate,
   onCreatePrefix,
@@ -126,15 +127,14 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       onClick={onToggleClick}
       isExpanded={isOpen}
       variant="typeahead"
-      aria-label="Typeahead select"
+      aria-label={`${ariaLabel} toggle`}
       id={id}
-      data-testid={dataTestId}
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
           autoComplete="off"
-          id={`typeahead-select-input-${id}`}
-          data-testid={`typeahead-select-input-${dataTestId}`}
+          id={`${id}-typeahead-select-input`}
+          data-testid={`${dataTestId}-typeahead-select-input`}
           ref={inputRef}
           placeholder={placeholder}
           onClick={onToggleClick}
@@ -148,6 +148,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
               variant="plain"
               onClick={onTextInputClear}
               aria-label="Clear input value"
+              data-testid={`${dataTestId}__clear`}
               icon={<TimesIcon aria-hidden />}
             />
           )}
@@ -158,8 +159,8 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   return (
     <Select
-      id={`typeahead-select-${id}`}
-      data-testid={`typeahead-select-${dataTestId}`}
+      id={`${id}-typeahead-select`}
+      data-testid={`${dataTestId}-typeahead-select`}
       isScrollable
       shouldFocusToggleOnSelect
       isOpen={isOpen}
@@ -170,13 +171,21 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     >
       <SelectList>
         {filteredItems.map((item) => (
-          <SelectOption key={item.name} value={item.value} description={item.description}>
+          <SelectOption
+            key={item.name}
+            value={item.value}
+            description={item.description}
+            aria-label={`option ${item.name.toLocaleLowerCase()}`}
+          >
             {item.name}
           </SelectOption>
         ))}
 
         {filteredItems.length === 0 && onCreate && (
-          <SelectOption value={createNewWithNameValue}>
+          <SelectOption
+            value={createNewWithNameValue}
+            aria-label={`option ${createNewWithNameValue.toLocaleLowerCase()}`}
+          >
             Create new {onCreatePrefix} &quot;{inputValue}&quot;
           </SelectOption>
         )}

@@ -1,4 +1,5 @@
 import { getCamelRandomId, getHexaDecimalRandomId, getObjectHash } from './camel-random-id';
+import { subtle } from 'node:crypto';
 
 describe('camel-random-id', () => {
   it('should return a random number', () => {
@@ -55,6 +56,12 @@ describe('getHexaDecimalRandomId()', () => {
 });
 
 describe('getObjectHash()', () => {
+  beforeEach(() => {
+    jest
+      .spyOn(global, 'crypto', 'get')
+      .mockImplementation(() => ({ subtle, getRandomValues: () => [19508888] }) as unknown as Crypto);
+  });
+
   it('should return a hash of an object', async () => {
     const hash = await getObjectHash({ a: 1, b: 2 });
     expect(hash).toEqual(expect.any(String));
