@@ -39,6 +39,7 @@ export class BeansXmlParser {
 
     bean['constructors'] = this.parseBeanConstructors(beanElement);
     bean['properties'] = this.parseBeanProperties(beanElement);
+    bean['script'] = this.parseScript(beanElement);
 
     return bean;
   }
@@ -91,5 +92,13 @@ export class BeansXmlParser {
     });
 
     return this.beans;
+  }
+
+  private static parseScript(beanElement: Element): string | undefined {
+    const scriptElement = beanElement.getElementsByTagName('script')[0];
+    if (scriptElement) {
+      return scriptElement.textContent as string;
+    }
+    return undefined;
   }
 }
