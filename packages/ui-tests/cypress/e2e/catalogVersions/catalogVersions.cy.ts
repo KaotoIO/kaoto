@@ -26,7 +26,7 @@ describe('Test for catalog versions', () => {
       cy.openDesignPage();
 
       cy.hoverOnRuntime(data.type);
-      cy.get(`[data-testid^="runtime-selector-${data.version}"] button.pf-v5-c-menu__item`)
+      cy.get(`[data-testid^="runtime-selector-${data.version}"] button.pf-v6-c-menu__item`)
         .first()
         .click({ force: true });
       cy.get('body').then((body) => {
