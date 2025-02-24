@@ -1,5 +1,5 @@
 import { ICamelElementLookupResult } from '../models/visualization/flows/support/camel-component-types';
-import { CamelUriHelper } from './camel-uri-helper';
+import { CamelUriHelper, ParsedParameters } from './camel-uri-helper';
 
 describe('CamelUriHelper', () => {
   describe('getUriString', () => {
@@ -141,6 +141,206 @@ describe('CamelUriHelper', () => {
       'for an URI: `$uri`, using the syntax: `$syntax`, should return `$result`',
       ({ syntax, uri, result, requiredParameters }) => {
         expect(CamelUriHelper.getParametersFromPathString(syntax, uri, { requiredParameters })).toEqual(result);
+      },
+    );
+  });
+
+  describe('getUriStringFromParameters', () => {
+    it.each([
+      {
+        uri: 'kamelet:MyTemplate/MyRouteId',
+        syntax: 'kamelet:templateId/routeId',
+        parameters: { templateId: 'MyTemplate', routeId: 'MyRouteId' },
+        result: 'kamelet:MyTemplate/MyRouteId',
+      },
+      {
+        uri: 'kamelet:MyTemplate',
+        syntax: 'kamelet:templateId/routeId',
+        parameters: { templateId: 'MyTemplate' },
+        result: 'kamelet:MyTemplate',
+      },
+      { uri: 'log', syntax: 'log', parameters: {}, result: 'log' },
+      {
+        uri: 'timer',
+        syntax: 'timer:timerName',
+        parameters: undefined,
+        result: 'timer',
+      },
+      {
+        uri: 'timer',
+        syntax: 'timer:timerName',
+        parameters: null,
+        result: 'timer',
+      },
+      {
+        uri: 'timer',
+        syntax: 'timer:timerName',
+        parameters: {},
+        result: 'timer',
+      },
+      {
+        uri: 'timer:myTimer',
+        syntax: 'timer:timerName',
+        parameters: { timerName: 'myTimer' },
+        result: 'timer:myTimer',
+      },
+      {
+        uri: 'timer:myTimer',
+        syntax: 'timer:timerName',
+        parameters: { timerName: 'myTimer', groupDelay: 1000, groupSize: 5 },
+        result: 'timer:myTimer?groupDelay=1000&groupSize=5',
+      },
+      { uri: 'as2', syntax: 'as2:apiName/methodName', parameters: {}, result: 'as2' },
+      {
+        uri: 'activemq',
+        syntax: 'activemq:destinationType:destinationName',
+        parameters: { destinationType: 'queue', destinationName: 'myQueue' },
+        result: 'activemq:queue:myQueue',
+      },
+      {
+        uri: 'as2:CLIENT/GET',
+        syntax: 'as2:apiName/methodName',
+        parameters: {
+          apiName: 'CLIENT',
+          methodName: 'GET',
+        },
+        result: 'as2:CLIENT/GET',
+      },
+      {
+        uri: 'atmosphere-websocket',
+        syntax: 'atmosphere-websocket:servicePath',
+        parameters: { servicePath: '//localhost:8080/echo' },
+        result: 'atmosphere-websocket://localhost:8080/echo',
+      },
+      {
+        uri: 'avro',
+        syntax: 'avro:transport:host:port/messageName',
+        parameters: { transport: 'netty', host: 'localhost', port: 41414, messageName: 'foo' },
+        requiredParameters: ['transport', 'host', 'port'],
+        result: 'avro:netty:localhost:41414/foo',
+      },
+      {
+        uri: 'avro',
+        syntax: 'avro:transport:host:port/messageName',
+        parameters: {},
+        requiredParameters: ['transport', 'host', 'port'],
+        result: 'avro:::',
+      },
+      {
+        uri: 'aws2-eventbridge',
+        syntax: 'aws2-eventbridge://eventbusNameOrArn',
+        parameters: { eventbusNameOrArn: 'arn:aws:iam::123456789012:user/johndoe' },
+        requiredParameters: ['eventbusNameOrArn'],
+        result: 'aws2-eventbridge://arn:aws:iam::123456789012:user/johndoe',
+      },
+      {
+        uri: 'aws2-eventbridge://arn:aws:iam::123456789012:user/johndoe',
+        syntax: 'aws2-eventbridge://eventbusNameOrArn',
+        parameters: { eventbusNameOrArn: 'arn:aws:iam::123456789012:user/johndoe' },
+        requiredParameters: ['eventbusNameOrArn'],
+        result: 'aws2-eventbridge://arn:aws:iam::123456789012:user/johndoe',
+      },
+      {
+        uri: 'jms',
+        syntax: 'jms:destinationType:destinationName',
+        parameters: { destinationType: 'queue', destinationName: 'myQueue' },
+        requiredParameters: ['destinationName'],
+        defaultValues: { destinationType: 'queue' },
+        result: 'jms:queue:myQueue',
+      },
+      {
+        uri: 'jms',
+        syntax: 'jms:destinationType:destinationName',
+        parameters: { destinationName: 'myQueue' },
+        requiredParameters: ['destinationName'],
+        defaultValues: { destinationType: 'queue' },
+        result: 'jms:queue:myQueue',
+      },
+      {
+        uri: 'jms:myQueue',
+        syntax: 'jms:destinationType:destinationName',
+        parameters: { destinationName: 'myQueue' },
+        requiredParameters: ['destinationName'],
+        defaultValues: { destinationType: 'queue' },
+        result: 'jms:queue:myQueue',
+      },
+      {
+        uri: 'http',
+        syntax: 'http://httpUri',
+        parameters: { httpUri: 'helloworld.io/api/greetings/{header.name}' },
+        requiredParameters: ['httpUri'],
+        result: 'http://helloworld.io/api/greetings/{header.name}',
+      },
+      {
+        uri: 'https',
+        syntax: 'https://httpUri',
+        parameters: { httpUri: 'helloworld.io/api/greetings/{header.name}' },
+        requiredParameters: ['httpUri'],
+        result: 'https://helloworld.io/api/greetings/{header.name}',
+      },
+      {
+        uri: 'https',
+        syntax: 'https://httpUri',
+        parameters: { httpUri: 'https://helloworld.io/api/greetings/{header.name}' },
+        requiredParameters: ['httpUri'],
+        result: 'https://helloworld.io/api/greetings/{header.name}',
+      },
+      {
+        uri: 'ftp',
+        syntax: 'ftp:host:port/directoryName',
+        parameters: { host: 'localhost', port: 21, directoryName: 'a/nested/directory' },
+        requiredParameters: ['host'],
+        result: 'ftp:localhost:21/a/nested/directory',
+      },
+      {
+        uri: 'rest-openapi',
+        syntax: 'rest-openapi:specificationUri#operationId',
+        parameters: { specificationUri: 'afile-openapi.json', operationId: 'myOperationId' },
+        defaultValues: { specificationUri: 'openapi.json' },
+        requiredParameters: ['operationId'],
+        result: 'rest-openapi:afile-openapi.json#myOperationId',
+      },
+      {
+        uri: 'rest-openapi',
+        syntax: 'rest-openapi:specificationUri#operationId',
+        parameters: { specificationUri: '', operationId: 'myOperationId' },
+        defaultValues: { specificationUri: 'openapi.json' },
+        requiredParameters: ['operationId'],
+        result: 'rest-openapi:openapi.json#myOperationId',
+      },
+      {
+        uri: 'rest-openapi',
+        syntax: 'rest-openapi:specificationUri#operationId',
+        parameters: { operationId: 'myOperationId' },
+        defaultValues: { specificationUri: 'openapi.json' },
+        requiredParameters: ['operationId'],
+        result: 'rest-openapi:openapi.json#myOperationId',
+      },
+      {
+        uri: 'rest',
+        syntax: 'rest:method:path:uriTemplate',
+        parameters: { uriTemplate: '{header.name}' },
+        requiredParameters: ['method', 'path'],
+        result: 'rest:::{header.name}',
+      },
+      {
+        uri: 'rest',
+        syntax: 'rest:method:path:uriTemplate',
+        parameters: { method: 'options', path: 'myPath' },
+        requiredParameters: ['method', 'path'],
+        result: 'rest:options:myPath',
+      },
+    ])(
+      'should return `$result` for `$parameters`',
+      ({ uri, syntax, parameters, requiredParameters, defaultValues: testDefaultValues, result }) => {
+        const defaultValues = testDefaultValues ?? {};
+
+        expect(
+          CamelUriHelper.getUriStringFromParameters(uri, syntax, parameters as unknown as ParsedParameters, {
+            requiredParameters,
+            defaultValues,
+          }),
+        ).toEqual(result);
       },
     );
   });
