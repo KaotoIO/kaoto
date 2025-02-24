@@ -1,4 +1,3 @@
-import { cloneDeep } from 'lodash';
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { updatePipeFromCustomSchema, getCustomSchemaFromPipe } from './';
 
@@ -63,11 +62,10 @@ describe('pipeCustomSchema', () => {
 
   describe('updatePipeFromCustomSchema', () => {
     it(`should preserve Pipe's original values when loading a malformed custom schema`, () => {
-      const originalValue = cloneDeep(inputPipeStruct);
       const value = undefined;
 
       updatePipeFromCustomSchema(inputPipeStruct, value as unknown as Record<string, unknown>);
-      expect(inputPipeStruct).toEqual(originalValue);
+      expect(inputPipeStruct).toMatchSnapshot();
     });
 
     it('should mutate the original kamelet when loading a custom schema', () => {
