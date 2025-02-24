@@ -65,7 +65,7 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
 
 Cypress.Commands.add('selectExpression', (expression: string, index?: number) => {
   index = index ?? 0;
-  cy.get('[data-testid="typeahead-select-input-#"]')
+  cy.get('[data-testid="#__expression-list-typeahead-select-input"]')
     .eq(index)
     .scrollIntoView()
     .should('be.visible')
@@ -79,21 +79,21 @@ Cypress.Commands.add('selectExpression', (expression: string, index?: number) =>
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
-  cy.get(`[data-testid="#.${inputGroup}"]`).within(() => {
+  cy.get(`[data-testid="#.${inputGroup}-typeahead-select-input"]`).within(() => {
     cy.get('input.pf-v6-c-text-input-group__text-input').clear();
   });
   cy.get('.pf-v6-c-menu__item-text').contains(value).click();
 });
 
 Cypress.Commands.add('configureBeanReference', (inputName: string, value: string) => {
-  cy.get(`[data-testid="typeahead-select-input-#.${inputName}"]`).scrollIntoView();
-  cy.get(`[data-testid="typeahead-select-input-#.${inputName}"]`).click();
+  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
+  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
   cy.get('.pf-v6-c-menu__item-text').contains(value).first().click();
 });
 
 Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
-  cy.get(`[data-testid="typeahead-select-input-#.${inputName}"]`).scrollIntoView();
-  cy.get(`[data-testid="typeahead-select-input-#.${inputName}"]`).click();
+  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
+  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
   cy.get('.pf-v6-c-menu__item-text').contains('Create new bean').first().click();
 });
 
@@ -102,7 +102,7 @@ Cypress.Commands.add('selectDataformat', (dataformat: string) => {
 });
 
 Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
-  cy.get(`div[data-testid="typeahead-select-input-#"]`).click();
+  cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).click();
   cy.get('.pf-v6-c-menu__item-text').contains(format).first().click();
 });
 
@@ -111,7 +111,7 @@ Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: strin
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
-  cy.get(`div[data-testid="#.${inputName}"] button[aria-label="Clear input value"]`).click();
+  cy.get(`button[data-testid="#.${inputName}__clear"][aria-label="Clear input value"]`).click();
 });
 
 Cypress.Commands.add('addProperty', (propertyName: string) => {

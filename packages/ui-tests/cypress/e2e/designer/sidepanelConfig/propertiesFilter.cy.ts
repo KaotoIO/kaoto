@@ -16,11 +16,11 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="#.description"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
     cy.get(`input[name="#.disabled"]`).should('exist');
-    cy.get(`[data-testid="typeahead-select-input-#"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
 
     // filter fields
     cy.filterFields('name');
-    cy.get(`[data-testid="typeahead-select-input-#"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
     cy.get(`input[name="#.id"]`).should('not.exist');
     cy.get(`textarea[name="#.description"]`).should('not.exist');
@@ -41,16 +41,17 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`textarea[name="#.description"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
     cy.get(`input[name="#.disabled"]`).should('exist');
-    cy.get(`[data-testid="typeahead-select-input-#"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
 
     // filter fields
     cy.filterFields('DISABLED');
-    cy.get(`[data-testid="typeahead-select-input-#"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
     cy.get(`input[name="#.disabled"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('not.exist');
     cy.get(`input[name="#.id"]`).should('not.exist');
     cy.get(`textarea[name="#.description"]`).should('not.exist');
   });
+
   // reproducer for https://github.com/KaotoIO/kaoto/issues/1207
   it('Side panel step filtering multiple words', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
