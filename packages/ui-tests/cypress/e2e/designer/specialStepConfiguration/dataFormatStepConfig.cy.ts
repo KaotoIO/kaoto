@@ -11,7 +11,6 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
     cy.selectDataformat('Base64');
-    cy.get('[data-testid="#.base64__set"]').click();
     cy.expandWrappedSection('#.base64-Advanced');
     cy.interactWithDataformatInputObject('base64.lineLength', '128');
     cy.interactWithDataformatInputObject('base64.id', 'simpleDataformatId');
@@ -34,7 +33,6 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
     cy.selectDataformat('Avro');
-    cy.get('[data-testid="#.avro__set"]').click();
     cy.expandWrappedSection('#.avro-Advanced');
     cy.configureDropdownValue('avro.library', 'Jackson');
     cy.interactWithDataformatInputObject('avro.unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');

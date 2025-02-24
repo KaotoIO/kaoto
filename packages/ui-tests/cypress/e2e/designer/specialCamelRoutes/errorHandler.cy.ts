@@ -8,7 +8,7 @@ describe('Test for errorHandler configuration container', () => {
 
     cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
-    cy.get(`div[data-testid="typeahead-select-input-#"]`).clear();
+    cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).clear();
 
     cy.get('ul.pf-v6-c-menu__list > li:first')
       .should('contain.text', 'Dead Letter Channel')
@@ -30,9 +30,8 @@ describe('Test for errorHandler configuration container', () => {
     cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
 
-    cy.get(`div[data-testid="typeahead-select-input-#"]`).clear();
+    cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).clear();
     cy.get('.pf-v6-c-menu__item-text').contains('Default Error Handler').first().click();
-    cy.get('[data-testid="#.defaultErrorHandler__set"]').click();
     cy.expandWrappedSection('#.defaultErrorHandler-Advanced');
 
     cy.interactWithConfigInputObject('defaultErrorHandler.id', 'testId');
