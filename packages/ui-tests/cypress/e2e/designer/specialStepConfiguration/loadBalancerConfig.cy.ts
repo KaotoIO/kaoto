@@ -12,9 +12,8 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
     cy.openGroupConfigurationTab('loadBalance');
     cy.selectFormTab('All');
 
-    cy.get('[data-testid="typeahead-select-input-#"]').click();
+    cy.get('[data-testid="#__oneof-list-typeahead-select-input"]').click();
     cy.get('.pf-v6-c-menu__item-text').contains('Round Robin Load Balancer').first().click();
-    cy.get('[data-testid="#.roundRobinLoadBalancer__set"]').click();
 
     cy.interactWithConfigInputObject('roundRobinLoadBalancer.id', 'roundRobinId');
     cy.interactWithConfigInputObject('id', 'testId');
