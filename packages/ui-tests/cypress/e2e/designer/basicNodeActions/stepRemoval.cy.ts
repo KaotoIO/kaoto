@@ -33,8 +33,8 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('json-deserialize-action', 0);
     cy.checkCodeSpanLine('kafka-source', 0);
     cy.checkCodeSpanLine('kafka-sink', 0);
-    cy.checkCodeSpanLine('source: {}', 0);
-    cy.checkCodeSpanLine('sink: {}', 0);
+    cy.checkCodeSpanLine('source: {}', 1);
+    cy.checkCodeSpanLine('sink: {}', 1);
   });
 
   it('In an integration with at least two steps, user can not delete the from step', () => {
