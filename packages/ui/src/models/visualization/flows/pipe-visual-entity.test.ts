@@ -108,14 +108,14 @@ describe('Pipe', () => {
       pipeVisualEntity.removeStep('source');
 
       expect(pipeVisualEntity.toJSON()).not.toEqual(pipeJson.spec);
-      expect(pipeVisualEntity.pipe.spec?.source).toBeUndefined();
+      expect(pipeVisualEntity.pipe.spec?.source).toMatchObject({});
     });
 
     it('should remove the `sink` step', () => {
       pipeVisualEntity.removeStep('sink');
 
       expect(pipeVisualEntity.toJSON()).not.toEqual(pipeJson.spec);
-      expect(pipeVisualEntity.pipe.spec?.sink).toBeUndefined();
+      expect(pipeVisualEntity.pipe.spec?.sink).toMatchObject({});
     });
 
     it('should remove the `steps.0` step', () => {
