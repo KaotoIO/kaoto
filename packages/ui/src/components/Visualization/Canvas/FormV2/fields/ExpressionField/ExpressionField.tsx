@@ -7,6 +7,7 @@ import { FieldProps } from '../../typings';
 import { FieldWrapper } from '../FieldWrapper';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
+import { isEmpty } from 'lodash';
 
 /**
  * ExpressionField component.
@@ -33,8 +34,13 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
   const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
 
   const onExpressionChange = (propName: string, model: unknown) => {
-    const localValue = parsedModel ?? {};
+    let localValue = parsedModel ?? {};
     setValue(localValue, propName, model);
+
+    if (isEmpty(localValue)) {
+      localValue = undefined as unknown as Record<string, unknown>;
+    }
+
     onChange(localValue);
   };
 
