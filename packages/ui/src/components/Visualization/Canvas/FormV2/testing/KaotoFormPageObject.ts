@@ -45,6 +45,10 @@ export class KaotoFormPageObject {
     return this.screen.queryByTestId(`${propertyName}__oneof-list-typeahead-select-input`);
   }
 
+  getTypeaheadInputForProperty(propertyName: string): HTMLElement | null {
+    return this.screen.queryByTestId(`${propertyName}-typeahead-select-input`);
+  }
+
   getSetObjectButtonForProperty(propertyName: string): HTMLElement | null {
     return this.screen.queryByTestId(`${propertyName}__set`);
   }
@@ -69,17 +73,16 @@ export class KaotoFormPageObject {
 
   /**
    * Selects the specified item from the typeahead list.
-   * @param propertyName The name of the property, starting with `#` (f.i. `#.expression`)
    * @param itemName lowercase name of the item, f.i. "simple"
    */
-  async selectTypeaheadItem(propertyName: string, itemName: string): Promise<void> {
-    const expressionItem = this.screen.queryByRole('option', { name: `option ${itemName}` });
-    if (!isDefined(expressionItem)) {
-      throw new Error(`Expression item for property "${propertyName}" not found.`);
+  async selectTypeaheadItem(itemName: string): Promise<void> {
+    const optionItem = this.screen.queryByRole('option', { name: `option ${itemName}` });
+    if (!isDefined(optionItem)) {
+      throw new Error(`Option ${itemName} not found.`);
     }
 
     await this.executor(async () => {
-      fireEvent.click(expressionItem);
+      fireEvent.click(optionItem);
     });
   }
 
@@ -131,6 +134,21 @@ export class KaotoFormPageObject {
   }
 
   /**
+   * Toggles the oneOf field for the specified property.
+   * @param propertyName The name of the property, starting with `#` (f.i. `#`)
+   */
+  async toggleTypeaheadFieldForProperty(propertyName: string): Promise<void> {
+    const typeaheadInput = this.getTypeaheadInputForProperty(propertyName);
+    if (!isDefined(typeaheadInput)) {
+      throw new Error(`Typeahead input field for property "${propertyName}" not found.`);
+    }
+
+    await this.executor(async () => {
+      fireEvent.click(typeaheadInput);
+    });
+  }
+
+  /**
    * Clicks the "Set object" button for the specified property.
    * @param propertyName The name of the property, starting with `#` (f.i. `#.barcode`)
    */
@@ -142,6 +160,21 @@ export class KaotoFormPageObject {
 
     await this.executor(async () => {
       fireEvent.click(setObjectButton);
+    });
+  }
+
+  /**
+   * Clicks the "Clear" button for the specified property.
+   * @param propertyName The name of the property, starting with `#` (f.i. `#.barcode`)
+   */
+  async clearForProperty(propertyName: string): Promise<void> {
+    const clearButton = this.screen.queryByTestId(`${propertyName}__clear`);
+    if (!isDefined(clearButton)) {
+      throw new Error(`Clear button for property "${propertyName}" not found.`);
+    }
+
+    await this.executor(async () => {
+      fireEvent.click(clearButton);
     });
   }
 }

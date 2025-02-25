@@ -2,10 +2,10 @@ import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { BeansEntityHandler } from '../../../../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext } from '../../../../../providers';
-import { getSerializedModel, isDefined } from '../../../../../utils';
+import { getSerializedModel } from '../../../../../utils';
 import { extractGroup } from '../../../../../utils/get-tagged-field-from-string';
 import { NewBeanModal } from '../../../../Form';
-import { Typeahead } from '../../../../typeahead/Typeahead';
+import { CREATE_NEW_WITH_NAME_VALUE, Typeahead } from '../../../../typeahead/Typeahead';
 import { TypeaheadItem } from '../../../../typeahead/Typeahead.types';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -14,11 +14,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const BeanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string>(propName);
-  if (!isDefined(schema)) {
-    throw new Error(`BeanField: schema is not defined for ${propName}`);
-  }
-
+  const { value = '', onChange } = useFieldValue<string | undefined>(propName);
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beanReference = value;
@@ -67,14 +63,12 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
   );
 
   const onCleanInput = useCallback(() => {
-    onChange('');
+    onChange(undefined);
   }, [onChange]);
-
-  const createNewWithNameValue = 'create-new-with-name';
 
   const onSelect = useCallback((value: string | undefined, filterValue: string | undefined) => {
     if (value) {
-      if (value === createNewWithNameValue) {
+      if (value === CREATE_NEW_WITH_NAME_VALUE) {
         setInputValue(filterValue ?? '');
       } else {
         setInputValue('');
@@ -100,28 +94,32 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
     setInputValue(beanReference);
     setIsNewBeanModalOpen(false);
   }, [beanReference]);
-  const javaType = schema.format ? extractGroup('bean', schema.format) : '';
+  const javaType = extractGroup('bean', schema.format);
 
   return (
-    <FieldWrapper
-      propName={propName}
-      required={required}
-      title={schema.title}
-      type="string"
-      description={schema.description}
-      defaultValue={schema.default?.toString()}
-    >
-      <Typeahead
-        data-testid={propName}
-        selectedItem={selectedItem}
-        items={items}
-        placeholder={schema.default?.toString()}
-        id={propName}
-        onChange={onItemChange}
-        onCleanInput={onCleanInput}
-        onCreate={onSelect}
-        onCreatePrefix="bean"
-      />
+    <>
+      <FieldWrapper
+        propName={propName}
+        required={required}
+        title={schema.title}
+        type="string"
+        description={schema.description}
+        defaultValue={schema.default?.toString()}
+      >
+        <Typeahead
+          aria-label={schema.title ?? propName}
+          data-testid={propName}
+          selectedItem={selectedItem}
+          items={items}
+          placeholder={schema.default?.toString()}
+          id={propName}
+          onChange={onItemChange}
+          onCleanInput={onCleanInput}
+          onCreate={onSelect}
+          onCreatePrefix="bean"
+        />
+      </FieldWrapper>
+
       <NewBeanModal
         isOpen={isNewBeanModalOpen}
         beanSchema={beanSchema!}
@@ -131,6 +129,6 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
         onCreateBean={handleCreateBean}
         onCancelCreateBean={handleCancelCreateBean}
       />
-    </FieldWrapper>
+    </>
   );
 };

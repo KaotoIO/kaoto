@@ -375,7 +375,7 @@ describe('CanvasForm', () => {
       expect(expressionField).toBeInTheDocument();
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.selectTypeaheadItem('simple');
 
       let inputExpression = formPageObject.getFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
@@ -438,7 +438,7 @@ describe('CanvasForm', () => {
       expect(dataformatField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'barcode');
+      await formPageObject.selectTypeaheadItem('barcode');
 
       let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Barcode Format');
       expect(inputBarcodeFormat).toBeInTheDocument();
@@ -502,7 +502,7 @@ describe('CanvasForm', () => {
       expect(loadbalancerField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'failover load balancer');
+      await formPageObject.selectTypeaheadItem('failover load balancer');
 
       let inputRoundRobin = formPageObject.getFieldByDisplayName('Round Robin');
       expect(inputRoundRobin).toBeInTheDocument();
@@ -595,7 +595,7 @@ describe('CanvasForm', () => {
       expect(expressionField).toBeInTheDocument();
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.selectTypeaheadItem('simple');
 
       let inputExpression = formPageObject.getFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
@@ -654,7 +654,7 @@ describe('CanvasForm', () => {
       expect(dataformatField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'beanio');
+      await formPageObject.selectTypeaheadItem('beanio');
 
       let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Mapping');
       expect(inputBarcodeFormat).toBeInTheDocument();
@@ -714,7 +714,7 @@ describe('CanvasForm', () => {
       expect(loadbalancerField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'weighted load balancer');
+      await formPageObject.selectTypeaheadItem('weighted load balancer');
 
       let inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
       expect(inputDistributionRatio).toBeInTheDocument();
