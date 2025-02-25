@@ -89,7 +89,7 @@ describe('CanvasFormBody', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
       /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -153,7 +153,7 @@ describe('CanvasFormBody', () => {
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'simple');
+      await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
       /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -212,7 +212,7 @@ describe('CanvasFormBody', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'avro');
+      await formPageObject.selectTypeaheadItem('avro');
 
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
@@ -271,7 +271,7 @@ describe('CanvasFormBody', () => {
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'avro');
+      await formPageObject.selectTypeaheadItem('avro');
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
       expect((camelRoute.from.steps[0].marshal!.avro as any).id).toEqual('avro-id');
@@ -329,7 +329,7 @@ describe('CanvasFormBody', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'weighted load balancer');
+      await formPageObject.selectTypeaheadItem('weighted load balancer');
 
       await formPageObject.inputText('Distribution Ratio', '3.5');
       expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
@@ -388,7 +388,7 @@ describe('CanvasFormBody', () => {
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
-      await formPageObject.selectTypeaheadItem(ROOT_PATH, 'weighted load balancer');
+      await formPageObject.selectTypeaheadItem('weighted load balancer');
 
       await formPageObject.inputText('Distribution Ratio', '3.5');
       expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
