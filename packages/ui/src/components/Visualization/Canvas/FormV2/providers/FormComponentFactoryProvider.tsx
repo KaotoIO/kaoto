@@ -17,7 +17,7 @@ import { BeanField } from '../fields/BeanField';
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
 
 /* Name of the properties that should load TextAreaField */
-const TextAreaPropertyNames = ['Expression', 'Description', 'Query'];
+const TextAreaPropertyNames = ['Expression', 'Description', 'Query', 'Script'];
 
 export const FormComponentFactoryContext = createContext<FormComponentFactoryContextValue | undefined>(undefined);
 
