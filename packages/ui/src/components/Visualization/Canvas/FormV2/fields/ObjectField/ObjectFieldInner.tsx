@@ -10,9 +10,6 @@ interface ObjectFieldInnerProps extends FieldProps {
 
 export const ObjectFieldInner: FunctionComponent<ObjectFieldInnerProps> = ({ propName, requiredProperties }) => {
   const { schema } = useContext(SchemaContext);
-  if (!isDefined(schema)) {
-    throw new Error(`ObjectFieldInner: schema is not defined for ${propName}`);
-  }
 
   return (
     <>

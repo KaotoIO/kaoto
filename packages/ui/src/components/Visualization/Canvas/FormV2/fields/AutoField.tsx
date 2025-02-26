@@ -19,9 +19,10 @@ export const AutoField: FunctionComponent<FieldProps> = ({ propName, required, o
   }
 
   const isFieldDefined = isDefined(value);
-  const isObjectTypefield = schema.type === 'object' || 'oneOf' in schema || 'anyOf' in schema;
+  const isComplexFieldType =
+    schema.type === 'object' || schema.type === 'array' || 'oneOf' in schema || 'anyOf' in schema;
   const isFieldRequired = !isDefined(required) || (isDefined(required) && required);
-  const shouldLoadField = isFieldRequired || (isFieldDefined && isObjectTypefield);
+  const shouldLoadField = isFieldRequired || (isFieldDefined && isComplexFieldType);
 
   if ((selectedTab === 'Required' && !shouldLoadField) || (selectedTab === 'Modified' && !isFieldDefined)) {
     return null;

@@ -13,10 +13,6 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
   const { value, onChange } = useFieldValue<object>(propName);
   const [isExpanded, setIsExpanded] = useState(isDefined(value));
 
-  if (!isDefined(schema)) {
-    throw new Error(`ObjectField: schema is not defined for ${propName}`);
-  }
-
   const onSet = () => {
     setIsExpanded(true);
   };
