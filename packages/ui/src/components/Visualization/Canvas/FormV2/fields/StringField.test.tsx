@@ -5,10 +5,6 @@ import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
 
 describe('StringField', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('should render', () => {
     const { container } = render(
       <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>

@@ -18,10 +18,6 @@ describe('BeanField', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('should render', () => {
     const { Provider } = TestProvidersWrapper();
 
