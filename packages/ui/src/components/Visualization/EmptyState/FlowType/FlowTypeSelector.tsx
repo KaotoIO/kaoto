@@ -7,8 +7,10 @@ import {
   SelectOption,
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, PropsWithChildren, Ref, useCallback, useContext, useState } from 'react';
-import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import './FlowTypeSelector.scss';
+import { getSupportedDsls } from '../../../../serializers/serializer-dsl-lists';
 
 interface ISourceTypeSelector extends PropsWithChildren {
   isStatic?: boolean;
@@ -16,9 +18,10 @@ interface ISourceTypeSelector extends PropsWithChildren {
 }
 
 export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) => {
-  const { currentSchemaType, visualEntities } = useContext(EntitiesContext)!;
+  const { currentSchemaType, visualEntities, camelResource } = useContext(EntitiesContext)!;
   const totalFlowsCount = visualEntities.length;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const dslList = getSupportedDsls(camelResource);
   const [isOpen, setIsOpen] = useState(false);
 
   /** Toggle the DSL dropdown */
@@ -95,16 +98,11 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
         setIsOpen(isOpen);
       }}
       toggle={toggle}
-      style={{ width: '20rem' }}
     >
       <SelectList>
-        {Object.entries({
-          [SourceSchemaType.Route]: sourceSchemaConfig.config[SourceSchemaType.Route],
-          [SourceSchemaType.Kamelet]: sourceSchemaConfig.config[SourceSchemaType.Kamelet],
-          [SourceSchemaType.Pipe]: sourceSchemaConfig.config[SourceSchemaType.Pipe],
-        }).map((obj, index) => {
-          const sourceType = obj[0] as SourceSchemaType;
-          const sourceSchema = obj[1] as ISourceSchema;
+        {dslList.map((sourceType, index) => {
+          const sourceSchema = sourceSchemaConfig.config[sourceType];
+
           const isOptionDisabled =
             sourceSchema.name === currentFlowType.name && !sourceSchema.multipleRoute && totalFlowsCount > 0;
           return (
@@ -113,7 +111,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
               data-testid={`dsl-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
-                <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+                <span className="dsl-description">
                   {getDescriptionForType(sourceType) !== undefined
                     ? getDescriptionForType(sourceType)
                     : ((sourceSchema.schema?.schema as { description: string }).description ?? '')}
