@@ -1,21 +1,16 @@
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { FilteredFieldContext } from '../../../../../../providers';
-import { getFieldGroupsV2, getFilteredProperties, isDefined } from '../../../../../../utils';
+import { getFieldGroupsV2, getFilteredProperties } from '../../../../../../utils';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../typings';
 import { AnyOfField } from './AnyOfField';
-import { ObjectFieldInner } from './ObjectFieldInner';
 import { GroupFields } from './GroupFields';
+import { ObjectFieldInner } from './ObjectFieldInner';
 
 const SPACE_REGEX = /\s/g;
 
 export const ObjectFieldGrouping: FunctionComponent<FieldProps> = ({ propName }) => {
   const { schema } = useContext(SchemaContext);
-
-  if (!isDefined(schema)) {
-    throw new Error(`ObjectFieldGrouping: schema is not defined for ${propName}`);
-  }
-
   const { filteredFieldText } = useContext(FilteredFieldContext);
 
   const groupedProperties = useMemo(() => {

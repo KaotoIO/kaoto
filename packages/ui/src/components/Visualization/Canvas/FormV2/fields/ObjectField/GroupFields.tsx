@@ -26,7 +26,11 @@ export const GroupFields: FunctionComponent<GroupFieldsProps> = ({ propName, gro
             requiredProperties.includes(propName),
           );
           const hasObjectTypeProperty = Object.keys(groupProperties).some((propName) => {
-            if (groupProperties[propName].type === 'object' || '$ref' in groupProperties[propName]) {
+            if (
+              groupProperties[propName].type === 'object' ||
+              groupProperties[propName].type === 'array' ||
+              '$ref' in groupProperties[propName]
+            ) {
               return isDefined(value) && isDefined(value[propName]);
             }
           });
