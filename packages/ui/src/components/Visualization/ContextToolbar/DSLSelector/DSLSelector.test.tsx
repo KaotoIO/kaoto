@@ -1,8 +1,9 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../models';
-import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { DSLSelector } from './DSLSelector';
+import { XmlCamelResourceSerializer } from '../../../../serializers';
 
 describe('DSLSelector.tsx', () => {
   const config = sourceSchemaConfig;
@@ -38,10 +39,32 @@ describe('DSLSelector.tsx', () => {
       fireEvent.click(trigger);
     });
 
-    for (const name of ['Pipe', 'Camel Route']) {
+    for (const name of ['Pipe', 'Camel Route', 'Kamelet']) {
       const element = await wrapper.findByText(name);
       expect(element).toBeInTheDocument();
     }
+  });
+
+  it('should render only camel route when XML serializer is used', async () => {
+    const { Provider } = TestProvidersWrapper({
+      camelResource: new CamelRouteResource(undefined, new XmlCamelResourceSerializer()),
+    });
+    const wrapper = render(
+      <Provider>
+        <DSLSelector />
+      </Provider>,
+    );
+
+    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+
+    /** Open Select */
+    act(() => {
+      fireEvent.click(trigger);
+    });
+    let element = wrapper.queryByText('Camel Route');
+    expect(element).toBeInTheDocument();
+    element = wrapper.queryByText('Kamelet');
+    expect(element).toBeNull();
   });
 
   it('should warn the user when adding a different type of flow', async () => {
