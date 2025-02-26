@@ -11,6 +11,9 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { FormComponentFactoryContext, FormComponentFactoryProvider } from './FormComponentFactoryProvider';
+import { TextAreaField } from '../fields/TextAreaField';
+import { EnumField } from '../fields/EnumField';
+import { BeanField } from '../fields/BeanField';
 
 describe('FormComponentFactoryProvider', () => {
   it('should render children', () => {
@@ -24,14 +27,21 @@ describe('FormComponentFactoryProvider', () => {
 
   it.each([
     [{ format: 'password' }, PasswordField],
+    [{ type: 'string', title: 'Expression' }, TextAreaField],
+    [{ type: 'string', title: 'Description' }, TextAreaField],
+    [{ type: 'string', title: 'Query' }, TextAreaField],
+    [{ type: 'string', title: 'Script' }, TextAreaField],
+    [{ type: 'string', enum: ['in', 'out'] }, EnumField],
+    [{ type: 'object', properties: {} }, PropertiesField],
+    [{ type: 'object' }, PropertiesField],
+    [{ type: 'string', format: 'bean:javax.sql.datasource' }, BeanField],
+    [{ format: 'expression' }, ExpressionField],
+    [{ format: 'expressionProperty' }, ExpressionField],
     [{ type: 'string' }, StringField],
     [{ type: 'number' }, StringField],
     [{ type: 'integer' }, StringField],
     [{ type: 'boolean' }, BooleanField],
     [{ type: 'object', properties: { name: { type: 'string' } } }, ObjectField],
-    [{ type: 'object', properties: {} }, PropertiesField],
-    [{ format: 'expression' }, ExpressionField],
-    [{ format: 'expressionProperty' }, ExpressionField],
     [{ type: 'array' }, ArrayField],
     [{ oneOf: [] }, OneOfField],
     [{}, DisabledField],
