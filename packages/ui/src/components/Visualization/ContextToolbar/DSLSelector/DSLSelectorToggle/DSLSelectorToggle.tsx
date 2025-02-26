@@ -1,21 +1,18 @@
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
-import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useRef, useState } from 'react';
-import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../../models/camel';
+import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useState } from 'react';
+import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
+import { getSupportedDsls } from '../../../../../serializers/serializer-dsl-lists';
 
 interface ISourceTypeSelector {
   onSelect?: (value: SourceSchemaType) => void;
 }
 
 export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
-  const { currentSchemaType } = useContext(EntitiesContext)!;
+  const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
-  const dslEntriesRef = useRef<Partial<Record<SourceSchemaType, ISourceSchema>>>({
-    [SourceSchemaType.Route]: sourceSchemaConfig.config[SourceSchemaType.Route],
-    [SourceSchemaType.Kamelet]: sourceSchemaConfig.config[SourceSchemaType.Kamelet],
-    [SourceSchemaType.Pipe]: sourceSchemaConfig.config[SourceSchemaType.Pipe],
-  });
+  const dslEntries = getSupportedDsls(camelResource);
 
   const onSelect = useCallback(
     (_event: MouseEvent | undefined, flowType: string | number | undefined) => {
@@ -56,7 +53,8 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
       style={{ width: '20rem' }}
     >
       <SelectList>
-        {Object.entries(dslEntriesRef.current).map(([sourceType, sourceSchema], index) => {
+        {dslEntries.map((sourceType, index) => {
+          const sourceSchema = sourceSchemaConfig.config[sourceType];
           const isOptionDisabled = sourceSchema.name === currentFlowType.name;
 
           return (
