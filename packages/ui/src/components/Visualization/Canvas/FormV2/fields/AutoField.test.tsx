@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { inspect } from 'node:util';
-import { CanvasFormTabsContext } from '../../../../../providers';
+import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../../../../providers';
 import { ROOT_PATH } from '../../../../../utils';
 import { FormComponentFactoryContext, FormComponentFactoryProvider } from '../providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from '../providers/ModelProvider';
@@ -8,8 +8,12 @@ import { SchemaProvider } from '../providers/SchemaProvider';
 import { AutoField } from './AutoField';
 
 describe('AutoField', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
+  let requiredValue: CanvasFormTabsContextResult;
+  let modifiedValue: CanvasFormTabsContextResult;
+
+  beforeEach(() => {
+    requiredValue = { selectedTab: 'Required', onTabChange: jest.fn() };
+    modifiedValue = { selectedTab: 'Modified', onTabChange: jest.fn() };
   });
 
   it('should throw an error if schema is not defined', () => {
@@ -32,12 +36,7 @@ describe('AutoField', () => {
 
   it('it should not render when in `Required` mode but no required properties', () => {
     const wrapper = render(
-      <CanvasFormTabsContext.Provider
-        value={{
-          selectedTab: 'Required',
-          onTabChange: jest.fn(),
-        }}
-      >
+      <CanvasFormTabsContext.Provider value={requiredValue}>
         <FormComponentFactoryProvider>
           <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } } }}>
             <AutoField propName={ROOT_PATH} />
@@ -49,48 +48,152 @@ describe('AutoField', () => {
     expect(wrapper.container).toMatchSnapshot();
   });
 
-  it('it should render required fields when in `Required` mode', () => {
-    const wrapper = render(
-      <CanvasFormTabsContext.Provider
-        value={{
-          selectedTab: 'Required',
-          onTabChange: jest.fn(),
-        }}
-      >
-        <FormComponentFactoryProvider>
-          <SchemaProvider
-            schema={{
-              type: 'object',
-              properties: { name: { type: 'string' }, lastName: { type: 'string' } },
-              required: ['name'],
-            }}
-          >
-            <AutoField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </FormComponentFactoryProvider>
-      </CanvasFormTabsContext.Provider>,
-    );
+  describe('Required mode', () => {
+    it('it should render required fields', () => {
+      const wrapper = render(
+        <CanvasFormTabsContext.Provider value={requiredValue}>
+          <FormComponentFactoryProvider>
+            <SchemaProvider
+              schema={{
+                type: 'object',
+                properties: { name: { type: 'string' }, lastName: { type: 'string' } },
+                required: ['name'],
+              }}
+            >
+              <AutoField propName={ROOT_PATH} />
+            </SchemaProvider>
+          </FormComponentFactoryProvider>
+        </CanvasFormTabsContext.Provider>,
+      );
 
-    const inputFields = wrapper.queryAllByRole('textbox');
+      const inputFields = wrapper.queryAllByRole('textbox');
 
-    expect(inputFields).toHaveLength(1);
+      expect(inputFields).toHaveLength(1);
+    });
+
+    it('it should render nested required fields from non-required but defined object parent', () => {
+      const wrapper = render(
+        <CanvasFormTabsContext.Provider value={requiredValue}>
+          <FormComponentFactoryProvider>
+            <SchemaProvider
+              schema={{
+                type: 'object',
+                properties: { options: { type: 'object', properties: { key: { type: 'string' } }, required: ['key'] } },
+              }}
+            >
+              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={jest.fn()}>
+                <AutoField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </FormComponentFactoryProvider>
+        </CanvasFormTabsContext.Provider>,
+      );
+
+      const inputFields = wrapper.queryAllByRole('textbox');
+
+      expect(inputFields).toHaveLength(1);
+    });
+
+    it('it should render nested required fields from non-required but defined array parent', async () => {
+      await act(async () => {
+        render(
+          <CanvasFormTabsContext.Provider value={requiredValue}>
+            <FormComponentFactoryProvider>
+              <SchemaProvider
+                schema={{
+                  type: 'object',
+                  properties: {
+                    keys: {
+                      type: 'array',
+                      items: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+                    },
+                  },
+                }}
+              >
+                <ModelContextProvider model={{ keys: [{ name: 'MainKey' }] }} onPropertyChange={jest.fn()}>
+                  <AutoField propName={ROOT_PATH} />
+                </ModelContextProvider>
+              </SchemaProvider>
+            </FormComponentFactoryProvider>
+          </CanvasFormTabsContext.Provider>,
+        );
+      });
+
+      const inputFields = await screen.findAllByRole('textbox');
+      expect(inputFields).toHaveLength(1);
+    });
+
+    it('it should render nested required fields from oneOf', () => {
+      const wrapper = render(
+        <CanvasFormTabsContext.Provider value={requiredValue}>
+          <FormComponentFactoryProvider>
+            <SchemaProvider
+              schema={{
+                oneOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      options: { type: 'object', properties: { key: { type: 'string' } }, required: ['key'] },
+                    },
+                  },
+                ],
+              }}
+            >
+              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={jest.fn()}>
+                <AutoField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </FormComponentFactoryProvider>
+        </CanvasFormTabsContext.Provider>,
+      );
+
+      const inputFields = wrapper.queryAllByRole('textbox');
+
+      expect(inputFields).toHaveLength(1);
+    });
+
+    it('it should render nested required fields from anyOf', () => {
+      const wrapper = render(
+        <CanvasFormTabsContext.Provider value={requiredValue}>
+          <FormComponentFactoryProvider>
+            <SchemaProvider
+              schema={{
+                type: 'object',
+                anyOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      options: { type: 'object', properties: { lastname: { type: 'string' } }, required: ['lastname'] },
+                    },
+                  },
+                ],
+                properties: { name: { type: 'string' } },
+              }}
+            >
+              <ModelContextProvider model={{ options: { lastname: 'Smith' } }} onPropertyChange={jest.fn()}>
+                <AutoField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </FormComponentFactoryProvider>
+        </CanvasFormTabsContext.Provider>,
+      );
+
+      const inputFields = wrapper.queryAllByRole('textbox');
+      expect(inputFields).toHaveLength(1);
+      expect(inputFields[0]).toHaveValue('Smith');
+    });
   });
 
   it('it should not render when in `Modified` mode with no modified properties', () => {
     const wrapper = render(
-      <CanvasFormTabsContext.Provider
-        value={{
-          selectedTab: 'Modified',
-          onTabChange: jest.fn(),
-        }}
-      >
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
-          <FormComponentFactoryProvider>
-            <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } } }}>
+      <CanvasFormTabsContext.Provider value={modifiedValue}>
+        <FormComponentFactoryProvider>
+          <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } } }}>
+            <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
               <AutoField propName={ROOT_PATH} />
-            </SchemaProvider>
-          </FormComponentFactoryProvider>
-        </ModelContextProvider>
+            </ModelContextProvider>
+          </SchemaProvider>
+        </FormComponentFactoryProvider>
       </CanvasFormTabsContext.Provider>,
     );
 
@@ -99,26 +202,21 @@ describe('AutoField', () => {
 
   it('it should render when in `Modified` mode, properties with value', () => {
     const wrapper = render(
-      <CanvasFormTabsContext.Provider
-        value={{
-          selectedTab: 'Modified',
-          onTabChange: jest.fn(),
-        }}
-      >
+      <CanvasFormTabsContext.Provider value={modifiedValue}>
         <FormComponentFactoryProvider>
-          <ModelContextProvider model={{ name: 'test' }} onPropertyChange={jest.fn()}>
-            <SchemaProvider
-              schema={{
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  lastName: { type: 'string' },
-                },
-              }}
-            >
+          <SchemaProvider
+            schema={{
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                lastName: { type: 'string' },
+              },
+            }}
+          >
+            <ModelContextProvider model={{ name: 'test' }} onPropertyChange={jest.fn()}>
               <AutoField propName={ROOT_PATH} />
-            </SchemaProvider>
-          </ModelContextProvider>
+            </ModelContextProvider>
+          </SchemaProvider>
         </FormComponentFactoryProvider>
       </CanvasFormTabsContext.Provider>,
     );
@@ -129,15 +227,15 @@ describe('AutoField', () => {
   });
 
   it('should get the component to render from the fromComponentFactory callback', () => {
-    const factorySpy = jest.fn().mockReturnValue(() => <input name="name" />);
+    const factorySpy = jest.fn().mockReturnValue(() => <input aria-label="test" name="name" />);
 
     render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
-        <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
-          <SchemaProvider schema={{ type: 'string' }}>
+        <SchemaProvider schema={{ type: 'string' }}>
+          <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
             <AutoField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>
+          </ModelContextProvider>
+        </SchemaProvider>
       </FormComponentFactoryContext.Provider>,
     );
 
@@ -149,11 +247,11 @@ describe('AutoField', () => {
 
     const wrapper = render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
-        <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
-          <SchemaProvider schema={{ type: 'string' }}>
+        <SchemaProvider schema={{ type: 'string' }}>
+          <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
             <AutoField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>
+          </ModelContextProvider>
+        </SchemaProvider>
       </FormComponentFactoryContext.Provider>,
     );
 
