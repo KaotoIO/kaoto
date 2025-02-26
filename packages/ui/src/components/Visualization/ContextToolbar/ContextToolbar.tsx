@@ -3,7 +3,6 @@ import { FunctionComponent, JSX, useContext } from 'react';
 import { sourceSchemaConfig } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
 import './ContextToolbar.scss';
-import { DSLSelector } from './DSLSelector/DSLSelector';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';
 import { FlowsMenu } from './Flows/FlowsMenu';
@@ -15,9 +14,6 @@ export const ContextToolbar: FunctionComponent<{ additionalControls?: JSX.Elemen
   const isMultipleRoutes = sourceSchemaConfig.config[currentSchemaType].multipleRoute;
 
   const toolbarItems: JSX.Element[] = [
-    <ToolbarItem key="toolbar-dsl-selector">
-      <DSLSelector />
-    </ToolbarItem>,
     <ToolbarItem key="toolbar-flows-list">
       <FlowsMenu />
     </ToolbarItem>,
