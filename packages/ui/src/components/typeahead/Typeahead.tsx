@@ -109,16 +109,19 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     inputRef.current?.focus();
   };
 
-  const filteredItems = useMemo(
-    () =>
-      items.filter((item) => {
-        const hasNameMatch = item.name?.includes(inputValue);
-        const hasDescriptionMatch = item.description?.includes(inputValue);
+  const filteredItems = useMemo(() => {
+    const lowerFilterValue = inputValue.toLowerCase();
+    return items.filter((item) => {
+      if (!lowerFilterValue) {
+        return true;
+      }
 
-        return !inputValue || hasNameMatch || hasDescriptionMatch;
-      }),
-    [inputValue, items],
-  );
+      const hasNameMatch = item.name?.toLowerCase().includes(lowerFilterValue);
+      const hasDescriptionMatch = item.description?.toLowerCase().includes(lowerFilterValue);
+
+      return hasNameMatch || hasDescriptionMatch;
+    });
+  }, [inputValue, items]);
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
