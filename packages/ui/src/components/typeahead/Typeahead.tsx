@@ -104,7 +104,6 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   const onTextInputClear = () => {
     setInputValue('');
-    setIsOpen(true);
     onCleanInput?.();
     inputRef.current?.focus();
   };
@@ -171,6 +170,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       selected={selectedItem?.name}
       onSelect={onItemChanged}
       toggle={toggle}
+      onOpenChange={(isOpen) => setIsOpen(isOpen)}
       popperProps={DEFAULT_POPPER_PROPS}
     >
       <SelectList>
