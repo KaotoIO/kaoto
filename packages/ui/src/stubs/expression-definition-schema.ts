@@ -1643,3 +1643,271 @@ export const expressionDefinitions: KaotoSchemaDefinition['schema']['definitions
     required: ['expression'],
   },
 };
+
+export const setHeaderExpressionSchema: KaotoSchemaDefinition['schema'] = {
+  format: 'expression',
+  title: 'Test Expression',
+  description: 'Test Description',
+  default: 'default value',
+  definitions: {
+    'org.apache.camel.model.language.CSimpleExpression': {
+      title: 'CSimple',
+      description: 'Evaluate a compiled simple expression.',
+      required: ['expression'],
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        id: {
+          type: 'string',
+          title: 'Id',
+          description: 'Sets the id of this node',
+          $comment: 'group:common',
+        },
+        expression: {
+          type: 'string',
+          title: 'Expression',
+          description: 'The expression value in your chosen language syntax',
+          $comment: 'group:common',
+        },
+        resultType: {
+          type: 'string',
+          title: 'Result Type',
+          description: 'Sets the class of the result type (type from output)',
+          $comment: 'group:common',
+        },
+        trim: {
+          type: 'boolean',
+          title: 'Trim',
+          description: 'Whether to trim the value to remove leading and trailing whitespaces and line breaks',
+          $comment: 'group:advanced',
+          default: true,
+        },
+      },
+    },
+    'org.apache.camel.model.language.SimpleExpression': {
+      title: 'Simple',
+      description: 'Evaluates a Camel simple expression.',
+      required: ['expression'],
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        id: {
+          type: 'string',
+          title: 'Id',
+          description: 'Sets the id of this node',
+          $comment: 'group:common',
+        },
+        expression: {
+          type: 'string',
+          title: 'Expression',
+          description: 'The expression value in your chosen language syntax',
+          $comment: 'group:common',
+        },
+        resultType: {
+          type: 'string',
+          title: 'Result Type',
+          description: 'Sets the class of the result type (type from output)',
+          $comment: 'group:common',
+        },
+        trim: {
+          type: 'boolean',
+          title: 'Trim',
+          description: 'Whether to trim the value to remove leading and trailing whitespaces and line breaks',
+          $comment: 'group:advanced',
+          default: true,
+        },
+      },
+    },
+  },
+  oneOf: [
+    {
+      type: 'object',
+      anyOf: [
+        {
+          oneOf: [
+            {
+              type: 'object',
+              required: ['csimple'],
+              properties: {
+                csimple: {
+                  $ref: '#/definitions/org.apache.camel.model.language.CSimpleExpression',
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['simple'],
+              properties: {
+                simple: {
+                  $ref: '#/definitions/org.apache.camel.model.language.SimpleExpression',
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['wasm'],
+              properties: {
+                wasm: {
+                  $ref: '#/definitions/org.apache.camel.model.language.WasmExpression',
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['xpath'],
+              properties: {
+                xpath: {
+                  $ref: '#/definitions/org.apache.camel.model.language.XPathExpression',
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['xquery'],
+              properties: {
+                xquery: {
+                  $ref: '#/definitions/org.apache.camel.model.language.XQueryExpression',
+                },
+              },
+            },
+            {
+              type: 'object',
+              required: ['xtokenize'],
+              properties: {
+                xtokenize: {
+                  $ref: '#/definitions/org.apache.camel.model.language.XMLTokenizerExpression',
+                },
+              },
+            },
+          ],
+        },
+      ],
+      properties: {
+        constant: {},
+        csimple: {},
+        datasonnet: {},
+        exchangeProperty: {},
+        groovy: {},
+        header: {},
+        hl7terser: {},
+        java: {},
+        joor: {},
+        jq: {},
+        js: {},
+        jsonpath: {},
+        language: {},
+        method: {},
+        mvel: {},
+        ognl: {},
+        python: {},
+        ref: {},
+        simple: {},
+        spel: {},
+        tokenize: {},
+        variable: {},
+        wasm: {},
+        xpath: {},
+        xquery: {},
+        xtokenize: {},
+      },
+    },
+    {
+      not: {
+        anyOf: [
+          {
+            required: ['expression'],
+          },
+          {
+            required: ['constant'],
+          },
+          {
+            required: ['csimple'],
+          },
+          {
+            required: ['datasonnet'],
+          },
+          {
+            required: ['exchangeProperty'],
+          },
+          {
+            required: ['groovy'],
+          },
+          {
+            required: ['header'],
+          },
+          {
+            required: ['hl7terser'],
+          },
+          {
+            required: ['java'],
+          },
+          {
+            required: ['joor'],
+          },
+          {
+            required: ['jq'],
+          },
+          {
+            required: ['js'],
+          },
+          {
+            required: ['jsonpath'],
+          },
+          {
+            required: ['language'],
+          },
+          {
+            required: ['method'],
+          },
+          {
+            required: ['mvel'],
+          },
+          {
+            required: ['ognl'],
+          },
+          {
+            required: ['python'],
+          },
+          {
+            required: ['ref'],
+          },
+          {
+            required: ['simple'],
+          },
+          {
+            required: ['spel'],
+          },
+          {
+            required: ['tokenize'],
+          },
+          {
+            required: ['variable'],
+          },
+          {
+            required: ['wasm'],
+          },
+          {
+            required: ['xpath'],
+          },
+          {
+            required: ['xquery'],
+          },
+          {
+            required: ['xtokenize'],
+          },
+        ],
+      },
+    },
+    {
+      type: 'object',
+      required: ['expression'],
+      properties: {
+        expression: {
+          title: 'Expression',
+          description: 'Expression to return the value of the header',
+          $ref: '#/definitions/org.apache.camel.model.language.ExpressionDefinition',
+        },
+      },
+    },
+  ],
+};
