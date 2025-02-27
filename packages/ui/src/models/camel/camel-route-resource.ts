@@ -107,7 +107,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   setSerializer(serializerType: SerializerType): void {
     // Preserve comments
     const serializer = serializerType === 'XML' ? new XmlCamelResourceSerializer() : new YamlCamelResourceSerializer();
+
     serializer.setComments(this.serializer.getComments());
+    serializer.setMetadata(this.serializer.getMetadata());
+
     this.serializer = serializer;
   }
 
