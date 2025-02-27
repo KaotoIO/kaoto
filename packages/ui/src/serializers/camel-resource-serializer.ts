@@ -11,5 +11,7 @@ export interface CamelResourceSerializer {
   serialize: (resource: CamelResource) => string;
   getComments: () => string[];
   setComments: (comments: string[]) => void;
+  setMetadata: (metadata: string) => void;
+  getMetadata: () => string;
   getType(): SerializerType;
 }

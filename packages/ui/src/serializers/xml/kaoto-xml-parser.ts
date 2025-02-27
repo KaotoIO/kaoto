@@ -49,8 +49,12 @@ export class KaotoXmlParser {
   }
 
   parseXML(xml: string): unknown {
-    const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
-    return this.parseFromXmlDocument(xmlDoc);
+    try {
+      const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
+      return this.parseFromXmlDocument(xmlDoc);
+    } catch (e) {
+      console.log('Error parsing XML', e);
+    }
   }
 
   parseFromXmlDocument(xmlDoc: Document): unknown {
