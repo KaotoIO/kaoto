@@ -5,10 +5,6 @@ import { CanvasFormTabsContext } from '../../providers';
 export const NoFieldFound: FunctionComponent<{ className?: string }> = (props) => {
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
-  if (!canvasFormTabsContext) {
-    return null;
-  }
-
   return (
     <Card data-testid="no-field-found" className={props.className}>
       <CardBody>
