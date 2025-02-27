@@ -9,7 +9,11 @@ import { EntityDefinition } from './xml/serializers/entitiy-definition';
 
 export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   private comments: string[] = [];
+  private xmlDeclaration: string = '';
+  xmlSerializer: XMLSerializer = new XMLSerializer();
+
   private static readonly COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
+  private static readonly XML_DECLARATION_REGEX = /^\s*<\?xml(?:\s+[^>]*?)?\s*\??>/;
 
   getType(): SerializerType {
     return SerializerType.XML;
@@ -19,17 +23,18 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     return isXML(code as string);
   }
 
-  xmlSerializer: XMLSerializer = new XMLSerializer();
-
   parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
     const xmlParser = new KaotoXmlParser();
-    const entities = xmlParser.parseXML(code as string);
-    this.extractComments(code as string);
+
+    this.xmlDeclaration = this.parseXmlDeclaration(code as string);
+    const codeWithoutDeclaration = (code as string).replace(this.xmlDeclaration, '');
+    this.extractComments(codeWithoutDeclaration);
+    const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
+    console.log('code without declaration', codeWithoutDeclaration, this.xmlDeclaration);
     return entities as CamelYamlDsl;
   }
 
   serialize(resource: CamelResource): string {
-    console.log(resource);
     const entities: EntityDefinition[] = resource
       .getEntities()
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];
@@ -37,8 +42,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
 
     const xmlDocument = KaotoXmlSerializer.serialize(entities);
     let xmlString = this.xmlSerializer.serializeToString(xmlDocument);
-
-    xmlString = this.insertComments(xmlString);
+    xmlString = (this.xmlDeclaration !== '' ? this.xmlDeclaration + '\n' : '') + this.insertComments(xmlString);
 
     return formatXml(xmlString);
   }
@@ -51,17 +55,33 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     this.comments = comments;
   }
 
+  getMetadata(): string {
+    return this.xmlDeclaration;
+  }
+
+  setMetadata(metadata: string): void {
+    this.xmlDeclaration = metadata;
+  }
+
   private extractComments(xml: string): void {
     this.comments = [];
     let match;
+    let index = 0;
 
     while ((match = XmlCamelResourceSerializer.COMMENT_REGEX.exec(xml)) !== null) {
-      if (xml.slice(0, match.index).trim() === '') {
+      if (xml.slice(index, match.index).trim() === '') {
         this.comments.push(match[1].trim());
+        index = match.index + match[0].length;
       } else {
         break;
       }
     }
+  }
+
+  private parseXmlDeclaration(xml: string): string {
+    const match = XmlCamelResourceSerializer.XML_DECLARATION_REGEX.exec(xml);
+    console.log('match', match);
+    return match ? match[0] : '';
   }
 
   private insertComments(xml: string): string {

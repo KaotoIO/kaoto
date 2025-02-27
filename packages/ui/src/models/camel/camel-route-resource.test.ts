@@ -11,6 +11,7 @@ import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+import { SerializerType } from '../../serializers';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
@@ -193,6 +194,27 @@ describe('CamelRouteResource', () => {
       resource.removeEntity(camelRouteEntity.id);
 
       expect(resource.getVisualEntities()).toHaveLength(0);
+    });
+
+    it('should preserve comments and metadata when changing serializer', () => {
+      const resource = new CamelRouteResource([camelRouteJson]);
+      resource.setSerializer(SerializerType.XML);
+      resource['serializer'].setComments(['Initial Comment']);
+      resource['serializer'].setMetadata('<?xml version="1.0" encoding="UTF-8"?>');
+
+      // Change serializer to YAML
+      resource.setSerializer(SerializerType.YAML);
+
+      // Verify that comments and metadata are preserved
+      expect(resource['serializer'].getComments()).toEqual(['Initial Comment']);
+      expect(resource['serializer'].getMetadata()).toBe('<?xml version="1.0" encoding="UTF-8"?>');
+
+      // Change serializer back to XML
+      resource.setSerializer(SerializerType.XML);
+
+      // Verify that comments and metadata are still preserved
+      expect(resource['serializer'].getComments()).toEqual(['Initial Comment']);
+      expect(resource['serializer'].getMetadata()).toBe('<?xml version="1.0" encoding="UTF-8"?>');
     });
   });
 
