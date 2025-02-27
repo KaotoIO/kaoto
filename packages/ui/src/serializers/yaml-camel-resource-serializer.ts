@@ -17,6 +17,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
    */
   static readonly COMMENTED_LINES_REGEXP = /^\s*#.*$/;
   comments: string[] = [];
+  metadata: string = '';
 
   static isApplicable(code: unknown): boolean {
     return !isXML(code);
@@ -48,6 +49,14 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
 
   setComments(comments: string[]): void {
     this.comments = comments;
+  }
+
+  setMetadata(metadata: string): void {
+    this.metadata = metadata;
+  }
+
+  getMetadata(): string {
+    return this.metadata;
   }
 
   private parseComments(code: string): string[] {
