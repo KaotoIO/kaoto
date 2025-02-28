@@ -9,7 +9,8 @@ metadata:
   tags:
     - JavaScript
     - React
-    - Spring
+    - Quarkus
+    - Camel
   language: JavaScript
   projectType: "Node.js"
 components:
