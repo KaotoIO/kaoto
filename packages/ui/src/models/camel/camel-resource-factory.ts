@@ -18,10 +18,7 @@ export class CamelResourceFactory {
   static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): CamelResource {
     const pathResourceType = getResourceTypeFromPath(options.path);
 
-    const serializer: CamelResourceSerializer = XmlCamelResourceSerializer.isApplicable(source)
-      ? new XmlCamelResourceSerializer()
-      : new YamlCamelResourceSerializer();
-
+    const serializer = this.initSerializer(source, options.path);
     const parsedCode = typeof source === 'string' ? serializer.parse(source) : source;
     const resource = CamelKResourceFactory.getCamelKResource(
       parsedCode as Integration | KameletBinding | Pipe | IKameletDefinition,
@@ -30,5 +27,19 @@ export class CamelResourceFactory {
 
     if (resource) return resource;
     return new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
+  }
+
+  private static initSerializer(source?: string, path?: string): CamelResourceSerializer {
+    if (!path) {
+      return XmlCamelResourceSerializer.isApplicable(source)
+        ? new XmlCamelResourceSerializer()
+        : new YamlCamelResourceSerializer();
+    }
+
+    if (path.endsWith('.xml')) {
+      return new XmlCamelResourceSerializer();
+    }
+
+    return new YamlCamelResourceSerializer();
   }
 }
