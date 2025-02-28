@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { CamelResource, SourceSchemaType } from '../models/camel';
+import { CamelResource } from '../models/camel';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
@@ -36,7 +36,7 @@ describe('useEntities', () => {
     const { result } = renderHook(() => useEntities());
 
     act(() => {
-      eventNotifier.next('code:updated', camelRouteYaml);
+      eventNotifier.next('code:updated', { code: camelRouteYaml });
     });
 
     expect(result.current.entities).toEqual([]);
@@ -48,7 +48,7 @@ describe('useEntities', () => {
     const { result } = renderHook(() => useEntities());
 
     act(() => {
-      eventNotifier.next('code:updated', camelRouteYaml_1_1_original);
+      eventNotifier.next('code:updated', { code: camelRouteYaml_1_1_original });
     });
 
     act(() => {
@@ -131,37 +131,6 @@ describe('useEntities', () => {
     );
   });
 
-  it('should recreate the Camel Resource when the schema is updated', () => {
-    let firstCamelResource: CamelResource;
-    let secondCamelResource: CamelResource;
-
-    const { result } = renderHook(() => useEntities());
-
-    act(() => {
-      firstCamelResource = result.current.camelResource;
-      result.current.setCurrentSchemaType(SourceSchemaType.Route);
-    });
-
-    act(() => {
-      secondCamelResource = result.current.camelResource;
-      expect(firstCamelResource).not.toBe(secondCamelResource);
-    });
-  });
-
-  it('should notify subscribers when the schema is updated', () => {
-    const notifierSpy = jest.spyOn(eventNotifier, 'next');
-    const { result } = renderHook(() => useEntities());
-
-    act(() => {
-      result.current.setCurrentSchemaType(SourceSchemaType.Route);
-    });
-
-    expect(notifierSpy).toHaveBeenCalledWith(
-      'entities:updated',
-      `[]
-`,
-    );
-  });
   it(`should store code's comments`, () => {
     const code = `# This is a comment
       # An indented comment
@@ -184,7 +153,7 @@ describe('useEntities', () => {
     const { result } = renderHook(() => useEntities());
 
     act(() => {
-      eventNotifier.next('code:updated', code);
+      eventNotifier.next('code:updated', { code });
     });
 
     expect(result.current.camelResource.toString()).toContain(

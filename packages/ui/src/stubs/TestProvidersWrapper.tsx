@@ -13,7 +13,6 @@ interface TestProviderWrapperProps extends PropsWithChildren {
 
 interface TestProvidersWrapperResult {
   Provider: FunctionComponent<PropsWithChildren>;
-  setCurrentSchemaTypeSpy: EntitiesContextResult['setCurrentSchemaType'];
   updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
   updateSourceCodeFromEntitiesSpy: EntitiesContextResult['updateSourceCodeFromEntities'];
 }
@@ -21,7 +20,6 @@ interface TestProvidersWrapperResult {
 export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): TestProvidersWrapperResult => {
   const camelResource = props.camelResource ?? new CamelRouteResource([camelRouteJson]);
   const currentSchemaType = camelResource.getType();
-  const setCurrentSchemaTypeSpy = jest.fn();
   const updateEntitiesFromCamelResourceSpy = jest.fn();
   const updateSourceCodeFromEntitiesSpy = jest.fn();
 
@@ -41,7 +39,6 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
           entities: camelResource.getEntities(),
           visualEntities: camelResource.getVisualEntities(),
           currentSchemaType,
-          setCurrentSchemaType: setCurrentSchemaTypeSpy,
           updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
           updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
         } as unknown as EntitiesContextResult
@@ -51,5 +48,5 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
     </EntitiesContext.Provider>
   );
 
-  return { Provider, setCurrentSchemaTypeSpy, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };
+  return { Provider, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };
 };

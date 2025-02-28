@@ -62,7 +62,7 @@ export const RouteVisualization: React.FC<{
   }, [eventNotifier, codeChange]);
 
   useEffect(() => {
-    eventNotifier.next('code:updated', code);
+    eventNotifier.next('code:updated', { code });
   }, [code, eventNotifier]);
 
   return (

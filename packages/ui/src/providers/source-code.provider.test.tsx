@@ -49,7 +49,7 @@ describe('SourceCodeProvider', () => {
       );
     });
 
-    expect(notifierSpy).toHaveBeenCalledWith('code:updated', camelRouteYaml);
+    expect(notifierSpy).toHaveBeenCalledWith('code:updated', { code: camelRouteYaml, path: undefined });
   });
 });
 

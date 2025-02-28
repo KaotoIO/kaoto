@@ -6,9 +6,9 @@ describe('EventNotifier', () => {
     const listener = jest.fn();
 
     eventNotifier.subscribe('code:updated', listener);
-    eventNotifier.next('code:updated', 'my source code');
+    eventNotifier.next('code:updated', { code: 'my source code' });
 
-    expect(listener).toHaveBeenCalledWith('my source code');
+    expect(listener).toHaveBeenCalledWith({ code: 'my source code' });
   });
 
   it('should unsubscribe', () => {
@@ -17,7 +17,7 @@ describe('EventNotifier', () => {
 
     const unsubscribe = eventNotifier.subscribe('code:updated', listener);
     unsubscribe();
-    eventNotifier.next('code:updated', 'payload');
+    eventNotifier.next('code:updated', { code: 'payload' });
 
     expect(listener).not.toHaveBeenCalled();
   });

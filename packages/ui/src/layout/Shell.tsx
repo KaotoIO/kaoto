@@ -36,7 +36,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
     const unSubscribeFromEntities = eventNotifier.subscribe('entities:updated', (code) => {
       localStorage.setItem(LocalStorageKeys.SourceCode, code);
     });
-    const unSubscribeFromCode = eventNotifier.subscribe('code:updated', (code) => {
+    const unSubscribeFromCode = eventNotifier.subscribe('code:updated', ({ code }) => {
       localStorage.setItem(LocalStorageKeys.SourceCode, code);
     });
 

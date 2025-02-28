@@ -147,7 +147,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
      * It sets the originalContent to the received value.
      */
     const setContent = useCallback(
-      (_path: string, content: string) => {
+      (path: string, content: string) => {
         /**
          * If the new content is the same as the current one, we don't need to update the Editor,
          * as it will regenerate the Camel Resource, hence disconnecting the configuration form (if open).
@@ -166,7 +166,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
          */
         if (sourceCodeRef.current === content) return;
 
-        sourceCodeApiContext.setCodeAndNotify(content);
+        sourceCodeApiContext.setCodeAndNotify(content, path);
         sourceCodeRef.current = content;
       },
       [sourceCodeApiContext],
@@ -181,7 +181,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
         sourceCodeRef.current = newContent;
       });
 
-      const unsubscribeFromSourceCode = eventNotifier.subscribe('code:updated', (newContent: string) => {
+      const unsubscribeFromSourceCode = eventNotifier.subscribe('code:updated', ({ code: newContent }) => {
         /** Ignore the first change, from an empty string to the file content  */
         if (sourceCodeRef.current !== '') {
           onNewEdit(newContent);

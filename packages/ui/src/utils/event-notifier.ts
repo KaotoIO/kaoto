@@ -1,5 +1,5 @@
 interface Events {
-  'code:updated': string;
+  'code:updated': { code: string; path?: string };
   'entities:updated': string;
 }
 
