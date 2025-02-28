@@ -1,6 +1,17 @@
 schemaVersion: 2.2.2
 metadata:
   name: kaoto
+  version: 2.5.0
+  description: The Integration Designer for Apache Camel
+  displayName: Kaoto
+  icon: https://raw.githubusercontent.com/KaotoIO/kaoto/refs/heads/main/packages/ui/src/assets/logo-kaoto.svg
+  website: https://kaoto.io
+  tags:
+    - JavaScript
+    - React
+    - Spring
+  language: JavaScript
+  projectType: "Node.js"
 components:
   - name: tools
     container:
@@ -35,6 +46,13 @@ components:
           name: http-booster
           protocol: http
           targetPort: 8080
+          attributes:
+            discoverable: true
+            urlRewriteSupported: true
+        - exposure: public
+          name: kaoto
+          protocol: http
+          targetPort: 4173
           attributes:
             discoverable: true
             urlRewriteSupported: true
@@ -95,7 +113,7 @@ commands:
       label: 'start the development server'
       component: tools
       workingDir: ${PROJECT_SOURCE}
-      commandLine: 'yarn workspace @kaoto/kaoto run start'
+      commandLine: 'yarn workspace @kaoto/kaoto run start --host'
       group:
         kind: run
         isDefault: true

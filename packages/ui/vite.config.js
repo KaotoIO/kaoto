@@ -44,6 +44,9 @@ export default defineConfig(async () => {
       emptyOutDir: true,
     },
     base: './',
+    server: {
+      allowedHosts: true
+    },
     css: {
       preprocessorOptions: {
         scss: {
