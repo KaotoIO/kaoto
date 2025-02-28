@@ -1,0 +1,138 @@
+schemaVersion: 2.2.2
+metadata:
+  name: kaoto
+  version: 2.5.0
+  description: The Integration Designer for Apache Camel
+  displayName: Kaoto
+  icon: https://raw.githubusercontent.com/KaotoIO/kaoto/refs/heads/main/packages/ui/src/assets/logo-kaoto.svg
+  website: https://kaoto.io
+  tags:
+    - JavaScript
+    - React
+    - Quarkus
+    - Camel
+  language: JavaScript
+  projectType: "Node.js"
+components:
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      memoryLimit: 8Gi
+      memoryRequest: 1Gi
+      cpuLimit: "2"
+      cpuRequest: 200m
+      env:
+        - name: KUBEDOCK_PARAMS
+          value: "--reverse-proxy --kubeconfig /home/user/.kube/config --initimage quay.io/agiertli/kubedock:0.13.0"
+        - name: USE_JAVA17
+          value: "true"
+        - value: /home/jboss/.m2
+          name: MAVEN_CONFIG
+        - value: -Xmx4G -Xss128M -XX:MetaspaceSize=1G -XX:MaxMetaspaceSize=2G
+          name: MAVEN_OPTS
+        - name: KUBEDOCK_ENABLED
+          value: 'true'
+        - name: DOCKER_HOST
+          value: 'tcp://127.0.0.1:2475'
+        - name: TESTCONTAINERS_RYUK_DISABLED
+          value: 'true'
+        - name: TESTCONTAINERS_CHECKS_DISABLE
+          value: 'true'
+      endpoints:
+        - exposure: none
+          name: kubedock
+          protocol: tcp
+          targetPort: 2475
+        - exposure: public
+          name: http-booster
+          protocol: http
+          targetPort: 8080
+          attributes:
+            discoverable: true
+            urlRewriteSupported: true
+        - exposure: public
+          name: kaoto
+          protocol: http
+          targetPort: 4173
+          attributes:
+            discoverable: true
+            urlRewriteSupported: true
+        - exposure: internal
+          name: debug
+          protocol: http
+          targetPort: 5005
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+        - name: npm
+          path: /home/user/.npm
+  - name: m2
+    volume:
+      size: 512Mi
+  - name: npm
+    volume:
+      size: 512Mi
+commands:
+  - id: yarn-install
+    exec:
+      label: 'Install Dependencies'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn install'
+      group:
+        kind: build
+        isDefault: true
+  - id: build
+    exec:
+      label: 'Build'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn workspace @kaoto/kaoto run build'
+      group:
+        kind: build
+        isDefault: true
+  - id: build-public-componets
+    exec:
+      label: 'build the public components'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn workspace @kaoto/kaoto run build:lib'
+      group:
+        kind: build
+        isDefault: true
+  - id: build-camel-catalog-supporting-schemas
+    exec:
+      label: 'build the Camel Catalog and the supporting schemas'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn workspace @kaoto/camel-catalog run build'
+      group:
+        kind: build
+        isDefault: true
+  - id: start-development-server
+    exec:
+      label: 'start the development server'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn workspace @kaoto/kaoto run start --host'
+      group:
+        kind: run
+        isDefault: true
+  - id: start-storybook
+    exec:
+      label: 'run the storybook'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'yarn workspace @kaoto/kaoto-tests storybook'
+      group:
+        kind: run
+        isDefault: false
+  - id: start-with-docker
+    exec:
+      label: 'Running kaoto with Docker'
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: 'podman run --rm -p 8080:8080 --name kaoto quay.io/kaotoio/kaoto-app:main'
+      group:
+        kind: run
+        isDefault: false
