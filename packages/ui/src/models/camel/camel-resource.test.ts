@@ -15,36 +15,45 @@ describe('CamelResourceFactory.createCamelResource', () => {
     expect(resource.getVisualEntities()).toEqual([]);
   });
 
-  it('should create an empty CamelRouteResource if no args is specified', () => {
-    const resource = CamelResourceFactory.createCamelResource(undefined, SourceSchemaType.Route);
+  it('should create an empty CamelRouteResource if a camel.yaml path is specified', () => {
+    const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'my-route.camel.yaml' });
+    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getEntities()).toEqual([]);
+    expect(resource.getVisualEntities()).toEqual([]);
+  });
+
+  it('should create an empty CamelRouteResource if a camel.xml path is specified', () => {
+    const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'my-route.camel.xml' });
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });
 
   it('should create an empty IntegrationResource if no args is specified', () => {
-    const resource = CamelResourceFactory.createCamelResource(undefined, SourceSchemaType.Integration);
+    const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'chat.integration.yaml' });
     expect(resource.getType()).toEqual(SourceSchemaType.Integration);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });
 
   it('should create an empty KameletResource if no args is specified', () => {
-    const resource = CamelResourceFactory.createCamelResource(undefined, SourceSchemaType.Kamelet);
+    const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'chuck-norris-source.kamelet.yaml' });
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toMatchSnapshot();
   });
 
   it('should create an empty CameletBindingResource if no args is specified', () => {
-    const resource = CamelResourceFactory.createCamelResource(undefined, SourceSchemaType.KameletBinding);
+    const resource = CamelResourceFactory.createCamelResource(undefined, {
+      path: 'webhook-binding.kamelet-binding.yaml',
+    });
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
   });
 
   it('should create an empty PipeResource if no args is specified', () => {
-    const resource = CamelResourceFactory.createCamelResource(undefined, SourceSchemaType.Pipe);
+    const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'webhook.pipe.yaml' });
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);

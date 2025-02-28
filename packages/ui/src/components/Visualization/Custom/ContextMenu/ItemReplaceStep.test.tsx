@@ -22,7 +22,6 @@ describe('ItemReplaceStep', () => {
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
-    setCurrentSchemaType: jest.fn(),
   };
 
   const mockReplaceModalContext = {

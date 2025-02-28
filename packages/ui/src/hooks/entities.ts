@@ -29,11 +29,6 @@ export interface EntitiesContextResult {
    * just the entities
    */
   updateEntitiesFromCamelResource: () => void;
-
-  /**
-   * Sets the current schema type and recreates the CamelResource
-   */
-  setCurrentSchemaType: (entity: SourceSchemaType) => void;
 }
 
 export const useEntities = (): EntitiesContextResult => {
@@ -46,8 +41,8 @@ export const useEntities = (): EntitiesContextResult => {
    * Subscribe to the `code:updated` event to recreate the CamelResource
    */
   useLayoutEffect(() => {
-    return eventNotifier.subscribe('code:updated', (code) => {
-      const camelResource = CamelResourceFactory.createCamelResource(code);
+    return eventNotifier.subscribe('code:updated', ({ code, path }) => {
+      const camelResource = CamelResourceFactory.createCamelResource(code, { path });
       const entities = camelResource.getEntities();
       const visualEntities = camelResource.getVisualEntities();
 
@@ -74,31 +69,15 @@ export const useEntities = (): EntitiesContextResult => {
     updateSourceCodeFromEntities();
   }, [camelResource, updateSourceCodeFromEntities]);
 
-  const setCurrentSchemaType = useCallback(
-    (type: SourceSchemaType) => {
-      setCamelResource(CamelResourceFactory.createCamelResource(type));
-      updateEntitiesFromCamelResource();
-    },
-    [updateEntitiesFromCamelResource],
-  );
-
   return useMemo(
     () => ({
       entities,
       visualEntities,
       currentSchemaType: camelResource?.getType(),
       camelResource,
-      setCurrentSchemaType,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,
     }),
-    [
-      entities,
-      visualEntities,
-      camelResource,
-      setCurrentSchemaType,
-      updateEntitiesFromCamelResource,
-      updateSourceCodeFromEntities,
-    ],
+    [entities, visualEntities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
 };

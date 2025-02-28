@@ -11,7 +11,7 @@ import { EventNotifier } from '../utils';
 
 interface ISourceCodeApi {
   /** Set the Source Code and notify subscribers */
-  setCodeAndNotify: (sourceCode: string) => void;
+  setCodeAndNotify: (sourceCode: string, path?: string) => void;
 }
 
 export const SourceCodeContext = createContext<string>('');
@@ -28,9 +28,9 @@ export const SourceCodeProvider: FunctionComponent<PropsWithChildren> = (props) 
   }, [eventNotifier]);
 
   const setCodeAndNotify = useCallback(
-    (code: string) => {
+    (code: string, path?: string) => {
       setSourceCode(code);
-      eventNotifier.next('code:updated', code);
+      eventNotifier.next('code:updated', { code, path });
     },
     [eventNotifier],
   );
