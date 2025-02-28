@@ -45,7 +45,7 @@ export default defineConfig(async () => {
     },
     base: './',
     server: {
-      allowedHosts: true
+      allowedHosts: ['.openshiftapps.com','kaotoio.github.io']
     },
     css: {
       preprocessorOptions: {
