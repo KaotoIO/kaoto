@@ -50,7 +50,7 @@ const selectedNode: CanvasNode = {
               },
               Pattern: {
                 enum: ['InOnly', 'InOut'],
-                type: undefined,
+                type: 'string',
               },
             },
             required: ['Uri'],
@@ -74,7 +74,7 @@ const unknownSelectedNode: CanvasNode = {
       data: {
         id: 'test',
         label: 'test',
-        icon: NodeIconResolver.getIcon(''),
+        icon: NodeIconResolver.getIcon('', NodeIconType.EIP),
       } as IVisualizationNodeData,
       getId: () => 'test',
       getNodeTitle: () => 'My Node',
@@ -84,7 +84,7 @@ const unknownSelectedNode: CanvasNode = {
           title: 'My Node',
           schema: null,
           definition: null,
-        } as VisualComponentSchema;
+        } as unknown as VisualComponentSchema;
       },
       getBaseEntity: () => new CamelRouteVisualEntity(camelRouteJson),
     } as unknown as IVisualizationNode,
