@@ -1,14 +1,14 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { isDefined } from '../../../../../utils';
-import { FormProps } from '../KaotoForm';
+import { KaotoFormProps } from '../KaotoForm';
 import { FormComponentFactoryProvider } from '../providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaDefinitionsProvider } from '../providers/SchemaDefinitionsProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
 
-export const FieldTestProvider: (props: Partial<FormProps>) => {
+export const FieldTestProvider: (props: Partial<KaotoFormProps>) => {
   Provider: FunctionComponent<PropsWithChildren>;
-  onChange: FormProps['onChangeProp'];
+  onChange: KaotoFormProps['onChangeProp'];
 } = ({ schema, onChangeProp: onChange = jest.fn(), model, omitFields = [] }) => {
   if (!isDefined(schema)) {
     throw new Error('FieldTestProvider: Schema not defined');

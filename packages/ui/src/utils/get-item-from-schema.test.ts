@@ -70,4 +70,13 @@ describe('getItemFromSchema', () => {
       name: 'default name',
     });
   });
+
+  it('should return empty object if schema type is not string, boolean, number or object', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { allOf: [{ type: 'string' }] };
+    const definitions = {};
+
+    const result = getItemFromSchema(schema, definitions);
+
+    expect(result).toEqual({});
+  });
 });

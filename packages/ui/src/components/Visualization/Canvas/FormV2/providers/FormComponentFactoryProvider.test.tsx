@@ -2,18 +2,19 @@ import { render, renderHook } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../models';
 import { ArrayField } from '../fields/ArrayField/ArrayField';
+import { BeanField } from '../fields/BeanField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
+import { EnumField } from '../fields/EnumField';
 import { ExpressionField } from '../fields/ExpressionField/ExpressionField';
+import { AllOfField } from '../fields/ObjectField/AllOfField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
-import { FormComponentFactoryContext, FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 import { TextAreaField } from '../fields/TextAreaField';
-import { EnumField } from '../fields/EnumField';
-import { BeanField } from '../fields/BeanField';
+import { FormComponentFactoryContext, FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 
 describe('FormComponentFactoryProvider', () => {
   it('should render children', () => {
@@ -44,6 +45,7 @@ describe('FormComponentFactoryProvider', () => {
     [{ type: 'object', properties: { name: { type: 'string' } } }, ObjectField],
     [{ type: 'array' }, ArrayField],
     [{ oneOf: [] }, OneOfField],
+    [{ allOf: [] }, AllOfField],
     [{}, DisabledField],
     [{ type: 'unknown' } as unknown as KaotoSchemaDefinition['schema'], DisabledField],
   ] as [KaotoSchemaDefinition['schema'], FunctionComponent][])(

@@ -1,11 +1,10 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../../models';
-import { CanvasFormTabsContext, FilteredFieldContext } from '../../../../../../providers';
+import { FilteredFieldContext } from '../../../../../../providers';
 import { ROOT_PATH } from '../../../../../../utils';
-import { FormComponentFactoryProvider } from '../../providers/FormComponentFactoryProvider';
-import { ModelContextProvider } from '../../providers/ModelProvider';
 import { SchemaProvider } from '../../providers/SchemaProvider';
+import { FormWrapper } from '../../testing/FormWrapper';
 import { ObjectFieldGrouping } from './ObjectFieldGrouping';
 
 describe('ObjectFieldGrouping', () => {
@@ -108,14 +107,8 @@ describe('ObjectFieldGrouping', () => {
   });
 
   const formWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', onTabChange: jest.fn() }}>
-      <FormComponentFactoryProvider>
-        <SchemaProvider schema={schema}>
-          <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
-            {children}
-          </ModelContextProvider>
-        </SchemaProvider>
-      </FormComponentFactoryProvider>
-    </CanvasFormTabsContext.Provider>
+    <SchemaProvider schema={schema}>
+      <FormWrapper>{children}</FormWrapper>
+    </SchemaProvider>
   );
 });

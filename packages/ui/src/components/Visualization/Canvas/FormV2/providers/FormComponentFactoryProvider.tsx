@@ -1,10 +1,12 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../models';
 import { ArrayField } from '../fields/ArrayField/ArrayField';
+import { BeanField } from '../fields/BeanField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
 import { EnumField } from '../fields/EnumField';
 import { ExpressionField } from '../fields/ExpressionField/ExpressionField';
+import { AllOfField } from '../fields/ObjectField/AllOfField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
 import { PasswordField } from '../fields/PasswordField';
@@ -12,7 +14,6 @@ import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
 import { FieldProps } from '../typings';
-import { BeanField } from '../fields/BeanField';
 
 type FormComponentFactoryContextValue = (schema: KaotoSchemaDefinition['schema']) => FunctionComponent<FieldProps>;
 
@@ -56,6 +57,8 @@ export const FormComponentFactoryProvider: FunctionComponent<PropsWithChildren> 
 
     if (Array.isArray(schema.oneOf)) {
       return OneOfField;
+    } else if (Array.isArray(schema.allOf)) {
+      return AllOfField;
     } else if (Array.isArray(schema.anyOf)) {
       throw new Error('FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField');
     }
