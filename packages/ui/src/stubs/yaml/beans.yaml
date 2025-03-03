@@ -1,0 +1,19 @@
+- beans:
+  - name: beanFromProps
+    type: com.acme.MyBean
+    builderClass: com.acme.MyBeanBuilder
+    builderMethod: createMyBean
+    constructors:
+      0: 'true'
+      1: Hello World
+    properties:
+      field1: f1_p
+      field2: f2_p
+      nested.field1: nf1_p
+      nested.field2: nf2_p
+  - type: org.apache.camel.dsl.xml.io.beans.GreeterMessage
+    properties:
+      msg: Hello
+  - name: bean-from-registry
+    type: org.apache.camel.dsl.xml.io.beans.Greeter
+    script: TestBean bean = new TestBean();
