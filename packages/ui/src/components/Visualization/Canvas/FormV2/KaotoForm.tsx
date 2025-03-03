@@ -1,28 +1,36 @@
 import { Form } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useState } from 'react';
-import { KaotoSchemaDefinition } from '../../../../models';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { IDataTestID, KaotoSchemaDefinition } from '../../../../models';
 import { isDefined, ROOT_PATH, setValue } from '../../../../utils';
+import { NoFieldFound } from '../../../Form/NoFieldFound';
 import { AutoField } from './fields/AutoField';
 import './KaotoForm.scss';
 import { FormComponentFactoryProvider } from './providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from './providers/ModelProvider';
 import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider';
 import { SchemaProvider } from './providers/SchemaProvider';
-import { NoFieldFound } from '../../../Form/NoFieldFound';
 
-export interface FormProps {
+export interface FormProps extends IDataTestID {
   schema?: KaotoSchemaDefinition['schema'];
-  onChange: (propName: string, value: unknown) => void;
+  onChange?: (value: unknown) => void;
+  onChangeProp?: (propName: string, value: unknown) => void;
   model: unknown;
   omitFields?: string[];
 }
 
-export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, model, omitFields = [] }) => {
+export const KaotoForm: FunctionComponent<FormProps> = ({
+  schema,
+  onChange,
+  onChangeProp,
+  model,
+  omitFields = [],
+  'data-testid': dataTestId,
+}) => {
   const [formModel, setFormModel] = useState<unknown>(model);
 
   const onPropertyChange = useCallback(
     (propName: string, value: unknown) => {
-      onChange(propName, value);
+      onChangeProp?.(propName, value);
       setFormModel((prevModel: unknown) => {
         if (typeof prevModel !== 'object') {
           return value;
@@ -33,8 +41,12 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
         return newModel;
       });
     },
-    [onChange],
+    [onChangeProp],
   );
+
+  useEffect(() => {
+    onChange?.(formModel);
+  }, [formModel, onChange]);
 
   if (!isDefined(schema)) {
     return <div>Schema not defined</div>;
@@ -45,7 +57,7 @@ export const KaotoForm: FunctionComponent<FormProps> = ({ schema, onChange, mode
       <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
         <SchemaProvider schema={schema}>
           <ModelContextProvider model={formModel} onPropertyChange={onPropertyChange}>
-            <Form className="kaoto-form kaoto-form__label">
+            <Form data-testid={dataTestId} className="kaoto-form kaoto-form__label">
               <AutoField propName={ROOT_PATH} />
             </Form>
             <NoFieldFound className="kaoto-form kaoto-form__empty" />
