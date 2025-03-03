@@ -6,7 +6,7 @@ describe('Tests for switching description and ID in settings page', () => {
   // Reset nodeLabel to description
   afterEach(() => {
     cy.openSettings();
-    cy.selectInSettingsTypeaheadField('nodeLabel', 'description');
+    cy.selectInTypeaheadField('nodeLabel', 'description');
     cy.get('[data-testid="settings-form-save-btn"]').click();
     cy.waitSchemasLoading();
   });
@@ -14,7 +14,7 @@ describe('Tests for switching description and ID in settings page', () => {
   it('User switches node label type description and ID to be displayed in canvas', () => {
     cy.uploadFixture('flows/camelRoute/idDescriptionSettings.yaml');
     cy.openSettings();
-    cy.selectInSettingsTypeaheadField('nodeLabel', 'id');
+    cy.selectInTypeaheadField('nodeLabel', 'id');
     cy.get('[data-testid="settings-form-save-btn"]').click();
     cy.waitSchemasLoading();
     cy.openDesignPage();
@@ -25,7 +25,7 @@ describe('Tests for switching description and ID in settings page', () => {
     cy.checkNodeExist('log', 1);
 
     cy.openSettings();
-    cy.selectInSettingsTypeaheadField('nodeLabel', 'description');
+    cy.selectInTypeaheadField('nodeLabel', 'description');
     cy.get('[data-testid="settings-form-save-btn"]').click();
     cy.waitSchemasLoading();
     cy.openDesignPage();

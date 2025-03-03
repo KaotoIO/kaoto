@@ -61,7 +61,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
       ) : (
         <KaotoForm
           schema={visualComponentSchema?.schema}
-          onChange={handleOnChangeIndividualProp}
+          onChangeProp={handleOnChangeIndividualProp}
           model={model}
           omitFields={omitFields.current}
         />

@@ -32,7 +32,7 @@ export const FormTest = (target: { kind: CatalogKind; range: { start: number; en
   it('should render the form without an error', () => {
     schemas.forEach(([name, schema]) => {
       try {
-        render(<KaotoForm schema={schema} onChange={jest.fn()} model={{}} />);
+        render(<KaotoForm schema={schema} onChangeProp={jest.fn()} model={{}} />);
       } catch (e) {
         console.error(e);
         throw new Error(`Error rendering ${name} ${target.kind}`);
