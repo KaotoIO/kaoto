@@ -8,8 +8,8 @@ import { SchemaProvider } from '../providers/SchemaProvider';
 
 export const FieldTestProvider: (props: Partial<FormProps>) => {
   Provider: FunctionComponent<PropsWithChildren>;
-  onChange: FormProps['onChange'];
-} = ({ schema, onChange = jest.fn(), model, omitFields = [] }) => {
+  onChange: FormProps['onChangeProp'];
+} = ({ schema, onChangeProp: onChange = jest.fn(), model, omitFields = [] }) => {
   if (!isDefined(schema)) {
     throw new Error('FieldTestProvider: Schema not defined');
   }
