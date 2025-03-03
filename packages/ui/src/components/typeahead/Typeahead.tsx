@@ -110,6 +110,12 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   const filteredItems = useMemo(() => {
     const lowerFilterValue = inputValue.toLowerCase();
+
+    // Open the menu when the input value changes and the new value is not empty
+    if (lowerFilterValue && !isOpen) {
+      setIsOpen(true);
+    }
+
     return items.filter((item) => {
       if (!lowerFilterValue) {
         return true;
