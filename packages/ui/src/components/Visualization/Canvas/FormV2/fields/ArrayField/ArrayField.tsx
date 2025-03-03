@@ -1,7 +1,7 @@
 import { Button } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
-import { getObjectHash } from '../../../../../../camel-utils/camel-random-id';
+import { getHexaDecimalRandomId } from '../../../../../../camel-utils/camel-random-id';
 import { getItemFromSchema, isDefined } from '../../../../../../utils';
 import { useFieldValue } from '../../hooks/field-value';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
@@ -13,6 +13,7 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   const { schema, definitions } = useContext(SchemaContext);
   const { value, onChange } = useFieldValue<unknown[]>(propName);
   const [itemsHash, setItemsHash] = useState<string[]>([]);
+  const label = schema.title ?? propName.split('.').pop() ?? propName;
 
   const itemsSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items;
   if (!isDefined(itemsSchema)) {
@@ -35,17 +36,14 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
 
   useEffect(() => {
     if (!Array.isArray(value)) return;
-
-    Promise.all(value.map(getObjectHash)).then((hashes) => {
-      setItemsHash(hashes);
-    });
+    setItemsHash(value.map(() => getHexaDecimalRandomId('array-item')));
   }, [value]);
 
   return (
     <ArrayFieldWrapper
       propName={propName}
       type="array"
-      title={schema.title ?? propName}
+      title={label}
       description={schema.description}
       defaultValue={schema.default}
       actions={

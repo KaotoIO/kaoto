@@ -12,6 +12,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
   const { schema } = useContext(SchemaContext);
   const { value, onChange } = useFieldValue<object>(propName);
   const [isExpanded, setIsExpanded] = useState(isDefined(value));
+  const label = schema.title ?? propName.split('.').pop() ?? propName;
 
   const onSet = () => {
     setIsExpanded(true);
@@ -28,7 +29,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
     setIsExpanded(false);
   };
 
-  if (propName === ROOT_PATH || !schema.title) {
+  if (propName === ROOT_PATH || (!schema.title && !isDefined(onRemoveProps))) {
     return <ObjectFieldGrouping propName={propName} />;
   }
 
@@ -36,7 +37,7 @@ export const ObjectField: FunctionComponent<FieldProps> = ({ propName, onRemove:
     <ArrayFieldWrapper
       propName={propName}
       type="object"
-      title={schema.title}
+      title={label}
       description={schema.description}
       defaultValue={schema.default}
       actions={
