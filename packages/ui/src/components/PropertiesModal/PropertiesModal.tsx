@@ -25,17 +25,22 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
   const catalogService = useContext(CatalogContext);
   const tabs = useMemo(() => {
     switch (props.tile.type) {
-      case CatalogKind.Component: {
+      case CatalogKind.Component:
         return transformCamelComponentIntoTab(catalogService.getComponent(CatalogKind.Component, props.tile.name));
-      }
-      case CatalogKind.Processor: {
+
+      case CatalogKind.Processor:
         return transformCamelProcessorComponentIntoTab(
           catalogService.getComponent(CatalogKind.Processor, props.tile.name),
         );
-      }
-      case CatalogKind.Kamelet: {
+
+      case CatalogKind.Entity:
+        return transformCamelProcessorComponentIntoTab(
+          catalogService.getComponent(CatalogKind.Entity, props.tile.name),
+        );
+
+      case CatalogKind.Kamelet:
         return transformKameletComponentIntoTab(catalogService.getComponent(CatalogKind.Kamelet, props.tile.name));
-      }
+
       default:
         throw Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);
     }
@@ -52,7 +57,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     setActiveTab(tabs[tabIndex as number]);
     setActiveTabKey(tabIndex as number);
   };
-  const nodeIconType = capitalize(props.tile.type === 'processor' ? 'EIP' : props.tile.type);
+  const nodeIconType = capitalize(props.tile.type === 'processor' ? NodeIconType.EIP : props.tile.type);
   const iconName = nodeIconType === NodeIconType.Kamelet ? `kamelet:${props.tile.name}` : props.tile.name;
 
   const title: ReactElement = (

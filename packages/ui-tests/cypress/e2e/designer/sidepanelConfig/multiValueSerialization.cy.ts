@@ -10,6 +10,7 @@ describe('Tests for Multi Value serialization', () => {
     cy.selectFormTab('All');
 
     cy.filterFields('Job Parameters');
+    cy.expandWrappedSection('#.parameters-Advanced');
     cy.addStringProperty('parameters.jobParameters', 'jobParametersTest', 'jobParametersValue');
     cy.filterFields('Trigger Parameters');
     cy.addStringProperty('parameters.triggerParameters', 'triggerParametersTest', 'triggerParametersValue');
@@ -27,15 +28,12 @@ describe('Tests for Multi Value serialization', () => {
     cy.selectFormTab('All');
 
     cy.filterFields('Job Parameters');
-    cy.expandWrappedSection('parameters.jobParameters');
-    cy.get('[data-testid="parameters.jobParameters-testJob-delete-testJob-btn"]')
-      .not(':hidden')
-      .first()
-      .click({ force: true });
+    cy.expandWrappedSection('#.parameters-Advanced');
+    cy.get('[data-testid="#.parameters.jobParameters__remove__testJob"]').not(':hidden').first().click({ force: true });
 
     cy.filterFields('Trigger Parameters');
-    cy.expandWrappedSection('parameters.triggerParameters');
-    cy.get('[data-testid="parameters.triggerParameters-testTrigger-delete-testTrigger-btn"]')
+    cy.expandWrappedSection('#.parameters-Advanced');
+    cy.get('[data-testid="#.parameters.triggerParameters__remove__testTrigger"]')
       .not(':hidden')
       .first()
       .click({ force: true });

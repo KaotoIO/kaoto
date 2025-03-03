@@ -23,8 +23,10 @@ import {
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
 import { camelRouteJson, kameletJson } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
+import { KaotoFormPageObject } from '../FormV2/testing/KaotoFormPageObject';
 import { CanvasForm } from './CanvasForm';
 
 describe('CanvasForm', () => {
@@ -240,7 +242,7 @@ describe('CanvasForm', () => {
       </EntitiesProvider>,
     );
 
-    const idField = screen.getAllByLabelText('Id', { selector: 'input' })[0];
+    const idField = screen.getByRole('textbox', { name: 'Id' });
     act(() => {
       fireEvent.change(idField, { target: { value: newName } });
     });
@@ -307,41 +309,22 @@ describe('CanvasForm', () => {
         </EntitiesProvider>,
       );
 
-      const allTab = screen.getByRole('button', { name: 'All' });
-      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+      const formPageObject = new KaotoFormPageObject(screen, act);
 
-      expect(allTab).toBeInTheDocument();
-      expect(modifiedTab).toBeInTheDocument();
+      await formPageObject.showModifiedFields();
+      let variableReceiveField = formPageObject.getFieldByDisplayName('Variable Receive');
+      expect(variableReceiveField).not.toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
+      await formPageObject.showAllFields();
+      variableReceiveField = formPageObject.getFieldByDisplayName('Variable Receive');
+      expect(variableReceiveField).toBeInTheDocument();
 
-      const inputVariableReceiveModifiedTabElement = screen
-        .queryAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
-      expect(inputVariableReceiveModifiedTabElement).toHaveLength(0);
+      await formPageObject.inputText('Variable Receive', 'myVariable');
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
-
-      await act(async () => {
-        const inputVariableReceiveAllTabElement = screen
-          .getAllByRole('textbox')
-          .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
-        fireEvent.change(inputVariableReceiveAllTabElement[0], { target: { value: 'test' } });
-        fireEvent.blur(inputVariableReceiveAllTabElement[0]);
-      });
-
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
-
-      const inputVariableReceiveModifiedTabElementNew = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Variable Receive');
-      expect(inputVariableReceiveModifiedTabElementNew).toHaveLength(1);
+      await formPageObject.showModifiedFields();
+      variableReceiveField = formPageObject.getFieldByDisplayName('Variable Receive');
+      expect(variableReceiveField).toBeInTheDocument();
+      expect(variableReceiveField).toHaveAttribute('value', 'myVariable');
     });
 
     it('expression field', async () => {
@@ -381,63 +364,30 @@ describe('CanvasForm', () => {
         </EntitiesContext.Provider>,
       );
 
-      const allTab = screen.getByRole('button', { name: 'All' });
-      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
+      const formPageObject = new KaotoFormPageObject(screen, act);
 
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
+      await formPageObject.showModifiedFields();
+      let expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expect(expressionField).not.toBeInTheDocument();
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+      await formPageObject.showAllFields();
+      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expect(expressionField).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
+      await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('simple');
 
-      const ExpressionAllTabButton = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
+      let inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      expect(inputExpression).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(ExpressionAllTabButton[0]);
-      });
+      await formPageObject.inputText('Expression', '${header.foo}');
 
-      const simple = screen.getByTestId('expression-dropdownitem-simple');
-      act(() => {
-        fireEvent.click(simple.getElementsByTagName('button')[0]);
-      });
+      await formPageObject.showModifiedFields();
+      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expect(expressionField).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
-
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
-
-      const inputExpressionModifiedTabElement = screen
-        .queryAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      expect(inputExpressionModifiedTabElement).toHaveLength(0);
-
-      act(() => {
-        fireEvent.click(allTab);
-      });
-
-      await act(async () => {
-        const expressionInput = screen
-          .getAllByRole('textbox')
-          .filter((textbox) => textbox.getAttribute('name') === 'expression');
-        fireEvent.input(expressionInput[0], { target: { value: '${header.foo}' } });
-        fireEvent.blur(expressionInput[0]);
-      });
-
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
-
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
-
-      const inputExpressionModifiedTabElementNew = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('name') === 'expression');
-      expect(inputExpressionModifiedTabElementNew).toHaveLength(1);
+      inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      expect(inputExpression).toBeInTheDocument();
     });
 
     it('dataformat field', async () => {
@@ -477,60 +427,31 @@ describe('CanvasForm', () => {
         </EntitiesContext.Provider>,
       );
 
-      const allTab = screen.getByRole('button', { name: 'All' });
-      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
+      const formPageObject = new KaotoFormPageObject(screen, act);
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+      await formPageObject.showModifiedFields();
+      let dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(dataformatField).not.toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
+      await formPageObject.showAllFields();
+      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(dataformatField).toBeInTheDocument();
 
-      const dataformatAllTabButton = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(dataformatAllTabButton[0]);
-      });
-      const asn1 = screen.getByTestId('dataformat-dropdownitem-asn1');
-      await act(async () => {
-        fireEvent.click(asn1.getElementsByTagName('button')[0]);
-      });
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('barcode');
 
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
+      let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Barcode Format');
+      expect(inputBarcodeFormat).toBeInTheDocument();
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+      await formPageObject.inputText('Barcode Format', 'EAN-13');
 
-      const inputUnmarshalTypeModifiedTabElement = screen
-        .queryAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
-      expect(inputUnmarshalTypeModifiedTabElement).toHaveLength(0);
+      await formPageObject.showModifiedFields();
+      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(dataformatField).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
-
-      await act(async () => {
-        const inputUnmarshalTypeDefaultTabElement = screen
-          .getAllByRole('textbox')
-          .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
-        fireEvent.change(inputUnmarshalTypeDefaultTabElement[0], { target: { value: 'test' } });
-        fireEvent.blur(inputUnmarshalTypeDefaultTabElement[0]);
-      });
-
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
-
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
-
-      const inputUnmarshalTypeModifiedTabElementNew = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Unmarshal Type');
-      expect(inputUnmarshalTypeModifiedTabElementNew).toHaveLength(1);
+      inputBarcodeFormat = formPageObject.getFieldByDisplayName('Barcode Format');
+      expect(inputBarcodeFormat).toBeInTheDocument();
+      expect(inputBarcodeFormat).toHaveAttribute('value', 'EAN-13');
     });
 
     it('loadbalancer field', async () => {
@@ -569,60 +490,32 @@ describe('CanvasForm', () => {
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
-      const allTab = screen.getByRole('button', { name: 'All' });
-      const modifiedTab = screen.getByRole('button', { name: 'Modified' });
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeNull();
+      const formPageObject = new KaotoFormPageObject(screen, act);
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
+      await formPageObject.showModifiedFields();
+      let loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(loadbalancerField).not.toBeInTheDocument();
 
-      const button = screen.getAllByRole('button', { name: 'Typeahead menu toggle' });
-      await act(async () => {
-        fireEvent.click(button[0]);
-      });
-      const weightedLoadBalancer = screen.getByTestId('loadbalancer-dropdownitem-weightedLoadBalancer');
-      await act(async () => {
-        fireEvent.click(weightedLoadBalancer.getElementsByTagName('button')[0]);
-      });
+      await formPageObject.showAllFields();
+      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(loadbalancerField).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('failover load balancer');
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+      let inputRoundRobin = formPageObject.getFieldByDisplayName('Round Robin');
+      expect(inputRoundRobin).toBeInTheDocument();
 
-      const inputDistributionRatioModifiedTabElement = screen
-        .queryAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
-      expect(inputDistributionRatioModifiedTabElement).toHaveLength(0);
+      await formPageObject.inputText('Round Robin', 'playoff');
 
-      act(() => {
-        fireEvent.click(allTab);
-      });
+      await formPageObject.showModifiedFields();
+      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(loadbalancerField).toBeInTheDocument();
 
-      await act(async () => {
-        const inputDistributionRatioDefaultTabElement = screen
-          .getAllByRole('textbox')
-          .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
-        fireEvent.change(inputDistributionRatioDefaultTabElement[0], { target: { value: 'test' } });
-        fireEvent.blur(inputDistributionRatioDefaultTabElement[0]);
-      });
-
-      act(() => {
-        fireEvent.click(modifiedTab);
-      });
-
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
-
-      const inputDistributionRatioModifiedTabElementNew = screen
-        .getAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Distribution Ratio');
-      expect(inputDistributionRatioModifiedTabElementNew).toHaveLength(1);
+      inputRoundRobin = formPageObject.getFieldByDisplayName('Round Robin');
+      expect(inputRoundRobin).toBeInTheDocument();
+      expect(inputRoundRobin).toHaveAttribute('value', 'playoff');
     });
   });
 
@@ -637,28 +530,25 @@ describe('CanvasForm', () => {
       render(
         <EntitiesProvider>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'Required',
-                onTabChange: jest.fn(),
-              }}
-            >
+            <CanvasFormTabsProvider>
               <CanvasForm selectedNode={selectedNode} />
-            </CanvasFormTabsContext.Provider>
+            </CanvasFormTabsProvider>
           </VisibleFlowsProvider>
         </EntitiesProvider>,
       );
 
-      const allTab = screen.getByRole('button', { name: 'All' });
-      const requiredTab = screen.getByRole('button', { name: 'Required' });
+      const formPageObject = new KaotoFormPageObject(screen, act);
 
-      expect(allTab).toBeInTheDocument();
-      expect(requiredTab).toBeInTheDocument();
+      await formPageObject.showRequiredFields();
+      let timerNameField = formPageObject.getFieldByDisplayName('Timer Name');
+      expect(timerNameField).toBeInTheDocument();
 
-      const inputTimerNameRequiredTabTabElement = screen
-        .queryAllByRole('textbox')
-        .filter((textbox) => textbox.getAttribute('label') === 'Timer Name');
-      expect(inputTimerNameRequiredTabTabElement).toHaveLength(1);
+      await formPageObject.inputText('Timer Name', 'quartz');
+
+      await formPageObject.showAllFields();
+      timerNameField = formPageObject.getFieldByDisplayName('Timer Name');
+      expect(timerNameField).toBeInTheDocument();
+      expect(timerNameField).toHaveAttribute('value', 'quartz');
     });
 
     it('expression field', async () => {
@@ -689,21 +579,35 @@ describe('CanvasForm', () => {
       };
 
       render(
-        <EntitiesProvider>
+        <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'Required',
-                onTabChange: jest.fn(),
-              }}
-            >
-              <CanvasForm selectedNode={selectedNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
           </VisibleFlowsProvider>
-        </EntitiesProvider>,
+        </EntitiesContext.Provider>,
       );
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+
+      await formPageObject.showRequiredFields();
+      let expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expect(expressionField).toBeInTheDocument();
+
+      await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('simple');
+
+      let inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      expect(inputExpression).toBeInTheDocument();
+
+      await formPageObject.inputText('Expression', '${header.foo}');
+
+      await formPageObject.showAllFields();
+      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expect(expressionField).toBeInTheDocument();
+
+      inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      expect(inputExpression).toBeInTheDocument();
     });
 
     it('dataformat field', async () => {
@@ -736,19 +640,34 @@ describe('CanvasForm', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'Required',
-                onTabChange: jest.fn(),
-              }}
-            >
-              <CanvasForm selectedNode={selectedNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+
+      await formPageObject.showRequiredFields();
+      let dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(dataformatField).toBeInTheDocument();
+
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('beanio');
+
+      let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Mapping');
+      expect(inputBarcodeFormat).toBeInTheDocument();
+
+      await formPageObject.inputText('Mapping', 'Jackson');
+
+      await formPageObject.showAllFields();
+      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(dataformatField).toBeInTheDocument();
+
+      inputBarcodeFormat = formPageObject.getFieldByDisplayName('Mapping');
+      expect(inputBarcodeFormat).toBeInTheDocument();
+      expect(inputBarcodeFormat).toHaveAttribute('value', 'Jackson');
     });
 
     it('loadbalancer field', async () => {
@@ -781,19 +700,34 @@ describe('CanvasForm', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'Required',
-                onTabChange: jest.fn(),
-              }}
-            >
-              <CanvasForm selectedNode={selectedNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
 
-      expect(screen.queryByRole('button', { name: 'Typeahead menu toggle' })).toBeInTheDocument();
+      const formPageObject = new KaotoFormPageObject(screen, act);
+
+      await formPageObject.showRequiredFields();
+      let loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(loadbalancerField).toBeInTheDocument();
+
+      await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('weighted load balancer');
+
+      let inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
+      expect(inputDistributionRatio).toBeInTheDocument();
+
+      await formPageObject.inputText('Distribution Ratio', '3.5');
+
+      await formPageObject.showAllFields();
+      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      expect(loadbalancerField).toBeInTheDocument();
+
+      inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
+      expect(inputDistributionRatio).toBeInTheDocument();
+      expect(inputDistributionRatio).toHaveAttribute('value', '3.5');
     });
   });
 });

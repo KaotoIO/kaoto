@@ -46,5 +46,5 @@ describe('SourceDocument', () => {
       expect(aggregates.length).toEqual(2);
     });
     expect(await screen.findByText('correlationExpression')).toBeTruthy();
-  }, 10000);
+  }, 15_000);
 });

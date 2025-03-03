@@ -9,8 +9,9 @@ describe('User completes normal actions on steps in a branch', () => {
 
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');
-    cy.interactWithConfigInputObject('allowJmsType');
-    cy.interactWithConfigInputObject('collectionType', 'collection Type');
+    cy.expandWrappedSection('#.json-Advanced');
+    cy.interactWithConfigInputObject('json.allowJmsType');
+    cy.interactWithConfigInputObject('json.collectionType', 'collection Type');
 
     cy.openSourceCode();
     // CHECK that the step yaml is updated

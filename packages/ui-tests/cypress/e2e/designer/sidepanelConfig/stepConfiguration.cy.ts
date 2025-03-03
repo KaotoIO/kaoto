@@ -11,7 +11,7 @@ describe('Tests for Design page', () => {
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('period', '3000');
     cy.interactWithConfigInputObject('message', 'test message');
-    cy.get(`input[name="message"]`).clear();
+    cy.get(`input[name="#.message"]`).clear();
     cy.closeStepConfigurationTab();
 
     // Configure kafka-sink step

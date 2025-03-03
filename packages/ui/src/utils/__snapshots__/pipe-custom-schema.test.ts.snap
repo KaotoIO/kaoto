@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pipeCustomSchema updatePipeFromCustomSchema should preserve Pipe's original values when loading a malformed custom schema 1`] = `
+{
+  "apiVersion": "camel.apache.org/v1",
+  "kind": "Pipe",
+  "metadata": {
+    "annotations": {
+      "sco1237896.github.com/catalog.group": "messaging",
+      "sco1237896.github.com/catalog.id": "http",
+      "sco1237896.github.com/connector.description": "Send data to a HTTP endpoint.",
+      "sco1237896.github.com/connector.group": "messaging",
+      "sco1237896.github.com/connector.id": "http_sink_v1",
+      "sco1237896.github.com/connector.title": "HTTP sink",
+      "sco1237896.github.com/connector.version": "v1",
+      "trait.camel.apache.org/container.image": "quay.io/sco1237896/connector-http:camel-4-1046a96",
+      "trait.camel.apache.org/container.request-cpu": "0.20",
+      "trait.camel.apache.org/container.request-memory": "128M",
+      "trait.camel.apache.org/deployment.progress-deadline-seconds": "30",
+    },
+    "labels": {},
+    "name": "webhook-binding",
+  },
+  "spec": {
+    "errorHandler": {
+      "log": {
+        "parameters": {
+          "maximumRedeliveries": 3,
+          "redeliveryDelay": 2000,
+        },
+      },
+    },
+    "sink": {
+      "ref": {
+        "apiVersion": "camel.apache.org/v1",
+        "kind": "Kamelet",
+        "name": "log-sink",
+      },
+    },
+    "source": {
+      "ref": {
+        "apiVersion": "camel.apache.org/v1",
+        "kind": "Kamelet",
+        "name": "webhook-source",
+      },
+    },
+    "steps": [
+      {
+        "ref": {
+          "apiVersion": "camel.apache.org/v1",
+          "kind": "Kamelet",
+          "name": "delay-action",
+        },
+      },
+    ],
+  },
+}
+`;

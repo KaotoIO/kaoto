@@ -1,10 +1,9 @@
 import { wrapField } from '@kaoto-next/uniforms-patternfly';
 import { Badge, ExpandableSection, Stack, StackItem } from '@patternfly/react-core';
 import { Table, TableVariant, Tbody, Td, TdProps, Th, Thead, Tr } from '@patternfly/react-table';
-import { ReactNode, useContext, useMemo, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { connectField } from 'uniforms';
-import { CanvasFormTabsContext } from '../../../providers';
-import { getJoinPath, isDefined } from '../../../utils';
+import { getJoinPath } from '../../../utils';
 import { AddPropertyButtons } from './AddPropertyButtons';
 import { IPropertiesField, PlaceholderState } from './properties-field.models';
 import './PropertiesField.scss';
@@ -22,8 +21,6 @@ export const PropertiesField = connectField((props: IPropertiesField) => {
   const [isFieldExpanded, setFieldExpanded] = useState<boolean>(Object.keys(propertiesModel).length > 0);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
   const [placeholderState, setPlaceholderState] = useState<PlaceholderState | null>(null);
-  const canvasFormTabsContext = useContext(CanvasFormTabsContext);
-  const canAddObjectProperties = useMemo(() => !isDefined(canvasFormTabsContext), [canvasFormTabsContext]);
 
   function handleModelChange() {
     setPlaceholderState(null);
@@ -180,7 +177,6 @@ export const PropertiesField = connectField((props: IPropertiesField) => {
                   <AddPropertyButtons
                     path={[]}
                     disabled={props.disabled}
-                    canAddObjectProperties={canAddObjectProperties}
                     createPlaceholder={(isObject) =>
                       handleCreatePlaceHolder({
                         isObject,
@@ -201,7 +197,6 @@ export const PropertiesField = connectField((props: IPropertiesField) => {
                         <PropertiesFieldEmptyState
                           name={props.name}
                           disabled={props.disabled}
-                          canAddObjectProperties={canAddObjectProperties}
                           createPlaceholder={(isObject) =>
                             handleCreatePlaceHolder({
                               isObject: isObject,

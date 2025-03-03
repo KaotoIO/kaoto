@@ -17,7 +17,7 @@ describe('Test for Bean support', () => {
 
     cy.openBeans();
     cy.forceSelectMetadataRow(0);
-    cy.addStringProperty('properties', 'test', 'value');
+    cy.addMetadataStringProperty('properties', 'test', 'value');
     cy.openSourceCode();
 
     // CHECK the bean was created in the code editor
@@ -39,7 +39,7 @@ describe('Test for Bean support', () => {
     cy.get('@row').find('td').eq(1).should('contain', 'org.acme');
     cy.get('@row').click();
 
-    cy.expandWrappedSection('properties');
+    cy.expandWrappedMetadataSection('properties');
     cy.get('[data-testid="properties-property-name-label"]').should('exist');
     cy.get('[data-testid="properties-property-value-label"]').should('exist');
 
@@ -67,7 +67,7 @@ describe('Test for Bean support', () => {
     cy.openBeans();
 
     cy.get('[data-testid="metadata-row-0"]').click();
-    cy.expandWrappedSection('properties');
+    cy.expandWrappedMetadataSection('properties');
     cy.get('[data-testid="properties-property-name-label"]').should('exist');
     cy.get('[data-testid="properties-property-value-label"]').should('exist');
     cy.get('[data-testid="properties-property-delete-property-btn"]').click();

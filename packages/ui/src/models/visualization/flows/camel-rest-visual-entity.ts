@@ -115,7 +115,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     );
     restGroupNode.data.entity = this;
     restGroupNode.data.isGroup = true;
-    restGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.VisualEntity);
+    restGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return restGroupNode;
   }

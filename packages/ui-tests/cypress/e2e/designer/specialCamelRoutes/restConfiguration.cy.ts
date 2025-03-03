@@ -3,16 +3,19 @@ describe('Test for root on rest configuration container', () => {
     cy.openHomePage();
   });
 
-  it('Root rest configuration', () => {
+  it('Root rest configuration', { browser: '!firefox' }, () => {
     cy.selectCamelRouteType('Rest', 'restConfiguration');
 
     cy.openStepConfigurationTab('restConfiguration');
 
     cy.selectFormTab('All');
+    cy.expandWrappedSection('#-Advanced');
+    cy.expandWrappedSection('#-Producer (advanced)');
+    cy.expandWrappedSection('#-Consumer (advanced)');
 
     cy.selectInTypeaheadField('component', 'coap');
     cy.selectInTypeaheadField('apiComponent', 'openapi');
-    cy.selectInTypeaheadField('producerComponent', 'http');
+    cy.selectInTypeaheadField('producerComponent', 'vertx-http');
     cy.interactWithConfigInputObject('scheme', 'testScheme');
     cy.interactWithConfigInputObject('host', 'testHost');
     cy.interactWithConfigInputObject('port', '8080');
@@ -33,12 +36,12 @@ describe('Test for root on rest configuration container', () => {
     cy.interactWithConfigInputObject('jsonDataFormat', 'testJsonDataFormat');
     cy.interactWithConfigInputObject('xmlDataFormat', 'testXmlDataFormat');
 
-    cy.addSingleKVProperty('Component Property', 'componentTestKey', 'componentTestValue');
-    cy.addSingleKVProperty('Endpoint Property', 'endpointTestKey', 'endpointTestValue');
-    cy.addSingleKVProperty('Consumer Property', 'consumerTestKey', 'consumerTestValue');
-    cy.addSingleKVProperty('Data Format Property', 'dataFormatTestKey', 'dataFormatTestValue');
-    cy.addSingleKVProperty('Api Property', 'apiTestKey', 'apiTestValue');
-    cy.addSingleKVProperty('Cors Headers', 'corsHeadersTestKey', 'corsHeadersTestValue');
+    cy.addSingleKVProperty('componentProperty', 'componentTestKey', 'componentTestValue');
+    cy.addSingleKVProperty('endpointProperty', 'endpointTestKey', 'endpointTestValue');
+    cy.addSingleKVProperty('consumerProperty', 'consumerTestKey', 'consumerTestValue');
+    cy.addSingleKVProperty('dataFormatProperty', 'dataFormatTestKey', 'dataFormatTestValue');
+    cy.addSingleKVProperty('apiProperty', 'apiTestKey', 'apiTestValue');
+    cy.addSingleKVProperty('corsHeaders', 'corsHeadersTestKey', 'corsHeadersTestValue');
 
     cy.openSourceCode();
 
@@ -60,7 +63,7 @@ describe('Test for root on rest configuration container', () => {
     cy.checkCodeSpanLine('jsonDataFormat: testJsonDataFormat');
     cy.checkCodeSpanLine('port: "8080"');
     cy.checkCodeSpanLine('producerApiDoc: testProducerApiDoc');
-    cy.checkCodeSpanLine('producerComponent: http');
+    cy.checkCodeSpanLine('producerComponent: vertx-http');
     cy.checkCodeSpanLine('scheme: testScheme');
     cy.checkCodeSpanLine('skipBindingOnErrorCode: true');
     cy.checkCodeSpanLine('xmlDataFormat: testXmlDataFormat');

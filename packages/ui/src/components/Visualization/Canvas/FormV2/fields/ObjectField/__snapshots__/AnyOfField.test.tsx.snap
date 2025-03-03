@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AnyOfField should set the property name and propagate the required status 1`] = `
+<DocumentFragment>
+  <article>
+    <h1>
+      Schema
+    </h1>
+    <section>
+      {
+  type: 'object',
+  properties: { name: { type: 'string', title: 'Name' } }
+}
+    </section>
+  </article>
+  <article>
+    <h1>
+      Props
+    </h1>
+    <section>
+      { propName: '#', required: undefined, onRemove: undefined }
+    </section>
+  </article>
+  <article>
+    <h1>
+      Schema
+    </h1>
+    <section>
+      {
+  type: 'object',
+  properties: { valid: { type: 'boolean', title: 'Valid' } }
+}
+    </section>
+  </article>
+  <article>
+    <h1>
+      Props
+    </h1>
+    <section>
+      { propName: '#', required: undefined, onRemove: undefined }
+    </section>
+  </article>
+</DocumentFragment>
+`;
