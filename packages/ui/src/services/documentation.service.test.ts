@@ -25,7 +25,7 @@ describe('DocumentationService', () => {
   const createDocumentationEntitiesFromYaml = (yaml: string) => {
     const { result: entitiesContext } = renderHook(() => useEntities());
     act(() => {
-      eventNotifier.next('code:updated', yaml);
+      eventNotifier.next('code:updated', { code: yaml });
     });
 
     const visibleFlows = entitiesContext.current.visualEntities.reduce((acc, entity) => {
