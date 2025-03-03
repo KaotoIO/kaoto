@@ -28,5 +28,7 @@ export const getItemFromSchema = (
         },
         {} as Record<string, unknown>,
       );
+    default:
+      return {};
   }
 };

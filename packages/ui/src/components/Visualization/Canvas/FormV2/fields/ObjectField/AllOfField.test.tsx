@@ -4,18 +4,23 @@ import { useContext } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { ROOT_PATH } from '../../../../../../utils';
 import { FormComponentFactoryContext } from '../../providers/FormComponentFactoryProvider';
-import { SchemaContext } from '../../providers/SchemaProvider';
+import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FormWrapper } from '../../testing/FormWrapper';
-import { AnyOfField } from './AnyOfField';
+import { AllOfField } from './AllOfField';
 
-describe('AnyOfField', () => {
-  const anyOf: KaotoSchemaDefinition['schema']['anyOf'] = [
+describe('AllOfField', () => {
+  const allOf: KaotoSchemaDefinition['schema']['anyOf'] = [
     { type: 'object', properties: { name: { type: 'string', title: 'Name' } } },
     { type: 'object', properties: { valid: { type: 'boolean', title: 'Valid' } } },
   ];
 
   it('should render the entire anyOf schemas', () => {
-    const wrapper = render(<AnyOfField propName={ROOT_PATH} anyOf={anyOf} />, { wrapper: FormWrapper });
+    const wrapper = render(
+      <SchemaProvider schema={{ allOf }}>
+        <AllOfField propName={ROOT_PATH} />
+      </SchemaProvider>,
+      { wrapper: FormWrapper },
+    );
 
     const inputFields = wrapper.queryAllByRole('textbox');
     expect(inputFields).toHaveLength(1);
@@ -47,7 +52,9 @@ describe('AnyOfField', () => {
 
     const wrapper = render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
-        <AnyOfField propName={ROOT_PATH} anyOf={anyOf} />
+        <SchemaProvider schema={{ allOf }}>
+          <AllOfField propName={ROOT_PATH} />
+        </SchemaProvider>
       </FormComponentFactoryContext.Provider>,
       { wrapper: FormWrapper },
     );
