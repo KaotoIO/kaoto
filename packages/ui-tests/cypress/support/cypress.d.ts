@@ -102,7 +102,6 @@ declare global {
       closeWrappedMetadataSection(sectionName: string): Chainable<JQuery<Element>>;
       switchWrappedMetadataSection(sectionName: string, wrapped: boolean): Chainable<JQuery<Element>>;
       addMetadataStringProperty(selector: string, key: string, value: string): Chainable<JQuery<Element>>;
-      selectInSettingsTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
       forceSelectMetadataRow(rowIndex: number): Chainable<JQuery<Element>>;
       addMetadataField(fieldName: string): Chainable<JQuery<Element>>;
       // sourceCode

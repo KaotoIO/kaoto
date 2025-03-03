@@ -44,13 +44,6 @@ Cypress.Commands.add('forceSelectMetadataRow', (rowIndex: number) => {
   });
 });
 
-Cypress.Commands.add('selectInSettingsTypeaheadField', (inputGroup: string, value: string) => {
-  cy.get(`[data-fieldname="${inputGroup}"]`).within(() => {
-    cy.get('button.pf-v6-c-menu-toggle__button').click();
-  });
-  cy.get(`#select-typeahead-${value}`).click();
-});
-
 Cypress.Commands.add('addMetadataField', (fieldName: string) => {
   cy.contains('label', fieldName)
     .parent()
