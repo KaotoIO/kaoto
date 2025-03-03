@@ -111,7 +111,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
         defaultValue={schema.default?.toString()}
       >
         <Typeahead
-          aria-label={schema.title ?? propName}
+          aria-label={propName}
           data-testid={propName}
           selectedItem={selectedItem}
           items={items}

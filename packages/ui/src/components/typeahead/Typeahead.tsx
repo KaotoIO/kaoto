@@ -100,6 +100,10 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   const onTextInputChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
     setInputValue(value);
+
+    if (!isOpen) {
+      setIsOpen(true);
+    }
   };
 
   const onTextInputClear = () => {
@@ -110,6 +114,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   const filteredItems = useMemo(() => {
     const lowerFilterValue = inputValue.toLowerCase();
+
     return items.filter((item) => {
       if (!lowerFilterValue) {
         return true;
@@ -140,7 +145,6 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
           data-testid={`${dataTestId}-typeahead-select-input`}
           ref={inputRef}
           placeholder={placeholder}
-          onClick={onToggleClick}
           value={inputValue}
           onChange={onTextInputChange}
         />
