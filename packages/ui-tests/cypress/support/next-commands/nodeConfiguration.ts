@@ -79,6 +79,7 @@ Cypress.Commands.add('selectExpression', (expression: string, index?: number) =>
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
+  cy.get(`[aria-label="#.${inputGroup} toggle"]`).click();
   cy.get(`[data-testid="#.${inputGroup}-typeahead-select-input"]`).within(() => {
     cy.get('input.pf-v6-c-text-input-group__text-input').clear();
   });
@@ -93,7 +94,7 @@ Cypress.Commands.add('configureBeanReference', (inputName: string, value: string
 
 Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
   cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
+  cy.get(`[aria-label="#.${inputName} toggle"]`).click();
   cy.get('.pf-v6-c-menu__item-text').contains('Create new bean').first().click();
 });
 

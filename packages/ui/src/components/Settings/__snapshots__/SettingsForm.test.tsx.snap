@@ -199,7 +199,7 @@ exports[`SettingsForm should render 1`] = `
               class="pf-v6-c-text-input-group__text"
             >
               <input
-                aria-label="Type to filter"
+                aria-label="#.nodeLabel"
                 class="pf-v6-c-text-input-group__text-input"
                 placeholder="description"
                 type="text"
@@ -242,7 +242,7 @@ exports[`SettingsForm should render 1`] = `
         </div>
         <button
           aria-expanded="false"
-          aria-label="undefined toggle"
+          aria-label="#.nodeLabel toggle"
           class="pf-v6-c-menu-toggle__button"
           data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-1"
           data-ouia-component-type="PF6/MenuToggle"
@@ -351,7 +351,7 @@ exports[`SettingsForm should render 1`] = `
               class="pf-v6-c-text-input-group__text"
             >
               <input
-                aria-label="Type to filter"
+                aria-label="#.nodeToolbarTrigger"
                 class="pf-v6-c-text-input-group__text-input"
                 placeholder="onHover"
                 type="text"
@@ -394,7 +394,7 @@ exports[`SettingsForm should render 1`] = `
         </div>
         <button
           aria-expanded="false"
-          aria-label="undefined toggle"
+          aria-label="#.nodeToolbarTrigger toggle"
           class="pf-v6-c-menu-toggle__button"
           data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-2"
           data-ouia-component-type="PF6/MenuToggle"

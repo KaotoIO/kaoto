@@ -45,8 +45,20 @@ export class KaotoFormPageObject {
     return this.screen.queryByTestId(`${propertyName}__oneof-list-typeahead-select-input`);
   }
 
+  getExpressionInputToogleForProperty(propertyName: string): HTMLElement | null {
+    return this.screen.getByLabelText(`${propertyName} expression list toggle`);
+  }
+
+  getOneOfInputToogleForProperty(propertyName: string): HTMLElement | null {
+    return this.screen.getByLabelText(`${propertyName} oneof list toggle`);
+  }
+
   getTypeaheadInputForProperty(propertyName: string): HTMLElement | null {
     return this.screen.queryByTestId(`${propertyName}-typeahead-select-input`);
+  }
+
+  getTypeaheadInputToogleForProperty(propertyName: string): HTMLElement | null {
+    return this.screen.getByLabelText(`${propertyName} toggle`);
   }
 
   getSetObjectButtonForProperty(propertyName: string): HTMLElement | null {
@@ -108,13 +120,13 @@ export class KaotoFormPageObject {
    * @param propertyName The name of the property, starting with `#` (f.i. `#.expression`)
    */
   async toggleExpressionFieldForProperty(propertyName: string): Promise<void> {
-    const expressionField = this.getExpressionInputForProperty(propertyName);
-    if (!isDefined(expressionField)) {
+    const expressionFieldToggle = this.getExpressionInputToogleForProperty(propertyName);
+    if (!isDefined(expressionFieldToggle)) {
       throw new Error(`Expression field for property "${propertyName}" not found.`);
     }
 
     await this.executor(async () => {
-      fireEvent.click(expressionField);
+      fireEvent.click(expressionFieldToggle);
     });
   }
 
@@ -123,13 +135,13 @@ export class KaotoFormPageObject {
    * @param propertyName The name of the property, starting with `#` (f.i. `#`)
    */
   async toggleOneOfFieldForProperty(propertyName: string): Promise<void> {
-    const oneOfField = this.getOneOfInputForProperty(propertyName);
-    if (!isDefined(oneOfField)) {
+    const oneOfFieldToogle = this.getOneOfInputToogleForProperty(propertyName);
+    if (!isDefined(oneOfFieldToogle)) {
       throw new Error(`OneOf field for property "${propertyName}" not found.`);
     }
 
     await this.executor(async () => {
-      fireEvent.click(oneOfField);
+      fireEvent.click(oneOfFieldToogle);
     });
   }
 
@@ -138,13 +150,13 @@ export class KaotoFormPageObject {
    * @param propertyName The name of the property, starting with `#` (f.i. `#`)
    */
   async toggleTypeaheadFieldForProperty(propertyName: string): Promise<void> {
-    const typeaheadInput = this.getTypeaheadInputForProperty(propertyName);
-    if (!isDefined(typeaheadInput)) {
+    const typeaheadInputToggle = this.getTypeaheadInputToogleForProperty(propertyName);
+    if (!isDefined(typeaheadInputToggle)) {
       throw new Error(`Typeahead input field for property "${propertyName}" not found.`);
     }
 
     await this.executor(async () => {
-      fireEvent.click(typeaheadInput);
+      fireEvent.click(typeaheadInputToggle);
     });
   }
 
