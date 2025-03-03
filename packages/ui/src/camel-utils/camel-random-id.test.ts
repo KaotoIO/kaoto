@@ -1,5 +1,4 @@
-import { getCamelRandomId, getHexaDecimalRandomId, getObjectHash } from './camel-random-id';
-import { subtle } from 'node:crypto';
+import { getCamelRandomId, getHexaDecimalRandomId } from './camel-random-id';
 
 describe('camel-random-id', () => {
   it('should return a random number', () => {
@@ -52,27 +51,5 @@ describe('getHexaDecimalRandomId()', () => {
     const two = getHexaDecimalRandomId('test');
     expect(two).toMatch(/test-[0-9a-f]{1,8}/);
     expect(one).not.toEqual(two);
-  });
-});
-
-describe('getObjectHash()', () => {
-  beforeEach(() => {
-    jest
-      .spyOn(global, 'crypto', 'get')
-      .mockImplementation(() => ({ subtle, getRandomValues: () => [19508888] }) as unknown as Crypto);
-  });
-
-  it('should return a hash of an object', async () => {
-    const hash = await getObjectHash({ a: 1, b: 2 });
-    expect(hash).toEqual(expect.any(String));
-  });
-
-  it('should use crypto.subtle to create the hash', async () => {
-    jest.spyOn(global.crypto.subtle, 'digest').mockImplementationOnce(jest.fn().mockResolvedValue(new ArrayBuffer(16)));
-
-    const hash = await getObjectHash({ a: 1, b: 2 });
-
-    expect(hash).toEqual('00000000000000000000000000000000');
-    expect(global.crypto.subtle.digest).toHaveBeenCalledWith('SHA-1', expect.anything());
   });
 });

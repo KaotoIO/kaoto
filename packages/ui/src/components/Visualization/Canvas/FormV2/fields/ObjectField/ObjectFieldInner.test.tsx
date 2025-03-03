@@ -1,15 +1,11 @@
-import { inspect } from 'node:util';
 import { render } from '@testing-library/react';
-import { ObjectFieldInner } from './ObjectFieldInner';
+import { inspect } from 'node:util';
+import { ROOT_PATH } from '../../../../../../utils';
+import { FormComponentFactoryContext } from '../../providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from '../../providers/ModelProvider';
 import { SchemaProvider } from '../../providers/SchemaProvider';
-import { ROOT_PATH } from '../../../../../../utils';
-import {
-  FormComponentFactoryContext,
-  FormComponentFactoryProvider,
-} from '../../providers/FormComponentFactoryProvider';
-import { CanvasFormTabsContext } from '../../../../../../providers';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FormWrapper } from '../../testing/FormWrapper';
+import { ObjectFieldInner } from './ObjectFieldInner';
 
 describe('ObjectFieldInner', () => {
   it('should ignore empty properties', () => {
@@ -19,7 +15,7 @@ describe('ObjectFieldInner', () => {
           <ObjectFieldInner propName={ROOT_PATH} requiredProperties={[]} />
         </SchemaProvider>
       </ModelContextProvider>,
-      { wrapper: formWrapper },
+      { wrapper: FormWrapper },
     );
 
     const inputFields = wrapper.queryAllByRole('textbox');
@@ -36,15 +32,9 @@ describe('ObjectFieldInner', () => {
           </SchemaProvider>
         </ModelContextProvider>
       </FormComponentFactoryContext.Provider>,
-      { wrapper: formWrapper },
+      { wrapper: FormWrapper },
     );
 
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
-
-  const formWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', onTabChange: jest.fn() }}>
-      <FormComponentFactoryProvider>{children}</FormComponentFactoryProvider>
-    </CanvasFormTabsContext.Provider>
-  );
 });

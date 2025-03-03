@@ -1,5 +1,5 @@
 import { Form } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { IDataTestID, KaotoSchemaDefinition } from '../../../../models';
 import { isDefined, ROOT_PATH, setValue } from '../../../../utils';
 import { NoFieldFound } from '../../../Form/NoFieldFound';
@@ -10,7 +10,7 @@ import { ModelContextProvider } from './providers/ModelProvider';
 import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider';
 import { SchemaProvider } from './providers/SchemaProvider';
 
-export interface FormProps extends IDataTestID {
+export interface KaotoFormProps extends IDataTestID {
   schema?: KaotoSchemaDefinition['schema'];
   onChange?: (value: unknown) => void;
   onChangeProp?: (propName: string, value: unknown) => void;
@@ -18,7 +18,7 @@ export interface FormProps extends IDataTestID {
   omitFields?: string[];
 }
 
-export const KaotoForm: FunctionComponent<FormProps> = ({
+export const KaotoForm: FunctionComponent<KaotoFormProps> = ({
   schema,
   onChange,
   onChangeProp,
@@ -27,7 +27,35 @@ export const KaotoForm: FunctionComponent<FormProps> = ({
   'data-testid': dataTestId,
 }) => {
   const [formModel, setFormModel] = useState<unknown>(model);
+  const onChangeRef = useRef(onChange);
+  const isFirstRender = useRef(true);
 
+  /**
+   * This useEffect updates the onChangeRef.current value every time the onChange prop changes
+   * This way, the onChangeRef.current will always have the latest onChange function
+   * but without triggering the useEffect that notifies the consumer about the form being updated
+   */
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  /**
+   * This useEffect notifies the consumer about the entire form being updated
+   * It depends on the formModel state, so it will be triggered every time the formModel changes
+   * but not when the onChange function changes since it's not in the dependency array
+   */
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    onChangeRef.current?.(formModel);
+  }, [formModel]);
+
+  /**
+   * Update the formModel state when a property changes
+   */
   const onPropertyChange = useCallback(
     (propName: string, value: unknown) => {
       onChangeProp?.(propName, value);
@@ -43,10 +71,6 @@ export const KaotoForm: FunctionComponent<FormProps> = ({
     },
     [onChangeProp],
   );
-
-  useEffect(() => {
-    onChange?.(formModel);
-  }, [formModel, onChange]);
 
   if (!isDefined(schema)) {
     return <div>Schema not defined</div>;
