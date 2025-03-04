@@ -1,5 +1,5 @@
 import { Button } from '@patternfly/react-core';
-import { FileIcon } from '@patternfly/react-icons';
+import { DownloadIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useState } from 'react';
 import './ExportDocument.scss';
 import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
@@ -14,8 +14,8 @@ export const ExportDocument: FunctionComponent = () => {
   return (
     <>
       <Button
-        icon={<FileIcon />}
-        title="Route Documentation Preview"
+        icon={<DownloadIcon />}
+        title="Generate Route Documentation"
         onClick={onOpenPreview}
         variant="control"
         data-testid="documentationPreviewButton"
