@@ -3048,7 +3048,7 @@ __metadata:
     typescript: "npm:^5.4.2"
     typescript-eslint: "npm:^8.5.0"
     uniforms: "npm:4.0.0-alpha.5"
-    uniforms-bridge-json-schema: "npm:4.0.0-alpha.6"
+    uniforms-bridge-json-schema: "npm:4.0.0"
     usehooks-ts: "npm:^3.0.0"
     uuid: "npm:^10.0.0"
     vite: "npm:^5.4.0"
@@ -19120,6 +19120,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.8.0":
+  version: 2.8.0
+  resolution: "tslib@npm:2.8.0"
+  checksum: 10/1bc7c43937477059b4d26f2dbde7e49ef0fb4f38f3014e0603eaea76d6a885742c8b1762af45949145e5e7408a736d20ded949da99dabc8ccba1fc5531d2d927
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^1.13.0":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -19440,15 +19447,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uniforms-bridge-json-schema@npm:4.0.0-alpha.6":
-  version: 4.0.0-alpha.6
-  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.6"
+"uniforms-bridge-json-schema@npm:4.0.0":
+  version: 4.0.0
+  resolution: "uniforms-bridge-json-schema@npm:4.0.0"
   dependencies:
     invariant: "npm:^2.0.0"
     lodash: "npm:^4.0.0"
-    tslib: "npm:^2.2.0"
-    uniforms: "npm:^4.0.0-alpha.6"
-  checksum: 10/dceeda9556afc48fb2a38578595e54a683703695f1ed23b876761a4c919cc0f5f03dc6676cf7ce2f35d317aeb4f8c497deb51c5d3457709d6cccb329199bddc2
+    tslib: "npm:2.8.0"
+  peerDependencies:
+    uniforms: 4.0.0
+  checksum: 10/84236b4a4f49ded3252c2681f390036eee9bf2cdacd949e0260b77cf0580d523b75f433e14010b35852b739ee514ed5db062a479426fe1ab11aaaadcdcdb74ab
   languageName: node
   linkType: hard
 
