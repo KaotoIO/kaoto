@@ -34,7 +34,7 @@ export const SerializerSelector: FunctionComponent = () => {
 
   return (
     camelResource.getType() === SourceSchemaType.Route && (
-      <ToolbarItem key="toolbar-serializer-selector">
+      <ToolbarItem key="toolbar-item-serializer-selector">
         <Select
           id="serializer-list-select"
           isOpen={isOpen}

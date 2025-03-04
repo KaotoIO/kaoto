@@ -13,7 +13,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   xmlSerializer: XMLSerializer = new XMLSerializer();
 
   private static readonly COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
-  private static readonly XML_DECLARATION_REGEX = /^\s*<\?xml(?:\s+[^>]*?)?\s*\??>/;
+  private static readonly XML_DECLARATION_REGEX = /^(?:\s*)<\?xml(?:(?:\s+[^\s>]+))*\s*\?>/;
 
   getType(): SerializerType {
     return SerializerType.XML;
@@ -30,7 +30,6 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     const codeWithoutDeclaration = (code as string).replace(this.xmlDeclaration, '');
     this.extractComments(codeWithoutDeclaration);
     const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
-    console.log('code without declaration', codeWithoutDeclaration, this.xmlDeclaration);
     return entities as CamelYamlDsl;
   }
 
@@ -80,7 +79,6 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
 
   private parseXmlDeclaration(xml: string): string {
     const match = XmlCamelResourceSerializer.XML_DECLARATION_REGEX.exec(xml);
-    console.log('match', match);
     return match ? match[0] : '';
   }
 
