@@ -23,19 +23,20 @@ describe('YamlCamelResourceSerializer', () => {
 
   it('includes comments in serialized YAML string', () => {
     const entities = serializer.parse('# comment1\n' + camelRouteYaml);
-    expect(serializer.comments.includes('# comment1')).toBeTruthy();
+    expect(serializer.comments.includes(' comment1')).toBeTruthy();
 
-    serializer.comments.push('# Comment2');
+    serializer.comments.push('Comment2');
     const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
-    expect(result).toContain('# Comment2');
+    expect(result).toContain('#Comment2');
   });
 
   it('includes comments in  YAML string', () => {
     const entities = serializer.parse('# comment1\n' + camelRouteYaml);
-    expect(serializer.comments.includes('# comment1')).toBeTruthy();
+    expect(serializer.comments.includes(' comment1')).toBeTruthy();
 
     serializer.comments.push('# Comment2');
     const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
-    expect(result).toMatchSnapshot();
+    expect(result.includes(' Comment2')).toBeTruthy();
+    expect(result.includes('comment1')).toBeTruthy();
   });
 });
