@@ -94,6 +94,9 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
                   onFocus={() => {
                     currentFocusIndex.current = ['key', index];
                   }}
+                  onBlur={() => {
+                    currentFocusIndex.current = ['key', -1];
+                  }}
                   placeholder="Write a key"
                   value={key}
                 />
@@ -113,6 +116,9 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
                   ref={getFocusRefFn('value', index)}
                   onFocus={() => {
                     currentFocusIndex.current = ['value', index];
+                  }}
+                  onBlur={() => {
+                    currentFocusIndex.current = ['value', -1];
                   }}
                   placeholder="Write a value"
                   value={value}
