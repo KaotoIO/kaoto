@@ -1,21 +1,22 @@
-import { ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
-import { useSchemasStore } from '../../../store';
-import { errorHandlerSchema } from '../../../stubs/error-handler';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 import { EntityType } from '../../camel/entities';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CatalogKind } from '../../catalog-kind';
 
 describe('CamelErrorHandlerVisualEntity', () => {
   const ERROR_HANDLER_ID_REGEXP = /^errorHandler-[a-zA-Z0-9]{4}$/;
   let errorHandlerDef: { errorHandler: ErrorHandlerDeserializer };
 
-  beforeAll(() => {
-    useSchemasStore.getState().setSchema('errorHandler', {
-      name: 'errorHandler',
-      version: '1.0.0',
-      tags: ['camel'],
-      uri: 'errorHandler',
-      schema: errorHandlerSchema,
-    });
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+  });
+
+  afterAll(() => {
+    CamelCatalogService.clearCatalogs();
   });
 
   beforeEach(() => {
@@ -95,7 +96,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     it('should return schema from store', () => {
       const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-      expect(entity.getComponentSchema().schema).toEqual(errorHandlerSchema);
+      expect(entity.getComponentSchema().schema).toMatchSnapshot();
     });
   });
 

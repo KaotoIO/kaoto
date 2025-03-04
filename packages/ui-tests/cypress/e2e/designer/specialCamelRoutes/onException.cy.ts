@@ -32,8 +32,11 @@ describe('Test for root on exception container', () => {
     cy.openGroupConfigurationTab('onException');
 
     cy.selectFormTab('All');
+    cy.get('[data-testid="#.redeliveryPolicy__set"]').click();
+    cy.expandWrappedSection('#.redeliveryPolicy-Advanced');
     cy.selectInTypeaheadField('redeliveryPolicy.retriesExhaustedLogLevel', 'INFO');
     cy.selectInTypeaheadField('redeliveryPolicy.retryAttemptedLogLevel', 'INFO');
+    cy.expandWrappedSection('#-Advanced');
 
     cy.interactWithConfigInputObject('description', 'testDescription');
     cy.interactWithConfigInputObject('onExceptionOccurredRef', 'testOnExceptionOccurredRef');

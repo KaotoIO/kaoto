@@ -24,7 +24,9 @@ describe('Test for root route configuration container', () => {
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'description Label');
+    cy.get(`[data-testid="#.errorHandler__set"]`).click();
     cy.interactWithConfigInputObject('errorHandler.id', 'testErrorHandlerId');
+    cy.expandWrappedSection('#-Advanced');
     cy.interactWithConfigInputObject('precondition', 'testPrecondition');
     cy.closeStepConfigurationTab();
 

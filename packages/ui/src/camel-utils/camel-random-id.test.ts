@@ -35,19 +35,21 @@ describe('camel-random-id', () => {
 
     expect(getCamelRandomId('route')).toEqual(expect.any(String));
   });
+});
 
-  describe('getHexaDecimalRandomId()', () => {
-    it('should return a random number with Hexadecimal format', async () => {
-      // crypto.getRandomValues() in Jest returns a fixed number 12345678. Replacing with Date.now()
-      jest
-        .spyOn(global, 'crypto', 'get')
-        .mockImplementation(() => ({ getRandomValues: () => [Date.now()] }) as unknown as Crypto);
-      const one = getHexaDecimalRandomId('test');
-      expect(one).toMatch(/test-[0-9a-f]{1,8}/);
-      await new Promise((f) => setTimeout(f, 10));
-      const two = getHexaDecimalRandomId('test');
-      expect(two).toMatch(/test-[0-9a-f]{1,8}/);
-      expect(one).not.toEqual(two);
-    });
+describe('getHexaDecimalRandomId()', () => {
+  it('should return a random number with Hexadecimal format', async () => {
+    // crypto.getRandomValues() in Jest returns a fixed number 12345678. Replacing with Date.now()
+    jest
+      .spyOn(global, 'crypto', 'get')
+      .mockImplementation(() => ({ getRandomValues: () => [Date.now()] }) as unknown as Crypto);
+
+    const one = getHexaDecimalRandomId('test');
+    expect(one).toMatch(/test-[0-9a-f]{1,8}/);
+    await new Promise((f) => setTimeout(f, 10));
+
+    const two = getHexaDecimalRandomId('test');
+    expect(two).toMatch(/test-[0-9a-f]{1,8}/);
+    expect(one).not.toEqual(two);
   });
 });

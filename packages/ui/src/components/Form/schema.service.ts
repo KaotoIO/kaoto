@@ -6,19 +6,7 @@ import { SchemaBridge } from './schema-bridge';
 
 export class SchemaService {
   static readonly DROPDOWN_PLACEHOLDER = 'Select an option...';
-  static readonly OMIT_FORM_FIELDS = [
-    'from',
-    'expression',
-    'dataFormatType',
-    'outputs',
-    'steps',
-    'onWhen',
-    'when',
-    'otherwise',
-    'doCatch',
-    'doFinally',
-    'uri',
-  ];
+  static readonly OMIT_FORM_FIELDS = ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
   private readonly ajv: Ajv;
   private readonly FILTER_DOM_PROPS = ['$comment', 'additionalProperties'];
 

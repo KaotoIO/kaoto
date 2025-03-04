@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BeansEntityHandler should handle beans in CamelRouteResource initial state 1`] = `
+{
+  "additionalProperties": false,
+  "description": "Define custom beans that can be used in your Camel routes and in general.",
+  "properties": {
+    "builderClass": {
+      "$comment": "group:common",
+      "description": "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.",
+      "title": "Builder Class",
+      "type": "string",
+    },
+    "builderMethod": {
+      "$comment": "group:common",
+      "default": "build",
+      "description": "Name of method when using builder class. This method is invoked after configuring to create the actual bean. This method is often named build (used by default).",
+      "title": "Builder Method",
+      "type": "string",
+    },
+    "constructors": {
+      "$comment": "group:common",
+      "description": "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.",
+      "title": "Constructors",
+      "type": "object",
+    },
+    "destroyMethod": {
+      "$comment": "group:common",
+      "description": "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.",
+      "title": "Destroy Method",
+      "type": "string",
+    },
+    "factoryBean": {
+      "$comment": "group:common",
+      "description": "Name of factory bean (bean id) to use for creating the bean.",
+      "title": "Factory Bean",
+      "type": "string",
+    },
+    "factoryMethod": {
+      "$comment": "group:common",
+      "description": "Name of method to invoke when creating the bean via a factory bean.",
+      "title": "Factory Method",
+      "type": "string",
+    },
+    "initMethod": {
+      "$comment": "group:common",
+      "description": "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.",
+      "title": "Init Method",
+      "type": "string",
+    },
+    "name": {
+      "$comment": "group:common",
+      "description": "The name of the bean (bean id)",
+      "title": "Name",
+      "type": "string",
+    },
+    "properties": {
+      "$comment": "group:common",
+      "description": "Optional properties to set on the created bean.",
+      "title": "Properties",
+      "type": "object",
+    },
+    "script": {
+      "$comment": "group:advanced",
+      "description": "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.",
+      "title": "Script",
+      "type": "string",
+    },
+    "scriptLanguage": {
+      "$comment": "group:advanced",
+      "description": "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.",
+      "title": "Script Language",
+      "type": "string",
+    },
+    "type": {
+      "$comment": "group:common",
+      "description": "The class name (fully qualified) of the bean",
+      "title": "Type",
+      "type": "string",
+    },
+  },
+  "required": [
+    "name",
+    "type",
+  ],
+  "title": "Bean Factory",
+  "type": "object",
+}
+`;

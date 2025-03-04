@@ -1,5 +1,5 @@
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
-import { camelComponentToTile, camelProcessorToTile, kameletToTile } from './camel-to-tile.adapter';
+import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from './camel-to-tile.adapter';
 
 describe('camelComponentToTile', () => {
   it('should return a tile with the correct type', () => {
@@ -111,6 +111,25 @@ describe('camelProcessorToTile', () => {
     const tile = camelProcessorToTile(processorDef);
 
     expect(tile.tags).toEqual(['label1', 'label2']);
+  });
+});
+
+describe('camelEntityToTile', () => {
+  it('should return a tile with the correct type', () => {
+    const processorDef = {
+      model: {
+        name: 'my-entity',
+        title: 'My Entity',
+        description: 'My Entity Description',
+        label: 'label1,label2',
+      },
+    } as ICamelProcessorDefinition;
+
+    const tile = camelEntityToTile(processorDef);
+
+    expect(tile.type).toEqual(CatalogKind.Entity);
+    expect(tile.name).toEqual('my-entity');
+    expect(tile.description).toEqual('My Entity Description');
   });
 });
 

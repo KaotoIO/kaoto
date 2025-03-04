@@ -18,6 +18,7 @@ describe('AbstractCamelVisualEntity', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   afterAll(() => {
@@ -115,7 +116,7 @@ describe('AbstractCamelVisualEntity', () => {
       missingParametersModel.from.uri = '';
       abstractVisualEntity = new CamelRouteVisualEntity(missingParametersModel);
 
-      const result = abstractVisualEntity.getNodeValidationText('from');
+      const result = abstractVisualEntity.getNodeValidationText('route.from');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ uri ]');
     });

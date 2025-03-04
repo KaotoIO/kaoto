@@ -6,7 +6,10 @@ export interface CanvasFormTabsContextResult {
   selectedTab: keyof typeof FormTabsModes;
   onTabChange: (event: MouseEvent | React.MouseEvent<any, MouseEvent> | React.KeyboardEvent<Element>) => void;
 }
-export const CanvasFormTabsContext = createContext<CanvasFormTabsContextResult | undefined>(undefined);
+export const CanvasFormTabsContext = createContext<CanvasFormTabsContextResult>({
+  selectedTab: 'Required',
+  onTabChange: () => {},
+});
 
 /**
  * Used for fetching and injecting the selected tab information from the canvas form

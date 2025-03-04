@@ -37,7 +37,6 @@ spec:
               simple: {}
         - marshal:
             id: marshal-1414
-            base64: {}
         - to:
             uri: kamelet:sink
             parameters: {}

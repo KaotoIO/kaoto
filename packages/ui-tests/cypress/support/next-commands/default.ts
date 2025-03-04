@@ -45,7 +45,7 @@ Cypress.Commands.add('openBeans', () => {
 
 Cypress.Commands.add('openMetadata', () => {
   cy.get('[data-testid="Metadata"]').click();
-  cy.get('[data-testid="metadata-editor-form-Metadata"]').should('be.visible');
+  cy.get('[data-testid="metadata-form"]').should('be.visible');
 });
 
 Cypress.Commands.add('openPipeErrorHandler', () => {

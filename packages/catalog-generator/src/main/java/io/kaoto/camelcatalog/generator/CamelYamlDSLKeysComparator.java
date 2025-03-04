@@ -25,7 +25,7 @@ public class CamelYamlDSLKeysComparator implements Comparator<String> {
 
     private final List<EipOptionModel> eipOptions;
 
-    CamelYamlDSLKeysComparator(List<EipOptionModel> eipOptions) {
+    public CamelYamlDSLKeysComparator(List<EipOptionModel> eipOptions) {
         this.eipOptions = eipOptions;
     }
 

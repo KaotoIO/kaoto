@@ -2,13 +2,13 @@ import { ROOT_PATH } from './get-value';
 import { setValue } from './set-value';
 
 describe('setValue', () => {
-  it('replace empty objects `{}` with `undefined`', () => {
+  it('should set the empty value at the given path', () => {
     const obj = { a: {} };
     setValue(obj, 'a', {});
-    expect(obj).toEqual({ a: undefined });
+    expect(obj).toEqual({ a: {} });
   });
 
-  it('should not replace empty arrays `[]` with `undefined`', () => {
+  it('should set the empty arrays at the given path', () => {
     const obj = { a: [] };
     setValue(obj, 'a', []);
     expect(obj).toEqual({ a: [] });
@@ -32,10 +32,10 @@ describe('setValue', () => {
     expect(obj).toEqual({ a: { b: { c: 2 } } });
   });
 
-  it('should combine the properties of the value at the root path', () => {
+  it('should remove the properties of the source object that are not in the value object at the root path', () => {
     const obj = { a: { b: { c: 1 } } };
     setValue(obj, ROOT_PATH, { d: 2 });
-    expect(obj).toEqual({ a: { b: { c: 1 } }, d: 2 });
+    expect(obj).toEqual({ d: 2 });
   });
 
   it('should remove all properties when assigning `undefined` to the root path', () => {

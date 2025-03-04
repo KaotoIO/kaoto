@@ -4,13 +4,17 @@ import { screen } from '@testing-library/dom';
 import { act, fireEvent, render } from '@testing-library/react';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { NewBeanModal } from './NewBeanModal';
+import { resolveSchemaWithRef } from '../../../utils';
+import { KaotoSchemaDefinition } from '../../../models';
 
 describe('NewBeanModal', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let beanSchema: any;
+  let beanSchema: KaotoSchemaDefinition['schema'];
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    beanSchema = catalogsMap.entitiesCatalog.bean.propertiesSchema;
+    beanSchema = resolveSchemaWithRef(
+      catalogsMap.entitiesCatalog.bean.propertiesSchema!.items!,
+      catalogsMap.entitiesCatalog.bean.propertiesSchema!.definitions!,
+    );
   });
 
   it('should render', async () => {

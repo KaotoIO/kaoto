@@ -1,12 +1,14 @@
+import { ObjectMeta } from '@kaoto/camel-catalog/types';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
-import { MetadataEditor } from '../../components/MetadataEditor';
-import { useSchemasStore } from '../../store';
-import { EntitiesContext } from '../../providers/entities.provider';
-import { ObjectMeta } from '@kaoto/camel-catalog/types';
+import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas/FormV2/KaotoForm';
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
+import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { useSchemasStore } from '../../store';
 
 export const MetadataPage: FunctionComponent = () => {
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
   const schemaMap = useSchemasStore((state) => state.schemas);
   const entitiesContext = useContext(EntitiesContext);
   const camelkResource = entitiesContext?.camelResource as CamelKResource;
@@ -43,12 +45,14 @@ export const MetadataPage: FunctionComponent = () => {
   );
 
   return isSupported ? (
-    <MetadataEditor
-      name="Metadata"
-      schema={metadataSchema}
-      metadata={getMetadataModel()}
-      onChangeModel={onChangeModel}
-    />
+    <CanvasFormTabsContext.Provider value={formTabsValue}>
+      <KaotoForm
+        data-testid="metadata-form"
+        schema={metadataSchema}
+        model={getMetadataModel()}
+        onChange={onChangeModel as KaotoFormProps['onChange']}
+      />
+    </CanvasFormTabsContext.Provider>
   ) : (
     <Content>Not applicable</Content>
   );
