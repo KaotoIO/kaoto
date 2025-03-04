@@ -1,18 +1,27 @@
+import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto/camel-catalog/types';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
-import { EntitiesContext } from '../../providers/entities.provider';
-import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto/camel-catalog/types';
+import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas/FormV2/KaotoForm';
 import { PipeResource, SourceSchemaType } from '../../models/camel';
+import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
+import { EntitiesContext } from '../../providers/entities.provider';
 import { useSchemasStore } from '../../store';
-import { PipeErrorHandlerEditor } from '../../components/MetadataEditor/PipeErrorHandlerEditor';
 
 export const PipeErrorHandlerPage: FunctionComponent = () => {
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
   const schemaMap = useSchemasStore((state) => state.schemas);
   const entitiesContext = useContext(EntitiesContext);
   const pipeResource = entitiesContext?.camelResource as PipeResource;
 
   const errorHandlerSchema = useMemo(() => {
-    return schemaMap['PipeErrorHandler'].schema;
+    const schema = schemaMap['PipeErrorHandler'].schema;
+
+    if (Array.isArray(schema.oneOf) && !Array.isArray(schema.anyOf)) {
+      schema.anyOf = [{ oneOf: schema.oneOf }];
+      delete schema.oneOf;
+    }
+
+    return schema;
   }, [schemaMap]);
 
   const isSupported = useMemo(() => {
@@ -41,13 +50,14 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   );
 
   return isSupported ? (
-    <>
-      <PipeErrorHandlerEditor
+    <CanvasFormTabsContext.Provider value={formTabsValue}>
+      <KaotoForm
+        data-testid="pipe-error-handler-form"
         schema={errorHandlerSchema}
         model={getErrorHandlerModel()}
-        onChangeModel={onChangeModel}
+        onChange={onChangeModel as KaotoFormProps['onChange']}
       />
-    </>
+    </CanvasFormTabsContext.Provider>
   ) : (
     <Content>Not applicable</Content>
   );
