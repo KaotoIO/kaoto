@@ -8,7 +8,9 @@ const additionalControls = [
   <ToolbarItem key="toolbar-dsl-selector">
     <DSLSelector />
   </ToolbarItem>,
-  <SerializerSelector key="serializerSelector" />,
+  <ToolbarItem key="toolbar-serializer-selector">
+    <SerializerSelector />
+  </ToolbarItem>,
 ];
 export const element = (
   <DesignPage fallback={<ReturnToSourceCodeFallback />} additionalToolbarControls={additionalControls} />
