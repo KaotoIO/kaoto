@@ -7,37 +7,37 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
-    cy.addMetadataStringProperty('annotations', 'test-annotations', 'value-annotations');
-    cy.addMetadataStringProperty('labels', 'test-labels', 'value-labels');
+    cy.addStringProperty('annotations', 'test-annotations', 'value-annotations');
+    cy.addStringProperty('labels', 'test-labels', 'value-labels');
 
-    cy.get(`input[name="creationTimestamp"]`).clear().type('testCreationTimestamp');
-    cy.get(`input[name="deletionGracePeriodSeconds"]`).clear().type('1000');
-    cy.get(`input[name="deletionTimestamp"]`).clear().type('testDeletionTimestamp');
-    cy.get(`input[name="generateName"]`).clear().type('testGenerateName');
-    cy.get(`input[name="generation"]`).clear().type('10');
-    cy.get(`input[name="name"]`).clear().type('testName');
-    cy.get(`input[name="namespace"]`).clear().type('testNamespace');
-    cy.get(`input[name="resourceVersion"]`).clear().type('testResourceVersion');
-    cy.get(`input[name="selfLink"]`).clear().type('testSelfLink');
-    cy.get(`input[name="uid"]`).clear().type('testUid');
-    cy.addMetadataField('Finalizers');
-    cy.get(`input[name="finalizers.0"]`).clear().type('finalizers-testFinalizer');
+    cy.get(`input[name="#.creationTimestamp"]`).clear().type('testCreationTimestamp');
+    cy.get(`input[name="#.deletionGracePeriodSeconds"]`).clear().type('1000');
+    cy.get(`input[name="#.deletionTimestamp"]`).clear().type('testDeletionTimestamp');
+    cy.get(`input[name="#.generateName"]`).clear().type('testGenerateName');
+    cy.get(`input[name="#.generation"]`).clear().type('10');
+    cy.get(`input[name="#.name"]`).clear().type('testName');
+    cy.get(`input[name="#.namespace"]`).clear().type('testNamespace');
+    cy.get(`input[name="#.resourceVersion"]`).clear().type('testResourceVersion');
+    cy.get(`input[name="#.selfLink"]`).clear().type('testSelfLink');
+    cy.get(`input[name="#.uid"]`).clear().type('testUid');
+    cy.addMetadataField('#.finalizers');
+    cy.get(`input[name="#.finalizers.0"]`).clear().type('finalizers-testFinalizer');
 
-    cy.addMetadataField('Managed fields');
-    cy.get(`input[name="managedFields.0.apiVersion"]`).clear().type('managedFields-apiVersion');
-    cy.get(`input[name="managedFields.0.fieldsType"]`).clear().type('managedFields-fieldsType');
-    cy.get(`input[name="managedFields.0.manager"]`).clear().type('managedFields-manager');
-    cy.get(`input[name="managedFields.0.operation"]`).clear().type('managedFields-operation');
-    cy.get(`input[name="managedFields.0.subresource"]`).clear().type('managedFields-subresource');
-    cy.get(`input[name="managedFields.0.time"]`).clear().type('managedFields-time');
+    cy.addMetadataField('#.managedFields');
+    cy.get(`input[name="#.managedFields.0.apiVersion"]`).clear().type('managedFields-apiVersion');
+    cy.get(`input[name="#.managedFields.0.fieldsType"]`).clear().type('managedFields-fieldsType');
+    cy.get(`input[name="#.managedFields.0.manager"]`).clear().type('managedFields-manager');
+    cy.get(`input[name="#.managedFields.0.operation"]`).clear().type('managedFields-operation');
+    cy.get(`input[name="#.managedFields.0.subresource"]`).clear().type('managedFields-subresource');
+    cy.get(`input[name="#.managedFields.0.time"]`).clear().type('managedFields-time');
 
-    cy.addMetadataField('Owner references');
-    cy.get(`input[name="ownerReferences.0.apiVersion"]`).clear().type('ownerReferences-apiVersion');
-    cy.get(`input[name="ownerReferences.0.blockOwnerDeletion"]`).check();
-    cy.get(`input[name="ownerReferences.0.controller"]`).check();
-    cy.get(`input[name="ownerReferences.0.kind"]`).clear().type('ownerReferences-kind');
-    cy.get(`input[name="ownerReferences.0.name"]`).clear().type('ownerReferences-name');
-    cy.get(`input[name="ownerReferences.0.uid"]`).clear().type('ownerReferences-uid');
+    cy.addMetadataField('#.ownerReferences');
+    cy.get(`input[name="#.ownerReferences.0.apiVersion"]`).clear().type('ownerReferences-apiVersion');
+    cy.get(`input[name="#.ownerReferences.0.blockOwnerDeletion"]`).check();
+    cy.get(`input[name="#.ownerReferences.0.controller"]`).check();
+    cy.get(`input[name="#.ownerReferences.0.kind"]`).clear().type('ownerReferences-kind');
+    cy.get(`input[name="#.ownerReferences.0.name"]`).clear().type('ownerReferences-name');
+    cy.get(`input[name="#.ownerReferences.0.uid"]`).clear().type('ownerReferences-uid');
     cy.openSourceCode();
     cy.editorScrollToTop();
 
@@ -79,16 +79,16 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
-    cy.get(`input[name="creationTimestamp"]`).clear().type('updatedCreationTimestamp');
-    cy.get(`input[name="deletionGracePeriodSeconds"]`).clear().type('2000');
-    cy.get(`input[name="deletionTimestamp"]`).clear().type('updatedDeletionTimestamp');
-    cy.get(`input[name="generateName"]`).clear().type('updatedGenerateName');
-    cy.get(`input[name="generation"]`).clear().type('20');
-    cy.get(`input[name="name"]`).clear().type('updatedName');
-    cy.get(`input[name="namespace"]`).clear().type('updatedNamespace');
-    cy.get(`input[name="resourceVersion"]`).clear().type('updatedResourceVersion');
-    cy.get(`input[name="selfLink"]`).clear().type('updatedSelfLink');
-    cy.get(`input[name="uid"]`).clear().type('updatedUid');
+    cy.get(`input[name="#.creationTimestamp"]`).clear().type('updatedCreationTimestamp');
+    cy.get(`input[name="#.deletionGracePeriodSeconds"]`).clear().type('2000');
+    cy.get(`input[name="#.deletionTimestamp"]`).clear().type('updatedDeletionTimestamp');
+    cy.get(`input[name="#.generateName"]`).clear().type('updatedGenerateName');
+    cy.get(`input[name="#.generation"]`).clear().type('20');
+    cy.get(`input[name="#.name"]`).clear().type('updatedName');
+    cy.get(`input[name="#.namespace"]`).clear().type('updatedNamespace');
+    cy.get(`input[name="#.resourceVersion"]`).clear().type('updatedResourceVersion');
+    cy.get(`input[name="#.selfLink"]`).clear().type('updatedSelfLink');
+    cy.get(`input[name="#.uid"]`).clear().type('updatedUid');
 
     cy.openSourceCode();
     cy.editorScrollToTop();
@@ -110,17 +110,13 @@ describe('Test for Metadata Editor support', () => {
     cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
-    cy.expandWrappedMetadataSection('annotations');
-    cy.get('[data-testid="annotations-annotation-name-name-label"]').should('exist');
-    cy.get('[data-testid="annotations-annotation-name-value-label"]').should('exist');
-    cy.get('[data-testid="annotations-annotation-name-delete-annotation-name-btn"]').click();
-    cy.closeWrappedMetadataSection('labels');
+    cy.get('[name="#.annotations__annotation-name__key"]').should('exist');
+    cy.get('[name="#.annotations__annotation-name__value"]').should('exist');
+    cy.get('[data-testid="#.annotations__remove__annotation-name"]').click();
 
-    cy.expandWrappedMetadataSection('labels');
-    cy.get('[data-testid="labels-label-name-name-label"]').should('exist');
-    cy.get('[data-testid="labels-label-name-value-label"]').should('exist');
-    cy.get('[data-testid="labels-label-name-delete-label-name-btn"]').click();
-    cy.closeWrappedMetadataSection('labels');
+    cy.get('[name="#.labels__label-name__key"]').should('exist');
+    cy.get('[name="#.labels__label-name__value"]').should('exist');
+    cy.get('[data-testid="#.labels__remove__label-name"]').click();
 
     // CHECK the bean was edited in the code editor
     cy.openSourceCode();
