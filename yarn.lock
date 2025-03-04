@@ -20356,11 +20356,11 @@ __metadata:
   linkType: hard
 
 "xml-formatter@npm:^3.6.2":
-  version: 3.6.3
-  resolution: "xml-formatter@npm:3.6.3"
+  version: 3.6.4
+  resolution: "xml-formatter@npm:3.6.4"
   dependencies:
     xml-parser-xo: "npm:^4.1.2"
-  checksum: 10/5089a30d179499f15760e4492d3dac21cce653e96375e56fc95769ec779d5ac8c9c465f2f78f41eb74391b6af5e8331040553c7194c1832e6627d663d3d41216
+  checksum: 10/8596dcfeded7a1033c51cbc3664c656c38aad78bd2267b88f9a31e48eda84353307fbe593f24735434d0b82c4729107a130bdc4da5862a9d7c6951269b26ad3d
   languageName: node
   linkType: hard
 
