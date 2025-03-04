@@ -45,12 +45,7 @@ Cypress.Commands.add('forceSelectMetadataRow', (rowIndex: number) => {
 });
 
 Cypress.Commands.add('addMetadataField', (fieldName: string) => {
-  cy.contains('label', fieldName)
-    .parent()
-    .parent()
-    .within(() => {
-      cy.get('[data-testid="list-add-field"]').click();
-    });
+  cy.get(`[data-testid="${fieldName}__add"]`).click();
 });
 
 Cypress.Commands.add('addMetadataStringProperty', (selector: string, key: string, value: string) => {
