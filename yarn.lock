@@ -19662,12 +19662,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:1.2.0":
-  version: 1.2.0
-  resolution: "use-sync-external-store@npm:1.2.0"
+"use-sync-external-store@npm:^1.2.2":
+  version: 1.4.0
+  resolution: "use-sync-external-store@npm:1.4.0"
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/a676216affc203876bd47981103f201f28c2731361bb186367e12d287a7566763213a8816910c6eb88265eccd4c230426eb783d64c373c4a180905be8820ed8e
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10/08bf581a8a2effaefc355e9d18ed025d436230f4cc973db2f593166df357cf63e47b9097b6e5089b594758bde322e1737754ad64905e030d70f8ff7ee671fd01
   languageName: node
   linkType: hard
 
@@ -20528,10 +20528,10 @@ __metadata:
   linkType: hard
 
 "zustand@npm:^4.3.9":
-  version: 4.5.2
-  resolution: "zustand@npm:4.5.2"
+  version: 4.5.6
+  resolution: "zustand@npm:4.5.6"
   dependencies:
-    use-sync-external-store: "npm:1.2.0"
+    use-sync-external-store: "npm:^1.2.2"
   peerDependencies:
     "@types/react": ">=16.8"
     immer: ">=9.0.6"
@@ -20543,7 +20543,7 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10/9e9e92ce7378c5de1d7682f4f10340a1c07a81b673ad0a125b59883a6ade3f2bf39eac6ccc5b05630f9df6ed925291f681592db59ccd3815685c2e83f67c8525
+  checksum: 10/9efd6faca813d9e6e35289b606b5f3c744e806c5a0e5e22ecf73b08af4a23037bdc13ac97902505c664a51aed806384c0652e259a0f199fa31a9bc672e1d7d91
   languageName: node
   linkType: hard
 
