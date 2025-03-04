@@ -14,6 +14,7 @@ export const SimpleSelector: FunctionComponent<TypeaheadProps> = ({
   items,
   id,
   onChange,
+  'aria-label': ariaLabel,
   'data-testid': dataTestId,
 }) => {
   const [selected, setIsSelected] = useState<string | undefined>(selectedItem?.name);
@@ -39,7 +40,7 @@ export const SimpleSelector: FunctionComponent<TypeaheadProps> = ({
   );
 
   return (
-    <ToggleGroup aria-label="Single selectable" id={id} data-testid={dataTestId}>
+    <ToggleGroup id={id} data-testid={dataTestId} aria-label={ariaLabel}>
       {items.map((item) => (
         <ToggleGroupItem
           key={item.name}
