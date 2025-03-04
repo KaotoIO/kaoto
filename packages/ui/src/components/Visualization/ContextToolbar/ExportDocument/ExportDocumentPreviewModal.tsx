@@ -112,7 +112,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
 
   return (
     <Modal
-      aria-label="Route Documentation Preview"
+      aria-label="Generate Route Documentation"
       variant={ModalVariant.large}
       isOpen={isModalOpen}
       data-testid="documentationPreviewModal"
