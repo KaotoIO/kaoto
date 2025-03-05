@@ -40,4 +40,14 @@ describe('FieldWrapper', () => {
     expect(wrapper.getByText('A test field')).toBeInTheDocument();
     expect(wrapper.getByText('Default: default value')).toBeInTheDocument();
   });
+
+  it('should show errors if they are provided', () => {
+    const wrapper = render(
+      <FieldWrapper {...defaultProps} errors={['error message']}>
+        Test Children
+      </FieldWrapper>,
+    );
+
+    expect(wrapper.getByText('error message')).toBeInTheDocument();
+  });
 });
