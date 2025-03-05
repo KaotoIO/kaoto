@@ -1,73 +1,79 @@
 import { BeanFactory } from '@kaoto/camel-catalog/types';
-import { Button } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
-import { KaotoSchemaDefinition } from '../../../models';
-import { MetadataEditor } from '../../MetadataEditor';
-import { CustomAutoFormRef } from '../CustomAutoForm';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
+import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
+import { KaotoSchemaDefinition } from '../../../models';
+import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../../providers/canvas-form-tabs.provider';
 import { isDefined } from '../../../utils';
+import { KaotoForm, KaotoFormApi, KaotoFormProps } from '../../Visualization/Canvas/FormV2/KaotoForm';
 
 export type NewBeanModalProps = {
-  beanSchema: KaotoSchemaDefinition['schema'];
+  beanSchema?: KaotoSchemaDefinition['schema'];
   beanName?: string;
   propertyTitle: string;
   javaType?: string;
-  isOpen: boolean;
   onCreateBean: (model: BeanFactory) => void;
   onCancelCreateBean: () => void;
 };
 
-export const NewBeanModal: FunctionComponent<NewBeanModalProps> = (props: NewBeanModalProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [beanModel, setBeanModel] = useState<any>();
-  const submitRef = useRef<CustomAutoFormRef>(null);
-
-  useEffect(() => {
-    setBeanModel(props.beanName ? { name: props.beanName } : {});
-  }, [props.beanName]);
+export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
+  beanName,
+  javaType,
+  propertyTitle,
+  beanSchema,
+  onCreateBean,
+  onCancelCreateBean,
+}) => {
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
+  const [beanModel, setBeanModel] = useState<unknown>({ name: beanName, type: javaType });
+  const formRef = useRef<KaotoFormApi>(null);
 
   const handleConfirm = useCallback(async () => {
     // validation updates the bean model, so we need to clone it to avoid creating the bean with default values
     const beanModelTmp = cloneDeep(beanModel);
-    const valid = await submitRef.current?.form.validate();
+    const valid = formRef.current?.validate();
     if (!isDefined(valid)) {
-      props.onCreateBean(beanModelTmp as BeanFactory);
+      onCreateBean(beanModelTmp as BeanFactory);
     }
-  }, [beanModel, props]);
+  }, [beanModel, onCreateBean]);
 
-  const handleCancel = useCallback(() => {
-    props.onCancelCreateBean();
-  }, [props]);
+  if (!isDefined(beanSchema)) {
+    return null;
+  }
 
   return (
-    props.beanSchema && (
-      <Modal
-        variant={ModalVariant.large}
-        data-testid={`NewBeanModal-${props.beanName}`}
-        title={`Create a new ${props.propertyTitle} bean`}
-        description={props.javaType ? `Java Type: ${props.javaType}` : ''}
-        isOpen={props.isOpen}
-        onClose={handleCancel}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={handleConfirm} data-testid="create-bean-btn">
-            Create
-          </Button>,
-          <Button key="cancel" variant="link" onClick={handleCancel} data-testid="cancel-bean-btn">
-            Cancel
-          </Button>,
-        ]}
-        ouiaId="NewBeanModal"
-      >
-        <MetadataEditor
-          name={`${props.propertyTitle} Bean`}
-          schema={props.beanSchema}
-          metadata={beanModel}
-          onChangeModel={setBeanModel}
-          handleConfirm={handleConfirm}
-          ref={submitRef}
-        />
-      </Modal>
-    )
+    <Modal
+      isOpen
+      variant={ModalVariant.large}
+      data-testid={`NewBeanModal-${beanName}`}
+      onClose={onCancelCreateBean}
+      ouiaId="NewBeanModal"
+    >
+      <ModalHeader
+        title={`Create a new ${propertyTitle} bean`}
+        description={javaType ? `Java Type: ${javaType}` : ''}
+      />
+
+      <ModalBody>
+        <CanvasFormTabsContext.Provider value={formTabsValue}>
+          <KaotoForm
+            data-testid="new-bean-form"
+            schema={beanSchema}
+            model={beanModel}
+            onChange={setBeanModel as KaotoFormProps['onChange']}
+            ref={formRef}
+          />
+        </CanvasFormTabsContext.Provider>
+      </ModalBody>
+
+      <ModalFooter>
+        <Button key="confirm" variant="primary" onClick={handleConfirm} data-testid="create-bean-btn">
+          Create
+        </Button>
+        <Button key="cancel" variant="link" onClick={onCancelCreateBean} data-testid="cancel-bean-btn">
+          Cancel
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };

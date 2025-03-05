@@ -37,8 +37,8 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.configureDropdownValue('avro.library', 'Jackson');
     cy.interactWithDataformatInputObject('avro.unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
     cy.configureNewBeanReference('avro.schemaResolver');
-    cy.get(`input[name="name"]`).clear().type('schemaResolver');
-    cy.get(`input[name="type"]`).clear().type('org.acme');
+    cy.get(`input[name="#.name"]`).clear().type('schemaResolver');
+    cy.get(`input[name="#.type"]`).clear().type('org.acme');
     cy.get('[data-testid="create-bean-btn"').click();
 
     // CHECK they are reflected in the code editor
