@@ -14,7 +14,7 @@ describe('Test for node bean reference and configuration support', () => {
 
       cy.openStepConfigurationTab('sql');
       cy.selectFormTab('All');
-      cy.configureNewBeanReference('parameters.dataSource');
+      cy.configureBeanReference('Data Source', 'Create new bean');
       cy.get(`input[name="#.name"]`).clear().type('test');
       cy.get(`input[name="#.type"]`).clear().type('org.acme');
 
@@ -47,7 +47,7 @@ describe('Test for node bean reference and configuration support', () => {
       cy.openDesignPage();
       cy.openStepConfigurationTab('sql');
       cy.selectFormTab('All');
-      cy.configureBeanReference('parameters.dataSource', data.dataSource);
+      cy.configureBeanReference('Data Source', data.dataSource);
       cy.openSourceCode();
 
       // CHECK the bean update was reflected in the code editor
@@ -61,7 +61,7 @@ describe('Test for node bean reference and configuration support', () => {
       cy.openDesignPage();
       cy.openStepConfigurationTab('sql');
       cy.selectFormTab('All');
-      cy.configureBeanReference('parameters.dataSource', data.dataSource);
+      cy.configureBeanReference('Data Source', data.dataSource);
       cy.openSourceCode();
       cy.checkCodeSpanLine('dataSource: "' + data.dataSource + '"');
 
@@ -80,7 +80,7 @@ describe('Test for node bean reference and configuration support', () => {
     cy.openDesignPage();
     cy.openStepConfigurationTab('sql');
     cy.selectFormTab('All');
-    cy.configureBeanReference('parameters.dataSource', 'postgreSqlSource');
+    cy.configureBeanReference('Data Source', 'postgreSqlSource');
 
     cy.openBeans();
     // Remove the bean

@@ -83,7 +83,7 @@ describe('BeanField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+    await formPageObject.toggleTypeaheadFieldForProperty('Bean');
     await formPageObject.inputText('Bean', 'MY_BEAN');
     await formPageObject.selectTypeaheadItem('create-new-with-name');
 
@@ -112,7 +112,7 @@ describe('BeanField', () => {
       );
 
       formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.toggleTypeaheadFieldForProperty('Bean');
       await formPageObject.inputText('Bean', 'myNewBean');
       await formPageObject.selectTypeaheadItem('create-new-with-name');
     });

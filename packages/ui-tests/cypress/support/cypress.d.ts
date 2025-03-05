@@ -83,10 +83,7 @@ declare global {
       selectExpression(expression: string, index?: number): Chainable<JQuery<Element>>;
       selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
-      configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
-      selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
-      selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
-      configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
+      configureDropdownValue(value: string): Chainable<JQuery<Element>>;
       deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
       addProperty(propertyName: string): Chainable<JQuery<Element>>;
       addSingleKVProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;

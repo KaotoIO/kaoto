@@ -87,28 +87,15 @@ Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: strin
 });
 
 Cypress.Commands.add('configureBeanReference', (inputName: string, value: string) => {
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
+  cy.get(`[aria-label="${inputName} toggle"]`).scrollIntoView();
+  cy.get(`[aria-label="${inputName} toggle"]`).click();
   cy.get('.pf-v6-c-menu__item-text').contains(value).first().click();
 });
 
-Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
-  cy.get(`[aria-label="#.${inputName} toggle"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains('Create new bean').first().click();
-});
-
-Cypress.Commands.add('selectDataformat', (dataformat: string) => {
-  cy.selectCustomMetadataEditor('dataformat', dataformat);
-});
-
-Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
-  cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains(format).first().click();
-});
-
-Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {
-  cy.configureBeanReference(inputName, value!);
+Cypress.Commands.add('configureDropdownValue', (value: string) => {
+  cy.get(`[aria-label="# oneof list toggle"]`).scrollIntoView();
+  cy.get(`[aria-label="# oneof list toggle"]`).click();
+  cy.get('.pf-v6-c-menu__item-text').contains(value).first().click();
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
