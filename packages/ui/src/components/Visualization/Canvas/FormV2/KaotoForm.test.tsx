@@ -1,5 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
-import { KaotoForm, KaotoFormProps } from './KaotoForm';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useRef, useState } from 'react';
+import { KaotoForm, KaotoFormApi, KaotoFormProps } from './KaotoForm';
 import { KaotoFormPageObject } from './testing/KaotoFormPageObject';
 
 describe('KaotoForm', () => {
@@ -21,8 +22,7 @@ describe('KaotoForm', () => {
   });
 
   it('displays "Schema not defined" when schema is not provided', () => {
-    render(<KaotoForm {...defaultProps} schema={undefined} />);
-    expect(screen.getByText('Schema not defined')).toBeInTheDocument();
+    expect(() => render(<KaotoForm {...defaultProps} schema={undefined} />)).toThrow('[KaotoForm]: Schema is required');
   });
 
   it('should not call onChange when loading the form for the first time', () => {
@@ -45,7 +45,7 @@ describe('KaotoForm', () => {
     });
   });
 
-  it('calls onChangeProp when a property changes', async () => {
+  it('should call onChangeProp when a property changes', async () => {
     const onChangePropMock = jest.fn();
     render(<KaotoForm {...defaultProps} onChangeProp={onChangePropMock} />);
 
@@ -57,4 +57,46 @@ describe('KaotoForm', () => {
 
     expect(onChangePropMock).toHaveBeenCalledWith(propName, value);
   });
+
+  it('should call onChangeProp when a primitive property changes', async () => {
+    const onChangePropMock = jest.fn();
+    render(<KaotoForm {...defaultProps} model="" onChangeProp={onChangePropMock} />);
+
+    const value = 'new value';
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.inputText('Name', value);
+
+    expect(onChangePropMock).toHaveBeenCalledWith('name', value);
+  });
+
+  it('should validate the model', async () => {
+    const wrapper = render(<KaotoFormApiTest />);
+
+    const validateButton = wrapper.getByTestId('validate');
+    fireEvent.click(validateButton);
+
+    expect(wrapper.asFragment()).toMatchSnapshot();
+  });
+
+  const KaotoFormApiTest = () => {
+    const formRef = useRef<KaotoFormApi>(null);
+    const [errors, setErrors] = useState<Record<string, string[]>>({});
+
+    return (
+      <>
+        <code>{JSON.stringify(errors, undefined, 2)}</code>
+        <KaotoForm {...defaultProps} ref={formRef} />
+        <button
+          type="button"
+          title="validate"
+          data-testid="validate"
+          onClick={() => {
+            const errors = formRef.current?.validate();
+            setErrors(errors ?? {});
+          }}
+        />
+      </>
+    );
+  };
 });

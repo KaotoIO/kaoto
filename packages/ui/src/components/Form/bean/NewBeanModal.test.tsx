@@ -1,14 +1,15 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { screen } from '@testing-library/dom';
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { NewBeanModal } from './NewBeanModal';
+import { NewBeanModal, NewBeanModalProps } from './NewBeanModal';
 import { resolveSchemaWithRef } from '../../../utils';
 import { KaotoSchemaDefinition } from '../../../models';
 
 describe('NewBeanModal', () => {
   let beanSchema: KaotoSchemaDefinition['schema'];
+  let defaultProps: NewBeanModalProps;
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     beanSchema = resolveSchemaWithRef(
@@ -17,38 +18,61 @@ describe('NewBeanModal', () => {
     );
   });
 
-  it('should render', async () => {
-    const mockOnCreate = jest.fn();
-    const mockOnCancel = jest.fn();
+  beforeEach(() => {
+    defaultProps = {
+      beanName: 'TestBean',
+      javaType: 'java.lang.String',
+      propertyTitle: 'Test Property',
+      beanSchema,
+      onCreateBean: jest.fn(),
+      onCancelCreateBean: jest.fn(),
+    };
+  });
 
-    render(
-      <NewBeanModal
-        beanSchema={beanSchema}
-        isOpen
-        onCancelCreateBean={mockOnCancel}
-        onCreateBean={mockOnCreate}
-        propertyTitle={'foo'}
-      />,
-    );
-    const nameTeextbox = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Name');
-    fireEvent.input(nameTeextbox[0], { target: { value: 'foo' } });
-    const labelTeextbox = screen.getAllByRole('textbox').filter((textbox) => textbox.getAttribute('label') === 'Type');
-    fireEvent.input(labelTeextbox[0], { target: { value: 'bar' } });
-    const createButton = screen
-      .getAllByRole('button')
-      .filter((button) => button.textContent && button.textContent === 'Create');
-    expect(createButton).toHaveLength(1);
-    expect(mockOnCreate.mock.calls).toHaveLength(0);
-    await act(async () => fireEvent.click(createButton[0]));
-    expect(mockOnCreate.mock.calls).toHaveLength(1);
-    expect(mockOnCreate.mock.calls[0][0].name).toEqual('foo');
+  it('should renders without crashing', () => {
+    render(<NewBeanModal {...defaultProps} />);
+    expect(screen.getByTestId('NewBeanModal-TestBean')).toBeInTheDocument();
+  });
 
-    const cancelButton = screen
-      .getAllByRole('button')
-      .filter((button) => button.textContent && button.textContent === 'Cancel');
-    expect(cancelButton).toHaveLength(1);
-    expect(mockOnCancel.mock.calls).toHaveLength(0);
-    fireEvent.click(cancelButton[0]);
-    expect(mockOnCancel.mock.calls).toHaveLength(1);
+  it('should not render anything if there is no schema', () => {
+    render(<NewBeanModal {...defaultProps} beanSchema={undefined} />);
+    expect(screen.queryByTestId('NewBeanModal-TestBean')).not.toBeInTheDocument();
+  });
+
+  it('should call `onCancelCreateBean` when cancel button is clicked', () => {
+    render(<NewBeanModal {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('cancel-bean-btn'));
+    expect(defaultProps.onCancelCreateBean).toHaveBeenCalled();
+  });
+
+  it('should call `onCreateBean` when create button is clicked', async () => {
+    render(<NewBeanModal {...defaultProps} />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('create-bean-btn'));
+    });
+    expect(defaultProps.onCreateBean).toHaveBeenCalled();
+  });
+
+  it('should NOT call `onCreateBean` when create button is clicked but the schema is missing required fields', async () => {
+    render(<NewBeanModal {...defaultProps} beanName={undefined} />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('create-bean-btn'));
+    });
+    expect(defaultProps.onCreateBean).not.toHaveBeenCalled();
+  });
+
+  it('displays the correct title and description', () => {
+    render(<NewBeanModal {...defaultProps} javaType="TestType" />);
+    expect(screen.getByText('Create a new Test Property bean')).toBeInTheDocument();
+    expect(screen.getByText('Java Type: TestType')).toBeInTheDocument();
+  });
+
+  it('updates the bean model when form changes', async () => {
+    render(<NewBeanModal {...defaultProps} />);
+    const input = screen.getByLabelText('Name');
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'New Bean Name' } });
+    });
+    expect(input).toHaveValue('New Bean Name');
   });
 });
