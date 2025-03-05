@@ -8,7 +8,6 @@ import { getFieldGroups, getFilteredProperties, isDefined } from '../../utils';
 import './CustomAutoFields.scss';
 import { CustomExpandableSection } from './customField/CustomExpandableSection';
 import { NoFieldFound } from './NoFieldFound';
-import { OneOfField } from './OneOf/OneOfField';
 
 export type AutoFieldsProps = {
   autoField?: ComponentType<{ name: string }>;
@@ -28,7 +27,6 @@ export function CustomAutoFields({
   const rootField = schema.getField('');
   const { filteredFieldText, isGroupExpanded } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
-  const oneOf = (rootField as KaotoSchemaDefinition['schema']).oneOf;
   const cleanQueryTerm = filteredFieldText.replace(/\s/g, '').toLowerCase();
   const schemaObject = isDefined(fields)
     ? fields.reduce((acc: { [name: string]: unknown }, name) => {
@@ -78,9 +76,6 @@ export function CustomAutoFields({
           </Card>
         </CustomExpandableSection>
       ))}
-
-      {/* Special handling for oneOf schemas */}
-      {Array.isArray(oneOf) && <OneOfField name="" fields={fields} oneOf={oneOf} {...props} />}
     </>,
   );
 }

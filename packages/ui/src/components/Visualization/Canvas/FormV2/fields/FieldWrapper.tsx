@@ -1,4 +1,12 @@
-import { FormGroup, FormGroupLabelHelp, Popover } from '@patternfly/react-core';
+import {
+  FormGroup,
+  FormGroupLabelHelp,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  Popover,
+} from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 import { FieldProps } from '../typings';
 
@@ -7,6 +15,7 @@ interface FieldWrapperProps extends FieldProps {
   title?: ReactNode;
   description?: string;
   defaultValue?: string;
+  errors?: string[];
 }
 
 export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
@@ -16,6 +25,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   type,
   description,
   defaultValue = 'no default value',
+  errors,
   children,
 }) => {
   const id = `${propName}-popover`;
@@ -45,6 +55,20 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
       }
     >
       {children}
+
+      {errors && (
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
+              {errors?.map((error) => (
+                <div key={error} id={id} aria-live="polite" aria-atomic="true">
+                  {error}
+                </div>
+              ))}
+            </HelperTextItem>
+          </HelperText>
+        </FormHelperText>
+      )}
     </FormGroup>
   );
 };

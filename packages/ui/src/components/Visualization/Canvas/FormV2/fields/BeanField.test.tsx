@@ -118,10 +118,10 @@ describe('BeanField', () => {
     });
 
     it('should allow user to create a new bean', async () => {
-      const [nameInput] = screen.getAllByRole('textbox').filter((i) => i.getAttribute('label') === 'Name');
+      const [nameInput] = screen.getAllByLabelText('Name');
       expect(nameInput).toHaveValue('myNewBean');
 
-      const [typeInput] = screen.getAllByRole('textbox').filter((i) => i.getAttribute('label') === 'Type');
+      const [typeInput] = screen.getAllByLabelText('Type');
       await act(async () => {
         fireEvent.input(typeInput, { target: { value: 'io.kaoto.new.MyNewBean' } });
       });
@@ -147,6 +147,11 @@ describe('BeanField', () => {
     });
 
     it('should not allow to create a bean without a type', async () => {
+      const clearTypeField = screen.getByRole('button', { name: /clear type field/i });
+      await act(async () => {
+        fireEvent.click(clearTypeField);
+      });
+
       const [createButton] = screen.getAllByRole('button').filter((b) => b.textContent === 'Create');
       await act(async () => {
         fireEvent.click(createButton);

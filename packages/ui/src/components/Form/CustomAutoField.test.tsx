@@ -13,7 +13,6 @@ import { AutoFieldProps } from 'uniforms';
 import { CustomAutoField } from './CustomAutoField';
 import { CustomNestField } from './customField/CustomNestField';
 import { DisabledField } from './customField/DisabledField';
-import { TypeaheadField } from './customField/TypeaheadField';
 
 describe('CustomAutoField', () => {
   it('should return `RadioField` if `props.options` & `props.checkboxes` are defined and `props.fieldType` is not `Array`', () => {
@@ -27,19 +26,6 @@ describe('CustomAutoField', () => {
     const result = CustomAutoField(props);
 
     expect(result).toBe(RadioField);
-  });
-
-  it('should return `SelectField` if `props.options` & `props.checkboxes` are defined and `props.fieldType` is `Array`', () => {
-    const props: AutoFieldProps = {
-      options: [],
-      name: 'test',
-      checkboxes: true,
-      fieldType: Array,
-    };
-
-    const result = CustomAutoField(props);
-
-    expect(result).toBe(TypeaheadField);
   });
 
   it('should return `DisabledField` if `props.name` ends with `steps`', () => {

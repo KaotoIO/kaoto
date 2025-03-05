@@ -63,4 +63,21 @@ describe('StringField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
   });
+
+  it('should show errors if available for its property path', () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider
+        model="Value"
+        errors={{ [ROOT_PATH]: ['error message'] }}
+        onPropertyChange={onPropertyChangeSpy}
+      >
+        <StringField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const errorMessage = wrapper.getByText('error message');
+    expect(errorMessage).toBeInTheDocument();
+  });
 });

@@ -241,7 +241,7 @@ exports[`CanvasForm should render 1`] = `
             >
               <div
                 aria-describedby="#.message-popover"
-                class="pf-v6-c-text-input-group__main"
+                class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
                 id="#.message"
               >
                 <span

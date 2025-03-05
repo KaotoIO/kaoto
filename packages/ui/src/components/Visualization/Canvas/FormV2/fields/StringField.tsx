@@ -9,7 +9,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string>(propName);
+  const { value = '', errors, onChange } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
 
@@ -37,11 +37,13 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
       type="string"
       description={schema.description}
       defaultValue={schema.default?.toString()}
+      errors={errors}
     >
-      <TextInputGroup>
+      <TextInputGroup validated={errors ? 'error' : undefined}>
         <TextInputGroupMain
           type="text"
           role="textbox"
+          className="pf-m-icon kaoto-form__string-field"
           id={propName}
           name={propName}
           placeholder={schema.default?.toString()}

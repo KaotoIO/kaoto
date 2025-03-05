@@ -12,10 +12,11 @@ describe('ModelContextProvider', () => {
 
   it('should return the provided value', () => {
     const model = { foo: 'bar' };
+    const errors: Record<string, string[]> = { foo: ['error'] };
     const onPropertyChange = jest.fn();
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <ModelContextProvider model={model} onPropertyChange={onPropertyChange}>
+      <ModelContextProvider model={model} errors={errors} onPropertyChange={onPropertyChange}>
         {children}
       </ModelContextProvider>
     );
@@ -23,6 +24,7 @@ describe('ModelContextProvider', () => {
     const { result } = renderHook(() => useContext(ModelContext), { wrapper });
 
     expect(result.current.model).toEqual(model);
+    expect(result.current.errors).toEqual(errors);
     expect(result.current.onPropertyChange).toEqual(onPropertyChange);
   });
 });
