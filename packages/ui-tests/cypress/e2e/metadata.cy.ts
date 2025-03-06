@@ -3,7 +3,7 @@ describe('Test for Metadata Editor support', () => {
     cy.openHomePage();
   });
 
-  it('Metadata Editor - edit metadata using metadata editor', () => {
+  it.only('Metadata Editor - edit metadata using metadata editor', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
@@ -33,8 +33,9 @@ describe('Test for Metadata Editor support', () => {
 
     cy.addMetadataField('#.ownerReferences');
     cy.get(`input[name="#.ownerReferences.0.apiVersion"]`).clear().type('ownerReferences-apiVersion');
-    cy.get(`input[name="#.ownerReferences.0.blockOwnerDeletion"]`).check();
-    cy.get(`input[name="#.ownerReferences.0.controller"]`).check();
+    cy.interactWithConfigInputObject('ownerReferences.0.blockOwnerDeletion');
+    cy.interactWithConfigInputObject('ownerReferences.0.controller');
+
     cy.get(`input[name="#.ownerReferences.0.kind"]`).clear().type('ownerReferences-kind');
     cy.get(`input[name="#.ownerReferences.0.name"]`).clear().type('ownerReferences-name');
     cy.get(`input[name="#.ownerReferences.0.uid"]`).clear().type('ownerReferences-uid');

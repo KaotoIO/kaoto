@@ -50,7 +50,8 @@ Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?
     cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).clear();
     cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).type(value);
   } else {
-    cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).click();
+    /* We need to use {force: true} because the `Switch` component is wrapped with a Label component blocking it */
+    cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).click({ force: true });
   }
 });
 
