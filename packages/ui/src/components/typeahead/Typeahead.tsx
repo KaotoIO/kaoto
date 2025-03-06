@@ -44,9 +44,11 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   onCreate,
   onCreatePrefix,
 }) => {
+  const [filter, setFilter] = useState<string>(selectedItem?.name ?? '');
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectedOptionRef = useRef<HTMLSelectElement>(null);
 
   const items = useMemo(() => {
     const localArray = itemsProps.slice();
@@ -93,23 +95,42 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     [onChange, items, selectedItem?.name, onCreate, inputValue],
   );
 
-  const onToggleClick: MouseEventHandler<HTMLDivElement | HTMLButtonElement> = (event) => {
+  const onToggleClick: MouseEventHandler<HTMLDivElement | HTMLButtonElement> = async (event) => {
     event.stopPropagation();
-    setIsOpen(!isOpen);
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    setFilter('');
+    setIsOpen(true);
+
+    requestAnimationFrame(() => {
+      selectedOptionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      inputRef.current?.focus();
+    });
+  };
+
+  const onInputClick: MouseEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+    setFilter(inputValue);
+    setIsOpen(true);
   };
 
   const onTextInputChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
+    setFilter(value);
     setInputValue(value);
   };
 
   const onTextInputClear = () => {
+    setFilter('');
     setInputValue('');
     onCleanInput?.();
     inputRef.current?.focus();
   };
 
   const filteredItems = useMemo(() => {
-    const lowerFilterValue = inputValue.toLowerCase();
+    const lowerFilterValue = filter.toLowerCase();
     return items.filter((item) => {
       if (!lowerFilterValue) {
         return true;
@@ -120,7 +141,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
       return hasNameMatch || hasDescriptionMatch;
     });
-  }, [inputValue, items]);
+  }, [filter, items]);
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
@@ -140,7 +161,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
           data-testid={`${dataTestId}-typeahead-select-input`}
           ref={inputRef}
           placeholder={placeholder}
-          onClick={onToggleClick}
+          onClick={onInputClick}
           value={inputValue}
           onChange={onTextInputChange}
         />
@@ -181,6 +202,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
             description={item.description}
             aria-label={`option ${item.name.toLocaleLowerCase()}`}
             isSelected={item.name === selectedItem?.name}
+            ref={item.name === selectedItem?.name ? selectedOptionRef : undefined}
           >
             {item.name}
           </SelectOption>
@@ -194,6 +216,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
             Create new {onCreatePrefix} &quot;{inputValue}&quot;
           </SelectOption>
         )}
+
         {filteredItems.length === 0 && !onCreate && <SelectOption isDisabled>No items found</SelectOption>}
       </SelectList>
     </Select>
