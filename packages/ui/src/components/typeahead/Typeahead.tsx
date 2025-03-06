@@ -180,6 +180,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
             value={item.value}
             description={item.description}
             aria-label={`option ${item.name.toLocaleLowerCase()}`}
+            isSelected={item.name === selectedItem?.name}
           >
             {item.name}
           </SelectOption>
