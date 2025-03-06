@@ -3,6 +3,7 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../models';
+import { FilteredFieldProvider } from '../../../providers';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../../providers/canvas-form-tabs.provider';
 import { isDefined } from '../../../utils';
 import { KaotoForm, KaotoFormApi, KaotoFormProps } from '../../Visualization/Canvas/FormV2/KaotoForm';
@@ -55,15 +56,17 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
       />
 
       <ModalBody>
-        <CanvasFormTabsContext.Provider value={formTabsValue}>
-          <KaotoForm
-            data-testid="new-bean-form"
-            schema={beanSchema}
-            model={beanModel}
-            onChange={setBeanModel as KaotoFormProps['onChange']}
-            ref={formRef}
-          />
-        </CanvasFormTabsContext.Provider>
+        <FilteredFieldProvider>
+          <CanvasFormTabsContext.Provider value={formTabsValue}>
+            <KaotoForm
+              data-testid="new-bean-form"
+              schema={beanSchema}
+              model={beanModel}
+              onChange={setBeanModel as KaotoFormProps['onChange']}
+              ref={formRef}
+            />
+          </CanvasFormTabsContext.Provider>
+        </FilteredFieldProvider>
       </ModalBody>
 
       <ModalFooter>
