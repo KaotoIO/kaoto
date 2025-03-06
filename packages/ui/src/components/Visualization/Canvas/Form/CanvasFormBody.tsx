@@ -23,16 +23,12 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
   }, [props.selectedNode.data?.vizNode]);
   const model = visualComponentSchema?.definition;
 
-  const stepFeatures = useMemo(() => {
-    const comment = visualComponentSchema?.schema?.['$comment'] ?? '';
-    const isExpressionAwareStep = comment.includes('expression');
-    const isDataFormatAwareStep = comment.includes('dataformat');
-    const isLoadBalanceAwareStep = comment.includes('loadbalance');
-    const isUnknownComponent =
+  const isUnknownComponent = useMemo(() => {
+    return (
       !isDefined(visualComponentSchema) ||
       !isDefined(visualComponentSchema.schema) ||
-      Object.keys(visualComponentSchema.schema).length === 0;
-    return { isExpressionAwareStep, isDataFormatAwareStep, isLoadBalanceAwareStep, isUnknownComponent };
+      Object.keys(visualComponentSchema.schema).length === 0
+    );
   }, [visualComponentSchema]);
 
   const handleOnChangeIndividualProp = useCallback(
@@ -54,18 +50,16 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
     [entitiesContext, props.selectedNode.data?.vizNode],
   );
 
+  if (isUnknownComponent) {
+    return <UnknownNode model={model} />;
+  }
+
   return (
-    <>
-      {stepFeatures.isUnknownComponent ? (
-        <UnknownNode model={model} />
-      ) : (
-        <KaotoForm
-          schema={visualComponentSchema?.schema}
-          onChangeProp={handleOnChangeIndividualProp}
-          model={model}
-          omitFields={omitFields.current}
-        />
-      )}
-    </>
+    <KaotoForm
+      schema={visualComponentSchema?.schema}
+      onChangeProp={handleOnChangeIndividualProp}
+      model={model}
+      omitFields={omitFields.current}
+    />
   );
 };
