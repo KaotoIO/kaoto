@@ -17,16 +17,7 @@ import { RegisterNodeInteractionAddons } from '../components/registers/RegisterN
 import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
 import { useReload } from '../hooks/reload.hook';
-import {
-  CatalogLoaderProvider,
-  CatalogTilesProvider,
-  MetadataProvider,
-  RuntimeProvider,
-  SchemasLoaderProvider,
-  SettingsContext,
-  SourceCodeApiContext,
-  VisibleFlowsProvider,
-} from '../providers';
+import { CatalogTilesProvider, MetadataProvider, SourceCodeApiContext, VisibleFlowsProvider } from '../providers';
 import { EventNotifier } from '../utils';
 
 interface KaotoBridgeProps {
@@ -127,8 +118,6 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
     const sourceCodeRef = useRef<string>('');
-    const settingsAdapter = useContext(SettingsContext);
-    const catalogUrl = settingsAdapter.getSettings().catalogUrl;
     const metadataApi = useMemo(
       () => ({
         getMetadata,
@@ -226,27 +215,21 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
 
     return (
       <ReloadProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <CatalogTilesProvider>
-                <VisualizationProvider controller={controller}>
-                  <VisibleFlowsProvider>
-                    <RenderingProvider>
-                      <MetadataProvider api={metadataApi}>
-                        <RegisterComponents>
-                          <NodeInteractionAddonProvider>
-                            <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
-                          </NodeInteractionAddonProvider>
-                        </RegisterComponents>
-                      </MetadataProvider>
-                    </RenderingProvider>
-                  </VisibleFlowsProvider>
-                </VisualizationProvider>
-              </CatalogTilesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
+        <CatalogTilesProvider>
+          <VisualizationProvider controller={controller}>
+            <VisibleFlowsProvider>
+              <RenderingProvider>
+                <MetadataProvider api={metadataApi}>
+                  <RegisterComponents>
+                    <NodeInteractionAddonProvider>
+                      <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+                    </NodeInteractionAddonProvider>
+                  </RegisterComponents>
+                </MetadataProvider>
+              </RenderingProvider>
+            </VisibleFlowsProvider>
+          </VisualizationProvider>
+        </CatalogTilesProvider>
       </ReloadProvider>
     );
   },
