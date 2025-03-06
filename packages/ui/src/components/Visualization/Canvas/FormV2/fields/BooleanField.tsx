@@ -1,4 +1,4 @@
-import { Checkbox } from '@patternfly/react-core';
+import { Switch } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -12,10 +12,6 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
     onChange(checked);
   };
 
-  if (!schema) {
-    return <div>BooleanField - Schema not defined</div>;
-  }
-
   const id = `${propName}-popover`;
 
   return (
@@ -26,8 +22,9 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
       type="boolean"
       description={schema.description}
       defaultValue={schema.default?.toString()}
+      isRow
     >
-      <Checkbox
+      <Switch
         id={propName}
         name={propName}
         role="checkbox"

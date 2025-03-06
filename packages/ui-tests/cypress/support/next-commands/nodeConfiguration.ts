@@ -1,10 +1,15 @@
+Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?: string) => {
+  cy.interactWithExpressionInputObject(`#.${inputName}`, value);
+});
+
 Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string, index?: number) => {
   index = index ?? 0;
   if (value !== undefined && value !== null) {
     cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).clear();
     cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value);
   } else {
-    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click();
+    /** We need to use {force:true} because the `Switch` component is wrapped by a label component, blocking the click event */
+    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click({ force: true });
   }
 });
 
@@ -39,19 +44,6 @@ Cypress.Commands.add('checkExpressionResultType', (value: string) => {
   cy.get('[data-fieldname="resultType"]').within(() => {
     cy.get(`input.pf-v6-c-text-input-group__text-input`).should('have.value', value);
   });
-});
-
-Cypress.Commands.add('interactWithDataformatInputObject', (inputName: string, value?: string) => {
-  cy.interactWithConfigInputObject(inputName, value);
-});
-
-Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?: string) => {
-  if (value !== undefined && value !== null) {
-    cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).clear();
-    cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).type(value);
-  } else {
-    cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).click();
-  }
 });
 
 Cypress.Commands.add('checkConfigCheckboxObject', (inputName: string, value: boolean) => {
