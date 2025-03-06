@@ -4,7 +4,7 @@ import { getCustomSchemaFromKamelet, isDefined, setValue, updateKameletFromCusto
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition } from '../../kamelets-catalog';
+import { IKameletDefinition, IKameletSpec } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
@@ -18,10 +18,25 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
   static readonly ROOT_PATH = 'template';
 
   constructor(public kamelet: IKameletDefinition) {
-    super({ id: kamelet.metadata?.name, template: { from: kamelet?.spec.template.from } });
+    const spec: IKameletSpec = {
+      ...(kamelet.spec ?? {}),
+      template: {
+        ...(kamelet.spec?.template ?? {}),
+        from: {
+          ...(kamelet.spec?.template?.from ?? {}),
+        },
+      },
+      definition: {
+        ...(kamelet.spec?.definition ?? {}),
+        title: kamelet.spec?.definition?.title,
+        description: kamelet.spec?.definition?.description,
+      },
+    };
+    super({ id: kamelet.metadata?.name, template: { from: spec.template.from } });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
     this.kamelet.metadata = kamelet?.metadata ?? { name: this.id };
     this.kamelet.metadata.name = kamelet?.metadata.name ?? this.id;
+    this.kamelet.spec = spec;
   }
 
   getRootPath(): string {

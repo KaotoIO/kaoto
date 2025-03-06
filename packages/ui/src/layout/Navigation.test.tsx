@@ -1,8 +1,7 @@
 import { render } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { EntitiesContextResult } from '../hooks/entities';
 import { SourceSchemaType } from '../models/camel';
-import { EntitiesContext } from '../providers';
+import { EntitiesContext, EntitiesContextResult } from '../providers';
 import { Navigation } from './Navigation';
 
 describe('Navigation Component', () => {

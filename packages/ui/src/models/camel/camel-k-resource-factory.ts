@@ -10,26 +10,32 @@ import {
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
+import { isDefined } from '../../utils';
 
 export class CamelKResourceFactory {
   static getCamelKResource(
     json?: IntegrationType | IKameletDefinition | KameletBindingType | PipeType,
     type?: SourceSchemaType,
   ): CamelResource | undefined {
-    const jsonRecord = json ? (json as Record<string, unknown>) : {};
+    const jsonRecord =
+      isDefined(json) && !Array.isArray(json) && typeof json === 'object' ? (json as Record<string, unknown>) : {};
+    const kind = jsonRecord['kind'] ?? type;
 
-    if ((jsonRecord && typeof json === 'object' && 'kind' in jsonRecord) || type) {
-      switch (jsonRecord['kind'] || type) {
-        case SourceSchemaType.Integration:
-          return new IntegrationResource(json as IntegrationType);
-        case SourceSchemaType.Kamelet:
-          return new KameletResource(json as IKameletDefinition);
-        case SourceSchemaType.KameletBinding:
-          return new KameletBindingResource(json as KameletBindingType);
-        case SourceSchemaType.Pipe:
-          return new PipeResource(json as PipeType);
-      }
+    if (!isDefined(kind)) {
+      return undefined;
     }
-    return undefined;
+
+    switch (kind) {
+      case SourceSchemaType.Integration:
+        return new IntegrationResource(jsonRecord as IntegrationType);
+      case SourceSchemaType.Kamelet:
+        return new KameletResource(jsonRecord as IKameletDefinition);
+      case SourceSchemaType.KameletBinding:
+        return new KameletBindingResource(jsonRecord as KameletBindingType);
+      case SourceSchemaType.Pipe:
+        return new PipeResource(jsonRecord as PipeType);
+      default:
+        return undefined;
+    }
   }
 }

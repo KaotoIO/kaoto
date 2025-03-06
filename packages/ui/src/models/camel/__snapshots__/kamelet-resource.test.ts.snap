@@ -157,6 +157,7 @@ exports[`KameletResource should create a new KameletResource with a kamelet 1`] 
   },
   "spec": {
     "definition": {
+      "description": undefined,
       "title": "kamelet",
       "type": "source",
     },
