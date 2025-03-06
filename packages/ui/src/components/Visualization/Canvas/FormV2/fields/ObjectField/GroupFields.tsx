@@ -50,6 +50,7 @@ export const GroupFields: FunctionComponent<GroupFieldsProps> = ({ propName, gro
 
         return (
           <FormFieldGroupExpandable
+            className="kaoto-form__expandable-group"
             key={`${name}-section-toggle`}
             toggleAriaLabel={`Toggle ${name} group`}
             header={<FormFieldGroupHeader titleText={{ text: name, id: `${propName}-${name}` }} />}
