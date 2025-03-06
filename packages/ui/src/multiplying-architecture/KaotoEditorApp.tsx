@@ -131,7 +131,7 @@ export class KaotoEditorApp implements Editor {
   af_componentRoot() {
     return (
       <SourceCodeProvider>
-        <EntitiesProvider>
+        <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
           <SettingsProvider adapter={this.settingsAdapter}>
             <KaotoBridge
               ref={this.editorRef}

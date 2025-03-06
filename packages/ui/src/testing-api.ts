@@ -7,7 +7,7 @@ export * from './utils';
 export * from './stubs';
 export * from './components/DataMapper/debug';
 export * from './models/datamapper';
-export type { EntitiesContextResult } from './hooks/entities';
+export type { EntitiesContextResult } from './providers/entities.provider';
 export * from './components/Visualization/Canvas/controller.service';
 
 /** Re-export public components */

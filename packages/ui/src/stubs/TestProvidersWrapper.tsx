@@ -1,9 +1,8 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { EntitiesContextResult } from '../hooks';
 import { CamelResource } from '../models/camel/camel-resource';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
-import { EntitiesContext, VisibleFlowsContextResult, VisibleFlowsContext } from '../providers';
+import { EntitiesContext, EntitiesContextResult, VisibleFlowsContext, VisibleFlowsContextResult } from '../providers';
 import { camelRouteJson } from './camel-route';
 
 interface TestProviderWrapperProps extends PropsWithChildren {

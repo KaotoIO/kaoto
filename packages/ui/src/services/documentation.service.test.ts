@@ -1,20 +1,21 @@
-import { DocumentationService } from './documentation.service';
 import { act, renderHook } from '@testing-library/react';
-import { useEntities } from '../hooks';
-import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
-import { EventNotifier } from '../utils';
-import { camelRouteYaml, kameletYaml, pipeYaml } from '../stubs';
-import { beansYaml } from '../stubs/beans';
 import JSZip from 'jszip';
-import { restConfigurationStub } from '../stubs/rest-configuration';
-import { restStub } from '../stubs/rest';
+import { useContext } from 'react';
 import { BaseVisualCamelEntity, PipeVisualEntity } from '../models';
 import { BaseCamelEntity } from '../models/camel/entities';
-import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../models/visualization/flows/camel-rest-configuration-visual-entity';
+import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
+import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
+import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
+import { camelRouteYaml, kameletYaml, pipeYaml } from '../stubs';
+import { beansYaml } from '../stubs/beans';
+import { kameletAwsCloudtailSourceYaml } from '../stubs/kamelet-aws-cloudtail-source';
+import { restStub } from '../stubs/rest';
+import { restConfigurationStub } from '../stubs/rest-configuration';
 import { restOperationsYaml } from '../stubs/rest-operations';
 import { routeConfigurationFullYaml } from '../stubs/route-configuration-full';
-import { kameletAwsCloudtailSourceYaml } from '../stubs/kamelet-aws-cloudtail-source';
+import { EventNotifier } from '../utils';
+import { DocumentationService } from './documentation.service';
 
 describe('DocumentationService', () => {
   let eventNotifier: EventNotifier;
@@ -23,10 +24,15 @@ describe('DocumentationService', () => {
   });
 
   const createDocumentationEntitiesFromYaml = (yaml: string) => {
-    const { result: entitiesContext } = renderHook(() => useEntities());
+    const { result: entitiesContext } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+
     act(() => {
       eventNotifier.next('code:updated', { code: yaml });
     });
+
+    if (entitiesContext.current === null) {
+      throw new Error('EntitiesContext is null');
+    }
 
     const visibleFlows = entitiesContext.current.visualEntities.reduce((acc, entity) => {
       acc[entity.id] = true;
