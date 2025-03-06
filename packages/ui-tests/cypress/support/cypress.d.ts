@@ -73,11 +73,10 @@ declare global {
       checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryNotExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
+      interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;
       addExpressionResultType(value: string, index?: number): Chainable<JQuery<Element>>;
       checkExpressionResultType(value: string): Chainable<JQuery<Element>>;
-      interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      interactWithDataformatInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
       checkConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       selectExpression(expression: string, index?: number): Chainable<JQuery<Element>>;

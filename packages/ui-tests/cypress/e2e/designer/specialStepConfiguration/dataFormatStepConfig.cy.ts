@@ -12,10 +12,10 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.selectFormTab('All');
     cy.selectDataformat('Base64');
     cy.expandWrappedSection('#.base64-Advanced');
-    cy.interactWithDataformatInputObject('base64.lineLength', '128');
-    cy.interactWithDataformatInputObject('base64.id', 'simpleDataformatId');
-    cy.interactWithDataformatInputObject('base64.lineSeparator', 'simpleLineSeparator');
-    cy.interactWithDataformatInputObject('base64.urlSafe');
+    cy.interactWithConfigInputObject('base64.lineLength', '128');
+    cy.interactWithConfigInputObject('base64.id', 'simpleDataformatId');
+    cy.interactWithConfigInputObject('base64.lineSeparator', 'simpleLineSeparator');
+    cy.interactWithConfigInputObject('base64.urlSafe');
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
@@ -35,7 +35,7 @@ describe('Tests for sidebar dataformat configuration', () => {
     cy.selectDataformat('Avro');
     cy.expandWrappedSection('#.avro-Advanced');
     cy.configureDropdownValue('avro.library', 'Jackson');
-    cy.interactWithDataformatInputObject('avro.unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
+    cy.interactWithConfigInputObject('avro.unmarshalType', 'com.fasterxml.jackson.databind.JsonNode');
     cy.configureNewBeanReference('avro.schemaResolver');
     cy.get(`input[name="#.name"]`).clear().type('schemaResolver');
     cy.get(`input[name="#.type"]`).clear().type('org.acme');

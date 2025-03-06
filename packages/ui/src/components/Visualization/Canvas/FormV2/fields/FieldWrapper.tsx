@@ -9,6 +9,7 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 import { FieldProps } from '../typings';
+import clsx from 'clsx';
 
 interface FieldWrapperProps extends FieldProps {
   type: string;
@@ -16,6 +17,7 @@ interface FieldWrapperProps extends FieldProps {
   description?: string;
   defaultValue?: string;
   errors?: string[];
+  isRow?: boolean;
 }
 
 export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
@@ -26,35 +28,39 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   description,
   defaultValue = 'no default value',
   errors,
+  isRow = false,
   children,
 }) => {
   const id = `${propName}-popover`;
   const label = title ?? propName.split('.').pop();
 
   return (
-    <FormGroup
-      data-testid={`${propName}__field-wrapper`}
-      fieldId={propName}
-      label={label}
-      isRequired={required}
-      labelHelp={
-        <Popover
-          id={id}
-          headerContent={
-            <p className="kaoto-form__label">
-              {label} {`<${type}>`}
-            </p>
-          }
-          bodyContent={<p>{description}</p>}
-          footerContent={<p>Default: {defaultValue}</p>}
-          triggerAction="hover"
-          withFocusTrap={false}
-        >
-          <FormGroupLabelHelp aria-label={`More info for ${label} field`} />
-        </Popover>
-      }
-    >
-      {children}
+    <>
+      <FormGroup
+        className={clsx({ 'kaoto-form__wrapper--row': isRow })}
+        data-testid={`${propName}__field-wrapper`}
+        fieldId={propName}
+        label={label}
+        isRequired={required}
+        labelHelp={
+          <Popover
+            id={id}
+            headerContent={
+              <p className="kaoto-form__label">
+                {label} {`<${type}>`}
+              </p>
+            }
+            bodyContent={<p>{description}</p>}
+            footerContent={<p>Default: {defaultValue}</p>}
+            triggerAction="hover"
+            withFocusTrap={false}
+          >
+            <FormGroupLabelHelp aria-label={`More info for ${label} field`} />
+          </Popover>
+        }
+      >
+        {children}
+      </FormGroup>
 
       {errors && (
         <FormHelperText>
@@ -69,6 +75,6 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
           </HelperText>
         </FormHelperText>
       )}
-    </FormGroup>
+    </>
   );
 };
