@@ -96,6 +96,8 @@ declare global {
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       switchWrappedSection(sectionName: string, wrapped: boolean): Chainable<JQuery<Element>>;
+      generateDocumentationPreview(): Chainable<JQuery<Element>>;
+      documentationTableCompare(routeName: string, expectedTableData: string[][]): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedMetadataSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedMetadataSection(sectionName: string): Chainable<JQuery<Element>>;

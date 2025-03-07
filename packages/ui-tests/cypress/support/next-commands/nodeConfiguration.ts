@@ -149,3 +149,21 @@ Cypress.Commands.add('addStringProperty', (selector: string, key: string, value:
       cy.get(`input.pf-v6-c-text-input-group__text-input`).clear().type(value);
     });
 });
+
+Cypress.Commands.add('generateDocumentationPreview', () => {
+  cy.get('[data-testid="documentationPreviewButton"]').click();
+});
+
+Cypress.Commands.add('documentationTableCompare', (routeName: string, expectedTableData: string[][]) => {
+  cy.contains('h1', routeName)
+    .next('table')
+    .find('.pf-v6-c-table__tbody')
+    .find('tr')
+    .each(($row, rowIndex) => {
+      cy.wrap($row)
+        .find('td')
+        .each(($cell, colIndex) => {
+          cy.wrap($cell).should('have.text', expectedTableData[rowIndex][colIndex]);
+        });
+    });
+});
