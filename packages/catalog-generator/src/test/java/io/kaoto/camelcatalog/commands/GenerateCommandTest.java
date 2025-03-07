@@ -22,9 +22,9 @@ import io.kaoto.camelcatalog.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,6 +65,7 @@ class GenerateCommandTest {
             when(mockBuilder.withCamelCatalogVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
             when(mockBuilder.withKameletsVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
             when(mockBuilder.withCamelKCRDsVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
+            when(mockBuilder.withVerbose(anyBoolean())).thenCallRealMethod().thenReturn(mockBuilder);
 
             when(mockBuilder.withOutputDirectory(any(File.class))).thenReturn(mockBuilder);
             when(mockBuilder.build()).thenAnswer(invocation -> {
@@ -87,18 +88,24 @@ class GenerateCommandTest {
 
             /* This path will be used to relatively load the subsequent files, it always needs to use `/` */
             String expectedFile = "camel-main/4.8.0/index.json";
-            assertEquals(catalogDefinition.getFileName(), expectedFile);
+            assertEquals(expectedFile, catalogDefinition.getFileName());
         }
     }
 
     @Test
     void testCatalogLibraryOutput() {
+        var ref = new Object() {
+            Integer version = null;
+            String name = null;
+        };
+
         try (
                 var mockedBuilder = mockConstruction(CatalogGeneratorBuilder.class, (mockBuilder, context) -> {
                     when(mockBuilder.withRuntime(any(CatalogRuntime.class))).thenCallRealMethod().thenReturn(mockBuilder);
                     when(mockBuilder.withCamelCatalogVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
                     when(mockBuilder.withKameletsVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
                     when(mockBuilder.withCamelKCRDsVersion(anyString())).thenCallRealMethod().thenReturn(mockBuilder);
+                    when(mockBuilder.withVerbose(anyBoolean())).thenCallRealMethod().thenReturn(mockBuilder);
 
                     when(mockBuilder.withOutputDirectory(any(File.class))).thenReturn(mockBuilder);
                     when(mockBuilder.build()).thenAnswer(invocation -> {
@@ -108,9 +115,10 @@ class GenerateCommandTest {
                     });
                 });
                 var mockedLibrary = mockConstruction(CatalogLibrary.class, (mockLibrary, context) -> {
+                    ref.version = (Integer) context.arguments().get(0);
+                    ref.name = (String) context.arguments().get(1);
                     mockLibrary.definitions = new ArrayList<>();
                     doCallRealMethod().when(mockLibrary).getName();
-                    doCallRealMethod().when(mockLibrary).setName(anyString());
                     doCallRealMethod().when(mockLibrary).getDefinitions();
                     doCallRealMethod().when(mockLibrary).addDefinition(any(CatalogDefinition.class));
                 })
@@ -119,17 +127,19 @@ class GenerateCommandTest {
 
             CatalogLibrary library = mockedLibrary.constructed().get(0);
 
-            assertEquals(library.getName(), "test-camel-catalog");
-            assertEquals(library.getDefinitions().size(), 1);
+            assertEquals(1, mockedLibrary.constructed().size());
+            assertEquals(1, ref.version);
+            assertEquals("test-camel-catalog", ref.name);
+            assertEquals(1, library.getDefinitions().size());
 
             CatalogLibraryEntry catalogLibraryEntry = library.getDefinitions().get(0);
-            assertEquals(catalogLibraryEntry.name(), "test-camel-catalog");
-            assertEquals(catalogLibraryEntry.version(), "4.8.0");
-            assertEquals(catalogLibraryEntry.runtime(), "Main");
+            assertEquals("test-camel-catalog", catalogLibraryEntry.name());
+            assertEquals("4.8.0", catalogLibraryEntry.version());
+            assertEquals("Main", catalogLibraryEntry.runtime());
 
             /* This path will be used to relatively load the subsequent files, it always needs to use `/` */
             String expectedFile = "camel-main/4.8.0/index.json";
-            assertEquals(catalogLibraryEntry.fileName(), expectedFile);
+            assertEquals(expectedFile, catalogLibraryEntry.fileName());
         }
     }
 }
