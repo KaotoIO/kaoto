@@ -21,14 +21,20 @@ import java.util.List;
 public class CatalogLibrary {
     /* Visible for testing */
     public List<CatalogLibraryEntry> definitions = new ArrayList<>();
-    private String name;
+    private final int version;
+    private final String name;
+
+    public CatalogLibrary(int version, String name) {
+        this.version = version;
+        this.name = name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<CatalogLibraryEntry> getDefinitions() {

@@ -26,8 +26,7 @@ public class GenerateCommand implements Runnable {
                 "Catalog versions: " + configBean.getCatalogVersionSet() + "\n" +
                 "Kamelets version: " + configBean.getKameletsVersion());
 
-        CatalogLibrary library = new CatalogLibrary();
-        library.setName(configBean.getCatalogsName());
+        CatalogLibrary library = new CatalogLibrary(1, configBean.getCatalogsName());
 
         FileUtils.deleteQuietly(configBean.getOutputFolder());
         File outputFolder = createSubFolder(configBean.getOutputFolder());
@@ -47,6 +46,7 @@ public class GenerateCommand implements Runnable {
                             .withKameletsVersion(configBean.getKameletsVersion())
                             .withCamelKCRDsVersion("2.3.1")
                             .withOutputDirectory(catalogDefinitionFolder)
+                            .withVerbose(configBean.isVerbose())
                             .build();
 
                     CatalogDefinition catalogDefinition = catalogGenerator.generate();
