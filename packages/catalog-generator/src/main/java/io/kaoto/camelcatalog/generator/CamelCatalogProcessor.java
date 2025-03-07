@@ -82,7 +82,8 @@ public class CamelCatalogProcessor {
         var modelCatalog = getModelCatalog();
         EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
         var patternCatalog = Util.getPrettyJSON(eipGenerator.generate());
-        EntityGenerator entityGenerator = new EntityGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        EntityGenerator entityGenerator = new EntityGenerator(camelCatalog,
+                camelCatalogVersionLoader.getCamelYamlDslSchema(), camelCatalogVersionLoader.getKubernetesSchema());
         var entityCatalog = Util.getPrettyJSON(entityGenerator.generate());
         var loadBalancerCatalog = getLoadBalancerCatalog();
         answer.put("components", componentCatalog);
