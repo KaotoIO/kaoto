@@ -5,17 +5,15 @@ import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { useSchemasStore } from '../../store';
+import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
+import { CatalogKind } from '../../models/catalog-kind';
+import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 
 export const MetadataPage: FunctionComponent = () => {
   const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
-  const schemaMap = useSchemasStore((state) => state.schemas);
   const entitiesContext = useContext(EntitiesContext);
   const camelkResource = entitiesContext?.camelResource as CamelKResource;
-
-  const metadataSchema = useMemo(() => {
-    return schemaMap['ObjectMeta'].schema;
-  }, [schemaMap]);
+  const metadataSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'ObjectMeta') ?? {};
 
   const isSupported = useMemo(() => {
     return camelkResource && camelkResource.getType() in CamelKResourceKinds;
@@ -48,7 +46,7 @@ export const MetadataPage: FunctionComponent = () => {
     <CanvasFormTabsContext.Provider value={formTabsValue}>
       <KaotoForm
         data-testid="metadata-form"
-        schema={metadataSchema}
+        schema={metadataSchema as KaotoSchemaDefinition['schema']}
         model={getMetadataModel()}
         onChange={onChangeModel as KaotoFormProps['onChange']}
       />

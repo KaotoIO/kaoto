@@ -15,6 +15,8 @@
  */
 package io.kaoto.camelcatalog.generators;
 
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
@@ -35,13 +37,26 @@ class EntityGeneratorTest {
     @BeforeEach
     void setUp() throws IOException {
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, true);
+        camelCatalogVersionLoader.loadLocalSchemas();
         String camelYamlSchema;
+        String openapiSpec;
+
         try (var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json")) {
-            assert is != null;
+            if (is == null) {
+                throw new IOException("Failed to load schema/camelYamlDsl.json");
+            }
             camelYamlSchema = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
 
-        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema);
+        try (var is = getClass().getClassLoader().getResourceAsStream("kubernetes-api-v1-openapi.json");) {
+            if (is == null) {
+                throw new IOException("Failed to load kubernetes-api-v1-openapi.json");
+            }
+            openapiSpec = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+
+        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec, camelCatalogVersionLoader.getLocalSchemas());
     }
 
     @Test
@@ -52,9 +67,10 @@ class EntityGeneratorTest {
         assertTrue(entitiesMap.containsKey("errorHandler"));
         assertTrue(entitiesMap.containsKey("from"));
 
-        // special schema added to Entity catalog at later stage
-        assertFalse(entitiesMap.containsKey("KameletConfiguration"));
-        assertFalse(entitiesMap.containsKey("PipeConfiguration"));
+        // special schema added to Entity catalog
+        assertTrue(entitiesMap.containsKey("KameletConfiguration"));
+        assertTrue(entitiesMap.containsKey("PipeConfiguration"));
+        assertTrue(entitiesMap.containsKey("PipeErrorHandler"));
     }
 
     @Test
