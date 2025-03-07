@@ -188,10 +188,9 @@ public class CatalogGenerator {
             var catalogMap = catalogProcessor.processCatalog();
             catalogMap.forEach((name, catalog) -> {
                 try {
-                    // Updating entities catalog to add other schemas
+                    // Adding Kamelet & Pipe Configuration Schema to the Entities Catalog
                     if (name.equals("entities")) {
                         var catalogNode = jsonMapper.readTree(catalog);
-                        // Adding Kamelet & Pipe Configuration Schema to the Entities Catalog
                         String customSchemas[] = {"KameletConfiguration", "PipeConfiguration"};
                         for (String customSchema : customSchemas) {
                             ((ObjectNode) catalogNode).putObject(customSchema)
@@ -199,17 +198,6 @@ public class CatalogGenerator {
                             ((ObjectNode) catalogNode.path(customSchema).path("propertiesSchema"))
                                     .setAll((ObjectNode) jsonMapper.readTree(
                                             camelCatalogVersionLoader.getLocalSchemas().get(customSchema)));
-                        }
-
-                        // Adding ObjectMeta & PipeErrorHandler Schema to the Entities Catalog
-                        var openapiSpec = (ObjectNode) jsonMapper.readTree(camelCatalogVersionLoader.getKubernetesSchema());
-                        var processor = new K8sSchemaProcessor(jsonMapper, openapiSpec);
-                        var schemaMap = processor.processK8sDefinitions(KUBERNETES_DEFINITIONS);
-                        for (var entry : schemaMap.entrySet()) {
-                            var schemaName = entry.getKey();
-                            ((ObjectNode) catalogNode).putObject(schemaName);
-                            ((ObjectNode) catalogNode.path(schemaName))
-                                    .setAll((ObjectNode) jsonMapper.readTree(entry.getValue()));
                         }
 
                         StringWriter writer = new StringWriter();

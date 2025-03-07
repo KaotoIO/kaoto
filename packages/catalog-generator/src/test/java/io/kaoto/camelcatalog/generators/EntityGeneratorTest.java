@@ -36,12 +36,23 @@ class EntityGeneratorTest {
     void setUp() throws IOException {
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
         String camelYamlSchema;
+        String openapiSpec;
+
         try (var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json")) {
-            assert is != null;
+            if (is == null) {
+                throw new IOException("Failed to load schema/camelYamlDsl.json");
+            }
             camelYamlSchema = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
 
-        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema);
+        try (var is = getClass().getClassLoader().getResourceAsStream("kubernetes-api-v1-openapi.json");) {
+            if (is == null) {
+                throw new IOException("Failed to load kubernetes-api-v1-openapi.json");
+            }
+            openapiSpec = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+
+        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec);
     }
 
     @Test
