@@ -5,24 +5,22 @@ import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas
 import { PipeResource, SourceSchemaType } from '../../models/camel';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { useSchemasStore } from '../../store';
+import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
+import { CatalogKind } from '../../models/catalog-kind';
+import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 
 export const PipeErrorHandlerPage: FunctionComponent = () => {
   const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
-  const schemaMap = useSchemasStore((state) => state.schemas);
   const entitiesContext = useContext(EntitiesContext);
   const pipeResource = entitiesContext?.camelResource as PipeResource;
 
-  const errorHandlerSchema = useMemo(() => {
-    const schema = schemaMap['PipeErrorHandler'].schema;
+  const errorHandlerSchema = (CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeErrorHandler') ??
+    {}) as KaotoSchemaDefinition['schema'];
 
-    if (Array.isArray(schema.oneOf) && !Array.isArray(schema.anyOf)) {
-      schema.anyOf = [{ oneOf: schema.oneOf }];
-      delete schema.oneOf;
-    }
-
-    return schema;
-  }, [schemaMap]);
+  if (Array.isArray(errorHandlerSchema.oneOf) && !Array.isArray(errorHandlerSchema.anyOf)) {
+    errorHandlerSchema.anyOf = [{ oneOf: errorHandlerSchema.oneOf }];
+    delete errorHandlerSchema.oneOf;
+  }
 
   const isSupported = useMemo(() => {
     return pipeResource && [SourceSchemaType.Pipe, SourceSchemaType.KameletBinding].includes(pipeResource.getType());

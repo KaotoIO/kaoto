@@ -28,6 +28,8 @@ import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,14 +53,34 @@ class CamelCatalogProcessorTest {
         ObjectMapper jsonMapper = new ObjectMapper();
         var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json");
         ObjectNode yamlDslSchema = (ObjectNode) jsonMapper.readTree(is);
+        var openapiSpecIS = getClass().getClassLoader().getResourceAsStream("kubernetes-api-v1-openapi.json");
+        if (openapiSpecIS == null) {
+            throw new Exception("Failed to load kubernetes-api-v1-openapi.json");
+        }
+        var openapiSpec = new String(openapiSpecIS.readAllBytes(), StandardCharsets.UTF_8);
         CamelYamlDslSchemaProcessor schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
         CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, true);
         camelCatalogVersionLoader.loadCamelYamlDsl(catalog.getCatalogVersion());
+        camelCatalogVersionLoader.loadKubernetesSchema();
+        camelCatalogVersionLoader.loadLocalSchemas();
 
         ComponentGenerator componentGenerator = new ComponentGenerator(catalog);
         EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
-        EntityGenerator entityGenerator = new EntityGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
-        this.processor = new CamelCatalogProcessor(catalog, jsonMapper, schemaProcessor, CatalogRuntime.Main, true, camelCatalogVersionLoader);
+        EntityGenerator entityGenerator = new EntityGenerator(
+                catalog,
+                jsonMapper.writeValueAsString(yamlDslSchema),
+                openapiSpec,
+                camelCatalogVersionLoader.getLocalSchemas()
+        );
+
+        this.processor = new CamelCatalogProcessor(
+                catalog,
+                jsonMapper,
+                schemaProcessor,
+                CatalogRuntime.Main,
+                true,
+                camelCatalogVersionLoader
+        );
 
         this.componentCatalog = (ObjectNode) jsonMapper.readTree(Util.getPrettyJSON(componentGenerator.generate()));
         this.dataFormatCatalog = (ObjectNode) jsonMapper.readTree(this.processor.getDataFormatCatalog());

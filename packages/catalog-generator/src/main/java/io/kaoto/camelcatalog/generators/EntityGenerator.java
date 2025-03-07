@@ -42,13 +42,22 @@ public class EntityGenerator implements Generator {
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     ObjectNode camelYamlSchemaNode;
     CamelYAMLSchemaReader camelYAMLSchemaReader;
+    ObjectNode openapiSpecNode;
+    K8sSchemaReader k8sSchemaReader;
+    private final Map<String, String> localSchemas;
 
-    public EntityGenerator(CamelCatalog camelCatalog, String camelYamlSchema) throws JsonProcessingException {
+    public EntityGenerator(CamelCatalog camelCatalog,
+                           String camelYamlSchema,
+                           String openapiSpec,
+                           Map<String, String> localSchemas) throws JsonProcessingException {
         this.camelCatalog = camelCatalog;
         this.camelCatalogSchemaEnhancer = new CamelCatalogSchemaEnhancer(camelCatalog);
         this.camelYamlSchema = camelYamlSchema;
         this.camelYamlSchemaNode = (ObjectNode) jsonMapper.readTree(camelYamlSchema);
         this.camelYAMLSchemaReader = new CamelYAMLSchemaReader(camelYamlSchemaNode);
+        this.openapiSpecNode = (ObjectNode) jsonMapper.readTree(openapiSpec);
+        this.k8sSchemaReader = new K8sSchemaReader(openapiSpecNode);
+        this.localSchemas = localSchemas;
     }
 
     /**
@@ -70,6 +79,22 @@ public class EntityGenerator implements Generator {
                 EntityMap.put("beans".equals(entityName) ? "bean" : entityName, entityJSON);
             }
         });
+
+        // Add ObjectMeta Schema
+        var ObjectMetaJSON = k8sSchemaReader.getObjectMetaJSONSchema();
+        camelCatalogSchemaEnhancer.fillSchemaInformation(ObjectMetaJSON);
+        EntityMap.put("ObjectMeta", ObjectMetaJSON);
+
+        // Add custom schemas
+        for (var localSchemaEntry : localSchemas.entrySet()) {
+            try {
+                var schema = (ObjectNode) jsonMapper.readTree(localSchemaEntry.getValue());
+                var name = localSchemaEntry.getKey();
+                EntityMap.put(name, schema);
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Local Schema definition not found");
+            }
+        }
 
         return EntityMap;
     }
