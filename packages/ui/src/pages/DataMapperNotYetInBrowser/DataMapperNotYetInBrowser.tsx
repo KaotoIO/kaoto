@@ -27,11 +27,12 @@ export const DataMapperNotYetInBrowserPage: FunctionComponent = () => {
       <PanelMain>
         <PanelMainBody>
           <p>
-            At the moment, the Kaoto DataMapper cannot be configured using the browser directly. Please use the VS Code
-            extension for an enhanced experience. The Kaoto extension is bundled in the&nbsp;
-            <a href="https://marketplace.visualstudio.com/items?itemName=redhat.apache-camel-extension-pack">
-              Extension Pack for Apache Camel
-            </a>
+            At the moment, the Kaoto DataMapper cannot be configured using the browser directly. Please use the Kaoto VS
+            Code extension for an enhanced experience. The Kaoto extension can be found at the{' '}
+            <a href="https://marketplace.visualstudio.com/items?itemName=redhat.vscode-kaoto">
+              Visual Studio Code Marketplace{' '}
+            </a>{' '}
+            or in the <a href="https://open-vsx.org/extension/redhat/vscode-kaoto">Open VSX Registry</a>.
           </p>
         </PanelMainBody>
       </PanelMain>
