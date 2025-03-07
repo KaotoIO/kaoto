@@ -9,7 +9,6 @@ metadata:
 spec:
   definition:
     title: kamelet-2082
-    description: Produces periodic events about random users!
     type: object
     properties:
       period:
