@@ -1,10 +1,9 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { EntitiesContextResult } from '../../../../hooks';
 import { KaotoSchemaDefinition } from '../../../../models';
-import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { SourceCodeApiContext } from '../../../../providers/source-code.provider';
 import { NewFlow } from './NewFlow';
 
@@ -39,6 +38,7 @@ describe('NewFlow.tsx', () => {
             {
               currentSchemaType: SourceSchemaType.Integration,
               visualEntities: visualEntities,
+              camelResource: new CamelRouteResource(),
             } as unknown as EntitiesContextResult
           }
         >

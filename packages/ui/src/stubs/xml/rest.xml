@@ -1,0 +1,33 @@
+
+<rest path="/say">
+    <securityDefinitions>
+        <oauth2 key="oauth2" tokenUrl="{{oauth.token.url}}" flow="application">
+            <scopes key="{{oauth.scope.service.self}}"
+                    value="{{oauth.scope.service.self}}"/>
+            <scopes key="{{oauth.scope.test.person.data}}"
+                    value="{{oauth.scope.test.person.data}}"/>
+        </oauth2>
+    </securityDefinitions>
+    <get path="/hello">
+        <to uri="direct:hello"/>
+        <param name="name" type="query" required="true"/>
+        <param name="name2" type="query" defaultValue="blah" required="true"/>
+        <security key="hello" scopes="scope"/>
+        <responseMessage code="200"  message="hello">
+            <header  description="header"  name="header">
+                <allowableValues>
+                    <value>1</value>
+                    <value>2</value>
+                </allowableValues>
+            </header>
+            <examples key="example" value="value"/>
+            <examples key="example" value="value"/>
+        </responseMessage>
+    </get>
+    <get path="/bye" consumes="application/json">
+        <to uri="direct:bye"/>
+    </get>
+    <post path="/bye">
+        <to uri="mock:update"/>
+    </post>
+</rest>
