@@ -11,7 +11,7 @@ import { MetadataEntity } from '../visualization/metadata';
 import { BaseVisualCamelEntityDefinition, CamelResource } from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
+import { CamelResourceSerializer, SerializerType, YamlCamelResourceSerializer } from '../../serializers';
 
 export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
 
@@ -97,11 +97,11 @@ export abstract class CamelKResource implements CamelResource {
   getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): TileFilter | undefined {
     return undefined;
   }
-  getSerializer() {
-    return this.serializer;
+  getSerializerType() {
+    return this.serializer.getType();
   }
 
-  setSerializer(_serializer: CamelResourceSerializer): void {
+  setSerializer(_serializer: SerializerType): void {
     /** Not supported by default */
   }
 

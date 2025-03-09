@@ -8,12 +8,14 @@ import {
   SchemasLoaderProvider,
   SourceCodeApiContext,
   SourceCodeProvider,
+  DSLSelector,
+  SerializerSelector,
   VisibleFlowsProvider,
   camelRouteYaml,
   kameletYaml,
   pipeYaml,
 } from '@kaoto/kaoto/testing';
-import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
+import { Divider, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';
 import { useContext } from 'react';
 
@@ -49,12 +51,18 @@ export default {
 const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
   const sourceCodeApi = useContext(SourceCodeApiContext);
   sourceCodeApi.setCodeAndNotify(props.sourceCode);
+  const additionalControls = [
+    <ToolbarItem key="toolbar-dsl-selector">
+      <DSLSelector />
+    </ToolbarItem>,
+    <SerializerSelector key="toolbar-serializer-selector" />,
+  ];
 
   return (
     <Toolbar>
       <ToolbarContent>
         <ToolbarGroup className="pf-topology-view__project-toolbar">
-          <ContextToolbar />
+          <ContextToolbar additionalControls={additionalControls} />
         </ToolbarGroup>
       </ToolbarContent>
       <Divider />

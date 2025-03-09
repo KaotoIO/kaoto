@@ -1,10 +1,10 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { EntitiesContextResult } from '../../../../hooks';
 import { KaotoSchemaDefinition } from '../../../../models';
-import { SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { FlowTypeSelector } from './FlowTypeSelector';
+import { XmlCamelResourceSerializer } from '../../../../serializers';
 
 const config = sourceSchemaConfig;
 config.config[SourceSchemaType.Pipe].schema = {
@@ -21,15 +21,17 @@ config.config[SourceSchemaType.Route].schema = {
 } as KaotoSchemaDefinition;
 
 const onSelect = jest.fn();
-const FlowTypeSelectorWithContext: React.FunctionComponent<{ currentSchemaType?: SourceSchemaType }> = ({
-  currentSchemaType,
-}) => {
+const FlowTypeSelectorWithContext: React.FunctionComponent<{
+  currentSchemaType?: SourceSchemaType;
+  xml?: boolean;
+}> = ({ currentSchemaType, xml }) => {
   return (
     <EntitiesContext.Provider
       value={
         {
           currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
           visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
+          camelResource: new CamelRouteResource(undefined, xml ? new XmlCamelResourceSerializer() : undefined),
         } as unknown as EntitiesContextResult
       }
     >
@@ -97,7 +99,24 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.click(toggle);
     });
 
-    const element = await wrapper.findByText('Camel Route');
+    let element = await wrapper.findByText('Kamelet');
+    expect(element).toBeInTheDocument();
+    element = await wrapper.findByText('Camel Route');
+    expect(element).toBeInTheDocument();
+  });
+
+  test('should show only Camel Route when XML serializer is in place', async () => {
+    const wrapper = render(<FlowTypeSelectorWithContext xml={true} />);
+    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
+
+    /** Open Select */
+    act(() => {
+      fireEvent.click(toggle);
+    });
+
+    let element = wrapper.queryByText('Kamelet');
+    expect(element).toBeNull();
+    element = wrapper.queryByText('Camel Route');
     expect(element).toBeInTheDocument();
   });
 
