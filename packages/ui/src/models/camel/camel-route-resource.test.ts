@@ -97,6 +97,15 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[0].id).toEqual(id);
     });
+
+    it('should add OnCompletion entity at the beginning of the list and return its ID', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity();
+      const id = resource.addNewEntity(EntityType.OnCompletion);
+
+      expect(resource.getVisualEntities()).toHaveLength(2);
+      expect(resource.getVisualEntities()[0].id).toEqual(id);
+    });
   });
 
   it('should return the right type', () => {
