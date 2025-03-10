@@ -176,7 +176,6 @@ export class CamelComponentSchemaService {
       /** doTry */ case 'doCatch':
       /** doTry */ case 'doFinally':
       case 'aggregate':
-      case 'circuitBreaker':
       case 'filter':
       case 'loadBalance':
       case 'loop':
@@ -195,6 +194,12 @@ export class CamelComponentSchemaService {
       case /** routeConfiguration */ 'onException' as keyof ProcessorDefinition:
       case /** routeConfiguration */ 'onCompletion' as keyof ProcessorDefinition:
         return [{ name: 'steps', type: 'branch' }];
+
+      case 'circuitBreaker':
+        return [
+          { name: 'steps', type: 'branch' },
+          { name: 'onFallback', type: 'single-clause' },
+        ];
 
       case 'choice':
         return [

@@ -36,6 +36,20 @@ export const kameletSSHSinkTile: ITile = {
   tags: ['sink'],
 };
 
+export const processorCircuitBreakerTile: ITile = {
+  type: CatalogKind.Processor,
+  name: 'circuitBreaker',
+  title: 'Circuit Breaker',
+  tags: ['eip', 'routing', 'error'],
+};
+
+export const processorOnFallbackTile: ITile = {
+  type: CatalogKind.Processor,
+  name: 'onFallback',
+  title: 'On Fallback',
+  tags: ['eip', 'routing', 'error'],
+};
+
 export const processorTile: ITile = {
   type: CatalogKind.Processor,
   name: 'choice',
@@ -92,6 +106,8 @@ export const tiles: ITile[] = [
   kameletStringTemplateActionTile,
   kameletSSHSinkTile,
   processorTile,
+  processorCircuitBreakerTile,
+  processorOnFallbackTile,
   processorWhenTile,
   processorOtherwiseTile,
   processorInterceptTile,

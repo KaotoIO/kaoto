@@ -8,7 +8,9 @@ import {
   kameletSinkTile,
   kameletSourceTile,
   kameletStringTemplateActionTile,
+  processorCircuitBreakerTile,
   processorInterceptTile,
+  processorOnFallbackTile,
   processorOtherwiseTile,
   processorTile,
   processorWhenTile,
@@ -40,37 +42,70 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);
     });
 
-    it('should offer applicable processors when requesting special children', () => {
-      const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
-        AddStepMode.InsertSpecialChildStep,
-        {
-          path: 'route.from.steps.0.choice',
-          processorName: 'choice',
-          label: 'Choice',
-        },
-        {},
-      );
+    describe('circuitBreaker', () => {
+      it('should offer applicable processors when requesting special children', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            path: 'route.from.steps.0.circuitBreaker',
+            processorName: 'circuitBreaker',
+            label: 'Circuit Breaker',
+          },
+          {},
+        );
 
-      expect(tiles.filter(filterFn)).toEqual([processorWhenTile, processorOtherwiseTile]);
+        expect(tiles.filter(filterFn)).toEqual([processorOnFallbackTile]);
+      });
+
+      it('should NOT offer already defined processors when requesting special children', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            path: 'route.from.steps.0.circuitBreaker',
+            processorName: 'circuitBreaker',
+            label: 'Circuit Breaker',
+          },
+          { onFallback: {} },
+        );
+
+        expect(tiles.filter(filterFn)).toEqual([]);
+      });
     });
 
-    it('should NOT offer already defined processors when requesting special children', () => {
-      const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
-        AddStepMode.InsertSpecialChildStep,
-        {
-          path: 'route.from.steps.0.choice',
-          processorName: 'choice',
-          label: 'Choice',
-        },
-        { otherwise: {} },
-      );
+    describe('choice', () => {
+      it('should offer applicable processors when requesting special children', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            path: 'route.from.steps.0.choice',
+            processorName: 'choice',
+            label: 'Choice',
+          },
+          {},
+        );
 
-      expect(tiles.filter(filterFn)).toEqual([processorWhenTile]);
+        expect(tiles.filter(filterFn)).toEqual([processorWhenTile, processorOtherwiseTile]);
+      });
+
+      it('should NOT offer already defined processors when requesting special children', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            path: 'route.from.steps.0.choice',
+            processorName: 'choice',
+            label: 'Choice',
+          },
+          { otherwise: {} },
+        );
+
+        expect(tiles.filter(filterFn)).toEqual([processorWhenTile]);
+      });
     });
 
     it('should offer applicable processors when requesting routeConfiguration special children', () => {
@@ -98,6 +133,7 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);
@@ -114,6 +150,7 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);
@@ -148,6 +185,7 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);
@@ -193,6 +231,7 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);
@@ -210,6 +249,7 @@ describe('CamelComponentFilterService', () => {
         kameletStringTemplateActionTile,
         kameletSSHSinkTile,
         processorTile,
+        processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
       ]);

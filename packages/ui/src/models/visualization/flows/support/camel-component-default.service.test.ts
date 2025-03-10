@@ -4,6 +4,17 @@ import { DoCatch } from '@kaoto/camel-catalog/types';
 
 describe('CamelComponentDefaultService', () => {
   describe('getDefaultNodeDefinitionValue', () => {
+    it('should return the default circuitBreaker clause', () => {
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
+      const circuitBreakerDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'circuitBreaker',
+      } as DefinedComponent) as any;
+      expect(circuitBreakerDefault).toBeDefined();
+      expect(circuitBreakerDefault.circuitBreaker.steps).toEqual([]);
+      expect(circuitBreakerDefault.circuitBreaker.onFallback.steps[0].log).toBeDefined();
+    });
+
     it('should return the default choice clause', () => {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       const choiceDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({

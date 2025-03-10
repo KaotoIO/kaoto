@@ -6,6 +6,7 @@ import { CamelRouteVisualEntityData } from './camel-component-types';
 export class CamelComponentFilterService {
   static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
   private static readonly SPECIAL_PROCESSORS = [
+    'onFallback',
     'when',
     'otherwise',
     'doCatch',
@@ -21,6 +22,7 @@ export class CamelComponentFilterService {
    * specialChildren is a map of processor names and their special children.
    */
   static readonly SPECIAL_PROCESSORS_PARENTS_MAP = {
+    circuitBreaker: ['onFallback'],
     choice: ['when', 'otherwise'],
     doTry: ['doCatch', 'doFinally'],
     routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
@@ -59,6 +61,9 @@ export class CamelComponentFilterService {
         this.SPECIAL_PROCESSORS_PARENTS_MAP[processorName as keyof typeof this.SPECIAL_PROCESSORS_PARENTS_MAP];
       /** If an `otherwise` or a `doFinally` already exists, we shouldn't offer it in the catalog */
       const definitionKeys = Object.keys(definition ?? {});
+      if (processorName === 'circuitBreaker' && definitionKeys.includes('onFallback')) {
+        childrenLookup = childrenLookup.filter((child) => child !== 'onFallback');
+      }
       if (processorName === 'choice' && definitionKeys.includes('otherwise')) {
         childrenLookup = childrenLookup.filter((child) => child !== 'otherwise');
       }
