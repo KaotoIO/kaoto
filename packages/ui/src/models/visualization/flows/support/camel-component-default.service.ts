@@ -77,6 +77,19 @@ export class CamelComponentDefaultService {
 
   private static getDefaultValueFromProcessor(processorName: keyof ProcessorDefinition): ProcessorDefinition {
     switch (processorName) {
+      case 'circuitBreaker':
+        return parse(`
+        circuitBreaker:
+          id: ${getCamelRandomId('circuitBreaker')}
+          steps: []
+          onFallback:
+            id: ${getCamelRandomId('onFallback')}
+            steps:
+            - log:
+                id: ${getCamelRandomId('log')}
+                message: "\${body}"
+        `);
+
       case 'choice':
         return parse(`
         choice:

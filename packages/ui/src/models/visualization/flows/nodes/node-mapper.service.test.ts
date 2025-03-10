@@ -1,7 +1,9 @@
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
+import { CircuitBreakerNodeMapper } from './mappers/circuit-breaker-node-mapper';
 import { DataMapperNodeMapper } from './mappers/datamapper-node-mapper';
+import { OnFallbackNodeMapper } from './mappers/on-fallback-node-mapper';
 import { OtherwiseNodeMapper } from './mappers/otherwise-node-mapper';
 import { StepNodeMapper } from './mappers/step-node-mapper';
 import { WhenNodeMapper } from './mappers/when-node-mapper';
@@ -16,6 +18,8 @@ describe('NodeMapperService', () => {
     NodeMapperService.getVizNode('path', { processorName: 'log' }, {});
 
     expect(registerDefaultMapperSpy).toHaveBeenCalledWith(expect.any(BaseNodeMapper));
+    expect(registerMapperSpy).toHaveBeenCalledWith('circuitBreaker', expect.any(CircuitBreakerNodeMapper));
+    expect(registerMapperSpy).toHaveBeenCalledWith('onFallback', expect.any(OnFallbackNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('choice', expect.any(ChoiceNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('when', expect.any(WhenNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('otherwise', expect.any(OtherwiseNodeMapper));
