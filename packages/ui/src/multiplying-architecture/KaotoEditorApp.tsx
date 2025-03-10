@@ -12,7 +12,10 @@ import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be
 import { RefObject, createRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AbstractSettingsAdapter } from '../models/settings';
+import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
+import { RuntimeProvider } from '../providers/runtime.provider';
+import { SchemasLoaderProvider } from '../providers/schemas.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
 import { EditService } from './EditService';
@@ -25,6 +28,8 @@ export class KaotoEditorApp implements Editor {
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
+  private pendingPath = '';
+  private pendingContent = '';
 
   constructor(
     protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
@@ -52,7 +57,15 @@ export class KaotoEditorApp implements Editor {
     }
 
     EditService.getInstance().clearEdits();
-    return this.editorRef.current?.setContent(path, content);
+
+    if (this.editorRef.current !== null) {
+      /** If the editor is available, we can send the content from the file */
+      return this.editorRef.current.setContent(path, content);
+    }
+
+    /** Otherwise we store the parameters for when the editor is available */
+    this.pendingPath = path;
+    this.pendingContent = content;
   }
 
   async getContent(): Promise<string> {
@@ -81,8 +94,10 @@ export class KaotoEditorApp implements Editor {
     return this.editorRef.current?.setTheme(theme);
   }
 
-  sendReady(): void {
+  async sendReady(): Promise<void> {
     this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send();
+
+    return this.setContent(this.pendingPath, this.pendingContent);
   }
 
   async sendNewEdit(content: string): Promise<void> {
@@ -130,28 +145,34 @@ export class KaotoEditorApp implements Editor {
 
   af_componentRoot() {
     return (
-      <SourceCodeProvider>
-        <EntitiesProvider>
-          <SettingsProvider adapter={this.settingsAdapter}>
-            <KaotoBridge
-              ref={this.editorRef}
-              channelType={this.initArgs.channel}
-              onReady={this.sendReady}
-              onNewEdit={this.sendNewEdit}
-              setNotifications={this.sendNotifications}
-              onStateControlCommandUpdate={this.sendStateControlCommand}
-              getMetadata={this.getMetadata}
-              setMetadata={this.setMetadata}
-              getResourceContent={this.getResourceContent}
-              saveResourceContent={this.saveResourceContent}
-              deleteResource={this.deleteResource}
-              askUserForFileSelection={this.askUserForFileSelection}
-            >
-              <RouterProvider router={kaotoEditorRouter} />
-            </KaotoBridge>
-          </SettingsProvider>
-        </EntitiesProvider>
-      </SourceCodeProvider>
+      <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <SourceCodeProvider>
+              <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
+                <SettingsProvider adapter={this.settingsAdapter}>
+                  <KaotoBridge
+                    ref={this.editorRef}
+                    channelType={this.initArgs.channel}
+                    onReady={this.sendReady}
+                    onNewEdit={this.sendNewEdit}
+                    setNotifications={this.sendNotifications}
+                    onStateControlCommandUpdate={this.sendStateControlCommand}
+                    getMetadata={this.getMetadata}
+                    setMetadata={this.setMetadata}
+                    getResourceContent={this.getResourceContent}
+                    saveResourceContent={this.saveResourceContent}
+                    deleteResource={this.deleteResource}
+                    askUserForFileSelection={this.askUserForFileSelection}
+                  >
+                    <RouterProvider router={kaotoEditorRouter} />
+                  </KaotoBridge>
+                </SettingsProvider>
+              </EntitiesProvider>
+            </SourceCodeProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
     );
   }
 }

@@ -1,0 +1,133 @@
+- route:
+    from:
+      uri: direct:start
+      steps:
+        - unmarshal:
+            json:
+              library: Jackson
+        - setHeader:
+            constant:
+              id: kosnstanta
+              expression: blabla
+              trim: "true"
+            name: meno
+        - choice:
+            id: cojsa
+            otherwise:
+              steps:
+                - log:
+                    message: Other fruits
+                - choice:
+                    id: cojsa2
+                    when:
+                      - simple:
+                          expression: ${body} contains 'Apple'
+                        steps:
+                          - log:
+                              message: Apple branch
+                          - to:
+                              uri: mock:result
+                - to:
+                    uri: mock:result
+            when:
+              - steps:
+                  - log:
+                      message: Apple branch
+                  - to:
+                      uri: mock:result
+                simple:
+                  expression: ${body} contains 'Apple'
+              - steps:
+                  - log:
+                      message: Banana branch
+                  - to:
+                      uri: mock:result
+                simple:
+                  expression: ${body} contains 'Banana'
+              - steps:
+                  - log:
+                      message: Cherry branch
+                  - to:
+                      uri: mock:result
+                simple:
+                  id: houno
+                  expression: ${body} contains 'Cherry'
+        - log:
+            message: Choice processing complete
+        - to:
+            uri: mock:result
+- route:
+    from:
+      uri: timer://cherryTimer?period=1000
+      steps:
+        - setBody:
+            constant:
+              expression: Cherry
+        - setHeader:
+            constant:
+              expression: Spain
+            name: Fruit-Origin
+        - setHeader:
+            constant:
+              expression: Premium
+            name: Fruit-Quality
+        - setHeader:
+            constant:
+              expression: Summer
+            name: Fruit-Season
+        - setHeader:
+            constant:
+              expression: "2.75"
+            name: Fruit-Price
+        - to:
+            uri: direct:start
+- route:
+    from:
+      uri: timer://bananaTimer?period=2000
+      steps:
+        - setBody:
+            constant:
+              expression: Banana
+        - setHeader:
+            constant:
+              expression: Mexico
+            name: Fruit-Origin
+        - setHeader:
+            constant:
+              expression: Standard
+            name: Fruit-Quality
+        - setHeader:
+            constant:
+              expression: All Year
+            name: Fruit-Season
+        - setHeader:
+            constant:
+              expression: "0.99"
+            name: Fruit-Price
+        - to:
+            uri: direct:start
+- route:
+    from:
+      uri: timer://appleTimer?period=3000
+      steps:
+        - setBody:
+            constant:
+              expression: Apple
+        - setHeader:
+            constant:
+              expression: USA
+            name: Fruit-Origin
+        - setHeader:
+            constant:
+              expression: Organic
+            name: Fruit-Quality
+        - setHeader:
+            constant:
+              expression: Winter
+            name: Fruit-Season
+        - setHeader:
+            constant:
+              expression: "1.50"
+            name: Fruit-Price
+        - to:
+            uri: direct:start

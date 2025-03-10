@@ -1,6 +1,7 @@
+import { isXML } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel';
 import { parse, stringify } from 'yaml';
-import { CamelResourceSerializer } from './camel-resource-serializer';
+import { CamelResourceSerializer, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
@@ -16,12 +17,10 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
    */
   static readonly COMMENTED_LINES_REGEXP = /^\s*#.*$/;
   comments: string[] = [];
+  metadata: string = '';
 
-  static isApplicable(_code: unknown): boolean {
-    //TODO
-    // return !isXML(code);
-
-    return true;
+  static isApplicable(code: unknown): boolean {
+    return !isXML(code);
   }
 
   parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
@@ -35,10 +34,13 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   serialize(resource: CamelResource): string {
     let code = stringify(resource, { sortMapEntries: resource.sortFn, schema: 'yaml-1.1' }) || '';
     if (this.comments.length > 0) {
-      const comments = this.comments.join('\n');
-      code = comments + '\n' + code;
+      code = this.insertComments(code);
     }
     return code;
+  }
+
+  getType(): SerializerType {
+    return SerializerType.YAML;
   }
 
   getComments(): string[] {
@@ -49,16 +51,31 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     this.comments = comments;
   }
 
+  setMetadata(metadata: string): void {
+    this.metadata = metadata;
+  }
+
+  getMetadata(): string {
+    return this.metadata;
+  }
+
   private parseComments(code: string): string[] {
     const lines = code.split('\n');
     const comments: string[] = [];
     for (const line of lines) {
       if (line.trim() === '' || YamlCamelResourceSerializer.COMMENTED_LINES_REGEXP.test(line)) {
-        comments.push(line);
+        comments.push(line.replace(/^\s*#*/, ''));
       } else {
         break;
       }
     }
     return comments;
+  }
+
+  private insertComments(xml: string): string {
+    const commentsString = this.comments
+      .flatMap((comment) => comment.split('\n').map((line) => (line.trim() === '' ? '' : `#${line}`)))
+      .join('\n');
+    return commentsString + '\n' + xml;
   }
 }
