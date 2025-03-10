@@ -6,11 +6,10 @@
             json:
               library: Jackson
         - setHeader:
-            expression:
-              constant:
-                id: kosnstanta
-                expression: blabla
-                trim: "true"
+            constant:
+              id: kosnstanta
+              expression: blabla
+              trim: "true"
             name: meno
         - choice:
             id: cojsa
@@ -21,9 +20,8 @@
                 - choice:
                     id: cojsa2
                     when:
-                      - expression:
-                          simple:
-                            expression: ${body} contains 'Apple'
+                      - simple:
+                          expression: ${body} contains 'Apple'
                         steps:
                           - log:
                               message: Apple branch
@@ -37,26 +35,23 @@
                       message: Apple branch
                   - to:
                       uri: mock:result
-                expression:
-                  simple:
-                    expression: ${body} contains 'Apple'
+                simple:
+                  expression: ${body} contains 'Apple'
               - steps:
                   - log:
                       message: Banana branch
                   - to:
                       uri: mock:result
-                expression:
-                  simple:
-                    expression: ${body} contains 'Banana'
+                simple:
+                  expression: ${body} contains 'Banana'
               - steps:
                   - log:
                       message: Cherry branch
                   - to:
                       uri: mock:result
-                expression:
-                  simple:
-                    id: houno
-                    expression: ${body} contains 'Cherry'
+                simple:
+                  id: houno
+                  expression: ${body} contains 'Cherry'
         - log:
             message: Choice processing complete
         - to:
@@ -66,28 +61,23 @@
       uri: timer://cherryTimer?period=1000
       steps:
         - setBody:
-            expression:
-              constant:
-                expression: Cherry
+            constant:
+              expression: Cherry
         - setHeader:
-            expression:
-              constant:
-                expression: Spain
+            constant:
+              expression: Spain
             name: Fruit-Origin
         - setHeader:
-            expression:
-              constant:
-                expression: Premium
+            constant:
+              expression: Premium
             name: Fruit-Quality
         - setHeader:
-            expression:
-              constant:
-                expression: Summer
+            constant:
+              expression: Summer
             name: Fruit-Season
         - setHeader:
-            expression:
-              constant:
-                expression: "2.75"
+            constant:
+              expression: "2.75"
             name: Fruit-Price
         - to:
             uri: direct:start
@@ -96,28 +86,23 @@
       uri: timer://bananaTimer?period=2000
       steps:
         - setBody:
-            expression:
-              constant:
-                expression: Banana
+            constant:
+              expression: Banana
         - setHeader:
-            expression:
-              constant:
-                expression: Mexico
+            constant:
+              expression: Mexico
             name: Fruit-Origin
         - setHeader:
-            expression:
-              constant:
-                expression: Standard
+            constant:
+              expression: Standard
             name: Fruit-Quality
         - setHeader:
-            expression:
-              constant:
-                expression: All Year
+            constant:
+              expression: All Year
             name: Fruit-Season
         - setHeader:
-            expression:
-              constant:
-                expression: "0.99"
+            constant:
+              expression: "0.99"
             name: Fruit-Price
         - to:
             uri: direct:start
@@ -126,28 +111,23 @@
       uri: timer://appleTimer?period=3000
       steps:
         - setBody:
-            expression:
-              constant:
-                expression: Apple
+            constant:
+              expression: Apple
         - setHeader:
-            expression:
-              constant:
-                expression: USA
+            constant:
+              expression: USA
             name: Fruit-Origin
         - setHeader:
-            expression:
-              constant:
-                expression: Organic
+            constant:
+              expression: Organic
             name: Fruit-Quality
         - setHeader:
-            expression:
-              constant:
-                expression: Winter
+            constant:
+              expression: Winter
             name: Fruit-Season
         - setHeader:
-            expression:
-              constant:
-                expression: "1.50"
+            constant:
+              expression: "1.50"
             name: Fruit-Price
         - to:
             uri: direct:start

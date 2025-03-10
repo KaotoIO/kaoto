@@ -114,10 +114,8 @@ export const doTryCamelRouteJson = {
                 ],
                 exception: ['java.io.IOException', 'java.lang.IllegalStateException'],
                 onWhen: {
-                  expression: {
-                    simple: {
-                      expression: "${exception.message} contains 'Damn'",
-                    },
+                  simple: {
+                    expression: "${exception.message} contains 'Damn'",
                   },
                 },
               },

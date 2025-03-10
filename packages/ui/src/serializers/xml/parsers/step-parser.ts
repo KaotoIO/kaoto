@@ -48,7 +48,7 @@ export class StepParser {
       return extractAttributesFromXmlElement(element);
     }
 
-    const processor: { [key: string]: unknown } = {};
+    let processor: { [key: string]: unknown } = {};
 
     Object.entries(processorModel.properties).forEach(([name, properties]) => {
       switch (properties.kind) {
@@ -61,7 +61,9 @@ export class StepParser {
           }
           break;
         case 'expression':
-          processor[name] = ExpressionParser.parse(element, properties, name === 'expression' ? undefined : name);
+          if (name !== 'expression') {
+            processor[name] = ExpressionParser.parse(element, properties, name);
+          } else processor = { ...processor, ...ExpressionParser.parse(element, properties) };
           break;
 
         case 'element':

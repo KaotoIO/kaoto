@@ -42,7 +42,7 @@ export class StepXmlSerializer {
           break;
 
         case 'expression':
-          ExpressionXmlSerializer.serialize(key, processor[key], doc, element, routeParent);
+          ExpressionXmlSerializer.serialize(key, processor, props.oneOf, doc, element, routeParent);
           break;
 
         case 'element':

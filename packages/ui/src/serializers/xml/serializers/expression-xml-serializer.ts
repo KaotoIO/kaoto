@@ -18,26 +18,54 @@ import { CamelCatalogService, CatalogKind } from '../../../models';
 import { setNamespaces } from '../xml-utils';
 
 type Expression = { expression: string; [key: string]: unknown };
+
 export class ExpressionXmlSerializer {
-  static serialize(key: string, expressionObject: unknown, doc: Document, element: Element, routeParent?: Element) {
+  static serialize(
+    key: string,
+    stepWithExpression: unknown,
+    oneOf: string[] | undefined,
+    doc: Document,
+    element: Element,
+    routeParent?: Element,
+  ) {
+    if (!stepWithExpression) return;
+
+    const expressionStep = stepWithExpression as { [key: string]: unknown };
+    const expressionObject: { [key: string]: unknown } =
+      key !== 'expression' ? (expressionStep[key] as { [key: string]: unknown }) : expressionStep;
+
     if (!expressionObject) return;
+
+    const expressionType = oneOf?.find((e) => expressionObject[e] !== undefined);
+    if (!expressionType) return;
+
+    const expressionDefinition = expressionObject[expressionType] as Expression;
+
     let expression: Element;
-    // for some cases, the expression is not wrapped in an element
+    //for cases like correlationExpression etc...
     if (key !== 'expression') {
       expression = doc.createElement(key);
-      expression.append(ExpressionXmlSerializer.createExpressionElement(expressionObject, doc, routeParent));
+      expression.append(
+        ExpressionXmlSerializer.createExpressionElement(expressionType, expressionDefinition, doc, routeParent),
+      );
     } else {
-      expression = ExpressionXmlSerializer.createExpressionElement(expressionObject, doc, routeParent);
+      expression = ExpressionXmlSerializer.createExpressionElement(
+        expressionType,
+        expressionDefinition,
+        doc,
+        routeParent,
+      );
     }
 
     element.appendChild(expression);
   }
 
-  static createExpressionElement(expressionEntity: unknown, doc: Document, routeParent?: Element): Element {
-    const expression = expressionEntity as { [key: string]: unknown };
-
-    const [expressionType, expressionObject] = Object.entries(expression)[0] as [string, Expression];
-
+  static createExpressionElement(
+    expressionType: string,
+    expressionObject: Expression,
+    doc: Document,
+    routeParent?: Element,
+  ): Element {
     const expressionElement = doc.createElement(expressionType);
     const properties = CamelCatalogService.getComponent(CatalogKind.Processor, expressionType)?.properties;
 

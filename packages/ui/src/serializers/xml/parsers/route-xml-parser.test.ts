@@ -45,7 +45,7 @@ describe('RouteXmlParser', () => {
     expect(result).toEqual({
       intercept: {
         id: 'intercept1',
-        when: { expression: { simple: { expression: "${in.body} contains 'Hello'" } } },
+        when: { simple: { expression: "${in.body} contains 'Hello'" } },
         steps: [{ to: { uri: 'mock:intercepted' } }],
       },
     });
@@ -122,15 +122,13 @@ describe('RouteXmlParser', () => {
                 choice: {
                   when: [
                     {
-                      expression: {
-                        xpath: {
-                          expression: '/ns1:foo/',
-                          namespace: [
-                            { key: 'ns1', value: 'n1' },
-                            { key: 'ns2', value: 'n2' },
-                            { key: 'ns3', value: 'n3' },
-                          ],
-                        },
+                      xpath: {
+                        expression: '/ns1:foo/',
+                        namespace: [
+                          { key: 'ns1', value: 'n1' },
+                          { key: 'ns2', value: 'n2' },
+                          { key: 'ns3', value: 'n3' },
+                        ],
                       },
                       steps: [{ to: { uri: 'mock:bar' } }],
                     },
