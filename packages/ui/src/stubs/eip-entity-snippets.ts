@@ -20,11 +20,11 @@ export const aggregateEntity = {
 
 export const circuitBreakerEntity = {
   steps: [{ to: { uri: 'http://fooservice.com/slow' } }],
-  onFallback: { steps: [{ transform: { expression: { constant: { expression: 'Fallback message' } } } }] },
+  onFallback: { steps: [{ transform: { constant: { expression: 'Fallback message' } } }] },
 };
 
 export const filterEntity = {
-  expression: { xpath: { expression: "/person[@name='James']" } },
+  xpath: { expression: "/person[@name='James']" },
   steps: [{ to: { uri: 'mock:result' } }],
 };
 
@@ -35,7 +35,7 @@ export const loadBalanceEntity = {
 
 export const loopEntity = {
   steps: [{ to: { uri: 'mock:result' } }],
-  expression: { header: { expression: 'loop' } },
+  header: { expression: 'loop' },
 };
 
 export const multicastEntity = {
@@ -51,7 +51,7 @@ export const pipelineEntity = {
 
 export const resequenceEntity = {
   steps: [{ to: { uri: 'mock:result' } }],
-  expression: { simple: { expression: 'body' } },
+  simple: { expression: 'body' },
   batchConfig: {
     batchSize: '300',
     batchTimeout: '4000',
@@ -62,20 +62,20 @@ export const sagaEntity = {
   compensation: { uri: 'direct:compensation' },
   completion: { uri: 'direct:completion' },
   option: [
-    { key: 'myOptionKey', expression: { constant: { expression: 'myOptionValue' } } },
-    { key: 'myOptionKey2', expression: { constant: { expression: 'myOptionValue2' } } },
+    { key: 'myOptionKey', constant: { expression: 'myOptionValue' } },
+    { key: 'myOptionKey2', constant: { expression: 'myOptionValue2' } },
   ],
   steps: [],
 };
 
 export const splitEntity = {
   parallelProcessing: 'true',
-  expression: { simple: { expression: 'body' } },
+  simple: { expression: 'body' },
   steps: [{ to: { uri: 'direct:b' } }, { to: { uri: 'direct:c' } }, { to: { uri: 'direct:d' } }],
 };
 
 export const choiceEntity = {
-  when: [{ expression: { xpath: { expression: '/ns1:foo/' } }, steps: [{ to: { uri: 'mock:bar' } }] }],
+  when: [{ xpath: { expression: '/ns1:foo/' }, steps: [{ to: { uri: 'mock:bar' } }] }],
   otherwise: { steps: [{ to: { uri: 'mock:other' } }] },
 };
 
@@ -100,26 +100,26 @@ export const deadLetterChannelEntity = {
 };
 
 export const enrichEntity = {
-  expression: { simple: { expression: 'http:myserver/${header.orderId}/order' } },
+  simple: { expression: 'http:myserver/${header.orderId}/order' },
 };
 
 export const dynamicRouterEntity = {
-  expression: { method: { beanType: 'com.foo.MySlipBean', method: 'slip' } },
+  method: { beanType: 'com.foo.MySlipBean', method: 'slip' },
 };
 
 export const recipientListEntity = {
   parallelProcessing: 'true',
-  expression: { header: { expression: 'myHeader' } },
+  header: { expression: 'myHeader' },
 };
 
 export const routingSlipEntity = {
   ignoreInvalidEndpoints: 'true',
-  expression: { header: { expression: 'myHeader' } },
+  header: { expression: 'myHeader' },
 };
 
 export const throttleEntity = {
   timePeriodMillis: '10000',
-  expression: { constant: { expression: '3' } },
+  constant: { expression: '3' },
 };
 
 export const sampleEntity = {

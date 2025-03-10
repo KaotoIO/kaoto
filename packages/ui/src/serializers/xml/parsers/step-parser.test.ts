@@ -320,7 +320,7 @@ describe('ProcessorParser', () => {
     expect(result).toEqual({
       when: [
         {
-          expression: { simple: { expression: "${header.foo} == 'bar'" } },
+          simple: { expression: "${header.foo} == 'bar'" },
           steps: [{ to: { uri: 'mock:when' } }],
         },
       ],
