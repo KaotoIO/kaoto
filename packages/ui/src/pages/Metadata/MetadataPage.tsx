@@ -13,7 +13,7 @@ export const MetadataPage: FunctionComponent = () => {
   const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
   const entitiesContext = useContext(EntitiesContext);
   const camelkResource = entitiesContext?.camelResource as CamelKResource;
-  const metadataSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'ObjectMeta') ?? {};
+  const metadataSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'ObjectMeta')?.propertiesSchema || {};
 
   const isSupported = useMemo(() => {
     return camelkResource && camelkResource.getType() in CamelKResourceKinds;

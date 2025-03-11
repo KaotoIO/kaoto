@@ -72,7 +72,6 @@ public class CatalogGenerator {
         processKamelets(catalogDefinition);
         processK8sSchema(catalogDefinition);
         processKameletsCRDs(catalogDefinition);
-        processAdditionalSchemas(catalogDefinition);
 
         try {
             String filename = String.format("%s-%s.json", "index",
@@ -188,24 +187,6 @@ public class CatalogGenerator {
             var catalogMap = catalogProcessor.processCatalog();
             catalogMap.forEach((name, catalog) -> {
                 try {
-                    // Adding Kamelet & Pipe Configuration Schema to the Entities Catalog
-                    if (name.equals("entities")) {
-                        var catalogNode = jsonMapper.readTree(catalog);
-                        String customSchemas[] = {"KameletConfiguration", "PipeConfiguration"};
-                        for (String customSchema : customSchemas) {
-                            ((ObjectNode) catalogNode).putObject(customSchema)
-                                    .putObject("propertiesSchema");
-                            ((ObjectNode) catalogNode.path(customSchema).path("propertiesSchema"))
-                                    .setAll((ObjectNode) jsonMapper.readTree(
-                                            camelCatalogVersionLoader.getLocalSchemas().get(customSchema)));
-                        }
-
-                        StringWriter writer = new StringWriter();
-                        var jsonGenerator = new JsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
-                        jsonMapper.writeTree(jsonGenerator, catalogNode);
-                        catalog = writer.toString();
-                    }
-
                     var outputFileName = String.format(
                             "%s-%s-%s.json", CAMEL_CATALOG_AGGREGATE, name, Util.generateHash(catalog));
                     var output = outputDirectory.toPath().resolve(outputFileName);
@@ -371,37 +352,6 @@ public class CatalogGenerator {
             index.getSchemas().put(name, indexEntry);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
-        }
-    }
-
-    private void processAdditionalSchemas(CatalogDefinition index) {
-        if (camelCatalogVersionLoader.getLocalSchemas().isEmpty()) {
-            LOGGER.severe("Local schemas are not loaded");
-            return;
-        }
-
-        for (var localSchemaEntry : camelCatalogVersionLoader.getLocalSchemas().entrySet()) {
-            try {
-                var schema = (ObjectNode) jsonMapper.readTree(localSchemaEntry.getValue());
-                var name = localSchemaEntry.getKey();
-                var description = schema.get("description").asText();
-
-                var outputFileName = String.format("%s-%s.%s", localSchemaEntry.getKey(),
-                        Util.generateHash(localSchemaEntry.getValue()), "json");
-                var output = outputDirectory.toPath().resolve(outputFileName);
-
-                Files.writeString(output, localSchemaEntry.getValue());
-
-                var indexEntry = new CatalogDefinitionEntry(
-                        name,
-                        description,
-                        "1",
-                        outputFileName);
-
-                index.getSchemas().put(name, indexEntry);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.toString(), e);
-            }
         }
     }
 }
