@@ -81,15 +81,18 @@ public class EntityGenerator implements Generator {
         });
 
         // Add ObjectMeta Schema
-        var ObjectMetaJSON = k8sSchemaReader.getObjectMetaJSONSchema();
-        camelCatalogSchemaEnhancer.fillSchemaInformation(ObjectMetaJSON);
-        EntityMap.put("ObjectMeta", ObjectMetaJSON);
+        var objectMetaJSON = k8sSchemaReader.getObjectMetaJSONSchema();
+        camelCatalogSchemaEnhancer.fillSchemaInformation(objectMetaJSON);
+        ObjectNode objectMetaSchema = jsonMapper.createObjectNode();
+        objectMetaSchema.set("propertiesSchema", objectMetaJSON);
+        EntityMap.put("ObjectMeta", objectMetaSchema);
 
         // Add custom schemas
         for (var localSchemaEntry : localSchemas.entrySet()) {
             try {
-                var schema = (ObjectNode) jsonMapper.readTree(localSchemaEntry.getValue());
                 var name = localSchemaEntry.getKey();
+                ObjectNode schema = jsonMapper.createObjectNode();
+                schema.set("propertiesSchema", jsonMapper.readTree(localSchemaEntry.getValue()));
                 EntityMap.put(name, schema);
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Local Schema definition not found");

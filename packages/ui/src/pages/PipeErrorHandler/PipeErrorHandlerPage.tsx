@@ -1,4 +1,3 @@
-import { PipeErrorHandler as PipeErrorHandlerType } from '@kaoto/camel-catalog/types';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas/FormV2/KaotoForm';
@@ -14,8 +13,8 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
   const pipeResource = entitiesContext?.camelResource as PipeResource;
 
-  const errorHandlerSchema = (CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeErrorHandler') ??
-    {}) as KaotoSchemaDefinition['schema'];
+  const errorHandlerSchema = (CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeErrorHandler')
+    ?.propertiesSchema || {}) as KaotoSchemaDefinition['schema'];
 
   if (Array.isArray(errorHandlerSchema.oneOf) && !Array.isArray(errorHandlerSchema.anyOf)) {
     errorHandlerSchema.anyOf = [{ oneOf: errorHandlerSchema.oneOf }];
@@ -32,7 +31,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   }, [pipeResource]);
 
   const onChangeModel = useCallback(
-    (model: PipeErrorHandlerType) => {
+    (model: Record<string, unknown>) => {
       if (Object.keys(model).length > 0) {
         let entity = pipeResource.getErrorHandlerEntity();
         if (!entity) {
