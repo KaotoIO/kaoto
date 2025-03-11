@@ -29,7 +29,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
       definition: {
         ...(kamelet.spec?.definition ?? {}),
         title: kamelet.spec?.definition?.title,
-        description: kamelet.spec?.definition?.description,
+        ...(kamelet.spec?.definition?.description ? { description: kamelet.spec?.definition?.description } : {}),
       },
     };
     super({ id: kamelet.metadata?.name, template: { from: spec.template.from } });
