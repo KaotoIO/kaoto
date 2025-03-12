@@ -128,7 +128,7 @@ class GenerateCommandTest {
             CatalogLibrary library = mockedLibrary.constructed().get(0);
 
             assertEquals(1, mockedLibrary.constructed().size());
-            assertEquals(1, ref.version);
+            assertEquals(2, ref.version);
             assertEquals("test-camel-catalog", ref.name);
             assertEquals(1, library.getDefinitions().size());
 
