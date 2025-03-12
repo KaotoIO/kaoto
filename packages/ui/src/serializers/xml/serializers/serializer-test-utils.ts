@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { formatXml } from '../xml-utils';
+import { XmlFormatter } from '../utils/xml-formatter';
 
 export const normalizeXml = (xml: string) =>
   xml
@@ -30,8 +30,8 @@ export const getDocument = () => {
 
 export const testSerializer = (expectedXML: string, result: Element) => {
   const xmlSerializer: XMLSerializer = new XMLSerializer();
-  const resultString = formatXml(xmlSerializer.serializeToString(result));
-  const expected = formatXml(expectedXML);
+  const resultString = XmlFormatter.formatXml(xmlSerializer.serializeToString(result));
+  const expected = XmlFormatter.formatXml(expectedXML);
   expect(result).toBeDefined();
   expect(normalizeXml(resultString)).toEqual(normalizeXml(expected));
 };

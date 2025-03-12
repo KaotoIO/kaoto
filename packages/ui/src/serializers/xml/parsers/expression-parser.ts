@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { collectNamespaces, extractAttributesFromXmlElement } from '../xml-utils';
+import { collectNamespaces, extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 

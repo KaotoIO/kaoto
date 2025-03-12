@@ -15,7 +15,7 @@
  */
 
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
-import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../xml-utils';
+import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionXmlSerializer } from './expression-xml-serializer';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelUriHelper, ParsedParameters } from '../../../utils';

@@ -60,8 +60,8 @@ import {
   routingSlipEntity,
   throttleEntity,
 } from '../../../stubs/eip-entity-snippets';
-import { formatXml } from '../xml-utils';
 import { StepXmlSerializer } from './step-xml-serializer';
+import { XmlFormatter } from '../utils/xml-formatter';
 
 export const normalizeLineEndings = (str: string): string => {
   return str
@@ -105,8 +105,8 @@ describe('Serialize EIP elements', () => {
     const document = domParser.parseFromString('', 'application/xml');
     const result = StepXmlSerializer.serialize(name, entity, document);
     const expected = domParser.parseFromString(xml, 'application/xml').documentElement;
-    const resultString = normalizeLineEndings(formatXml(xmlSerializer.serializeToString(result)));
-    const expectedString = normalizeLineEndings(formatXml(xmlSerializer.serializeToString(expected)));
+    const resultString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(result)));
+    const expectedString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(expected)));
     expect(resultString).toEqual(expectedString);
   });
 });
