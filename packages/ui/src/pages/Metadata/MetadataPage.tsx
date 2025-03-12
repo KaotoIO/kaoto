@@ -1,4 +1,3 @@
-import { ObjectMeta } from '@kaoto/camel-catalog/types';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas/FormV2/KaotoForm';
@@ -25,7 +24,7 @@ export const MetadataPage: FunctionComponent = () => {
   }, [camelkResource]);
 
   const onChangeModel = useCallback(
-    (model: ObjectMeta) => {
+    (model: Record<string, unknown>) => {
       if (Object.keys(model).length > 0) {
         let entity = camelkResource.getMetadataEntity();
         if (!entity) {

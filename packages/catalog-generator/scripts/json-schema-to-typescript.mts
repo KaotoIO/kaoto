@@ -53,16 +53,7 @@ async function main() {
   const exportedFiles: string[] = ['catalog-index'];
 
   console.log('---');
-  const targetSchemaNames = [
-    'camelYamlDsl',
-    'Integration',
-    'Kamelet',
-    'KameletBinding',
-    'Pipe',
-    'ObjectMeta',
-    'ObjectReference',
-    'PipeErrorHandler',
-  ];
+  const targetSchemaNames = ['camelYamlDsl', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
 
   if (!Array.isArray(catalogLibraryIndex.definitions) || !catalogLibraryIndex.definitions.length) {
     throw new Error('Invalid catalog index file, a Catalog needs to be generated first');
