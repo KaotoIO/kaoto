@@ -1,4 +1,4 @@
-import { FromDefinition, Kamelet, ObjectMeta, BeanFactory } from '@kaoto/camel-catalog/types';
+import { FromDefinition, Kamelet, BeanFactory } from '@kaoto/camel-catalog/types';
 import { SourceSchemaType } from './camel/source-schema-type';
 import { KaotoSchemaDefinition } from './kaoto-schema';
 
@@ -22,7 +22,7 @@ export interface IKameletDefinition extends Omit<Kamelet, 'kind' | 'metadata' | 
   propertiesSchema?: KaotoSchemaDefinition['schema'];
 }
 
-export interface IKameletMetadata extends ObjectMeta {
+export interface IKameletMetadata {
   name: string;
   annotations: IKameletMetadataAnnotations;
   labels: IKameletMetadataLabels;

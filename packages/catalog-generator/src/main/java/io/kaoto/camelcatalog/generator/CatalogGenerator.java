@@ -70,7 +70,6 @@ public class CatalogGenerator {
         processCatalog(yamlDslSchemaProcessor, catalogDefinition);
         processKameletBoundaries(catalogDefinition);
         processKamelets(catalogDefinition);
-        processK8sSchema(catalogDefinition);
         processKameletsCRDs(catalogDefinition);
 
         try {
@@ -148,31 +147,7 @@ public class CatalogGenerator {
         try {
             var yamlDslSchema = (ObjectNode) jsonMapper.readTree(camelYamlDSLSchema07);
 
-            var schemaProcessor = new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
-            var schemaMap = schemaProcessor.processSubSchema();
-
-            schemaMap.forEach((name, subSchema) -> {
-                try {
-                    var subSchemaFileName = String.format(
-                            "%s-%s-%s.json",
-                            CAMEL_YAML_DSL_FILE_NAME,
-                            name,
-                            Util.generateHash(subSchema));
-                    var subSchemaPath = outputDirectory.toPath().resolve(subSchemaFileName);
-                    subSchemaPath.getParent().toFile().mkdirs();
-                    Files.writeString(subSchemaPath, subSchema);
-                    var subSchemaIndexEntry = new CatalogDefinitionEntry(
-                            name,
-                            "Camel YAML DSL JSON schema: " + name,
-                            camelCatalogVersion,
-                            subSchemaFileName);
-                    index.getSchemas().put(name, subSchemaIndexEntry);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, e.toString(), e);
-                }
-            });
-
-            return schemaProcessor;
+            return new CamelYamlDslSchemaProcessor(jsonMapper, yamlDslSchema);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
             return null;
@@ -289,34 +264,6 @@ public class CatalogGenerator {
                 }
                 return 0;
             }).toList();
-    }
-
-    private void processK8sSchema(CatalogDefinition index) {
-        if (camelCatalogVersionLoader.getKubernetesSchema() == null) {
-            LOGGER.severe("Kubernetes JSON Schema is not loaded");
-        }
-
-        try {
-            var openapiSpec = (ObjectNode) jsonMapper.readTree(camelCatalogVersionLoader.getKubernetesSchema());
-            var processor = new K8sSchemaProcessor(jsonMapper, openapiSpec);
-            var schemaMap = processor.processK8sDefinitions(KUBERNETES_DEFINITIONS);
-            for (var entry : schemaMap.entrySet()) {
-                var name = entry.getKey();
-                var schema = entry.getValue();
-                var outputFileName = String.format("%s-%s-%s.json", K8S_V1_OPENAPI, name,
-                        Util.generateHash(schema));
-                var output = outputDirectory.toPath().resolve(outputFileName);
-                Files.writeString(output, schema);
-                var indexEntry = new CatalogDefinitionEntry(
-                        name,
-                        "Kubernetes OpenAPI JSON schema: " + name,
-                        "v1",
-                        outputFileName);
-                index.getSchemas().put(name, indexEntry);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.toString(), e);
-        }
     }
 
     private void processKameletsCRDs(CatalogDefinition index) {

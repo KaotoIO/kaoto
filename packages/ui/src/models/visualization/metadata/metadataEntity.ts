@@ -1,9 +1,9 @@
-import { ObjectMeta as MetadataModel } from '@kaoto/camel-catalog/types';
 import { v4 as uuidv4 } from 'uuid';
 import { EntityType, BaseCamelEntity } from '../../camel/entities';
+import { IKameletMetadata } from '../../kamelets-catalog';
 
 type MetadataParentType = {
-  metadata?: Partial<MetadataModel>;
+  metadata?: Partial<IKameletMetadata>;
 };
 
 export class MetadataEntity implements BaseCamelEntity {
