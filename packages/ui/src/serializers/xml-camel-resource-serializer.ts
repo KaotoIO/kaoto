@@ -1,11 +1,11 @@
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel/camel-resource';
 import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
-import { formatXml } from './xml/xml-utils';
 import { CamelResourceSerializer, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import { EntityType } from '../models/camel/entities';
 import { EntityDefinition } from './xml/serializers/entitiy-definition';
+import { XmlFormatter } from './xml/utils/xml-formatter';
 
 export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   private comments: string[] = [];
@@ -43,7 +43,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     let xmlString = this.xmlSerializer.serializeToString(xmlDocument);
     xmlString = (this.xmlDeclaration !== '' ? this.xmlDeclaration + '\n' : '') + this.insertComments(xmlString);
 
-    return formatXml(xmlString);
+    return XmlFormatter.formatXml(xmlString);
   }
 
   getComments(): string[] {

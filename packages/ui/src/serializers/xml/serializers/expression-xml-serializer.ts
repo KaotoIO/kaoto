@@ -15,7 +15,7 @@
  */
 
 import { CamelCatalogService, CatalogKind } from '../../../models';
-import { setNamespaces } from '../xml-utils';
+import { setNamespaces } from '../utils/xml-utils';
 
 type Expression = { expression: string; [key: string]: unknown };
 

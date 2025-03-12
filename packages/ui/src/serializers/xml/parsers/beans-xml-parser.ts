@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { extractAttributesFromXmlElement } from '../xml-utils';
+import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { BeanFactory } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
 

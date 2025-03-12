@@ -16,7 +16,7 @@
 
 import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
-import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../xml-utils';
+import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
 
 export type ElementTransformer = (element: Element) => unknown;

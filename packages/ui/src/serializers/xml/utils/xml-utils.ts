@@ -1,4 +1,4 @@
-import { ICamelProcessorProperty } from '../../models';
+import { ICamelProcessorProperty } from '../../../models';
 
 export const PROCESSOR_NAMES: Map<string, string> = new Map([
   // necessary for different definition names
@@ -13,7 +13,6 @@ export const PROCESSOR_NAMES: Map<string, string> = new Map([
   ['apiProperty', 'restProperty'],
   ['examples', 'restProperty'],
   ['header', 'responseHeader'],
-  // ['allowableValues', 'value'],
   //saga
   ['option', 'propertyExpression'],
 ]);
@@ -56,33 +55,6 @@ export function setNamespaces(element: Element, namespaces: { key: string; value
     if (!ns) continue;
     element.setAttribute(`xmlns:${ns.key}`, ns.value);
   }
-}
-
-export function formatXml(xml: string): string {
-  // simple XML format used instead of HTML formatting in monaco
-  const PADDING = ' '.repeat(2);
-  const reg = /(>)(<)(\/*)/g;
-  let pad = 0;
-
-  xml = xml.replace(reg, '$1\r\n$2$3');
-
-  return xml
-    .split('\r\n')
-    .map((node) => {
-      let indent = 0;
-      const openTagPattern = /^<\w[^>]*[^/]>.*$/;
-      const endTagPattern = /^<\/\w/;
-
-      if (endTagPattern.exec(node) && pad > 0) {
-        pad -= 1;
-      } else if (openTagPattern.exec(node)) {
-        indent = 1;
-      }
-      pad += indent;
-
-      return PADDING.repeat(pad - indent) + node;
-    })
-    .join('\r\n');
 }
 
 export function capitalize(str: string): string {
