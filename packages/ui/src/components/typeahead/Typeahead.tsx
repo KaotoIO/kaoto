@@ -24,8 +24,7 @@ import {
 import { isDefined } from '../../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
-export const CREATE_NEW_VALUE = 'create-new';
-export const CREATE_NEW_WITH_NAME_VALUE = 'create-new-with-name';
+export const CREATE_NEW_ITEM = 'create-new-with-name';
 
 const DEFAULT_POPPER_PROPS = {
   position: 'end',
@@ -51,11 +50,8 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   const selectedOptionRef = useRef<HTMLSelectElement>(null);
 
   const items = useMemo(() => {
-    const localArray = itemsProps.slice();
-    if (isDefined(onCreate)) {
-      localArray.push({ name: `Create new ${onCreatePrefix}`, description: '', value: CREATE_NEW_VALUE });
-    }
     const isValueInArray = isDefined(itemsProps.find((item) => item.name === selectedItem?.name));
+    const localArray = itemsProps.slice();
     if (isValueInArray) {
       return localArray;
     }
@@ -63,7 +59,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       localArray.unshift({ name: selectedItem.name, value: selectedItem.value });
     }
     return localArray;
-  }, [itemsProps, onCreate, onCreatePrefix, selectedItem?.name, selectedItem?.value]);
+  }, [itemsProps, selectedItem?.name, selectedItem?.value]);
 
   useEffect(() => {
     if (selectedItem?.name) {
@@ -73,7 +69,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
   const onItemChanged = useCallback(
     (_event: unknown, name: string | number | undefined) => {
-      if (name === CREATE_NEW_VALUE || name === CREATE_NEW_WITH_NAME_VALUE) {
+      if (name === CREATE_NEW_ITEM) {
         onCreate?.(name, inputValue);
         setIsOpen(false);
         return;
@@ -208,16 +204,13 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
           </SelectOption>
         ))}
 
-        {filteredItems.length === 0 && onCreate && (
-          <SelectOption
-            value={CREATE_NEW_WITH_NAME_VALUE}
-            aria-label={`option ${CREATE_NEW_WITH_NAME_VALUE.toLocaleLowerCase()}`}
-          >
-            Create new {onCreatePrefix} &quot;{inputValue}&quot;
+        {filteredItems.length === 0 && <SelectOption isDisabled>No items found</SelectOption>}
+
+        {onCreate && (
+          <SelectOption value={CREATE_NEW_ITEM} aria-label={`option ${CREATE_NEW_ITEM.toLocaleLowerCase()}`}>
+            Create new {onCreatePrefix} {inputValue ? `'${inputValue}'` : ''}
           </SelectOption>
         )}
-
-        {filteredItems.length === 0 && !onCreate && <SelectOption isDisabled>No items found</SelectOption>}
       </SelectList>
     </Select>
   );

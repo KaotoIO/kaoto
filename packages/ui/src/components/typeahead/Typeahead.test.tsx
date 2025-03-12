@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { Typeahead } from './Typeahead';
+import { CREATE_NEW_ITEM, Typeahead } from './Typeahead';
 import { TypeaheadProps } from './Typeahead.types';
 
 const mockItems = [
@@ -105,5 +105,34 @@ describe('Typeahead', () => {
     fireEvent.click(clearButton);
 
     expect(defaultProps.onCleanInput).toHaveBeenCalled();
+  });
+
+  it('should allow users to create a new item if the onCreate callback is set', async () => {
+    render(<Typeahead {...defaultProps} onCreate={jest.fn()} onCreatePrefix="multiverse" />);
+
+    const input = screen.getByPlaceholderText('Select or write an option');
+    await act(async () => {
+      fireEvent.click(input);
+    });
+
+    expect(screen.getByText('Create new multiverse')).toBeInTheDocument();
+  });
+
+  it('should allow users to create a new item if the onCreate callback is set and there is a value', async () => {
+    render(<Typeahead {...defaultProps} onCreate={jest.fn()} onCreatePrefix="brick" />);
+
+    const input = screen.getByPlaceholderText('Select or write an option');
+    await act(async () => {
+      fireEvent.click(input);
+    });
+
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'in the wall' } });
+    });
+
+    const createNewElement = screen.getByLabelText(`option ${CREATE_NEW_ITEM.toLocaleLowerCase()}`);
+
+    expect(createNewElement).toBeInTheDocument();
+    expect(createNewElement).toHaveTextContent("Create new brick 'in the wall'");
   });
 });
