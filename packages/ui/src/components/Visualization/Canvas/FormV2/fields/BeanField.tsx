@@ -5,7 +5,7 @@ import { EntitiesContext } from '../../../../../providers';
 import { getSerializedModel } from '../../../../../utils';
 import { extractGroup } from '../../../../../utils/get-tagged-field-from-string';
 import { NewBeanModal } from '../../../../Form';
-import { CREATE_NEW_WITH_NAME_VALUE, Typeahead } from '../../../../typeahead/Typeahead';
+import { CREATE_NEW_ITEM, Typeahead } from '../../../../typeahead/Typeahead';
 import { TypeaheadItem } from '../../../../typeahead/Typeahead.types';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -26,19 +26,18 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
   }, [beansHandler]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(beanReference);
-  const beansEntity = useMemo(() => {
-    return beansHandler.getBeansEntity();
-  }, [beansHandler]);
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
 
   const items = useMemo(() => {
     return (
-      beansEntity?.parent.beans.map((item) => ({
+      beansHandler.getAllBeansNameAndType().map((item) => ({
         name: item.name ? (beansHandler.getReferenceFromName(item.name) ?? '') : '',
         description: String(item.type),
         value: String(item.name),
       })) ?? []
     );
-  }, [beansEntity?.parent.beans, beansHandler]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [beansHandler, lastUpdated]);
 
   const selectedItem = useMemo(() => {
     if (!value) {
@@ -64,11 +63,13 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
 
   const onCleanInput = useCallback(() => {
     onChange(undefined);
+    setLastUpdated(Date.now());
+    setIsOpen(false);
   }, [onChange]);
 
   const onSelect = useCallback((value: string | undefined, filterValue: string | undefined) => {
     if (value) {
-      if (value === CREATE_NEW_WITH_NAME_VALUE) {
+      if (value === CREATE_NEW_ITEM) {
         setInputValue(filterValue ?? '');
       } else {
         setInputValue('');
@@ -86,6 +87,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
       setIsOpen(false);
       onChange(beanRef ?? '');
       setInputValue(beanRef as string);
+      setLastUpdated(Date.now());
     },
     [beansHandler, onChange],
   );

@@ -112,31 +112,59 @@ describe('BeanField', () => {
       );
 
       formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
-      await formPageObject.inputText('Bean', 'myNewBean');
-      await formPageObject.selectTypeaheadItem('create-new-with-name');
     });
 
-    it('should allow user to create a new bean', async () => {
-      const [nameInput] = screen.getAllByLabelText('Name');
-      expect(nameInput).toHaveValue('myNewBean');
+    const createBean = async (name: string) => {
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.inputText('Bean', name);
+      await formPageObject.selectTypeaheadItem('create-new-with-name');
+    };
 
-      const [typeInput] = screen.getAllByLabelText('Type');
-      await act(async () => {
-        fireEvent.input(typeInput, { target: { value: 'io.kaoto.new.MyNewBean' } });
-      });
-
+    const clickCreateButton = async () => {
       const [createButton] = screen.getAllByRole('button').filter((b) => b.textContent === 'Create');
       await act(async () => {
         fireEvent.click(createButton);
       });
+    };
+
+    it('should allow user to create a new bean', async () => {
+      await createBean('myNewBean');
+
+      const [nameInput] = screen.getAllByLabelText('Name');
+      expect(nameInput).toHaveValue('myNewBean');
+
+      await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
+      await clickCreateButton();
 
       expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
       expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, '#myNewBean');
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).not.toBeInTheDocument();
     });
 
+    it('should refresh the bean list after creating a new bean', async () => {
+      await createBean('myNewBean');
+      await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
+      await clickCreateButton();
+
+      await formPageObject.clearForProperty(ROOT_PATH);
+      await createBean('anotherBean');
+      await formPageObject.inputText('Type', 'io.kaoto.new.AnotherBean');
+      await clickCreateButton();
+
+      await formPageObject.clearForProperty(ROOT_PATH);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+
+      const beanOptions = screen.getAllByRole('option');
+
+      expect(beanOptions).toHaveLength(3);
+      expect(beanOptions[0]).toHaveTextContent('myNewBean');
+      expect(beanOptions[1]).toHaveTextContent('anotherBean');
+      expect(beanOptions[2]).toHaveTextContent('Create new bean');
+    });
+
     it('should not update the BeanField when closing the modal', async () => {
+      await createBean('myNewBean');
+
       const [cancelButton] = screen.getAllByRole('button').filter((b) => b.textContent === 'Cancel');
       await act(async () => {
         fireEvent.click(cancelButton);
@@ -147,6 +175,8 @@ describe('BeanField', () => {
     });
 
     it('should not allow to create a bean without a type', async () => {
+      await createBean('myNewBean');
+
       const clearTypeField = screen.getByRole('button', { name: /clear type field/i });
       await act(async () => {
         fireEvent.click(clearTypeField);
