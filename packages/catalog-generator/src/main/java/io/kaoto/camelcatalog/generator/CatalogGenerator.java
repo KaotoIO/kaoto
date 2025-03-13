@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
+import io.kaoto.camelcatalog.generators.CRDGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogDefinition;
 import io.kaoto.camelcatalog.model.CatalogDefinitionEntry;
@@ -272,33 +272,23 @@ public class CatalogGenerator {
             return;
         }
 
-        camelCatalogVersionLoader.getCamelKCRDs().forEach(crdString -> {
-            processKameletCRD(crdString, index);
+        CRDGenerator crdGenerator = new CRDGenerator(camelCatalogVersionLoader.getCamelKCRDs());
+        var crdMap = crdGenerator.generate();
+        crdMap.forEach((name, catalog) -> {
+            try {
+                var outputFileName = String.format(
+                        "%s-%s-%s.json", CRD_SCHEMA, name.toLowerCase(), Util.generateHash(catalog));
+                var output = outputDirectory.toPath().resolve(outputFileName);
+                Files.writeString(output, catalog);
+                var indexEntry = new CatalogDefinitionEntry(
+                        name,
+                        name,
+                        camelKCRDsVersion,
+                        outputFileName);
+                index.getSchemas().put(name, indexEntry);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.toString(), e);
+            }
         });
-    }
-
-    private void processKameletCRD(String crdString, CatalogDefinition index) {
-        try {
-            var crd = yamlMapper.readValue(crdString, CustomResourceDefinition.class);
-            var schema = crd.getSpec().getVersions().get(0).getSchema().getOpenAPIV3Schema();
-            var name = crd.getSpec().getNames().getKind();
-
-            var bytes = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(schema);
-            var outputFileName = String.format(
-                    "%s-%s-%s.json", CRD_SCHEMA, name.toLowerCase(), Util.generateHash(bytes));
-
-            var output = outputDirectory.toPath().resolve(outputFileName);
-            Files.write(output, bytes);
-            var description = name;
-
-            var indexEntry = new CatalogDefinitionEntry(
-                    name,
-                    description,
-                    camelKCRDsVersion,
-                    outputFileName);
-            index.getSchemas().put(name, indexEntry);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.toString(), e);
-        }
     }
 }

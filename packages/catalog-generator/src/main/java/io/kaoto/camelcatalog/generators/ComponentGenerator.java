@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ComponentGenerator implements Generator{
+public class ComponentGenerator implements Generator {
     private static final Logger LOGGER = Logger.getLogger(ComponentGenerator.class.getName());
     CamelCatalog camelCatalog;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
