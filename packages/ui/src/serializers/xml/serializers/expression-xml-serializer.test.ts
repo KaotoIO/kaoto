@@ -15,7 +15,6 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { describe } from 'node:test';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';

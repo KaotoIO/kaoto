@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025a Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use RouteXmlParser. file except in compliance with the License.

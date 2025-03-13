@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CamelCatalogService, CatalogKind } from '../../../models';
 
-import { describe } from 'node:test';
 import { BeansXmlParser } from './beans-xml-parser';
 
 export const getElementFromXml = (xml: string): Element => {

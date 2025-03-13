@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { describe } from 'node:test';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { StepParser } from './step-parser';
 import { getElementFromXml } from './route-xml-parser.test';
