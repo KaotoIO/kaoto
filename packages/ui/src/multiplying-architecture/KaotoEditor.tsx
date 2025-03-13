@@ -97,7 +97,7 @@ export const KaotoEditor = () => {
                 <>
                   <TabTitleIcon>
                     <Icon>
-                      <img src={bean} />
+                      <img src={bean} alt="Camel beans icon" />
                     </Icon>
                   </TabTitleIcon>
                   <TabTitleText>Beans</TabTitleText>
