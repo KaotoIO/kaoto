@@ -38,7 +38,7 @@ export class StepXmlSerializer {
           break;
 
         case 'attribute':
-          this.serializeAttribute(element, key, processor, processor[key]);
+          this.serializeAttribute(element, key, processor, props, processor[key]);
           break;
 
         case 'expression':
@@ -62,6 +62,7 @@ export class StepXmlSerializer {
       camelElement = camelElement[elementName] as ElementType;
     }
     const routeParent = elementName === 'route' ? element : parent;
+
     const properties = CamelCatalogService.getComponent(
       CatalogKind.Processor,
       PROCESSOR_NAMES.get(elementName) ?? elementName,
@@ -229,13 +230,19 @@ export class StepXmlSerializer {
   private static serializeAttribute(
     element: Element,
     key: string,
-    processor: ElementType,
+    processor: ElementType | string,
+    props: ICamelProcessorProperty,
     attributeValue: unknown,
   ): void {
-    if (attributeValue) {
-      const value = key === 'uri' ? this.createUriFromParameters(processor) : (attributeValue as string);
-      element.setAttribute(key, value);
+    if (typeof processor === 'string') {
+      if (props.required) element.setAttribute(key, processor);
+      return;
     }
+
+    if (!attributeValue) return;
+
+    const value = key === 'uri' ? this.createUriFromParameters(processor) : String(attributeValue);
+    element.setAttribute(key, value);
   }
 
   static decorateDoTry(doTry: DoTry, doTryElement: Element, doc: Document): Element {
