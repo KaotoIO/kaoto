@@ -28,12 +28,11 @@ describe('Settings: About', () => {
 
     // Check information Grid
     cy.get('dl > dt:first')
+      .should('have.text', 'Kaoto UI')
+      .next()
       .should('have.text', 'Version')
       .next()
       .should('have.attr', 'data-testid', 'about-version')
-      .next()
-      .next()
-      .should('have.text', 'Build info')
       .next()
       .should('have.text', 'Git commit hash')
       .next()

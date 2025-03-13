@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2024 Red Hat, Inc.
+    Copyright (C) 2025 Red Hat, Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -13,50 +13,29 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Bullseye, Content, Timestamp, TimestampFormat, TimestampTooltipVariant } from '@patternfly/react-core';
-import { FunctionComponent, useMemo } from 'react';
+import { Bullseye, Content } from '@patternfly/react-core';
+import { FunctionComponent } from 'react';
 import logo from '../../assets/logo-kaoto-dark.png';
-import { GIT_DATE, GIT_HASH, KAOTO_VERSION } from '../../version';
+import { About } from '../../components/About/About';
 import './AboutPage.scss';
 
 export const AboutPage: FunctionComponent = () => {
-  const buildDate = useMemo(() => new Date(GIT_DATE), []);
-  const TOOLTIP_PROPS = { variant: TimestampTooltipVariant.default } as const;
-
   return (
     <Bullseye className="about-page">
-      <img className="about-page-icon" src={logo} alt="Kaoto icon" />
-      <Content>
-        <Content component="dl">
-          <Content component="dt">
-            <strong>Version</strong>
-          </Content>
-          <Content component="dd" data-testid="about-version">
-            {KAOTO_VERSION}
-          </Content>
-          <br />
-          <Content component="dt">
-            <strong>Build info</strong>
-          </Content>
-          <Content component="dt">
-            <strong>Git commit hash</strong>
-          </Content>
-          <Content component="dd" data-testid="about-git-commit-hash">
-            {GIT_HASH}
-          </Content>
-          <Content component="dt">
-            <strong>Git last commit date</strong>
-          </Content>
-          <Content component="dd" data-testid="about-git-last-commit-date">
-            <Timestamp
-              date={buildDate}
-              dateFormat={TimestampFormat.full}
-              timeFormat={TimestampFormat.long}
-              tooltip={TOOLTIP_PROPS}
-            />
-          </Content>
+      <img className="about-page-icon" src={logo} alt="Kaoto about page logo" />
+
+      <About>
+        <Content component="dt">
+          <strong>VS Code Kaoto</strong>
         </Content>
-      </Content>
+        <Content component="dt">
+          <strong>Version</strong>
+        </Content>
+        <Content component="dd" data-testid="about-vscode-version">
+          {/* This is only available when running Kaoto through VS Code */}
+          {__VSCODE_KAOTO_VERSION}
+        </Content>
+      </About>
     </Bullseye>
   );
 };
