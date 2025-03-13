@@ -1,0 +1,12 @@
+.about-page {
+  flex-flow: column;
+  justify-content: start;
+
+  img {
+    margin: var(--pf-t--global--spacer--md) 0;
+    border: 1px solid var(--pf-v6-global--palette--black-300);
+    padding: var(--pf-t--global--spacer--sm);
+    border-radius: calc(var(--pf-v6-global--BorderRadius--sm) * 2);
+    height: 7rem;
+  }
+}

@@ -30,6 +30,10 @@ export const kaotoEditorRouter = createHashRouter([
         lazy: async () => import('../pages/DataMapperHowTo'),
       },
       {
+        path: Links.About,
+        lazy: async () => import('../pages/About'),
+      },
+      {
         path: `${Links.DataMapper}/:id`,
         lazy: async () => import('../pages/DataMapper'),
       },

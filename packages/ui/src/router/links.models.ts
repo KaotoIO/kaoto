@@ -2,6 +2,7 @@ export const enum Links {
   Home = '/', // Flows visualization
   SourceCode = '/code', // Flows source code
   DataMapper = '/datamapper',
+  About = '/about',
   Beans = '/beans',
   Rest = '/rest',
   Metadata = '/metadata',
