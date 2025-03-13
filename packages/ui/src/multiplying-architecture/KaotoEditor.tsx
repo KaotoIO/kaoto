@@ -1,5 +1,5 @@
 import { Icon, Tab, TabTitleIcon, TabTitleText, Tabs, TabsProps } from '@patternfly/react-core';
-import { CodeIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -17,14 +17,15 @@ const enum TabList {
   Metadata,
   ErrorHandler,
   KaotoDataMapper,
+  About,
 }
 
 const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
-  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.KaotoDataMapper],
-  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper],
+  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.KaotoDataMapper, TabList.About],
+  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper, TabList.About],
   [SourceSchemaType.Integration]: [],
-  [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
-  [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler],
+  [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
+  [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
 };
 
 export const KaotoEditor = () => {
@@ -46,6 +47,7 @@ export const KaotoEditor = () => {
         metadata: false,
         errorHandler: false,
         kaotoDataMapper: false,
+        about: false,
       };
     }
 
@@ -55,6 +57,7 @@ export const KaotoEditor = () => {
       metadata: SCHEMA_TABS[resource.getType()].indexOf(TabList.Metadata) >= 0,
       errorHandler: SCHEMA_TABS[resource.getType()].indexOf(TabList.ErrorHandler) >= 0,
       kaotoDataMapper: SCHEMA_TABS[resource.getType()].indexOf(TabList.KaotoDataMapper) >= 0,
+      about: SCHEMA_TABS[resource.getType()].indexOf(TabList.About) >= 0,
     };
   }, [resource]);
 
@@ -160,6 +163,24 @@ export const KaotoEditor = () => {
                 </>
               }
               aria-label="DataMapper"
+            />
+          </Link>
+        )}
+
+        {availableTabs.about && (
+          <Link data-testid="about-tab" to={Links.About}>
+            <Tab
+              id="about-tab"
+              eventKey={Links.About}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <QuestionIcon />
+                  </TabTitleIcon>
+                  <TabTitleText>About</TabTitleText>
+                </>
+              }
+              aria-label="About"
             />
           </Link>
         )}
