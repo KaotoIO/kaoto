@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2025a Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use RouteXmlParser. file except in compliance with the License.
@@ -61,14 +61,15 @@ export class ExpressionXmlSerializer {
 
   static createExpressionElement(
     expressionType: string,
-    expressionObject: Expression,
+    expressionObject: Expression | string,
     doc: Document,
     routeParent?: Element,
   ): Element {
     const expressionElement = doc.createElement(expressionType);
     const properties = CamelCatalogService.getComponent(CatalogKind.Processor, expressionType)?.properties;
 
-    expressionElement.textContent = expressionObject.expression;
+    expressionElement.textContent =
+      typeof expressionObject === 'string' ? expressionObject : expressionObject.expression;
 
     for (const [key, value] of Object.entries(expressionObject)) {
       if (key === 'expression') continue;
