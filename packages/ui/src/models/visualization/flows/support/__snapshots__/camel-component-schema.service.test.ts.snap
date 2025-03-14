@@ -978,7 +978,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "group": {
         "$comment": "group:common",
-        "description": "The group that this route belongs to; could be the name of the RouteBuilder class or be explicitly configured in the XML. May be null.",
+        "description": "The group name for this route. Multiple routes can belong to the same group.",
         "title": "Group",
         "type": "string",
       },
@@ -1507,6 +1507,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "logLanguage": {
+        "$comment": "group:advanced",
+        "description": "To configure the language to use. By default, the simple language is used. However, Camel also supports other languages such as groovy.",
+        "title": "Log Language",
         "type": "string",
       },
       "logName": {
@@ -2937,6 +2943,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "logLanguage": {
+        "$comment": "group:advanced",
+        "description": "To configure the language to use. By default, the simple language is used. However, Camel also supports other languages such as groovy.",
+        "title": "Log Language",
         "type": "string",
       },
       "logName": {
