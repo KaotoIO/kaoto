@@ -11,7 +11,7 @@ export class OnFallbackNodeMapper extends BaseNodeMapper {
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): IVisualizationNode {
-    const processorName: keyof ProcessorDefinition = 'onFallback';
+    const processorName = 'onFallback' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
       path,

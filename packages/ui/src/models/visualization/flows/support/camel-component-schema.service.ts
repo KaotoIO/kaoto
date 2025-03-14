@@ -171,8 +171,8 @@ export class CamelComponentSchemaService {
 
   static getProcessorStepsProperties(processorName: keyof ProcessorDefinition): CamelProcessorStepsProperties[] {
     switch (processorName) {
-      /** choice */ case 'when':
-      /** choice */ case 'otherwise':
+      /** choice */ case 'when' as keyof ProcessorDefinition:
+      /** choice */ case 'otherwise' as keyof ProcessorDefinition:
       /** doTry */ case 'doCatch':
       /** doTry */ case 'doFinally':
       case 'aggregate':
@@ -180,13 +180,13 @@ export class CamelComponentSchemaService {
       case 'loadBalance':
       case 'loop':
       case 'multicast':
-      case 'onFallback':
+      case 'onFallback' as keyof ProcessorDefinition:
       case 'pipeline':
       case 'resequence':
       case 'saga':
       case 'split':
       case 'step':
-      case 'whenSkipSendToEndpoint':
+      case 'whenSkipSendToEndpoint' as keyof ProcessorDefinition:
       case 'from' as keyof ProcessorDefinition:
       case /** routeConfiguration */ 'intercept' as keyof ProcessorDefinition:
       case /** routeConfiguration */ 'interceptFrom' as keyof ProcessorDefinition:
