@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { describe } from 'node:test';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
@@ -70,6 +69,17 @@ describe('ExpressionSerialisation tests', () => {
         simple: { expression: 'a=b' },
       },
     };
+    const expected = `<when><simple>a=b</simple></when>`;
+    const element = doc.createElement('when');
+    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    testSerializer(expected, element);
+  });
+
+  it('serialize simple expression with text definition', () => {
+    const entity = {
+      simple: 'a=b',
+    };
+
     const expected = `<when><simple>a=b</simple></when>`;
     const element = doc.createElement('when');
     ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
