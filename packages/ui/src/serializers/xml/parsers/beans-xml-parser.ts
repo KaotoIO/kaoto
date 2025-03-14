@@ -50,12 +50,12 @@ export class BeansXmlParser {
 
     if (!constructorsElement) return undefined;
 
-    Array.from(constructorsElement.children).forEach((constructorElement) => {
+    Array.from(constructorsElement.children).forEach((constructorElement, index) => {
       const constructorIndex = constructorElement.getAttribute('index');
       const constructorValue = constructorElement.getAttribute('value');
 
-      if (constructorIndex && constructorValue) {
-        constructors = { ...constructors, [constructorIndex]: constructorValue };
+      if (constructorValue) {
+        constructors = { ...constructors, [constructorIndex ?? index]: constructorValue };
       }
     });
 

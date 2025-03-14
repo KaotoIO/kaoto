@@ -50,6 +50,22 @@ describe('BeanXmlParser', () => {
     });
   });
 
+  it('parse bean constructors without index defined', () => {
+    const beansElement = getElementFromXml(`
+        <bean>
+        <constructors>
+            <constructor value="true"/>
+            <constructor value="Hello World"/>
+        </constructors>
+        </bean>`);
+
+    const result = BeansXmlParser.parseBeanConstructors(beansElement);
+    expect(result).toEqual({
+      '0': 'true',
+      '1': 'Hello World',
+    });
+  });
+
   it('parse Properties correctly ', () => {
     const beanProperties = getElementFromXml(`<bean> <properties>
             <property key="field1" value="f1_p" />
