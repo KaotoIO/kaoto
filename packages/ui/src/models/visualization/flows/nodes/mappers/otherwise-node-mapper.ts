@@ -11,7 +11,7 @@ export class OtherwiseNodeMapper extends BaseNodeMapper {
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): IVisualizationNode {
-    const processorName: keyof ProcessorDefinition = 'otherwise';
+    const processorName = 'otherwise' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
       path,

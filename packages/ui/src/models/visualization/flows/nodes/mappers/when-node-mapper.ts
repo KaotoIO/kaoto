@@ -11,7 +11,7 @@ export class WhenNodeMapper extends BaseNodeMapper {
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): IVisualizationNode {
-    const processorName: keyof ProcessorDefinition = 'when';
+    const processorName = 'when' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
       path,

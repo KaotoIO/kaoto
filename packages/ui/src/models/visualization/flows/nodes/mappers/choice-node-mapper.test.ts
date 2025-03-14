@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { ChoiceNodeMapper } from './choice-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
@@ -15,8 +15,8 @@ describe('ChoiceNodeMapper', () => {
     const whenNodeMapper = new WhenNodeMapper(rootNodeMapper);
     const otherwiseNodeMapper = new OtherwiseNodeMapper(rootNodeMapper);
     rootNodeMapper.registerDefaultMapper(mapper);
-    rootNodeMapper.registerMapper('when', whenNodeMapper);
-    rootNodeMapper.registerMapper('otherwise', otherwiseNodeMapper);
+    rootNodeMapper.registerMapper('when' as keyof ProcessorDefinition, whenNodeMapper);
+    rootNodeMapper.registerMapper('otherwise' as keyof ProcessorDefinition, otherwiseNodeMapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
     mapper = new ChoiceNodeMapper(rootNodeMapper);

@@ -111,7 +111,7 @@ export class CamelComponentDefaultService {
                 message: "\${body}"
         `);
 
-      case 'when':
+      case 'when' as keyof ProcessorDefinition:
         return parse(`
         id: ${getCamelRandomId('when')}
         expression:
@@ -141,7 +141,7 @@ export class CamelComponentDefaultService {
                 message: "\${body}"
         `);
 
-      case 'otherwise':
+      case 'otherwise' as keyof ProcessorDefinition:
       case 'doFinally':
         return parse(`
         id: ${getCamelRandomId(processorName)}
