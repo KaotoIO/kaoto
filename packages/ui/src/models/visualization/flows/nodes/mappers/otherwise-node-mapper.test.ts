@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -36,7 +36,11 @@ describe('OtherwiseNodeMapper', () => {
   });
 
   it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'otherwise' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(
+      path,
+      { processorName: 'otherwise' as keyof ProcessorDefinition },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()).toHaveLength(1);
   });

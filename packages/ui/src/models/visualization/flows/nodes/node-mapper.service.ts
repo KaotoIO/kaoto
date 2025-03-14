@@ -1,3 +1,4 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
@@ -37,10 +38,16 @@ export class NodeMapperService {
     this.rootNodeMapper = new RootNodeMapper();
     this.rootNodeMapper.registerDefaultMapper(new BaseNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('circuitBreaker', new CircuitBreakerNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('onFallback', new OnFallbackNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper(
+      'onFallback' as keyof ProcessorDefinition,
+      new OnFallbackNodeMapper(this.rootNodeMapper),
+    );
     this.rootNodeMapper.registerMapper('choice', new ChoiceNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('when', new WhenNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('otherwise', new OtherwiseNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('when' as keyof ProcessorDefinition, new WhenNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper(
+      'otherwise' as keyof ProcessorDefinition,
+      new OtherwiseNodeMapper(this.rootNodeMapper),
+    );
     this.rootNodeMapper.registerMapper('step', new StepNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));

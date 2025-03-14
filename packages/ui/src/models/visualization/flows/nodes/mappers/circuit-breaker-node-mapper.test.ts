@@ -1,4 +1,4 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { CircuitBreakerNodeMapper } from './circuit-breaker-node-mapper';
 import { OnFallbackNodeMapper } from './on-fallback-node-mapper';
@@ -13,7 +13,7 @@ describe('CircuitBreakerNodeMapper', () => {
     const rootNodeMapper = new RootNodeMapper();
     const onFallbackNodeMapper = new OnFallbackNodeMapper(rootNodeMapper);
     rootNodeMapper.registerDefaultMapper(mapper);
-    rootNodeMapper.registerMapper('onFallback', onFallbackNodeMapper);
+    rootNodeMapper.registerMapper('onFallback' as keyof ProcessorDefinition, onFallbackNodeMapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
     mapper = new CircuitBreakerNodeMapper(rootNodeMapper);
