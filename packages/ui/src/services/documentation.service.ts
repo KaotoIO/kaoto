@@ -31,22 +31,6 @@ import { PipeParser } from './parsers/pipe-parser';
 import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
 
 export class DocumentationService {
-  static readonly MD_LICENSE_HEADER: ReadonlyArray<string> = [
-    'Copyright \\(C\\) 2024 Red Hat, Inc.',
-    '',
-    'Licensed under the Apache License, Version 2.0 \\(the "License"\\);',
-    'you may not use this file except in compliance with the License.',
-    'You may obtain a copy of the License at',
-    '',
-    '      https://www.apache.org/licenses/LICENSE-2.0',
-    '',
-    'Unless required by applicable law or agreed to in writing, software',
-    'distributed under the License is distributed on an "AS IS" BASIS,',
-    'WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
-    'See the License for the specific language governing permissions and',
-    'limitations under the License.',
-  ];
-
   static generateDocumentationZip(flowImage: Blob, markdownText: string, fileNameBase: string): Promise<Blob> {
     const imageFileName = fileNameBase + '.png';
     const markdownFileName = fileNameBase + '.md';
@@ -73,13 +57,7 @@ export class DocumentationService {
   }
 
   static generateMarkdown(documentationEntities: DocumentationEntity[], flowImageFileName: string) {
-    const markdown: MarkdownEntry[] = [
-      ' ',
-      ...DocumentationService.MD_LICENSE_HEADER.map((line) => `[comment]: # (${line})`),
-      ' ',
-      { h1: 'Diagram' },
-      { img: { alt: 'Diagram', source: flowImageFileName } },
-    ];
+    const markdown: MarkdownEntry[] = [{ h1: 'Diagram' }, { img: { alt: 'Diagram', source: flowImageFileName } }];
 
     documentationEntities.forEach((entity) => {
       const parsedTables = DocumentationService.parseEntity(entity);
