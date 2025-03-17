@@ -75,7 +75,8 @@ export class StepXmlSerializer {
 
     this.serializeObjectProperties(element, doc, camelElement, properties, routeParent);
 
-    if (elementName === 'doTry') {
+    // process doTry element only when doCatch and doFinally are not present in the catalog
+    if (elementName === 'doTry' && !properties['doCatch'] && !properties['doFinally']) {
       this.decorateDoTry(camelElement as DoTry, element, doc);
     }
 

@@ -35,9 +35,9 @@ describe('RouteXmlParser', () => {
 
   it('transforms intercept element correctly', () => {
     const interceptElement = getElementFromXml(` <intercept id="intercept1">
-      <when>
+      <onWhen>
           <simple>\${in.body} contains 'Hello'</simple>
-      </when>
+      </onWhen>
       <to uri="mock:intercepted"/>
   </intercept>`);
 
@@ -45,7 +45,7 @@ describe('RouteXmlParser', () => {
     expect(result).toEqual({
       intercept: {
         id: 'intercept1',
-        when: { simple: { expression: "${in.body} contains 'Hello'" } },
+        onWhen: { simple: { expression: "${in.body} contains 'Hello'" } },
         steps: [{ to: { uri: 'mock:intercepted' } }],
       },
     });

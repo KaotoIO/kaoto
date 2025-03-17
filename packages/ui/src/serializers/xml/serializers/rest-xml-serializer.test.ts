@@ -18,13 +18,13 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getDocument, testSerializer } from './serializer-test-utils';
+import { getDocument, testSerializerWithObjectComparison, testSerializer } from './serializer-test-utils';
 import { RestXmlSerializer } from './rest-xml-serializer';
 import path from 'path';
 import fs from 'fs';
 import { restWithVerbsStup } from '../../../stubs/rest';
 
-describe('RestXmlParser tests', () => {
+describe('RestXmlParser tests with latest catalog', () => {
   const doc = getDocument();
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -59,5 +59,51 @@ describe('RestXmlParser tests', () => {
     const rest = RestXmlSerializer.serialize(restWithVerbsStup, doc);
     expect(rest).toBeDefined();
     testSerializer(expected, rest);
+  });
+});
+
+describe('simulate old catalog', () => {
+  const doc = getDocument();
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+
+    //simulate old catalog
+    delete catalogsMap.modelCatalogMap['get'].properties.param;
+    delete catalogsMap.modelCatalogMap['get'].properties.responseMessage;
+    delete catalogsMap.modelCatalogMap['get'].properties.security;
+    expect(catalogsMap.modelCatalogMap['get'].properties.param).not.toBeDefined();
+
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+  });
+
+  it('serialize param', () => {
+    const entity = {
+      get: [
+        {
+          param: [
+            { name: 'name', type: 'query', required: 'true' },
+            { name: 'name2', type: 'query', required: 'true', defaultValue: 'blah' },
+          ],
+        },
+      ],
+    };
+    const expected = `<rest>
+    <get>
+       <param name="name" type="query" required="true"/>
+       <param name="name2" type="query" defaultValue="blah" required="true"/>
+    </get></rest>`;
+    const rest = RestXmlSerializer.serialize(entity, doc);
+    expect(rest).toBeDefined();
+    testSerializer(expected, rest);
+    testSerializerWithObjectComparison(expected, rest);
+  });
+
+  it('serialize full rest', () => {
+    const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
+    const expected = fs.readFileSync(xmlFilePath, 'utf-8');
+
+    const rest = RestXmlSerializer.serialize(restWithVerbsStup, doc);
+    expect(rest).toBeDefined();
+    testSerializerWithObjectComparison(expected, rest);
   });
 });
