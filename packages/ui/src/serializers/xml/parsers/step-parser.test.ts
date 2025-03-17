@@ -60,19 +60,22 @@ import {
   splitEntity,
   throttleEntity,
 } from '../../../stubs/eip-entity-snippets';
+import { getDocument } from '../serializers/serializer-test-utils';
 
 describe('parser basics', () => {
   let mockDocument: Document;
-  let spyComponent: jest.SpyInstance;
 
   beforeEach(() => {
     mockDocument = document.implementation.createDocument(null, null, null);
-    spyComponent = jest.spyOn(CamelCatalogService, 'getComponent');
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    spyComponent.mockRestore();
+  });
+
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });
 
   describe('parseSteps', () => {
@@ -104,16 +107,26 @@ describe('parser basics', () => {
     });
   });
 
+  it('should return a valid processor model for log', () => {
+    const element = getDocument().createElement('log');
+    const result = StepParser.getProcessorModel(element);
+
+    expect(result.processorName).toBe('log');
+    expect(result.processorModel).toBeDefined();
+  });
+
+  it('should handle onWhen elements properly', () => {
+    const element = getDocument().createElement('onWhen');
+    const result = StepParser.getProcessorModel(element);
+
+    expect(result.processorName).toBe('onWhen');
+    expect(result.processorModel).toBeDefined();
+  });
+
   describe('parseElement', () => {
     it('should parse element with attributes', () => {
       const element = mockDocument.createElement('log');
       element.setAttribute('message', 'test');
-
-      (CamelCatalogService.getComponent as jest.Mock).mockReturnValue({
-        properties: {
-          message: { kind: 'attribute' },
-        },
-      });
 
       const result = StepParser.parseElement(element);
       expect(result).toHaveProperty('message', 'test');
@@ -128,15 +141,6 @@ describe('parser basics', () => {
       const element = mockDocument.createElement('choice');
       const when = mockDocument.createElement('when');
       element.appendChild(when);
-
-      (CamelCatalogService.getComponent as jest.Mock).mockReturnValue({
-        properties: {
-          when: {
-            kind: 'expression',
-            type: 'object',
-          },
-        },
-      });
 
       const result = StepParser.parseElement(element);
       expect(result).toHaveProperty('when');
@@ -209,22 +213,25 @@ describe('parser basics', () => {
   describe('special cases', () => {
     it('should handle intercept elements', () => {
       const interceptElement = mockDocument.createElement('interceptFrom');
-      const whenElement = mockDocument.createElement('when');
+      const whenElement = mockDocument.createElement('onWhen');
       interceptElement.appendChild(whenElement);
 
-      (CamelCatalogService.getComponent as jest.Mock).mockReturnValue({
-        properties: {},
-      });
+      const result = StepParser.parseElement(interceptElement) as { onWhen?: unknown };
+      expect(result.onWhen).toBeDefined();
+    });
 
-      const result = StepParser.parseElement(interceptElement) as { when?: unknown };
-      expect(result.when).toBeDefined();
+    it('should handle intercept elements', () => {
+      const interceptElement = getDocument(
+        '<intercept id="intercept1"><onWhen><simple>${in.body} contains \'Hello\'</simple></onWhen><to uri="mock:intercepted"/></intercept>',
+      ).documentElement;
+
+      const result = StepParser.parseElement(interceptElement) as { onWhen?: unknown };
+      expect(result.onWhen).toBeDefined();
     });
 
     it('should handle missing catalog entries', () => {
       const unknownElement = mockDocument.createElement('unknownProcessor');
       unknownElement.setAttribute('someAttr', 'value');
-
-      (CamelCatalogService.getComponent as jest.Mock).mockReturnValue(null);
 
       const result = StepParser.parseElement(unknownElement) as { someAttr?: string };
       expect(result.someAttr).toBe('value');
@@ -367,5 +374,48 @@ describe('Route EIPs xml parsing', () => {
   it.each(testCases)('Parse $name', ({ xml, entity }) => {
     const result = transformElement(xml);
     expect(result).toEqual(entity);
+  });
+});
+
+describe('Route EIPs xml parsing with the simulated old catalog', () => {
+  let transformElement: (element: string) => unknown;
+
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    delete catalogsMap.modelCatalogMap['doTry'].properties.doCatch;
+    delete catalogsMap.modelCatalogMap['doTry'].properties.doFinally;
+    delete catalogsMap.modelCatalogMap['intercept'].properties.onWhen;
+    delete catalogsMap.modelCatalogMap['onWhen'];
+
+    expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).not.toBeDefined();
+    expect(catalogsMap.modelCatalogMap['onWhen']).not.toBeDefined();
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    transformElement = (element: string) => {
+      const xmlDoc = getElementFromXml(element);
+      return StepParser.parseElement(xmlDoc);
+    };
+  });
+
+  it('should handle onWhen elements properly', () => {
+    const element = getDocument().createElement('onWhen');
+    const result = StepParser.getProcessorModel(element);
+
+    expect(result.processorName).toBe('when');
+    expect(result.processorModel).toBeDefined();
+  });
+
+  it('test test doTry', () => {
+    const result = transformElement(doTryXml);
+    expect(result).toEqual(doTryEntity);
+  });
+
+  it('should handle intercept elements', () => {
+    const interceptElement = getDocument(
+      '<intercept id="intercept1"><when><simple>${in.body} contains \'Hello\'</simple></when><to uri="mock:intercepted"/></intercept>',
+    ).documentElement;
+
+    const result = StepParser.parseElement(interceptElement) as { when?: unknown };
+    expect(result.when).toBeDefined();
   });
 });

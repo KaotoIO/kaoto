@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { XMLParser } from 'fast-xml-parser';
 import { XmlFormatter } from '../utils/xml-formatter';
 
 export const normalizeXml = (xml: string) =>
@@ -23,9 +24,9 @@ export const normalizeXml = (xml: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-export const getDocument = () => {
+export const getDocument = (xmlString = '') => {
   const parser = new DOMParser();
-  return parser.parseFromString('', 'text/xml');
+  return parser.parseFromString(xmlString, 'text/xml');
 };
 
 export const testSerializer = (expectedXML: string, result: Element) => {
@@ -33,5 +34,13 @@ export const testSerializer = (expectedXML: string, result: Element) => {
   const resultString = XmlFormatter.formatXml(xmlSerializer.serializeToString(result));
   const expected = XmlFormatter.formatXml(expectedXML);
   expect(result).toBeDefined();
-  expect(normalizeXml(resultString)).toEqual(normalizeXml(expected));
+  expect(XmlFormatter.formatXml(normalizeXml(resultString))).toEqual(XmlFormatter.formatXml(normalizeXml(expected)));
+};
+export const testSerializerWithObjectComparison = (expectedXML: string, result: Element) => {
+  const xmlSerializer: XMLSerializer = new XMLSerializer();
+  const xmlParser = new XMLParser();
+  const expected = xmlParser.parse(expectedXML);
+  const resultObj = xmlParser.parse(xmlSerializer.serializeToString(result));
+  expect(resultObj).toBeDefined();
+  expect(resultObj).toEqual(expected);
 };

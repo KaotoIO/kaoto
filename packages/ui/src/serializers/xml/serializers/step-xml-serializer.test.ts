@@ -102,7 +102,7 @@ describe('step-xml-serializer tests', () => {
       const step = stepString as unknown as ElementType;
 
       const result = StepXmlSerializer.serialize(name, step, getDocument());
-      console.log(result.children);
+
       expect(result.tagName).toBe(name);
       expect(result.getAttribute(attributeName)).toBe(stepString);
     });
@@ -164,6 +164,14 @@ describe('step-xml-serializer tests', () => {
       expect(result.tagName).toBe('from');
       expect(result.getAttribute('uri')).toBe('file:data?noop=true&recursive=true&delete=false');
     });
+
+    it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {
+      const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
+      StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+
+      expect(decorateDoTrySpy).not.toHaveBeenCalled();
+      decorateDoTrySpy.mockRestore();
+    });
   });
 
   describe('Serialize EIP elements', () => {
@@ -195,6 +203,40 @@ describe('step-xml-serializer tests', () => {
       const resultString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(result)));
       const expectedString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(expected)));
       expect(resultString).toEqual(expectedString);
+    });
+  });
+
+  describe('Test with simulated old catalog', () => {
+    beforeAll(async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      delete catalogsMap.modelCatalogMap['doTry'].properties.doCatch;
+      delete catalogsMap.modelCatalogMap['doTry'].properties.doFinally;
+
+      expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).not.toBeDefined();
+      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    });
+
+    it('should call decorateDoTry when doCatch and doFinally are not in the catalog', () => {
+      const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
+      const document = getDocument();
+      StepXmlSerializer.serialize('doTry', doTryEntity, document);
+
+      expect(decorateDoTrySpy).toHaveBeenCalledTimes(1);
+      expect(decorateDoTrySpy).toHaveBeenCalledWith(
+        expect.objectContaining(doTryEntity),
+        expect.any(Element),
+        document,
+      );
+
+      decorateDoTrySpy.mockRestore();
+    });
+
+    it('should decorate doTry element correctly', () => {
+      const result = StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+      const doCatchElement = result.getElementsByTagName('doCatch')[0];
+
+      expect(doCatchElement).toBeDefined();
+      expect(doCatchElement.getElementsByTagName('to')[0].getAttribute('uri')).toBe('mock:catch');
     });
   });
 });
