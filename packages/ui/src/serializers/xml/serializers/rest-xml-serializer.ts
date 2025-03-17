@@ -16,6 +16,7 @@
 
 import { StepXmlSerializer } from './step-xml-serializer';
 import { Rest } from '@kaoto/camel-catalog/types';
+import { CamelCatalogService, CatalogKind } from '../../../models';
 
 export class RestXmlSerializer {
   private static readonly REST_ELEMENT_NAME = 'rest';
@@ -24,7 +25,6 @@ export class RestXmlSerializer {
   private static readonly MISSING_PROPERTIES = ['param', 'security', 'responseMessage'];
 
   static serialize(rest: { [key: string]: unknown }, doc: Document): Element {
-    console.log('rest', rest);
     const element = StepXmlSerializer.serialize(RestXmlSerializer.REST_ELEMENT_NAME, rest, doc);
 
     let restObject = rest as unknown as Rest;
@@ -48,6 +48,9 @@ export class RestXmlSerializer {
   private static handleMissingProperties(element: Element, rest: { [key: string]: unknown }, doc: Document) {
     for (const prop of this.MISSING_PROPERTIES) {
       if (!rest[prop] || this.containsMissingProperty(prop, element)) continue;
+      // if the property is in catalog, it's already handled by step serializer
+      if (CamelCatalogService.getComponent(CatalogKind.Processor, prop)?.properties[prop]) continue;
+
       (rest[prop] as unknown[]).forEach((propInstance) => {
         element.appendChild(
           StepXmlSerializer.serialize(prop, propInstance as { [key: string]: unknown }, doc, element),
