@@ -1,8 +1,6 @@
 import { ICamelProcessorProperty } from '../../../models';
 
 export const PROCESSOR_NAMES: Map<string, string> = new Map([
-  // necessary for different definition names
-  ['onWhen', 'when'],
   // route configuration
   ['templateBean', 'beanFactory'],
   // rest configuration

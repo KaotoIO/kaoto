@@ -15,7 +15,7 @@
  */
 
 import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
 import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
 
@@ -38,10 +38,23 @@ export class StepParser {
       });
   }
 
+  static getProcessorModel(element: Element): {
+    processorName: string;
+    processorModel: ICamelProcessorDefinition | undefined;
+  } {
+    let processorName = PROCESSOR_NAMES.get(element.tagName) ?? element.tagName;
+    let processorModel = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
+    if (processorName === 'onWhen' && !processorModel) {
+      processorModel = CamelCatalogService.getComponent(CatalogKind.Processor, 'when');
+      processorName = 'when';
+    }
+    return { processorName, processorModel };
+  }
+
   static parseElement(element: Element, transformer?: ElementTransformer): unknown {
     if (!element) return {};
-    const processorName = PROCESSOR_NAMES.get(element.tagName) ?? element.tagName;
-    const processorModel = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
+
+    const { processorName, processorModel } = this.getProcessorModel(element);
 
     //Some elements are not defined in the catalog even if they are defined in the schemas, so we need to extract them as plain objects
     if (!processorModel) {
@@ -78,7 +91,7 @@ export class StepParser {
     });
 
     // handle cases that aren't defined in catalog or are defined incorrectly
-    this.handleSpecialCases(processorName, element, processor);
+    this.handleSpecialCases(processorName, element, processor, processorModel.properties);
 
     return processor;
   }
@@ -187,12 +200,17 @@ export class StepParser {
     processor['doFinally'] = doFinallyElement;
   }
 
-  private static handleSpecialCases(processorName: string, element: Element, processor: { [p: string]: unknown }) {
+  private static handleSpecialCases(
+    processorName: string,
+    element: Element,
+    processor: { [p: string]: unknown },
+    processorProperties: Record<string, ICamelProcessorProperty>,
+  ) {
     //  doTry properties are missing in the catalog up to 4.9
-    if (processorName === 'doTry') {
+    if (processorName === 'doTry' && !processorProperties['doCatch'] && !processorProperties['doFinally']) {
       this.decorateDoTry(element, processor);
     }
-    if (processorName.includes('intercept')) {
+    if (processorName.includes('intercept') && !processorProperties['onWhen']) {
       this.decorateIntercept(element, processor);
     }
   }
