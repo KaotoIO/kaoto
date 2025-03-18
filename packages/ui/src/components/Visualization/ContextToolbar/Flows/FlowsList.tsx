@@ -64,7 +64,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
     <Table className="flows-list-table" variant="compact" data-testid="flows-list-table">
-      <Thead>
+      <Thead noWrap>
         <Tr>
           <Th>{columnNames.current.id}</Th>
           <Th>
