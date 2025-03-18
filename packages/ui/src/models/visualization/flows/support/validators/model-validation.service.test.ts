@@ -23,6 +23,12 @@ describe('ModelValidationService', () => {
             },
           },
           {
+            setHeader: {
+              id: 'test',
+              constant: {},
+            },
+          },
+          {
             to: {
               description: 'azz',
               uri: 'kamelet:kafka-not-secured-sink',
@@ -54,13 +60,23 @@ describe('ModelValidationService', () => {
     });
 
     it('should return a validation text pointing to multiple missing properties', () => {
-      const model = camelRoute.route.from.steps[1].to;
-      const path = 'route.from.steps[1].to';
+      const model = camelRoute.route.from.steps[2].to;
+      const path = 'route.from.steps[2].to';
       const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
       const result = ModelValidationService.validateNodeStatus(schema);
 
       expect(result).toEqual('2 required parameters are not yet configured: [ topic,bootstrapServers ]');
+    });
+
+    it('should return a validation text for setheader pointing to multiple missing properties', () => {
+      const model = camelRoute.route.from.steps[1].setHeader;
+      const path = 'route.from.steps[1].setHeader';
+      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
+
+      const result = ModelValidationService.validateNodeStatus(schema);
+
+      expect(result).toEqual('2 required parameters are not yet configured: [ expression,name ]');
     });
 
     it('should return an empty string if there is no missing property', () => {

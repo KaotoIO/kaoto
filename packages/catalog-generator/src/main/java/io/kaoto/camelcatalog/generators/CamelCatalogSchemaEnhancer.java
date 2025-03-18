@@ -74,6 +74,7 @@ public class CamelCatalogSchemaEnhancer {
         modelOptions.forEach(option -> {
             if (option.isRequired() && modelNode.has("properties")
                     && modelNode.get("properties").has(option.getName())
+                    && !modelNode.get("properties").get(option.getName()).isEmpty()
                     && !requiredProperties.contains(option.getName())) {
                 requiredProperties.add(option.getName());
             }
