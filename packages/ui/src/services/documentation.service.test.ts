@@ -150,7 +150,7 @@ describe('DocumentationService', () => {
         '|         | from       | timer           | timerName          | tutorial                |',
       );
       expect(markdown).toContain('# Beans');
-      expect(markdown).toContain('| myBean  | io.kaoto.MyBean | p1            | p1v            |');
+      expect(markdown).toContain('| myBean  | io.kaoto.MyBean | p1            |                | p1v   |');
     });
 
     it('should generate kamelet markdown', () => {
