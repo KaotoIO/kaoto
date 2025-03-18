@@ -37,7 +37,7 @@ export class ModelValidationService {
     );
     const missingProperties = validationResult
       .filter((result) => result.type === 'missingRequired')
-      .map((result) => (result.parentPath ? `${result.parentPath}.${result.propertyName}` : result.propertyName));
+      .map((result) => result.propertyName);
 
     if (missingProperties.length > 0) {
       message =
@@ -82,7 +82,7 @@ export class ModelValidationService {
         const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
         // TODO
         if (propertySchema.type === 'array') return;
-        if (model[propertyName] && propertySchema.$ref) {
+        if (model?.[propertyName] && propertySchema.$ref) {
           const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
           const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
           answer.push(

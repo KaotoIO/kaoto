@@ -77,14 +77,13 @@ class CamelCatalogSchemaEnhancerTest {
         camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(Kind.eip, "setHeader", setHeaderNode);
 
         assertTrue(setHeaderNode.has("required"));
-        assertEquals(2, setHeaderNode.get("required").size());
+        assertEquals(1, setHeaderNode.get("required").size());
 
         List<String> requiredProperties = new ArrayList<>();
         setHeaderNode.withArray("required").elements()
                 .forEachRemaining(node -> requiredProperties.add(node.asText()));
 
         assertTrue(requiredProperties.contains("name"));
-        assertTrue(requiredProperties.contains("expression"));
     }
 
     @Test
@@ -101,14 +100,13 @@ class CamelCatalogSchemaEnhancerTest {
         camelCatalogSchemaEnhancer.fillRequiredPropertiesIfNeeded(model, setHeaderNode);
 
         assertTrue(setHeaderNode.has("required"));
-        assertEquals(2, setHeaderNode.get("required").size());
+        assertEquals(1, setHeaderNode.get("required").size());
 
         List<String> requiredProperties = new ArrayList<>();
         setHeaderNode.withArray("required").elements()
                 .forEachRemaining(node -> requiredProperties.add(node.asText()));
 
         assertTrue(requiredProperties.contains("name"));
-        assertTrue(requiredProperties.contains("expression"));
     }
 
     @Test

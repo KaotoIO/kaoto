@@ -21,6 +21,7 @@ export const AutoField: FunctionComponent<FieldProps> = ({ propName, required, o
   const isFieldDefined = isDefined(value);
   const isComplexFieldType =
     schema.type === 'object' || schema.type === 'array' || 'oneOf' in schema || 'anyOf' in schema;
+  // If required is not defined, it is considered as required
   const isFieldRequired = !isDefined(required) || (isDefined(required) && required);
   const shouldLoadField = isFieldRequired || (isFieldDefined && isComplexFieldType);
 

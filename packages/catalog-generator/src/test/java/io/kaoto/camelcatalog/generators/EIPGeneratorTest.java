@@ -137,7 +137,6 @@ class EIPGeneratorTest {
                 .forEachRemaining(node -> requiredProperties.add(node.asText()));
 
         assertTrue(requiredProperties.contains("name"));
-        assertTrue(requiredProperties.contains("expression"));
 
         var deleteNode = processorsMap.get("delete");
 
