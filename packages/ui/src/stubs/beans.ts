@@ -12,6 +12,20 @@ export const beansYaml = `
         p1s1: p1s1v
 `;
 
+export const beansWithParamsYaml = `
+- beans:
+    - builderClass: test
+      builderMethod: test
+      destroyMethod: test
+      factoryBean: test
+      factoryMethod: test
+      initMethod: test
+      name: test
+      properties:
+        foo: bar
+      type: java.util.Timer
+`;
+
 export const beansJson = {
   beans: [
     {

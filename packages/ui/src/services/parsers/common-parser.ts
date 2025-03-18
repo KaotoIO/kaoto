@@ -160,11 +160,12 @@ export class CommonParser {
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   static parseParameters(
-    model: Record<string, any>,
+    model?: Record<string, any>,
     excluded: ReadonlyArray<string> = [],
     prefix?: string,
   ): Record<string, string> {
     const answer: Record<string, string> = {};
+    if (!model) return answer;
     Object.entries(model)
       .filter(([key]) => !excluded.includes(key))
       .forEach(([key, value]) => {
