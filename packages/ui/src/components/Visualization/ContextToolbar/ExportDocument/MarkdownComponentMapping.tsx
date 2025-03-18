@@ -58,7 +58,9 @@ export const markdownComponentMapping: Components = {
   ),
   td: ({ children }) => (
     <Td hasLeftBorder hasRightBorder modifier="breakWord">
-      {children}
+      <pre>
+        <code>{children}</code>
+      </pre>
     </Td>
   ),
 };

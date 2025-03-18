@@ -16,6 +16,7 @@ import { restOperationsYaml } from '../stubs/rest-operations';
 import { routeConfigurationFullYaml } from '../stubs/route-configuration-full';
 import { EventNotifier } from '../utils';
 import { DocumentationService } from './documentation.service';
+import { kameletWithMultilineXmlPropYaml } from '../stubs/kamelet-with-multiline-xml-prop';
 
 describe('DocumentationService', () => {
   let eventNotifier: EventNotifier;
@@ -167,6 +168,14 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('# Dependencies');
       expect(markdown).toContain('## Metadata : Labels');
       expect(markdown).toContain('## Metadata : Annotations');
+    });
+
+    it('should generate markdown for kamelet with multiline property and XML', () => {
+      const documentationEntities = createDocumentationEntitiesFromYaml(kameletWithMultilineXmlPropYaml);
+      const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
+
+      expect(markdown).toContain('<strong>sample</strong>');
+      expect(markdown).toContain('foo&#10;<Some>aaa</Some>&#10;bbb');
     });
 
     it('should generate aws-cloudtail-source kamelet markdown', () => {

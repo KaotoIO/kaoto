@@ -78,7 +78,7 @@ export class DocumentationService {
     const rows: TableRow[] = parsedTable.data.reduce((acc, rowData) => {
       const row: TableRow = {};
       for (let colIndex = 0; colIndex < parsedTable.headers.length; colIndex++) {
-        row[parsedTable.headers[colIndex]] = rowData[colIndex];
+        row[parsedTable.headers[colIndex]] = DocumentationService.escapeValue(rowData[colIndex]);
       }
       acc.push(row);
       return acc;
@@ -94,6 +94,11 @@ export class DocumentationService {
         },
         {},
       );
+  }
+
+  private static escapeValue(value: string | number): string {
+    if (!value || typeof value !== 'string') return value as string;
+    return value.replace(/{(\r\n)|\r|\n/g, '&#10;');
   }
 
   private static parseEntity(documentationEntity: DocumentationEntity): ParsedTable[] | ParsedTable | undefined {
