@@ -29,6 +29,7 @@ public class CamelCatalogSchemaEnhancer {
 
     private final CamelCatalog camelCatalog;
     private final Map<String, String> JAVA_TYPE_TO_MODEL_NAME = new HashMap<>();
+    private final Map<String, String> MODEL_NAME_TO_JAVA_TYPE = new HashMap<>();
     ObjectMapper jsonMapper = new ObjectMapper();
 
     public CamelCatalogSchemaEnhancer(CamelCatalog camelCatalog) {
@@ -199,6 +200,18 @@ public class CamelCatalogSchemaEnhancer {
         return camelCatalog.eipModel(JAVA_TYPE_TO_MODEL_NAME.get(javaType));
     }
 
+    String getJavaTypeByModelName(String modelName) {
+        String javaType = MODEL_NAME_TO_JAVA_TYPE.get(modelName);
+        if (javaType == null) {
+            EipModel model = camelCatalog.eipModel(modelName);
+            if (model != null) {
+                javaType = model.getJavaType();
+                MODEL_NAME_TO_JAVA_TYPE.put(modelName, javaType);
+            }
+        }
+        return javaType;
+    }
+
     /**
      * Fill the JSON schema details of the model in the schema
      *
@@ -245,6 +258,7 @@ public class CamelCatalogSchemaEnhancer {
             EipModel model = camelCatalog.eipModel(modelName);
             if (model != null) {
                 JAVA_TYPE_TO_MODEL_NAME.put(model.getJavaType(), modelName);
+                MODEL_NAME_TO_JAVA_TYPE.put(modelName, model.getJavaType());
             }
         });
     }

@@ -23,7 +23,7 @@ import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.Kind;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +61,8 @@ public class EIPGenerator implements Generator {
         getEIPNames().forEach(eipName -> {
             var processorJSON = getModelJson(eipName);
             if (processorJSON != null) {
-                var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
+                String javaType = camelCatalogSchemaEnhancer.getJavaTypeByModelName(eipName);
+                var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName, javaType);
                 processorJSON.set("propertiesSchema", processorJSONSchema);
 
                 enhanceJSONSchema(eipName, processorJSONSchema);
@@ -117,7 +118,8 @@ public class EIPGenerator implements Generator {
      * @return the list of EIP names
      */
     List<String> getEIPNames() {
-        List<String> eipNames = new ArrayList<>();
+        // List<String> eipNames = new ArrayList<>();
+        HashSet<String> eipNames = new HashSet<>();
         var eipsIterator = this.camelYamlSchemaNode.get("items").get("definitions")
                 .get("org.apache.camel.model.ProcessorDefinition")
                 .get("properties")
@@ -128,7 +130,11 @@ public class EIPGenerator implements Generator {
             eipNames.add(entry.getKey());
         }
 
-        return eipNames;
+        eipNames.add("when");
+        eipNames.add("otherwise");
+        eipNames.add("onFallback");
+
+        return eipNames.stream().toList();
     }
 
     /**

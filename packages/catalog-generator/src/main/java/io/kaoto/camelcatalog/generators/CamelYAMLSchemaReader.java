@@ -42,17 +42,15 @@ public class CamelYAMLSchemaReader {
      * 2. Resolve the initial $ref
      * 3. Evaluate all fields recursively and inline all the required definitions
      *
-     * @param eipName the name of the EIP to get the JSON schema for
+     * @param javaType the javaType of the EIP to get the JSON schema for
      * @return the JSON schema for a given Processor, with the initial $ref resolved and all the required definitions inlined
      */
-    public ObjectNode getEIPJSONSchema(String eipName) {
-        var processorNodeRef = (ObjectNode) camelYamlSchemaNode.get("items")
+    public ObjectNode getEIPJSONSchema(String eipName, String javaType) {
+        var eipJsonSchema = (ObjectNode) camelYamlSchemaNode.get("items")
                 .get("definitions")
-                .get("org.apache.camel.model.ProcessorDefinition")
-                .get("properties")
-                .get(eipName);
-
-        return getJSONSchema(eipName, processorNodeRef);
+                .get(javaType)
+                .deepCopy();
+        return processNodeSchemaObject(eipName, eipJsonSchema);
     }
 
     /**
@@ -83,13 +81,17 @@ public class CamelYAMLSchemaReader {
             return null;
         }
 
+        var resolvedNode = getResolvedNode(processorNodeRef);
+        return this.processNodeSchemaObject(processorName, resolvedNode);
+
+    }
+
+    private ObjectNode processNodeSchemaObject(String processorName, ObjectNode schemaNode) {
         var processorSchemaNode = jsonMapper.createObjectNode();
         var processorSchemaDefinitionsNode = jsonMapper.createObjectNode();
 
-        var resolvedNode = getResolvedNode(processorNodeRef);
-
-        schemaPropertyFilter.schemaPropertyFilter(processorName, resolvedNode);
-        processorSchemaNode.setAll(resolvedNode);
+        schemaPropertyFilter.schemaPropertyFilter(processorName, schemaNode);
+        processorSchemaNode.setAll(schemaNode);
 
         inlineDefinitions(processorSchemaNode, processorSchemaDefinitionsNode);
         if (!processorSchemaDefinitionsNode.isEmpty()) {
@@ -162,7 +164,7 @@ public class CamelYAMLSchemaReader {
                 if (property.has("$ref")) {
                     addRefDefinition(property, definitions);
                 } else if (property.has("items") && property.get("items").has("$ref") && !entry.getKey().equals("steps")) {
-                    var refParent = (ObjectNode)  property.get("items");
+                    var refParent = (ObjectNode) property.get("items");
                     addRefDefinition(refParent, definitions);
                 }
             });

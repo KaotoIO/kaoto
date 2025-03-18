@@ -33,7 +33,7 @@ class CamelYAMLSchemaReaderTest {
     @Test
     void shouldReturnJSONSchemaForEIP() {
         var eipName = "resequence";
-        var eipSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName);
+        var eipSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName, "org.apache.camel.model.ResequenceDefinition");
 
         assertNotNull(eipSchema);
         assertTrue(eipSchema.has("properties"));
@@ -42,7 +42,7 @@ class CamelYAMLSchemaReaderTest {
 
     @Test
     void shouldInlineDefinitions() {
-        var eipSchemaForResequence = camelYAMLSchemaReader.getEIPJSONSchema("resequence");
+        var eipSchemaForResequence = camelYAMLSchemaReader.getEIPJSONSchema("resequence","org.apache.camel.model.ResequenceDefinition");
 
         assertTrue(eipSchemaForResequence.has("definitions"));
         var definitionsNode = (ObjectNode) eipSchemaForResequence.get("definitions");
@@ -56,14 +56,14 @@ class CamelYAMLSchemaReaderTest {
 
     @Test
     void shouldNotSetDefinitions() {
-        var eipSchemaForBean = camelYAMLSchemaReader.getEIPJSONSchema("bean");
+        var eipSchemaForBean = camelYAMLSchemaReader.getEIPJSONSchema("bean","org.apache.camel.model.BeanDefinition");
 
         assertFalse(eipSchemaForBean.has("definitions"));
     }
 
     @Test
     void shouldRenameRefPath() {
-        var eipSchemaForAggregate = camelYAMLSchemaReader.getEIPJSONSchema("aggregate");
+        var eipSchemaForAggregate = camelYAMLSchemaReader.getEIPJSONSchema("aggregate","org.apache.camel.model.AggregateDefinition");
 
         assertTrue(eipSchemaForAggregate.has("properties"));
         var propertiesNode = (ObjectNode) eipSchemaForAggregate.get("properties");
@@ -78,7 +78,7 @@ class CamelYAMLSchemaReaderTest {
 
     @Test()
     void shouldRemoveStringSchemasFromOneOf() {
-        var toEipSchema = camelYAMLSchemaReader.getEIPJSONSchema("to");
+        var toEipSchema = camelYAMLSchemaReader.getEIPJSONSchema("to","org.apache.camel.model.ToDefinition");
 
         assertFalse(toEipSchema.has("anyOf"));
         assertTrue(toEipSchema.has("properties"));
