@@ -18,7 +18,6 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
     cy.interactWithConfigInputObject('roundRobinLoadBalancer.id', 'roundRobinId');
     cy.interactWithConfigInputObject('id', 'testId');
     cy.interactWithConfigInputObject('description', 'loadBalancerDescription');
-    cy.interactWithConfigInputObject('inheritErrorHandler');
     cy.closeStepConfigurationTab();
 
     cy.selectInsertNode('loadBalancerDescription');
@@ -37,7 +36,6 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
       'parameters: {}',
       'uri: log:InfoLogger',
       'description: loadBalancerDescription',
-      'inheritErrorHandler: true',
       'id: testId',
       'roundRobinLoadBalancer:',
       'id: roundRobinId',
