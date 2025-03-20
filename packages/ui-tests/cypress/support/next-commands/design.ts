@@ -167,3 +167,13 @@ Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
       cy.get('.pf-v6-c-label__text').should('contain', version);
     });
 });
+
+Cypress.Commands.add('switchCodeToXml', () => {
+  cy.get('[data-testid="serializer-list-dropdown"]').click();
+  cy.get('[data-testid="serializer-yaml"]').contains('XML').click();
+});
+
+Cypress.Commands.add('switchCodeToYaml', () => {
+  cy.get('[data-testid="serializer-list-dropdown"]').click();
+  cy.get('[data-testid="serializer-yaml"]').contains('YAML').click();
+});

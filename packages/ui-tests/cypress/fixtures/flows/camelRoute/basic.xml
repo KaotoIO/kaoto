@@ -1,0 +1,8 @@
+<camel>
+  <route id="camel-route">
+    <from uri="timer:test" />
+    <setHeader name="test" />
+    <marshal id="marshal-1234" />
+    <to uri="log:test" />
+  </route>
+</camel>

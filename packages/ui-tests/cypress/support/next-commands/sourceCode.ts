@@ -68,7 +68,8 @@ Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
   cy.get('.monaco-editor')
     .invoke('text')
     .then(($value) => {
-      const linesArray = $value.split(/\s{4,}/).map((line) => line.trim());
+      const linesArray = $value.split(/\s{2,}/).map((line) => line.trim());
+      // deep include to check if all the lines are present in the editor
       expect(linesArray).to.deep.include.members(modifiedTextContent);
     });
 });
