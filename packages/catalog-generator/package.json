@@ -22,8 +22,8 @@
     "build:mvn": "./mvnw clean package --no-transfer-progress",
     "build:catalog": "node ./scripts/build-catalogs.mjs",
     "build:default:catalog": "yarn run build:mvn; yarn run build:catalog",
-    "build:ts": "node --loader ts-node/esm ./scripts/json-schema-to-typescript.mts",
-    "lint": "yarn eslint \"scripts/**/*.{mts,ts}\"",
+    "build:ts": "node ./scripts/json-schema-to-typescript.mjs",
+    "lint": "yarn eslint \"scripts/*.mjs\"",
     "lint:fix": "yarn lint --fix",
     "clean": "yarn rimraf ./dist"
   },

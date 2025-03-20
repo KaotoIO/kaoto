@@ -1,10 +1,11 @@
 // @ts-check
 import { writeFile } from 'node:fs/promises';
-import packageJson from '../package.json' assert { type: 'json' };
-import versionJson from '../src/version.json' assert { type: 'json' };
+import { createRequire } from 'module';
+const packageJson = createRequire(import.meta.url)('../package.json');
+const versionJson = createRequire(import.meta.url)('../src/version.json');
 
 const main = async () => {
-  const { getLastCommitInfo } = await import('./get-last-commit-info.js');
+  const { getLastCommitInfo } = await import('./get-last-commit-info.mjs');
   const gitInfo = await getLastCommitInfo();
 
   /**
