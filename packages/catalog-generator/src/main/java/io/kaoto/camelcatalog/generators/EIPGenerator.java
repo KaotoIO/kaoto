@@ -118,7 +118,6 @@ public class EIPGenerator implements Generator {
      * @return the list of EIP names
      */
     List<String> getEIPNames() {
-        // List<String> eipNames = new ArrayList<>();
         HashSet<String> eipNames = new HashSet<>();
         var eipsIterator = this.camelYamlSchemaNode.get("items").get("definitions")
                 .get("org.apache.camel.model.ProcessorDefinition")
