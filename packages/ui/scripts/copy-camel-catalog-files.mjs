@@ -5,7 +5,7 @@ import { basename, dirname, relative, resolve } from 'node:path';
  * Copy the built Kaoto Camel Catalog files into the assets/camel-catalog folder
  */
 async function copyCamelCatalogFiles(destinationFolder) {
-  const { getCamelCatalogFiles } = await import('./get-camel-catalog-files.js');
+  const { getCamelCatalogFiles } = await import('./get-camel-catalog-files.mjs');
   const { basePath, files: camelCatalogFiles } = getCamelCatalogFiles();
 
   camelCatalogFiles.forEach((file) => {

@@ -1,15 +1,15 @@
 #!/usr/bin/env ts-node
+// @ts-check
 
 /**
  * This script generates TypeScript types from the JSON schemas in the dist folder.
  */
 import { mkdir, writeFile } from 'fs/promises';
-import { JSONSchema, compile } from 'json-schema-to-typescript';
-import { pathToFileURL } from 'node:url';
+import { compile } from 'json-schema-to-typescript';
 import { resolve } from 'path';
 import { rimraf } from 'rimraf';
-import catalogLibraryIndex from '../dist/camel-catalog/index.json' assert { type: 'json' };
-import { CatalogDefinition } from '../dist/types/catalog-index';
+import { createRequire } from 'module';
+const catalogLibraryIndex = createRequire(import.meta.url)('../dist/camel-catalog/index.json');
 
 /** Function to ensure the dist/types folder is created and empty */
 const ensureTypesFolder = async () => {
@@ -19,8 +19,11 @@ const ensureTypesFolder = async () => {
   await mkdir(typesFolder, { recursive: true });
 };
 
-/** Function to compile a JSON schema file to a TypeScript file */
-const compileSchema = async (schemaContent: JSONSchema, name: string, outputFile: string) => {
+/**
+ * Function to compile a JSON schema file to a TypeScript file
+ * @type {(schemaContent: import('json-schema-to-typescript').JSONSchema, name: string, outputFile: string) => Promise<void>}
+ */
+const compileSchema = async (schemaContent, name, outputFile) => {
   const ts = await compile(schemaContent, name);
   await writeFile(outputFile, ts);
 };
@@ -28,8 +31,9 @@ const compileSchema = async (schemaContent: JSONSchema, name: string, outputFile
 /**
  * Function to add a title property for schema properties that doesn't contains it
  * The goal for this is to provide a better naming for the generated types
+ * @type {(schema: import('json-schema-to-typescript').JSONSchema) => void}
  */
-const addTitleToDefinitions = (schema: JSONSchema) => {
+const addTitleToDefinitions = (schema) => {
   if (!schema.items || Array.isArray(schema.items) || !schema.items.definitions) {
     return;
   }
@@ -50,7 +54,8 @@ const addTitleToDefinitions = (schema: JSONSchema) => {
 async function main() {
   await ensureTypesFolder();
 
-  const exportedFiles: string[] = ['catalog-index'];
+  /** @type {string[]} */
+  const exportedFiles = ['catalog-index'];
 
   console.log('---');
   const targetSchemaNames = ['camelYamlDsl', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
@@ -67,8 +72,9 @@ async function main() {
    * [pathToFileURL](https://nodejs.org/api/url.html#url_url_pathtofileurl_path)
    * Related issue: https://github.com/nodejs/node/issues/31710
    */
-  const indexFileUri = pathToFileURL(`./dist/camel-catalog/${indexDefinitionFileName}`).toString();
-  const indexDefinitionContent: CatalogDefinition = (await import(indexFileUri, { assert: { type: 'json' } })).default;
+  const indexFileUri = `../dist/camel-catalog/${indexDefinitionFileName}`;
+  /** @type {import('../dist/types').CatalogDefinition} */
+  const indexDefinitionContent = createRequire(import.meta.url)(indexFileUri);
 
   const schemaPromises = Object.entries(indexDefinitionContent.schemas).map(async ([name, schema]) => {
     if (!targetSchemaNames.includes(name)) {
@@ -77,7 +83,9 @@ async function main() {
 
     const baseFolder = indexFileUri.substring(0, indexFileUri.lastIndexOf('/'));
     const schemaFile = `${baseFolder}/${schema.file}`;
-    const schemaContent = (await import(schemaFile, { assert: { type: 'json' } })).default;
+
+    /** @type {import('json-schema-to-typescript').JSONSchema} */
+    const schemaContent = createRequire(import.meta.url)(schemaFile);
 
     addTitleToDefinitions(schemaContent);
 
