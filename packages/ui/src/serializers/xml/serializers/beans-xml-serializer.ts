@@ -36,25 +36,58 @@ export class BeansXmlSerializer {
     return bean;
   }
 
-  static serializeProperties(properties: unknown, doc: Document) {
-    const propertiesElement = doc.createElement('properties');
-    for (const [key, value] of Object.entries(properties as { [key: string]: string })) {
-      const propertyElement = doc.createElement('property');
-      propertyElement.setAttribute('key', key);
-      propertyElement.setAttribute('value', value);
-      propertiesElement.appendChild(propertyElement);
-    }
-    return propertiesElement;
-  }
-
   static serializeConstructors(constructors: unknown, doc: Document): Element {
     const constructorsElement = doc.createElement('constructors');
     for (const [key, value] of Object.entries(constructors as { [key: string]: string })) {
       const constructorElement = doc.createElement('constructor');
       constructorElement.setAttribute('index', key);
-      constructorElement.setAttribute('value', value);
+      // with undefined I went with the empty string instead of omit the element to keep the index
+      constructorElement.setAttribute('value', value ?? '');
       constructorsElement.appendChild(constructorElement);
     }
+
     return constructorsElement;
+  }
+
+  static serializeProperties(properties: unknown, doc: Document) {
+    const propertiesElement = doc.createElement('properties');
+
+    for (const [propKey, propValue] of Object.entries(properties as { [key: string]: unknown })) {
+      if (propValue === undefined) continue;
+
+      if (typeof propValue === 'object') {
+        const flattened = this.flattenObject(propValue as Record<string, unknown>, propKey);
+
+        for (const { key, value } of flattened) {
+          if (value === undefined) continue;
+          this.appendPropertyElement(doc, propertiesElement, key, value);
+        }
+      } else {
+        this.appendPropertyElement(doc, propertiesElement, propKey, String(propValue));
+      }
+    }
+    return propertiesElement;
+  }
+
+  private static appendPropertyElement(doc: Document, propertiesElement: Element, key: string, value: string) {
+    const propertyElement = doc.createElement('property');
+    propertyElement.setAttribute('key', key);
+    propertyElement.setAttribute('value', value);
+    propertiesElement.appendChild(propertyElement);
+  }
+
+  // Flatten nested objects to a single level e.g {a: {b: {c: 'value'}}} => [{key: 'a.b.c', value: 'value'}]
+  private static flattenObject(obj: Record<string, unknown>, prefix = ''): { key: string; value: string }[] {
+    return Object.entries(obj).reduce(
+      (acc, [key, value]) => {
+        if (value === undefined) return acc;
+
+        if (typeof value === 'object') {
+          return acc.concat(this.flattenObject(value as Record<string, unknown>, `${prefix}.${key}`));
+        }
+        return acc.concat(acc, { key: `${prefix}.${key}`, value: String(value) });
+      },
+      [] as { key: string; value: string }[],
+    );
   }
 }
