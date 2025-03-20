@@ -72,6 +72,8 @@ declare global {
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryNotExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
+      switchCodeToXml(): Chainable<JQuery<Element>>;
+      switchCodeToYaml(): Chainable<JQuery<Element>>;
       // nodeConfiguration
       interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;
