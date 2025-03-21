@@ -1840,7 +1840,8 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "idempotentEager": {
             "$comment": "group:filter",
-            "description": "Option to use the Idempotent Consumer EIP pattern to let Camel skip already processed files. Will by default use a memory based LRUCache that holds 1000 entries. If noop=true then idempotent will be enabled as well to avoid consuming the same files over and over again.",
+            "default": true,
+            "description": "Sets whether to eagerly add the filename to the idempotent repository or wait until the exchange is complete.",
             "title": "Idempotent Eager",
             "type": "boolean",
           },
@@ -2438,7 +2439,8 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "idempotentEager": {
             "$comment": "group:filter",
-            "description": "Option to use the Idempotent Consumer EIP pattern to let Camel skip already processed files. Will by default use a memory based LRUCache that holds 1000 entries. If noop=true then idempotent will be enabled as well to avoid consuming the same files over and over again.",
+            "default": true,
+            "description": "Sets whether to eagerly add the filename to the idempotent repository or wait until the exchange is complete.",
             "title": "Idempotent Eager",
             "type": "boolean",
           },

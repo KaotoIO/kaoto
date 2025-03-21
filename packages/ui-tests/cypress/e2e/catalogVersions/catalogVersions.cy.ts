@@ -4,12 +4,12 @@ describe('Test for catalog versions', () => {
   });
 
   const testData = [
-    { type: 'Main', version: 'Camel Main 4.10.0' },
+    { type: 'Main', version: 'Camel Main 4.10.2' },
     { type: 'Main', version: 'Camel Main 4.4.0.redhat-00046' },
     { type: 'Main', version: 'Camel Main 4.8.0.redhat-00017' },
     { type: 'Main', version: 'Camel Main 4.4.5' },
     { type: 'Main', version: 'Camel Main 4.8.5' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.18.0' },
+    { type: 'Quarkus', version: 'Camel Quarkus 3.19.0' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.15.3' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.8.4' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.15.0.redhat-00007' },
@@ -18,7 +18,7 @@ describe('Test for catalog versions', () => {
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.0.redhat-00022' },
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.4.5' },
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.5' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.10.0' },
+    { type: 'Spring Boot', version: 'Camel Spring Boot 4.10.2' },
   ];
   testData.forEach((data) => {
     it(`Catalog version test for ${data.version}`, { tags: ['weekly'] }, () => {
