@@ -5,6 +5,7 @@ import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { LoadingStatus, LocalStorageKeys } from '../models';
 import { isDefined } from '../utils';
+import { versionCompare } from '../utils/version-compare';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -42,10 +43,18 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
       .then((catalogLibrary: CatalogLibrary) => {
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
         if (isDefined(selectedCatalog)) {
-          catalogLibraryEntry = catalogLibrary.definitions.find((c) => c.name === selectedCatalog.name);
+          catalogLibraryEntry = catalogLibrary.definitions.find(
+            (c: CatalogLibraryEntry) => c.name === selectedCatalog.name,
+          );
         }
         if (!isDefined(catalogLibraryEntry)) {
-          catalogLibraryEntry = catalogLibrary.definitions[0];
+          const redhatMainCatalogs = catalogLibrary.definitions
+            .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
+            .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
+              versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
+            );
+
+          catalogLibraryEntry = redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
         }
 
         setCatalogLibrary(catalogLibrary);
