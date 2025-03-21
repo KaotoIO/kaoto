@@ -37,7 +37,7 @@ describe('ToXMLConverter', () => {
 
   it('Convert single route entity to XML correctly', () => {
     const doc = domParser.parseFromString(
-      `<camel><route id="route-1"><from uri="direct:start"/><to uri="direct:end"/></route></camel>`,
+      `<camel xmlns="http://camel.apache.org/schema/spring"><route id="route-1"><from uri="direct:start"/><to uri="direct:end"/></route></camel>`,
       'application/xml',
     );
 
@@ -57,7 +57,7 @@ describe('ToXMLConverter', () => {
 
   it('Convert error handler to XML correctly', () => {
     const doc = domParser.parseFromString(
-      `<camel><errorHandler><deadLetterChannel deadLetterUri="mock:dead"><redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="250"/></deadLetterChannel></errorHandler></camel>`,
+      `<camel xmlns="http://camel.apache.org/schema/spring"><errorHandler><deadLetterChannel deadLetterUri="mock:dead"><redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="250"/></deadLetterChannel></errorHandler></camel>`,
       'application/xml',
     );
 
@@ -77,7 +77,7 @@ describe('ToXMLConverter', () => {
 
   it('Convert beans ', () => {
     const doc = domParser.parseFromString(
-      `<camel>
+      `<camel xmlns="http://camel.apache.org/schema/spring">
 <beans>
   <bean name="test" type="bean" destroyMethod="destroy" factoryBean="ff" builderClass="com.example.MyBean">
     <properties>

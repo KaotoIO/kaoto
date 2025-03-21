@@ -31,11 +31,22 @@ export class KaotoXmlSerializer {
     return routeElement;
   }
 
-  static serialize(entityDefinitions: EntityDefinition[]): Document {
+  static serialize(
+    entityDefinitions: EntityDefinition[],
+    rootElementDefinitions?: { name: string; value: string }[],
+  ): Document {
     const parser = new DOMParser();
     const doc: XMLDocument = parser.parseFromString('<camel></camel>', 'text/xml');
-
     const rootElement = doc.documentElement;
+
+    if (rootElementDefinitions && rootElementDefinitions.length > 0) {
+      rootElementDefinitions.forEach((rootElementDef) => {
+        rootElement.setAttribute(rootElementDef.name, rootElementDef.value);
+      });
+    } else {
+      rootElement.setAttribute('xmlns', 'http://camel.apache.org/schema/spring');
+    }
+
     const beans = doc.createElement('beans');
 
     entityDefinitions.forEach((entity) => {

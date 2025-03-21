@@ -1,15 +1,20 @@
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel/camel-resource';
 import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
-import { CamelResourceSerializer, SerializerType } from './camel-resource-serializer';
+import { CamelResourceSerializer, Metadata, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import { EntityType } from '../models/camel/entities';
 import { EntityDefinition } from './xml/serializers/entitiy-definition';
 import { XmlFormatter } from './xml/utils/xml-formatter';
 
+export type XMLMetadata = {
+  xmlDeclaration: string;
+  rootElementDefinitions: { name: string; value: string }[];
+};
+
 export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   private comments: string[] = [];
-  private xmlDeclaration: string = '';
+  private metadata: XMLMetadata = { xmlDeclaration: '', rootElementDefinitions: [] };
   xmlSerializer: XMLSerializer = new XMLSerializer();
 
   private static readonly COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
@@ -26,10 +31,13 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
     const xmlParser = new KaotoXmlParser();
 
-    this.xmlDeclaration = this.parseXmlDeclaration(code as string);
-    const codeWithoutDeclaration = (code as string).replace(this.xmlDeclaration, '');
+    this.metadata.xmlDeclaration = this.parseXmlDeclaration(code as string);
+
+    const codeWithoutDeclaration = (code as string).replace(this.metadata.xmlDeclaration, '');
     this.extractComments(codeWithoutDeclaration);
+    this.metadata.rootElementDefinitions = xmlParser.parseRootElementDefinitions(codeWithoutDeclaration);
     const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
+
     return entities as CamelYamlDsl;
   }
 
@@ -39,11 +47,10 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];
     entities.push(...(resource.getVisualEntities() as EntityDefinition[]));
 
-    const xmlDocument = KaotoXmlSerializer.serialize(entities);
-    let xmlString = this.xmlSerializer.serializeToString(xmlDocument);
-    xmlString = (this.xmlDeclaration !== '' ? this.xmlDeclaration + '\n' : '') + this.insertComments(xmlString);
-
-    return XmlFormatter.formatXml(xmlString);
+    const xmlDocument = KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
+    const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
+    const formattedString = XmlFormatter.formatXml(xmlString);
+    return this.getXmlDeclaration() + this.insertComments(formattedString);
   }
 
   getComments(): string[] {
@@ -54,12 +61,12 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     this.comments = comments;
   }
 
-  getMetadata(): string {
-    return this.xmlDeclaration;
+  getMetadata(): Metadata {
+    return this.metadata;
   }
 
-  setMetadata(metadata: string): void {
-    this.xmlDeclaration = metadata;
+  setMetadata(metadata: Metadata): void {
+    this.metadata = metadata as XMLMetadata;
   }
 
   private extractComments(xml: string): void {
@@ -85,5 +92,10 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
   private insertComments(xml: string): string {
     const commentsString = this.comments.map((comment) => `<!-- ${comment} -->`).join('\n');
     return commentsString ? commentsString + '\n' + xml : xml;
+  }
+
+  private getXmlDeclaration(): string {
+    if (!this.metadata.xmlDeclaration || this.metadata.xmlDeclaration === '') return '';
+    return this.metadata.xmlDeclaration + '\n';
   }
 }

@@ -1,7 +1,7 @@
 import { isXML } from './xml/kaoto-xml-parser';
 import { CamelResource } from '../models/camel';
 import { parse, stringify } from 'yaml';
-import { CamelResourceSerializer, SerializerType } from './camel-resource-serializer';
+import { CamelResourceSerializer, Metadata, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
@@ -17,7 +17,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
    */
   static readonly COMMENTED_LINES_REGEXP = /^\s*#.*$/;
   comments: string[] = [];
-  metadata: string = '';
+  metadata: Metadata = {};
 
   static isApplicable(code: unknown): boolean {
     return !isXML(code);
@@ -51,11 +51,11 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     this.comments = comments;
   }
 
-  setMetadata(metadata: string): void {
+  setMetadata(metadata: Metadata): void {
     this.metadata = metadata;
   }
 
-  getMetadata(): string {
+  getMetadata(): Metadata {
     return this.metadata;
   }
 
