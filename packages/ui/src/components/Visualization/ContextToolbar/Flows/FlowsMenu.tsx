@@ -22,41 +22,36 @@ export const FlowsMenu: FunctionComponent = () => {
   };
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
-    <MenuToggle
-      data-testid="flows-list-dropdown"
-      ref={toggleRef}
-      onClick={onToggleClick}
-      isFullWidth
-      splitButtonItems={[
-        <MenuToggleAction
-          id="flows-list-btn"
-          key="flows-list-btn"
-          data-testid="flows-list-btn"
-          aria-label="flows list"
-          onClick={onToggleClick}
-        >
-          <div className="flows-menu">
-            <Icon isInline>
-              <ListIcon />
-            </Icon>
-            <span
-              title={singleFlowId ?? 'Routes'}
-              data-testid="flows-list-route-id"
-              className="pf-v6-u-m-sm flows-menu-display"
-            >
-              {`${singleFlowId ?? 'Routes'}`}
-            </span>
-            <Badge
-              title={`Showing ${visibleFlowsCount} out of ${totalFlowsCount} flows`}
-              data-testid="flows-list-route-count"
-              isRead
-            >
-              {visibleFlowsCount}/{totalFlowsCount}
-            </Badge>
-          </div>
-        </MenuToggleAction>,
-      ]}
-    />
+    <MenuToggle data-testid="flows-list-dropdown" ref={toggleRef} onClick={onToggleClick} isFullWidth>
+      <MenuToggleAction
+        id="flows-list-btn"
+        key="flows-list-btn"
+        data-testid="flows-list-btn"
+        aria-label="flows list"
+        onClick={onToggleClick}
+        className="flows-list-btn"
+      >
+        <div className="flows-menu">
+          <Icon isInline>
+            <ListIcon />
+          </Icon>
+          <span
+            title={singleFlowId ?? 'Routes'}
+            data-testid="flows-list-route-id"
+            className="pf-v6-u-m-sm flows-menu-display"
+          >
+            {`${singleFlowId ?? 'Routes'}`}
+          </span>
+          <Badge
+            title={`Showing ${visibleFlowsCount} out of ${totalFlowsCount} flows`}
+            data-testid="flows-list-route-count"
+            isRead
+          >
+            {visibleFlowsCount}/{totalFlowsCount}
+          </Badge>
+        </div>
+      </MenuToggleAction>
+    </MenuToggle>
   );
 
   return (
