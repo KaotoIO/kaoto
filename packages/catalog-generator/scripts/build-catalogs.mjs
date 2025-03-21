@@ -18,7 +18,7 @@ const CATALOGS = {
   Main: [
     //
     '4.10.0',
-    '4.8.3',
+    '4.8.5',
     '4.4.5',
     '4.8.0.redhat-00017',
     '4.4.0.redhat-00046',
@@ -28,7 +28,7 @@ const CATALOGS = {
   Quarkus: [
     //
     '3.18.0', // Camel 4.9.0
-    '3.15.2', // Camel 4.8.3
+    '3.15.3', // Camel 4.8.5
     '3.8.4', // Camel 4.4.4
     '3.15.0.redhat-00007', // Camel 4.8.0.redhat-00015
     '3.8.0.redhat-00018', // Camel 4.4.0.redhat-00046
@@ -38,7 +38,7 @@ const CATALOGS = {
   SpringBoot: [
     //
     '4.10.0',
-    '4.8.3',
+    '4.8.5',
     '4.4.5',
     '4.8.0.redhat-00022',
     '4.4.0.redhat-00039',
