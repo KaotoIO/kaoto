@@ -39,6 +39,15 @@ export const shipOrderToShipOrderInvalidForEachXslt = fs
 export const shipOrderEmptyFirstLineXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
   .toString();
+export const x12837PDfdlXsd = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))
+  .toString();
+export const message837Xsd = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/Message837.xsd'))
+  .toString();
+export const x12837PXslt = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837.xsl'))
+  .toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {

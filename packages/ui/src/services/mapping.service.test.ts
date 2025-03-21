@@ -11,9 +11,9 @@ import {
 } from '../models/datamapper/mapping';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { DocumentType } from '../models/datamapper/path';
-import { XmlSchemaDocument } from './xml-schema-document.service';
+import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 import { IDocument } from '../models/datamapper/document';
-import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { message837Xsd, shipOrderToShipOrderXslt, TestUtil, x12837PDfdlXsd, x12837PXslt } from '../stubs/data-mapper';
 import { XPathService } from './xpath/xpath.service';
 
 describe('MappingService', () => {
@@ -313,6 +313,51 @@ describe('MappingService', () => {
       expect(links[9].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Quantity-.*/);
       expect(links[10].sourceNodePath).toMatch('Price');
       expect(links[10].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Price-.*/);
+    });
+
+    it('should generate mapping links for the cached type fragments field', () => {
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        'X12-837P.dfdl.xsd',
+        x12837PDfdlXsd,
+      );
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.TARGET_BODY,
+        'Message837.xsd',
+        message837Xsd,
+      );
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      MappingSerializerService.deserialize(x12837PXslt, targetDoc, tree, paramsMap);
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(14);
+      expect(links[0].sourceNodePath).toMatch('field-GS-02');
+      expect(links[0].targetNodePath).toMatch('field-From');
+      expect(links[1].sourceNodePath).toMatch('field-GS-03');
+      expect(links[1].targetNodePath).toMatch('field-To');
+      expect(links[2].sourceNodePath).toMatch('field-GS-04');
+      expect(links[2].targetNodePath).toMatch('field-Date');
+      expect(links[3].sourceNodePath).toMatch('field-GS-05');
+      expect(links[3].targetNodePath).toMatch('field-Time');
+      expect(links[4].sourceNodePath).toMatch('field-Loop2000');
+      expect(links[4].targetNodePath).toMatch('for-each');
+      expect(links[5].sourceNodePath).toMatch('field-CLM-01');
+      expect(links[5].targetNodePath).toMatch('field-SubmitterId');
+      expect(links[6].sourceNodePath).toMatch('field-CLM-02');
+      expect(links[6].targetNodePath).toMatch('field-MonetaryAmount');
+      expect(links[7].sourceNodePath).toMatch('field-C023-01');
+      expect(links[7].targetNodePath).toMatch('field-FacilityCodeValue');
+      expect(links[8].sourceNodePath).toMatch('field-C023-02');
+      expect(links[8].targetNodePath).toMatch('field-FacilityCodeQualifier');
+      expect(links[9].sourceNodePath).toMatch('field-C023-03');
+      expect(links[9].targetNodePath).toMatch('field-ClaimFrequencyTypeCode');
+      expect(links[10].sourceNodePath).toMatch('field-CLM-06');
+      expect(links[10].targetNodePath).toMatch('field-YesNoConditionOrResponseCodeFile');
+      expect(links[11].sourceNodePath).toMatch('field-CLM-07');
+      expect(links[11].targetNodePath).toMatch('field-ProviderAcceptAssignmentCode');
+      expect(links[12].sourceNodePath).toMatch('field-CLM-08');
+      expect(links[12].targetNodePath).toMatch('field-YesNoConditionOrResponseCodeBenefits');
+      expect(links[13].sourceNodePath).toMatch('field-CLM-09');
+      expect(links[13].targetNodePath).toMatch('field-ReleaseOfInformationCode');
     });
   });
 });

@@ -122,7 +122,10 @@ export class DocumentService {
     let parent: IDocument | IField = document;
     for (const segment of pathSegments) {
       if (!segment) continue;
-      const child: IField | undefined = parent.fields.find((f) => DocumentService.getFieldExpression(f) === segment);
+      const child: IField | undefined = parent.fields.find((f) => {
+        const resolvedField = DocumentService.resolveTypeFragment(f);
+        return DocumentService.getFieldExpression(resolvedField) === segment;
+      });
       if (!child) {
         return undefined;
       }
