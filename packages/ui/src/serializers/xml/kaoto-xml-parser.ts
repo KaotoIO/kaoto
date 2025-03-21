@@ -107,4 +107,51 @@ export class KaotoXmlParser {
 
     return rawEntities;
   }
+  parseRootElementDefinitions(xml: string): { name: string; value: string }[] {
+    const rootElementDeclarations = [];
+    const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
+    const rootElement = xmlDoc.documentElement;
+
+    for (let i = 0; i < rootElement.attributes.length; i++) {
+      const attr = rootElement.attributes[i];
+      let value = attr.value;
+
+      // Special handling for schemaLocation which can contain multiple URI pairs
+      if (attr.name === 'schemaLocation' || attr.name.endsWith(':schemaLocation')) {
+        // Normalize whitespace in schemaLocation values (preserve pairs)
+        value = this.normalizeSchemaLocation(value);
+      } else {
+        // For other attributes, just trim and normalize whitespace
+        value = value.trim().replace(/\s+/g, ' ');
+      }
+
+      rootElementDeclarations.push({ name: attr.name, value: value });
+    }
+
+    return rootElementDeclarations;
+  }
+
+  /**
+   * Normalizes a schema location attribute value, which consists of pairs of URIs
+   * Each pair contains a namespace URI followed by a schema location URI
+   */
+  private normalizeSchemaLocation(value: string): string {
+    // Split by any whitespace and filter out empty items
+    const items = value.split(/\s+/).filter((item) => item.trim().length > 0);
+
+    // Group into pairs (each pair is namespace + schema location)
+    const pairs: string[] = [];
+    for (let i = 0; i < items.length; i += 2) {
+      if (i + 1 < items.length) {
+        // We have a complete pair
+        pairs.push(`${items[i]} ${items[i + 1]}`);
+      } else {
+        // Odd number of items, add the last one alone
+        pairs.push(items[i]);
+      }
+    }
+
+    // Join pairs with spaces between them
+    return pairs.join(' ');
+  }
 }
