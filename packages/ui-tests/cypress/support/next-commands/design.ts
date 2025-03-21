@@ -148,6 +148,7 @@ Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
   cy.waitSchemasLoading();
 
   cy.get('[data-testid="visualization-empty-state"]').should('exist');
+  // Wait for the element to become visible
   cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
 });
 
