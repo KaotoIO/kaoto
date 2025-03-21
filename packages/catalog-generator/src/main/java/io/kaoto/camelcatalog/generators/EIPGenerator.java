@@ -126,7 +126,9 @@ public class EIPGenerator implements Generator {
 
         while (eipsIterator.hasNext()) {
             var entry = eipsIterator.next();
-            eipNames.add(entry.getKey());
+            if (!"whenSkipSendToEndpoint".equals(entry.getKey())) {
+                eipNames.add(entry.getKey());
+            }
         }
 
         eipNames.add("when");
