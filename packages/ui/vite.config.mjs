@@ -4,8 +4,8 @@ import { dirname, relative } from 'node:path';
 import { defineConfig, normalizePath } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
-import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files';
-import { getLastCommitInfo } from './scripts/get-last-commit-info';
+import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files.mjs';
+import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
 // https://vitejs.dev/config/
 
