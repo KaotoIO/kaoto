@@ -8,10 +8,6 @@ import {
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { useState } from 'react';
-import aggregate from '../../cypress/fixtures/aggregate.json';
-import cronSource from '../../cypress/fixtures/cronSource.json';
-import activeMq from '../../cypress/fixtures/activeMq.json';
-import box from '../../cypress/fixtures/box.json';
 
 const ContextDecorator = (Story: StoryFn) => (
   <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
@@ -24,6 +20,46 @@ const ContextDecorator = (Story: StoryFn) => (
     </SchemasLoaderProvider>
   </RuntimeProvider>
 );
+
+const aggregateTile = {
+  type: 'processor',
+  name: 'aggregate',
+  title: 'Aggregate',
+  description: 'Aggregates many messages into a single message',
+  headerTags: ['Processor'],
+  tags: ['eip', 'routing'],
+};
+
+const cronSourceTile = {
+  type: 'kamelet',
+  name: 'cron-source',
+  title: 'Cron Source',
+  description: 'Send events at specific time.',
+  headerTags: ['Kamelet', 'Stable'],
+  tags: ['source'],
+  version: '4.9.0',
+};
+
+const amqpTile = {
+  type: 'component',
+  name: 'amqp',
+  title: 'AMQP',
+  description: 'Messaging with AMQP protocol using Apache QPid Client.',
+  headerTags: ['Component', 'Stable'],
+  tags: ['messaging'],
+  version: '4.8.0.redhat-00017',
+};
+
+const fhirTile = {
+  type: 'component',
+  name: 'fhir',
+  title: 'FHIR',
+  description:
+    'Exchange information in the healthcare domain using the FHIR (Fast Healthcare Interoperability Resources) standard.',
+  headerTags: ['Component', 'Stable'],
+  tags: ['api'],
+  version: '4.8.0.redhat-00017',
+};
 
 export default {
   title: 'Components/PropertiesModal',
@@ -39,20 +75,20 @@ const Template: StoryFn<typeof PropertiesModal> = (args) => {
 
 export const ProcessorPropertiesModal = Template.bind({});
 ProcessorPropertiesModal.args = {
-  tile: aggregate as ITile,
+  tile: aggregateTile as ITile,
 };
 
 export const SmallKameletPropertiesModal = Template.bind({});
 SmallKameletPropertiesModal.args = {
-  tile: cronSource as ITile,
+  tile: cronSourceTile as ITile,
 };
 
 export const LargeComponentPropertiesModal = Template.bind({});
 LargeComponentPropertiesModal.args = {
-  tile: activeMq as ITile,
+  tile: amqpTile as ITile,
 };
 
 export const LargeComponentPropertiesModalWithApi = Template.bind({});
 LargeComponentPropertiesModalWithApi.args = {
-  tile: box as ITile,
+  tile: fhirTile as ITile,
 };
