@@ -79,6 +79,14 @@ class EIPGeneratorTest {
     }
 
     @Test
+    void shouldNotGetWhenSkipSendToEndpoint() {
+        var processorList = eipGenerator.getEIPNames();
+
+        assertFalse(processorList.contains("whenSkipSendToEndpoint"));
+    }
+
+
+    @Test
     void shouldGetModelJson() {
         var postJson = eipGenerator.getModelJson("post");
 
@@ -279,7 +287,7 @@ class EIPGeneratorTest {
     void shouldSetExpressionFormatToPropertyExpressionDefinition() {
         var processorsMap = eipGenerator.generate();
 
-        var oneOfNode= processorsMap.get("saga").withObject("propertiesSchema").withObject("definitions")
+        var oneOfNode = processorsMap.get("saga").withObject("propertiesSchema").withObject("definitions")
                 .withObject("org.apache.camel.model.PropertyExpressionDefinition").withArray("anyOf").get(0);
 
         assertTrue(oneOfNode.has("format"));
