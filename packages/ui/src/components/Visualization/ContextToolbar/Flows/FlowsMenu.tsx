@@ -1,4 +1,4 @@
-import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
+import { Badge, Icon, MenuToggle, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
@@ -22,35 +22,30 @@ export const FlowsMenu: FunctionComponent = () => {
   };
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
-    <MenuToggle data-testid="flows-list-dropdown" ref={toggleRef} onClick={onToggleClick} isFullWidth>
-      <MenuToggleAction
-        id="flows-list-btn"
-        key="flows-list-btn"
-        data-testid="flows-list-btn"
-        aria-label="flows list"
-        onClick={onToggleClick}
-        className="flows-list-btn"
+    <MenuToggle
+      isFullWidth
+      data-testid="flows-list-dropdown"
+      className="flows-menu"
+      ref={toggleRef}
+      onClick={onToggleClick}
+    >
+      <Icon isInline>
+        <ListIcon />
+      </Icon>
+      <span
+        title={singleFlowId ?? 'Routes'}
+        data-testid="flows-list-route-id"
+        className="pf-v6-u-m-sm flows-menu-display"
       >
-        <div className="flows-menu">
-          <Icon isInline>
-            <ListIcon />
-          </Icon>
-          <span
-            title={singleFlowId ?? 'Routes'}
-            data-testid="flows-list-route-id"
-            className="pf-v6-u-m-sm flows-menu-display"
-          >
-            {`${singleFlowId ?? 'Routes'}`}
-          </span>
-          <Badge
-            title={`Showing ${visibleFlowsCount} out of ${totalFlowsCount} flows`}
-            data-testid="flows-list-route-count"
-            isRead
-          >
-            {visibleFlowsCount}/{totalFlowsCount}
-          </Badge>
-        </div>
-      </MenuToggleAction>
+        {`${singleFlowId ?? 'Routes'}`}
+      </span>
+      <Badge
+        title={`Showing ${visibleFlowsCount} out of ${totalFlowsCount} flows`}
+        data-testid="flows-list-route-count"
+        isRead
+      >
+        {visibleFlowsCount}/{totalFlowsCount}
+      </Badge>
     </MenuToggle>
   );
 
