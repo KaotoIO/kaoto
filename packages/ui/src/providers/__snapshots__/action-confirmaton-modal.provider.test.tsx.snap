@@ -2,10 +2,9 @@
 
 exports[`ActionConfirmationModalProvider should allow consumers to update the modal title and text 1`] = `
 <div
-  aria-describedby="pf-modal-part-4"
-  aria-labelledby="pf-modal-part-3"
+  aria-labelledby="pf-modal-part-2"
   aria-modal="true"
-  class="pf-v6-c-modal-box pf-m-warning pf-m-sm"
+  class="pf-v6-c-modal-box pf-m-sm"
   data-ouia-component-id="ActionConfirmationModal"
   data-ouia-component-type="PF6/ModalContent"
   data-ouia-safe="true"
@@ -47,8 +46,7 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
     class="pf-v6-c-modal-box__header"
   >
     <h1
-      class="pf-v6-c-modal-box__title pf-m-icon"
-      id="pf-modal-part-3"
+      class="pf-v6-c-modal-box__title pf-m-icon pf-m-warning"
     >
       <span
         class="pf-v6-c-modal-box__title-icon"
@@ -81,9 +79,9 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
   </header>
   <div
     class="pf-v6-c-modal-box__body"
-    id="pf-modal-part-4"
   >
     Custom text
+     
   </div>
   <footer
     class="pf-v6-c-modal-box__footer"

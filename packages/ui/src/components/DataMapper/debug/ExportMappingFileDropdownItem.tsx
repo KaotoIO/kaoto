@@ -1,5 +1,4 @@
-import { Button, DropdownItem } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/deprecated';
+import { Button, DropdownItem, Modal, ModalFooter, ModalHeader } from '@patternfly/react-core';
 import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import { ExportIcon } from '@patternfly/react-icons';
@@ -56,9 +55,9 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
         title="Exported Mappings"
         isOpen={isModalOpen}
         onClose={() => handleModalClose()}
-        actions={modalActions}
         data-testid="export-mappings-modal"
       >
+        <ModalHeader title="Exported Mappings" />
         <CodeEditor
           isReadOnly={false}
           isDownloadEnabled={true}
@@ -70,6 +69,7 @@ export const ExportMappingFileDropdownItem: FunctionComponent<{
           options={editorOptions}
           data-testid="export-mappings-code-editor"
         />
+        <ModalFooter>{modalActions}</ModalFooter>
       </Modal>
     </>
   );

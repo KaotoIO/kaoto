@@ -1,5 +1,4 @@
-import { Tab, Tabs, capitalize } from '@patternfly/react-core';
-import { Modal, ModalBoxBody } from '@patternfly/react-core/deprecated';
+import { Modal, ModalBody, ModalHeader, Tab, Tabs, capitalize } from '@patternfly/react-core';
 import { FunctionComponent, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import {
   transformCamelComponentIntoTab,
@@ -86,20 +85,19 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
   return (
     <Modal
       className="properties-modal"
-      title={title}
       isOpen={props.isModalOpen}
       onClose={props.onClose}
       ouiaId="BasicModal"
-      description={description}
-      variant="large"
+      variant="default"
     >
-      <ModalBoxBody className="properties-modal__body">
+      <ModalHeader title={title} description={description} />
+      <ModalBody className="properties-modal__body">
         {tabs.length === 0 ? (
           <EmptyTableState name={props.tile.name} />
         ) : (
           <PropertiesTabs tab={activeTab!} tab_index={activeTabKey} />
         )}
-      </ModalBoxBody>
+      </ModalBody>
     </Modal>
   );
 };

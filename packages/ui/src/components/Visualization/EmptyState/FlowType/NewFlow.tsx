@@ -1,5 +1,4 @@
-import { Button } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -59,13 +58,20 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
       </FlowTypeSelector>
       <Modal
         variant={ModalVariant.small}
-        title="Warning"
         data-testid="confirmation-modal"
-        titleIconVariant="warning"
         onClose={() => {
           setIsConfirmationModalOpen(false);
         }}
-        actions={[
+        isOpen={isConfirmationModalOpen}
+      >
+        <ModalHeader title="Warning" titleIconVariant="warning" />
+        <ModalBody>
+          <p>
+            This will remove any existing integration and you will lose your current work. Are you sure you would like
+            to proceed?
+          </p>
+        </ModalBody>
+        <ModalFooter>
           <Button
             key="confirm"
             variant="primary"
@@ -78,7 +84,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             }}
           >
             Confirm
-          </Button>,
+          </Button>
           <Button
             key="cancel"
             variant="link"
@@ -88,14 +94,8 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             }}
           >
             Cancel
-          </Button>,
-        ]}
-        isOpen={isConfirmationModalOpen}
-      >
-        <p>
-          This will remove any existing integration and you will lose your current work. Are you sure you would like to
-          proceed?
-        </p>
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );

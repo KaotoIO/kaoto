@@ -1,5 +1,4 @@
-import { Button } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -49,10 +48,12 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
       <Modal
         variant={ModalVariant.small}
         isOpen={isModalOpen}
-        title="Delete parameter"
         data-testid="delete-parameter-modal"
         onClose={closeModal}
-        actions={[
+      >
+        <ModalHeader title="Delete parameter" />
+        <ModalBody>Delete parameter &quot;{parameterName}&quot;? Related mappings will be also removed.</ModalBody>
+        <ModalFooter>
           <Button
             key="confirm"
             variant="primary"
@@ -60,13 +61,11 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
             onClick={onConfirmDelete}
           >
             Confirm
-          </Button>,
+          </Button>
           <Button key="cancel" variant="link" data-testid="delete-parameter-modal-cancel-btn" onClick={closeModal}>
             Cancel
-          </Button>,
-        ]}
-      >
-        Delete parameter &quot;{parameterName}&quot;? Related mappings will be also removed.
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );
