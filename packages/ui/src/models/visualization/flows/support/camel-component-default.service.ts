@@ -90,6 +90,15 @@ export class CamelComponentDefaultService {
                 message: "\${body}"
         `);
 
+      case 'onFallback' as keyof ProcessorDefinition:
+        return parse(`
+        id: ${getCamelRandomId('onFallback')}
+        steps:
+          - log:
+              id: ${getCamelRandomId('log')}
+              message: "\${body}"
+      `);
+
       case 'choice':
         return parse(`
         choice:
@@ -118,9 +127,9 @@ export class CamelComponentDefaultService {
           simple:
             expression: "\${header.foo} == 1"
         steps:
-        - log:
-            id: ${getCamelRandomId('log')}
-            message: "\${body}"
+          - log:
+              id: ${getCamelRandomId('log')}
+              message: "\${body}"
       `);
 
       case 'doTry':
