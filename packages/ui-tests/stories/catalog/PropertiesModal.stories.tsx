@@ -47,7 +47,7 @@ const amqpTile = {
   description: 'Messaging with AMQP protocol using Apache QPid Client.',
   headerTags: ['Component', 'Stable'],
   tags: ['messaging'],
-  version: '4.8.0.redhat-00017',
+  version: '4.8.3.redhat-00004',
 };
 
 const fhirTile = {
@@ -58,7 +58,7 @@ const fhirTile = {
     'Exchange information in the healthcare domain using the FHIR (Fast Healthcare Interoperability Resources) standard.',
   headerTags: ['Component', 'Stable'],
   tags: ['api'],
-  version: '4.8.0.redhat-00017',
+  version: '4.8.3.redhat-00004',
 };
 
 export default {
