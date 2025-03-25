@@ -43,7 +43,7 @@ describe('FlowsMenu.tsx', () => {
       </Provider>,
     );
 
-    const dropdown = await wrapper.findByTestId('flows-list-btn');
+    const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
     act(() => {
@@ -65,7 +65,7 @@ describe('FlowsMenu.tsx', () => {
       </Provider>,
     );
 
-    const dropdown = await wrapper.findByTestId('flows-list-btn');
+    const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
     act(() => {
