@@ -1,7 +1,7 @@
 jest.mock('./KaotoEditorApp');
 jest.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
+import { ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
@@ -16,6 +16,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -44,6 +45,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -97,6 +99,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: '',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -105,6 +108,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'path-prefix/camel-catalog/index.json',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },

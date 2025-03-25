@@ -1,5 +1,5 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { useMemo } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
 import { ControllerService } from './components/Visualization/Canvas/controller.service';
@@ -21,6 +21,7 @@ import {
 } from './providers';
 import { isDefined } from './utils';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
+import { setColorScheme } from './utils/color-scheme';
 
 function App() {
   const ReloadProvider = useReload();
@@ -28,10 +29,15 @@ function App() {
   const settingsAdapter = new LocalStorageSettingsAdapter();
   let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
   const settingsCatalogUrl = settingsAdapter.getSettings().catalogUrl;
+  const colorSchema = settingsAdapter.getSettings().colorScheme;
 
   if (isDefined(settingsCatalogUrl) && settingsCatalogUrl !== '') {
     catalogUrl = settingsCatalogUrl;
   }
+
+  useLayoutEffect(() => {
+    setColorScheme(colorSchema);
+  }, [colorSchema]);
 
   return (
     <ReloadProvider>

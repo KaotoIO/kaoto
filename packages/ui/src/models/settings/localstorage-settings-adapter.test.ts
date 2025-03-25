@@ -1,6 +1,6 @@
 import { LocalStorageKeys } from '../local-storage-keys';
 import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
-import { NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
+import { ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
 
 describe('LocalStorageSettingsAdapter', () => {
   it('should create an instance with the default settings', () => {
@@ -15,6 +15,7 @@ describe('LocalStorageSettingsAdapter', () => {
       catalogUrl: 'http://example.com',
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: true,
       },
@@ -41,6 +42,7 @@ describe('LocalStorageSettingsAdapter', () => {
       catalogUrl: 'http://example.com',
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
+      colorScheme: ColorScheme.Auto,
       experimentalFeatures: {
         enableDragAndDrop: true,
       },
