@@ -4,11 +4,12 @@ import { FunctionComponent, MutableRefObject, Ref, useCallback, useContext, useE
 import { EditorDidMount } from 'react-monaco-editor';
 import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
+import { isXML } from '../../serializers/xml/kaoto-xml-parser';
+import { isDarkModeEnabled } from '../../utils/color-scheme';
 import { RedoButton } from './RedoButton';
 import './SourceCode.scss';
 import { UndoButton } from './UndoButton';
 import './workers/enable-workers';
-import { isXML } from '../../serializers/xml/kaoto-xml-parser';
 
 interface SourceCodeProps {
   code: string;
@@ -28,6 +29,7 @@ const options: CodeEditorProps['options'] = {
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const entityContext = useContext(EntitiesContext);
+  const isDarkMode = isDarkModeEnabled();
   const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
   const currentSchema = sourceSchemaConfig.config[schemaType].schema;
   const monacoYamlHandlerRef: MutableRefObject<ReturnType<typeof configureMonacoYaml> | undefined> = useRef(undefined);
@@ -93,6 +95,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   return (
     <CodeEditor
       className="source-code-editor"
+      isDarkTheme={isDarkMode}
       isFullHeight
       isCopyEnabled
       isDownloadEnabled
