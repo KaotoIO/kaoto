@@ -1,6 +1,6 @@
 import { CamelComponentDefaultService } from './camel-component-default.service';
 import { DefinedComponent } from '../../../camel-catalog-index';
-import { DoCatch } from '@kaoto/camel-catalog/types';
+import { DoCatch, OnFallback } from '@kaoto/camel-catalog/types';
 
 describe('CamelComponentDefaultService', () => {
   describe('getDefaultNodeDefinitionValue', () => {
@@ -148,6 +148,16 @@ describe('CamelComponentDefaultService', () => {
       expect((filterDefault.filter!.id as string).startsWith('filter-')).toBeTruthy();
       expect((filterDefault.filter!.expression as any).simple).toEqual({});
       expect(filterDefault.filter!.steps).toBeUndefined();
+    });
+
+    it('should return the default value for a onFallback', () => {
+      const onFallbackDef = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'onFallback',
+      } as DefinedComponent) as OnFallback;
+      expect(onFallbackDef).toBeDefined();
+      expect((onFallbackDef.id as string).startsWith('onFallback-')).toBeTruthy();
+      expect(onFallbackDef.steps).toHaveLength(1);
     });
 
     it('should return the default value for a removeHeaders processor', () => {
