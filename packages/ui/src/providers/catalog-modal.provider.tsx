@@ -1,4 +1,4 @@
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import { Modal, ModalBody, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -12,9 +12,9 @@ import {
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';
 import { isDefined } from '../utils';
+import './catalog-modal.provider.scss';
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { CatalogContext } from './catalog.provider';
-import './catalog-modal.provider.scss';
 
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;
@@ -102,15 +102,11 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
       {props.children}
 
       {isModalOpen && (
-        <Modal
-          variant={ModalVariant.large}
-          title="Catalog"
-          position="top"
-          isOpen
-          onClose={handleCloseModal}
-          ouiaId="CatalogModal"
-        >
-          <Catalog tiles={filteredTiles} onTileClick={handleSelectComponent} />
+        <Modal variant={ModalVariant.large} position="top" isOpen onClose={handleCloseModal} ouiaId="CatalogModal">
+          <ModalHeader title="Catalog" />
+          <ModalBody>
+            <Catalog tiles={filteredTiles} onTileClick={handleSelectComponent} />
+          </ModalBody>
         </Modal>
       )}
     </CatalogModalContext.Provider>

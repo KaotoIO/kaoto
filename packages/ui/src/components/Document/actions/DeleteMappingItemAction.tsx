@@ -1,5 +1,12 @@
-import { ActionListItem, Button } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  ActionListItem,
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+} from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 import { useCanvas } from '../../../hooks/useCanvas';
@@ -44,16 +51,17 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
         title={title}
         onClose={closeModal}
         data-testid="delete-mapping-modal"
-        actions={[
+      >
+        <ModalHeader title={title} />
+        <ModalBody>{title}?</ModalBody>
+        <ModalFooter>
           <Button key="confirm" variant="primary" onClick={onConfirmDelete} data-testid="delete-mapping-confirm-btn">
             Confirm
-          </Button>,
+          </Button>
           <Button key="cancel" variant="link" onClick={closeModal} data-testid="delete-mapping-cancel-btn">
             Cancel
-          </Button>,
-        ]}
-      >
-        {title}?
+          </Button>
+        </ModalFooter>
       </Modal>
     </ActionListItem>
   );

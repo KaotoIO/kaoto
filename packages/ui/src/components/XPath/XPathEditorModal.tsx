@@ -1,5 +1,15 @@
-import { Button, ButtonVariant, List, ListItem, Popover } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  ButtonVariant,
+  List,
+  ListItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Popover,
+} from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { ExpressionItem } from '../../models/datamapper';
@@ -71,19 +81,21 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
       aria-label="XPath Editor Modal"
       className="xpath-editor-modal"
       position="top"
-      header={header}
       variant={ModalVariant.large}
       width="90%"
       isOpen={isOpen}
       onClose={onClose}
       data-testid="xpath-editor-modal"
-      actions={[
+    >
+      <ModalHeader title={header} />
+      <ModalBody>
+        <XPathEditorLayout mapping={mapping} onUpdate={onUpdate} />
+      </ModalBody>
+      <ModalFooter>
         <Button key="close-xpath-editor" onClick={onClose} data-testid="close-xpath-editor-btn">
           Close
-        </Button>,
-      ]}
-    >
-      <XPathEditorLayout mapping={mapping} onUpdate={onUpdate} />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

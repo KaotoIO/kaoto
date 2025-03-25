@@ -13,8 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Button } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
@@ -60,13 +59,12 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
         onClick={openModal}
       />
 
-      <Modal
-        variant={ModalVariant.small}
-        isOpen={isModalOpen}
-        title="Detach schema"
-        data-testid="detach-schema-modal"
-        onClose={closeModal}
-        actions={[
+      <Modal variant={ModalVariant.small} isOpen={isModalOpen} data-testid="detach-schema-modal" onClose={closeModal}>
+        <ModalHeader title="Detach schema" />
+        <ModalBody>
+          Detach correlated schema and make it back to be a primitive value? Related mappings will be also removed.
+        </ModalBody>
+        <ModalFooter>
           <Button
             key="confirm"
             variant="primary"
@@ -74,13 +72,11 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
             onClick={onConfirmDelete}
           >
             Confirm
-          </Button>,
+          </Button>
           <Button key="cancel" variant="link" data-testid="detach-schema-modal-cancel-btn" onClick={closeModal}>
             Cancel
-          </Button>,
-        ]}
-      >
-        Detach correlated schema and make it back to be a primitive value? Related mappings will be also removed.
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );

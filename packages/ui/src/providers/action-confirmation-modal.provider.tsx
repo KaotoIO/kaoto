@@ -1,5 +1,14 @@
-import { Button, ButtonVariant, Split, SplitItem } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  ButtonVariant,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Split,
+  SplitItem,
+} from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
 import './action-confirmation-modal.provider.scss';
 
@@ -116,18 +125,14 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
       {props.children}
 
       {isModalOpen && (
-        <Modal
-          isOpen
-          variant={ModalVariant.small}
-          title={title}
-          titleIconVariant={'warning'}
-          onClose={handleCloseModal}
-          ouiaId="ActionConfirmationModal"
-          footer={footer}
-        >
-          {textParagraphs.length === 1
-            ? textParagraphs[0]
-            : textParagraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+        <Modal isOpen variant={ModalVariant.small} onClose={handleCloseModal} ouiaId="ActionConfirmationModal">
+          <ModalHeader title={title} titleIconVariant={'warning'} />
+          <ModalBody>
+            {textParagraphs.length === 1
+              ? textParagraphs[0]
+              : textParagraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}{' '}
+          </ModalBody>
+          <ModalFooter>{footer}</ModalFooter>
         </Modal>
       )}
     </ActionConfirmationModalContext.Provider>
