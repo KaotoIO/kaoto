@@ -211,7 +211,9 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     });
 
     /** Set editor as Ready */
-    useEffect(onReady, [onReady]);
+    useEffect(() => {
+      onReady();
+    }, [onReady]);
 
     return (
       <ReloadProvider>
