@@ -75,7 +75,7 @@
     "uniforms-bridge-json-schema": "4.0.0-alpha.6",
     "usehooks-ts": "^3.0.0",
     "uuid": "^10.0.0",
-    "xml-formatter": "^3.6.2",
+    "xml-formatter": "^3.6.5",
     "xml-name-validator": "^5.0.0",
     "yaml": "^2.3.2",
     "zustand": "^4.3.9"

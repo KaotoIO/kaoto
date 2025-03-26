@@ -5,7 +5,7 @@ import { CamelResourceSerializer, Metadata, SerializerType } from './camel-resou
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import { EntityType } from '../models/camel/entities';
 import { EntityDefinition } from './xml/serializers/entitiy-definition';
-import { XmlFormatter } from './xml/utils/xml-formatter';
+import xmlFormat from 'xml-formatter';
 
 export type XMLMetadata = {
   xmlDeclaration: string;
@@ -49,7 +49,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
 
     const xmlDocument = KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
     const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
-    const formattedString = XmlFormatter.formatXml(xmlString);
+    const formattedString = xmlFormat(xmlString);
     return this.getXmlDeclaration() + this.insertComments(formattedString);
   }
 
