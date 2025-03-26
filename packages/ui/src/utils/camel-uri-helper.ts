@@ -63,10 +63,16 @@ export class CamelUriHelper {
   }
 
   private static createQueryString(parameters: ParsedParameters): string {
+    if (!parameters || Object.keys(parameters).length === 0) {
+      return '';
+    }
+
     return Object.keys(parameters)
+      .filter((key) => parameters[key] !== undefined)
       .map((key) => `${key}=${encodeURIComponent(parameters[key].toString())}`)
       .join('&');
   }
+
   static getUriStringFromParameters(
     originalUri: string,
     uriSyntax: string,

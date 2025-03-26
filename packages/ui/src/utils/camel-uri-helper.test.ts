@@ -169,6 +169,12 @@ describe('CamelUriHelper', () => {
       {
         uri: 'timer',
         syntax: 'timer:timerName',
+        parameters: { timerName: undefined },
+        result: 'timer',
+      },
+      {
+        uri: 'timer',
+        syntax: 'timer:timerName',
         parameters: null,
         result: 'timer',
       },
