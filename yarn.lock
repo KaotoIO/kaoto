@@ -3054,7 +3054,7 @@ __metadata:
     vite: "npm:^5.4.0"
     vite-plugin-dts: "npm:^4.0.2"
     vite-plugin-static-copy: "npm:^1.0.6"
-    xml-formatter: "npm:^3.6.2"
+    xml-formatter: "npm:^3.6.5"
     xml-name-validator: "npm:^5.0.0"
     yaml: "npm:^2.3.2"
     zustand: "npm:^4.3.9"
@@ -20367,12 +20367,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-formatter@npm:^3.6.2":
-  version: 3.6.4
-  resolution: "xml-formatter@npm:3.6.4"
+"xml-formatter@npm:^3.6.5":
+  version: 3.6.5
+  resolution: "xml-formatter@npm:3.6.5"
   dependencies:
     xml-parser-xo: "npm:^4.1.2"
-  checksum: 10/8596dcfeded7a1033c51cbc3664c656c38aad78bd2267b88f9a31e48eda84353307fbe593f24735434d0b82c4729107a130bdc4da5862a9d7c6951269b26ad3d
+  checksum: 10/6cf6abc8cfbb6b2fed15e7a5f9f91e159c655b9fdec7f8a7c70c206eca913db57d5c6d055c3dbe01d4294cdc3cfb03ca7556803f9c4fff415fd171cd08e43e27
   languageName: node
   linkType: hard
 
