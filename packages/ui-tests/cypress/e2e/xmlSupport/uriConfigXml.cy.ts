@@ -11,11 +11,15 @@ describe('Test for URI config for XML', () => {
     const xml = [
       '<from uri="timer:start?period=1000&amp;delay=2000&amp;repeatCount=10"/>',
       '<setBody>',
-      '<constant>Initial message</constant>',
+      '<constant>',
+      'Initial message',
+      '</constant>',
       '</setBody>',
       '<to uri="log:info?showAll=true&amp;multiline=true&amp;logMask=true"/>',
       '<transform>',
-      '<simple>${body.toUpperCase()}</simple>',
+      '<simple>',
+      '${body.toUpperCase()}',
+      '</simple>',
       '</transform>',
       '<to uri="file:output?fileName=output.txt&amp;fileExist=Append"/>',
     ];

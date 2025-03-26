@@ -21,7 +21,9 @@ describe('Tests for basic XML operations', () => {
     const xmlRoute = [
       '<from uri="timer:test"/>',
       '<setHeader name="test">',
-      '<constant>test</constant>',
+      '<constant>',
+      'test',
+      '</constant>',
       '</setHeader>',
       '<to id="id-1234" uri="as2:/"/>',
       '<marshal id="marshal-3801"/>',
@@ -59,7 +61,9 @@ describe('Tests for basic XML operations', () => {
     const xmlRoute = [
       '<from uri="timer:test"/>',
       '<setHeader name="test">',
-      '<simple id="simpleExpressionId" resultType="java.lang.String">{{header.baz}}</simple>',
+      '<simple id="simpleExpressionId" resultType="java.lang.String">',
+      '{{header.baz}}',
+      '</simple>',
       '</setHeader>',
       '<marshal id="marshal-3801"/>',
       '<to uri="log:test"/>',
@@ -86,7 +90,9 @@ describe('Tests for basic XML operations', () => {
     const xmlRoute = [
       '<from uri="timer:test"/>',
       '<setHeader name="test">',
-      '<constant>test</constant>',
+      '<constant>',
+      'test',
+      '</constant>',
       '</setHeader>',
       '<marshal id="marshal-3801">',
       '<base64 id="simpleDataformatId" lineLength="128" lineSeparator="simpleLineSeparator" urlSafe="true"/>',
