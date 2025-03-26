@@ -96,7 +96,7 @@ export class KaotoEditorApp implements Editor {
   async sendReady(): Promise<void> {
     this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send();
 
-    return this.setContent(this.pendingPath, this.pendingContent);
+    await this.setContent(this.pendingPath, this.pendingContent);
   }
 
   async sendNewEdit(content: string): Promise<void> {
