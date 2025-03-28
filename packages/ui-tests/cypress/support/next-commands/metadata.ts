@@ -65,3 +65,35 @@ Cypress.Commands.add('addMetadataStringProperty', (selector: string, key: string
   cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
   cy.closeWrappedMetadataSection(selector);
 });
+
+Cypress.Commands.add('addMetadataObjectProperty', (selector: string, objectKey: string, key: string, value: string) => {
+  cy.expandWrappedMetadataSection(selector);
+  cy.get('[data-testid="properties-add-object-property--btn"]').not(':hidden').first().click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '--placeholder-name-input"]')
+    .clear()
+    .type(objectKey);
+
+  cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
+
+  cy.get('[data-testid="properties-add-string-property-' + objectKey + '-btn"]')
+    .not(':hidden')
+    .first()
+    .click({ force: true });
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]')
+    .clear()
+    .type(key);
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]').should('not.be.disabled');
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]').click({ force: true });
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]')
+    .clear()
+    .type(value);
+  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-property-edit-confirm--btn"]').click({
+    force: true,
+  });
+
+  cy.closeWrappedMetadataSection(selector);
+});

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<camel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">
+  <route id="route-1731">
+    <from uri="timer:hola?period=1000" />
+    <setBody>
+      <simple>Hello Camel from ${routeId}</simple>
+    </setBody>
+    <log message="${body}" />
+  </route>
+</camel>

@@ -102,4 +102,37 @@ describe('Tests for basic XML operations', () => {
     cy.openSourceCode();
     cy.checkMultiLineContent(xmlRoute);
   });
+
+  // reproducer for https://github.com/KaotoIO/kaoto/issues/2121
+  it('When working with XML, fields cannot be cleared', () => {
+    cy.uploadFixture('flows/camelRoute/namespaced.xml');
+    cy.openDesignPage();
+
+    cy.openStepConfigurationTab('timer');
+    cy.selectFormTab('All');
+
+    cy.get('[data-testid="#.parameters.timerName__clear"]').click();
+
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('<from uri="timer:hola?period=1000"/>', 0);
+    cy.checkCodeSpanLine('<from uri="timer?period=1000"/>', 1);
+  });
+
+  // reproducer for https://github.com/KaotoIO/kaoto/issues/2087
+  it('XML namespace with xsd association are removed when files are modified', () => {
+    cy.uploadFixture('flows/camelRoute/namespaced.xml');
+    cy.openDesignPage();
+
+    cy.openStepConfigurationTab('timer');
+    cy.selectFormTab('All');
+
+    cy.interactWithConfigInputObject('parameters.timerName', 'testTimerName');
+
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('<?xml version="1.0" encoding="UTF-8"?>', 1);
+    cy.checkCodeSpanLine(
+      '<camel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">',
+      1,
+    );
+  });
 });
