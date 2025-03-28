@@ -26,4 +26,5 @@ export enum Types {
   DocumentNode = 'document-node()',
   // custom types
   Container = 'Container',
+  Array = 'Array',
 }
