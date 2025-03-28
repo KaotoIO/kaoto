@@ -83,6 +83,8 @@ export const x12850ForEachXslt = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-850-Invoice-for-each.xsl'))
   .toString();
 
+export const camelYamlDslJsonSchema = fs.readFileSync(path.resolve(__dirname, './camelYamlDsl.json')).toString();
+
 export class TestUtil {
   static createSourceOrderDoc() {
     return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', shipOrderXsd);

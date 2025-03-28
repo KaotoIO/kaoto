@@ -21,6 +21,7 @@ export interface IField {
   ownerDocument: IDocument;
   id: string;
   name: string;
+  expression: string;
   path: NodePath;
   type: Types;
   fields: IField[];
@@ -35,6 +36,9 @@ export interface IField {
 }
 
 export interface ITypeFragment {
+  type?: Types;
+  minOccurs?: number;
+  maxOccurs?: number;
   fields: IField[];
   namedTypeFragmentRefs: string[];
 }
@@ -71,6 +75,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   constructor(documentType: DocumentType, documentId: string) {
     super(documentType, documentId);
     this.name = this.documentId;
+    this.expression = this.documentId;
     this.id = this.documentId;
     this.path = NodePath.fromDocument(documentType, documentId);
   }
@@ -86,6 +91,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   type = Types.AnyType;
   path: NodePath;
   id: string;
+  expression: string;
   namedTypeFragmentRefs = [];
   totalFieldCount = 1;
   isNamespaceAware = false;
@@ -100,13 +106,21 @@ export class BaseField implements IField {
   ) {
     this.id = getCamelRandomId(`field-${this.name}`, 4);
     this.path = NodePath.childOf(parent.path, this.id);
+    this.expression = name;
   }
 
   id: string;
   path: NodePath;
+  expression: string;
   fields: IField[] = [];
   isAttribute: boolean = false;
-  type = Types.AnyType;
+  protected _type = Types.AnyType;
+  public get type() {
+    return this._type;
+  }
+  public set type(value) {
+    this._type = value;
+  }
   minOccurs: number = DEFAULT_MIN_OCCURS;
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
@@ -133,6 +147,7 @@ export class BaseField implements IField {
 export enum DocumentDefinitionType {
   Primitive = 'Primitive',
   XML_SCHEMA = 'XML Schema',
+  JSON_SCHEMA = 'JSON Schema',
 }
 
 export class DocumentDefinition {

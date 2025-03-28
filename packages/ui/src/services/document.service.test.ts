@@ -1,10 +1,70 @@
 import { DocumentService } from './document.service';
 
 import { TestUtil } from '../stubs/data-mapper';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, PrimitiveDocument } from '../models/datamapper';
+import { XmlSchemaDocument } from './xml-schema-document.service';
+import { JsonSchemaDocument } from './json-schema-document.service';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
   const targetDoc = TestUtil.createTargetOrderDoc();
+
+  describe('creawteDocument()', () => {
+    it('should create a primitive document', () => {
+      const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test', {});
+      const doc = DocumentService.createDocument(docDef);
+      expect(doc instanceof PrimitiveDocument).toBeTruthy();
+    });
+
+    it('should create a XML schema document', () => {
+      const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test', {
+        schema: `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                   <xs:element name="test" type="xs:string" />
+                 </xs:schema>`,
+      });
+      const doc = DocumentService.createDocument(docDef);
+      expect(doc instanceof XmlSchemaDocument).toBeTruthy();
+    });
+
+    it('should throw an error if XML schema is not parseable', () => {
+      const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test', {
+        schema: JSON.stringify({ type: 'string' }),
+      });
+      expect(() => DocumentService.createDocument(docDef)).toThrow();
+    });
+
+    it('should create a JSON schema document', () => {
+      const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test', {
+        schema: JSON.stringify({ type: 'string' }),
+      });
+      const doc = DocumentService.createDocument(docDef);
+      expect(doc instanceof JsonSchemaDocument).toBeTruthy();
+    });
+
+    it('should throw an error if JSON schema is not parseable', () => {
+      const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test', {
+        schema: `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                   <xs:element name="test" type="xs:string" />
+                 </xs:schema>`,
+      });
+      expect(() => DocumentService.createDocument(docDef)).toThrow();
+    });
+
+    it('should return null if type is unknown', () => {
+      const docDef = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        'unknown' as unknown as DocumentDefinitionType,
+        'test',
+        {
+          schema: `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                   <xs:element name="test" type="xs:string" />
+                 </xs:schema>`,
+        },
+      );
+      const doc = DocumentService.createDocument(docDef);
+      expect(doc).toBeNull();
+    });
+  });
 
   describe('getFieldStack()', () => {
     it('', () => {

@@ -10,8 +10,9 @@ import {
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
-import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { IMetadataApi } from '../providers';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
 
 interface InitialDocumentsSet {
   sourceBodyDocument?: IDocument;
@@ -47,7 +48,14 @@ export class DocumentService {
     if (!definition.definitionFiles || Object.keys(definition.definitionFiles).length === 0) return null;
     const content = Object.values(definition.definitionFiles)[0];
     const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
-    return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
+    switch (definition.definitionType) {
+      case DocumentDefinitionType.XML_SCHEMA:
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
+      case DocumentDefinitionType.JSON_SCHEMA:
+        return JsonSchemaDocumentService.createJsonSchemaDocument(definition.documentType, documentId, content);
+      default:
+        return null;
+    }
   }
 
   static createInitialDocuments(initModel?: DocumentInitializationModel): InitialDocumentsSet | null {
@@ -175,6 +183,9 @@ export class DocumentService {
 
   private static adoptTypeFragment(field: IField, fragment: ITypeFragment) {
     const doc = DocumentService.getOwnerDocument(field);
+    if (fragment.type) field.type = fragment.type;
+    if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
+    if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
     fragment.fields.forEach((f) => f.adopt(field));
     fragment.namedTypeFragmentRefs.forEach((childRef) => {
       const childFragment = doc.namedTypeFragments[childRef];
