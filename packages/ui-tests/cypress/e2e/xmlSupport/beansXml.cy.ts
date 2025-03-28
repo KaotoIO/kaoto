@@ -19,12 +19,15 @@ describe('Test for Bean support in XML', () => {
 
     cy.forceSelectMetadataRow(0);
     cy.addMetadataStringProperty('properties', 'test', 'value');
+    // reproducer for https://github.com/KaotoIO/kaoto/issues/2086
+    cy.addMetadataObjectProperty('properties', 'test-object-property', 'test-key', 'test-value');
 
     const beansXml = [
       '<beans>',
       '<bean name="test" type="org.acme" initMethod="initMethodTest" destroyMethod="destroyMethodTest" factoryMethod="factoryMethodTest">',
       '<properties>',
       '<property key="test" value="value"/>',
+      '<property key="test-object-property.test-key" value="test-value"/>',
       '</properties>',
       '</bean>',
     ];
