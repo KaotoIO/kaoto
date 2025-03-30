@@ -11,12 +11,13 @@ import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import { RefObject, createRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { AbstractSettingsAdapter } from '../models/settings';
+import { AbstractSettingsAdapter, ColorScheme } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
+import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoBridge } from './KaotoBridge';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
@@ -90,7 +91,9 @@ export class KaotoEditorApp implements Editor {
   }
 
   async setTheme(theme: EditorTheme): Promise<void> {
-    return this.editorRef.current?.setTheme(theme);
+    const colorScheme = theme === EditorTheme.DARK ? ColorScheme.Dark : ColorScheme.Light;
+    this.settingsAdapter.saveSettings({ ...this.settingsAdapter.getSettings(), colorScheme });
+    setColorScheme(colorScheme);
   }
 
   async sendReady(): Promise<void> {
@@ -140,6 +143,12 @@ export class KaotoEditorApp implements Editor {
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined> {
     return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
+  }
+
+  af_onOpen(): void {
+    this.envelopeContext.channelApi.shared.kogitoEditor_theme.subscribe((theme: EditorTheme) => {
+      this.setTheme(theme);
+    });
   }
 
   af_componentRoot() {
