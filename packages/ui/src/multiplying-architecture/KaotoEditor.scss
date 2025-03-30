@@ -1,9 +1,18 @@
+html body {
+  /*
+   * Remove the default white background color of the body element
+   * provided by the Multiplying Architecture theme.
+   */
+  background-color: transparent !important;
+}
+
 .shell {
   height: 100vh;
   width: 100vw;
   display: flex;
   flex-flow: column nowrap;
   position: relative;
+  background-color: var(--pf-t--global--background--color--secondary--default);
 
   // Tab header shouldn't grow or shrink
   > div[role='region'] {
