@@ -175,7 +175,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
                 <img alt={tooltipContent} src={vizNode.data.icon} />
 
                 {isDisabled && (
-                  <Icon className="disabled-step-icon">
+                  <Icon className="disabled-step-icon" status="danger" size="lg">
                     <BanIcon />
                   </Icon>
                 )}
