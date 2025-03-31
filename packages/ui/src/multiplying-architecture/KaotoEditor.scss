@@ -4,6 +4,19 @@ html body {
    * provided by the Multiplying Architecture theme.
    */
   background-color: transparent !important;
+
+  /*
+   * The MA uses patternfly v4, which doesn't use CSS variables for
+   * the default font family. The following is taken from the
+   * patternfly v6 definition of the font family.
+   */
+  :where(button, input, optgroup, select, textarea) {
+    margin: 0;
+    font-family: inherit;
+    font-size: 100%;
+    line-height: var(--pf-t--global--font--line-height--body);
+    color: var(--pf-t--global--text--color--regular);
+  }
 }
 
 .shell {
