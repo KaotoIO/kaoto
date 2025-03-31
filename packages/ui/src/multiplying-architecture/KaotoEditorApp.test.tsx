@@ -12,7 +12,7 @@ import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
-import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../models/settings';
+import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
@@ -170,9 +170,15 @@ describe('KaotoEditorApp', () => {
   });
 
   it('setTheme', async () => {
+    const settingsSpy = jest.spyOn(settingsAdapter, 'saveSettings');
     await kaotoEditorApp.setTheme(EditorTheme.DARK);
 
-    expect(editorRef.current!.setTheme).toHaveBeenCalledWith(EditorTheme.DARK);
+    expect(editorRef.current!.setTheme).not.toHaveBeenCalledWith(EditorTheme.DARK);
+    expect(settingsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        colorScheme: ColorScheme.Dark,
+      }),
+    );
   });
 
   it('sendReady', () => {
