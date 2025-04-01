@@ -22,10 +22,11 @@ export interface KaotoFormProps extends IDataTestID {
   onChangeProp?: (propName: string, value: unknown) => void;
   model: unknown;
   omitFields?: string[];
+  disabled?: boolean;
 }
 
 export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
-  ({ schema, onChange, onChangeProp, model, omitFields = [], 'data-testid': dataTestId }, forwardRef) => {
+  ({ schema, onChange, onChangeProp, model, omitFields = [], disabled, 'data-testid': dataTestId }, forwardRef) => {
     if (!isDefined(schema)) {
       throw new Error('[KaotoForm]: Schema is required');
     }
@@ -99,7 +100,12 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       <FormComponentFactoryProvider>
         <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
           <SchemaProvider schema={schema}>
-            <ModelContextProvider model={formModel} errors={validationErrors} onPropertyChange={onPropertyChange}>
+            <ModelContextProvider
+              model={formModel}
+              errors={validationErrors}
+              onPropertyChange={onPropertyChange}
+              disabled={disabled}
+            >
               <Form className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
                 <AutoField propName={ROOT_PATH} />
               </Form>

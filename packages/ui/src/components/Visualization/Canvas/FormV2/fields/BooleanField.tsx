@@ -7,7 +7,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value, onChange } = useFieldValue<boolean>(propName);
+  const { value, onChange, disabled } = useFieldValue<boolean>(propName);
   const onFieldChange = (_event: unknown, checked: boolean) => {
     onChange(checked);
   };
@@ -33,6 +33,7 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
         isChecked={value}
         checked={value}
         onChange={onFieldChange}
+        isDisabled={disabled}
       />
     </FieldWrapper>
   );

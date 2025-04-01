@@ -8,7 +8,7 @@ import { KeyValue, KeyValueType } from '../../../../../KeyValue/KeyValue';
 
 export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value, onChange } = useFieldValue<KeyValueType | undefined>(propName);
+  const { value, onChange, disabled } = useFieldValue<KeyValueType | undefined>(propName);
 
   const items = Object.entries(value ?? {});
   const title = schema.title ?? propName.split('.').pop();
@@ -26,7 +26,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
       description={schema.description}
       defaultValue={schema.default?.toString()}
     >
-      <KeyValue propName={propName} initialModel={value} onChange={onChange} />
+      <KeyValue propName={propName} initialModel={value} onChange={onChange} disabled={disabled} />
     </FieldWrapper>
   );
 };

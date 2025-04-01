@@ -9,7 +9,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string>(propName);
+  const { value = '', onChange, disabled } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
   const rows = Math.max(value.split('\n').length, 2);
@@ -51,6 +51,7 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
             value={value}
             onChange={onFieldChange}
             aria-describedby={id}
+            isDisabled={disabled}
           />
         </InputGroupItem>
 

@@ -42,6 +42,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   'data-testid': dataTestId,
   onCreate,
   onCreatePrefix,
+  disabled = false,
 }) => {
   const [filter, setFilter] = useState<string>(selectedItem?.name ?? '');
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
@@ -145,6 +146,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       ref={toggleRef}
       onClick={onToggleClick}
       isExpanded={isOpen}
+      isDisabled={disabled}
       variant="typeahead"
       aria-label={`${ariaLabel} toggle`}
       id={id}

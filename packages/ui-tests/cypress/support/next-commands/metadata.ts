@@ -1,13 +1,5 @@
 import 'cypress-file-upload';
 
-Cypress.Commands.add('expandWrappedMetadataSection', (sectionName: string) => {
-  cy.switchWrappedMetadataSection(sectionName, false);
-});
-
-Cypress.Commands.add('closeWrappedMetadataSection', (sectionName: string) => {
-  cy.switchWrappedMetadataSection(sectionName, true);
-});
-
 Cypress.Commands.add('switchWrappedMetadataSection', (sectionName: string, wrapped: boolean) => {
   cy.get(`[data-testid="expandable-section-${sectionName}"]`)
     .should('be.visible')
@@ -24,11 +16,11 @@ Cypress.Commands.add('switchWrappedMetadataSection', (sectionName: string, wrapp
 });
 
 Cypress.Commands.add('forceSelectMetadataRow', (rowIndex: number) => {
-  cy.get('input[name="name"]').then(($input) => {
+  cy.get('input[name="#.name"]').then(($input) => {
     // Check if the input field is disabled
     if ($input.is(':disabled')) {
       cy.get(`[data-testid="metadata-row-${rowIndex}"]`).click();
-      cy.get('input[name="name"]').then(($element) => {
+      cy.get('input[name="#.name"]').then(($element) => {
         const attributeValue = $element.attr('disabled');
         if (attributeValue !== undefined) {
           let retryCount = 0;
@@ -49,51 +41,15 @@ Cypress.Commands.add('addMetadataField', (fieldName: string) => {
 });
 
 Cypress.Commands.add('addMetadataStringProperty', (selector: string, key: string, value: string) => {
-  cy.expandWrappedMetadataSection(selector);
-  cy.get('[data-testid="properties-add-string-property--btn"]').not(':hidden').first().click({ force: true });
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').should('not.be.disabled');
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').click({ force: true });
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]')
-    .clear()
-    .type(key);
-
-  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').should('not.be.disabled');
-  cy.get('[data-testid="' + selector + '--placeholder-value-input"]').click({ force: true });
-  cy.get('[data-testid="' + selector + '--placeholder-value-input"]')
-    .clear()
-    .type(value);
-  cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
-  cy.closeWrappedMetadataSection(selector);
-});
-
-Cypress.Commands.add('addMetadataObjectProperty', (selector: string, objectKey: string, key: string, value: string) => {
-  cy.expandWrappedMetadataSection(selector);
-  cy.get('[data-testid="properties-add-object-property--btn"]').not(':hidden').first().click({ force: true });
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').should('not.be.disabled');
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]').click({ force: true });
-  cy.get('[data-testid="' + selector + '--placeholder-name-input"]')
-    .clear()
-    .type(objectKey);
-
-  cy.get('[data-testid="' + selector + '--placeholder-property-edit-confirm--btn"]').click({ force: true });
-
-  cy.get('[data-testid="properties-add-string-property-' + objectKey + '-btn"]')
+  cy.get('[data-testid="#.' + selector + '__add"]')
     .not(':hidden')
     .first()
     .click({ force: true });
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]').should('not.be.disabled');
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]').click({ force: true });
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-name-input"]')
-    .clear()
-    .type(key);
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]').should('not.be.disabled');
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]').click({ force: true });
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-value-input"]')
-    .clear()
-    .type(value);
-  cy.get('[data-testid="' + selector + '-' + objectKey + '-placeholder-property-edit-confirm--btn"]').click({
-    force: true,
-  });
+  cy.get('[placeholder="Write a key"]').should('not.be.disabled');
+  cy.get('[placeholder="Write a key"]').click({ force: true });
+  cy.get('[placeholder="Write a key"]').clear().type(key);
 
-  cy.closeWrappedMetadataSection(selector);
+  cy.get('[placeholder="Write a value"]').should('not.be.disabled');
+  cy.get('[placeholder="Write a value"]').click({ force: true });
+  cy.get('[placeholder="Write a value"]').clear().type(value);
 });

@@ -9,6 +9,13 @@ describe('KeyValue', () => {
     initialModel = { key1: 'value1', key2: 'value2' };
   });
 
+  it('renders empty key-value with button disabled', () => {
+    const onChange = jest.fn();
+    const wrapper = render(<KeyValue propName={propName} onChange={onChange} disabled={true} />);
+
+    expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
+  });
+
   it('renders initial key-value pairs', () => {
     const onChange = jest.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
@@ -17,6 +24,20 @@ describe('KeyValue', () => {
     expect(wrapper.getByDisplayValue('value1')).toBeInTheDocument();
     expect(wrapper.getByDisplayValue('key2')).toBeInTheDocument();
     expect(wrapper.getByDisplayValue('value2')).toBeInTheDocument();
+  });
+
+  it('renders initial key-value pairs with button disabled', () => {
+    const onChange = jest.fn();
+    const wrapper = render(
+      <KeyValue propName={propName} initialModel={initialModel} onChange={onChange} disabled={true} />,
+    );
+
+    expect(wrapper.getByDisplayValue('key1')).toBeInTheDocument();
+    expect(wrapper.getByDisplayValue('value1')).toBeInTheDocument();
+    expect(wrapper.getByDisplayValue('key2')).toBeInTheDocument();
+    expect(wrapper.getByDisplayValue('value2')).toBeInTheDocument();
+
+    expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
   });
 
   it('adds a new key-value pair', () => {

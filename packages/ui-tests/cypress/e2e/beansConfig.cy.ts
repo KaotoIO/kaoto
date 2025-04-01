@@ -7,8 +7,8 @@ describe('Test for Bean support', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openBeans();
     cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
-    cy.get(`input[name="name"]`).clear().type('test');
-    cy.get(`input[name="type"]`).clear().type('org.acme');
+    cy.get(`input[name="#.name"]`).clear().type('test');
+    cy.get(`input[name="#.type"]`).clear().type('org.acme');
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('- beans:');
@@ -39,19 +39,15 @@ describe('Test for Bean support', () => {
     cy.get('@row').find('td').eq(1).should('contain', 'org.acme');
     cy.get('@row').click();
 
-    cy.expandWrappedMetadataSection('properties');
-    cy.get('[data-testid="properties-property-name-label"]').should('exist');
-    cy.get('[data-testid="properties-property-value-label"]').should('exist');
+    cy.get('[placeholder="Write a key"]').should('exist');
+    cy.get('[placeholder="Write a value"]').should('exist');
 
-    cy.get('[data-testid="properties-property-property-edit-property-btn"]').click();
+    cy.get('[placeholder="Write a key"]').click();
+    cy.get('[placeholder="Write a key"]').clear().type('property1');
 
-    cy.get('[data-testid="properties-property-name-input"]').click();
-    cy.get('[data-testid="properties-property-name-input"]').clear().type('property1');
+    cy.get('[placeholder="Write a value"]').click();
+    cy.get('[placeholder="Write a value"]').clear().type('value1');
 
-    cy.get('[data-testid="properties-property-value-input"]').click();
-    cy.get('[data-testid="properties-property-value-input"]').clear().type('value1');
-
-    cy.get('[data-testid="properties-property-property-edit-confirm-property-btn"]').click();
     cy.openSourceCode();
 
     // CHECK the bean update was reflected in the code editor
@@ -67,10 +63,9 @@ describe('Test for Bean support', () => {
     cy.openBeans();
 
     cy.get('[data-testid="metadata-row-0"]').click();
-    cy.expandWrappedMetadataSection('properties');
-    cy.get('[data-testid="properties-property-name-label"]').should('exist');
-    cy.get('[data-testid="properties-property-value-label"]').should('exist');
-    cy.get('[data-testid="properties-property-delete-property-btn"]').click();
+    cy.get('[placeholder="Write a key"]').should('exist');
+    cy.get('[placeholder="Write a value"]').should('exist');
+    cy.get('[data-testid="#.properties__remove__property"]').click();
 
     // CHECK the bean was edited in the code editor
     cy.openSourceCode();

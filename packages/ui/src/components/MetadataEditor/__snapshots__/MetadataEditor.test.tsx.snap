@@ -1,0 +1,1313 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MetadataEditor.tsx component renders 1`] = `
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div
+      id="simple-zustand-devtools-Schemas Store"
+    />
+    <div>
+      <div
+        class="pf-v6-l-split pf-m-gutter"
+      >
+        <div
+          class="pf-v6-l-split__item metadata-editor-modal-list-view"
+        >
+          <div
+            class="pf-v6-c-scroll-outer-wrapper"
+          >
+            <div
+              class="pf-v6-c-scroll-inner-wrapper"
+            >
+              <table
+                aria-label="beans"
+                class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
+                data-ouia-component-id="OUIA-Generated-Table-1"
+                data-ouia-component-type="PF6/Table"
+                data-ouia-safe="true"
+                role="grid"
+              >
+                <thead
+                  class="pf-v6-c-table__thead"
+                >
+                  <tr
+                    class="pf-v6-c-table__tr"
+                    data-ouia-component-id="OUIA-Generated-TableRow-1"
+                    data-ouia-component-type="PF6/TableRow"
+                    data-ouia-safe="true"
+                  >
+                    <th
+                      class="pf-v6-c-table__th pf-m-nowrap"
+                      scope="col"
+                      tabindex="-1"
+                    >
+                      NAME
+                    </th>
+                    <th
+                      class="pf-v6-c-table__th pf-m-nowrap"
+                      scope="col"
+                      tabindex="-1"
+                    >
+                      TYPE
+                    </th>
+                    <td
+                      class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
+                      tabindex="-1"
+                    >
+                      <button
+                        aria-disabled="false"
+                        class="pf-v6-c-button pf-m-link"
+                        data-ouia-component-id="OUIA-Generated-Button-link-1"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        data-testid="metadata-add-beans-btn"
+                        title="Add new beans"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                </thead>
+                <tbody
+                  class="pf-v6-c-table__tbody"
+                  role="rowgroup"
+                >
+                  <tr
+                    class="pf-v6-c-table__tr"
+                    data-ouia-component-id="OUIA-Generated-TableRow-2"
+                    data-ouia-component-type="PF6/TableRow"
+                    data-ouia-safe="true"
+                  >
+                    <td
+                      class="pf-v6-c-table__td"
+                      colspan="3"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="pf-v6-c-empty-state"
+                      >
+                        <div
+                          class="pf-v6-c-empty-state__content"
+                        >
+                          <div
+                            class="pf-v6-c-empty-state__header"
+                          />
+                          <div
+                            class="pf-v6-c-empty-state__body"
+                          >
+                            No 
+                            beans
+                          </div>
+                          <button
+                            aria-disabled="false"
+                            class="pf-v6-c-button pf-m-link"
+                            data-ouia-component-id="OUIA-Generated-Button-link-2"
+                            data-ouia-component-type="PF6/Button"
+                            data-ouia-safe="true"
+                            data-testid="metadata-add-beans-btn"
+                            type="button"
+                          >
+                            <span
+                              class="pf-v6-c-button__icon pf-m-start"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="pf-v6-svg"
+                                fill="currentColor"
+                                height="1em"
+                                role="img"
+                                viewBox="0 0 512 512"
+                                width="1em"
+                              >
+                                <path
+                                  d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                />
+                              </svg>
+                            </span>
+                            <span
+                              class="pf-v6-c-button__text"
+                            >
+                              Add new
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pf-v6-l-split__item metadata-editor-modal-details-view"
+        >
+          <div
+            class="pf-v6-l-stack pf-m-gutter"
+          >
+            <div
+              class="pf-v6-l-stack__item"
+            >
+              <h2
+                class="pf-v6-c-title pf-m-h2"
+                data-ouia-component-id="OUIA-Generated-Title-1"
+                data-ouia-component-type="PF6/Title"
+                data-ouia-safe="true"
+              >
+                Details
+              </h2>
+            </div>
+            <div
+              class="pf-v6-l-stack__item pf-m-fill"
+            >
+              <form
+                class="pf-v6-c-form kaoto-form kaoto-form__label"
+                data-testid="metadata-editor-form-Beans"
+                novalidate=""
+              >
+                <div
+                  class="pf-v6-c-form__group"
+                  data-testid="#.name__field-wrapper"
+                >
+                  <div
+                    class="pf-v6-c-form__group-label"
+                  >
+                    <label
+                      class="pf-v6-c-form__label"
+                      for="#.name"
+                    >
+                      <span
+                        class="pf-v6-c-form__label-text"
+                      >
+                        name
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        class="pf-v6-c-form__label-required"
+                      >
+                         
+                        *
+                      </span>
+                    </label>
+                      
+                    <span
+                      class="pf-v6-c-form__group-label-help"
+                    >
+                      <div
+                        style="display: contents;"
+                      >
+                        <span
+                          aria-disabled="false"
+                          aria-label="More info for name field"
+                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          role="button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                              />
+                            </svg>
+                          </span>
+                        </span>
+                      </div>
+                    </span>
+                  </div>
+                  <div
+                    class="pf-v6-c-form__group-control"
+                  >
+                    <div
+                      class="pf-v6-c-text-input-group pf-m-disabled"
+                    >
+                      <div
+                        aria-describedby="#.name-popover"
+                        class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                        id="#.name"
+                      >
+                        <span
+                          class="pf-v6-c-text-input-group__text"
+                        >
+                          <input
+                            aria-label="Type to filter"
+                            class="pf-v6-c-text-input-group__text-input"
+                            disabled=""
+                            name="#.name"
+                            role="textbox"
+                            type="text"
+                            value=""
+                          />
+                        </span>
+                      </div>
+                      <div
+                        class="pf-v6-c-text-input-group__utilities"
+                      >
+                        <button
+                          aria-disabled="false"
+                          aria-label="Clear name field"
+                          class="pf-v6-c-button pf-m-plain"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-2"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          data-testid="#.name__clear"
+                          title="Clear name field"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 352 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="pf-v6-c-form__group"
+                  data-testid="#.type__field-wrapper"
+                >
+                  <div
+                    class="pf-v6-c-form__group-label"
+                  >
+                    <label
+                      class="pf-v6-c-form__label"
+                      for="#.type"
+                    >
+                      <span
+                        class="pf-v6-c-form__label-text"
+                      >
+                        type
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        class="pf-v6-c-form__label-required"
+                      >
+                         
+                        *
+                      </span>
+                    </label>
+                      
+                    <span
+                      class="pf-v6-c-form__group-label-help"
+                    >
+                      <div
+                        style="display: contents;"
+                      >
+                        <span
+                          aria-disabled="false"
+                          aria-label="More info for type field"
+                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-3"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          role="button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                              />
+                            </svg>
+                          </span>
+                        </span>
+                      </div>
+                    </span>
+                  </div>
+                  <div
+                    class="pf-v6-c-form__group-control"
+                  >
+                    <div
+                      class="pf-v6-c-text-input-group pf-m-disabled"
+                    >
+                      <div
+                        aria-describedby="#.type-popover"
+                        class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                        id="#.type"
+                      >
+                        <span
+                          class="pf-v6-c-text-input-group__text"
+                        >
+                          <input
+                            aria-label="Type to filter"
+                            class="pf-v6-c-text-input-group__text-input"
+                            disabled=""
+                            name="#.type"
+                            role="textbox"
+                            type="text"
+                            value=""
+                          />
+                        </span>
+                      </div>
+                      <div
+                        class="pf-v6-c-text-input-group__utilities"
+                      >
+                        <button
+                          aria-disabled="false"
+                          aria-label="Clear type field"
+                          class="pf-v6-c-button pf-m-plain"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-4"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          data-testid="#.type__clear"
+                          title="Clear type field"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 352 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="pf-v6-c-form__group"
+                  data-testid="#.properties__field-wrapper"
+                >
+                  <div
+                    class="pf-v6-c-form__group-label"
+                  >
+                    <label
+                      class="pf-v6-c-form__label"
+                      for="#.properties"
+                    >
+                      <span
+                        class="pf-v6-c-form__label-text"
+                      >
+                        properties
+                         
+                        <span
+                          class="pf-v6-c-badge pf-m-unread"
+                          title="0 properties"
+                        >
+                          0
+                        </span>
+                      </span>
+                    </label>
+                      
+                    <span
+                      class="pf-v6-c-form__group-label-help"
+                    >
+                      <div
+                        style="display: contents;"
+                      >
+                        <span
+                          aria-disabled="false"
+                          aria-label="More info for [object Object] field"
+                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-5"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          role="button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                              />
+                            </svg>
+                          </span>
+                        </span>
+                      </div>
+                    </span>
+                  </div>
+                  <div
+                    class="pf-v6-c-form__group-control"
+                  >
+                    <div
+                      class="pf-v6-l-split pf-m-gutter"
+                    >
+                      <div
+                        class="pf-v6-l-split__item pf-m-fill"
+                      >
+                        Key
+                      </div>
+                      <div
+                        class="pf-v6-l-split__item pf-m-fill"
+                      >
+                        Value
+                      </div>
+                      <div
+                        class="pf-v6-l-split__item"
+                      >
+                        <button
+                          aria-disabled="false"
+                          aria-label="Add a new property"
+                          class="pf-v6-c-button pf-m-plain"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-6"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          data-testid="#.properties__add"
+                          disabled=""
+                          title="Add a new property"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 448 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    <hr
+                      class="pf-v6-c-content--hr"
+                      data-ouia-component-id="OUIA-Generated-Content-1"
+                      data-ouia-component-type="PF6/Content"
+                      data-ouia-safe="true"
+                      data-pf-content="true"
+                    />
+                  </div>
+                </div>
+              </form>
+              <div
+                class="pf-v6-c-card kaoto-form kaoto-form__empty"
+                data-ouia-component-id="OUIA-Generated-Card-1"
+                data-ouia-component-type="PF6/Card"
+                data-ouia-safe="true"
+                data-testid="no-field-found"
+                id=""
+              >
+                <div
+                  class="pf-v6-c-card__body"
+                >
+                  <div
+                    class="pf-v6-c-alert pf-m-info"
+                    data-ouia-component-id="OUIA-Generated-Alert-info-1"
+                    data-ouia-component-type="PF6/Alert"
+                    data-ouia-safe="true"
+                  >
+                    <div
+                      class="pf-v6-c-alert__icon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="pf-v6-svg"
+                        fill="currentColor"
+                        height="1em"
+                        role="img"
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"
+                        />
+                      </svg>
+                    </div>
+                    <h4
+                      class="pf-v6-c-alert__title"
+                    >
+                      <span
+                        class="pf-v6-screen-reader"
+                      >
+                        Info alert:
+                      </span>
+                      No All fields found
+                    </h4>
+                    <div
+                      class="pf-v6-c-alert__description"
+                    >
+                      No field found matching this criteria. Please switch to the
+                       
+                      <button
+                        aria-disabled="false"
+                        class="pf-v6-c-button pf-m-link pf-m-inline"
+                        data-ouia-component-id="OUIA-Generated-Button-link-3"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        id="All"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__text"
+                        >
+                          <b>
+                            All
+                          </b>
+                        </span>
+                      </button>
+                       
+                      tab.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-v6-l-split pf-m-gutter"
+    >
+      <div
+        class="pf-v6-l-split__item metadata-editor-modal-list-view"
+      >
+        <div
+          class="pf-v6-c-scroll-outer-wrapper"
+        >
+          <div
+            class="pf-v6-c-scroll-inner-wrapper"
+          >
+            <table
+              aria-label="beans"
+              class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
+              data-ouia-component-id="OUIA-Generated-Table-1"
+              data-ouia-component-type="PF6/Table"
+              data-ouia-safe="true"
+              role="grid"
+            >
+              <thead
+                class="pf-v6-c-table__thead"
+              >
+                <tr
+                  class="pf-v6-c-table__tr"
+                  data-ouia-component-id="OUIA-Generated-TableRow-1"
+                  data-ouia-component-type="PF6/TableRow"
+                  data-ouia-safe="true"
+                >
+                  <th
+                    class="pf-v6-c-table__th pf-m-nowrap"
+                    scope="col"
+                    tabindex="-1"
+                  >
+                    NAME
+                  </th>
+                  <th
+                    class="pf-v6-c-table__th pf-m-nowrap"
+                    scope="col"
+                    tabindex="-1"
+                  >
+                    TYPE
+                  </th>
+                  <td
+                    class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
+                    tabindex="-1"
+                  >
+                    <button
+                      aria-disabled="false"
+                      class="pf-v6-c-button pf-m-link"
+                      data-ouia-component-id="OUIA-Generated-Button-link-1"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      data-testid="metadata-add-beans-btn"
+                      title="Add new beans"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v6-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                          />
+                        </svg>
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              </thead>
+              <tbody
+                class="pf-v6-c-table__tbody"
+                role="rowgroup"
+              >
+                <tr
+                  class="pf-v6-c-table__tr"
+                  data-ouia-component-id="OUIA-Generated-TableRow-2"
+                  data-ouia-component-type="PF6/TableRow"
+                  data-ouia-safe="true"
+                >
+                  <td
+                    class="pf-v6-c-table__td"
+                    colspan="3"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="pf-v6-c-empty-state"
+                    >
+                      <div
+                        class="pf-v6-c-empty-state__content"
+                      >
+                        <div
+                          class="pf-v6-c-empty-state__header"
+                        />
+                        <div
+                          class="pf-v6-c-empty-state__body"
+                        >
+                          No 
+                          beans
+                        </div>
+                        <button
+                          aria-disabled="false"
+                          class="pf-v6-c-button pf-m-link"
+                          data-ouia-component-id="OUIA-Generated-Button-link-2"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          data-testid="metadata-add-beans-btn"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon pf-m-start"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v6-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                              />
+                            </svg>
+                          </span>
+                          <span
+                            class="pf-v6-c-button__text"
+                          >
+                            Add new
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-v6-l-split__item metadata-editor-modal-details-view"
+      >
+        <div
+          class="pf-v6-l-stack pf-m-gutter"
+        >
+          <div
+            class="pf-v6-l-stack__item"
+          >
+            <h2
+              class="pf-v6-c-title pf-m-h2"
+              data-ouia-component-id="OUIA-Generated-Title-1"
+              data-ouia-component-type="PF6/Title"
+              data-ouia-safe="true"
+            >
+              Details
+            </h2>
+          </div>
+          <div
+            class="pf-v6-l-stack__item pf-m-fill"
+          >
+            <form
+              class="pf-v6-c-form kaoto-form kaoto-form__label"
+              data-testid="metadata-editor-form-Beans"
+              novalidate=""
+            >
+              <div
+                class="pf-v6-c-form__group"
+                data-testid="#.name__field-wrapper"
+              >
+                <div
+                  class="pf-v6-c-form__group-label"
+                >
+                  <label
+                    class="pf-v6-c-form__label"
+                    for="#.name"
+                  >
+                    <span
+                      class="pf-v6-c-form__label-text"
+                    >
+                      name
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      class="pf-v6-c-form__label-required"
+                    >
+                       
+                      *
+                    </span>
+                  </label>
+                    
+                  <span
+                    class="pf-v6-c-form__group-label-help"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <span
+                        aria-disabled="false"
+                        aria-label="More info for name field"
+                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        role="button"
+                        tabindex="0"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                            />
+                          </svg>
+                        </span>
+                      </span>
+                    </div>
+                  </span>
+                </div>
+                <div
+                  class="pf-v6-c-form__group-control"
+                >
+                  <div
+                    class="pf-v6-c-text-input-group pf-m-disabled"
+                  >
+                    <div
+                      aria-describedby="#.name-popover"
+                      class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                      id="#.name"
+                    >
+                      <span
+                        class="pf-v6-c-text-input-group__text"
+                      >
+                        <input
+                          aria-label="Type to filter"
+                          class="pf-v6-c-text-input-group__text-input"
+                          disabled=""
+                          name="#.name"
+                          role="textbox"
+                          type="text"
+                          value=""
+                        />
+                      </span>
+                    </div>
+                    <div
+                      class="pf-v6-c-text-input-group__utilities"
+                    >
+                      <button
+                        aria-disabled="false"
+                        aria-label="Clear name field"
+                        class="pf-v6-c-button pf-m-plain"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-2"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        data-testid="#.name__clear"
+                        title="Clear name field"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 352 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="pf-v6-c-form__group"
+                data-testid="#.type__field-wrapper"
+              >
+                <div
+                  class="pf-v6-c-form__group-label"
+                >
+                  <label
+                    class="pf-v6-c-form__label"
+                    for="#.type"
+                  >
+                    <span
+                      class="pf-v6-c-form__label-text"
+                    >
+                      type
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      class="pf-v6-c-form__label-required"
+                    >
+                       
+                      *
+                    </span>
+                  </label>
+                    
+                  <span
+                    class="pf-v6-c-form__group-label-help"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <span
+                        aria-disabled="false"
+                        aria-label="More info for type field"
+                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-3"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        role="button"
+                        tabindex="0"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                            />
+                          </svg>
+                        </span>
+                      </span>
+                    </div>
+                  </span>
+                </div>
+                <div
+                  class="pf-v6-c-form__group-control"
+                >
+                  <div
+                    class="pf-v6-c-text-input-group pf-m-disabled"
+                  >
+                    <div
+                      aria-describedby="#.type-popover"
+                      class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                      id="#.type"
+                    >
+                      <span
+                        class="pf-v6-c-text-input-group__text"
+                      >
+                        <input
+                          aria-label="Type to filter"
+                          class="pf-v6-c-text-input-group__text-input"
+                          disabled=""
+                          name="#.type"
+                          role="textbox"
+                          type="text"
+                          value=""
+                        />
+                      </span>
+                    </div>
+                    <div
+                      class="pf-v6-c-text-input-group__utilities"
+                    >
+                      <button
+                        aria-disabled="false"
+                        aria-label="Clear type field"
+                        class="pf-v6-c-button pf-m-plain"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-4"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        data-testid="#.type__clear"
+                        title="Clear type field"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 352 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="pf-v6-c-form__group"
+                data-testid="#.properties__field-wrapper"
+              >
+                <div
+                  class="pf-v6-c-form__group-label"
+                >
+                  <label
+                    class="pf-v6-c-form__label"
+                    for="#.properties"
+                  >
+                    <span
+                      class="pf-v6-c-form__label-text"
+                    >
+                      properties
+                       
+                      <span
+                        class="pf-v6-c-badge pf-m-unread"
+                        title="0 properties"
+                      >
+                        0
+                      </span>
+                    </span>
+                  </label>
+                    
+                  <span
+                    class="pf-v6-c-form__group-label-help"
+                  >
+                    <div
+                      style="display: contents;"
+                    >
+                      <span
+                        aria-disabled="false"
+                        aria-label="More info for [object Object] field"
+                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-5"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        role="button"
+                        tabindex="0"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+                            />
+                          </svg>
+                        </span>
+                      </span>
+                    </div>
+                  </span>
+                </div>
+                <div
+                  class="pf-v6-c-form__group-control"
+                >
+                  <div
+                    class="pf-v6-l-split pf-m-gutter"
+                  >
+                    <div
+                      class="pf-v6-l-split__item pf-m-fill"
+                    >
+                      Key
+                    </div>
+                    <div
+                      class="pf-v6-l-split__item pf-m-fill"
+                    >
+                      Value
+                    </div>
+                    <div
+                      class="pf-v6-l-split__item"
+                    >
+                      <button
+                        aria-disabled="false"
+                        aria-label="Add a new property"
+                        class="pf-v6-c-button pf-m-plain"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-6"
+                        data-ouia-component-type="PF6/Button"
+                        data-ouia-safe="true"
+                        data-testid="#.properties__add"
+                        disabled=""
+                        title="Add a new property"
+                        type="button"
+                      >
+                        <span
+                          class="pf-v6-c-button__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v6-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 448 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <hr
+                    class="pf-v6-c-content--hr"
+                    data-ouia-component-id="OUIA-Generated-Content-1"
+                    data-ouia-component-type="PF6/Content"
+                    data-ouia-safe="true"
+                    data-pf-content="true"
+                  />
+                </div>
+              </div>
+            </form>
+            <div
+              class="pf-v6-c-card kaoto-form kaoto-form__empty"
+              data-ouia-component-id="OUIA-Generated-Card-1"
+              data-ouia-component-type="PF6/Card"
+              data-ouia-safe="true"
+              data-testid="no-field-found"
+              id=""
+            >
+              <div
+                class="pf-v6-c-card__body"
+              >
+                <div
+                  class="pf-v6-c-alert pf-m-info"
+                  data-ouia-component-id="OUIA-Generated-Alert-info-1"
+                  data-ouia-component-type="PF6/Alert"
+                  data-ouia-safe="true"
+                >
+                  <div
+                    class="pf-v6-c-alert__icon"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 512 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"
+                      />
+                    </svg>
+                  </div>
+                  <h4
+                    class="pf-v6-c-alert__title"
+                  >
+                    <span
+                      class="pf-v6-screen-reader"
+                    >
+                      Info alert:
+                    </span>
+                    No All fields found
+                  </h4>
+                  <div
+                    class="pf-v6-c-alert__description"
+                  >
+                    No field found matching this criteria. Please switch to the
+                     
+                    <button
+                      aria-disabled="false"
+                      class="pf-v6-c-button pf-m-link pf-m-inline"
+                      data-ouia-component-id="OUIA-Generated-Button-link-3"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      id="All"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__text"
+                      >
+                        <b>
+                          All
+                        </b>
+                      </span>
+                    </button>
+                     
+                    tab.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;
