@@ -6,7 +6,7 @@ import {
   TextInputGroupUtilities,
 } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, PortIcon, TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -17,19 +17,13 @@ import { FieldActions } from './FieldActions';
 export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
   const [passwordHidden, setPasswordHidden] = useState<boolean>(true);
-  const { value = '', onChange } = useFieldValue<string>(propName);
+  const { value = '', onChange, isRaw, wrapValueWithRaw } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
-  const [isRaw, setIsRaw] = useState(false);
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
   };
-
-  useEffect(() => {
-    const match = value?.match(/^RAW\((.*)\)$/);
-    setIsRaw(!!match);
-  }, [value]);
 
   const onRemove = () => {
     if (isDefined(onRemoveProps)) {
@@ -38,17 +32,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
     }
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
-  };
-
-  const wrapValueWithRaw = () => {
-    if (!isRaw) {
-      onChange(`RAW(${value})`);
-      setIsRaw(true);
-    } else {
-      const match = value?.match(/^RAW\((.*)\)$/);
-      onChange(match ? match[1] : (value ?? ''));
-      setIsRaw(false);
-    }
   };
 
   const id = `${propName}-popover`;
