@@ -1,6 +1,6 @@
 import { DropdownItem, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
 import { PortIcon, TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
@@ -10,15 +10,9 @@ import { FieldActions } from './FieldActions';
 
 export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
-  const [isRaw, setIsRaw] = useState(false);
-  const { value = '', errors, onChange, disabled } = useFieldValue<string>(propName);
+ const { value = '', errors, onChange, isRaw, wrapValueWithRaw, disabled } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
-
-  useEffect(() => {
-    const match = value?.match(/^RAW\((.*)\)$/);
-    setIsRaw(!!match);
-  }, [value]);
 
   const onFieldChange = (_event: unknown, value: string) => {
     onChange(value);
@@ -32,16 +26,6 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
 
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
-  };
-  const wrapValueWithRaw = () => {
-    if (!isRaw) {
-      onChange(`RAW(${value})`);
-      setIsRaw(true);
-    } else {
-      const match = value?.match(/^RAW\((.*)\)$/);
-      onChange(match ? match[1] : (value ?? ''));
-      setIsRaw(false);
-    }
   };
 
   const id = `${propName}-popover`;
