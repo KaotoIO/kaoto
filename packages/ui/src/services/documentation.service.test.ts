@@ -1,10 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import JSZip from 'jszip';
 import { useContext } from 'react';
-import { BaseVisualCamelEntity, PipeVisualEntity } from '../models';
-import { BaseCamelEntity } from '../models/camel/entities';
-import { CamelRestConfigurationVisualEntity } from '../models/visualization/flows/camel-rest-configuration-visual-entity';
-import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
+import { PipeVisualEntity } from '../models';
 import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
 import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
 import { camelRouteYaml, kameletYaml, pipeYaml } from '../stubs';
@@ -17,6 +14,7 @@ import { routeConfigurationFullYaml } from '../stubs/route-configuration-full';
 import { EventNotifier } from '../utils';
 import { DocumentationService } from './documentation.service';
 import { kameletWithMultilineXmlPropYaml } from '../stubs/kamelet-with-multiline-xml-prop';
+import { CamelResource, CamelRouteResource } from '../models/camel';
 
 describe('DocumentationService', () => {
   let eventNotifier: EventNotifier;
@@ -35,28 +33,21 @@ describe('DocumentationService', () => {
       throw new Error('EntitiesContext is null');
     }
 
-    const visibleFlows = entitiesContext.current.visualEntities.reduce((acc, entity) => {
+    const visibleFlows = entitiesContext.current.camelResource.getVisualEntities().reduce((acc, entity) => {
       acc[entity.id] = true;
       return acc;
     }, {} as IVisibleFlows);
 
-    return DocumentationService.getDocumentationEntities(
-      entitiesContext.current.entities,
-      entitiesContext.current.visualEntities,
-      visibleFlows,
-    );
+    return DocumentationService.getDocumentationEntities(entitiesContext.current.camelResource, visibleFlows);
   };
 
-  const createDocumentationEntitiesFromEntities = (
-    visualEntities: BaseVisualCamelEntity[],
-    nonVisualEntities: BaseCamelEntity[],
-  ) => {
-    const visibleFlows = visualEntities.reduce((acc, entity) => {
+  const createDocumentationEntitiesFromCamelResource = (camelResource: CamelResource) => {
+    const visibleFlows = camelResource.getVisualEntities().reduce((acc, entity) => {
       acc[entity.id] = true;
       return acc;
     }, {} as IVisibleFlows);
 
-    return DocumentationService.getDocumentationEntities(nonVisualEntities, visualEntities, visibleFlows);
+    return DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
   };
 
   describe('generateFlowImage()', () => {
@@ -115,10 +106,8 @@ describe('DocumentationService', () => {
     });
 
     it('should generate rest documentation entities', () => {
-      const documentationEntities = createDocumentationEntitiesFromEntities(
-        [new CamelRestVisualEntity(restStub), new CamelRestConfigurationVisualEntity(restConfigurationStub)],
-        [],
-      );
+      const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
+      const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
 
       expect(documentationEntities.length).toEqual(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
@@ -229,10 +218,8 @@ describe('DocumentationService', () => {
     });
 
     it('should generate rest markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromEntities(
-        [new CamelRestVisualEntity(restStub), new CamelRestConfigurationVisualEntity(restConfigurationStub)],
-        [],
-      );
+      const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
+      const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
