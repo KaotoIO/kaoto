@@ -35,13 +35,13 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
   onClose,
 }) => {
   const fileNameBase = 'route-export';
-  const { entities, visualEntities } = useContext(EntitiesContext)!;
+  const { camelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const [markdownText, setMarkdownText] = useState<string>('');
   const [flowImageBlob, setFlowImageBlob] = useState<Blob>();
   const [downloadFileName, setDownloadFileName] = useState<string>(fileNameBase + '.zip');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(isOpen);
-  const initialDocEntities = DocumentationService.getDocumentationEntities(entities, visualEntities, visibleFlows);
+  const initialDocEntities = DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
   const [documentationEntities, setDocumentationEntities] = useState<DocumentationEntity[]>(initialDocEntities);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 

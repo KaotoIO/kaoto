@@ -29,6 +29,7 @@ import { DocumentationEntity, ParsedTable } from '../models/documentation';
 import { KameletParser } from './parsers/kamelet-parser';
 import { PipeParser } from './parsers/pipe-parser';
 import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
+import { CamelResource } from '../models/camel';
 
 export class DocumentationService {
   static generateDocumentationZip(flowImage: Blob, markdownText: string, fileNameBase: string): Promise<Blob> {
@@ -141,11 +142,8 @@ export class DocumentationService {
     return ParsedTable.unsupported(entity);
   }
 
-  static getDocumentationEntities(
-    entities: (BaseCamelEntity | BaseVisualCamelEntity)[],
-    visualEntities: BaseVisualCamelEntity[],
-    visibleFlows: IVisibleFlows,
-  ): DocumentationEntity[] {
+  static getDocumentationEntities(camelResource: CamelResource, visibleFlows: IVisibleFlows): DocumentationEntity[] {
+    const visualEntities = camelResource.getVisualEntities();
     const visualDocEntities = visualEntities.map((entity) => {
       const entityLabel = DocumentationService.getEntityLabel(entity);
       return new DocumentationEntity({
@@ -155,7 +153,8 @@ export class DocumentationService {
         isVisible: visibleFlows[entity.id],
       });
     });
-    const nonVisualDocEntities = entities
+    const nonVisualDocEntities = camelResource
+      .getEntities()
       .filter((e) => !visualEntities.includes(e as BaseVisualCamelEntity))
       .map((entity) => {
         const entityLabel = DocumentationService.getEntityLabel(entity);

@@ -1,6 +1,6 @@
 import { CatalogLibrary } from '@kaoto/camel-catalog/catalog-index.d.ts';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
 import { TestProvidersWrapper } from '../../../../../stubs';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
@@ -9,6 +9,12 @@ import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
 import { KaotoFormPageObject } from '../testing/KaotoFormPageObject';
 import { BeanField } from './BeanField';
+import { FunctionComponent } from 'react';
+import { EntitiesContextResult } from '../../../../../providers';
+import { useEntityContext } from '../../../../../hooks/useEntityContext/useEntityContext';
+import { DocumentationService } from '../../../../../services/documentation.service';
+import { IVisibleFlows } from '../../../../../models/visualization/flows/support/flows-visibility';
+import { BeansEntity } from '../../../../../models/visualization/metadata';
 
 describe('BeanField', () => {
   const schema: KaotoSchemaDefinition['schema'] = { title: 'Bean', type: 'string' };
@@ -189,6 +195,42 @@ describe('BeanField', () => {
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+    });
+
+    it('should appear in document export when bean is added', async () => {
+      let entitiesContext: EntitiesContextResult | null = null;
+      const CaptureEntitiesWrapper: FunctionComponent = () => {
+        entitiesContext = useEntityContext();
+        return <BeanField propName={ROOT_PATH} />;
+      };
+
+      const { Provider } = TestProvidersWrapper();
+      cleanup();
+      render(
+        <Provider>
+          <SchemaProvider schema={schema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              <CaptureEntitiesWrapper />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+      formPageObject = new KaotoFormPageObject(screen, act);
+
+      await createBean('myNewBean');
+      const [nameInput] = screen.getAllByLabelText('Name');
+      expect(nameInput).toHaveValue('myNewBean');
+
+      await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
+      await clickCreateButton();
+
+      const visibleFlows = entitiesContext!.camelResource.getVisualEntities().reduce((acc, entity) => {
+        acc[entity.id] = true;
+        return acc;
+      }, {} as IVisibleFlows);
+      const entities = DocumentationService.getDocumentationEntities(entitiesContext!.camelResource, visibleFlows);
+      expect(entities.length).toBe(2);
+      expect(entities.find((e) => e.entity instanceof BeansEntity)).toBeDefined();
     });
   });
 });
