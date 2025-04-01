@@ -9,7 +9,7 @@ import { isDefined } from '../../../../../utils';
 
 export const EnumField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string | undefined>(propName);
+  const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   if (!isDefined(schema)) {
     throw new Error(`StringField: schema is not defined for ${propName}`);
   }
@@ -69,6 +69,7 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
         id={propName}
         onChange={onItemChange}
         onCleanInput={onCleanInput}
+        disabled={disabled}
       />
     </FieldWrapper>
   );

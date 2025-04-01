@@ -14,7 +14,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const BeanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string | undefined>(propName);
+  const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beanReference = value;
@@ -123,6 +123,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
           onCleanInput={onCleanInput}
           onCreate={onSelect}
           onCreatePrefix="bean"
+          disabled={disabled}
         />
       </FieldWrapper>
 

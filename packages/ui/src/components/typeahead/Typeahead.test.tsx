@@ -30,9 +30,15 @@ describe('Typeahead', () => {
   });
 
   it('should renders the Typeahead component', async () => {
-    render(<Typeahead {...defaultProps} />);
+    const { container } = render(<Typeahead {...defaultProps} />);
 
-    expect(screen).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should renders the Typeahead component with disabled button', async () => {
+    const { container } = render(<Typeahead {...defaultProps} disabled={true} />);
+
+    expect(container).toMatchSnapshot();
   });
 
   it('should opens the dropdown when the toggle is clicked', async () => {

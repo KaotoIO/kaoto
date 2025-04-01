@@ -11,7 +11,7 @@ import { ArrayFieldWrapper } from './ArrayFieldWrapper';
 
 export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
   const { schema, definitions } = useContext(SchemaContext);
-  const { value, onChange } = useFieldValue<unknown[]>(propName);
+  const { value, onChange, disabled } = useFieldValue<unknown[]>(propName);
   const [itemsHash, setItemsHash] = useState<string[]>([]);
   const label = schema.title ?? propName.split('.').pop() ?? propName;
 
@@ -54,6 +54,7 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName }) => {
           title="Add new item"
           onClick={onAdd}
           icon={<PlusIcon />}
+          isDisabled={disabled}
         />
       }
     >

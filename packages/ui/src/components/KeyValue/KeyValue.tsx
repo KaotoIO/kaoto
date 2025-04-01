@@ -9,6 +9,7 @@ interface KeyValueProps {
   propName: string;
   initialModel?: KeyValueType;
   onChange: (model: KeyValueType) => void;
+  disabled?: boolean;
 }
 
 type KeyValueEntry = [string, string];
@@ -18,7 +19,7 @@ type KeyValueEntry = [string, string];
  * Internally it uses an array of tuples to represent the key-value pairs,
  * and it converts it to an object when calling the onChange callback.
  */
-export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialModel, onChange }) => {
+export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialModel, onChange, disabled = false }) => {
   const [internalModel, setInternalModel] = useState<KeyValueEntry[]>(Object.entries(initialModel ?? {}));
   const currentFocusIndex = useRef<['key' | 'value', number]>(['key', -1]);
 
@@ -69,6 +70,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
             aria-label="Add a new property"
             title="Add a new property"
             icon={<PlusIcon />}
+            isDisabled={disabled}
           />
         </SplitItem>
       </Split>
