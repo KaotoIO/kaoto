@@ -70,7 +70,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           >
             {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
           </Button>
-          <FieldActions>
+          <FieldActions dataTestId={`${propName}__field-actions`}>
             <DropdownItem
               onClick={onRemove}
               key={propName + '-dropdown-remove'}

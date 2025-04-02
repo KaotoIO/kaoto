@@ -46,7 +46,7 @@ describe('PasswordField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'New Value');
   });
 
-  it('should clear the input when using the clear button', () => {
+  it('should clear the input when using the clear button', async () => {
     const onPropertyChangeSpy = jest.fn();
 
     const wrapper = render(
@@ -55,10 +55,11 @@ describe('PasswordField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = wrapper.getByTestId(`${ROOT_PATH}__clear`);
-    act(() => {
-      fireEvent.click(clearButton);
-    });
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    fireEvent.click(fieldActions);
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /clear/i });
+    fireEvent.click(clearButton);
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
