@@ -11,7 +11,7 @@ import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import { RefObject, createRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { AbstractSettingsAdapter, ColorScheme } from '../models/settings';
+import { AbstractSettingsAdapter } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
@@ -91,9 +91,7 @@ export class KaotoEditorApp implements Editor {
   }
 
   async setTheme(theme: EditorTheme): Promise<void> {
-    const colorScheme = theme === EditorTheme.DARK ? ColorScheme.Dark : ColorScheme.Light;
-    this.settingsAdapter.saveSettings({ ...this.settingsAdapter.getSettings(), colorScheme });
-    setColorScheme(colorScheme);
+    this.editorRef.current?.setTheme(theme);
   }
 
   async sendReady(): Promise<void> {
@@ -146,9 +144,7 @@ export class KaotoEditorApp implements Editor {
   }
 
   af_onOpen(): void {
-    this.envelopeContext.channelApi.shared.kogitoEditor_theme.subscribe((theme: EditorTheme) => {
-      this.setTheme(theme);
-    });
+    setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
 
   af_componentRoot() {
