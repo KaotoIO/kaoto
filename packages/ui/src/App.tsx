@@ -37,11 +37,11 @@ function App() {
     <ReloadProvider>
       <SettingsProvider adapter={settingsAdapter}>
         <SourceCodeProvider>
-          <EntitiesProvider>
-            <Shell>
-              <RuntimeProvider catalogUrl={catalogUrl}>
-                <SchemasLoaderProvider>
-                  <CatalogLoaderProvider>
+          <RuntimeProvider catalogUrl={catalogUrl}>
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
                     <CatalogTilesProvider>
                       <VisualizationProvider controller={controller}>
                         <VisibleFlowsProvider>
@@ -57,11 +57,11 @@ function App() {
                         </VisibleFlowsProvider>
                       </VisualizationProvider>
                     </CatalogTilesProvider>
-                  </CatalogLoaderProvider>
-                </SchemasLoaderProvider>
-              </RuntimeProvider>
-            </Shell>
-          </EntitiesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
         </SourceCodeProvider>
       </SettingsProvider>
     </ReloadProvider>
