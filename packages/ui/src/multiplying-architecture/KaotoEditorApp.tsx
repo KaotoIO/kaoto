@@ -91,7 +91,7 @@ export class KaotoEditorApp implements Editor {
   }
 
   async setTheme(theme: EditorTheme): Promise<void> {
-    this.editorRef.current?.setTheme(theme);
+    return this.editorRef.current?.setTheme(theme);
   }
 
   async sendReady(): Promise<void> {

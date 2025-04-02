@@ -156,7 +156,7 @@ export const KaotoEditor = () => {
                 <>
                   <TabTitleIcon>
                     <Icon>
-                      <img src={icon_component_datamapper} alt="DataMapper icon" />
+                      <img src={icon_component_datamapper} alt="Kaoto DataMapper icon" />
                     </Icon>
                   </TabTitleIcon>
                   <TabTitleText>DataMapper</TabTitleText>
