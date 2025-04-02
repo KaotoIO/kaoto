@@ -11,9 +11,10 @@ function isDropdownItem(element: React.ReactNode): element is ReactElement<typeo
 
 export interface FieldActionsProps {
   children: ReactElement<typeof DropdownItem> | ReactElement<typeof DropdownItem>[];
+  dataTestId?: string;
 }
 
-export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children }) => {
+export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children, dataTestId }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const onToggleClick = () => {
@@ -38,7 +39,8 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children })
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
         <MenuToggle
           ref={toggleRef}
-          aria-label="kebab dropdown toggle"
+          data-testid={dataTestId ?? 'field-actions'}
+          aria-label={dataTestId ?? 'field-actions'}
           variant="plain"
           onClick={onToggleClick}
           isExpanded={isOpen}

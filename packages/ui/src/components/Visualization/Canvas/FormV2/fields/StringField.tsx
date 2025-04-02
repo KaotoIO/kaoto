@@ -56,7 +56,7 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
         />
 
         <TextInputGroupUtilities>
-          <FieldActions>
+          <FieldActions dataTestId={`${propName}__field-actions`}>
             <DropdownItem
               onClick={onRemove}
               key={propName + '-dropdown-remove'}

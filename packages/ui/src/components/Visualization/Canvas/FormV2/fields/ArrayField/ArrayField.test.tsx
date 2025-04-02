@@ -57,8 +57,11 @@ describe('ArrayField', () => {
       );
     });
 
-    const removeButtons = await wrapper!.findAllByRole('button', { name: /remove/i });
-    fireEvent.click(removeButtons[0]);
+    const fieldActions = wrapper!.getByTestId(`#.0__field-actions`);
+    fireEvent.click(fieldActions);
+
+    const clearButton = await wrapper!.findByRole('menuitem', { name: /remove/i });
+    fireEvent.click(clearButton);
 
     expect(onChange).toHaveBeenCalledWith(ROOT_PATH, ['item2']);
   });
