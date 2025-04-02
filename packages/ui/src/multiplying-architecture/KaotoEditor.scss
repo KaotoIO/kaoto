@@ -19,6 +19,10 @@ html body {
   }
 }
 
+.pf-v6-theme-dark img[alt='Kaoto DataMapper icon'] {
+  filter: invert(1);
+}
+
 .shell {
   height: 100vh;
   width: 100vw;
