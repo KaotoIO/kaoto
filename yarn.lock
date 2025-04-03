@@ -3081,8 +3081,6 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.4.2"
     typescript-eslint: "npm:^8.5.0"
-    uniforms: "npm:4.0.0-alpha.5"
-    uniforms-bridge-json-schema: "npm:4.0.0-alpha.6"
     usehooks-ts: "npm:^3.0.0"
     uuid: "npm:^10.0.0"
     vite: "npm:^5.4.0"
@@ -11936,7 +11934,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.0.0, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -13707,7 +13705,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.0.0, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.21, lodash@npm:~4.17.15":
+"lodash@npm:4.17.21, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.21, lodash@npm:~4.17.15":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10/c08619c038846ea6ac754abd6dd29d2568aa705feb69339e836dfa8d8b09abbb2f859371e86863eda41848221f9af43714491467b5b0299122431e202bb0c532
@@ -19036,7 +19034,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.2.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0":
   version: 2.6.3
   resolution: "tslib@npm:2.6.3"
   checksum: 10/52109bb681f8133a2e58142f11a50e05476de4f075ca906d13b596ae5f7f12d30c482feb0bff167ae01cfc84c5803e575a307d47938999246f5a49d174fc558c
@@ -19344,31 +19342,6 @@ __metadata:
     trough: "npm:^2.0.0"
     vfile: "npm:^6.0.0"
   checksum: 10/d9e6e88900a075f391b6bbf06f34062d41fa6257798110d1647753cfc2c6a6e2c1d016434e8ee35706c50485f9fb9ae4707a6a4790bd8dc461ec7e7315ed908b
-  languageName: node
-  linkType: hard
-
-"uniforms-bridge-json-schema@npm:4.0.0-alpha.6":
-  version: 4.0.0-alpha.6
-  resolution: "uniforms-bridge-json-schema@npm:4.0.0-alpha.6"
-  dependencies:
-    invariant: "npm:^2.0.0"
-    lodash: "npm:^4.0.0"
-    tslib: "npm:^2.2.0"
-    uniforms: "npm:^4.0.0-alpha.6"
-  checksum: 10/dceeda9556afc48fb2a38578595e54a683703695f1ed23b876761a4c919cc0f5f03dc6676cf7ce2f35d317aeb4f8c497deb51c5d3457709d6cccb329199bddc2
-  languageName: node
-  linkType: hard
-
-"uniforms@npm:4.0.0-alpha.5":
-  version: 4.0.0-alpha.5
-  resolution: "uniforms@npm:4.0.0-alpha.5"
-  dependencies:
-    invariant: "npm:^2.0.0"
-    lodash: "npm:^4.0.0"
-    tslib: "npm:^2.2.0"
-  peerDependencies:
-    react: ^18.0.0 || ^17.0.0 || ^16.8.0
-  checksum: 10/560ecbc0c3910ca8f4b8aee9d205b1583cb91de35d2c5d0c96be2788030224125db1d71f69f85aab640f716d926aba964be5cc2bdc5be6a176e1f1e7f9ff3a61
   languageName: node
   linkType: hard
 

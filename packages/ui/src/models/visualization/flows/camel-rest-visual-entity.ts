@@ -1,6 +1,5 @@
 import { ProcessorDefinition, Rest } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../components/Form/schema.service';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
@@ -20,15 +19,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   id: string;
   readonly type = EntityType.Rest;
   static readonly ROOT_PATH = 'rest';
-  private readonly OMIT_FORM_FIELDS = [
-    ...SchemaService.OMIT_FORM_FIELDS,
-    'get',
-    'post',
-    'put',
-    'delete',
-    'head',
-    'patch',
-  ];
+  private readonly OMIT_FORM_FIELDS = ['get', 'post', 'put', 'delete', 'head', 'patch'];
 
   constructor(public restDef: { rest: Rest } = { rest: {} }) {
     super(restDef);

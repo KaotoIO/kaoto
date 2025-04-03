@@ -1,6 +1,5 @@
 import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../components/Form/schema.service';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
@@ -117,7 +116,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   getOmitFormFields(): string[] {
-    return SchemaService.OMIT_FORM_FIELDS;
+    return [];
   }
 
   updateModel(path: string | undefined, value: unknown): void {

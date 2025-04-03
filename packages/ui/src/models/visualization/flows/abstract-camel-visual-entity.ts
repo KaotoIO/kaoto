@@ -1,5 +1,4 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { SchemaService } from '../../../components/Form/schema.service';
 import { camelCaseToSpaces, getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
@@ -97,7 +96,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   getOmitFormFields(): string[] {
-    return SchemaService.OMIT_FORM_FIELDS;
+    return ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
   }
 
   updateModel(path: string | undefined, value: unknown): void {
