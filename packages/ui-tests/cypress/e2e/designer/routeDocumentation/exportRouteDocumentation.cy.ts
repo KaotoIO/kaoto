@@ -129,4 +129,45 @@ describe('Test documentation generation functionality', () => {
     ];
     cy.documentationTableCompare('camel-route', expectedResultTableData);
   });
+
+  // reproducer for https://github.com/KaotoIO/kaoto/issues/2093
+  it('Check the documentation was generated for simple camel route with field additon', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+
+    cy.openBeans();
+    cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
+    cy.get(`input[name="name"]`).clear().type('test');
+    cy.get(`input[name="type"]`).clear().type('org.acme');
+    cy.get(`input[name="initMethod"]`).clear().type('initMethodTest');
+    cy.get(`input[name="destroyMethod"]`).clear().type('destroyMethodTest');
+    cy.get(`input[name="factoryMethod"]`).clear().type('factoryMethodTest');
+    cy.get(`input[name="factoryBean"]`).clear().type('factoryBeanTest');
+    cy.get(`input[name="builderClass"]`).clear().type('builderClassTest');
+    cy.get(`input[name="scriptLanguage"]`).clear().type('scriptLanguageTest');
+    cy.get(`input[name="script"]`).clear().type('scriptTest');
+
+    cy.openDesignPage();
+
+    cy.generateDocumentationPreview();
+
+    const expectedCamelRouteTableData = [
+      ['', 'from', 'timer:test', '', ''],
+      ['', 'setHeader', '', 'constant', 'test'],
+      ['', '', '', 'name', 'test'],
+      ['marshal-3801', 'marshal', '', '', ''],
+      ['', 'to', 'log:test', '', ''],
+    ];
+
+    const expectedBeansTableData = [
+      ['test', 'org.acme', '', 'initMethod', 'initMethodTest'],
+      ['', '', '', 'destroyMethod', 'destroyMethodTest'],
+      ['', '', '', 'factoryMethod', 'factoryMethodTest'],
+      ['', '', '', 'factoryBean', 'factoryBeanTest'],
+      ['', '', '', 'builderClass', 'builderClassTest'],
+      ['', '', '', 'scriptLanguage', 'scriptLanguageTest'],
+      ['', '', '', 'script', 'scriptTest'],
+    ];
+    cy.documentationTableCompare('camel-route', expectedCamelRouteTableData);
+    cy.documentationTableCompare('Beans', expectedBeansTableData);
+  });
 });
