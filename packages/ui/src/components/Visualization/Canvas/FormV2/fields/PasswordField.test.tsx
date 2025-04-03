@@ -93,4 +93,42 @@ describe('PasswordField', () => {
 
     expect(input.getAttribute('type')).toBe('text');
   });
+
+  it('wraps value with RAW when Raw button is clicked', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
+        <PasswordField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    fireEvent.click(fieldActions);
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /raw/i });
+    fireEvent.click(clearButton);
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'RAW(Value)');
+  });
+
+  it('unwraps value from RAW when already wrapped', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="RAW(Test Value)" onPropertyChange={onPropertyChangeSpy}>
+        <PasswordField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    fireEvent.click(fieldActions);
+
+    const raw = await wrapper.findByRole('menuitem', { name: /raw/i });
+    fireEvent.click(raw);
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'Test Value');
+  });
 });
