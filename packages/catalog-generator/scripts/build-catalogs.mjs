@@ -17,6 +17,7 @@ const CATALOGS = {
   // https://maven.repository.redhat.com/ga/org/apache/camel/camel-catalog/
   Main: [
     //
+    '4.11.0',
     '4.10.2',
     '4.8.5',
     '4.8.3.redhat-00004',
@@ -35,6 +36,7 @@ const CATALOGS = {
   // https://maven.repository.redhat.com/ga/org/apache/camel/springboot/camel-catalog-provider-springboot/
   SpringBoot: [
     //
+    '4.11.0',
     '4.10.2',
     '4.8.5',
     '4.8.3.redhat-00009',
