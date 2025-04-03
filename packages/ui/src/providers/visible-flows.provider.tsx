@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import { FunctionComponent, PropsWithChildren, createContext, useContext, useMemo, useReducer } from 'react';
 import {
   IVisibleFlows,
   VisibleFlowsReducer,
@@ -27,10 +27,6 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   const visualFlowsApi = useMemo(() => {
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
-
-  useEffect(() => {
-    visualFlowsApi.initVisibleFlows(visualEntitiesIds);
-  }, [visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {
     return {
