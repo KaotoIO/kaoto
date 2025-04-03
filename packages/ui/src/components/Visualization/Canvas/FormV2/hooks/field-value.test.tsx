@@ -41,4 +41,58 @@ describe('useFieldValue', () => {
     const { result } = renderHook(() => useFieldValue<string>('nonexistent'), { wrapper });
     expect(result.current.errors).toBeUndefined();
   });
+
+  it('wraps value with RAW when not already wrapped', () => {
+    const mockModel = { name: 'Test Name' };
+    const mockOnPropertyChange = jest.fn();
+    const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <ModelContext.Provider value={{ model: mockModel, onPropertyChange: mockOnPropertyChange }}>
+        {children}
+      </ModelContext.Provider>
+    );
+
+    const { result } = renderHook(() => useFieldValue<string>('#.name'), { wrapper });
+    act(() => {
+      result.current.wrapValueWithRaw();
+    });
+
+    expect(mockOnPropertyChange).toHaveBeenCalledWith('name', 'RAW(Test Name)');
+    expect(result.current.isRaw).toBe(true);
+  });
+
+  it('unwraps value from RAW when already wrapped', () => {
+    const mockModel = { name: 'RAW(Test Name)' };
+    const mockOnPropertyChange = jest.fn();
+    const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <ModelContext.Provider value={{ model: mockModel, onPropertyChange: mockOnPropertyChange }}>
+        {children}
+      </ModelContext.Provider>
+    );
+
+    const { result } = renderHook(() => useFieldValue<string>('#.name'), { wrapper });
+    act(() => {
+      result.current.wrapValueWithRaw();
+    });
+
+    expect(mockOnPropertyChange).toHaveBeenCalledWith('name', 'Test Name');
+    expect(result.current.isRaw).toBe(false);
+  });
+
+  it('does nothing if value is not a string', () => {
+    const mockModel = { name: 123 };
+    const mockOnPropertyChange = jest.fn();
+    const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <ModelContext.Provider value={{ model: mockModel, onPropertyChange: mockOnPropertyChange }}>
+        {children}
+      </ModelContext.Provider>
+    );
+
+    const { result } = renderHook(() => useFieldValue<number>('#.name'), { wrapper });
+    act(() => {
+      result.current.wrapValueWithRaw();
+    });
+
+    expect(mockOnPropertyChange).not.toHaveBeenCalled();
+    expect(result.current.isRaw).toBe(false);
+  });
 });

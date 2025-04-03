@@ -56,10 +56,14 @@ describe('PasswordField', () => {
     );
 
     const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
-    fireEvent.click(fieldActions);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
 
     const clearButton = await wrapper.findByRole('menuitem', { name: /clear/i });
-    fireEvent.click(clearButton);
+    act(() => {
+      fireEvent.click(clearButton);
+    });
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
@@ -92,5 +96,51 @@ describe('PasswordField', () => {
     const input = wrapper.getByRole('textbox');
 
     expect(input.getAttribute('type')).toBe('text');
+  });
+
+  it('wraps value with RAW when Raw button is clicked', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="SecretPassword" onPropertyChange={onPropertyChangeSpy}>
+        <PasswordField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const rawItem = await wrapper.findByRole('menuitem', { name: /raw/i });
+    act(() => {
+      fireEvent.click(rawItem);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'RAW(SecretPassword)');
+  });
+
+  it('unwraps value from RAW when already wrapped', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="RAW(SecretPassword)" onPropertyChange={onPropertyChangeSpy}>
+        <PasswordField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const rawItem = await wrapper.findByRole('menuitem', { name: /raw/i });
+    act(() => {
+      fireEvent.click(rawItem);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'SecretPassword');
   });
 });
