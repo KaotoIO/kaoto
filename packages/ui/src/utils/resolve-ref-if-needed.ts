@@ -1,18 +1,20 @@
-import { UnknownObject } from 'uniforms';
 import { KaotoSchemaDefinition } from '../models';
 
 /**
  * Copied from JSONSchemaBridge
  * @see related issue: https://github.com/vazco/uniforms/issues/1307
  */
-function resolveRef(reference: string, schema: UnknownObject) {
+function resolveRef(reference: string, schema: KaotoSchemaDefinition['schema']) {
   return reference
     .split('/')
     .filter((part) => part && part !== '#')
-    .reduce((definition, next) => definition[next] as UnknownObject, schema);
+    .reduce((definition, next) => definition[next], schema);
 }
 
-export function resolveRefIfNeeded(partial: UnknownObject, schema: UnknownObject): UnknownObject {
+export function resolveRefIfNeeded(
+  partial: object,
+  schema: KaotoSchemaDefinition['schema'],
+): KaotoSchemaDefinition['schema'] {
   if (!('$ref' in partial)) {
     return partial;
   }

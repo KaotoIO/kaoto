@@ -2,7 +2,6 @@ import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/typ
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../components/Form/schema.service';
 import { NodeIconResolver, NodeIconType, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
@@ -99,7 +98,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   getOmitFormFields(): string[] {
-    return SchemaService.OMIT_FORM_FIELDS;
+    return [];
   }
 
   updateModel(path: string | undefined, value: unknown): void {

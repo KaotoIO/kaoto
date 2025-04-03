@@ -71,8 +71,6 @@
     "remark-gfm": "^4.0.1",
     "simple-zustand-devtools": "^1.1.0",
     "ts-markdown": "^1.2.0",
-    "uniforms": "4.0.0-alpha.5",
-    "uniforms-bridge-json-schema": "4.0.0-alpha.6",
     "usehooks-ts": "^3.0.0",
     "uuid": "^10.0.0",
     "xml-formatter": "^3.6.5",

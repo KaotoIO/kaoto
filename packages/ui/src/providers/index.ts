@@ -9,7 +9,6 @@ export * from './settings.provider';
 export * from './metadata.provider';
 export * from './reload.context';
 export * from './runtime.provider';
-export * from './schema-bridge.provider';
 export * from './schemas.provider';
 export * from './source-code.provider';
 export * from './visible-flows.provider';

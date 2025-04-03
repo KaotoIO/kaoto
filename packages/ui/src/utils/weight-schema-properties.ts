@@ -1,3 +1,4 @@
+import { JSONSchema4 } from 'json-schema';
 import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 import { isDefined } from './is-defined';
 import { resolveRefIfNeeded } from './resolve-ref-if-needed';
@@ -25,7 +26,7 @@ export const weightSchemaProperties = (
     }
 
     if (!isDefined(oneOfProperty.type) && Array.isArray(oneOfProperty.oneOf)) {
-      const nestedOneOfPoints = oneOfProperty.oneOf.reduce((nestedPoints, nestedOneOf) => {
+      const nestedOneOfPoints = oneOfProperty.oneOf.reduce((nestedPoints: number, nestedOneOf: JSONSchema4) => {
         nestedPoints += weightSchemaProperties(model[key] as Record<string, unknown>, nestedOneOf, rootSchema);
         return nestedPoints;
       }, 0);

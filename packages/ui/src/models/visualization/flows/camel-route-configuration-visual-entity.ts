@@ -2,7 +2,6 @@ import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../components/Form/schema.service';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
@@ -29,7 +28,6 @@ export class CamelRouteConfigurationVisualEntity
   static readonly ROOT_PATH = 'routeConfiguration';
   private schemaValidator: ValidateFunction<RouteConfigurationDefinition> | undefined;
   private readonly OMIT_FORM_FIELDS = [
-    ...SchemaService.OMIT_FORM_FIELDS,
     'intercept',
     'interceptFrom',
     'interceptSendToEndpoint',

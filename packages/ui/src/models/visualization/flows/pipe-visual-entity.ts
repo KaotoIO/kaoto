@@ -1,6 +1,5 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { SchemaService } from '../../../components/Form/schema.service';
 import {
   getArrayProperty,
   NodeIconResolver,
@@ -103,7 +102,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   getOmitFormFields(): string[] {
-    return SchemaService.OMIT_FORM_FIELDS;
+    return [];
   }
 
   toJSON() {
