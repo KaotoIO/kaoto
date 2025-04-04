@@ -183,10 +183,11 @@ describe('BeanField', () => {
     it('should not allow to create a bean without a type', async () => {
       await createBean('myNewBean');
 
-      const clearTypeField = screen.getByRole('button', { name: /clear type field/i });
-      await act(async () => {
-        fireEvent.click(clearTypeField);
-      });
+      const fieldActions = screen.getByTestId(`#.type__field-actions`);
+      fireEvent.click(fieldActions);
+
+      const clearButton = await screen.findByRole('menuitem', { name: /Clear type field/i });
+      fireEvent.click(clearButton);
 
       const [createButton] = screen.getAllByRole('button').filter((b) => b.textContent === 'Create');
       await act(async () => {

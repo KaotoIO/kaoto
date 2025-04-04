@@ -1,4 +1,5 @@
 import {
+  Badge,
   FormGroup,
   FormGroupLabelHelp,
   FormHelperText,
@@ -18,6 +19,7 @@ interface FieldWrapperProps extends FieldProps {
   defaultValue?: string;
   errors?: string[];
   isRow?: boolean;
+  isRaw?: boolean;
 }
 
 export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
@@ -30,6 +32,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   errors,
   isRow = false,
   children,
+  isRaw = false,
 }) => {
   const id = `${propName}-popover`;
   const label = title ?? propName.split('.').pop();
@@ -42,6 +45,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
         fieldId={propName}
         label={label}
         isRequired={required}
+        labelInfo={isRaw && <Badge isRead>raw</Badge>}
         labelHelp={
           <Popover
             id={id}

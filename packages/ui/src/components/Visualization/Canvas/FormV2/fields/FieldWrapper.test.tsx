@@ -50,4 +50,24 @@ describe('FieldWrapper', () => {
 
     expect(wrapper.getByText('error message')).toBeInTheDocument();
   });
+
+  it('displays raw badge when isRaw is true', () => {
+    const wrapper = render(
+      <FieldWrapper {...defaultProps} isRaw>
+        Test Children
+      </FieldWrapper>,
+    );
+
+    expect(wrapper.getByText('raw')).toBeInTheDocument();
+  });
+
+  it('does not display raw badge when isRaw is false', () => {
+    const wrapper = render(
+      <FieldWrapper {...defaultProps} isRaw={false}>
+        Test Children
+      </FieldWrapper>,
+    );
+
+    expect(wrapper.queryByText('raw')).not.toBeInTheDocument();
+  });
 });
