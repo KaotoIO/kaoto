@@ -56,10 +56,14 @@ describe('StringField', () => {
     );
 
     const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
-    fireEvent.click(fieldActions);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
 
     const clearButton = await wrapper.findByRole('menuitem', { name: /clear/i });
-    fireEvent.click(clearButton);
+    act(() => {
+      fireEvent.click(clearButton);
+    });
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);

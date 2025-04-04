@@ -1,11 +1,5 @@
-import {
-  Button,
-  DropdownItem,
-  TextInputGroup,
-  TextInputGroupMain,
-  TextInputGroupUtilities,
-} from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PortIcon, TimesIcon } from '@patternfly/react-icons';
+import { Button, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
+import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useState } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
@@ -17,7 +11,7 @@ import { FieldActions } from './FieldActions';
 export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
   const [passwordHidden, setPasswordHidden] = useState<boolean>(true);
-  const { value = '', onChange, isRaw, wrapValueWithRaw } = useFieldValue<string>(propName);
+  const { value = '', onChange, isRaw } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
 
@@ -70,27 +64,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           >
             {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
           </Button>
-          <FieldActions dataTestId={`${propName}__field-actions`}>
-            <DropdownItem
-              onClick={onRemove}
-              key={propName + '-dropdown-remove'}
-              data-testid={`${propName}__clear`}
-              aria-label={ariaLabel}
-              title={ariaLabel}
-              icon={<TimesIcon />}
-            >
-              Clear
-            </DropdownItem>
-            <DropdownItem
-              value={0}
-              key={propName + 'dropdown-toRaw'}
-              onClick={() => wrapValueWithRaw()}
-              disabled={value === ''}
-              icon={<PortIcon />}
-            >
-              Raw
-            </DropdownItem>
-          </FieldActions>
+          <FieldActions propName={propName} clearAriaLabel={ariaLabel} onRemove={onRemove} />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>

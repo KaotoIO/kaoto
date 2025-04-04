@@ -1,21 +1,17 @@
-import { Children, FunctionComponent, isValidElement, ReactElement, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
-import { EllipsisVIcon } from '@patternfly/react-icons';
-
-function isDropdownItem(element: React.ReactNode): element is ReactElement<typeof DropdownItem> {
-  return (
-    isValidElement(element) &&
-    (element.type === DropdownItem || (typeof element.type === 'object' && element.type === 'DropdownItem'))
-  );
-}
+import { EllipsisVIcon, PortIcon, TimesIcon } from '@patternfly/react-icons';
+import { useFieldValue } from '../hooks/field-value';
 
 export interface FieldActionsProps {
-  children: ReactElement<typeof DropdownItem> | ReactElement<typeof DropdownItem>[];
-  dataTestId?: string;
+  propName: string;
+  clearAriaLabel: string;
+  onRemove: () => void;
 }
 
-export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children, dataTestId }) => {
+export const FieldActions: FunctionComponent<FieldActionsProps> = ({ propName, clearAriaLabel, onRemove }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { value, wrapValueWithRaw } = useFieldValue(propName);
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -25,12 +21,6 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children, d
     setIsOpen(false);
   };
 
-  // Validate that all children are DropdownItem components
-  const validChildren = Children.toArray(children).every(isDropdownItem);
-  if (!validChildren) {
-    console.warn('FieldActions: All children must be DropdownItem components');
-  }
-
   return (
     <Dropdown
       isOpen={isOpen}
@@ -39,8 +29,8 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children, d
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
         <MenuToggle
           ref={toggleRef}
-          data-testid={dataTestId ?? 'field-actions'}
-          aria-label={dataTestId ?? 'field-actions'}
+          data-testid={`${propName}__field-actions`}
+          aria-label={`${propName}__field-actions`}
           variant="plain"
           onClick={onToggleClick}
           isExpanded={isOpen}
@@ -49,7 +39,25 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ children, d
       )}
       shouldFocusToggleOnSelect
     >
-      <DropdownList>{children}</DropdownList>
+      <DropdownList>
+        <DropdownItem
+          onClick={onRemove}
+          data-testid={`${propName}__clear`}
+          aria-label={clearAriaLabel}
+          title={clearAriaLabel}
+          icon={<TimesIcon />}
+        >
+          Clear
+        </DropdownItem>
+        <DropdownItem
+          onClick={wrapValueWithRaw}
+          data-testid={`${propName}__toRaw`}
+          disabled={value === ''}
+          icon={<PortIcon />}
+        >
+          Raw
+        </DropdownItem>
+      </DropdownList>
     </Dropdown>
   );
 };

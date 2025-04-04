@@ -1,5 +1,4 @@
-import { DropdownItem, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
-import { PortIcon, TimesIcon } from '@patternfly/react-icons';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
@@ -10,7 +9,7 @@ import { FieldActions } from './FieldActions';
 
 export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
- const { value = '', errors, onChange, isRaw, wrapValueWithRaw, disabled } = useFieldValue<string>(propName);
+  const { value = '', errors, onChange, isRaw, disabled } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
 
@@ -56,27 +55,7 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
         />
 
         <TextInputGroupUtilities>
-          <FieldActions dataTestId={`${propName}__field-actions`}>
-            <DropdownItem
-              onClick={onRemove}
-              key={propName + '-dropdown-remove'}
-              data-testid={`${propName}__clear`}
-              aria-label={ariaLabel}
-              title={ariaLabel}
-              icon={<TimesIcon />}
-            >
-              Clear
-            </DropdownItem>
-            <DropdownItem
-              value={0}
-              key={propName + '-dropdown-toRaw'}
-              onClick={() => wrapValueWithRaw()}
-              disabled={value === ''}
-              icon={<PortIcon />}
-            >
-              Raw
-            </DropdownItem>
-          </FieldActions>
+          <FieldActions propName={propName} clearAriaLabel={ariaLabel} onRemove={onRemove} />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>
