@@ -1,9 +1,35 @@
+html body {
+  /*
+   * Remove the default white background color of the body element
+   * provided by the Multiplying Architecture theme.
+   */
+  background-color: transparent !important;
+
+  /*
+   * The MA uses patternfly v4, which doesn't use CSS variables for
+   * the default font family. The following is taken from the
+   * patternfly v6 definition of the font family.
+   */
+  :where(button, input, optgroup, select, textarea) {
+    margin: 0;
+    font-family: inherit;
+    font-size: 100%;
+    line-height: var(--pf-t--global--font--line-height--body);
+    color: var(--pf-t--global--text--color--regular);
+  }
+}
+
+.pf-v6-theme-dark img[alt='Kaoto DataMapper icon'] {
+  filter: invert(1);
+}
+
 .shell {
   height: 100vh;
   width: 100vw;
   display: flex;
   flex-flow: column nowrap;
   position: relative;
+  background-color: var(--pf-t--global--background--color--secondary--default);
 
   // Tab header shouldn't grow or shrink
   > div[role='region'] {

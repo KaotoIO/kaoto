@@ -17,6 +17,7 @@ import { EntitiesProvider } from '../providers/entities.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
+import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoBridge } from './KaotoBridge';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
@@ -140,6 +141,10 @@ export class KaotoEditorApp implements Editor {
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined> {
     return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
+  }
+
+  af_onOpen(): void {
+    setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
 
   af_componentRoot() {

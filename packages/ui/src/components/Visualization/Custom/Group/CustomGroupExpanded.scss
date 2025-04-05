@@ -14,7 +14,8 @@
         display: flex;
         position: relative;
         font-weight: bold;
-        background-color: var(--pf-t--global--color--nonstatus--blue--default);
+        background-color: var(--pf-t--global--color--brand--100);
+        color: var(--pf-t--global--text--color--on-brand--default);
         padding: calc(var(--pf-t--global--spacer--xs) / 2) var(--pf-t--global--spacer--xs);
 
         img {
@@ -32,8 +33,7 @@
         }
 
         [data-selected='true'] & {
-          color: var(--pf-t--color--white);
-          background-color: var(--pf-t--global--color--brand--default);
+          background-color: var(--custom-node-BorderColor);
         }
       }
 
