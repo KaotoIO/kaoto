@@ -24,7 +24,11 @@ export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
   const { reloadNodeReferences, setDefaultHandler, setMappingLinkCanvasRef } = useCanvas();
   const mappingLinkCanvasRef = useRef<HTMLDivElement>(null);
-  setMappingLinkCanvasRef(mappingLinkCanvasRef);
+
+  useEffect(() => {
+    setMappingLinkCanvasRef(mappingLinkCanvasRef);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setDefaultHandler(new SourceTargetDnDHandler());
