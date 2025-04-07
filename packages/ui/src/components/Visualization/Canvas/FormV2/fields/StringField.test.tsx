@@ -46,7 +46,7 @@ describe('StringField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'New Value');
   });
 
-  it('should clear the input when using the clear button', () => {
+  it('should clear the input when using the clear button', async () => {
     const onPropertyChangeSpy = jest.fn();
 
     const wrapper = render(
@@ -55,7 +55,12 @@ describe('StringField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = wrapper.getByTestId(`${ROOT_PATH}__clear`);
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /clear/i });
     act(() => {
       fireEvent.click(clearButton);
     });
@@ -79,5 +84,51 @@ describe('StringField', () => {
 
     const errorMessage = wrapper.getByText('error message');
     expect(errorMessage).toBeInTheDocument();
+  });
+
+  it('wraps value with RAW when Raw button is clicked', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
+        <StringField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /raw/i });
+    act(() => {
+      fireEvent.click(clearButton);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'RAW(Value)');
+  });
+
+  it('unwraps value from RAW when already wrapped', async () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="RAW(Test Value)" onPropertyChange={onPropertyChangeSpy}>
+        <StringField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const raw = await wrapper.findByRole('menuitem', { name: /raw/i });
+    act(() => {
+      fireEvent.click(raw);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'Test Value');
   });
 });

@@ -1,16 +1,17 @@
 import { Button, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, TimesIcon } from '@patternfly/react-icons';
+import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useState } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 import { FieldWrapper } from './FieldWrapper';
+import { FieldActions } from './FieldActions';
 
 export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
   const [passwordHidden, setPasswordHidden] = useState<boolean>(true);
-  const { value = '', onChange } = useFieldValue<string>(propName);
+  const { value = '', onChange, isRaw } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
 
@@ -23,7 +24,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
       onRemoveProps(propName);
       return;
     }
-
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
   };
@@ -38,6 +38,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
       type="secret"
       description={schema.description}
       defaultValue={schema.default?.toString()}
+      isRaw={isRaw}
     >
       <TextInputGroup>
         <TextInputGroupMain
@@ -63,15 +64,7 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
           >
             {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
           </Button>
-
-          <Button
-            variant="plain"
-            data-testid={`${propName}__clear`}
-            onClick={onRemove}
-            aria-label={ariaLabel}
-            title={ariaLabel}
-            icon={<TimesIcon />}
-          />
+          <FieldActions propName={propName} clearAriaLabel={ariaLabel} onRemove={onRemove} />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>

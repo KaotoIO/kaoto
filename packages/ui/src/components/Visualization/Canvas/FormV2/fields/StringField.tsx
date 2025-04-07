@@ -1,15 +1,15 @@
-import { Button, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
 import { FunctionComponent, useContext } from 'react';
 import { isDefined } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 import { FieldWrapper } from './FieldWrapper';
+import { FieldActions } from './FieldActions';
 
 export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', errors, onChange, disabled } = useFieldValue<string>(propName);
+  const { value = '', errors, onChange, isRaw, disabled } = useFieldValue<string>(propName);
   const lastPropName = propName.split('.').pop();
   const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
 
@@ -38,6 +38,7 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
       description={schema.description}
       defaultValue={schema.default?.toString()}
       errors={errors}
+      isRaw={isRaw}
     >
       <TextInputGroup validated={errors ? 'error' : undefined} isDisabled={disabled}>
         <TextInputGroupMain
@@ -54,14 +55,7 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
         />
 
         <TextInputGroupUtilities>
-          <Button
-            variant="plain"
-            data-testid={`${propName}__clear`}
-            onClick={onRemove}
-            aria-label={ariaLabel}
-            title={ariaLabel}
-            icon={<TimesIcon />}
-          />
+          <FieldActions propName={propName} clearAriaLabel={ariaLabel} onRemove={onRemove} />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>

@@ -91,18 +91,17 @@ exports[`SettingsForm should render 1`] = `
           class="pf-v6-c-text-input-group__utilities"
         >
           <button
-            aria-disabled="false"
-            aria-label="Clear catalogUrl field"
-            class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-2"
-            data-ouia-component-type="PF6/Button"
+            aria-expanded="false"
+            aria-label="#.catalogUrl__field-actions"
+            class="pf-v6-c-menu-toggle pf-m-plain"
+            data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"
+            data-ouia-component-type="PF6/MenuToggle"
             data-ouia-safe="true"
-            data-testid="#.catalogUrl__clear"
-            title="Clear catalogUrl field"
+            data-testid="#.catalogUrl__field-actions"
             type="button"
           >
             <span
-              class="pf-v6-c-button__icon"
+              class="pf-v6-c-menu-toggle__icon"
             >
               <svg
                 aria-hidden="true"
@@ -110,11 +109,11 @@ exports[`SettingsForm should render 1`] = `
                 fill="currentColor"
                 height="1em"
                 role="img"
-                viewBox="0 0 352 512"
+                viewBox="0 0 192 512"
                 width="1em"
               >
                 <path
-                  d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                  d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
                 />
               </svg>
             </span>
@@ -151,7 +150,7 @@ exports[`SettingsForm should render 1`] = `
             aria-disabled="false"
             aria-label="More info for Node label to display in canvas field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-3"
+            data-ouia-component-id="OUIA-Generated-Button-plain-2"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -214,7 +213,7 @@ exports[`SettingsForm should render 1`] = `
               aria-disabled="false"
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-4"
+              data-ouia-component-id="OUIA-Generated-Button-plain-3"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeLabel__clear"
@@ -303,7 +302,7 @@ exports[`SettingsForm should render 1`] = `
             aria-disabled="false"
             aria-label="More info for Open Node toolbar field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-5"
+            data-ouia-component-id="OUIA-Generated-Button-plain-4"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -366,7 +365,7 @@ exports[`SettingsForm should render 1`] = `
               aria-disabled="false"
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-6"
+              data-ouia-component-id="OUIA-Generated-Button-plain-5"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeToolbarTrigger__clear"
@@ -445,7 +444,7 @@ exports[`SettingsForm should render 1`] = `
           aria-disabled="false"
           aria-label="Remove object"
           class="pf-v6-c-button pf-m-plain"
-          data-ouia-component-id="OUIA-Generated-Button-plain-7"
+          data-ouia-component-id="OUIA-Generated-Button-plain-6"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="#.experimentalFeatures__remove"
@@ -489,7 +488,7 @@ exports[`SettingsForm should render 1`] = `
                 aria-disabled="false"
                 aria-label="More info for Experimental features field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-8"
+                data-ouia-component-id="OUIA-Generated-Button-plain-7"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -551,7 +550,7 @@ exports[`SettingsForm should render 1`] = `
                 aria-disabled="false"
                 aria-label="More info for Enable Drag & Drop field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-9"
+                data-ouia-component-id="OUIA-Generated-Button-plain-8"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"

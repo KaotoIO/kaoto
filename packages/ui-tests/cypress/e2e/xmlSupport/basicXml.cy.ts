@@ -111,6 +111,7 @@ describe('Tests for basic XML operations', () => {
     cy.openStepConfigurationTab('timer');
     cy.selectFormTab('All');
 
+    cy.get('[data-testid="#.parameters.timerName__field-actions"]').click();
     cy.get('[data-testid="#.parameters.timerName__clear"]').click();
 
     cy.openSourceCode();
