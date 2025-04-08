@@ -1,3 +1,5 @@
+import { getParsedExpressionModel } from '../../../../../utils/get-persed-expression-model';
+import { isDefined } from '../../../../../utils/is-defined';
 import { resolveSchemaWithRef } from '../../../../../utils/resolve-ref-if-needed';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { VisualComponentSchema } from '../../../base-visual-entity';
@@ -60,9 +62,13 @@ export class ModelValidationService {
 
     const resolvedSchema = schema;
     if (Array.isArray(resolvedSchema.anyOf)) {
-      resolvedSchema.anyOf.map((anyOfSchema) =>
-        answer.push(...this.validateRequiredProperties(anyOfSchema, model, parentPath, definitions)),
-      );
+      let parsedModel = model;
+      resolvedSchema.anyOf.map((anyOfSchema) => {
+        if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
+          parsedModel = getParsedExpressionModel(model);
+        }
+        answer.push(...this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions));
+      });
     }
 
     if (Array.isArray(resolvedSchema.oneOf)) {
