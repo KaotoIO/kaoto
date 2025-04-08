@@ -1,5 +1,5 @@
 import { Step } from '@kaoto/camel-catalog/types';
-import { datamapperRouteDefinitionStub as datamapperRouteDefinitionStub } from '../../../../../stubs/data-mapper';
+import { datamapperRouteDefinitionStub, twoDataMapperRouteDefinitionStub } from '../../../../../stubs/data-mapper';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -9,6 +9,9 @@ describe('DataMapperNodeMapper', () => {
   let rootNodeMapper: RootNodeMapper;
   const routeDefinition = datamapperRouteDefinitionStub;
   const path = 'from.steps.0.step';
+  const twoDataMapperRouteDefinition = twoDataMapperRouteDefinitionStub;
+  const firstDataMapperPath = 'from.steps.0.step';
+  const secondDataMapperPath = 'from.steps.1.step';
 
   beforeEach(() => {
     rootNodeMapper = new RootNodeMapper();
@@ -18,10 +21,29 @@ describe('DataMapperNodeMapper', () => {
     mapper = new DataMapperNodeMapper(rootNodeMapper);
   });
 
-  it('should not return any children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+  describe('getVizNodeFromProcessor', () => {
+    it('should not return any children', () => {
+      const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
-    expect(vizNode.getChildren()).toBeUndefined();
+      expect(vizNode.getChildren()).toBeUndefined();
+    });
+
+    it('should assign an unique ID for each DataMapper steps', () => {
+      const firstVizNode = mapper.getVizNodeFromProcessor(
+        firstDataMapperPath,
+        { processorName: 'step' },
+        twoDataMapperRouteDefinition,
+      );
+      const secondVizNode = mapper.getVizNodeFromProcessor(
+        secondDataMapperPath,
+        { processorName: 'step' },
+        twoDataMapperRouteDefinition,
+      );
+
+      expect(firstVizNode.id).toContain('kaoto-datamapper');
+      expect(secondVizNode.id).toContain('kaoto-datamapper');
+      expect(firstVizNode.id).not.toEqual(secondVizNode.id);
+    });
   });
 
   describe('isDataMapperNode', () => {

@@ -21,7 +21,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
       isGroup: false,
     };
 
-    return createVisualizationNode(processorName, data);
+    return createVisualizationNode(path + ':' + processorName, data);
   }
 
   static isDataMapperNode(stepDefinition: Step): boolean {
