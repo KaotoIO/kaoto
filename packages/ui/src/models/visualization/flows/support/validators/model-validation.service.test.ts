@@ -46,6 +46,7 @@ describe('ModelValidationService', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
   });
 
   describe('validateNodeStatus()', () => {
@@ -77,6 +78,19 @@ describe('ModelValidationService', () => {
       const result = ModelValidationService.validateNodeStatus(schema);
 
       expect(result).toEqual('2 required parameters are not yet configured: [ expression,name ]');
+    });
+
+    it('should return a validation text for setheader with a different model dialect', () => {
+      const model = {
+        name: 'test',
+        constant: 'Hello Camel',
+      };
+      const path = 'route.from.steps[1].setHeader';
+      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
+
+      const result = ModelValidationService.validateNodeStatus(schema);
+
+      expect(result).toEqual('');
     });
 
     it('should return an empty string if there is no missing property', () => {
