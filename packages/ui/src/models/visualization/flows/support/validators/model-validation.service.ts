@@ -1,3 +1,5 @@
+import { ExpressionService } from '../../../../../components/Visualization/Canvas/FormV2/fields/ExpressionField/expression.service';
+import { isDefined } from '../../../../../utils/is-defined';
 import { resolveSchemaWithRef } from '../../../../../utils/resolve-ref-if-needed';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { VisualComponentSchema } from '../../../base-visual-entity';
@@ -60,13 +62,17 @@ export class ModelValidationService {
 
     const resolvedSchema = schema;
     if (Array.isArray(resolvedSchema.anyOf)) {
-      resolvedSchema.anyOf.map((anyOfSchema) =>
-        answer.push(...this.validateRequiredProperties(anyOfSchema, model, parentPath, definitions)),
-      );
+      let parsedModel = model;
+      resolvedSchema.anyOf.forEach((anyOfSchema) => {
+        if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
+          parsedModel = ExpressionService.parseExpressionModel(model);
+        }
+        answer.push(...this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions));
+      });
     }
 
     if (Array.isArray(resolvedSchema.oneOf)) {
-      resolvedSchema.oneOf.map((oneOfSchema) =>
+      resolvedSchema.oneOf.forEach((oneOfSchema) =>
         answer.push(...this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)),
       );
     }
