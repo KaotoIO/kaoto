@@ -18,6 +18,23 @@ export const datamapperRouteDefinitionStub = parse(`
             - to:
                 uri: ${XSLT_COMPONENT_NAME}:transform.xsl`);
 
+export const twoDataMapperRouteDefinitionStub = parse(`
+  from:
+    id: from-8888
+    uri: direct:start
+    parameters: {}
+    steps:
+      - step:
+          id: ${DATAMAPPER_ID_PREFIX}-1234
+          steps:
+            - to:
+                uri: ${XSLT_COMPONENT_NAME}:transform-1.xsl
+      - step:
+          id: ${DATAMAPPER_ID_PREFIX}-5678
+          steps:
+            - to:
+                uri: ${XSLT_COMPONENT_NAME}:transform-2.xsl`);
+
 export const shipOrderXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrder.xsd'))
   .toString();
