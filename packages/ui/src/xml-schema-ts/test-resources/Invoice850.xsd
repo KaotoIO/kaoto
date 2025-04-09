@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <!-- Root Element: Invoice -->
+  <xs:element name="Invoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="InvoiceNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="DateOfIssue" type="xs:date" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Seller" type="PartyType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Client" type="PartyType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Items" type="ItemsType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Summary" type="SummaryType" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Party Type (Seller/Client) -->
+  <xs:complexType name="PartyType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Address" type="AddressType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="TaxId" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="IBAN" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Optional for Client -->
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Address Type -->
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="Street" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="City" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="State" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="PostalCode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Items Type -->
+  <xs:complexType name="ItemsType">
+    <xs:sequence>
+      <xs:element name="Item" type="ItemType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Item Type -->
+  <xs:complexType name="ItemType">
+    <xs:sequence>
+      <xs:element name="Number" type="xs:positiveInteger" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Description" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="UnitOfMeasure" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="NetPrice" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="NetWorth" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="VATPercentage" type="VATPercentageType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="GrossWorth" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- VAT Percentage Type (e.g., "10%") -->
+  <xs:simpleType name="VATPercentageType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+%"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- VAT Summary Type -->
+  <xs:complexType name="SummaryType">
+    <xs:sequence>
+      <xs:element name="VATPercentage" type="VATPercentageType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="NetWorth" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="VATAmount" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="GrossWorth" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

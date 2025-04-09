@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+    <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:defineVariable defaultValue="~%NL; ~" name="SegmentTerminator" type="xs:string" />
+            <dfdl:defineVariable defaultValue="*"       name="FieldSeparator"    type="xs:string" />
+            <!-- ISA-16 is supposed to override this -->
+            <dfdl:defineVariable  defaultValue=":" name="CompositeSeparator" type="xs:string" />
+            <dfdl:defineVariable  defaultValue="." name="DecimalSeparator" type="xs:string" />
+            <dfdl:format
+                encoding="UTF-8"
+                escapeSchemeRef="" 
+                encodingErrorPolicy="replace" 
+                ignoreCase="no"
+                byteOrder="{$dfdl:byteOrder}"
+                representation="text"
+                textStringJustification="left"
+                truncateSpecifiedLengthString="no"
+                decimalSigned="yes"
+                textNumberCheckPolicy="lax"
+                textNumberJustification="right"
+                textZonedSignStyle="asciiStandard"
+                textBooleanJustification="left"
+                sequenceKind="ordered"
+                choiceLengthKind="implicit"
+                separator="" separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
+                initiator=""
+                terminator=""
+                documentFinalTerminatorCanBeMissing="no"
+                lengthUnits="characters"
+                lengthKind="delimited"
+                textPadKind="none"
+                textTrimKind="none"
+                textStringPadCharacter="%SP;"
+                textNumberPadCharacter="%SP;"
+                textBooleanPadCharacter="%SP;"
+                textStandardBase="10"
+                textStandardDecimalSeparator="."
+                textStandardExponentRep="E"
+                textStandardGroupingSeparator="," 
+                alignment="1" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0" fillByte="0"
+                initiatedContent="no"
+                textNumberRep="standard"
+                textStandardZeroRep=""
+                textNumberRoundingMode="roundUp"
+                nilValueDelimiterPolicy="none"
+                emptyValueDelimiterPolicy="none"
+                textStandardInfinityRep="Inf"
+                textStandardNaNRep="NaN"
+                textNumberRounding="pattern"
+                calendarPatternKind="implicit"
+                calendarPattern="yyyy-MM-dd'T'HH:mm:ss"
+                calendarCheckPolicy="lax"
+                calendarTimeZone="UTC"
+                calendarObserveDST="yes"
+                calendarFirstDayOfWeek="Monday"
+                calendarDaysInFirstWeek="4"
+                calendarCenturyStart="53"
+                calendarLanguage="en-US"
+                textCalendarJustification="left"
+                textBooleanTrueRep="true"
+                textBooleanFalseRep="false"
+                textCalendarPadCharacter="%SP;"
+                occursCountKind="implicit"
+                outputNewLine="%CR;%LF;"
+                binaryFloatRep="ieee"
+                textBidi="no"
+                nilKind="literalValue"
+                useNilForDefault="no"
+                floating="no"
+            />
+            <dfdl:defineFormat name="SegmentFormat">
+                <dfdl:format terminator="{$SegmentTerminator}" emptyValueDelimiterPolicy="both" />
+            </dfdl:defineFormat>
+            <dfdl:defineFormat
+                name="SegmentSequenceFormat">
+                <dfdl:format terminator="" separator="{$FieldSeparator}" separatorPosition="prefix"
+                    />
+            </dfdl:defineFormat>
+            <dfdl:defineFormat
+                name="CompositeSequenceFormat">
+                <dfdl:format terminator="" separator="{$CompositeSeparator}"
+                    separatorPosition="infix" />
+            </dfdl:defineFormat>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:element name="X12_850">
+        <xs:complexType>
+            <xs:sequence>
+              
+                <!-- Header -->
+                <xs:element name="Header">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:sequence dfdl:initiatedContent="yes">
+                                <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="ISA" name="ISA"
+                                    type="ISAType" minOccurs="1" maxOccurs="1" />
+                                <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="GS" name="GS"
+                                    type="GSType" minOccurs="1" maxOccurs="1" />
+                                <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="ST" name="ST"
+                                    type="STType" minOccurs="1" maxOccurs="1" />
+                                <xs:element name="BEG" type="BEGType" dfdl:ref="SegmentFormat" dfdl:initiator="BEG"  />
+                            </xs:sequence>
+                            <xs:element name="N1Loop" minOccurs="0" maxOccurs="2">
+                                <xs:complexType>
+                                    <xs:sequence dfdl:initiatedContent="yes">
+                                        <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="N1"
+                                            name="N1" minOccurs="1" maxOccurs="1" type="N1Type" />
+                                        <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="N3"
+                                            name="N3" minOccurs="0" maxOccurs="2" type="N3Type" />
+                                        <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="N4"
+                                            name="N4" minOccurs="0" maxOccurs="1" type="N4Type" />
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+
+                <xs:element name="PO1Loop" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:sequence>
+
+                      <xs:sequence dfdl:initiatedContent="yes">
+                        <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="PO1" 
+                            name="PO1" minOccurs="1" maxOccurs="1" type="PO1Type" />
+                      </xs:sequence>
+
+                      <xs:element name="PIDLoop" minOccurs="0" maxOccurs="unbounded" >
+                        <xs:complexType>
+                          <xs:sequence dfdl:initiatedContent="yes">
+                              <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="PID"
+                                  name="PID" minOccurs="1" maxOccurs="1" type="PIDType" />
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+
+                <!-- Trailer -->
+                <xs:sequence dfdl:initiatedContent="yes">
+                    <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="CTT" name="CTT" type="CTTType" />
+                    <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="AMT" name="AMT" type="AMTType" />
+                    <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="SE" name="SE" type="SEType" />
+                    <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="GE" name="GE" type="GEType" />
+                    <xs:element dfdl:ref="SegmentFormat" dfdl:initiator="IEA" name="IEA" type="IEAType" />
+                </xs:sequence>
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+<!-- Segment Type Definitions -->
+<!-- ISA Segment -->
+<xs:complexType name="ISAType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="ISA-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Authorization Info Qualifier -->
+    <xs:element name="ISA-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Authorization Info -->
+    <xs:element name="ISA-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Security Info Qualifier -->
+    <xs:element name="ISA-04" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Security Info -->
+    <xs:element name="ISA-05" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Sender ID Qualifier -->
+    <xs:element name="ISA-06" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Sender ID -->
+    <xs:element name="ISA-07" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Receiver ID Qualifier -->
+    <xs:element name="ISA-08" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Receiver ID -->
+    <xs:element name="ISA-09" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Date (YYMMDD) -->
+    <xs:element name="ISA-10" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Time (HHMM) -->
+    <xs:element name="ISA-11" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Standards ID -->
+    <xs:element name="ISA-12" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Version Number -->
+    <xs:element name="ISA-13" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Interchange Control Number -->
+    <xs:element name="ISA-14" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Acknowledgment Requested -->
+    <xs:element name="ISA-15" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Test Indicator -->
+    <xs:element name="ISA-16" type="xs:string" minOccurs="1" maxOccurs="1">  <!-- Component Element Separator -->
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:setVariable ref="CompositeSeparator" value="{.}"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- GS Segment -->
+<xs:complexType name="GSType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="GS-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Functional ID Code -->
+    <xs:element name="GS-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Sender ID -->
+    <xs:element name="GS-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Receiver ID -->
+    <xs:element name="GS-04" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Date (YYYYMMDD) -->
+    <xs:element name="GS-05" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Time (HHMM) -->
+    <xs:element name="GS-06" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Group Control Number -->
+    <xs:element name="GS-07" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Responsible Agency Code -->
+    <xs:element name="GS-08" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Version -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- ST Segment -->
+<xs:complexType name="STType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="ST-01" type="xs:string" minOccurs="1" maxOccurs="1" fixed="850"/> <!-- Transaction Set ID -->
+    <xs:element name="ST-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Control Number -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- BEG Segment -->
+<xs:complexType name="BEGType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="BEG-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Transaction Set Purpose Code -->
+    <xs:element name="BEG-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Purchase Order Type Code -->
+    <xs:element name="BEG-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Purchase Order Number -->
+    <xs:element name="BEG-04" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Release Number -->
+    <xs:element name="BEG-05" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Date (YYYYMMDD) -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- N1 Segment -->
+<xs:complexType name="N1Type">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="N1-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Entity Identifier Code -->
+    <xs:element name="N1-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Name -->
+    <xs:element name="N1-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Identification Code Qualifier -->
+    <xs:element name="N1-04" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Identification Code -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- N3 Segment -->
+<xs:complexType name="N3Type">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="N3-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Address Line 1 -->
+    <xs:element name="N3-02" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Address Line 2 -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- N4 Segment -->
+<xs:complexType name="N4Type">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="N4-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- City -->
+    <xs:element name="N4-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- State -->
+    <xs:element name="N4-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Postal Code -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- PO1 Segment -->
+<xs:complexType name="PO1Type">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="PO1-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Line Number -->
+    <xs:element name="PO1-02" type="xs:decimal" minOccurs="1" maxOccurs="1"> <!-- Quantity -->
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element textNumberPattern="#0"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="PO1-03" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Unit of Measure -->
+    <xs:element name="PO1-04" type="xs:decimal" minOccurs="1" maxOccurs="1"> <!-- Unit Price -->
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element textNumberPattern="#0.##"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="PO1-05" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Basis of Unit Price Code -->
+    <xs:element name="PO1-06" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Product ID Qualifier -->
+    <xs:element name="PO1-07" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Product ID -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- PID Segment -->
+<xs:complexType name="PIDType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="PID-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Item Description Type -->
+    <xs:element name="PID-02" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Product/Process Characteristic Code -->
+    <xs:element name="PID-03" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Agency Qualifier Code -->
+    <xs:element name="PID-04" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Product Description Code -->
+    <xs:element name="PID-05" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Description -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- CTT Segment -->
+<xs:complexType name="CTTType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="CTT-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Number of Line Items -->
+    <xs:element name="CTT-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Total Quantity -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- AMT Segment -->
+<xs:complexType name="AMTType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="AMT-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Amount Qualifier Code -->
+    <xs:element name="AMT-02" type="xs:decimal" minOccurs="1" maxOccurs="1"> <!-- Monetary Amount -->
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element textNumberPattern="#0.##"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- SE Segment -->
+<xs:complexType name="SEType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="SE-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Number of Included Segments -->
+    <xs:element name="SE-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Transaction Set Control Number -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- GE Segment -->
+<xs:complexType name="GEType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="GE-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Number of Transaction Sets -->
+    <xs:element name="GE-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Group Control Number -->
+  </xs:sequence>
+</xs:complexType>
+
+<!-- IEA Segment -->
+<xs:complexType name="IEAType">
+  <xs:sequence dfdl:ref="SegmentSequenceFormat">
+    <xs:element name="IEA-01" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Number of Functional Groups -->
+    <xs:element name="IEA-02" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Interchange Control Number -->
+  </xs:sequence>
+</xs:complexType>
+
+
+</xs:schema>
