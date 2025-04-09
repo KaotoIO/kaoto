@@ -29,7 +29,7 @@ import {
   XmlSchemaType,
   XmlSchemaUse,
 } from '../xml-schema-ts';
-import { BaseDocument, BaseField, ITypeFragment } from '../models/datamapper/document';
+import { BaseDocument, BaseField, IField, ITypeFragment } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { DocumentType } from '../models/datamapper/path';
 import { DocumentService } from './document.service';
@@ -75,6 +75,22 @@ export class XmlSchemaField extends BaseField {
     public isAttribute: boolean,
   ) {
     super(parent, DocumentService.getOwnerDocument<XmlSchemaDocument>(parent), name);
+  }
+
+  adopt(parent: IField) {
+    if (!(parent instanceof XmlSchemaField)) return super.adopt(parent);
+
+    const adopted = new XmlSchemaField(parent, this.name, this.isAttribute);
+    adopted.type = this.type;
+    adopted.minOccurs = this.minOccurs;
+    adopted.maxOccurs = this.maxOccurs;
+    adopted.defaultValue = this.defaultValue;
+    adopted.namespacePrefix = this.namespacePrefix;
+    adopted.namespaceURI = this.namespaceURI;
+    adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    adopted.fields = this.fields.map((child) => child.adopt(adopted) as XmlSchemaField);
+    parent.fields.push(adopted);
+    return adopted;
   }
 }
 

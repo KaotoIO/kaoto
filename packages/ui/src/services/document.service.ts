@@ -118,6 +118,13 @@ export class DocumentService {
     return left;
   }
 
+  static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {
+    const resolvedParent = 'parent' in parent ? DocumentService.resolveTypeFragment(parent) : parent;
+    return resolvedParent.fields.find((f) => {
+      return f.name === name && ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI);
+    });
+  }
+
   static getFieldFromPathSegments(document: IDocument, pathSegments: string[]) {
     let parent: IDocument | IField = document;
     for (const segment of pathSegments) {

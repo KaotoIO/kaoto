@@ -13,7 +13,14 @@ import {
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
 
-import { shipOrderToShipOrderXslt, shipOrderToShipOrderInvalidForEachXslt, TestUtil } from '../stubs/data-mapper';
+import {
+  shipOrderToShipOrderXslt,
+  shipOrderToShipOrderInvalidForEachXslt,
+  TestUtil,
+  x12850ForEachXslt,
+  invoice850Xsd,
+} from '../stubs/data-mapper';
+import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -178,6 +185,29 @@ describe('MappingSerializerService', () => {
       expect(forEachItem.expression).toEqual('');
       const itemSelector = forEachItem.children[0].children[0] as ValueSelector;
       expect(itemSelector.expression).toEqual('/ns0:ShipOrder/Item');
+    });
+
+    it('should deserialize a mapping on cached type fragment', () => {
+      const targetDoc850 = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.TARGET_BODY,
+        'Invoice.xsd',
+        invoice850Xsd,
+      );
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      mappingTree = MappingSerializerService.deserialize(
+        x12850ForEachXslt,
+        targetDoc850,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const itemsFieldItem = mappingTree.children[0].children[0] as FieldItem;
+      expect(itemsFieldItem.children.length).toEqual(1);
+      const forEachItem = itemsFieldItem.children[0] as ForEachItem;
+      expect(forEachItem.expression).toEqual('/X12_850/PO1Loop');
+
+      expect(itemsFieldItem.field.namedTypeFragmentRefs.length).toEqual(0);
+      expect(itemsFieldItem.field.fields.length).toEqual(1);
+      expect(itemsFieldItem.field.fields[0] instanceof XmlSchemaField).toBeTruthy();
     });
   });
 

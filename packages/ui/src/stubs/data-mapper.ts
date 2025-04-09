@@ -56,6 +56,7 @@ export const shipOrderToShipOrderInvalidForEachXslt = fs
 export const shipOrderEmptyFirstLineXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
   .toString();
+
 export const x12837PDfdlXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))
   .toString();
@@ -64,6 +65,16 @@ export const message837Xsd = fs
   .toString();
 export const x12837PXslt = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837.xsl'))
+  .toString();
+
+export const x12850DfdlXsd = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-850.dfdl.xsd'))
+  .toString();
+export const invoice850Xsd = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/Invoice850.xsd'))
+  .toString();
+export const x12850ForEachXslt = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-850-Invoice-for-each.xsl'))
   .toString();
 
 export class TestUtil {

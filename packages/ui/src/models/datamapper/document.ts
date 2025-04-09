@@ -113,7 +113,8 @@ export class BaseField implements IField {
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   namedTypeFragmentRefs: string[] = [];
-  adopt = (parent: IField) => {
+
+  adopt(parent: IField) {
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
@@ -126,7 +127,7 @@ export class BaseField implements IField {
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);
     return adopted;
-  };
+  }
 }
 
 export enum DocumentDefinitionType {
