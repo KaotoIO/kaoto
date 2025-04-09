@@ -1,5 +1,18 @@
+#flows-list {
+  max-height: 400px;
+  overflow: auto;
+}
+
 table.flows-list-table {
-  & thead tr {
+  & thead {
+    vertical-align: middle;
+    position: sticky;
+    background-color: var(--pf-t--global--background--color--primary--default);
+    top: 0;
+    z-index: 1;
+  }
+
+  & tr {
     vertical-align: middle;
   }
 
