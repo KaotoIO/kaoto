@@ -1,7 +1,7 @@
-import { Button, Icon } from '@patternfly/react-core';
+import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { FunctionComponent, MouseEvent, useCallback, useContext, useRef } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useContext, useRef, useState } from 'react';
 import { ValidationResult } from '../../../../models';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import {
@@ -23,6 +23,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, allFlowsVisible, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
+  const [searchString, setSearchString] = useState<string>('');
 
   const isListEmpty = visualEntities.length === 0;
 
@@ -67,7 +68,15 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       <Table className="flows-list-table" variant="compact" data-testid="flows-list-table">
         <Thead noWrap>
           <Tr>
-            <Th>{columnNames.current.id}</Th>
+            <Th>
+              {columnNames.current.id}
+              <SearchInput
+                value={searchString}
+                onChange={(_event, value) => {
+                  setSearchString(value);
+                }}
+              />
+            </Th>
             <Th>
               <Button
                 title={allFlowsVisible ? 'Hide all flows' : 'Show all flows'}
@@ -89,77 +98,79 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
           </Tr>
         </Thead>
         <Tbody>
-          {visualEntities.map((flow: BaseVisualCamelEntity) => (
-            <Tr key={flow.id} data-testid={`flows-list-row-${flow.id}`}>
-              <Td dataLabel={columnNames.current.id}>
-                <InlineEdit
-                  editTitle={`Rename ${flow.id}`}
-                  textTitle={`Focus on ${flow.id}`}
-                  data-testid={`goto-btn-${flow.id}`}
-                  value={flow.id}
-                  validator={routeIdValidator}
-                  onClick={() => {
-                    onSelectFlow(flow.id);
-                  }}
-                  onChange={(name) => {
-                    visualFlowsApi.renameFlow(flow.id, name);
-                    flow.setId(name);
-                    updateEntitiesFromCamelResource();
-                  }}
-                />
-                {/*TODO add description*/}
-              </Td>
+          {visualEntities
+            .filter((flow) => flow.id.includes(searchString))
+            .map((flow: BaseVisualCamelEntity) => (
+              <Tr key={flow.id} data-testid={`flows-list-row-${flow.id}`}>
+                <Td dataLabel={columnNames.current.id}>
+                  <InlineEdit
+                    editTitle={`Rename ${flow.id}`}
+                    textTitle={`Focus on ${flow.id}`}
+                    data-testid={`goto-btn-${flow.id}`}
+                    value={flow.id}
+                    validator={routeIdValidator}
+                    onClick={() => {
+                      onSelectFlow(flow.id);
+                    }}
+                    onChange={(name) => {
+                      visualFlowsApi.renameFlow(flow.id, name);
+                      flow.setId(name);
+                      updateEntitiesFromCamelResource();
+                    }}
+                  />
+                  {/*TODO add description*/}
+                </Td>
 
-              <Td dataLabel={columnNames.current.isVisible}>
-                <Button
-                  data-testid={`toggle-btn-${flow.id}`}
-                  icon={
-                    visibleFlows[flow.id] ? (
-                      <Icon isInline>
-                        <EyeIcon title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
-                      </Icon>
-                    ) : (
-                      <Icon isInline>
-                        <EyeSlashIcon title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
-                      </Icon>
-                    )
-                  }
-                  variant="plain"
-                  onClick={(event) => {
-                    visualFlowsApi.toggleFlowVisible(flow.id);
-                    /** Required to avoid closing the Dropdown after clicking in the icon */
-                    event.stopPropagation();
-                  }}
-                />
-              </Td>
+                <Td dataLabel={columnNames.current.isVisible}>
+                  <Button
+                    data-testid={`toggle-btn-${flow.id}`}
+                    icon={
+                      visibleFlows[flow.id] ? (
+                        <Icon isInline>
+                          <EyeIcon title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
+                        </Icon>
+                      ) : (
+                        <Icon isInline>
+                          <EyeSlashIcon title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
+                        </Icon>
+                      )
+                    }
+                    variant="plain"
+                    onClick={(event) => {
+                      visualFlowsApi.toggleFlowVisible(flow.id);
+                      /** Required to avoid closing the Dropdown after clicking in the icon */
+                      event.stopPropagation();
+                    }}
+                  />
+                </Td>
 
-              <Td dataLabel={columnNames.current.delete}>
-                <Button
-                  title={`Delete ${flow.id}`}
-                  data-testid={`delete-btn-${flow.id}`}
-                  icon={<TrashIcon />}
-                  variant="plain"
-                  onClick={async (_event) => {
-                    //close the dropdown if it is open to not to interfere with the delete modal
-                    props.onClose?.();
-                    const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
-                      title:
-                        "Do you want to delete the '" +
-                        flow.toVizNode().getId() +
-                        "' " +
-                        flow.toVizNode().getNodeTitle() +
-                        '?',
-                      text: 'All steps will be lost.',
-                    });
-                    if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
+                <Td dataLabel={columnNames.current.delete}>
+                  <Button
+                    title={`Delete ${flow.id}`}
+                    data-testid={`delete-btn-${flow.id}`}
+                    icon={<TrashIcon />}
+                    variant="plain"
+                    onClick={async (_event) => {
+                      //close the dropdown if it is open to not to interfere with the delete modal
+                      props.onClose?.();
+                      const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
+                        title:
+                          "Do you want to delete the '" +
+                          flow.toVizNode().getId() +
+                          "' " +
+                          flow.toVizNode().getNodeTitle() +
+                          '?',
+                        text: 'All steps will be lost.',
+                      });
+                      if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
-                    camelResource.removeEntity(flow.id);
-                    updateEntitiesFromCamelResource();
-                  }}
-                />
-              </Td>
-            </Tr>
-          ))}
+                      camelResource.removeEntity(flow.id);
+                      updateEntitiesFromCamelResource();
+                    }}
+                  />
+                </Td>
+              </Tr>
+            ))}
         </Tbody>
       </Table>
     </div>
