@@ -18,12 +18,13 @@ export const AutoField: FunctionComponent<FieldProps> = ({ propName, required, o
     throw new Error(`AutoField: formComponentFactory is not defined for ${propName}`);
   }
 
-  const isFieldDefined = isDefined(value);
+  const isFieldDefined = isDefined(value) && Object.keys(value).length > 0;
   const isComplexFieldType =
     schema.type === 'object' || schema.type === 'array' || 'oneOf' in schema || 'anyOf' in schema;
   // If required is not defined, it is considered as required
   const isFieldRequired = !isDefined(required) || (isDefined(required) && required);
-  const shouldLoadField = isFieldRequired || (isFieldDefined && isComplexFieldType);
+  const isPropertiesField = schema.type === 'object' && Object.keys(schema?.properties ?? {}).length === 0;
+  const shouldLoadField = isFieldRequired || (isDefined(value) && isComplexFieldType && !isPropertiesField);
 
   if ((selectedTab === 'Required' && !shouldLoadField) || (selectedTab === 'Modified' && !isFieldDefined)) {
     return null;
