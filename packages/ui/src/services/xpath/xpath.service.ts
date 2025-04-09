@@ -150,7 +150,8 @@ export class XPathService {
     const paths = XPathService.collectPathExpressions(parsed.cst);
     return paths.reduce((acc, node) => {
       if ('children' in node) {
-        acc.push(XPathService.pathExprToString(node));
+        const pathStr = XPathService.pathExprToString(node);
+        !acc.includes(pathStr) && acc.push(pathStr);
       } else if ('image' in node && node.image === '.') {
         acc.push('/');
       }

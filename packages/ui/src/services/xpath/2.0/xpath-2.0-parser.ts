@@ -29,8 +29,9 @@ createToken({
   group: Lexer.SKIPPED,
 });
 
-/* In order to refer NCName from keywords for longer_alt, declare earlier here, but push as a last one later */
+/* In order to refer from keywords for longer_alt, declare earlier here, but push as last ones later */
 const NCName = orgCreateToken({ name: 'NCName', pattern: fragments['Name'] });
+const DecimalLiteral = orgCreateToken({ name: 'DecimalLiteral', pattern: fragments['DecimalLiteral'] });
 
 const Comma = createToken({ name: 'Comma', pattern: /,/ });
 const Return = createToken({ name: 'Returns', pattern: /return/, longer_alt: NCName });
@@ -96,7 +97,7 @@ const AncestorOrSelf = createToken({ name: 'AncestorOrSelf', pattern: /ancestor-
 const Ancestor = createToken({ name: 'Ancestor', pattern: /ancestor/, longer_alt: NCName });
 const PrecedingSibling = createToken({ name: 'PrecedingSibling', pattern: /preceding-sibling/, longer_alt: NCName });
 const Preceding = createToken({ name: 'Preceding', pattern: /preceding/, longer_alt: NCName });
-const ContextItemExpr = createToken({ name: 'ContextItemExpr', pattern: /\./ });
+const ContextItemExpr = createToken({ name: 'ContextItemExpr', pattern: /\./, longer_alt: DecimalLiteral });
 const AbbrevReverseStep = createToken({ name: 'AbbrevReverseStep', pattern: /\.\./ });
 const At = createToken({ name: 'At', pattern: /@/ });
 const LSquare = createToken({ name: 'LSquare', pattern: /\[/ });
@@ -119,11 +120,11 @@ const EmptySequence = createToken({ name: 'EmptySequence', pattern: /empty-seque
 
 const StringLiteral = createToken({ name: 'StringLiteral', pattern: fragments['StringLiteral'] });
 const IntegerLiteral = createToken({ name: 'IntegerLiteral', pattern: fragments['Digits'] });
-const DecimalLiteral = createToken({ name: 'DecimalLiteral', pattern: fragments['DecimalLiteral'] });
 const DoubleLiteral = createToken({ name: 'DoubleLiteral', pattern: fragments['DoubleLiteral'] });
 
-/** DO NOT CHANGE @see {@link NCName} */
+/** DO NOT CHANGE @see {@link NCName}, {@link DecimalLiteral} */
 allTokens.push(NCName);
+allTokens.push(DecimalLiteral);
 
 /**
  * XPath 2.0 Parser which implements the EBNF defined in the W3C specification

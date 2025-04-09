@@ -10,6 +10,9 @@
                         <Number>
                             <xsl:value-of select="PO1/PO1-01"/>
                         </Number>
+                        <GrossWorth>
+                            <xsl:value-of select="round(100*(PO1/PO1-04 * PO1/PO1-02 * .10 + (PO1/PO1-04 * PO1/PO1-02))) div 100"/>
+                        </GrossWorth>
                     </Item>
                 </xsl:for-each>
             </Items>
