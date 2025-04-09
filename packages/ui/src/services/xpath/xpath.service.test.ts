@@ -38,6 +38,13 @@ describe('XPathService', () => {
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
     });
+
+    it('should parse float literal', () => {
+      const result = XPathService.parse('0.1');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+    });
   });
 
   describe('validate()', () => {
@@ -100,6 +107,15 @@ describe('XPathService', () => {
       const paths = XPathService.extractFieldPaths('.');
       expect(paths.length).toEqual(1);
       expect(paths[0]).toEqual('/');
+    });
+
+    it('extract from number formula', () => {
+      const paths = XPathService.extractFieldPaths(
+        'round(100*(PO1/PO1-04 * PO1/PO1-02 * .10 + (PO1/PO1-04 * PO1/PO1-02))) div 100',
+      );
+      expect(paths.length).toEqual(2);
+      expect(paths[0]).toEqual('PO1/PO1-04');
+      expect(paths[1]).toEqual('PO1/PO1-02');
     });
   });
 

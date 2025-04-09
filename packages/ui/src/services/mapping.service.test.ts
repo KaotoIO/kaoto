@@ -13,7 +13,16 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 import { IDocument } from '../models/datamapper/document';
-import { message837Xsd, shipOrderToShipOrderXslt, TestUtil, x12837PDfdlXsd, x12837PXslt } from '../stubs/data-mapper';
+import {
+  invoice850Xsd,
+  message837Xsd,
+  shipOrderToShipOrderXslt,
+  TestUtil,
+  x12837PDfdlXsd,
+  x12837PXslt,
+  x12850DfdlXsd,
+  x12850ForEachXslt,
+} from '../stubs/data-mapper';
 import { XPathService } from './xpath/xpath.service';
 
 describe('MappingService', () => {
@@ -358,6 +367,23 @@ describe('MappingService', () => {
       expect(links[12].targetNodePath).toMatch('field-YesNoConditionOrResponseCodeBenefits');
       expect(links[13].sourceNodePath).toMatch('field-CLM-09');
       expect(links[13].targetNodePath).toMatch('field-ReleaseOfInformationCode');
+    });
+
+    it('should not generate mapping link from the source body root', () => {
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        'X12-850.dfdl.xsd',
+        x12850DfdlXsd,
+      );
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.TARGET_BODY,
+        'Invoice850.xsd',
+        invoice850Xsd,
+      );
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      MappingSerializerService.deserialize(x12850ForEachXslt, targetDoc, tree, paramsMap);
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.find((l) => l.sourceNodePath === 'sourceBody:X12-850.dfdl.xsd://')).toBeUndefined();
     });
   });
 });
