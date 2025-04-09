@@ -182,6 +182,25 @@ describe('AutoField', () => {
       expect(inputFields).toHaveLength(1);
       expect(inputFields[0]).toHaveValue('Smith');
     });
+
+    it('it should not render object with undefined properties', () => {
+      const wrapper = render(
+        <CanvasFormTabsContext.Provider value={requiredValue}>
+          <FormComponentFactoryProvider>
+            <SchemaProvider
+              schema={{
+                type: 'object',
+                title: 'labels',
+              }}
+            >
+              <AutoField propName={ROOT_PATH} required={false} />
+            </SchemaProvider>
+          </FormComponentFactoryProvider>
+        </CanvasFormTabsContext.Provider>,
+      );
+
+      expect(wrapper.container).toMatchSnapshot();
+    });
   });
 
   it('it should not render when in `Modified` mode with no modified properties', () => {
@@ -189,6 +208,22 @@ describe('AutoField', () => {
       <CanvasFormTabsContext.Provider value={modifiedValue}>
         <FormComponentFactoryProvider>
           <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } } }}>
+            <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+              <AutoField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </FormComponentFactoryProvider>
+      </CanvasFormTabsContext.Provider>,
+    );
+
+    expect(wrapper.container).toMatchSnapshot();
+  });
+
+  it('it should not render object with undefined properties in `Modified` mode with no modified properties', () => {
+    const wrapper = render(
+      <CanvasFormTabsContext.Provider value={modifiedValue}>
+        <FormComponentFactoryProvider>
+          <SchemaProvider schema={{ type: 'object', title: 'labels' }}>
             <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
               <AutoField propName={ROOT_PATH} />
             </ModelContextProvider>
