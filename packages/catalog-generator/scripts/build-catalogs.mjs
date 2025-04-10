@@ -44,7 +44,7 @@ const CATALOGS = {
   ],
 };
 // https://repo1.maven.org/maven2/org/apache/camel/kamelets/camel-kamelets/
-const KAMELETS_VERSION = '4.10.2';
+const KAMELETS_VERSION = '4.11.0';
 
 const generateCatalogs = () => {
   let camelCatalogPath = '';
