@@ -271,7 +271,7 @@ describe('FlowsList.tsx', () => {
 
   it('should show all flows when not all flows are visible', async () => {
     const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    const showAllFlowsSpy = jest.spyOn(visualFlowsApi, 'showAllFlows');
+    const showAllFlowsSpy = jest.spyOn(visualFlowsApi, 'showFlows');
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
@@ -297,7 +297,7 @@ describe('FlowsList.tsx', () => {
 
   it('should hide all flows when all flows are visible', async () => {
     const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    const hideAllFlowsSpy = jest.spyOn(visualFlowsApi, 'hideAllFlows');
+    const hideAllFlowsSpy = jest.spyOn(visualFlowsApi, 'hideFlows');
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: true,

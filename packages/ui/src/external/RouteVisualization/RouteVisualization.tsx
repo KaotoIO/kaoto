@@ -20,7 +20,7 @@ const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className
   const visualEntities = entitiesContext?.visualEntities ?? [];
 
   useEffect(() => {
-    visualFlowsApi.showAllFlows();
+    visualFlowsApi.showFlows();
   }, [visibleFlows, visualFlowsApi]);
 
   return <Visualization className={`canvas-page ${className}`} entities={visualEntities} />;
