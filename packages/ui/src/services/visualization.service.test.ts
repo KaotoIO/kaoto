@@ -1,6 +1,7 @@
 import { VisualizationService } from './visualization.service';
 import {
   DocumentNodeData,
+  FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
@@ -21,7 +22,13 @@ import {
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/datamapper/document';
-import { shipOrderToShipOrderInvalidForEachXslt, shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import {
+  shipOrderToShipOrderCollectionIndexXslt,
+  shipOrderToShipOrderInvalidForEachXslt,
+  shipOrderToShipOrderMultipleForEachXslt,
+  shipOrderToShipOrderXslt,
+  TestUtil,
+} from '../stubs/data-mapper';
 import { DocumentType } from '../models/datamapper/path';
 
 describe('VisualizationService', () => {
@@ -410,7 +417,7 @@ describe('VisualizationService', () => {
         VisualizationService.engageMapping(tree, sourceItem, forEachChildren[0] as TargetFieldNodeData);
 
         expect((forEach.mapping as ExpressionItem).expression).toEqual('');
-        expect(((forEachChildren[0] as TargetFieldNodeData).mapping!.children[0] as ValueSelector).expression).toEqual(
+        expect(((forEachChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector).expression).toEqual(
           '/ns0:ShipOrder/Item',
         );
       });
@@ -522,7 +529,7 @@ describe('VisualizationService', () => {
         expect(VisualizationService.allowConditionMenu(targetDocChildren[0] as TargetNodeData)).toBeTruthy();
 
         expect(shipOrderChildren.length).toEqual(4);
-        const orderIdNode = shipOrderChildren[0] as TargetFieldNodeData;
+        const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
         expect(orderIdNode.title).toEqual('OrderId');
         expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeFalsy();
 
@@ -556,5 +563,76 @@ describe('VisualizationService', () => {
         expect(otherwiseChildDndId).toContain('otherwise');
       });
     });
+  });
+
+  it('should generate for multiple for-each on a same collection target field', () => {
+    MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+    targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+
+    const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+    const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+    expect(shipOrderChildren.length).toEqual(5);
+    expect(shipOrderChildren[0].title).toEqual('OrderId');
+    expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+    expect(shipOrderChildren[2].title).toEqual('ShipTo');
+    expect(shipOrderChildren[3].title).toEqual('for-each');
+    expect(shipOrderChildren[4].title).toEqual('for-each');
+
+    const forEach1Node = shipOrderChildren[3] as MappingNodeData;
+    expect((forEach1Node.mapping as ForEachItem).expression).toEqual('/ns0:ShipOrder/Item');
+    const forEach1Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Node);
+    expect(forEach1Children.length).toEqual(1);
+    expect(forEach1Children[0].title).toEqual('Item');
+    expect(VisualizationService.isCollectionField(forEach1Children[0]));
+    const forEach1ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Children[0]);
+    expect(forEach1ItemChildren.length).toEqual(4);
+    expect(forEach1ItemChildren[0].title).toEqual('Title');
+    const title1Selector = (forEach1ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(title1Selector.expression).toEqual('Title');
+
+    const forEach2Node = shipOrderChildren[4] as MappingNodeData;
+    expect((forEach2Node.mapping as ForEachItem).expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+    const forEach2Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Node);
+    expect(forEach2Children.length).toEqual(1);
+    expect(forEach2Children[0].title).toEqual('Item');
+    expect(VisualizationService.isCollectionField(forEach2Children[0]));
+    const forEach2ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Children[0]);
+    expect(forEach2ItemChildren.length).toEqual(4);
+    expect(forEach2ItemChildren[0].title).toEqual('Title');
+    const title2Selector = (forEach2ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(title2Selector.expression).toEqual('Title');
+  });
+
+  it('should generate for multiple indexed collection mappings on a same collection target field', () => {
+    jest
+      .spyOn(global, 'crypto', 'get')
+      .mockImplementation(() => ({ getRandomValues: () => [Math.random() * 10000] }) as unknown as Crypto);
+
+    MappingSerializerService.deserialize(shipOrderToShipOrderCollectionIndexXslt, targetDoc, tree, paramsMap);
+    targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+
+    const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+    const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+    expect(shipOrderChildren.length).toEqual(5);
+    expect(shipOrderChildren[0].title).toEqual('OrderId');
+    expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+    expect(shipOrderChildren[2].title).toEqual('ShipTo');
+    expect(shipOrderChildren[3].title).toEqual('Item');
+    expect(VisualizationService.isCollectionField(shipOrderChildren[3])).toBeTruthy();
+    expect(shipOrderChildren[4].title).toEqual('Item');
+    expect(VisualizationService.isCollectionField(shipOrderChildren[4])).toBeTruthy();
+    expect(shipOrderChildren[3].id).not.toEqual(shipOrderChildren[4].id);
+
+    const item1Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
+    expect(item1Children.length).toEqual(4);
+    expect(item1Children[0].title).toEqual('Title');
+    const title1Selector = (item1Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(title1Selector.expression).toEqual('/ns0:ShipOrder/Item[0]/Title');
+
+    const item2Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[4]);
+    expect(item2Children.length).toEqual(4);
+    expect(item2Children[0].title).toEqual('Title');
+    const title2Selector = (item2Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(title2Selector.expression).toEqual('/ns0:ShipOrder/Item[1]/Title');
   });
 });

@@ -44,7 +44,8 @@ export class FieldItem extends MappingItem {
     public parent: MappingParentType,
     public field: IField,
   ) {
-    super(parent, 'field-' + field.name, field.id);
+    const name = 'field-' + field.name;
+    super(parent, name, getCamelRandomId(name, 4));
   }
   doClone() {
     return new FieldItem(this.parent, this.field);

@@ -57,6 +57,7 @@ export interface IDataMapperContext {
 
   mappingTree: MappingTree;
   refreshMappingTree(): void;
+  resetMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
 
   alerts: Partial<AlertProps>[];
@@ -157,7 +158,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
-    onUpdateMappings && onUpdateMappings(MappingSerializerService.serialize(mappingTree, sourceParameterMap!));
+    onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
+  }, [mappingTree, onUpdateMappings, sourceParameterMap]);
+
+  const resetMappingTree = useCallback(() => {
+    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    setMappingTree(newMapping);
+    onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
   }, [mappingTree, onUpdateMappings, sourceParameterMap]);
 
   const removeStaleMappings = useCallback(
@@ -253,6 +260,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       updateDocumentDefinition,
       mappingTree,
       refreshMappingTree,
+      resetMappingTree,
       setMappingTree,
       alerts,
       addAlert,
