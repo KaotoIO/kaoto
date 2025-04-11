@@ -120,5 +120,49 @@ describe('VisualFlowsApi', () => {
 
       expect(newState).toEqual({ newName: true });
     });
+
+    it('should show only filtered routes', () => {
+      const initialState = {
+        route1: false,
+        route2: false,
+        route3: true,
+        route4: false,
+      };
+
+      const filteredRoutes = ['route2', 'route4'];
+
+      const action = { type: 'showFlows', flowIds: filteredRoutes };
+      const newState = VisibleFlowsReducer(initialState, action as VisibleFlowAction);
+
+      expect(newState).toEqual({
+        route1: false,
+        route2: true, // updated
+        route3: true,
+        route4: true, // updated
+      });
+    });
+
+    it('should hide only filtered routes', () => {
+      const initialState = {
+        route1: true,
+        route2: true,
+        route3: true,
+        route4: true,
+      };
+
+      const filteredRoutes = Object.keys(initialState).filter(
+        (routeId) => routeId.includes('route2') || routeId.includes('route4'),
+      );
+
+      const action = { type: 'hideFlows', flowIds: filteredRoutes };
+      const newState = VisibleFlowsReducer(initialState, action as VisibleFlowAction);
+
+      expect(newState).toEqual({
+        route1: true,
+        route2: false, // updated
+        route3: true,
+        route4: false, // updated
+      });
+    });
   });
 });
