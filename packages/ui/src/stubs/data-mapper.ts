@@ -56,6 +56,12 @@ export const shipOrderToShipOrderInvalidForEachXslt = fs
 export const shipOrderEmptyFirstLineXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
   .toString();
+export const shipOrderToShipOrderMultipleForEachXslt = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderMultipleForEach.xsl'))
+  .toString();
+export const shipOrderToShipOrderCollectionIndexXslt = fs
+  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderCollectionIndex.xsl'))
+  .toString();
 
 export const x12837PDfdlXsd = fs
   .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))

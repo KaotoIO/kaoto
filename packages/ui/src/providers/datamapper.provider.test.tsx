@@ -1,5 +1,5 @@
 import { DataMapperProvider } from './datamapper.provider';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { FieldItem, MappingTree } from '../models/datamapper/mapping';
 import { useEffect } from 'react';
@@ -43,5 +43,34 @@ describe('DataMapperProvider', () => {
     expect(nextTree!).toBeDefined();
     expect(prevTree! !== nextTree!).toBeTruthy();
     expect(prevTree!.children[0] === nextTree!.children[0]).toBeTruthy();
+  });
+
+  it('resetMappingTree should reset the mappings', async () => {
+    let initialized = false;
+    let reset = false;
+    let tree: MappingTree;
+    const TestRefreshMappingTree = () => {
+      const { mappingTree, refreshMappingTree, resetMappingTree } = useDataMapper();
+      useEffect(() => {
+        if (!initialized) {
+          mappingTree.children.push(new FieldItem(mappingTree, {} as IField));
+          refreshMappingTree();
+          initialized = true;
+        } else if (!reset) {
+          resetMappingTree();
+          reset = true;
+        } else {
+          tree = mappingTree;
+        }
+      }, [mappingTree, refreshMappingTree, resetMappingTree]);
+      return <div data-testid="testdiv"></div>;
+    };
+    render(
+      <DataMapperProvider>
+        <TestRefreshMappingTree></TestRefreshMappingTree>
+      </DataMapperProvider>,
+    );
+    await waitFor(() => tree);
+    expect(tree!.children.length).toEqual(0);
   });
 });

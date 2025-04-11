@@ -19,6 +19,8 @@ import {
   TestUtil,
   x12850ForEachXslt,
   invoice850Xsd,
+  shipOrderToShipOrderMultipleForEachXslt,
+  shipOrderToShipOrderCollectionIndexXslt,
 } from '../stubs/data-mapper';
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 
@@ -208,6 +210,45 @@ describe('MappingSerializerService', () => {
       expect(itemsFieldItem.field.namedTypeFragmentRefs.length).toEqual(0);
       expect(itemsFieldItem.field.fields.length).toEqual(1);
       expect(itemsFieldItem.field.fields[0] instanceof XmlSchemaField).toBeTruthy();
+    });
+
+    it('should deserialize multiple for-each mappings on a same target collection', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      mappingTree = MappingSerializerService.deserialize(
+        shipOrderToShipOrderMultipleForEachXslt,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(mappingTree.children[0].children.length).toEqual(2);
+      const forEach1 = mappingTree.children[0].children[0] as ForEachItem;
+      expect(forEach1.expression).toEqual('/ns0:ShipOrder/Item');
+      expect(forEach1.children.length).toEqual(1);
+      const item1 = forEach1.children[0] as FieldItem;
+      expect(item1.field.name).toEqual('Item');
+      const forEach2 = mappingTree.children[0].children[1] as ForEachItem;
+      expect(forEach2.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+      expect(forEach2.children.length).toEqual(1);
+      const item2 = forEach1.children[0] as FieldItem;
+      expect(item2.field.name).toEqual('Item');
+    });
+
+    it('should deserialize multiple indexed collection mappings on a same target collection', () => {
+      const mockCrypto = { getRandomValues: () => [Math.random() * 10000] };
+      jest.spyOn(global, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      mappingTree = MappingSerializerService.deserialize(
+        shipOrderToShipOrderCollectionIndexXslt,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(mappingTree.children[0].children.length).toEqual(2);
+      const item1 = mappingTree.children[0].children[0] as FieldItem;
+      expect(item1.children.length).toEqual(4);
+      const item2 = mappingTree.children[0].children[1] as FieldItem;
+      expect(item2.children.length).toEqual(4);
+      expect(item1.id).not.toEqual(item2.id);
     });
   });
 

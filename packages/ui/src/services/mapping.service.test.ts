@@ -16,6 +16,8 @@ import { IDocument } from '../models/datamapper/document';
 import {
   invoice850Xsd,
   message837Xsd,
+  shipOrderToShipOrderCollectionIndexXslt,
+  shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
   TestUtil,
   x12837PDfdlXsd,
@@ -384,6 +386,18 @@ describe('MappingService', () => {
       MappingSerializerService.deserialize(x12850ForEachXslt, targetDoc, tree, paramsMap);
       const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.find((l) => l.sourceNodePath === 'sourceBody:X12-850.dfdl.xsd://')).toBeUndefined();
+    });
+
+    it('should generate mapping links for multiple for-each on a same target collection', () => {
+      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(10);
+    });
+
+    it('should generate mapping links for multiple field item on a same target collection', () => {
+      MappingSerializerService.deserialize(shipOrderToShipOrderCollectionIndexXslt, targetDoc, tree, paramsMap);
+      const links = MappingService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(8);
     });
   });
 });
