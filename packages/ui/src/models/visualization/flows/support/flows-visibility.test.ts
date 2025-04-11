@@ -16,15 +16,15 @@ describe('VisualFlowsApi', () => {
   });
 
   it('should show all flows', () => {
-    visualFlowsApi.showAllFlows();
+    visualFlowsApi.showFlows();
 
-    expect(dispatch).toHaveBeenCalledWith({ type: 'showAllFlows' });
+    expect(dispatch).toHaveBeenCalledWith({ type: 'showFlows' });
   });
 
   it('should hide all flows', () => {
-    visualFlowsApi.hideAllFlows();
+    visualFlowsApi.hideFlows();
 
-    expect(dispatch).toHaveBeenCalledWith({ type: 'hideAllFlows' });
+    expect(dispatch).toHaveBeenCalledWith({ type: 'hideFlows' });
   });
 
   it('should clear flows', () => {
@@ -58,7 +58,7 @@ describe('VisualFlowsApi', () => {
 
     it('should show all flows', () => {
       const initialState = { flowId1: false, flowId2: false };
-      action = { type: 'showAllFlows' };
+      action = { type: 'showFlows' };
       const newState = VisibleFlowsReducer(initialState, action);
 
       expect(newState).toEqual({ flowId1: true, flowId2: true });
@@ -66,7 +66,7 @@ describe('VisualFlowsApi', () => {
 
     it('should hide all flows', () => {
       const initialState = { flowId1: true, flowId2: true };
-      action = { type: 'hideAllFlows' };
+      action = { type: 'hideFlows' };
       const newState = VisibleFlowsReducer(initialState, action);
 
       expect(newState).toEqual({ flowId1: false, flowId2: false });

@@ -35,7 +35,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
 
   const onSelectFlow = useCallback(
     (flowId: string): void => {
-      visualFlowsApi.hideAllFlows();
+      visualFlowsApi.hideFlows();
       visualFlowsApi.toggleFlowVisible(flowId);
       props.onClose?.();
     },
@@ -49,16 +49,26 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     [visualEntities],
   );
 
+  const areFlowsVisible = useCallback(() => {
+    if (searchString === '') return allFlowsVisible;
+
+    return visualEntities
+      .filter((entity) => entity.id.includes(searchString))
+      .every((entity) => visibleFlows[entity.id]);
+  }, [searchString, allFlowsVisible, visualEntities, visibleFlows]);
+
   const onToggleAll = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      if (allFlowsVisible) {
-        visualFlowsApi.hideAllFlows();
+      const filteredIds = visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
+
+      if (areFlowsVisible()) {
+        visualFlowsApi.hideFlows(filteredIds.length > 0 ? filteredIds : undefined);
       } else {
-        visualFlowsApi.showAllFlows();
+        visualFlowsApi.showFlows(filteredIds.length > 0 ? filteredIds : undefined);
       }
       event.stopPropagation();
     },
-    [allFlowsVisible, visualFlowsApi],
+    [areFlowsVisible, allFlowsVisible, visualFlowsApi, searchString],
   );
 
   return isListEmpty ? (
@@ -69,9 +79,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
         <Thead noWrap>
           <Tr>
             <Th>
-              {columnNames.current.id}
               <SearchInput
+                label={columnNames.current.id}
                 value={searchString}
+                onClear={(event) => {
+                  setSearchString('');
+                  event.stopPropagation();
+                }}
                 onChange={(_event, value) => {
                   setSearchString(value);
                 }}
@@ -84,7 +98,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 onClick={onToggleAll}
                 icon={
                   <Icon isInline>
-                    {allFlowsVisible ? (
+                    {areFlowsVisible() ? (
                       <EyeIcon data-testid="toggle-btn-hide-all" />
                     ) : (
                       <EyeSlashIcon data-testid="toggle-btn-show-all" />
