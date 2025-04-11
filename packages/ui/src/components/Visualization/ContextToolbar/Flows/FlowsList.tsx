@@ -139,7 +139,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                   data-testid={`delete-btn-${flow.id}`}
                   icon={<TrashIcon />}
                   variant="plain"
-                  onClick={async (event) => {
+                  onClick={async (_event) => {
+                    //close the dropdown if it is open to not to interfere with the delete modal
+                    props.onClose?.();
                     const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
                       title:
                         "Do you want to delete the '" +
@@ -149,13 +151,10 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                         '?',
                       text: 'All steps will be lost.',
                     });
-
                     if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
                     camelResource.removeEntity(flow.id);
                     updateEntitiesFromCamelResource();
-                    /** Required to avoid closing the Dropdown after clicking in the icon */
-                    event.stopPropagation();
                   }}
                 />
               </Td>
