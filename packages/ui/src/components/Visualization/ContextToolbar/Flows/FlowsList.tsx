@@ -81,6 +81,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
             <Th>
               <SearchInput
                 label={columnNames.current.id}
+                aria-label="search"
                 value={searchString}
                 onClear={(event) => {
                   setSearchString('');
