@@ -358,4 +358,47 @@ describe('FlowsList.tsx', () => {
 
     expect(toggleAllFlows).toHaveAttribute('title', 'Show all flows');
   });
+
+  it('should filter flows based on the search input', async () => {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
+      visibleFlows: {
+        ['route-1234']: false,
+        ['routeConfiguration-1234']: true,
+      },
+      visualFlowsApi: new VisualFlowsApi(jest.fn),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    // Verify all flows are initially displayed
+    let flows = await wrapper.findAllByTestId(/flows-list-row-*/);
+    expect(flows).toHaveLength(2);
+
+    // Simulate typing into the search input
+    const searchInput = wrapper.getByRole('textbox', { name: 'search' });
+    act(() => {
+      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    });
+
+    // Verify only the matching flow is displayed
+    flows = await wrapper.findAllByTestId(/flows-list-row-*/);
+    expect(flows).toHaveLength(1);
+    expect(wrapper.getByTestId('flows-list-row-route-1234')).toBeInTheDocument();
+
+    // Clear the search input
+    const clearButton = wrapper.getByRole('button', { name: 'Reset' });
+    act(() => {
+      fireEvent.click(clearButton);
+    });
+
+    // Verify all flows are displayed again
+    flows = await wrapper.findAllByTestId(/flows-list-row-*/);
+    expect(flows).toHaveLength(2);
+  });
 });
