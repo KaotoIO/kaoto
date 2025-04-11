@@ -27,7 +27,7 @@ export const NewEntity: FunctionComponent = () => {
        * supported
        */
       const newId = camelResource.addNewEntity(entityType as EntityType);
-      visibleFlowsContext.visualFlowsApi.hideAllFlows();
+      visibleFlowsContext.visualFlowsApi.hideFlows();
       visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
       updateEntitiesFromCamelResource();
       setIsOpen(false);

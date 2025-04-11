@@ -16,15 +16,15 @@ describe('VisualFlowsApi', () => {
   });
 
   it('should show all flows', () => {
-    visualFlowsApi.showAllFlows();
+    visualFlowsApi.showFlows();
 
-    expect(dispatch).toHaveBeenCalledWith({ type: 'showAllFlows' });
+    expect(dispatch).toHaveBeenCalledWith({ type: 'showFlows' });
   });
 
   it('should hide all flows', () => {
-    visualFlowsApi.hideAllFlows();
+    visualFlowsApi.hideFlows();
 
-    expect(dispatch).toHaveBeenCalledWith({ type: 'hideAllFlows' });
+    expect(dispatch).toHaveBeenCalledWith({ type: 'hideFlows' });
   });
 
   it('should clear flows', () => {
@@ -58,7 +58,7 @@ describe('VisualFlowsApi', () => {
 
     it('should show all flows', () => {
       const initialState = { flowId1: false, flowId2: false };
-      action = { type: 'showAllFlows' };
+      action = { type: 'showFlows' };
       const newState = VisibleFlowsReducer(initialState, action);
 
       expect(newState).toEqual({ flowId1: true, flowId2: true });
@@ -66,7 +66,7 @@ describe('VisualFlowsApi', () => {
 
     it('should hide all flows', () => {
       const initialState = { flowId1: true, flowId2: true };
-      action = { type: 'hideAllFlows' };
+      action = { type: 'hideFlows' };
       const newState = VisibleFlowsReducer(initialState, action);
 
       expect(newState).toEqual({ flowId1: false, flowId2: false });
@@ -112,6 +112,50 @@ describe('VisualFlowsApi', () => {
       const newState = VisibleFlowsReducer(initialState, action);
 
       expect(newState).toEqual({ newName: true });
+    });
+
+    it('should show only filtered routes', () => {
+      const initialState = {
+        route1: false,
+        route2: false,
+        route3: true,
+        route4: false,
+      };
+
+      const filteredRoutes = ['route2', 'route4'];
+
+      const action = { type: 'showFlows', flowIds: filteredRoutes };
+      const newState = VisibleFlowsReducer(initialState, action as VisibleFlowAction);
+
+      expect(newState).toEqual({
+        route1: false,
+        route2: true, // updated
+        route3: true,
+        route4: true, // updated
+      });
+    });
+
+    it('should hide only filtered routes', () => {
+      const initialState = {
+        route1: true,
+        route2: true,
+        route3: true,
+        route4: true,
+      };
+
+      const filteredRoutes = Object.keys(initialState).filter(
+        (routeId) => routeId.includes('route2') || routeId.includes('route4'),
+      );
+
+      const action = { type: 'hideFlows', flowIds: filteredRoutes };
+      const newState = VisibleFlowsReducer(initialState, action as VisibleFlowAction);
+
+      expect(newState).toEqual({
+        route1: true,
+        route2: false, // updated
+        route3: true,
+        route4: false, // updated
+      });
     });
   });
 });
