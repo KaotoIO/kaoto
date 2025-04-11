@@ -97,6 +97,18 @@ export class MappingNodeData implements TargetNodeData {
   mappingTree: MappingTree;
 }
 
+export class FieldItemNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: FieldItem,
+  ) {
+    super(parent, mapping);
+    this.title = mapping.field.name;
+    this.field = mapping.field;
+  }
+  public field: IField;
+}
+
 class SimpleNodePath extends NodePath {
   constructor(public path: string) {
     super();
