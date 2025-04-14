@@ -47,6 +47,7 @@ export class KaotoEditorApp implements Editor {
     this.saveResourceContent = this.saveResourceContent.bind(this);
     this.deleteResource = this.deleteResource.bind(this);
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
+    this.saveFile = this.saveFile.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -147,13 +148,17 @@ export class KaotoEditorApp implements Editor {
     setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
 
+  async saveFile(): Promise<void> {
+    return this.envelopeContext.channelApi.requests.saveFile();
+  }
+
   af_componentRoot() {
     return (
-      <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
-        <CatalogLoaderProvider>
-          <SourceCodeProvider>
-            <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
-              <SettingsProvider adapter={this.settingsAdapter}>
+      <SettingsProvider adapter={this.settingsAdapter}>
+        <SourceCodeProvider>
+          <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+            <CatalogLoaderProvider>
+              <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
                 <KaotoBridge
                   ref={this.editorRef}
                   channelType={this.initArgs.channel}
@@ -167,14 +172,15 @@ export class KaotoEditorApp implements Editor {
                   saveResourceContent={this.saveResourceContent}
                   deleteResource={this.deleteResource}
                   askUserForFileSelection={this.askUserForFileSelection}
+                  saveFile={this.saveFile}
                 >
                   <RouterProvider router={kaotoEditorRouter} />
                 </KaotoBridge>
-              </SettingsProvider>
-            </EntitiesProvider>
-          </SourceCodeProvider>
-        </CatalogLoaderProvider>
-      </RuntimeProvider>
+              </EntitiesProvider>
+            </CatalogLoaderProvider>
+          </RuntimeProvider>
+        </SourceCodeProvider>
+      </SettingsProvider>
     );
   }
 }

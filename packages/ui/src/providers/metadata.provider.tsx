@@ -46,6 +46,11 @@ export interface IMetadataApi {
   ): Promise<string[] | string | undefined>;
 
   /**
+   * Save current file
+   */
+  saveFile(): Promise<void>;
+
+  /**
    * A flag indicates that if the schema file needs to be saved or not. If it's running inside the VS Code,
    * the schema file is supposed to be read from existing workspace file, therefore it should not save it and overwrite.
    * On the other hand, if it's running in the browser, the schema file is uploaded directly from the browser, therefore

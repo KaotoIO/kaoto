@@ -55,6 +55,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     setMetadata: () => Promise.resolve(),
     deleteResource: () => Promise.resolve(true),
     saveResourceContent: () => Promise.resolve(),
+    saveFile: () => Promise.resolve(),
   };
 
   return (

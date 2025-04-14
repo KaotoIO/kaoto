@@ -3,6 +3,11 @@ import { ISettingsModel } from '../models/settings';
 
 export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   /**
+   * Save the current file
+   */
+  saveFile(): Promise<void>;
+
+  /**
    * @deprecated Use `getVSCodeKaotoSettings().catalogUrl` instead
    * Returns the URL of the catalog.
    */

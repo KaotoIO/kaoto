@@ -17,7 +17,13 @@ import { RegisterNodeInteractionAddons } from '../components/registers/RegisterN
 import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
 import { useReload } from '../hooks/reload.hook';
-import { CatalogTilesProvider, MetadataProvider, SourceCodeApiContext, VisibleFlowsProvider } from '../providers';
+import {
+  CatalogTilesProvider,
+  IMetadataApi,
+  MetadataProvider,
+  SourceCodeApiContext,
+  VisibleFlowsProvider,
+} from '../providers';
 import { EventNotifier } from '../utils';
 
 interface KaotoBridgeProps {
@@ -93,6 +99,11 @@ interface KaotoBridgeProps {
   ): Promise<string[] | string | undefined>;
 
   /**
+   * Save current file
+   */
+  saveFile(): Promise<void>;
+
+  /**
    * ChannelType where the component is running.
    */
   channelType: ChannelType;
@@ -110,6 +121,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
       saveResourceContent,
       deleteResource,
       askUserForFileSelection,
+      saveFile,
     },
     forwardedRef,
   ) => {
@@ -118,7 +130,7 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
     const sourceCodeRef = useRef<string>('');
-    const metadataApi = useMemo(
+    const metadataApi: IMetadataApi = useMemo(
       () => ({
         getMetadata,
         setMetadata,
@@ -126,9 +138,18 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
         saveResourceContent,
         deleteResource,
         askUserForFileSelection,
+        saveFile,
         shouldSaveSchema: false,
       }),
-      [getMetadata, setMetadata, getResourceContent, saveResourceContent, deleteResource, askUserForFileSelection],
+      [
+        getMetadata,
+        setMetadata,
+        getResourceContent,
+        saveResourceContent,
+        deleteResource,
+        askUserForFileSelection,
+        saveFile,
+      ],
     );
 
     /**
