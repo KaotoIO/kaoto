@@ -45,7 +45,7 @@ describe('PipeErrorHandlerPage', () => {
     expect(container).toMatchSnapshot();
     expect(screen.getByRole('button', { name: 'No Pipe ErrorHandler' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Log Pipe ErrorHandler' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'No Pipe ErrorHandler' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sink Pipe ErrorHandler' })).toBeInTheDocument();
   });
 
   it('calls updateSourceCodeFromEntities when the model changes', () => {
