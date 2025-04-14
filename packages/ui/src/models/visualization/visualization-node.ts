@@ -27,6 +27,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
+  private nodeLabelListener: (() => void) | null = null;
   private readonly DISABLED_NODE_INTERACTION: NodeInteraction = DISABLED_NODE_INTERACTION;
 
   constructor(
@@ -80,6 +81,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   updateModel(value: unknown): void {
     this.getBaseEntity()?.updateModel(this.data.path, value);
+    this.notifyNodeLabelListeners();
   }
 
   getParentNode(): IVisualizationNode | undefined {
@@ -149,5 +151,19 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
 
     return rootNode!;
+  }
+
+  setNodeLabelListener(listener: () => void) {
+    this.nodeLabelListener = listener;
+  }
+
+  private notifyNodeLabelListeners(): void {
+    if (this.nodeLabelListener) {
+      this.nodeLabelListener();
+    }
+  }
+
+  removeNodeLabelListener(): void {
+    this.nodeLabelListener = null;
   }
 }

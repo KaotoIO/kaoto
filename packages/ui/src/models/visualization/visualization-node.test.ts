@@ -279,4 +279,27 @@ describe('VisualizationNode', () => {
       expect(validationText).toEqual('test-validation-text');
     });
   });
+
+  describe('NodeLabelListener', () => {
+    it('should call the registered node label listener when notified', () => {
+      const listener = jest.fn();
+      node.setNodeLabelListener(listener);
+
+      // Simulate a label change
+      node.updateModel('test-value');
+
+      expect(listener).toHaveBeenCalled();
+    });
+
+    it('should not call the listener after it is removed', () => {
+      const listener = jest.fn();
+      node.setNodeLabelListener(listener);
+      node.removeNodeLabelListener();
+
+      // Simulate a label change
+      node.updateModel('test-value');
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
 });

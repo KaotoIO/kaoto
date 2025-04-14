@@ -27,7 +27,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useRef } from 'react';
+import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
@@ -57,7 +57,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const entitiesContext = useEntityContext();
     const settingsAdapter = useContext(SettingsContext);
-    const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const [label, setLabel] = useState(vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel));
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
@@ -76,6 +76,22 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const shouldShowAddStep =
       shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
     const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
+
+    useEffect(() => {
+      const updateLabel = () => setLabel(vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel));
+
+      // Subscribe to changes in the node
+      vizNode?.setNodeLabelListener(updateLabel);
+
+      // Set the initial label
+      updateLabel();
+
+      // Unsubscribe when the component unmounts, also before the next useffect() executes
+      // to avoid memory leaks
+      return () => {
+        vizNode?.removeNodeLabelListener();
+      };
+    }, [settingsAdapter, vizNode]);
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);

@@ -13,7 +13,7 @@ import {
   useHover,
   withDndDrop,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useRef } from 'react';
+import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { LayoutType } from '../../Canvas';
@@ -33,7 +33,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
 
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const settingsAdapter = useContext(SettingsContext);
-    const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const [label, setLabel] = useState(vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel));
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
@@ -49,6 +49,22 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const shouldShowAddStep =
       shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
     const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
+
+    useEffect(() => {
+      const updateLabel = () => setLabel(vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel));
+
+      // Subscribe to changes in the node
+      vizNode?.setNodeLabelListener(updateLabel);
+
+      // Set the initial label
+      updateLabel();
+
+      // Unsubscribe when the component unmounts, also before the next useffect() executes
+      // to avoid memory leaks
+      return () => {
+        vizNode?.removeNodeLabelListener();
+      };
+    }, [settingsAdapter, vizNode]);
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
