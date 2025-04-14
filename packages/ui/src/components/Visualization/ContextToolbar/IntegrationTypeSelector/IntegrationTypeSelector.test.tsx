@@ -2,10 +2,10 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../models';
 import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
 import { TestProvidersWrapper } from '../../../../stubs';
-import { DSLSelector } from './DSLSelector';
+import { IntegrationTypeSelector } from './IntegrationTypeSelector';
 import { XmlCamelResourceSerializer } from '../../../../serializers';
 
-describe('DSLSelector.tsx', () => {
+describe('IntegrationTypeSelector.tsx', () => {
   const config = sourceSchemaConfig;
   config.config[SourceSchemaType.Integration].schema = {
     schema: { name: 'Integration', description: 'desc' } as KaotoSchemaDefinition['schema'],
@@ -28,11 +28,11 @@ describe('DSLSelector.tsx', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelector />
+        <IntegrationTypeSelector />
       </Provider>,
     );
 
-    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+    const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -51,14 +51,14 @@ describe('DSLSelector.tsx', () => {
     });
     const wrapper = render(
       <Provider>
-        <DSLSelector />
+        <IntegrationTypeSelector />
       </Provider>,
     );
 
-    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+    const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
+    await act(async () => {
       fireEvent.click(trigger);
     });
     let element = wrapper.queryByText('Camel Route');
@@ -71,11 +71,11 @@ describe('DSLSelector.tsx', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelector />
+        <IntegrationTypeSelector />
       </Provider>,
     );
 
-    const trigger = await wrapper.findByTestId('dsl-list-dropdown');
+    const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
     act(() => {

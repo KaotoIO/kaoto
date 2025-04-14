@@ -1,3 +1,3 @@
 export * from './ContextToolbar';
-export * from './DSLSelector/DSLSelector';
+export * from './IntegrationTypeSelector/IntegrationTypeSelector';
 export * from './SerializerSelector/SerializerSelector';

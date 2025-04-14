@@ -1,13 +1,13 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
-interface ChangeDSLModalProps {
+interface ChangeIntegrationTypeModalProps {
   isOpen: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export const ChangeDSLModal: FunctionComponent<ChangeDSLModalProps> = (props) => {
+export const ChangeIntegrationTypeModal: FunctionComponent<ChangeIntegrationTypeModalProps> = (props) => {
   return (
     <Modal variant={ModalVariant.small} data-testid="confirmation-modal" onClose={props.onCancel} isOpen={props.isOpen}>
       <ModalHeader title="Warning" titleIconVariant="warning" />
