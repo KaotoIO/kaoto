@@ -2,7 +2,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../../models';
 import { SourceSchemaType, sourceSchemaConfig } from '../../../../../models/camel';
 import { TestProvidersWrapper } from '../../../../../stubs';
-import { DSLSelectorToggle } from './DSLSelectorToggle';
+import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';
 
 const config = sourceSchemaConfig;
 config.config[SourceSchemaType.Pipe].schema = {
@@ -18,15 +18,15 @@ config.config[SourceSchemaType.Route].schema = {
   schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
 } as KaotoSchemaDefinition;
 
-describe('DSLSelectorToggle.tsx', () => {
+describe('IntegrationTypeSelectorToggle.tsx', () => {
   it('component renders', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
-    const toggle = wrapper.queryByTestId('dsl-list-dropdown');
+    const toggle = wrapper.queryByTestId('integration-type-list-dropdown');
     expect(toggle).toBeInTheDocument();
   });
 
@@ -35,12 +35,12 @@ describe('DSLSelectorToggle.tsx', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle onSelect={onSelectSpy} />
+        <IntegrationTypeSelectorToggle onSelect={onSelectSpy} />
       </Provider>,
     );
 
     /** Click on toggle */
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
     act(() => {
       fireEvent.click(toggle);
     });
@@ -56,15 +56,15 @@ describe('DSLSelectorToggle.tsx', () => {
     });
   });
 
-  it('should disable the MenuToggleAction if the DSL is already selected', async () => {
+  it('should disable the MenuToggleAction if the integration type is already selected', async () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
     /** Click on toggle */
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
     act(() => {
       fireEvent.click(toggle);
     });
@@ -84,14 +84,14 @@ describe('DSLSelectorToggle.tsx', () => {
     });
   });
 
-  it('should toggle list of DSLs', async () => {
+  it('should toggle list of integration types', async () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Click on toggle */
     act(() => {
@@ -116,10 +116,10 @@ describe('DSLSelectorToggle.tsx', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -142,14 +142,14 @@ describe('DSLSelectorToggle.tsx', () => {
     expect(element).toHaveTextContent('Camel Route');
   });
 
-  it('should have selected DSL if provided', async () => {
+  it('should have selected integration type if provided', async () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
     act(() => {
@@ -167,10 +167,10 @@ describe('DSLSelectorToggle.tsx', () => {
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <Provider>
-        <DSLSelectorToggle />
+        <IntegrationTypeSelectorToggle />
       </Provider>,
     );
-    const toggle = await wrapper.findByTestId('dsl-list-dropdown');
+    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
     act(() => {

@@ -8,7 +8,7 @@ interface ISourceTypeSelector {
   onSelect?: (value: SourceSchemaType) => void;
 }
 
-export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
+export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
   const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
@@ -19,10 +19,10 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
       if (!flowType) {
         return;
       }
-      const dsl = sourceSchemaConfig.config[flowType as SourceSchemaType];
+      const integrationType = sourceSchemaConfig.config[flowType as SourceSchemaType];
 
       setIsOpen(false);
-      if (dsl !== undefined) {
+      if (integrationType !== undefined) {
         props.onSelect?.(flowType as SourceSchemaType);
       }
     },
@@ -31,7 +31,7 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (
     <MenuToggle
-      data-testid="dsl-list-dropdown"
+      data-testid="integration-type-list-dropdown"
       ref={toggleRef}
       onClick={() => {
         setIsOpen(!isOpen);
@@ -44,7 +44,7 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
 
   return (
     <Select
-      id="dsl-list-select"
+      id="integration-type-list-select"
       isOpen={isOpen}
       selected={currentSchemaType}
       onSelect={onSelect}
@@ -59,8 +59,8 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
 
           return (
             <SelectOption
-              key={`dsl-${sourceSchema.schema?.name ?? index}`}
-              data-testid={`dsl-${sourceSchema.schema?.name}`}
+              key={`integration-type-${sourceSchema.schema?.name ?? index}`}
+              data-testid={`integration-type-${sourceSchema.schema?.name}`}
               itemId={sourceType}
               description={
                 <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
@@ -70,7 +70,7 @@ export const DSLSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props)
               isDisabled={isOptionDisabled}
             >
               {sourceSchema.name}
-              {isOptionDisabled && ' (current DSL)'}
+              {isOptionDisabled && ' (current integration type)'}
             </SelectOption>
           );
         })}

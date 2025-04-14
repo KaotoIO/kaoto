@@ -5,11 +5,11 @@ describe('Test for Multi route actions from the canvas', () => {
 
   it('User changes route type in the canvas', () => {
     cy.switchIntegrationType('Kamelet');
-    cy.get('[data-testid="dsl-list-dropdown"]').contains('Kamelet');
+    cy.get('[data-testid="integration-type-list-dropdown"]').contains('Kamelet');
     cy.switchIntegrationType('camelYamlDsl');
-    cy.get('[data-testid="dsl-list-dropdown"]').contains('Camel Route');
+    cy.get('[data-testid="integration-type-list-dropdown"]').contains('Camel Route');
     cy.switchIntegrationType('Pipe');
-    cy.get('[data-testid="dsl-list-dropdown"]').contains('Pipe');
+    cy.get('[data-testid="integration-type-list-dropdown"]').contains('Pipe');
   });
 
   it('User shows and hides a route', () => {
@@ -89,7 +89,7 @@ describe('Test for Multi route actions from the canvas', () => {
   testData.forEach((data) => {
     it("User can't create multiple routes in canvas of type " + data, () => {
       cy.switchIntegrationType(data);
-      cy.get('[data-testid="dsl-list-dropdown"]').click({ force: true });
+      cy.get('[data-testid="integration-type-list-dropdown"]').click({ force: true });
       cy.get('.pf-v6-c-menu__item-text').contains(data).closest('button').should('be.disabled');
       cy.get('[data-testid="new-entity-list-dropdown"]').should('not.exist');
 

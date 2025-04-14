@@ -8,7 +8,7 @@ import {
   SchemasLoaderProvider,
   SourceCodeApiContext,
   SourceCodeProvider,
-  DSLSelector,
+  IntegrationTypeSelector,
   SerializerSelector,
   VisibleFlowsProvider,
   camelRouteYaml,
@@ -52,8 +52,8 @@ const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }
   const sourceCodeApi = useContext(SourceCodeApiContext);
   sourceCodeApi.setCodeAndNotify(props.sourceCode);
   const additionalControls = [
-    <ToolbarItem key="toolbar-dsl-selector">
-      <DSLSelector />
+    <ToolbarItem key="toolbar-integration-type-selector">
+      <IntegrationTypeSelector />
     </ToolbarItem>,
     <SerializerSelector key="toolbar-serializer-selector" />,
   ];

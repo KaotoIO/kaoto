@@ -2,11 +2,11 @@ import { DesignPage } from './DesignPage';
 import { ReturnToSourceCodeFallback } from './ReturnToSourceCodeFallback';
 import { SerializerSelector } from '../../components/Visualization/ContextToolbar/SerializerSelector/SerializerSelector';
 import { ToolbarItem } from '@patternfly/react-core';
-import { DSLSelector } from '../../components/Visualization/ContextToolbar/DSLSelector/DSLSelector';
+import { IntegrationTypeSelector } from '../../components/Visualization/ContextToolbar/IntegrationTypeSelector/IntegrationTypeSelector';
 
 const additionalControls = [
   <ToolbarItem key="toolbar-dsl-selector">
-    <DSLSelector />
+    <IntegrationTypeSelector />
   </ToolbarItem>,
   <SerializerSelector key="toolbar-serializer-selector" />,
 ];
