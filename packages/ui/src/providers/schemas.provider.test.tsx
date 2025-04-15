@@ -3,7 +3,7 @@ import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
-import { ReloadContext } from './reload.context';
+import { ReloadContext } from './reload.provider';
 import { SchemasLoaderProvider } from './schemas.provider';
 
 describe('SchemasLoaderProvider', () => {

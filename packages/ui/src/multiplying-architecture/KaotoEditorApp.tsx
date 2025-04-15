@@ -14,6 +14,7 @@ import { RouterProvider } from 'react-router-dom';
 import { AbstractSettingsAdapter } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
+import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
@@ -154,33 +155,35 @@ export class KaotoEditorApp implements Editor {
 
   af_componentRoot() {
     return (
-      <SettingsProvider adapter={this.settingsAdapter}>
-        <SourceCodeProvider>
-          <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
-            <CatalogLoaderProvider>
-              <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
-                <KaotoBridge
-                  ref={this.editorRef}
-                  channelType={this.initArgs.channel}
-                  onReady={this.sendReady}
-                  onNewEdit={this.sendNewEdit}
-                  setNotifications={this.sendNotifications}
-                  onStateControlCommandUpdate={this.sendStateControlCommand}
-                  getMetadata={this.getMetadata}
-                  setMetadata={this.setMetadata}
-                  getResourceContent={this.getResourceContent}
-                  saveResourceContent={this.saveResourceContent}
-                  deleteResource={this.deleteResource}
-                  askUserForFileSelection={this.askUserForFileSelection}
-                  saveFile={this.saveFile}
-                >
-                  <RouterProvider router={kaotoEditorRouter} />
-                </KaotoBridge>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </RuntimeProvider>
-        </SourceCodeProvider>
-      </SettingsProvider>
+      <ReloadProvider>
+        <SettingsProvider adapter={this.settingsAdapter}>
+          <SourceCodeProvider>
+            <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+              <CatalogLoaderProvider>
+                <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
+                  <KaotoBridge
+                    ref={this.editorRef}
+                    channelType={this.initArgs.channel}
+                    onReady={this.sendReady}
+                    onNewEdit={this.sendNewEdit}
+                    setNotifications={this.sendNotifications}
+                    onStateControlCommandUpdate={this.sendStateControlCommand}
+                    getMetadata={this.getMetadata}
+                    setMetadata={this.setMetadata}
+                    getResourceContent={this.getResourceContent}
+                    saveResourceContent={this.saveResourceContent}
+                    deleteResource={this.deleteResource}
+                    askUserForFileSelection={this.askUserForFileSelection}
+                    saveFile={this.saveFile}
+                  >
+                    <RouterProvider router={kaotoEditorRouter} />
+                  </KaotoBridge>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </RuntimeProvider>
+          </SourceCodeProvider>
+        </SettingsProvider>
+      </ReloadProvider>
     );
   }
 }

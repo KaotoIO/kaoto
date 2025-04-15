@@ -40,10 +40,11 @@ export interface EntitiesContextResult {
 
 export const EntitiesContext = createContext<EntitiesContextResult | null>(null);
 
-export const EntitiesProvider: FunctionComponent<PropsWithChildren<{ fileExtension?: string }>> = ({
-  fileExtension,
-  children,
-}) => {
+interface EntitiesProviderProps extends PropsWithChildren {
+  fileExtension?: string;
+}
+
+export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fileExtension, children }) => {
   const eventNotifier = EventNotifier.getInstance();
   const [camelResource, setCamelResource] = useState<CamelResource>(
     CamelResourceFactory.createCamelResource('', { path: fileExtension }),

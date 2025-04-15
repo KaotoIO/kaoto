@@ -16,7 +16,6 @@ import { RegisterComponents } from '../components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from '../components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
-import { useReload } from '../hooks/reload.hook';
 import {
   CatalogTilesProvider,
   IMetadataApi,
@@ -125,7 +124,6 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     },
     forwardedRef,
   ) => {
-    const ReloadProvider = useReload();
     const controller = useMemo(() => ControllerService.createController(), []);
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);
@@ -237,23 +235,21 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     }, [onReady]);
 
     return (
-      <ReloadProvider>
-        <CatalogTilesProvider>
-          <VisualizationProvider controller={controller}>
-            <VisibleFlowsProvider>
-              <RenderingProvider>
-                <MetadataProvider api={metadataApi}>
-                  <RegisterComponents>
-                    <NodeInteractionAddonProvider>
-                      <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
-                    </NodeInteractionAddonProvider>
-                  </RegisterComponents>
-                </MetadataProvider>
-              </RenderingProvider>
-            </VisibleFlowsProvider>
-          </VisualizationProvider>
-        </CatalogTilesProvider>
-      </ReloadProvider>
+      <CatalogTilesProvider>
+        <VisualizationProvider controller={controller}>
+          <VisibleFlowsProvider>
+            <RenderingProvider>
+              <MetadataProvider api={metadataApi}>
+                <RegisterComponents>
+                  <NodeInteractionAddonProvider>
+                    <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+                  </NodeInteractionAddonProvider>
+                </RegisterComponents>
+              </MetadataProvider>
+            </RenderingProvider>
+          </VisibleFlowsProvider>
+        </VisualizationProvider>
+      </CatalogTilesProvider>
     );
   },
 );
