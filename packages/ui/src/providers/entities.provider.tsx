@@ -8,10 +8,9 @@ import {
   useState,
 } from 'react';
 import { BaseVisualCamelEntity } from '../models';
-import { SourceSchemaType } from '../models/camel';
+import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { BaseCamelEntity } from '../models/camel/entities';
-import { CamelResource } from '../testing-api';
 import { EventNotifier } from '../utils';
 
 export interface EntitiesContextResult {
