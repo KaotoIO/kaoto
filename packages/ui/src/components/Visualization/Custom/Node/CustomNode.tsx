@@ -55,6 +55,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     }
 
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+    const lastUpdate = vizNode?.lastUpdate;
     const entitiesContext = useEntityContext();
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
@@ -147,7 +148,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     }
 
     return (
-      <Layer id={DEFAULT_LAYER}>
+      <Layer id={DEFAULT_LAYER} data-lastupdate={lastUpdate}>
         <g
           ref={gCombinedRef}
           className="custom-node"

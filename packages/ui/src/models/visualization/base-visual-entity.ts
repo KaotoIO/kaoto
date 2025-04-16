@@ -86,6 +86,7 @@ export interface BaseVisualCamelEntityConstructor {
 export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> {
   id: string;
   data: T;
+  lastUpdate: number;
 
   getId(): string | undefined;
 

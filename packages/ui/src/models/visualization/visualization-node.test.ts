@@ -129,6 +129,13 @@ describe('VisualizationNode', () => {
   });
 
   describe('updateModel', () => {
+    it('should update the lastUpdate value', () => {
+      const initialValue = node.lastUpdate;
+      node.updateModel('test-value');
+
+      expect(node.lastUpdate).not.toEqual(initialValue);
+    });
+
     it('should update the model on the underlying BaseVisualCamelEntity', () => {
       const updateModelSpy = jest.fn();
       const visualEntity = {
