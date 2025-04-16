@@ -109,6 +109,26 @@ export class FieldItemNodeData extends MappingNodeData {
   public field: IField;
 }
 
+export class AddMappingNodeData implements TargetNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public field: IField,
+  ) {
+    const ID_PREFIX = 'add-mapping-';
+    this.id = ID_PREFIX + field.id;
+    this.path = NodePath.childOf(parent.path, this.id);
+    this.title = field.name;
+    this.isPrimitive = parent.isPrimitive;
+    this.mappingTree = parent.mappingTree;
+  }
+  id: string;
+  isPrimitive: boolean;
+  isSource = false;
+  mappingTree: MappingTree;
+  path: NodePath;
+  title: string;
+}
+
 class SimpleNodePath extends NodePath {
   constructor(public path: string) {
     super();

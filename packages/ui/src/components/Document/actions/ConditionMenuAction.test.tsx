@@ -2,7 +2,12 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import { DocumentType } from '../../../models/datamapper/path';
-import { MappingNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../../models/datamapper/visualization';
+import {
+  AddMappingNodeData,
+  MappingNodeData,
+  TargetDocumentNodeData,
+  TargetFieldNodeData,
+} from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping.service';
 import { VisualizationService } from '../../../services/visualization.service';
 import { TestUtil } from '../../../stubs/data-mapper';
@@ -178,5 +183,27 @@ describe('ConditionMenuAction', () => {
     });
 
     waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+  });
+
+  it('should render Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+    const onUpdateSpy = jest.fn();
+    const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
+    const wrapper = render(
+      <ConditionMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+    );
+
+    act(() => {
+      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+      expect(actionToggle.textContent).toEqual('Add Conditional Mapping');
+      fireEvent.click(actionToggle);
+    });
+
+    act(() => {
+      const forEachList = wrapper.getByTestId('transformation-actions-foreach');
+      const forEachButton = forEachList.getElementsByTagName('button');
+      fireEvent.click(forEachButton[0]);
+    });
+
+    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
   });
 });

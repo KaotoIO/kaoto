@@ -9,6 +9,7 @@ import {
   TargetFieldNodeData,
   TargetNodeDataType,
   FieldItemNodeData,
+  AddMappingNodeData,
 } from '../models/datamapper/visualization';
 import {
   ChooseItem,
@@ -77,6 +78,9 @@ export class VisualizationService {
           .forEach((mapping) =>
             acc.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, mapping)),
           );
+        if (DocumentService.isCollectionField(field)) {
+          acc.push(new AddMappingNodeData(parent as TargetNodeData, field));
+        }
       }
       return acc;
     }, answer);
@@ -128,8 +132,7 @@ export class VisualizationService {
   static isCollectionField(nodeData: NodeData) {
     return (
       (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) &&
-      nodeData.field?.maxOccurs &&
-      nodeData.field.maxOccurs > 1
+      DocumentService.isCollectionField(nodeData.field)
     );
   }
 
@@ -181,7 +184,11 @@ export class VisualizationService {
   }
 
   static allowForEach(nodeData: TargetNodeData) {
-    return nodeData instanceof TargetFieldNodeData && VisualizationService.isCollectionField(nodeData);
+    return (
+      nodeData instanceof AddMappingNodeData ||
+      ((nodeData instanceof TargetFieldNodeData || nodeData instanceof FieldItemNodeData) &&
+        VisualizationService.isCollectionField(nodeData))
+    );
   }
 
   static isForEachNode(nodeData: TargetNodeData) {
@@ -235,6 +242,7 @@ export class VisualizationService {
 
   static allowValueSelector(nodeData: TargetNodeData) {
     return (
+      !(nodeData instanceof AddMappingNodeData) &&
       !VisualizationService.isChooseNode(nodeData) &&
       !VisualizationService.isValueSelectorNode(nodeData) &&
       !VisualizationService.isForEachNode(nodeData)
@@ -334,5 +342,10 @@ export class VisualizationService {
 
   static generateDndId(nodeData: NodeData) {
     return nodeData instanceof DocumentNodeData ? nodeData.id : nodeData.path.pathSegments.join('-');
+  }
+
+  static addMapping(nodeData: AddMappingNodeData) {
+    const parentItem = VisualizationService.getOrCreateFieldItem(nodeData.parent);
+    MappingService.createFieldItem(parentItem, nodeData.field);
   }
 }

@@ -9,10 +9,11 @@ import {
   MenuToggle,
   MenuToggleElement,
 } from '@patternfly/react-core';
-import { EllipsisVIcon } from '@patternfly/react-icons';
+import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { ChooseItem } from '../../../models/datamapper/mapping';
 
 type ConditionMenuProps = {
+  dropdownLabel?: string;
   nodeData: TargetNodeData;
   onUpdate: () => void;
 };
@@ -22,7 +23,7 @@ const DEFAULT_POPPER_PROPS = {
   preventOverflow: true,
 } as const;
 
-export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nodeData, onUpdate }) => {
+export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dropdownLabel, nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
   const allowIfChoose = VisualizationService.allowIfChoose(nodeData);
   const allowForEach = VisualizationService.allowForEach(nodeData);
@@ -75,14 +76,15 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ nod
           onSelect={onSelectAction}
           toggle={(toggleRef: Ref<MenuToggleElement>) => (
             <MenuToggle
+              icon={dropdownLabel ? <AddCircleOIcon /> : <EllipsisVIcon />}
               ref={toggleRef}
               onClick={onToggleActionMenu}
-              variant="plain"
+              variant={dropdownLabel ? 'secondary' : 'plain'}
               isExpanded={isActionMenuOpen}
               aria-label="Transformation Action list"
               data-testid="transformation-actions-menu-toggle"
             >
-              <EllipsisVIcon />
+              {dropdownLabel}
             </MenuToggle>
           )}
           isOpen={isActionMenuOpen}

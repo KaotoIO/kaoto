@@ -200,4 +200,8 @@ export class DocumentService {
   static hasChildren(field: IField) {
     return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
   }
+
+  static isCollectionField(field: IField) {
+    return !!field.maxOccurs && field.maxOccurs > 1;
+  }
 }

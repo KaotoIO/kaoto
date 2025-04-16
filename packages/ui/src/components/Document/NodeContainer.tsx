@@ -1,7 +1,7 @@
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import clsx from 'clsx';
 import { forwardRef, FunctionComponent, PropsWithChildren } from 'react';
-import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
+import { AddMappingNodeData, DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
 import { isDefined } from '../../utils';
 import './NodeContainer.scss';
 import { VisualizationService } from '../../services/visualization.service';
@@ -73,7 +73,9 @@ type NodeContainerProps = PropsWithChildren & {
 };
 
 export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(({ children, nodeData }, forwardedRef) => {
-  return nodeData && !(nodeData instanceof DocumentNodeData && !nodeData.isPrimitive) ? (
+  return nodeData &&
+    !(nodeData instanceof DocumentNodeData && !nodeData.isPrimitive) &&
+    !(nodeData instanceof AddMappingNodeData) ? (
     <div ref={forwardedRef}>
       <DnDContainer nodeData={nodeData}>{children}</DnDContainer>
     </div>
