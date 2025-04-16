@@ -16,8 +16,13 @@ import { RegisterComponents } from '../components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from '../components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from '../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
-import { useReload } from '../hooks/reload.hook';
-import { CatalogTilesProvider, MetadataProvider, SourceCodeApiContext, VisibleFlowsProvider } from '../providers';
+import {
+  CatalogTilesProvider,
+  MetadataProvider,
+  ReloadProvider,
+  SourceCodeApiContext,
+  VisibleFlowsProvider,
+} from '../providers';
 import { EventNotifier } from '../utils';
 
 interface KaotoBridgeProps {
@@ -113,7 +118,6 @@ export const KaotoBridge = forwardRef<EditorApi, PropsWithChildren<KaotoBridgePr
     },
     forwardedRef,
   ) => {
-    const ReloadProvider = useReload();
     const controller = useMemo(() => ControllerService.createController(), []);
     const eventNotifier = EventNotifier.getInstance();
     const sourceCodeApiContext = useContext(SourceCodeApiContext);

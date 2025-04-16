@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ReloadContext } from '../../providers';
+import { ReloadContext } from '../../providers/reload.provider';
 
 export const errorMessage = '`useReloadContext()` should be called into `ReloadProvider`';
 

@@ -6,13 +6,13 @@ import { ControllerService } from './components/Visualization/Canvas/controller.
 import { RegisterComponents } from './components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from './components/registers/RegisterNodeInteractionAddons';
 import { NodeInteractionAddonProvider } from './components/registers/interactions/node-interaction-addon.provider';
-import { useReload } from './hooks/reload.hook';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
   CatalogLoaderProvider,
   CatalogTilesProvider,
   EntitiesProvider,
+  ReloadProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsProvider,
@@ -24,7 +24,6 @@ import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
 import { setColorScheme } from './utils/color-scheme';
 
 function App() {
-  const ReloadProvider = useReload();
   const controller = useMemo(() => ControllerService.createController(), []);
   const settingsAdapter = new LocalStorageSettingsAdapter();
   let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
