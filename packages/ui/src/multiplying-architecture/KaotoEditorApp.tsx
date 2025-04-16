@@ -1,6 +1,5 @@
 import {
   Editor,
-  EditorApi,
   EditorInitArgs,
   EditorTheme,
   KogitoEditorEnvelopeContextType,
@@ -14,29 +13,30 @@ import { RouterProvider } from 'react-router-dom';
 import { AbstractSettingsAdapter } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
+import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
 import { setColorScheme } from '../utils/color-scheme';
+import { SourceCodeBridgeProviderRef } from './Bridge/editor-api';
+import { KaotoBridge } from './Bridge/KaotoBridge';
+import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
 import { EditService } from './EditService';
-import { KaotoBridge } from './KaotoBridge';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export class KaotoEditorApp implements Editor {
-  protected editorRef: RefObject<EditorApi>;
+  protected editorRef: RefObject<SourceCodeBridgeProviderRef>;
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
-  private pendingPath = '';
-  private pendingContent = '';
 
   constructor(
     protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
     protected readonly initArgs: EditorInitArgs,
     protected readonly settingsAdapter: AbstractSettingsAdapter,
   ) {
-    this.editorRef = createRef<EditorApi>();
+    this.editorRef = createRef<SourceCodeBridgeProviderRef>();
     this.sendReady = this.sendReady.bind(this);
     this.sendNewEdit = this.sendNewEdit.bind(this);
     this.sendNotifications = this.sendNotifications.bind(this);
@@ -58,14 +58,7 @@ export class KaotoEditorApp implements Editor {
 
     EditService.getInstance().clearEdits();
 
-    if (this.editorRef.current !== null) {
-      /** If the editor is available, we can send the content from the file */
-      return this.editorRef.current.setContent(path, content);
-    }
-
-    /** Otherwise we store the parameters for when the editor is available */
-    this.pendingPath = path;
-    this.pendingContent = content;
+    await this.editorRef.current?.setContent(path, content);
   }
 
   async getContent(): Promise<string> {
@@ -96,8 +89,6 @@ export class KaotoEditorApp implements Editor {
 
   async sendReady(): Promise<void> {
     this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send();
-
-    await this.setContent(this.pendingPath, this.pendingContent);
   }
 
   async sendNewEdit(content: string): Promise<void> {
@@ -149,32 +140,34 @@ export class KaotoEditorApp implements Editor {
 
   af_componentRoot() {
     return (
-      <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
-        <CatalogLoaderProvider>
+      <ReloadProvider>
+        <SettingsProvider adapter={this.settingsAdapter}>
           <SourceCodeProvider>
-            <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
-              <SettingsProvider adapter={this.settingsAdapter}>
-                <KaotoBridge
-                  ref={this.editorRef}
-                  channelType={this.initArgs.channel}
-                  onReady={this.sendReady}
-                  onNewEdit={this.sendNewEdit}
-                  setNotifications={this.sendNotifications}
-                  onStateControlCommandUpdate={this.sendStateControlCommand}
-                  getMetadata={this.getMetadata}
-                  setMetadata={this.setMetadata}
-                  getResourceContent={this.getResourceContent}
-                  saveResourceContent={this.saveResourceContent}
-                  deleteResource={this.deleteResource}
-                  askUserForFileSelection={this.askUserForFileSelection}
-                >
-                  <RouterProvider router={kaotoEditorRouter} />
-                </KaotoBridge>
-              </SettingsProvider>
-            </EntitiesProvider>
+            <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
+              <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+                <CatalogLoaderProvider>
+                  <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
+                    <KaotoBridge
+                      channelType={this.initArgs.channel}
+                      onReady={this.sendReady}
+                      setNotifications={this.sendNotifications}
+                      onStateControlCommandUpdate={this.sendStateControlCommand}
+                      getMetadata={this.getMetadata}
+                      setMetadata={this.setMetadata}
+                      getResourceContent={this.getResourceContent}
+                      saveResourceContent={this.saveResourceContent}
+                      deleteResource={this.deleteResource}
+                      askUserForFileSelection={this.askUserForFileSelection}
+                    >
+                      <RouterProvider router={kaotoEditorRouter} />
+                    </KaotoBridge>
+                  </EntitiesProvider>
+                </CatalogLoaderProvider>
+              </RuntimeProvider>
+            </SourceCodeBridgeProvider>
           </SourceCodeProvider>
-        </CatalogLoaderProvider>
-      </RuntimeProvider>
+        </SettingsProvider>
+      </ReloadProvider>
     );
   }
 }

@@ -3,6 +3,7 @@ import {
   PropsWithChildren,
   createContext,
   useCallback,
+  useContext,
   useLayoutEffect,
   useMemo,
   useState,
@@ -12,6 +13,7 @@ import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { EventNotifier } from '../utils';
+import { SourceCodeContext } from './source-code.provider';
 
 export interface EntitiesContextResult {
   entities: BaseCamelEntity[];
@@ -40,16 +42,24 @@ export interface EntitiesContextResult {
 
 export const EntitiesContext = createContext<EntitiesContextResult | null>(null);
 
-export const EntitiesProvider: FunctionComponent<PropsWithChildren<{ fileExtension?: string }>> = ({
-  fileExtension,
-  children,
-}) => {
+interface EntitiesProviderProps extends PropsWithChildren {
+  fileExtension?: string;
+}
+
+export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fileExtension, children }) => {
   const eventNotifier = EventNotifier.getInstance();
-  const [camelResource, setCamelResource] = useState<CamelResource>(
-    CamelResourceFactory.createCamelResource('', { path: fileExtension }),
-  );
-  const [entities, setEntities] = useState<BaseCamelEntity[]>([]);
-  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>([]);
+  const initialSourceCode = useContext(SourceCodeContext);
+
+  let initialCamelResource: CamelResource;
+  try {
+    initialCamelResource = CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension });
+  } catch (error) {
+    initialCamelResource = CamelResourceFactory.createCamelResource('', { path: fileExtension });
+  }
+
+  const [camelResource, setCamelResource] = useState<CamelResource>(initialCamelResource);
+  const [entities, setEntities] = useState<BaseCamelEntity[]>(camelResource.getEntities());
+  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>(camelResource.getVisualEntities());
 
   /**
    * Subscribe to the `code:updated` event to recreate the CamelResource

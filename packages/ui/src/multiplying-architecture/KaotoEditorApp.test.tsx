@@ -122,18 +122,6 @@ describe('KaotoEditorApp', () => {
 
       expect(editorRef.current!.setContent).toHaveBeenCalledWith('path', 'content');
     });
-
-    it('should store the calling arguments until the editor is ready', async () => {
-      kaotoEditorApp.setEditorRef({ current: null });
-
-      await kaotoEditorApp.setContent('path', 'content');
-
-      kaotoEditorApp.setEditorRef(editorRef);
-      await kaotoEditorApp.sendReady();
-
-      expect(editorRef.current!.setContent).toHaveBeenCalledWith('path', 'content');
-      expect(editorRef.current!.setContent).toHaveBeenCalledTimes(1);
-    });
   });
 
   it('getContent', async () => {
