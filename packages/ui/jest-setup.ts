@@ -51,6 +51,8 @@ beforeEach(() => {
   setupJestCanvasMock();
 });
 
+Element.prototype.scrollIntoView = jest.fn();
+
 function enableSVGElementMocks() {
   /**
    * Mocking the following SVG methods to avoid errors when running tests
