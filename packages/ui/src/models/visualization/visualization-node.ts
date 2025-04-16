@@ -1,3 +1,4 @@
+import { action, makeObservable, observable } from 'mobx';
 import { DefinedComponent } from '../camel-catalog-index';
 import { NodeLabelType } from '../settings/settings.model';
 import {
@@ -23,6 +24,7 @@ export const createVisualizationNode = <T extends IVisualizationNodeData = IVisu
  * It shouldn't be used directly, but rather through the IVisualizationNode interface.
  */
 class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeData> implements IVisualizationNode<T> {
+  lastUpdate: number = 0;
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
@@ -32,7 +34,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   constructor(
     public readonly id: string,
     public data: T,
-  ) {}
+  ) {
+    makeObservable(this, {
+      lastUpdate: observable,
+      updateModel: action,
+    });
+  }
 
   getId(): string | undefined {
     return this.getBaseEntity()?.getId();
@@ -80,6 +87,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   updateModel(value: unknown): void {
     this.getBaseEntity()?.updateModel(this.data.path, value);
+    this.lastUpdate = Date.now();
   }
 
   getParentNode(): IVisualizationNode | undefined {
