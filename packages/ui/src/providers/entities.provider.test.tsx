@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
+import { parse } from 'yaml';
 import { CamelResource } from '../models/camel';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { SerializerType } from '../serializers';
@@ -7,6 +8,7 @@ import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
+import { SourceCodeContext } from './source-code.provider';
 
 describe('EntitiesProvider', () => {
   let eventNotifier: EventNotifier;
@@ -30,6 +32,52 @@ describe('EntitiesProvider', () => {
       expect(result.current?.camelResource.getSerializerType()).toEqual(serializerType);
     },
   );
+
+  describe('Initialization', () => {
+    it('should use the sourceCode context to initialize the Camel Resource', () => {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) => (
+          <SourceCodeContext.Provider value={camelRouteYaml}>
+            <EntitiesProvider>{children}</EntitiesProvider>
+          </SourceCodeContext.Provider>
+        ),
+      });
+
+      expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
+    });
+
+    it('should create an empty Camel Resource if there is no Source Code available', () => {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: EntitiesProvider,
+      });
+
+      expect(result.current?.camelResource.toJSON()).toEqual([]);
+    });
+
+    it('should ignore non-camel entities', () => {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) => (
+          <SourceCodeContext.Provider value="A non camel source code">
+            <EntitiesProvider>{children}</EntitiesProvider>
+          </SourceCodeContext.Provider>
+        ),
+      });
+
+      expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
+    });
+
+    it('should fallback to an empty Camel Resource when there is a wrong Source Code', () => {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) => (
+          <SourceCodeContext.Provider value={'- from: {'}>
+            <EntitiesProvider>{children}</EntitiesProvider>
+          </SourceCodeContext.Provider>
+        ),
+      });
+
+      expect(result.current?.camelResource.toJSON()).toEqual([]);
+    });
+  });
 
   it('it should subscribe to the `code:updated` notification', () => {
     const notifierSpy = jest.spyOn(eventNotifier, 'subscribe');
