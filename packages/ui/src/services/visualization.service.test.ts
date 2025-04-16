@@ -1,5 +1,6 @@
 import { VisualizationService } from './visualization.service';
 import {
+  AddMappingNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -528,7 +529,7 @@ describe('VisualizationService', () => {
         expect(VisualizationService.allowConditionMenu(targetDocNode)).toBeTruthy();
         expect(VisualizationService.allowConditionMenu(targetDocChildren[0] as TargetNodeData)).toBeTruthy();
 
-        expect(shipOrderChildren.length).toEqual(4);
+        expect(shipOrderChildren.length).toEqual(5);
         const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
         expect(orderIdNode.title).toEqual('OrderId');
         expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeFalsy();
@@ -544,6 +545,15 @@ describe('VisualizationService', () => {
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
         expect(VisualizationService.allowConditionMenu(forEachNode)).toBeFalsy();
+
+        expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        expect(addMappingNode.title).toEqual('Item');
+        expect(addMappingNode.id).toContain('add-mapping-field-Item');
+        expect(VisualizationService.allowForEach(addMappingNode)).toBeTruthy();
+        expect(VisualizationService.allowIfChoose(addMappingNode)).toBeTruthy();
+        expect(VisualizationService.allowConditionMenu(addMappingNode)).toBeTruthy();
+        expect(VisualizationService.allowValueSelector(addMappingNode)).toBeFalsy();
       });
     });
 
@@ -563,6 +573,26 @@ describe('VisualizationService', () => {
         expect(otherwiseChildDndId).toContain('otherwise');
       });
     });
+
+    describe('addMapping()', () => {
+      it('should add an empty mapping', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        expect(shipOrderChildren.length).toEqual(5);
+
+        const shipOrderMappingItem = targetDocNode.mappingTree.children[0];
+
+        expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        expect(shipOrderMappingItem.children.length).toEqual(4);
+        VisualizationService.addMapping(addMappingNode);
+
+        expect(shipOrderMappingItem.children.length).toEqual(5);
+        expect(shipOrderMappingItem.children[4] instanceof FieldItem).toBeTruthy();
+        const itemItem = shipOrderMappingItem.children[4] as FieldItem;
+        expect(itemItem.field.name).toEqual('Item');
+      });
+    });
   });
 
   it('should generate for multiple for-each on a same collection target field', () => {
@@ -571,12 +601,13 @@ describe('VisualizationService', () => {
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
-    expect(shipOrderChildren.length).toEqual(5);
+    expect(shipOrderChildren.length).toEqual(6);
     expect(shipOrderChildren[0].title).toEqual('OrderId');
     expect(shipOrderChildren[1].title).toEqual('OrderPerson');
     expect(shipOrderChildren[2].title).toEqual('ShipTo');
     expect(shipOrderChildren[3].title).toEqual('for-each');
     expect(shipOrderChildren[4].title).toEqual('for-each');
+    expect(shipOrderChildren[5].title).toEqual('Item');
 
     const forEach1Node = shipOrderChildren[3] as MappingNodeData;
     expect((forEach1Node.mapping as ForEachItem).expression).toEqual('/ns0:ShipOrder/Item');
@@ -601,6 +632,13 @@ describe('VisualizationService', () => {
     expect(forEach2ItemChildren[0].title).toEqual('Title');
     const title2Selector = (forEach2ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title2Selector.expression).toEqual('Title');
+
+    expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
+    const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
+    expect(addMappingNode.title).toEqual('Item');
+    expect(addMappingNode.id).toContain('add-mapping-field-Item');
+    expect(addMappingNode.field.name).toEqual('Item');
+    expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
   });
 
   it('should generate for multiple indexed collection mappings on a same collection target field', () => {
@@ -613,7 +651,7 @@ describe('VisualizationService', () => {
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
-    expect(shipOrderChildren.length).toEqual(5);
+    expect(shipOrderChildren.length).toEqual(6);
     expect(shipOrderChildren[0].title).toEqual('OrderId');
     expect(shipOrderChildren[1].title).toEqual('OrderPerson');
     expect(shipOrderChildren[2].title).toEqual('ShipTo');
@@ -622,6 +660,7 @@ describe('VisualizationService', () => {
     expect(shipOrderChildren[4].title).toEqual('Item');
     expect(VisualizationService.isCollectionField(shipOrderChildren[4])).toBeTruthy();
     expect(shipOrderChildren[3].id).not.toEqual(shipOrderChildren[4].id);
+    expect(shipOrderChildren[5].title).toEqual('Item');
 
     const item1Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
     expect(item1Children.length).toEqual(4);
@@ -634,5 +673,12 @@ describe('VisualizationService', () => {
     expect(item2Children[0].title).toEqual('Title');
     const title2Selector = (item2Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title2Selector.expression).toEqual('/ns0:ShipOrder/Item[1]/Title');
+
+    expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
+    const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
+    expect(addMappingNode.title).toEqual('Item');
+    expect(addMappingNode.id).toContain('add-mapping-field-Item');
+    expect(addMappingNode.field.name).toEqual('Item');
+    expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
   });
 });

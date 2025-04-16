@@ -39,4 +39,19 @@ describe('DocumentService', () => {
       expect(field?.name).toEqual('ShipTo');
     });
   });
+
+  describe('isCollectionField()', () => {
+    it('', () => {
+      expect(DocumentService.isCollectionField(sourceDoc.fields[0])).toBeFalsy();
+      expect(DocumentService.isCollectionField(targetDoc.fields[0])).toBeFalsy();
+      expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[0])).toBeFalsy();
+      expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[0])).toBeFalsy();
+      expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[1])).toBeFalsy();
+      expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[1])).toBeFalsy();
+      expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[2])).toBeFalsy();
+      expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[2])).toBeFalsy();
+      expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[3])).toBeTruthy();
+      expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[3])).toBeTruthy();
+    });
+  });
 });

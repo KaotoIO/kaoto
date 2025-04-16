@@ -40,6 +40,28 @@
     flex-grow: 1;
     justify-content: end;
   }
+
+  &__add__mapping {
+    &__header {
+      border-bottom: 1px dashed var(--pf-t--global--color--disabled--100);
+      border-left: 1px dashed var(--pf-t--global--color--disabled--100);
+      padding-left: var(--pf-t--global--spacer--md);
+      border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+    }
+
+    &__text {
+      color: var(--pf-t--global--text--color--disabled);
+    }
+
+    &__icon {
+      color: var(--pf-t--global--icon--color--disabled);
+    }
+
+    &__actions {
+      flex-grow: 1;
+      justify-content: left;
+    }
+  }
 }
 
 img {
