@@ -1,5 +1,5 @@
 import { Icon, Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle } from '@patternfly/react-core';
-import { FunctionComponent, ReactElement, useCallback, useContext, useRef, useState } from 'react';
+import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
 import camelLogo from '../../../../assets/camel-logo.svg';
 import quarkusLogo from '../../../../assets/quarkus-logo.svg';
 import redhatLogo from '../../../../assets/redhat-logo.svg';
@@ -7,7 +7,6 @@ import springBootLogo from '../../../../assets/springboot-logo.svg';
 import { useLocalStorage } from '../../../../hooks';
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { LocalStorageKeys } from '../../../../models';
-import { MetadataContext } from '../../../../providers/metadata.provider';
 import './RuntimeSelector.scss';
 
 const SPACE_REGEX = /\s/g;
@@ -40,7 +39,6 @@ const getIcon = (name: string) => {
 };
 
 export const RuntimeSelector: FunctionComponent = () => {
-  const metadataContext = useContext(MetadataContext);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -77,13 +75,11 @@ export const RuntimeSelector: FunctionComponent = () => {
         return;
       }
 
-      await metadataContext?.saveFile();
-
       runtimeContext.setSelectedCatalog(selectedCatalog);
       setSelectedCatalogLocalStorage(selectedCatalog);
       setIsOpen(false);
     },
-    [metadataContext, runtimeContext, setSelectedCatalogLocalStorage],
+    [runtimeContext, setSelectedCatalogLocalStorage],
   );
 
   const getMenuItem = useCallback(

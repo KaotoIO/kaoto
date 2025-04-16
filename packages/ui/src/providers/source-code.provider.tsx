@@ -3,6 +3,7 @@ import {
   PropsWithChildren,
   createContext,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -41,6 +42,14 @@ export const SourceCodeProvider: FunctionComponent<PropsWithChildren> = (props) 
     }),
     [setCodeAndNotify],
   );
+
+  useEffect(() => {
+    console.log('Mount - SourceCodeProvider');
+
+    return () => {
+      console.log('Unmount - SourceCodeProvider');
+    };
+  }, []);
 
   return (
     <SourceCodeApiContext.Provider value={sourceCodeApi}>

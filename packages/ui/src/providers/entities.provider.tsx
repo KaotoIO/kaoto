@@ -3,6 +3,7 @@ import {
   PropsWithChildren,
   createContext,
   useCallback,
+  useContext,
   useLayoutEffect,
   useMemo,
   useState,
@@ -12,6 +13,7 @@ import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { BaseCamelEntity } from '../models/camel/entities';
 import { EventNotifier } from '../utils';
+import { SourceCodeContext } from './source-code.provider';
 
 export interface EntitiesContextResult {
   entities: BaseCamelEntity[];
@@ -45,12 +47,13 @@ interface EntitiesProviderProps extends PropsWithChildren {
 }
 
 export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fileExtension, children }) => {
+  const initialSourceCode = useContext(SourceCodeContext);
   const eventNotifier = EventNotifier.getInstance();
   const [camelResource, setCamelResource] = useState<CamelResource>(
-    CamelResourceFactory.createCamelResource('', { path: fileExtension }),
+    CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension }),
   );
-  const [entities, setEntities] = useState<BaseCamelEntity[]>([]);
-  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>([]);
+  const [entities, setEntities] = useState<BaseCamelEntity[]>(camelResource.getEntities());
+  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>(camelResource.getVisualEntities());
 
   /**
    * Subscribe to the `code:updated` event to recreate the CamelResource
