@@ -108,12 +108,6 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     });
   };
 
-  const onInputClick: MouseEventHandler<HTMLDivElement> = (event) => {
-    event.stopPropagation();
-    setFilter(inputValue);
-    setIsOpen(true);
-  };
-
   const onTextInputChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
     setFilter(value);
     setInputValue(value);
@@ -159,7 +153,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
           data-testid={`${dataTestId}-typeahead-select-input`}
           ref={inputRef}
           placeholder={placeholder}
-          onClick={onInputClick}
+          onClick={onToggleClick}
           value={inputValue}
           onChange={onTextInputChange}
         />
