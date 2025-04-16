@@ -7,7 +7,7 @@ export * from './entities.provider';
 export * from './filtered-field.provider';
 export * from './settings.provider';
 export * from './metadata.provider';
-export * from './reload.context';
+export * from './reload.provider';
 export * from './runtime.provider';
 export * from './schemas.provider';
 export * from './source-code.provider';

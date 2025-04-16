@@ -6,7 +6,7 @@ import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
 import { getFirstCatalogMap } from '../stubs/test-load-catalog';
-import { ReloadContext } from './reload.context';
+import { ReloadContext } from './reload.provider';
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;

@@ -2,11 +2,11 @@ import { VisualizationProvider } from '@patternfly/react-topology';
 import React, { useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
-import { useReload } from '../../hooks/reload.hook';
 import {
   CatalogLoaderProvider,
   EntitiesContext,
   EntitiesProvider,
+  ReloadProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   VisibleFlowsContext,
@@ -27,7 +27,6 @@ const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className
 };
 
 const Viz: React.FC<{ catalogUrl: string; className?: string }> = ({ catalogUrl, className = '' }) => {
-  const ReloadProvider = useReload();
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (

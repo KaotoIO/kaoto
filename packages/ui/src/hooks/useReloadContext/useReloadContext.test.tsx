@@ -14,9 +14,9 @@ describe('useReloadContext', () => {
     (console.error as jest.Mock).mockRestore();
   });
 
-  it('should return EntityContext', () => {
+  it('should return ReloadContext', () => {
     const { result } = renderHook(() => useReloadContext(), { wrapper });
 
-    expect(result.current).not.toBe(null);
+    expect(result.current).not.toBeUndefined();
   });
 });
