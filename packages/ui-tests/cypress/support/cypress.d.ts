@@ -80,6 +80,7 @@ declare global {
       addExpressionResultType(value: string, index?: number): Chainable<JQuery<Element>>;
       checkExpressionResultType(value: string): Chainable<JQuery<Element>>;
       checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
+      checkExpressionConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       checkConfigInputObject(inputName: string, value: string): Chainable<JQuery<Element>>;
       selectExpression(expression: string, index?: number): Chainable<JQuery<Element>>;
       selectInTypeaheadField(inputGroup: string, value: string): Chainable<JQuery<Element>>;

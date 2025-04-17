@@ -5,7 +5,7 @@ describe('Test for catalog versions', () => {
 
   const testData = [
     { type: 'Main', version: 'Camel Main 4.11.0' },
-    { type: 'Main', version: 'Camel Main 4.10.' },
+    { type: 'Main', version: 'Camel Main 4.10.3' },
     { type: 'Main', version: 'Camel Main 4.4.0.redhat-00046' },
     { type: 'Main', version: 'Camel Main 4.8.3.redhat-00004' },
     { type: 'Main', version: 'Camel Main 4.8.5' },
@@ -45,8 +45,8 @@ describe('Test for catalog versions', () => {
       cy.openStepConfigurationTab('setHeader', 0);
       cy.selectFormTab('All');
       // Check the configured fields didn't change in the node
-      cy.checkConfigInputObject('expression', 'testExpression');
-      cy.checkConfigInputObject('id', 'testId');
+      cy.checkExpressionConfigInputObject('simple.expression', 'testExpression');
+      cy.checkExpressionConfigInputObject('simple.id', 'testId');
       cy.checkConfigInputObject('name', 'testName');
 
       cy.openStepConfigurationTab('log', 0);
@@ -54,7 +54,7 @@ describe('Test for catalog versions', () => {
       // Check the configured fields didn't change in the node
       cy.checkConfigInputObject('description', 'log');
       cy.checkConfigInputObject('logName', 'testLoggerName');
-      cy.contains('button', 'Processor advanced properties').click();
+      cy.expandWrappedSection('#-Advanced');
       cy.checkConfigInputObject('marker', 'testMarker');
 
       cy.selectPrependNode('log');
