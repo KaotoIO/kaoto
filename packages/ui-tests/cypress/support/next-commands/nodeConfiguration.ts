@@ -51,8 +51,12 @@ Cypress.Commands.add('checkConfigCheckboxObject', (inputName: string, value: boo
   cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).should(`${checked}be.checked`);
 });
 
+Cypress.Commands.add('checkExpressionConfigInputObject', (inputName: string, value: string) => {
+  cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).should('have.value', value);
+});
+
 Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string) => {
-  cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).should('have.value', value);
+  cy.checkExpressionConfigInputObject(`#.${inputName}`, value);
 });
 
 Cypress.Commands.add('selectExpression', (expression: string, index?: number) => {
