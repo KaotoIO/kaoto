@@ -1,6 +1,7 @@
-import { FunctionComponent, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { EllipsisVIcon, PortIcon, TimesIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useState } from 'react';
+import { DEFAULT_POPPER_PROPS } from '../../../../../models/popper-default';
 import { useFieldValue } from '../hooks/field-value';
 
 export interface FieldActionsProps {
@@ -38,6 +39,7 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ propName, c
         />
       )}
       shouldFocusToggleOnSelect
+      popperProps={DEFAULT_POPPER_PROPS}
     >
       <DropdownList>
         <DropdownItem

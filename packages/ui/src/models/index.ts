@@ -10,6 +10,7 @@ export * from './kamelets-catalog';
 export * from './kaoto-schema';
 export * from './loading-status';
 export * from './local-storage-keys';
+export * from './popper-default';
 export * from './react-component';
 export * from './settings';
 export * from './validation';
