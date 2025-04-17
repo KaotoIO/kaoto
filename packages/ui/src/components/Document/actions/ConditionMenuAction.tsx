@@ -1,6 +1,3 @@
-import { FunctionComponent, Ref, MouseEvent, useCallback, useState } from 'react';
-import { MappingNodeData, TargetFieldNodeData, TargetNodeData } from '../../../models/datamapper/visualization';
-import { VisualizationService } from '../../../services/visualization.service';
 import {
   ActionListItem,
   Dropdown,
@@ -10,18 +7,17 @@ import {
   MenuToggleElement,
 } from '@patternfly/react-core';
 import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
+import { FunctionComponent, MouseEvent, Ref, useCallback, useState } from 'react';
 import { ChooseItem } from '../../../models/datamapper/mapping';
+import { MappingNodeData, TargetFieldNodeData, TargetNodeData } from '../../../models/datamapper/visualization';
+import { DEFAULT_POPPER_PROPS } from '../../../models/popper-default';
+import { VisualizationService } from '../../../services/visualization.service';
 
 type ConditionMenuProps = {
   dropdownLabel?: string;
   nodeData: TargetNodeData;
   onUpdate: () => void;
 };
-
-const DEFAULT_POPPER_PROPS = {
-  position: 'end',
-  preventOverflow: true,
-} as const;
 
 export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dropdownLabel, nodeData, onUpdate }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);

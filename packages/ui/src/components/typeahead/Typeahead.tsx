@@ -21,15 +21,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { DEFAULT_POPPER_PROPS } from '../../models/popper-default';
 import { isDefined } from '../../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
 export const CREATE_NEW_ITEM = 'create-new-with-name';
-
-const DEFAULT_POPPER_PROPS = {
-  position: 'end',
-  preventOverflow: true,
-} as const;
 
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   selectedItem,
