@@ -1,5 +1,14 @@
 import { Form } from '@patternfly/react-core';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  FormEventHandler,
+} from 'react';
 import { IDataTestID, KaotoSchemaDefinition } from '../../../../models';
 import { isDefined, ROOT_PATH, setValue } from '../../../../utils';
 import { NoFieldFound } from '../../../Form/NoFieldFound';
@@ -96,6 +105,10 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       schemaValidator,
     ]);
 
+    const onSubmit: FormEventHandler<HTMLFormElement> = useCallback((event) => {
+      event.preventDefault();
+    }, []);
+
     return (
       <FormComponentFactoryProvider>
         <SchemaDefinitionsProvider schema={schema} omitFields={omitFields}>
@@ -106,7 +119,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
               onPropertyChange={onPropertyChange}
               disabled={disabled}
             >
-              <Form className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
+              <Form onSubmit={onSubmit} className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
                 <AutoField propName={ROOT_PATH} />
               </Form>
               <NoFieldFound className="kaoto-form kaoto-form__empty" />
