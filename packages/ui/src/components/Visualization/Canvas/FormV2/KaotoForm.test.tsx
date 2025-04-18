@@ -26,13 +26,13 @@ describe('KaotoForm', () => {
     const form = getByTestId('kaoto-form');
 
     const mockEvent = createEvent.submit(form);
-    const preventDefaulSpy = jest.spyOn(mockEvent, 'preventDefault');
+    const preventDefaultSpy = jest.spyOn(mockEvent, 'preventDefault');
 
     act(() => {
       fireEvent(form, mockEvent);
     });
 
-    expect(preventDefaulSpy).toHaveBeenCalled();
+    expect(preventDefaultSpy).toHaveBeenCalled();
   });
 
   it('displays "Schema not defined" when schema is not provided', () => {
