@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, createEvent, fireEvent, render, screen } from '@testing-library/react';
 import { useRef, useState } from 'react';
 import { KaotoForm, KaotoFormApi, KaotoFormProps } from './KaotoForm';
 import { KaotoFormPageObject } from './testing/KaotoFormPageObject';
@@ -19,6 +19,20 @@ describe('KaotoForm', () => {
   it('renders without crashing', () => {
     render(<KaotoForm {...defaultProps} />);
     expect(screen.getByTestId('kaoto-form')).toBeInTheDocument();
+  });
+
+  it('should prevent executing the default onSubmit action', () => {
+    const { getByTestId } = render(<KaotoForm {...defaultProps} />);
+    const form = getByTestId('kaoto-form');
+
+    const mockEvent = createEvent.submit(form);
+    const preventDefaulSpy = jest.spyOn(mockEvent, 'preventDefault');
+
+    act(() => {
+      fireEvent(form, mockEvent);
+    });
+
+    expect(preventDefaulSpy).toHaveBeenCalled();
   });
 
   it('displays "Schema not defined" when schema is not provided', () => {
