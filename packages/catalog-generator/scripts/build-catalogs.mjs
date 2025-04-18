@@ -27,7 +27,7 @@ const CATALOGS = {
   // https://maven.repository.redhat.com/ga/org/apache/camel/quarkus/camel-quarkus-catalog/
   Quarkus: [
     //
-    '3.19.0', // Camel 4.10.0
+    '3.20.0', // Camel 4.10.2
     '3.15.3', // Camel 4.8.5
     '3.15.0.redhat-00010', // Camel 4.8.0.redhat-00015
     '3.8.0.redhat-00018', // Camel 4.4.0.redhat-00046
