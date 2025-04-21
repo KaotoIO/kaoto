@@ -16,7 +16,7 @@ import {
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsProvider,
-  SourceCodeProvider,
+  SourceCodeLocalStorageProvider,
   VisibleFlowsProvider,
 } from './providers';
 import { isDefined } from './utils';
@@ -41,7 +41,7 @@ function App() {
   return (
     <ReloadProvider>
       <SettingsProvider adapter={settingsAdapter}>
-        <SourceCodeProvider>
+        <SourceCodeLocalStorageProvider>
           <RuntimeProvider catalogUrl={catalogUrl}>
             <SchemasLoaderProvider>
               <CatalogLoaderProvider>
@@ -67,7 +67,7 @@ function App() {
               </CatalogLoaderProvider>
             </SchemasLoaderProvider>
           </RuntimeProvider>
-        </SourceCodeProvider>
+        </SourceCodeLocalStorageProvider>
       </SettingsProvider>
     </ReloadProvider>
   );

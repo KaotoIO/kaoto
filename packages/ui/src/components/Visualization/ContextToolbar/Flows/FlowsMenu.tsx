@@ -1,6 +1,6 @@
 import { Badge, Icon, MenuToggle, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
-import { FunctionComponent, Ref, useCallback, useContext, useState } from 'react';
+import { FunctionComponent, Ref, useContext, useState } from 'react';
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 
@@ -10,11 +10,7 @@ import './FlowsMenu.scss';
 export const FlowsMenu: FunctionComponent = () => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const [isOpen, setIsOpen] = useState(false);
-  const visibleFlowsInformation = useCallback(() => {
-    return getVisibleFlowsInformation(visibleFlows);
-  }, [visibleFlows]);
-
-  const { singleFlowId, visibleFlowsCount, totalFlowsCount } = visibleFlowsInformation();
+  const { singleFlowId, visibleFlowsCount, totalFlowsCount } = getVisibleFlowsInformation(visibleFlows);
 
   /** Toggle the DSL dropdown */
   const onToggleClick = () => {

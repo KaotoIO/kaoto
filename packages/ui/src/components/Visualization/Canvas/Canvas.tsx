@@ -92,6 +92,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     if (!initialized) {
       controller.fromModel(model, false);
       setInitialized(true);
+
+      requestAnimationFrame(() => {
+        controller.getGraph().fit(80);
+      });
       return;
     }
 
@@ -176,6 +180,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       resetViewCallback: action(() => {
         controller.getGraph().reset();
         controller.getGraph().layout();
+        controller.getGraph().fit(80);
       }),
       legend: false,
       customButtons,

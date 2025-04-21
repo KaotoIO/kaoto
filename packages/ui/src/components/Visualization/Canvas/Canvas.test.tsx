@@ -76,6 +76,44 @@ describe('Canvas', () => {
     expect(result?.asFragment()).toMatchSnapshot();
   });
 
+  it('should schedule a graph.fit(80) upon loading', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+    });
+    const controller = ControllerService.createController();
+    const fromModelSpy = jest.spyOn(controller, 'fromModel');
+
+    await act(async () => {
+      render(
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas entities={[entity]} />
+          </VisualizationProvider>
+        </Provider>,
+      );
+    });
+
+    // The graph has been initialized with the .fromModel method, but the requestAnimationFrame
+    // has not been called yet, so the graph.fit(80) is not called yet.
+    const fitSpy = jest.spyOn(controller.getGraph(), 'fit');
+    const layoutSpy = jest.spyOn(controller.getGraph(), 'layout');
+
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    expect(fromModelSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ graph: { id: 'g1', type: 'graph', layout: 'DagreVertical' } }),
+      false,
+    );
+    expect(fitSpy).toHaveBeenCalledWith(80);
+
+    // This won't be called the first time
+    expect(fromModelSpy).not.toHaveBeenCalledWith(expect.anything(), true);
+    expect(layoutSpy).not.toHaveBeenCalled();
+  });
+
   it('should be able to delete the routes', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
     const routeEntities = camelResource.getVisualEntities();
