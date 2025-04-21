@@ -68,7 +68,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       }
       event.stopPropagation();
     },
-    [areFlowsVisible, allFlowsVisible, visualFlowsApi, searchString],
+    [visualEntities, areFlowsVisible, searchString, visualFlowsApi],
   );
 
   return isListEmpty ? (

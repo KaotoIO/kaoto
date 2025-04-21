@@ -1,5 +1,5 @@
-import { act, render } from '@testing-library/react';
-import { PropsWithChildren, useContext, useEffect } from 'react';
+import { act, fireEvent, render } from '@testing-library/react';
+import { useContext, useRef } from 'react';
 import { camelRouteYaml } from '../stubs/camel-route';
 import { EventNotifier } from '../utils';
 import { SourceCodeApiContext, SourceCodeContext, SourceCodeProvider } from './source-code.provider';
@@ -20,8 +20,8 @@ describe('SourceCodeProvider', () => {
 
   it('should set the source code', () => {
     const wrapper = render(
-      <SourceCodeProvider>
-        <TestProvider initialSourceCode={camelRouteYaml} />
+      <SourceCodeProvider initialSourceCode={camelRouteYaml}>
+        <TestProvider />
       </SourceCodeProvider>,
     );
 
@@ -41,25 +41,39 @@ describe('SourceCodeProvider', () => {
     const eventNotifier = EventNotifier.getInstance();
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
 
+    const input = wrapper.getByPlaceholderText('sourcecode') as HTMLInputElement;
+    const button = wrapper.getByText('Update sourcecode');
     act(() => {
-      wrapper.rerender(
-        <SourceCodeProvider>
-          <TestProvider initialSourceCode={camelRouteYaml} />
-        </SourceCodeProvider>,
-      );
+      fireEvent.change(input, { target: { value: camelRouteYaml } });
+      fireEvent.click(button);
     });
 
     expect(notifierSpy).toHaveBeenCalledWith('code:updated', { code: camelRouteYaml, path: undefined });
   });
 });
 
-function TestProvider(props: PropsWithChildren<{ initialSourceCode?: string }>) {
+function TestProvider() {
   const sourceCodeContext = useContext(SourceCodeContext);
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    sourceCodeApiContext.setCodeAndNotify(props.initialSourceCode ?? sourceCodeContext);
-  }, [props.initialSourceCode, sourceCodeApiContext, sourceCodeContext]);
+  const onClick = () => {
+    const value = inputRef.current?.value;
+    if (!value) {
+      throw new Error('Input value is empty');
+    }
 
-  return <span data-testid="source-code">{sourceCodeContext}</span>;
+    sourceCodeApiContext.setCodeAndNotify(value);
+  };
+
+  return (
+    <>
+      <span data-testid="source-code">{sourceCodeContext}</span>
+
+      <textarea placeholder="sourcecode" name="sourcecode" ref={inputRef} />
+      <button type="button" onClick={onClick}>
+        Update sourcecode
+      </button>
+    </>
+  );
 }
