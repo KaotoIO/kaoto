@@ -37,6 +37,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
+import { usePrevious } from '../../../hooks/previous.hook';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];
@@ -64,6 +65,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     return areNoFlows || areAllFlowsHidden;
   }, [entities.length, visibleFlows]);
 
+  const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
+
   /** Draw graph */
   useEffect(() => {
     setSelectedNode(undefined);
@@ -89,7 +92,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       },
     };
 
-    if (!initialized) {
+    if (!initialized || wasEmptyStateVisible) {
       controller.fromModel(model, false);
       setInitialized(true);
 
