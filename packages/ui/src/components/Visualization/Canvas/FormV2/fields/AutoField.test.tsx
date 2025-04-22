@@ -261,6 +261,34 @@ describe('AutoField', () => {
     expect(inputFields).toHaveLength(1);
   });
 
+  it('it should render when in `Modified` mode, properties with value which matches the default value', () => {
+    const wrapper = render(
+      <CanvasFormTabsContext.Provider value={modifiedValue}>
+        <FormComponentFactoryProvider>
+          <SchemaProvider
+            schema={{
+              type: 'object',
+              properties: {
+                name: { type: 'string', default: 'test' },
+                disabled: { type: 'boolean', default: true },
+              },
+            }}
+          >
+            <ModelContextProvider model={{ name: 'test', disabled: 'true' }} onPropertyChange={jest.fn()}>
+              <AutoField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </FormComponentFactoryProvider>
+      </CanvasFormTabsContext.Provider>,
+    );
+
+    const nameFields = wrapper.queryAllByRole('textbox');
+    expect(nameFields).toHaveLength(1);
+
+    const disabledFields = wrapper.queryAllByRole('checkbox');
+    expect(disabledFields).toHaveLength(1);
+  });
+
   it('should get the component to render from the fromComponentFactory callback', () => {
     const factorySpy = jest.fn().mockReturnValue(() => <input aria-label="test" name="name" />);
 
