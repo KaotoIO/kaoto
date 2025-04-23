@@ -6,6 +6,7 @@ import {
 } from '../models/visualization/flows/support/flows-visibility';
 import { initVisibleFlows } from '../utils';
 import { EntitiesContext } from './entities.provider';
+import { usePrevious } from '../hooks';
 
 export interface VisibleFlowsContextResult {
   visibleFlows: IVisibleFlows;
@@ -28,8 +29,17 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
 
+  const previousVisualEntitiesIds = usePrevious(visualEntitiesIds);
+
   useEffect(() => {
-    visualFlowsApi.initVisibleFlows(visualEntitiesIds);
+    const hasSameIds =
+      Array.isArray(previousVisualEntitiesIds) &&
+      previousVisualEntitiesIds.length === visualEntitiesIds.length &&
+      previousVisualEntitiesIds.every((id) => visualEntitiesIds.includes(id));
+
+    if (!hasSameIds) {
+      visualFlowsApi.initVisibleFlows(visualEntitiesIds);
+    }
   }, [visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {

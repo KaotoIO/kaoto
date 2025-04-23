@@ -85,19 +85,28 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
     case 'clearFlows':
       return {};
 
+    // case 'initVisibleFlows': {
+    //   const firstRender = Object.keys(state).length === 0;
+    //   if (
+    //     action.flowsIds.length === Object.keys(state).length &&
+    //     action.flowsIds.every((flowId) => isDefined(state[flowId]))
+    //   ) {
+    //     return state;
+    //   }
+    //   const visibleFlows = action.flowsIds.reduce((acc, flowId) => {
+    //     acc[flowId] = state[flowId] ?? false;
+    //     return acc;
+    //   }, {} as IVisibleFlows);
+    //   return firstRender ? ensureAtLeastOneVisibleFlow(visibleFlows) : visibleFlows;
+    // }
+
     case 'initVisibleFlows': {
-      const firstRender = Object.keys(state).length === 0;
-      if (
-        action.flowsIds.length === Object.keys(state).length &&
-        action.flowsIds.every((flowId) => isDefined(state[flowId]))
-      ) {
-        return state;
-      }
       const visibleFlows = action.flowsIds.reduce((acc, flowId) => {
         acc[flowId] = state[flowId] ?? false;
         return acc;
       }, {} as IVisibleFlows);
-      return firstRender ? ensureAtLeastOneVisibleFlow(visibleFlows) : visibleFlows;
+
+      return ensureAtLeastOneVisibleFlow(visibleFlows);
     }
 
     case 'renameFlow':
