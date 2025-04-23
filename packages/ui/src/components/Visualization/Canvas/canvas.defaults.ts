@@ -21,4 +21,6 @@ export class CanvasDefaults {
 
   static readonly HOVER_DELAY_IN = 200;
   static readonly HOVER_DELAY_OUT = 500;
+
+  static readonly CANVAS_FIT_PADDING = 80;
 }
