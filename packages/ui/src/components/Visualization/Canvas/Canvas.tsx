@@ -25,6 +25,7 @@ import {
   useState,
 } from 'react';
 import { useLocalStorage } from '../../../hooks';
+import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
@@ -37,7 +38,6 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
-import { usePrevious } from '../../../hooks/previous.hook';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];
@@ -97,7 +97,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       setInitialized(true);
 
       requestAnimationFrame(() => {
-        controller.getGraph().fit(80);
+        controller.getGraph().fit(CanvasDefaults.CANVAS_FIT_PADDING);
       });
       return;
     }
@@ -183,7 +183,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       resetViewCallback: action(() => {
         controller.getGraph().reset();
         controller.getGraph().layout();
-        controller.getGraph().fit(80);
+        controller.getGraph().fit(CanvasDefaults.CANVAS_FIT_PADDING);
       }),
       legend: false,
       customButtons,
