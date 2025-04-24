@@ -1,4 +1,4 @@
-import { isDefined } from '../../../../utils';
+import { initVisibleFlows } from '../../../../utils/init-visible-flows';
 
 export interface IVisibleFlowsInformation {
   singleFlowId: string | undefined;
@@ -46,14 +46,6 @@ export type VisibleFlowAction =
   | { type: 'initVisibleFlows'; flowsIds: string[] }
   | { type: 'renameFlow'; flowId: string; newName: string };
 
-const ensureAtLeastOneVisibleFlow = (state: IVisibleFlows) => {
-  const entries = Object.keys(state);
-  if (entries.length > 0 && Object.values(state).every((visible) => !visible)) {
-    state[entries[0]] = true;
-  }
-  return state;
-};
-
 export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAction) {
   switch (action.type) {
     case 'toggleFlowVisible':
@@ -85,28 +77,8 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
     case 'clearFlows':
       return {};
 
-    // case 'initVisibleFlows': {
-    //   const firstRender = Object.keys(state).length === 0;
-    //   if (
-    //     action.flowsIds.length === Object.keys(state).length &&
-    //     action.flowsIds.every((flowId) => isDefined(state[flowId]))
-    //   ) {
-    //     return state;
-    //   }
-    //   const visibleFlows = action.flowsIds.reduce((acc, flowId) => {
-    //     acc[flowId] = state[flowId] ?? false;
-    //     return acc;
-    //   }, {} as IVisibleFlows);
-    //   return firstRender ? ensureAtLeastOneVisibleFlow(visibleFlows) : visibleFlows;
-    // }
-
     case 'initVisibleFlows': {
-      const visibleFlows = action.flowsIds.reduce((acc, flowId) => {
-        acc[flowId] = state[flowId] ?? false;
-        return acc;
-      }, {} as IVisibleFlows);
-
-      return ensureAtLeastOneVisibleFlow(visibleFlows);
+      return initVisibleFlows(action.flowsIds);
     }
 
     case 'renameFlow':
