@@ -1,0 +1,47 @@
+{
+  "route": {
+    "from": {
+      "uri": "timer",
+      "parameters": {},
+      "steps": [
+        {
+          "to": {
+            "id": "to-2015",
+            "uri": "azure-eventhubs",
+            "parameters": {}
+          }
+        },
+        {
+          "to": {
+            "id": "to-2118",
+            "uri": "azure-key-vault",
+            "parameters": {}
+          }
+        },
+        {
+          "to": {
+            "id": "to-5234",
+            "uri": "azure-servicebus",
+            "parameters": {}
+          }
+        },
+        {
+          "to": {
+            "id": "to-2435",
+            "uri": "minio",
+            "parameters": {}
+          }
+        },
+        {
+          "to": {
+            "id": "to-2345",
+            "uri": "spring-batch",
+            "parameters": {}
+          }
+        }
+      ],
+      "id": "from-5869"
+    },
+    "id": "route-icons"
+  }
+}
