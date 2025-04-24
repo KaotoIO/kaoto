@@ -4,9 +4,8 @@ import {
   VisibleFlowsReducer,
   VisualFlowsApi,
 } from '../models/visualization/flows/support/flows-visibility';
-import { initVisibleFlows } from '../utils';
+import { initVisibleFlows, isSameArray } from '../utils';
 import { EntitiesContext } from './entities.provider';
-import { usePrevious } from '../hooks';
 
 export interface VisibleFlowsContextResult {
   visibleFlows: IVisibleFlows;
@@ -29,18 +28,21 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
 
-  const previousVisualEntitiesIds = usePrevious(visualEntitiesIds);
+  const visibleFlowsIds = useMemo(() => Object.keys(visibleFlows), [visibleFlows]);
 
   useEffect(() => {
-    const hasSameIds =
-      Array.isArray(previousVisualEntitiesIds) &&
-      previousVisualEntitiesIds.length === visualEntitiesIds.length &&
-      previousVisualEntitiesIds.every((id) => visualEntitiesIds.includes(id));
+    const hasSameIds = isSameArray(visualEntitiesIds, visibleFlowsIds);
 
+    /**
+     * If the ids of the visual entities are different from the ids of the visible flows,
+     * we need to initialize the visible flows with the new ids.
+     * This is important because the visible flows are stored in the state and
+     * if the ids change, we need to update the state to reflect the new ids.
+     */
     if (!hasSameIds) {
       visualFlowsApi.initVisibleFlows(visualEntitiesIds);
     }
-  }, [visualEntitiesIds, visualFlowsApi]);
+  }, [visibleFlowsIds, visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {
     return {

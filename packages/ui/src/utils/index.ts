@@ -15,6 +15,7 @@ export * from './init-visible-flows';
 export * from './is-datamapper';
 export * from './is-defined';
 export * from './is-enum-type';
+export * from './is-same-array';
 export * from './is-to-processor';
 export * from './is-xslt-component';
 export * from './join-path';

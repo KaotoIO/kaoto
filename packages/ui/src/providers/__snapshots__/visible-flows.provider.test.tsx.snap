@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VisibleFlowsProvider should initialize visible flows correctly 1`] = `
+<DocumentFragment>
+  <div
+    data-testid="visible-flows"
+  >
+    {
+    "route-1234": true
+}
+  </div>
+  <div
+    data-testid="all-flows-visible"
+  >
+    true
+  </div>
+</DocumentFragment>
+`;
+
+exports[`VisibleFlowsProvider should initialize visible flows with an empty context 1`] = `
+<DocumentFragment>
+  <div
+    data-testid="visible-flows"
+  >
+    {}
+  </div>
+  <div
+    data-testid="all-flows-visible"
+  >
+    true
+  </div>
+</DocumentFragment>
+`;
