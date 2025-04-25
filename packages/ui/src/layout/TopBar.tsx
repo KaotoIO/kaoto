@@ -25,6 +25,7 @@ import { useComponentLink } from '../hooks/ComponentLink';
 import { DEFAULT_POPPER_PROPS } from '../models/popper-default';
 import { Links } from '../router/links.models';
 import { KaotoAboutModal } from './KaotoAboutModal';
+import './TopBar.scss';
 
 interface ITopBar {
   navToggle: () => void;
@@ -60,7 +61,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
             <Button icon={<BarsIcon />} variant="plain" onClick={props.navToggle} aria-label="Global navigation" />
           </MastheadToggle>
           <MastheadBrand data-codemods>
-            <MastheadLogo data-codemods component={logoLink}>
+            <MastheadLogo data-codemods component={logoLink} className="masthead-logo">
               <img className="shell__logo" src={logo} alt="Kaoto Logo" />
             </MastheadLogo>
           </MastheadBrand>
