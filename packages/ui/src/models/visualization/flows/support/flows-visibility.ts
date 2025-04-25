@@ -78,7 +78,7 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
       return {};
 
     case 'initVisibleFlows': {
-      return initVisibleFlows(action.flowsIds);
+      return initVisibleFlows(action.flowsIds, state);
     }
 
     case 'renameFlow':
