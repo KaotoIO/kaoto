@@ -44,4 +44,19 @@ describe('Tests for Design page', () => {
     cy.openSourceCode();
     cy.checkCodeSpanLine('disabled: true', 0);
   });
+
+  //reproducer for https://github.com/KaotoIO/kaoto/issues/2218
+  it('Design - disable steps should appear in modified tab', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+
+    cy.selectDisableNode('setHeader');
+    cy.openStepConfigurationTab('setHeader');
+    cy.selectFormTab('Modified');
+    cy.expandWrappedSection('#-Advanced');
+    cy.checkConfigCheckboxObject('disabled', true);
+
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('disabled: true', 1);
+  });
 });
