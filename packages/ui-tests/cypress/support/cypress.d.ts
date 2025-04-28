@@ -34,9 +34,11 @@ declare global {
       openCatalog(): Chainable<JQuery<Element>>;
       addNewRoute(): Chainable<JQuery<Element>>;
       deleteRoute(index: number): Chainable<JQuery<Element>>;
+      deleteRouteInCanvas(routeName: string): Chainable<JQuery<Element>>;
       cancelDeleteRoute(index: number): Chainable<JQuery<Element>>;
       toggleFlowsList(): Chainable<JQuery<Element>>;
       toggleRouteVisibility(index: number): Chainable<JQuery<Element>>;
+      renameRoute(oldName: string, newName: string): Chainable<JQuery<Element>>;
       closeFlowsListIfVisible(): Chainable<JQuery<Element>>;
       openFlowsListIfClosed(): Chainable<JQuery<Element>>;
       switchIntegrationType(type: string): Chainable<JQuery<Element>>;

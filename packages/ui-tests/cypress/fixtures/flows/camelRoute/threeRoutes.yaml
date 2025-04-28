@@ -1,0 +1,33 @@
+- route:
+    id: route-1234
+    from:
+      id: from-3362
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            id: log-6809
+            message: ${body}
+- route:
+    id: route-4321
+    from:
+      id: from-3576
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            id: log-2966
+            message: ${body}
+- route:
+    id: route-5678
+    from:
+      id: from-3432
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            id: log-7654
+            message: ${body}
