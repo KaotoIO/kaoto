@@ -104,6 +104,16 @@ Cypress.Commands.add('toggleRouteVisibility', (index) => {
   cy.closeFlowsListIfVisible();
 });
 
+Cypress.Commands.add('renameRoute', (oldName: string, newName: string) => {
+  cy.toggleFlowsList();
+  cy.get('button[data-testid="goto-btn-' + oldName + '--edit"]').click();
+  cy.get('[data-testid="goto-btn-' + oldName + '--text-input"]')
+    .clear()
+    .type(newName);
+  cy.get('button[data-testid="goto-btn-' + oldName + '--save"]').click();
+  cy.closeFlowsListIfVisible();
+});
+
 Cypress.Commands.add('toggleFlowsList', () => {
   cy.get('[data-testid="flows-list-dropdown"]').click({ force: true });
 });
@@ -164,6 +174,17 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
     }
   });
   cy.closeFlowsListIfVisible();
+});
+
+Cypress.Commands.add('deleteRouteInCanvas', (routeName: string) => {
+  cy.openGroupConfigurationTab(routeName);
+  cy.get('button[data-testid="step-toolbar-button-delete-group"]').click();
+  cy.get('body').then(($body) => {
+    if ($body.find('.pf-m-danger').length) {
+      // Delete Confirmation Modal appeared, click on the confirm button
+      cy.get('.pf-m-danger').click({ force: true });
+    }
+  });
 });
 
 Cypress.Commands.add('cancelDeleteRoute', (index: number) => {
