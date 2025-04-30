@@ -20,6 +20,7 @@ declare global {
     interface Chainable {
       // default
       openHomePage(): Chainable<JQuery<Element>>;
+      openHomePageWithPreExistingRoutes(): Chainable<JQuery<Element>>;
       waitSchemasLoading(): Chainable<JQuery<Element>>;
       openTopbarKebabMenu(): Chainable<JQuery<Element>>;
       openAboutModal(): Chainable<JQuery<Element>>;

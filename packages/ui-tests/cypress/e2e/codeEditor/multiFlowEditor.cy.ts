@@ -7,7 +7,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openSourceCode();
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
-    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/2');
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
 
     cy.openSourceCode();
     cy.editorDeleteLine(21, 12);

@@ -34,7 +34,7 @@ describe('Test for Multi route actions from the canvas', () => {
   it('User renames routes', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
-    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/2');
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
     cy.get('[data-testid="flows-list-dropdown"]').click();
 
     cy.get('[data-testid=goto-btn-route-1234--edit]').click();
