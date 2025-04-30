@@ -81,12 +81,12 @@ describe('VisualFlowsApi', () => {
     });
 
     describe('initVisibleFlows', () => {
-      it('should ensure at least one flow is visible on first render', () => {
+      it('should ensure all flows are visible on first render', () => {
         const initialState = {};
         const action: VisibleFlowAction = { type: 'initVisibleFlows', flowsIds: ['flowId1', 'flowId2'] };
         const newState = VisibleFlowsReducer(initialState, action);
 
-        expect(newState).toEqual({ flowId1: true, flowId2: false });
+        expect(newState).toEqual({ flowId1: true, flowId2: true });
       });
     });
 

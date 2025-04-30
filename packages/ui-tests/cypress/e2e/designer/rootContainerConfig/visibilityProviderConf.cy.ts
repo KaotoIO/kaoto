@@ -8,6 +8,8 @@ describe('Test for camel routes visibility provider', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
 
+    cy.toggleRouteVisibility(1);
+
     cy.get(`span[title="route-1234"]`).should('be.visible');
     cy.get(`span[title="route-4321"]`).should('not.exist');
 
@@ -24,7 +26,6 @@ describe('Test for camel routes visibility provider', () => {
     cy.openDesignPage();
 
     cy.toggleRouteVisibility(0);
-    cy.toggleRouteVisibility(1);
 
     cy.get(`span[title="route-1234"]`).should('not.exist');
     cy.get(`span[title="route-4321"]`).should('be.visible');
@@ -43,7 +44,6 @@ describe('Test for camel routes visibility provider', () => {
     cy.openDesignPage();
 
     cy.toggleRouteVisibility(0);
-    cy.toggleRouteVisibility(1);
 
     cy.get(`span[title="route-1234"]`).should('not.exist');
     cy.get(`span[title="route-4321"]`).should('be.visible');
@@ -64,6 +64,8 @@ describe('Test for camel routes visibility provider', () => {
     cy.openDesignPage();
 
     cy.toggleRouteVisibility(0);
+    cy.toggleRouteVisibility(1);
+    cy.toggleRouteVisibility(2);
 
     cy.get(`span[title="route-1234"]`).should('not.exist');
     cy.get(`span[title="route-4321"]`).should('not.exist');
@@ -80,7 +82,7 @@ describe('Test for camel routes visibility provider', () => {
     cy.openDesignPage();
 
     cy.toggleRouteVisibility(0);
-    cy.toggleRouteVisibility(1);
+    cy.toggleRouteVisibility(2);
 
     cy.get(`span[title="route-1234"]`).should('not.exist');
     cy.get(`span[title="route-4321"]`).should('be.visible');
@@ -97,7 +99,7 @@ describe('Test for camel routes visibility provider', () => {
     cy.openDesignPage();
 
     cy.toggleRouteVisibility(0);
-    cy.toggleRouteVisibility(1);
+    cy.toggleRouteVisibility(2);
     cy.get(`span[title="route-1234"]`).should('not.exist');
     cy.get(`span[title="route-4321"]`).should('be.visible');
     cy.get(`span[title="route-5678"]`).should('not.exist');
@@ -109,5 +111,14 @@ describe('Test for camel routes visibility provider', () => {
       ['log-2966', 'log', '', 'message', '${body}'],
     ];
     cy.documentationTableCompare('route-4321', expectedCamelRouteTableData);
+  });
+});
+
+describe('Test for camel routes default visibility provider', () => {
+  it('Default Visibility provider - loads with all routes visible', () => {
+    cy.openHomePageWithPreExistingRoutes();
+
+    cy.get(`span[title="route-1234"]`).should('be.visible');
+    cy.get(`span[title="route-4321"]`).should('be.visible');
   });
 });

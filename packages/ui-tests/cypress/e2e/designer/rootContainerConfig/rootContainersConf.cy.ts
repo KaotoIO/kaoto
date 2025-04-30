@@ -6,7 +6,7 @@ describe('Test for camel route root containers configuration', () => {
   it('Canvas route wrap and unwrap', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
-    cy.toggleRouteVisibility(1);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
 
     cy.toggleExpandGroup('route-1234');
     cy.toggleExpandGroup('route-4321');
@@ -155,7 +155,7 @@ describe('Test for camel route root containers configuration', () => {
   it('Canvas route delete group button test', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
-    cy.toggleRouteVisibility(1);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
 
     cy.performNodeAction('route-4321', 'container-remove');
     cy.contains('button', 'Cancel').click();

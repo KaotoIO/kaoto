@@ -10,7 +10,7 @@ const ensureAtLeastOneVisibleFlow = (state: IVisibleFlows) => {
 
 export const initVisibleFlows = (flowsIds: string[], state: IVisibleFlows = {}): IVisibleFlows => {
   const visibleFlows = flowsIds.reduce((flows, id) => {
-    flows[id] = state[id] ?? false;
+    flows[id] = state[id] ?? true;
     return flows;
   }, {} as IVisibleFlows);
 

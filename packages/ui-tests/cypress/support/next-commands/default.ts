@@ -6,6 +6,41 @@ Cypress.Commands.add('openHomePage', () => {
   cy.selectRuntimeVersion('Main');
 });
 
+Cypress.Commands.add('openHomePageWithPreExistingRoutes', () => {
+  const url = Cypress.config().baseUrl;
+  const multiRoute = `
+  - route:
+      id: route-1234
+      from:
+        id: from-3362
+        uri: timer:template
+        parameters:
+          period: "1000"
+        steps:
+          - log:
+              id: log-6809
+              message: \${body}
+  - route:
+      id: route-4321
+      from:
+        id: from-3576
+        uri: timer:template
+        parameters:
+          period: "1000"
+        steps:
+          - log:
+              id: log-2966
+              message: \${body}
+  `;
+
+  cy.visit(url!, {
+    onBeforeLoad(win) {
+      win.localStorage.setItem('sourceCode', multiRoute);
+    },
+  });
+  cy.waitSchemasLoading();
+});
+
 Cypress.Commands.add('waitSchemasLoading', () => {
   // Wait for the loading schemas to disappear
   cy.get('[data-testid="loading-schemas"]').should('be.visible');

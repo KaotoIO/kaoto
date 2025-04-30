@@ -80,7 +80,7 @@ describe('Test documentation generation functionality', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
 
-    cy.toggleRouteVisibility(1);
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
     cy.generateDocumentationPreview();
 
     const expectedRoute1234TableData = [
