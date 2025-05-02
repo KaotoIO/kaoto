@@ -65,11 +65,12 @@ export const KaotoEditor = () => {
     <div className="shell" data-envelope-context="vscode">
       <Tabs
         inset={inset.current}
-        isBox
+        isFilled
         unmountOnExit
         activeKey={currentPath}
         aria-label="Tabs in the Kaoto editor"
         role="region"
+        hasNoBorderBottom
       >
         {availableTabs.design && (
           <Link data-testid="design-tab" to={Links.Home}>
