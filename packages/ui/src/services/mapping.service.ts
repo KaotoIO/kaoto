@@ -17,7 +17,6 @@ import {
 import { IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
-import { IMappingLink } from '../models/datamapper/visualization';
 import { DocumentType, Path } from '../models/datamapper/path';
 
 export class MappingService {
@@ -272,7 +271,7 @@ export class MappingService {
     return index == -1 ? absPath : absPath.substring(index + parentPath.length + 1);
   }
 
-  private static getAbsolutePath(condition: MappingItem, xpath: string): string {
+  static getAbsolutePath(condition: MappingItem, xpath: string): string {
     return condition.contextPath && !xpath.startsWith('$') && !xpath.startsWith('/')
       ? condition.contextPath + '/' + xpath
       : xpath;
@@ -373,56 +372,5 @@ export class MappingService {
     if (left instanceof WhenItem) return right instanceof OtherwiseItem ? -1 : 0;
     if (right instanceof WhenItem) return left instanceof OtherwiseItem ? 1 : 0;
     return 0;
-  }
-
-  static extractMappingLinks(
-    item: MappingTree | MappingItem,
-    sourceParameterMap: Map<string, IDocument>,
-    sourceBody: IDocument,
-  ): IMappingLink[] {
-    const answer = [] as IMappingLink[];
-    const targetNodePath = item.nodePath.toString();
-    if (item instanceof ExpressionItem) {
-      answer.push(...MappingService.doExtractMappingLinks(item, targetNodePath, sourceParameterMap, sourceBody));
-    }
-    if ('children' in item) {
-      item.children.forEach((child) => {
-        if (
-          item instanceof FieldItem &&
-          !(item.field.ownerDocument instanceof PrimitiveDocument) &&
-          child instanceof ValueSelector
-        ) {
-          answer.push(...MappingService.doExtractMappingLinks(child, targetNodePath, sourceParameterMap, sourceBody));
-        } else {
-          answer.push(...MappingService.extractMappingLinks(child, sourceParameterMap, sourceBody));
-        }
-      });
-    }
-    return answer;
-  }
-
-  private static doExtractMappingLinks(
-    sourceExpressionItem: ExpressionItem,
-    targetNodePath: string,
-    sourceParameterMap: Map<string, IDocument>,
-    sourceBody: IDocument,
-  ) {
-    const sourceXPath = sourceExpressionItem.expression;
-    const validationResult = XPathService.validate(sourceXPath);
-    if (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) return [];
-    const fieldPaths = XPathService.extractFieldPaths(sourceXPath);
-    return fieldPaths.reduce((acc, xpath) => {
-      const absolutePath = MappingService.getAbsolutePath(sourceExpressionItem, xpath);
-      const path = new Path(absolutePath);
-      const document = path.parameterName ? sourceParameterMap.get(path.parameterName) : sourceBody;
-      const sourceNodePath =
-        document &&
-        DocumentService.getFieldFromPathSegments(
-          document,
-          path.pathSegments.map((seg) => seg.name),
-        )?.path;
-      sourceNodePath && acc.push({ sourceNodePath: sourceNodePath.toString(), targetNodePath: targetNodePath });
-      return acc;
-    }, [] as IMappingLink[]);
   }
 }

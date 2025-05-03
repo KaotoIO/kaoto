@@ -1,17 +1,17 @@
 import { Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent, useCallback, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { IDocument } from '../../models/datamapper/document';
-import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
+import { DocumentNodeData, NodeData, NodeReference } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
 import { DocumentActions } from './actions/DocumentActions';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
+import { useMappingLinks } from '../../hooks/useMappingLinks';
 
 type DocumentProps = {
   document: IDocument;
@@ -48,24 +48,36 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
   rank,
 }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
+  const { isInSelectedMapping, toggleSelectedNodeReference } = useMappingLinks();
+
   const shouldCollapseByDefault =
     !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
   const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
 
-  const onClick = useCallback(() => {
-    setCollapsed(!collapsed);
-    reloadNodeReferences();
-  }, [collapsed, reloadNodeReferences]);
-
-  const isDocument = nodeData instanceof DocumentNodeData;
+  const isDocument = VisualizationService.isDocumentNode(nodeData);
   const hasChildren = VisualizationService.hasChildren(nodeData);
+
+  const handleClickToggle = useCallback(
+    (event: MouseEvent) => {
+      if (!hasChildren) return;
+
+      setCollapsed(!collapsed);
+      event.stopPropagation();
+      reloadNodeReferences();
+    },
+    [collapsed, hasChildren, reloadNodeReferences],
+  );
+
   const children = collapsed ? [] : VisualizationService.generateNodeDataChildren(nodeData);
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const nodeRefId = nodeData.path.toString();
   const nodeReference = useRef<NodeReference>({
+    path: nodeRefId,
+    isSource: true,
     get headerRef() {
       return headerRef.current;
     },
@@ -73,17 +85,31 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
       return containerRef.current;
     },
   });
-  const nodeRefId = nodeData.path.toString();
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
+  const isSelected = isInSelectedMapping(nodeReference);
+  const handleClickField = useCallback(
+    (event: MouseEvent) => {
+      toggleSelectedNodeReference(nodeReference);
+      event.stopPropagation();
+    },
+    [toggleSelectedNodeReference],
+  );
+
   return (
-    <div data-testid={`node-source-${nodeData.id}`} className={clsx({ node__container: !isDocument })}>
+    <div
+      data-testid={`node-source-${isSelected ? 'selected-' : ''}${nodeData.id}`}
+      className={clsx({ node__container: !isDocument })}
+      onClick={handleClickField}
+    >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className={clsx({ node__header: !isDocument })} onClick={onClick}>
-          <NodeContainer ref={headerRef} nodeData={nodeData}>
+        <div className={clsx({ node__header: !isDocument })}>
+          <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
-                <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
+                <Icon className="node__spacer" onClick={handleClickToggle}>
+                  <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
+                </Icon>
               )}
 
               <Icon className="node__spacer" data-drag-handler>

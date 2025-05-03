@@ -116,3 +116,11 @@ img {
     --pf-v6-c-button--PaddingRight: 0.5rem;
   }
 }
+
+.selected-container {
+  font-weight: bold;
+  border-style: solid;
+  border-color: var(--pf-v6-c-draggable--m-dragging--after--BorderColor);
+  background-color: var(--pf-v6-c-draggable--m-dragging--BackgroundColor);
+  border-radius: var(--pf-v6-c-draggable--m-dragging--after--BorderRadius);
+}

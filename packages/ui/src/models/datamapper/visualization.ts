@@ -1,6 +1,7 @@
 import { IDocument, IField, PrimitiveDocument } from './document';
 import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
 import { DocumentType, NodePath } from './path';
+import { RefObject } from 'react';
 
 export interface NodeData {
   title: string;
@@ -163,4 +164,26 @@ export class FunctionNodeData implements NodeData {
 export interface IMappingLink {
   sourceNodePath: string;
   targetNodePath: string;
+  isSelected: boolean;
 }
+
+export interface NodeReference {
+  path: string;
+  isSource: boolean;
+  headerRef: HTMLDivElement | null;
+  containerRef: HTMLDivElement | null;
+}
+
+export type LineCoord = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+};
+
+export type LineProps = LineCoord & {
+  sourceNodePath: string;
+  targetNodePath: string;
+  isSelected?: boolean;
+  svgRef?: RefObject<SVGSVGElement>;
+};

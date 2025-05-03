@@ -22,10 +22,10 @@ import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
 import { DocumentDefinition, DocumentDefinitionType } from '../../models/datamapper/document';
 import { DocumentType } from '../../models/datamapper/path';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { SourceDocument } from './SourceDocument';
+import { NodeReference } from '../../models/datamapper';
 
 enum ParameterNameValidation {
   EMPTY,
@@ -148,9 +148,12 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
   } = useToggle(false);
 
   const { getNodeReference, setNodeReference } = useCanvas();
-  const nodeReference = useRef<NodeReference>({ headerRef: null, containerRef: null });
+  const nodeRefId = 'param';
+  const nodeReference = useRef<NodeReference>({ isSource: true, path: nodeRefId, headerRef: null, containerRef: null });
   const headerRef = useRef<HTMLDivElement>(null);
   useImperativeHandle(nodeReference, () => ({
+    isSource: true,
+    path: nodeRefId,
     get headerRef() {
       return headerRef.current;
     },
@@ -158,7 +161,6 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
       return headerRef.current;
     },
   }));
-  const nodeRefId = 'param';
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   const handleAddNewParameter = useCallback(() => {

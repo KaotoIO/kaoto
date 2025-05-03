@@ -19,10 +19,12 @@ import { useCanvas } from '../../hooks/useCanvas';
 import { SourcePanel } from './SourcePanel';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { TargetDocument } from '../Document/TargetDocument';
+import { useMappingLinks } from '../../hooks/useMappingLinks';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
-  const { reloadNodeReferences, setDefaultHandler, setMappingLinkCanvasRef } = useCanvas();
+  const { reloadNodeReferences, setDefaultHandler } = useCanvas();
+  const { setMappingLinkCanvasRef } = useMappingLinks();
   const mappingLinkCanvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

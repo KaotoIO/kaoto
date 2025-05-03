@@ -1,15 +1,22 @@
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useEffect } from 'react';
-import { MappingService } from '../../../services/mapping.service';
+import { useMappingLinks } from '../../../hooks/useMappingLinks';
+import { MappingLinksService } from '../../../services/mapping-links.service';
 
 export const DataMapperMonitor = () => {
   const { mappingTree, sourceParameterMap, sourceBodyDocument, targetBodyDocument } = useDataMapper();
+  const { getSelectedNodeReference } = useMappingLinks();
 
   useEffect(() => {
-    MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument).forEach((mapping) => {
+    MappingLinksService.extractMappingLinks(
+      mappingTree,
+      sourceParameterMap,
+      sourceBodyDocument,
+      getSelectedNodeReference(),
+    ).forEach((mapping) => {
       console.log(`Mapping: [source={${mapping.sourceNodePath}}, target={${mapping.targetNodePath}}]`);
     });
-  }, [mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument]);
+  }, [getSelectedNodeReference, mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument]);
 
   return <></>;
 };

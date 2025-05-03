@@ -1,38 +1,26 @@
-import {
-  CSSProperties,
-  FunctionComponent,
-  MutableRefObject,
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { CSSProperties, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
-import { useDataMapper } from '../../hooks/useDataMapper';
-import { NodeReference } from '../../providers/datamapper-canvas.provider';
-import { MappingService } from '../../services/mapping.service';
 import { Circle, LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
+import { useMappingLinks } from '../../hooks/useMappingLinks';
+import { LineProps } from '../../models/datamapper';
+import { MappingLinksService } from '../../services/mapping-links.service';
 
-type LineCoord = {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-};
-
-type LineProps = LineCoord & {
-  sourceNodePath: string;
-  targetNodePath: string;
-  svgRef?: RefObject<SVGSVGElement>;
-};
-
-const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodePath, targetNodePath, svgRef }) => {
-  const { mappingLinkCanvasRef } = useCanvas();
+const MappingLink: FunctionComponent<LineProps> = ({
+  x1,
+  y1,
+  x2,
+  y2,
+  sourceNodePath,
+  targetNodePath,
+  isSelected = false,
+  svgRef,
+}) => {
+  const { getNodeReference } = useCanvas();
+  const { mappingLinkCanvasRef, toggleSelectedNodeReference } = useMappingLinks();
   const [isOver, setIsOver] = useState<boolean>(false);
-  const lineStyle = {
-    stroke: 'gray',
+  const lineStyle: CSSProperties = {
+    stroke: isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray',
     strokeWidth: isOver ? 6 : 3,
     pointerEvents: 'auto' as CSSProperties['pointerEvents'],
   };
@@ -50,6 +38,11 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
     setIsOver(false);
   }, []);
 
+  const onLineClick = useCallback(() => {
+    const newRef = getNodeReference(targetNodePath);
+    toggleSelectedNodeReference(newRef);
+  }, [getNodeReference, targetNodePath, toggleSelectedNodeReference]);
+
   return (
     <>
       <Circle r={dotRadius} cx={x1} cy={y1} />
@@ -64,10 +57,10 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
         y={(d) => d[1]}
         curve={curveMonotoneX}
         style={lineStyle}
-        onClick={() => {}}
+        onClick={onLineClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        data-testid={`mapping-link-${x1}-${y1}-${x2}-${y2}`}
+        data-testid={`mapping-link-${isSelected ? 'selected-' : ''}${x1}-${y1}-${x2}-${y2}`}
         xlinkTitle={`Source: ${sourceNodePath}, Target: ${targetNodePath}`}
       />
       <Circle r={dotRadius} cx={x2} cy={y2} />
@@ -76,83 +69,16 @@ const MappingLink: FunctionComponent<LineProps> = ({ x1, y1, x2, y2, sourceNodeP
 };
 
 export const MappingLinksContainer: FunctionComponent = () => {
-  const { mappingTree, sourceBodyDocument, sourceParameterMap } = useDataMapper();
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
+  const { getMappingLinks } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const getCoordFromFieldRef = useCallback(
-    (sourceRef: MutableRefObject<NodeReference>, targetRef: MutableRefObject<NodeReference>) => {
-      const svgRect = svgRef.current?.getBoundingClientRect();
-      const sourceRect = sourceRef.current?.headerRef?.getBoundingClientRect();
-      const targetRect = targetRef.current?.headerRef?.getBoundingClientRect();
-      if (!sourceRect || !targetRect) {
-        return;
-      }
-
-      return {
-        x1: sourceRect.right - (svgRect ? svgRect.left : 0),
-        y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - (svgRect ? svgRect.top : 0),
-        x2: targetRect.left - (svgRect ? svgRect.left : 0),
-        y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2 - (svgRect ? svgRect.top : 0),
-      };
-    },
-    [],
-  );
-
-  const getParentPath = useCallback((path: string) => {
-    if (path.endsWith('://')) return path.substring(0, path.indexOf(':'));
-
-    const lastSeparatorIndex = path.lastIndexOf('/');
-    const endIndex =
-      lastSeparatorIndex !== -1 && path.charAt(lastSeparatorIndex - 1) === '/'
-        ? lastSeparatorIndex + 1
-        : lastSeparatorIndex;
-    return endIndex !== -1 ? path.substring(0, endIndex) : null;
-  }, []);
-
-  const getClosestExpandedPath = useCallback(
-    (path: string) => {
-      let tracedPath: string | null = path;
-      while (
-        !!tracedPath &&
-        (getNodeReference(tracedPath)?.current == null ||
-          getNodeReference(tracedPath)?.current.headerRef == null ||
-          getNodeReference(tracedPath)?.current.headerRef?.getClientRects().length === 0)
-      ) {
-        const parentPath = getParentPath(tracedPath);
-        if (parentPath === tracedPath) break;
-        tracedPath = parentPath;
-      }
-      return tracedPath;
-    },
-    [getNodeReference, getParentPath],
-  );
-
   const refreshLinks = useCallback(() => {
-    const links = MappingService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument);
-    const answer: LineProps[] = links.reduce((acc, { sourceNodePath, targetNodePath }) => {
-      const sourceClosestPath = getClosestExpandedPath(sourceNodePath);
-      const targetClosestPath = getClosestExpandedPath(targetNodePath);
-      if (sourceClosestPath && targetClosestPath) {
-        const sourceFieldRef = getNodeReference(sourceClosestPath);
-        const targetFieldRef = getNodeReference(targetClosestPath);
-        if (sourceFieldRef && !!targetFieldRef) {
-          const coord = getCoordFromFieldRef(sourceFieldRef, targetFieldRef);
-          if (coord) acc.push({ ...coord, sourceNodePath: sourceNodePath, targetNodePath: targetNodePath });
-        }
-      }
-      return acc;
-    }, [] as LineProps[]);
+    const links = getMappingLinks();
+    const answer = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
     setLineCoordList(answer);
-  }, [
-    mappingTree,
-    sourceParameterMap,
-    sourceBodyDocument,
-    getClosestExpandedPath,
-    getNodeReference,
-    getCoordFromFieldRef,
-  ]);
+  }, [getMappingLinks, getNodeReference]);
 
   useEffect(() => {
     refreshLinks();
@@ -188,6 +114,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
             y2={lineProps.y2}
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
+            isSelected={lineProps.isSelected}
           />
         ))}
       </g>
