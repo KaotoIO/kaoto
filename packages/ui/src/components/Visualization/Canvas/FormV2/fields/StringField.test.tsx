@@ -1,8 +1,9 @@
 import { act, fireEvent, render } from '@testing-library/react';
+import { KaotoSchemaDefinition } from '../../../../../models';
 import { ROOT_PATH } from '../../../../../utils';
-import { StringField } from './StringField';
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
+import { StringField } from './StringField';
 
 describe('StringField', () => {
   it('should render', () => {
@@ -28,22 +29,44 @@ describe('StringField', () => {
     expect(input).toHaveAttribute('placeholder', 'Default Value');
   });
 
-  it('should notify when the value changes', () => {
-    const onPropertyChangeSpy = jest.fn();
+  describe('onChange', () => {
+    const stringSchema: KaotoSchemaDefinition['schema'] = { type: 'string' };
+    const numberSchema: KaotoSchemaDefinition['schema'] = { type: 'number' };
+    const cases = [
+      { initialValue: 'Value', newValue: 'New Value', expectedValue: 'New Value', schema: stringSchema },
+      { initialValue: '', newValue: ' ', expectedValue: ' ', schema: stringSchema },
+      { initialValue: '', newValue: '123', expectedValue: '123', schema: stringSchema },
+      { initialValue: '', newValue: '123', expectedValue: 123, schema: numberSchema },
+      { initialValue: '', newValue: '2.', expectedValue: '2.', schema: stringSchema },
+      { initialValue: '', newValue: '2.', expectedValue: '2.', schema: numberSchema },
+      { initialValue: '', newValue: '2.0', expectedValue: '2.0', schema: stringSchema },
+      { initialValue: '', newValue: '2.0', expectedValue: 2, schema: numberSchema },
+      { initialValue: '', newValue: '2.05', expectedValue: '2.05', schema: stringSchema },
+      { initialValue: '', newValue: '2.05', expectedValue: 2.05, schema: numberSchema },
+    ];
 
-    const wrapper = render(
-      <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
-        <StringField propName={ROOT_PATH} />
-      </ModelContextProvider>,
+    it.each(cases)(
+      'should emit `$expectedValue` when the user writes `$newValue`',
+      ({ initialValue, newValue, expectedValue, schema }) => {
+        const onPropertyChangeSpy = jest.fn();
+
+        const wrapper = render(
+          <ModelContextProvider model={initialValue} onPropertyChange={onPropertyChangeSpy}>
+            <SchemaProvider schema={schema}>
+              <StringField propName={ROOT_PATH} />
+            </SchemaProvider>
+          </ModelContextProvider>,
+        );
+
+        const input = wrapper.getByRole('textbox');
+        act(() => {
+          fireEvent.change(input, { target: { value: newValue } });
+        });
+
+        expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+        expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, expectedValue);
+      },
     );
-
-    const input = wrapper.getByRole('textbox');
-    act(() => {
-      fireEvent.change(input, { target: { value: 'New Value' } });
-    });
-
-    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
-    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'New Value');
   });
 
   it('should clear the input when using the clear button', async () => {
