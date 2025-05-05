@@ -17,11 +17,6 @@ describe('Test for Multi route actions from the canvas', () => {
     cy.addNewRoute();
     cy.addNewRoute();
 
-    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '1/3');
-
-    cy.toggleRouteVisibility(0);
-    cy.toggleRouteVisibility(1);
-
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
 
     cy.toggleRouteVisibility(0);
