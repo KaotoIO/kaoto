@@ -1,8 +1,7 @@
-codecov:
-  flags:
-    ui:
-      paths:
-        - packages/ui/coverage
-    catalog-generator:
-      paths:
-        - packages/catalog-generator/target/jacoco
+flags:
+  ui:
+    paths:
+      - packages/ui/coverage
+  catalog-generator:
+    paths:
+      - packages/catalog-generator/target/jacoco
