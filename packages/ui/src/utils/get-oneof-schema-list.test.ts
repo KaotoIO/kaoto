@@ -12,8 +12,11 @@ describe('getOneOfSchemaList', () => {
     const result = getOneOfSchemaList(oneOfList);
 
     expect(result).toEqual([
-      { name: 'deadLetterChannel', schema: { type: 'object', properties: { deadLetterChannel: { type: 'number' } } } },
-      { name: 'errorHandler', schema: { type: 'object', properties: { errorHandler: { type: 'string' } } } },
+      {
+        name: 'Dead Letter Channel',
+        schema: { type: 'object', properties: { deadLetterChannel: { type: 'number' } } },
+      },
+      { name: 'Error Handler', schema: { type: 'object', properties: { errorHandler: { type: 'string' } } } },
     ]);
   });
 
@@ -51,7 +54,7 @@ describe('getOneOfSchemaList', () => {
 
     expect(result).toEqual([
       {
-        name: 'deadLetterChannel',
+        name: 'Dead Letter Channel',
         title: undefined,
         description: 'Dead Letter Channel handler',
         schema: {
@@ -61,7 +64,7 @@ describe('getOneOfSchemaList', () => {
         },
       },
       {
-        name: 'errorHandler',
+        name: 'Error Handler',
         title: undefined,
         description: 'Error Handler',
         schema: { type: 'object', description: 'Error Handler', properties: { errorHandler: { type: 'string' } } },
@@ -70,7 +73,7 @@ describe('getOneOfSchemaList', () => {
   });
 
   it('should use the schema title and description when there is a single property schema', () => {
-    const result = getOneOfSchemaList(errorHandlerSchema.oneOf!, errorHandlerSchema);
+    const result = getOneOfSchemaList(errorHandlerSchema.oneOf!, errorHandlerSchema.definitions);
 
     expect(result).toEqual([
       {
@@ -106,7 +109,7 @@ describe('getOneOfSchemaList', () => {
     ]);
   });
 
-  it('should remove the `not` schemas and non-object schemas', () => {
+  it('should remove the `not` schemas', () => {
     const oneOfList: KaotoSchemaDefinition['schema'][] = [
       { type: 'object', properties: { deadLetterChannel: { type: 'number' } } },
       { not: { type: 'object' } },
@@ -119,8 +122,31 @@ describe('getOneOfSchemaList', () => {
     const result = getOneOfSchemaList(oneOfList);
 
     expect(result).toEqual([
-      { name: 'deadLetterChannel', schema: { type: 'object', properties: { deadLetterChannel: { type: 'number' } } } },
-      { name: 'errorHandler', schema: { type: 'object', properties: { errorHandler: { type: 'string' } } } },
+      {
+        name: 'Dead Letter Channel',
+        description: undefined,
+        schema: { type: 'object', properties: { deadLetterChannel: { type: 'number' } } },
+      },
+      {
+        name: 'Schema 1',
+        description: undefined,
+        schema: { type: 'string' },
+      },
+      {
+        name: 'Schema 2',
+        description: undefined,
+        schema: { type: 'number' },
+      },
+      {
+        name: 'Schema 3',
+        description: undefined,
+        schema: { type: 'boolean' },
+      },
+      {
+        name: 'Error Handler',
+        description: undefined,
+        schema: { type: 'object', properties: { errorHandler: { type: 'string' } } },
+      },
     ]);
   });
 
@@ -134,7 +160,7 @@ describe('getOneOfSchemaList', () => {
 
     expect(result).toEqual([
       {
-        name: 'deadLetterChannel',
+        name: 'Dead Letter Channel',
         description: undefined,
         schema: {
           type: 'object',
@@ -142,7 +168,7 @@ describe('getOneOfSchemaList', () => {
         },
       },
       {
-        name: 'errorHandler',
+        name: 'Error Handler',
         description: undefined,
         schema: {
           type: 'object',
@@ -175,6 +201,31 @@ describe('getOneOfSchemaList', () => {
         schema: {
           type: 'object',
           properties: { errorHandler: { type: 'string' }, anotherProperty: { type: 'string' } },
+        },
+      },
+    ]);
+  });
+
+  it('should update schema titles in case of Language or Dataformat could be represented in 2 different ways', () => {
+    const oneOfList: KaotoSchemaDefinition['schema'][] = [
+      { type: 'string' },
+      { type: 'object', properties: { errorHandler: { type: 'string' } } },
+    ];
+
+    const result = getOneOfSchemaList(oneOfList);
+
+    expect(result).toEqual([
+      {
+        name: 'Simple',
+        description: undefined,
+        schema: { type: 'string' },
+      },
+      {
+        name: 'Advanced',
+        description: undefined,
+        schema: {
+          type: 'object',
+          properties: { errorHandler: { type: 'string' } },
         },
       },
     ]);

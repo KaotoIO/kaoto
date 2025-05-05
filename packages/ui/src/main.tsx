@@ -5,7 +5,6 @@ import { router } from './router';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   /*
-   * uniforms is not compatible with StrictMode yet
    * <React.StrictMode>
    * </React.StrictMode>,
    */

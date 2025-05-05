@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
-    "@kaoto-next/uniforms-patternfly": "^0.7.20",
     "@kie-tools-core/editor": "0.32.0",
     "@kie-tools-core/notifications": "0.32.0",
     "@types/uuid": "^10.0.0",

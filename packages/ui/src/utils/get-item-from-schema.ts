@@ -1,5 +1,5 @@
 import { KaotoSchemaDefinition } from '../models';
-import { resolveSchemaWithRef } from './resolve-ref-if-needed';
+import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
 export const getItemFromSchema = (
   schema: KaotoSchemaDefinition['schema'],

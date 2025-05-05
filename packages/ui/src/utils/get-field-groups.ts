@@ -1,34 +1,13 @@
 import { KaotoSchemaDefinition } from '../models';
 import { extractGroup } from './get-tagged-field-from-string';
-import { getValue } from './get-value';
 import { isDefined } from './is-defined';
-
-export const getFieldGroups = (fields?: { [name: string]: unknown }) => {
-  if (!isDefined(fields)) return { common: [], groups: {} };
-
-  const propertiesArray = Object.entries(fields).reduce(
-    (acc, [name, definition]) => {
-      const group: string = getValue(definition, 'group', '');
-      if (group === '' || group === 'common' || group === 'producer' || group === 'consumer') {
-        acc.common.push(name);
-      } else {
-        acc.groups[group] ??= [];
-        acc.groups[group].push(name);
-      }
-      return acc;
-    },
-    { common: [], groups: {} } as { common: string[]; groups: Record<string, string[]> },
-  );
-
-  return propertiesArray;
-};
 
 interface FieldGroups {
   common: Record<string, KaotoSchemaDefinition['schema']>;
   groups: [string, Record<string, KaotoSchemaDefinition['schema']>][];
 }
 
-export const getFieldGroupsV2 = (properties?: KaotoSchemaDefinition['schema']['properties']): FieldGroups => {
+export const getFieldGroups = (properties?: KaotoSchemaDefinition['schema']['properties']): FieldGroups => {
   if (!isDefined(properties)) return { common: {}, groups: [] };
 
   const groupedProperties = Object.entries(properties).reduce(
