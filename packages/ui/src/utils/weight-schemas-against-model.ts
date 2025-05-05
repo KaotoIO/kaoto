@@ -1,6 +1,6 @@
 import { KaotoSchemaDefinition } from '../models';
 import { isDefined } from './is-defined';
-import { resolveSchemaWithRef } from './resolve-ref-if-needed';
+import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
 const PRIMITIVE_TYPES = ['string', 'number', 'boolean'];
 

@@ -1,8 +1,8 @@
 import { useContext, useMemo, useState } from 'react';
 import { CanvasFormTabsContext } from '../../../../../providers';
 import { getItemFromSchema, isDefined, setValue } from '../../../../../utils';
-import { getAppliedSchemaIndexV2 } from '../../../../../utils/get-applied-schema-index';
-import { OneOfSchemas, getOneOfSchemaListV2 } from '../../../../../utils/get-oneof-schema-list';
+import { getAppliedSchemaIndex } from '../../../../../utils/get-applied-schema-index';
+import { OneOfSchemas, getOneOfSchemaList } from '../../../../../utils/get-oneof-schema-list';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { useFieldValue } from './field-value';
 
@@ -12,11 +12,11 @@ export const useOneOfField = (propName: string) => {
   const { value, onChange } = useFieldValue<Record<string, unknown>>(propName);
 
   const oneOfSchemas: OneOfSchemas[] = useMemo(
-    () => getOneOfSchemaListV2(schema.oneOf ?? [], definitions),
+    () => getOneOfSchemaList(schema.oneOf ?? [], definitions),
     [definitions, schema.oneOf],
   );
 
-  const appliedSchemaIndex = getAppliedSchemaIndexV2(value, oneOfSchemas, definitions);
+  const appliedSchemaIndex = getAppliedSchemaIndex(value, oneOfSchemas, definitions);
   const presetSchema = appliedSchemaIndex === -1 ? undefined : oneOfSchemas[appliedSchemaIndex];
   const [selectedOneOfSchema, setSelectedOneOfSchema] = useState<OneOfSchemas | undefined>(presetSchema);
 

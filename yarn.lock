@@ -2924,22 +2924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto-next/uniforms-patternfly@npm:^0.7.20":
-  version: 0.7.20
-  resolution: "@kaoto-next/uniforms-patternfly@npm:0.7.20"
-  dependencies:
-    invariant: "npm:^2.2.4"
-    lodash.clonedeep: "npm:^4.5.0"
-  peerDependencies:
-    "@patternfly/react-core": ^6.1.0
-    "@patternfly/react-icons": ^6.1.0
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    uniforms: 4.0.0-alpha.5
-  checksum: 10/103ea318a5aade62f5fe858b7ebeecd2ea38b46545677ec8864fa13373eec28de527b6c5ca407d8aa73b4417df63c93dd234d0a9e3717491a50b065f3f915a60
-  languageName: node
-  linkType: hard
-
 "@kaoto/camel-catalog@workspace:*, @kaoto/camel-catalog@workspace:packages/catalog-generator":
   version: 0.0.0-use.local
   resolution: "@kaoto/camel-catalog@workspace:packages/catalog-generator"
@@ -3014,7 +2998,6 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.21.5"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto-next/uniforms-patternfly": "npm:^0.7.20"
     "@kaoto/camel-catalog": "workspace:*"
     "@kie-tools-core/editor": "npm:0.32.0"
     "@kie-tools-core/notifications": "npm:0.32.0"
@@ -11934,15 +11917,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.4":
-  version: 2.2.4
-  resolution: "invariant@npm:2.2.4"
-  dependencies:
-    loose-envify: "npm:^1.0.0"
-  checksum: 10/cc3182d793aad82a8d1f0af697b462939cb46066ec48bbf1707c150ad5fad6406137e91a262022c269702e01621f35ef60269f6c0d7fd178487959809acdfb14
-  languageName: node
-  linkType: hard
-
 "ip-address@npm:^9.0.5":
   version: 9.0.5
   resolution: "ip-address@npm:9.0.5"
@@ -13663,13 +13637,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.clonedeep@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.clonedeep@npm:4.5.0"
-  checksum: 10/957ed243f84ba6791d4992d5c222ffffca339a3b79dbe81d2eaf0c90504160b500641c5a0f56e27630030b18b8e971ea10b44f928a977d5ced3c8948841b555f
-  languageName: node
-  linkType: hard
-
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -13754,7 +13721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:

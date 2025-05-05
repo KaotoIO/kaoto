@@ -1,7 +1,7 @@
 import { KaotoSchemaDefinition } from '../models';
-import { resolveRefIfNeeded } from './resolve-ref-if-needed';
+import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
-describe('resolveRefIfNeeded', () => {
+describe('resolveSchemaWithRef', () => {
   const schema: KaotoSchemaDefinition['schema'] = {
     type: 'object',
     properties: {
@@ -17,7 +17,7 @@ describe('resolveRefIfNeeded', () => {
   };
 
   it('should resolve the value if it is a function', () => {
-    const result = resolveRefIfNeeded({ $ref: '#/definitions/name' }, schema);
+    const result = resolveSchemaWithRef({ $ref: '#/definitions/name' }, schema.definitions!);
 
     expect(result).toEqual({ type: 'string' });
   });
@@ -25,7 +25,7 @@ describe('resolveRefIfNeeded', () => {
   it('should not modify the original schema', () => {
     const originalSchema = JSON.parse(JSON.stringify(schema));
 
-    resolveRefIfNeeded({ $ref: '#/definitions/name' }, schema);
+    resolveSchemaWithRef({ $ref: '#/definitions/name' }, schema.definitions!);
 
     expect(schema).toEqual(originalSchema);
   });
@@ -33,7 +33,7 @@ describe('resolveRefIfNeeded', () => {
   it('should not modify the original value', () => {
     const originalValue = { $ref: '#/definitions/name' };
 
-    resolveRefIfNeeded(originalValue, schema);
+    resolveSchemaWithRef(originalValue, schema.definitions!);
 
     expect(originalValue).toEqual({ $ref: '#/definitions/name' });
   });

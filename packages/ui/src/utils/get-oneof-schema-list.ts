@@ -1,8 +1,7 @@
 import { KaotoSchemaDefinition } from '../models';
 import { camelCaseToSpaces } from './camel-case-to-space';
-import { getResolvedSchema } from './get-resolved-schema';
 import { isDefined } from './is-defined';
-import { resolveSchemaWithRef } from './resolve-ref-if-needed';
+import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
 export interface OneOfSchemas {
   name: string;
@@ -11,37 +10,6 @@ export interface OneOfSchemas {
 }
 
 export const getOneOfSchemaList = (
-  oneOfList: KaotoSchemaDefinition['schema'][],
-  rootSchema?: KaotoSchemaDefinition['schema'],
-): OneOfSchemas[] => {
-  return (
-    oneOfList
-      /** Ignore the `not` schemas and schemas that are not object */
-      .filter((oneOfSchema) => oneOfSchema?.type === 'object')
-      .map((oneOfSchema, index) => {
-        const resolvedSchema = getResolvedSchema(oneOfSchema, rootSchema);
-
-        let name = resolvedSchema.title;
-        let description = resolvedSchema.description;
-
-        const oneOfPropsKeys = Object.keys(resolvedSchema.properties ?? {});
-        const isSinglePropertySchema = oneOfPropsKeys.length === 1;
-        if (isSinglePropertySchema && !name) {
-          name = resolvedSchema.properties![oneOfPropsKeys[0]].title ?? oneOfPropsKeys[0];
-        }
-        if (isSinglePropertySchema && !description) {
-          description = resolvedSchema.properties![oneOfPropsKeys[0]].description;
-        }
-
-        name = name ?? `Schema ${index}`;
-        description = description ?? resolvedSchema.description;
-
-        return { name, description, schema: resolvedSchema ?? oneOfSchema };
-      })
-  );
-};
-
-export const getOneOfSchemaListV2 = (
   oneOfList: KaotoSchemaDefinition['schema'][],
   definitions: KaotoSchemaDefinition['schema']['definitions'] = {},
 ): OneOfSchemas[] => {
