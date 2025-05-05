@@ -4,6 +4,32 @@ describe('Test for camel routes visibility provider', () => {
     cy.openHomePage();
   });
 
+  it('Visibility provider - first route visible, add another route, initial visbility is kept, new route visible', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+
+    cy.get(`span[title="camel-route"]`).should('be.visible');
+
+    cy.addNewRoute();
+
+    cy.get(`span[title="camel-route"]`).should('be.visible');
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
+  });
+
+  it('Visibility provider - both route invisible, add another route, initial visbility is kept, new route visible', () => {
+    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openDesignPage();
+
+    cy.get(`span[title="route-1234"]`).should('be.visible');
+    cy.get(`span[title="route-4321"]`).should('be.visible');
+
+    cy.addNewRoute();
+
+    cy.get(`span[title="route-1234"]`).should('be.visible');
+    cy.get(`span[title="route-4321"]`).should('be.visible');
+    cy.get('[data-testid="flows-list-route-count"]').should('have.text', '3/3');
+  });
+
   it('Visibility provider - first route visible, rename second route through the Flow list, initial visibility is kept', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
