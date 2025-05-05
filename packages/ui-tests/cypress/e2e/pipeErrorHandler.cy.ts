@@ -14,8 +14,8 @@ describe('Test for Pipe Error handler support', () => {
     cy.checkCodeSpanLine('errorHandler:');
     cy.checkCodeSpanLine('log:');
     cy.checkCodeSpanLine('parameters:');
-    cy.checkCodeSpanLine('maximumRedeliveries: "5"');
-    cy.checkCodeSpanLine('redeliveryDelay: "1000"');
+    cy.checkCodeSpanLine('maximumRedeliveries: 5');
+    cy.checkCodeSpanLine('redeliveryDelay: 1000');
 
     cy.openPipeErrorHandler();
 
@@ -38,8 +38,8 @@ describe('Test for Pipe Error handler support', () => {
     cy.checkCodeSpanLine('name: test-name');
     cy.checkCodeSpanLine('message: test-message');
     cy.checkCodeSpanLine('additionalProperties: test-additionalProperties');
-    cy.checkCodeSpanLine('maximumRedeliveries: "3"');
-    cy.checkCodeSpanLine('redeliveryDelay: "2000"');
+    cy.checkCodeSpanLine('maximumRedeliveries: 3');
+    cy.checkCodeSpanLine('redeliveryDelay: 2000');
   });
 
   it('ErrorHandler - edit in errorHandler editor', () => {
@@ -50,8 +50,8 @@ describe('Test for Pipe Error handler support', () => {
     cy.get(`input[name="#.log.parameters.redeliveryDelay"]`).clear().type('1000');
     cy.openSourceCode();
     // CHECK the errorHandler update was reflected in the code editor
-    cy.checkCodeSpanLine('maximumRedeliveries: "5"');
-    cy.checkCodeSpanLine('redeliveryDelay: "1000"');
+    cy.checkCodeSpanLine('maximumRedeliveries: 5');
+    cy.checkCodeSpanLine('redeliveryDelay: 1000');
   });
 
   it('ErrorHandler - delete errorHandler properties using the ErrorHandler editor', () => {

@@ -19,7 +19,7 @@ describe('Tests for sidebar dataformat configuration', () => {
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('lineLength: "128"', 1);
+    cy.checkCodeSpanLine('lineLength: 128', 1);
     cy.checkCodeSpanLine('id: simpleDataformatId', 1);
     cy.checkCodeSpanLine('lineSeparator: simpleLineSeparator', 1);
     cy.checkCodeSpanLine('urlSafe: true', 1);

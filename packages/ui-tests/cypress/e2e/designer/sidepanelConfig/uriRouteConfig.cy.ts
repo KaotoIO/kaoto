@@ -30,7 +30,7 @@ describe('Test URI node config', () => {
       cy.openSourceCode();
       cy.checkCodeSpanLine('delay: 2000', 1);
       cy.checkCodeSpanLine('period: "3000"', 1);
-      cy.checkCodeSpanLine('repeatCount: "5"', 1);
+      cy.checkCodeSpanLine('repeatCount: 5', 1);
     });
   });
 

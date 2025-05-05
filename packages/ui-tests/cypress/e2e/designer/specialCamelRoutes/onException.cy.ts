@@ -71,8 +71,8 @@ describe('Test for root on exception container', () => {
     cy.checkCodeSpanLine('redeliveryPolicy:');
     cy.checkCodeSpanLine('allowRedeliveryWhileStopping: true');
     cy.checkCodeSpanLine('asyncDelayedRedelivery: true');
-    cy.checkCodeSpanLine('backOffMultiplier: "3.0"');
-    cy.checkCodeSpanLine('collisionAvoidanceFactor: "0.2"');
+    cy.checkCodeSpanLine('backOffMultiplier: 3');
+    cy.checkCodeSpanLine('collisionAvoidanceFactor: 0.2');
     cy.checkCodeSpanLine('delayPattern: testRedeliveryPolicyDelayPattern');
     cy.checkCodeSpanLine('disableRedelivery: true');
     cy.checkCodeSpanLine('exchangeFormatterRef: testExchangeFormatterRef');
@@ -85,10 +85,10 @@ describe('Test for root on exception container', () => {
     cy.checkCodeSpanLine('logRetryAttempted: true');
     cy.checkCodeSpanLine('logRetryStackTrace: true');
     cy.checkCodeSpanLine('logStackTrace: true');
-    cy.checkCodeSpanLine('maximumRedeliveries: "10"');
+    cy.checkCodeSpanLine('maximumRedeliveries: 10');
     cy.checkCodeSpanLine('maximumRedeliveryDelay: "40000"');
     cy.checkCodeSpanLine('redeliveryDelay: "2000"');
-    cy.checkCodeSpanLine('retryAttemptedLogInterval: "2"');
+    cy.checkCodeSpanLine('retryAttemptedLogInterval: 2');
     cy.checkCodeSpanLine('redeliveryPolicyRef: testRedeliveryPolicyRef');
 
     cy.checkCodeSpanLine('retriesExhaustedLogLevel: INFO');
