@@ -180,13 +180,9 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     }
   }
 
-  removeEntity(id?: string): void {
-    if (!isDefined(id)) return;
-    const index: number = this.entities.findIndex((e) => e.id === id);
-
-    if (index !== -1) {
-      this.entities.splice(index, 1);
-    }
+  removeEntity(ids?: string[]): void {
+    if (!isDefined(ids)) return;
+    this.entities = this.entities.filter((e) => !ids?.includes(e.id));
   }
 
   /** Components Catalog related methods */

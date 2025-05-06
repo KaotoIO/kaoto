@@ -36,7 +36,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode) => {
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );
 
-    entitiesContext?.camelResource.removeEntity(flowId);
+    entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined);
     entitiesContext?.updateEntitiesFromCamelResource();
   }, [deleteModalContext, entitiesContext, flowId, getRegisteredInteractionAddons, vizNode]);
 
