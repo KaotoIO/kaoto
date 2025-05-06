@@ -19,7 +19,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "prettier": "3.3.3",
-    "uniforms": "4.0.0-alpha.5",
+    "uniforms": "4.0.0",
     "uniforms-bridge-json-schema": "4.0.0-alpha.6",
     "uniforms-bridge-simple-schema-2": "4.0.0",
     "simpl-schema": "3.4.6",
