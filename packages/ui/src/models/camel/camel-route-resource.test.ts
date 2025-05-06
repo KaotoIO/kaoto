@@ -173,7 +173,7 @@ describe('CamelRouteResource', () => {
     it('should not do anything when providing a non existing ID', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
 
-      resource.removeEntity('non-existing-id');
+      resource.removeEntity(['non-existing-id']);
 
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
@@ -182,16 +182,25 @@ describe('CamelRouteResource', () => {
       const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
-      resource.removeEntity(camelRouteEntity.id);
+      resource.removeEntity([camelRouteEntity.id]);
 
       expect(resource.getVisualEntities()).toHaveLength(1);
+    });
+
+    it('should remove multiple entities when multiple IDs are provided', () => {
+      const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
+      const entitiesToRemove = resource.getVisualEntities().map((e) => e.id);
+
+      resource.removeEntity(entitiesToRemove);
+
+      expect(resource.getVisualEntities()).toHaveLength(0);
     });
 
     it('should NOT create a new entity after deleting them all', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
       const camelRouteEntity = resource.getVisualEntities()[0];
 
-      resource.removeEntity(camelRouteEntity.id);
+      resource.removeEntity([camelRouteEntity.id]);
 
       expect(resource.getVisualEntities()).toHaveLength(0);
     });

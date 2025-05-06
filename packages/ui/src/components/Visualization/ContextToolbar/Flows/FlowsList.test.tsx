@@ -33,8 +33,8 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should display an empty state when there is no routes available', async () => {
-    camelResource.removeEntity('route-1234');
-    camelResource.removeEntity('routeConfiguration-1234');
+    camelResource.removeEntity(['route-1234']);
+    camelResource.removeEntity(['routeConfiguration-1234']);
     const { Provider } = TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
@@ -400,5 +400,70 @@ describe('FlowsList.tsx', () => {
     // Verify all flows are displayed again
     flows = await wrapper.findAllByTestId(/flows-list-row-*/);
     expect(flows).toHaveLength(2);
+  });
+
+  it('should delete filtered flows when clicking the delete filtered button', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <ActionConfirmationModalContextProvider>
+          <FlowsList />
+        </ActionConfirmationModalContextProvider>
+      </Provider>,
+    );
+
+    // Simulate typing into the search input to filter flows
+    const searchInput = wrapper.getByRole('textbox', { name: 'search' });
+    act(() => {
+      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    });
+
+    // Click the delete filtered button
+    const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
+    await act(async () => {
+      fireEvent.click(deleteFilteredBtn);
+    });
+
+    // Confirm the deletion in the modal
+    const confirmBtn = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    // Verify only the filtered flow is deleted
+    expect(camelResource.getVisualEntities()).toHaveLength(1);
+    expect(camelResource.getVisualEntities()[0].id).toBe('routeConfiguration-1234');
+  });
+
+  it('should not delete any flows when canceling the delete filtered action', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource });
+    const wrapper = render(
+      <Provider>
+        <ActionConfirmationModalContextProvider>
+          <FlowsList />
+        </ActionConfirmationModalContextProvider>
+      </Provider>,
+    );
+
+    // Simulate typing into the search input to filter flows
+    const searchInput = wrapper.getByRole('textbox', { name: 'search' });
+    act(() => {
+      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    });
+
+    // Click the delete filtered button
+    const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
+    await act(async () => {
+      fireEvent.click(deleteFilteredBtn);
+    });
+
+    // Cancel the deletion in the modal
+    const cancelBtn = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
+    await act(async () => {
+      fireEvent.click(cancelBtn);
+    });
+
+    // Verify no flows are deleted
+    expect(camelResource.getVisualEntities()).toHaveLength(2);
   });
 });
