@@ -12,7 +12,6 @@ import {
   CatalogLoaderProvider,
   CatalogTilesProvider,
   EntitiesProvider,
-  ReloadProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsProvider,
@@ -39,37 +38,35 @@ function App() {
   }, [colorSchema]);
 
   return (
-    <ReloadProvider>
-      <SettingsProvider adapter={settingsAdapter}>
-        <SourceCodeLocalStorageProvider>
-          <RuntimeProvider catalogUrl={catalogUrl}>
-            <SchemasLoaderProvider>
-              <CatalogLoaderProvider>
-                <EntitiesProvider>
-                  <Shell>
-                    <CatalogTilesProvider>
-                      <VisualizationProvider controller={controller}>
-                        <VisibleFlowsProvider>
-                          <RenderingProvider>
-                            <RegisterComponents>
-                              <NodeInteractionAddonProvider>
-                                <RegisterNodeInteractionAddons>
-                                  <Outlet />
-                                </RegisterNodeInteractionAddons>
-                              </NodeInteractionAddonProvider>
-                            </RegisterComponents>
-                          </RenderingProvider>
-                        </VisibleFlowsProvider>
-                      </VisualizationProvider>
-                    </CatalogTilesProvider>
-                  </Shell>
-                </EntitiesProvider>
-              </CatalogLoaderProvider>
-            </SchemasLoaderProvider>
-          </RuntimeProvider>
-        </SourceCodeLocalStorageProvider>
-      </SettingsProvider>
-    </ReloadProvider>
+    <SettingsProvider adapter={settingsAdapter}>
+      <SourceCodeLocalStorageProvider>
+        <RuntimeProvider catalogUrl={catalogUrl}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <EntitiesProvider>
+                <Shell>
+                  <CatalogTilesProvider>
+                    <VisualizationProvider controller={controller}>
+                      <VisibleFlowsProvider>
+                        <RenderingProvider>
+                          <RegisterComponents>
+                            <NodeInteractionAddonProvider>
+                              <RegisterNodeInteractionAddons>
+                                <Outlet />
+                              </RegisterNodeInteractionAddons>
+                            </NodeInteractionAddonProvider>
+                          </RegisterComponents>
+                        </RenderingProvider>
+                      </VisibleFlowsProvider>
+                    </VisualizationProvider>
+                  </CatalogTilesProvider>
+                </Shell>
+              </EntitiesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
+      </SourceCodeLocalStorageProvider>
+    </SettingsProvider>
   );
 }
 

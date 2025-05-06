@@ -2,11 +2,16 @@ import { createHashRouter } from 'react-router-dom';
 import App from './App';
 import { ErrorPage } from './pages/ErrorPage';
 import { Links } from './router/links.models';
+import { ReloadProvider } from './providers';
 
 export const router = createHashRouter([
   {
     path: Links.Home,
-    element: <App />,
+    element: (
+      <ReloadProvider>
+        <App />
+      </ReloadProvider>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {

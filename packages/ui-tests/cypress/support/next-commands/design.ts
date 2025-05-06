@@ -178,3 +178,11 @@ Cypress.Commands.add('switchCodeToYaml', () => {
   cy.get('[data-testid="serializer-list-dropdown"]').click();
   cy.get('[data-testid="serializer-yaml"]').contains('YAML').click();
 });
+
+Cypress.Commands.add('checkDarkMode', () => {
+  cy.get('html').should('have.class', 'pf-v6-theme-dark');
+});
+
+Cypress.Commands.add('checkLightMode', () => {
+  cy.get('html').should('not.have.class', 'pf-v6-theme-dark');
+});
