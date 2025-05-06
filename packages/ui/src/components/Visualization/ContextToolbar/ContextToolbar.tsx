@@ -33,7 +33,7 @@ export const ContextToolbar: FunctionComponent<{ additionalControls?: JSX.Elemen
   }
 
   return (
-    <Toolbar id="context-toolbar">
+    <Toolbar className="context-toolbar">
       <ToolbarContent>
         {toolbarItems.concat([
           <ToolbarItem key="toolbar-clipboard">
