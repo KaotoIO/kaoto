@@ -172,7 +172,7 @@ describe('Canvas', () => {
 
     // Check if the remove function is called
     expect(removeSpy).toHaveBeenCalled();
-    expect(removeSpy).toHaveBeenCalledWith('route-8888');
+    expect(removeSpy).toHaveBeenCalledWith(['route-8888']);
   });
 
   it('should be able to delete the kamelets', async () => {

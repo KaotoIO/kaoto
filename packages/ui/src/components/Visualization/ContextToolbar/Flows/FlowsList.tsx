@@ -129,8 +129,8 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
             <Th>
               {' '}
               <Button
-                title={`Delete filtered`}
-                data-testid={`delete-filtered-btn`}
+                title="Delete all flows"
+                data-testid="delete-filtered-btn"
                 icon={<TrashIcon />}
                 variant="plain"
                 onClick={onDeleteAll}

@@ -71,7 +71,7 @@ describe('ItemDeleteGroup', () => {
     });
 
     await waitFor(() => {
-      expect(removeEntitySpy).toHaveBeenCalledWith(entityId);
+      expect(removeEntitySpy).toHaveBeenCalledWith([entityId]);
     });
   });
 
