@@ -51,10 +51,8 @@ html body {
   }
 }
 
-#context-toolbar {
-  padding-bottom: 5px;
-  padding-top: 5px;
-  padding-left: 5px;
+.context-toolbar {
+  padding: var(--pf-v6-c-toolbar__content-section--ColumnGap);
 }
 
 .pf-v6-c-divider {
