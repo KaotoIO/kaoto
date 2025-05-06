@@ -71,6 +71,23 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     [visualEntities, areFlowsVisible, searchString, visualFlowsApi],
   );
 
+  const onDeleteAll = useCallback(
+    async (_event: MouseEvent<HTMLButtonElement>) => {
+      props.onClose?.();
+      const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
+        title: 'Do you want to delete the filtered routes ?',
+        text: 'All steps will be lost.',
+      });
+      if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
+      const filteredIds = visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
+      if (filteredIds.length === 0) {
+        return;
+      }
+      camelResource.removeEntity(filteredIds);
+      updateEntitiesFromCamelResource();
+    },
+    [searchString, visualEntities, camelResource],
+  );
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
@@ -109,7 +126,16 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 variant="plain"
               />
             </Th>
-            <Th>{columnNames.current.delete}</Th>
+            <Th>
+              {' '}
+              <Button
+                title={`Delete filtered`}
+                data-testid={`delete-filtered-btn`}
+                icon={<TrashIcon />}
+                variant="plain"
+                onClick={onDeleteAll}
+              />
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -179,7 +205,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                       });
                       if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
-                      camelResource.removeEntity(flow.id);
+                      camelResource.removeEntity([flow.id]);
                       updateEntitiesFromCamelResource();
                     }}
                   />

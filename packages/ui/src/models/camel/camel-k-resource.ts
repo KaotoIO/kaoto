@@ -52,7 +52,7 @@ export abstract class CamelKResource implements CamelResource {
     };
   }
 
-  removeEntity(_id?: string) {}
+  removeEntity(_id?: string[]) {}
   refreshVisualMetadata() {}
   createMetadataEntity() {
     this.resource.metadata = {};
