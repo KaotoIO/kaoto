@@ -75,6 +75,8 @@ declare global {
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryNotExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
+      checkLightMode(): Chainable<JQuery<Element>>;
+      checkDarkMode(): Chainable<JQuery<Element>>;
       switchCodeToXml(): Chainable<JQuery<Element>>;
       switchCodeToYaml(): Chainable<JQuery<Element>>;
       // nodeConfiguration
