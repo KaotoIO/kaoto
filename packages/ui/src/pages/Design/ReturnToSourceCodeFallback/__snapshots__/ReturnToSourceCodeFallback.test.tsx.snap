@@ -59,7 +59,6 @@ exports[`ReturnToSourceCodeFallback renders correctly 1`] = `
             class="pf-v6-c-empty-state__actions"
           >
             <a
-              aria-disabled="false"
               class="pf-v6-c-button pf-m-primary"
               data-ouia-component-id="OUIA-Generated-Button-primary-1"
               data-ouia-component-type="PF6/Button"

@@ -27,7 +27,6 @@ exports[`StringField should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for # field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-1"
