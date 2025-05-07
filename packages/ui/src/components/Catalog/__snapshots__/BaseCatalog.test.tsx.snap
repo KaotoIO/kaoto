@@ -86,7 +86,6 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
         class="pf-v6-c-pagination__nav-control pf-m-first"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to first page"
           class="pf-v6-c-button pf-m-plain"
           data-action="first"
@@ -119,7 +118,6 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
         class="pf-v6-c-pagination__nav-control"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to previous page"
           class="pf-v6-c-button pf-m-plain"
           data-action="previous"
@@ -178,7 +176,6 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
         class="pf-v6-c-pagination__nav-control"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to next page"
           class="pf-v6-c-button pf-m-plain"
           data-action="next"
@@ -210,7 +207,6 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
         class="pf-v6-c-pagination__nav-control pf-m-last"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to last page"
           class="pf-v6-c-button pf-m-plain"
           data-action="last"
@@ -5288,7 +5284,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         class="pf-v6-c-pagination__nav-control pf-m-first"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to first page"
           class="pf-v6-c-button pf-m-plain"
           data-action="first"
@@ -5321,7 +5316,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         class="pf-v6-c-pagination__nav-control"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to previous page"
           class="pf-v6-c-button pf-m-plain"
           data-action="previous"
@@ -5380,7 +5374,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         class="pf-v6-c-pagination__nav-control"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to next page"
           class="pf-v6-c-button pf-m-plain"
           data-action="next"
@@ -5412,7 +5405,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         class="pf-v6-c-pagination__nav-control pf-m-last"
       >
         <button
-          aria-disabled="false"
           aria-label="Go to last page"
           class="pf-v6-c-button pf-m-plain"
           data-action="last"
@@ -5452,7 +5444,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
       role="list"
     >
       <li
-        aria-labelledby="activemq"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="activemq-component"
         tabindex="0"
@@ -5552,7 +5543,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="activemq6"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="activemq6-component"
         tabindex="0"
@@ -5652,7 +5642,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="amqp"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="amqp-component"
         tabindex="0"
@@ -5752,7 +5741,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="arangodb"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="arangodb-component"
         tabindex="0"
@@ -5852,7 +5840,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="as2"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="as2-component"
         tabindex="0"
@@ -5952,7 +5939,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="cxf"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="cxf-component"
         tabindex="0"
@@ -6052,7 +6038,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="exec"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="exec-component"
         tabindex="0"
@@ -6152,7 +6137,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="toD"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="toD-processor"
         tabindex="0"
@@ -6252,7 +6236,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="doTry"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="doTry-processor"
         tabindex="0"
@@ -6352,7 +6335,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="Validate"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="Validate-processor"
         tabindex="0"
@@ -6452,7 +6434,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="when"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="when-processor"
         tabindex="0"
@@ -6552,7 +6533,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="onException"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="onException-processor"
         tabindex="0"
@@ -6652,7 +6632,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="wireTap"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="wireTap-processor"
         tabindex="0"
@@ -6752,7 +6731,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="intercept"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="intercept-processor"
         tabindex="0"
@@ -6852,7 +6830,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="saga"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="saga-processor"
         tabindex="0"
@@ -6952,7 +6929,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="script"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="script-processor"
         tabindex="0"
@@ -7052,7 +7028,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="sort"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="sort-processor"
         tabindex="0"
@@ -7152,7 +7127,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="sink"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="sink-kamelet"
         tabindex="0"
@@ -7252,7 +7226,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="kafka-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="kafka-source-kamelet"
         tabindex="0"
@@ -7352,7 +7325,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="http-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="http-source-kamelet"
         tabindex="0"
@@ -7452,7 +7424,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="ssh-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="ssh-source-kamelet"
         tabindex="0"
@@ -7552,7 +7523,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="jira-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="jira-source-kamelet"
         tabindex="0"
@@ -7652,7 +7622,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="coffee-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="coffee-source-kamelet"
         tabindex="0"
@@ -7752,7 +7721,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="mariadb-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="mariadb-source-kamelet"
         tabindex="0"
@@ -7852,7 +7820,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="dropbox-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="dropbox-source-kamelet"
         tabindex="0"
@@ -7952,7 +7919,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="cassandra-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="cassandra-source-kamelet"
         tabindex="0"
@@ -8052,7 +8018,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="aws-redshift-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="aws-redshift-source-kamelet"
         tabindex="0"
@@ -8152,7 +8117,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="redis-source"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="redis-source-kamelet"
         tabindex="0"
@@ -8252,7 +8216,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="pulsar-sink"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="pulsar-sink-kamelet"
         tabindex="0"
@@ -8352,7 +8315,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="dropbox-sink"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="dropbox-sink-kamelet"
         tabindex="0"
@@ -8452,7 +8414,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="activemq-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="activemq-1-component"
         tabindex="0"
@@ -8552,7 +8513,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="activemq6-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="activemq6-1-component"
         tabindex="0"
@@ -8652,7 +8612,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="amqp-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="amqp-1-component"
         tabindex="0"
@@ -8752,7 +8711,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="arangodb-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="arangodb-1-component"
         tabindex="0"
@@ -8852,7 +8810,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="as2-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="as2-1-component"
         tabindex="0"
@@ -8952,7 +8909,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="cxf-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="cxf-1-component"
         tabindex="0"
@@ -9052,7 +9008,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="exec-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="exec-1-component"
         tabindex="0"
@@ -9152,7 +9107,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="toD-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="toD-1-processor"
         tabindex="0"
@@ -9252,7 +9206,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="doTry-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="doTry-1-processor"
         tabindex="0"
@@ -9352,7 +9305,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="Validate-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="Validate-1-processor"
         tabindex="0"
@@ -9452,7 +9404,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="when-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="when-1-processor"
         tabindex="0"
@@ -9552,7 +9503,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="onException-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="onException-1-processor"
         tabindex="0"
@@ -9652,7 +9602,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="wireTap-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="wireTap-1-processor"
         tabindex="0"
@@ -9752,7 +9701,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="intercept-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="intercept-1-processor"
         tabindex="0"
@@ -9852,7 +9800,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="saga-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="saga-1-processor"
         tabindex="0"
@@ -9952,7 +9899,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="script-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="script-1-processor"
         tabindex="0"
@@ -10052,7 +9998,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="sort-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="sort-1-processor"
         tabindex="0"
@@ -10152,7 +10097,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="sink-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="sink-1-kamelet"
         tabindex="0"
@@ -10252,7 +10196,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="kafka-source-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="kafka-source-1-kamelet"
         tabindex="0"
@@ -10352,7 +10295,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        aria-labelledby="http-source-1"
         class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
         id="http-source-1-kamelet"
         tabindex="0"
