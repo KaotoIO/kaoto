@@ -95,7 +95,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.16
+        uses: cypress-io/github-action@v6.9.0
         with:
           browser: firefox
           # we have already installed all dependencies above
@@ -155,7 +155,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.16
+        uses: cypress-io/github-action@v6.9.0
         with:
           browser: chrome
           # we have already installed all dependencies above
@@ -215,7 +215,7 @@ jobs:
           path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.7.16
+        uses: cypress-io/github-action@v6.9.0
         with:
           browser: edge
           # we have already installed all dependencies above
