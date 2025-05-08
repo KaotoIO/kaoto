@@ -107,6 +107,11 @@ Cypress.Commands.add('closeAboutModal', () => {
   });
 });
 
+Cypress.Commands.add('openDataMapper', () => {
+  cy.get('[data-testid="DataMapper"]').click();
+  cy.get('[data-testid="dm-debug-main-menu-button"]').should('be.visible');
+});
+
 Cypress.Commands.add('openCatalog', () => {
   cy.get('[data-testid="Catalog"]').click();
   cy.get('[data-testid="component-catalog-tab"]').should('be.visible');

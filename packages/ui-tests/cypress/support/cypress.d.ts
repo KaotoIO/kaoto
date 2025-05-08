@@ -46,6 +46,7 @@ declare global {
       allignAllRoutesVisibility(switchvisibility: string): Chainable<JQuery<Element>>;
       hideAllRoutes(): Chainable<JQuery<Element>>;
       showAllRoutes(): Chainable<JQuery<Element>>;
+      openDataMapper(): Chainable<JQuery<Element>>;
       // design
       openGroupConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
@@ -130,6 +131,17 @@ declare global {
       editorClickUndoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       editorClickRedoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       compareFileWithMonacoEditor(filePath: string): Chainable<JQuery<Element>>;
+      // DataMapper
+      attachSourceBodySchema(filePath: string): Chainable<JQuery<Element>>;
+      attachTargetBodySchema(filePath: string): Chainable<JQuery<Element>>;
+      addParameter(name: string): Chainable<JQuery<Element>>;
+      attachParameterSchema(name: string, filePath: string): Chainable<JQuery<Element>>;
+      importMappings(filePath: string): Chainable<JQuery<Element>>;
+      exportMappings(): Chainable<JQuery<Element>>;
+      closeExportMappingsModal(): Chainable<JQuery<Element>>;
+      resetMappings(): Chainable<JQuery<Element>>;
+      checkFieldSelected(type: string, fieldName: string, selected: boolean): Chainable<JQuery<Element>>;
+      checkMappingLineSelected(selected: boolean): Chainable<JQuery<Element>>;
     }
   }
 }
