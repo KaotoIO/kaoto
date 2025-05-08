@@ -31,7 +31,6 @@ exports[`SettingsForm should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for Camel Catalog URL field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -147,7 +146,6 @@ exports[`SettingsForm should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for Node label to display in canvas field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-2"
@@ -210,7 +208,6 @@ exports[`SettingsForm should render 1`] = `
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
-              aria-disabled="false"
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-3"
@@ -299,7 +296,6 @@ exports[`SettingsForm should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for Open Node toolbar field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-4"
@@ -362,7 +358,6 @@ exports[`SettingsForm should render 1`] = `
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
-              aria-disabled="false"
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-5"
@@ -451,7 +446,6 @@ exports[`SettingsForm should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for Color scheme field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-6"
@@ -514,7 +508,6 @@ exports[`SettingsForm should render 1`] = `
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
-              aria-disabled="false"
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-7"
@@ -593,7 +586,6 @@ exports[`SettingsForm should render 1`] = `
         class="pf-v6-c-card__actions"
       >
         <button
-          aria-disabled="false"
           aria-label="Remove object"
           class="pf-v6-c-button pf-m-plain"
           data-ouia-component-id="OUIA-Generated-Button-plain-8"
@@ -637,7 +629,6 @@ exports[`SettingsForm should render 1`] = `
               style="display: contents;"
             >
               <span
-                aria-disabled="false"
                 aria-label="More info for Experimental features field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                 data-ouia-component-id="OUIA-Generated-Button-plain-9"
@@ -699,7 +690,6 @@ exports[`SettingsForm should render 1`] = `
               style="display: contents;"
             >
               <span
-                aria-disabled="false"
                 aria-label="More info for Enable Drag & Drop field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                 data-ouia-component-id="OUIA-Generated-Button-plain-10"
@@ -753,7 +743,6 @@ exports[`SettingsForm should render 1`] = `
               class="pf-v6-c-switch__toggle"
             >
               <div
-                aria-hidden="true"
                 class="pf-v6-c-switch__toggle-icon"
               >
                 <svg

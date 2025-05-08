@@ -27,7 +27,6 @@ exports[`TextAreaField should render 1`] = `
           style="display: contents;"
         >
           <span
-            aria-disabled="false"
             aria-label="More info for # field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
             data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -68,7 +67,7 @@ exports[`TextAreaField should render 1`] = `
           class="pf-v6-c-input-group__item pf-m-fill"
         >
           <span
-            class="pf-v6-c-form-control pf-m-resize-both"
+            class="pf-v6-c-form-control pf-m-textarea pf-m-resize-both"
           >
             <textarea
               aria-describedby="#-popover"
@@ -87,7 +86,6 @@ exports[`TextAreaField should render 1`] = `
           class="pf-v6-c-input-group__item"
         >
           <button
-            aria-disabled="false"
             aria-label="Clear # field"
             class="pf-v6-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-2"

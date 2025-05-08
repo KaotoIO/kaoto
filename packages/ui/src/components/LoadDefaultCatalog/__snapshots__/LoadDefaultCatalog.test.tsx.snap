@@ -58,7 +58,6 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                 class="pf-v6-c-empty-state__actions"
               >
                 <button
-                  aria-disabled="false"
                   class="pf-v6-c-button pf-m-primary"
                   data-ouia-component-id="OUIA-Generated-Button-primary-1"
                   data-ouia-component-type="PF6/Button"
@@ -80,7 +79,6 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                 >
                   <button
                     aria-controls="expandable-section-content"
-                    aria-disabled="false"
                     class="pf-v6-c-button pf-m-link"
                     data-ouia-component-id="OUIA-Generated-Button-link-1"
                     data-ouia-component-type="PF6/Button"
@@ -187,7 +185,6 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
               class="pf-v6-c-empty-state__actions"
             >
               <button
-                aria-disabled="false"
                 class="pf-v6-c-button pf-m-primary"
                 data-ouia-component-id="OUIA-Generated-Button-primary-1"
                 data-ouia-component-type="PF6/Button"
@@ -209,7 +206,6 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
               >
                 <button
                   aria-controls="expandable-section-content"
-                  aria-disabled="false"
                   class="pf-v6-c-button pf-m-link"
                   data-ouia-component-id="OUIA-Generated-Button-link-1"
                   data-ouia-component-type="PF6/Button"

@@ -56,7 +56,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       tabindex="-1"
                     >
                       <button
-                        aria-disabled="false"
                         class="pf-v6-c-button pf-m-link"
                         data-ouia-component-id="OUIA-Generated-Button-link-1"
                         data-ouia-component-type="PF6/Button"
@@ -117,7 +116,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             beans
                           </div>
                           <button
-                            aria-disabled="false"
                             class="pf-v6-c-button pf-m-link"
                             data-ouia-component-id="OUIA-Generated-Button-link-2"
                             data-ouia-component-type="PF6/Button"
@@ -215,7 +213,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         style="display: contents;"
                       >
                         <span
-                          aria-disabled="false"
                           aria-label="More info for name field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                           data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -338,7 +335,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         style="display: contents;"
                       >
                         <span
-                          aria-disabled="false"
                           aria-label="More info for type field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                           data-ouia-component-id="OUIA-Generated-Button-plain-2"
@@ -461,7 +457,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         style="display: contents;"
                       >
                         <span
-                          aria-disabled="false"
                           aria-label="More info for [object Object] field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                           data-ouia-component-id="OUIA-Generated-Button-plain-3"
@@ -512,7 +507,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         class="pf-v6-l-split__item"
                       >
                         <button
-                          aria-disabled="false"
                           aria-label="Add a new property"
                           class="pf-v6-c-button pf-m-plain"
                           data-ouia-component-id="OUIA-Generated-Button-plain-4"
@@ -603,7 +597,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       No field found matching this criteria. Please switch to the
                        
                       <button
-                        aria-disabled="false"
                         class="pf-v6-c-button pf-m-link pf-m-inline"
                         data-ouia-component-id="OUIA-Generated-Button-link-3"
                         data-ouia-component-type="PF6/Button"
@@ -680,7 +673,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                     tabindex="-1"
                   >
                     <button
-                      aria-disabled="false"
                       class="pf-v6-c-button pf-m-link"
                       data-ouia-component-id="OUIA-Generated-Button-link-1"
                       data-ouia-component-type="PF6/Button"
@@ -741,7 +733,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           beans
                         </div>
                         <button
-                          aria-disabled="false"
                           class="pf-v6-c-button pf-m-link"
                           data-ouia-component-id="OUIA-Generated-Button-link-2"
                           data-ouia-component-type="PF6/Button"
@@ -839,7 +830,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       style="display: contents;"
                     >
                       <span
-                        aria-disabled="false"
                         aria-label="More info for name field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                         data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -962,7 +952,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       style="display: contents;"
                     >
                       <span
-                        aria-disabled="false"
                         aria-label="More info for type field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                         data-ouia-component-id="OUIA-Generated-Button-plain-2"
@@ -1085,7 +1074,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       style="display: contents;"
                     >
                       <span
-                        aria-disabled="false"
                         aria-label="More info for [object Object] field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                         data-ouia-component-id="OUIA-Generated-Button-plain-3"
@@ -1136,7 +1124,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       class="pf-v6-l-split__item"
                     >
                       <button
-                        aria-disabled="false"
                         aria-label="Add a new property"
                         class="pf-v6-c-button pf-m-plain"
                         data-ouia-component-id="OUIA-Generated-Button-plain-4"
@@ -1227,7 +1214,6 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                     No field found matching this criteria. Please switch to the
                      
                     <button
-                      aria-disabled="false"
                       class="pf-v6-c-button pf-m-link pf-m-inline"
                       data-ouia-component-id="OUIA-Generated-Button-link-3"
                       data-ouia-component-type="PF6/Button"

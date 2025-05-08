@@ -104,7 +104,6 @@ exports[`ExpressionField renders empty expression field with schema 1`] = `
               style="display: contents;"
             >
               <span
-                aria-disabled="false"
                 aria-label="More info for Expression field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                 data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -194,7 +193,6 @@ exports[`ExpressionField renders expression field with selection 1`] = `
                   class="pf-v6-c-text-input-group__utilities"
                 >
                   <button
-                    aria-disabled="false"
                     aria-label="Clear input value"
                     class="pf-v6-c-button pf-m-plain"
                     data-ouia-component-id="OUIA-Generated-Button-plain-2"
@@ -274,7 +272,6 @@ exports[`ExpressionField renders expression field with selection 1`] = `
               style="display: contents;"
             >
               <span
-                aria-disabled="false"
                 aria-label="More info for Simple field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                 data-ouia-component-id="OUIA-Generated-Button-plain-3"
@@ -343,7 +340,6 @@ exports[`ExpressionField renders expression field with selection 1`] = `
               style="display: contents;"
             >
               <span
-                aria-disabled="false"
                 aria-label="More info for Expression field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                 data-ouia-component-id="OUIA-Generated-Button-plain-4"
@@ -384,7 +380,7 @@ exports[`ExpressionField renders expression field with selection 1`] = `
               class="pf-v6-c-input-group__item pf-m-fill"
             >
               <span
-                class="pf-v6-c-form-control pf-m-resize-both"
+                class="pf-v6-c-form-control pf-m-textarea pf-m-resize-both"
               >
                 <textarea
                   aria-describedby="simple.expression-popover"
@@ -401,7 +397,6 @@ exports[`ExpressionField renders expression field with selection 1`] = `
               class="pf-v6-c-input-group__item"
             >
               <button
-                aria-disabled="false"
                 aria-label="Clear expression field"
                 class="pf-v6-c-button pf-m-plain"
                 data-ouia-component-id="OUIA-Generated-Button-plain-5"
