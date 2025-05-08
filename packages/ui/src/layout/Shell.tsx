@@ -15,7 +15,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
 
   return (
     <Page isContentFilled masthead={<TopBar navToggle={navToggle} />} sidebar={<Navigation isNavOpen={isNavOpen} />}>
-      <PageSection isFilled hasBodyWrapper={false}>
+      <PageSection isFilled hasBodyWrapper={false} className="shell__page-section">
         {props.children}
       </PageSection>
     </Page>
