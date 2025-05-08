@@ -34,13 +34,13 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
 
   return (
     <>
-      <DropdownItem icon={<ImportIcon />} onClick={onClick} data-testid="import-mappings-button">
+      <DropdownItem icon={<ImportIcon />} onClick={onClick} data-testid="dm-debug-import-mappings-button">
         Import mappings (.xsl)
       </DropdownItem>
       <input
         type="file"
         style={{ display: 'none' }}
-        data-testid="import-mappings-file-input"
+        data-testid="dm-debug-import-mappings-file-input"
         onChange={onImport}
         accept=".xsl, .xslt, .xml"
         ref={fileInputRef}

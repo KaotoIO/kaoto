@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="kaoto.datamapper.test">
+  <xs:element name="Account">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:string" />
+        <xs:element name="Address" type="xs:string" />
+        <xs:element name="City" type="xs:string" />
+        <xs:element name="Country" type="xs:string" />
+      </xs:sequence>
+      <xs:attribute name="AccountId" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

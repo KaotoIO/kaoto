@@ -19,6 +19,7 @@ import './next-commands/sourceCode';
 import './next-commands/nodeConfiguration';
 import './next-commands/design';
 import './next-commands/metadata';
+import './next-commands/datamapper';
 
 import registerCypressGrep from '@cypress/grep/src/support';
 registerCypressGrep();

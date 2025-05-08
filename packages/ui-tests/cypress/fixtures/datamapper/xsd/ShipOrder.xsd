@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="io.kaoto.datamapper.poc.test">
+  <xs:element name="ShipOrder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="OrderPerson" type="xs:string" form="qualified" />
+        <xs:element name="ShipTo">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Name" type="xs:string" />
+              <xs:element name="Address" type="xs:string" />
+              <xs:element name="City" type="xs:string" />
+              <xs:element name="Country" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Item" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Title" type="xs:string" />
+              <xs:element name="Note" type="xs:string" minOccurs="0" />
+              <xs:element name="Quantity" type="xs:positiveInteger" />
+              <xs:element name="Price" type="xs:decimal" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="OrderId" type="xs:string" use="required" fixed="2" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

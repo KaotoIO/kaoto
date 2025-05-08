@@ -149,39 +149,39 @@ describe('DebugLayout', () => {
           </DataMapperCanvasProvider>
         </DataMapperProvider>,
       );
-      let mainMenuButton = await screen.findByTestId('main-menu-button');
+      let mainMenuButton = await screen.findByTestId('dm-debug-main-menu-button');
       act(() => {
         fireEvent.click(mainMenuButton);
       });
-      const importButton = screen.getByTestId('import-mappings-button');
+      const importButton = screen.getByTestId('dm-debug-import-mappings-button');
       act(() => {
         fireEvent.click(importButton);
       });
       const fileContent = new File([new Blob([shipOrderToShipOrderXslt])], 'ShipOrderToShipOrder.xsl', {
         type: 'text/plain',
       });
-      const fileInput = screen.getByTestId('import-mappings-file-input');
+      const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
       expect(spyOnMappingTree!.children.length).toBe(0);
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
       await waitFor(() => expect(spyOnMappingTree!.children.length).toBe(1));
 
-      mainMenuButton = screen.getByTestId('main-menu-button');
+      mainMenuButton = screen.getByTestId('dm-debug-main-menu-button');
       act(() => {
         fireEvent.click(mainMenuButton);
       });
-      const exportButton = screen.getByTestId('export-mappings-button');
+      const exportButton = screen.getByTestId('dm-debug-export-mappings-button');
       act(() => {
         fireEvent.click(exportButton.getElementsByTagName('button')[0]);
       });
-      const modal = await screen.findAllByTestId('export-mappings-modal');
+      const modal = await screen.findAllByTestId('dm-debug-export-mappings-modal');
       expect(modal).toBeTruthy();
-      const closeModalButton = screen.getByTestId('export-mappings-modal-close-btn');
+      const closeModalButton = screen.getByTestId('dm-debug-export-mappings-modal-close-btn');
       act(() => {
         fireEvent.click(closeModalButton);
       });
-      expect(screen.queryByTestId('export-mappings-modal')).toBeFalsy();
+      expect(screen.queryByTestId('dm-debug-export-mappings-modal')).toBeFalsy();
       const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
       expect(nodeRefsLog.length).toBeGreaterThan(0);
     }, 15000);
@@ -223,7 +223,7 @@ describe('DebugLayout', () => {
           </DataMapperCanvasProvider>
         </DataMapperProvider>,
       );
-      await screen.findByTestId('main-menu-button');
+      await screen.findByTestId('dm-debug-main-menu-button');
       const nodeRefsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Node References: ['));
       expect(nodeRefsLog.length).toBeGreaterThan(0);
       const mappingsLog = mockLog.mock.calls.filter((call) => call[0].startsWith('Mapping: ['));
