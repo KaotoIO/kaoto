@@ -16,7 +16,7 @@ export const ResetMappingsDropdownItem: FunctionComponent<ResetMappingsDropdownI
   }, [onComplete, resetMappingTree]);
 
   return (
-    <DropdownItem icon={<UndoIcon />} onClick={onClick} data-testid="reset-mappings-button">
+    <DropdownItem icon={<UndoIcon />} onClick={onClick} data-testid="dm-debug-reset-mappings-button">
       Reset Mappings
     </DropdownItem>
   );

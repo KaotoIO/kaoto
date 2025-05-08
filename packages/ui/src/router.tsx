@@ -44,7 +44,13 @@ export const router = createHashRouter([
       },
       {
         path: Links.DataMapper,
-        lazy: async () => import('./pages/DataMapperNotYetInBrowser'),
+        lazy: async () => {
+          if (__ENABLE_DATAMAPPER_DEBUGGER) {
+            return import('./components/DataMapper/debug/page');
+          } else {
+            return import('./pages/DataMapperNotYetInBrowser');
+          }
+        },
       },
       {
         path: `${Links.DataMapper}/:id`,

@@ -13,17 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import {
-  Masthead,
-  MastheadBrand,
-  MastheadContent,
-  MastheadLogo,
-  Page,
-  PageSection,
-  PageSectionVariants,
-} from '@patternfly/react-core';
+import { Masthead, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { FunctionComponent, memo, useEffect } from 'react';
-import logo from '../../../assets/logo-kaoto.png';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 import { DataMapperControl } from '../DataMapperControl';
@@ -40,14 +31,7 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
 
   const header = (
     <Masthead>
-      <MastheadBrand>
-        <MastheadLogo>
-          <img className="shell__logo" src={logo} alt="Kaoto Logo" />
-        </MastheadLogo>
-      </MastheadBrand>
-      <MastheadContent>
-        <ContextToolbar />
-      </MastheadContent>
+      <ContextToolbar />
     </Masthead>
   );
 
