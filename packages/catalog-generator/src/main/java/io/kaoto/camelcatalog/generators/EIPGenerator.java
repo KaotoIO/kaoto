@@ -158,7 +158,16 @@ public class EIPGenerator implements Generator {
         String eipJson = camelCatalog.modelJSonSchema(modelName);
 
         try {
-            return (ObjectNode) jsonMapper.readTree(eipJson);
+            /* The rootEIPDefinition object contains the EIP definition and its properties */
+            ObjectNode rootEIPDefinition = (ObjectNode) jsonMapper.readTree(eipJson);
+            ObjectNode modelDefinition = rootEIPDefinition.withObject("model");
+            String modelVersion = camelCatalog.getLoadedVersion();
+
+            if (modelVersion.contains("redhat")) {
+                modelDefinition.put("provider", "Red Hat");
+            }
+
+            return rootEIPDefinition;
         } catch (IllegalArgumentException | JsonProcessingException e) {
             LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }
