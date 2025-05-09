@@ -15,6 +15,9 @@
  */
 package io.kaoto.camelcatalog.generators;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.TestLoggerHandler;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
@@ -28,19 +31,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EntityGeneratorTest {
     EntityGenerator entityGenerator;
+    String camelYamlSchema;
+    String openapiSpec;
+    Map<String, String> localSchemas;
 
     @BeforeEach
     void setUp() throws IOException {
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
         CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, true);
         camelCatalogVersionLoader.loadLocalSchemas();
-        String camelYamlSchema;
-        String openapiSpec;
 
         try (var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json")) {
             if (is == null) {
@@ -55,8 +60,9 @@ class EntityGeneratorTest {
             }
             openapiSpec = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
+        localSchemas = camelCatalogVersionLoader.getLocalSchemas();
 
-        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec, camelCatalogVersionLoader.getLocalSchemas());
+        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec, localSchemas);
     }
 
     @Test
@@ -265,4 +271,50 @@ class EntityGeneratorTest {
         assertTrue(oneOfArray.has("format"));
     }
 
+    @Test
+    void shouldSetRedHatProviderIfAvailable() throws JsonProcessingException {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5.redhat-00008");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec, localSchemas);
+        var processorsMap = entityGenerator.generate();
+
+        var errorHandlerNode = processorsMap.get("errorHandler");
+        var modelProvider = errorHandlerNode.withObject("model").get("provider").asText();
+
+        assertEquals("Red Hat", modelProvider);
+    }
+
+    @Test
+    void shouldNotSetRedHatProviderIfUnavailable() throws JsonProcessingException {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        entityGenerator = new EntityGenerator(camelCatalog, camelYamlSchema, openapiSpec, localSchemas);
+        var processorsMap = entityGenerator.generate();
+
+        var errorHandlerNode = processorsMap.get("errorHandler");
+        var modelProvider = errorHandlerNode.withObject("model").get("provider");
+
+        assertNull(modelProvider);
+    }
+
+    @Test
+    void shouldLogWarningAndReturnNullOnException() {
+        TestLoggerHandler mockLoggerHandler = new TestLoggerHandler();
+        Logger logger = Logger.getLogger(EntityGenerator.class.getName());
+        logger.setUseParentHandlers(false);
+        logger.addHandler(mockLoggerHandler);
+
+        ObjectNode result = entityGenerator.getModelJson("invalidEntity");
+
+        assertNull(result, "Expected null result for invalid component");
+        assertTrue(mockLoggerHandler.getRecords().stream()
+                        .anyMatch(msg -> msg.getMessage().contains("invalidEntity: model definition not found in the catalog")),
+                "Expected warning message not logged");
+    }
 }

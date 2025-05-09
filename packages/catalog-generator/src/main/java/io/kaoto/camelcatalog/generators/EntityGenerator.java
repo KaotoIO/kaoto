@@ -166,7 +166,16 @@ public class EntityGenerator implements Generator {
         }
 
         try {
-            return (ObjectNode) jsonMapper.readTree(entityJson);
+            /* The rootEntityDefinition object contains the EIP definition and its properties */
+            ObjectNode rootEntityDefinition = (ObjectNode) jsonMapper.readTree(entityJson);
+            ObjectNode modelDefinition = rootEntityDefinition.withObject("model");
+            String modelVersion = camelCatalog.getLoadedVersion();
+
+            if (modelVersion.contains("redhat")) {
+                modelDefinition.put("provider", "Red Hat");
+            }
+
+            return rootEntityDefinition;
         } catch (IllegalArgumentException | JsonProcessingException e) {
             LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }

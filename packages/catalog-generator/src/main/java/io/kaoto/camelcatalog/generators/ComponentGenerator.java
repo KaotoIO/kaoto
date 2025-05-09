@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.tooling.model.Kind;
 
@@ -29,14 +30,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ComponentGenerator implements Generator {
-    private static final Logger LOGGER = Logger.getLogger(ComponentGenerator.class.getName());
+    static final Logger LOGGER  = Logger.getLogger(ComponentGenerator.class.getName());
     CamelCatalog camelCatalog;
+    CatalogRuntime runtime;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
     ObjectMapper jsonMapper = new ObjectMapper()
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
-    public ComponentGenerator(CamelCatalog camelCatalog) {
+    public ComponentGenerator(CamelCatalog camelCatalog, CatalogRuntime runtime) {
         this.camelCatalog = camelCatalog;
+        this.runtime = runtime;
         this.camelCatalogSchemaEnhancer = new CamelCatalogSchemaEnhancer(camelCatalog);
     }
 
@@ -85,7 +88,26 @@ public class ComponentGenerator implements Generator {
         String componentJson = camelCatalog.componentJSonSchema(componentName);
 
         try {
-            return  (ObjectNode) jsonMapper.readTree(componentJson);
+            /* The rootComponentDefinition object contains the component definition and its properties */
+            ObjectNode rootComponentDefinition = (ObjectNode) jsonMapper.readTree(componentJson);
+            ObjectNode componentDefinition = rootComponentDefinition.withObject("component");
+            String componentVersion = componentDefinition.get("version").toString();
+
+            /*
+             * Quarkus has a different versioning scheme, therefore we need to get the Camel
+             * version from the debug model and combine it with the component version
+             */
+            if (runtime == CatalogRuntime.Quarkus) {
+                String camelVersion = camelCatalog.model(Kind.other, "debug").getMetadata()
+                        .get("camelVersion").toString();
+                componentVersion = String.format("%s (CEQ %s)", camelVersion, componentVersion);
+                componentDefinition.put("version", componentVersion);
+            }
+            if (componentVersion.contains("redhat")) {
+                componentDefinition.put("provider", "Red Hat");
+            }
+
+            return rootComponentDefinition;
         } catch (IllegalArgumentException | JsonProcessingException e) {
             LOGGER.log(Level.WARNING, componentName + ": component definition not found in the catalog");
         }
@@ -103,7 +125,7 @@ public class ComponentGenerator implements Generator {
         var componentSchemaNode = jsonMapper.createObjectNode();
         var answerProperties = componentSchemaNode.withObject("/properties");
         var modelOptions = camelCatalog.componentModel(componentName).getEndpointOptions();
-        for(var modelOption : modelOptions) {
+        for (var modelOption : modelOptions) {
             var propertyName = modelOption.getName();
             var propertyNode = answerProperties.withObject("/" + propertyName);
             propertyNode.put("title", modelOption.getDisplayName());

@@ -64,7 +64,7 @@ class CamelCatalogProcessorTest {
         camelCatalogVersionLoader.loadKubernetesSchema();
         camelCatalogVersionLoader.loadLocalSchemas();
 
-        ComponentGenerator componentGenerator = new ComponentGenerator(catalog);
+        ComponentGenerator componentGenerator = new ComponentGenerator(catalog, CatalogRuntime.Main);
         EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
         EntityGenerator entityGenerator = new EntityGenerator(
                 catalog,

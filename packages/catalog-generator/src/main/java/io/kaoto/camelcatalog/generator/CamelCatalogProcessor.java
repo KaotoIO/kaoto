@@ -75,7 +75,7 @@ public class CamelCatalogProcessor {
      */
     public Map<String, String> processCatalog() throws Exception {
         var answer = new LinkedHashMap<String, String>();
-        ComponentGenerator componentGenerator = new ComponentGenerator(camelCatalog);
+        ComponentGenerator componentGenerator = new ComponentGenerator(camelCatalog, runtime);
         var componentCatalog = Util.getPrettyJSON(componentGenerator.generate());
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
