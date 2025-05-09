@@ -34,7 +34,7 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
 };
 
 export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): ITile => {
-  const { name, title, description, label } = processorDef.model;
+  const { name, title, description, label, provider } = processorDef.model;
   const tags = label.split(',');
 
   return {
@@ -44,6 +44,7 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
     description,
     headerTags: ['Processor'],
     tags,
+    provider,
   };
 };
 

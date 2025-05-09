@@ -1,24 +1,37 @@
 package io.kaoto.camelcatalog.generators;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.TestLoggerHandler;
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.quarkus.QuarkusRuntimeProvider;
+import org.apache.camel.springboot.catalog.SpringBootRuntimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ComponentGeneratorTest {
+    // 4.8.0
+    static String SINGLE_VERSION_REGEXP = "[\\w.]+";
+    // 4.8.0 (CEQ "3.15.0")
+    static String MULTI_VERSION_REGEXP = "[\\w.]+ \\(CEQ \"[\\w.]+\"\\)";
+
     ComponentGenerator componentGenerator;
 
     @BeforeEach
     void setUp() throws IOException {
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
 
-        componentGenerator = new ComponentGenerator(camelCatalog);
+        componentGenerator = new ComponentGenerator(camelCatalog, CatalogRuntime.Main);
     }
 
     @Test
@@ -143,5 +156,88 @@ public class ComponentGeneratorTest {
         assertTrue(autoStartupPropertyNode.get("default").asBoolean());
         assertTrue(priorityPropertyNode.has("default"));
         assertEquals(4, priorityPropertyNode.get("default").asInt());
+    }
+
+    @Test
+    void shouldAppendCamelVersionForQuarkus() {
+        CamelCatalog camelCatalog = new DefaultCamelCatalog();
+        camelCatalog.setRuntimeProvider(new QuarkusRuntimeProvider());
+        componentGenerator = new ComponentGenerator(camelCatalog, CatalogRuntime.Quarkus);
+        var componentsMap = componentGenerator.generate();
+
+        var logNode = componentsMap.get("log");
+        var componentVersion = logNode.withObject("component").get("version").asText();
+
+        assertTrue(Pattern.matches(MULTI_VERSION_REGEXP, componentVersion));
+    }
+
+    @Test
+    void shouldNotAppendCamelVersionForMain() {
+        var componentsMap = componentGenerator.generate();
+
+        var logNode = componentsMap.get("log");
+        var componentVersion = logNode.withObject("component").get("version").asText();
+
+        assertTrue(Pattern.matches(SINGLE_VERSION_REGEXP, componentVersion));
+    }
+
+    @Test
+    void shouldNotAppendCamelVersionForSpring() {
+        CamelCatalog camelCatalog = new DefaultCamelCatalog();
+        camelCatalog.setRuntimeProvider(new SpringBootRuntimeProvider());
+        componentGenerator = new ComponentGenerator(camelCatalog, CatalogRuntime.SpringBoot);
+        var componentsMap = componentGenerator.generate();
+
+        var logNode = componentsMap.get("log");
+        var componentVersion = logNode.withObject("component").get("version").asText();
+
+        assertTrue(Pattern.matches(SINGLE_VERSION_REGEXP, componentVersion));
+    }
+
+    @Test
+    void shouldSetRedHatProviderIfAvailable() {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5.redhat-00008");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        componentGenerator = new ComponentGenerator(camelCatalog, CatalogRuntime.Main);
+        var componentsMap = componentGenerator.generate();
+
+        var logNode = componentsMap.get("log");
+        var componentProvider = logNode.withObject("component").get("provider").asText();
+
+        assertEquals("Red Hat", componentProvider);
+    }
+
+    @Test
+    void shouldNotSetRedHatProviderIfUnavailable() {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        componentGenerator = new ComponentGenerator(camelCatalog, CatalogRuntime.Main);
+        var componentsMap = componentGenerator.generate();
+
+        var logNode = componentsMap.get("log");
+        var componentProvider = logNode.withObject("component").get("provider");
+
+        assertNull(componentProvider);
+    }
+
+    @Test
+    void shouldLogWarningAndReturnNullOnException() {
+        TestLoggerHandler mockLoggerHandler = new TestLoggerHandler();
+        Logger logger = Logger.getLogger(ComponentGenerator.class.getName());
+        logger.setUseParentHandlers(false);
+        logger.addHandler(mockLoggerHandler);
+
+        ObjectNode result = componentGenerator.getComponentJson("invalidComponent");
+
+        assertNull(result, "Expected null result for invalid component");
+        assertTrue(mockLoggerHandler.getRecords().stream()
+                .anyMatch(msg -> msg.getMessage().contains("invalidComponent: component definition not found in the catalog")),
+                "Expected warning message not logged");
     }
 }
