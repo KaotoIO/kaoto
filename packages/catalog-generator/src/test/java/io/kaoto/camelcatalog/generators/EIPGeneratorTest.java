@@ -15,6 +15,11 @@
  */
 package io.kaoto.camelcatalog.generators;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.kaoto.camelcatalog.TestLoggerHandler;
+import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
+import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
 import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
@@ -26,16 +31,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EIPGeneratorTest {
     EIPGenerator eipGenerator;
+    String camelYamlSchema;
 
     @BeforeEach
     void setUp() throws IOException {
         CamelCatalog camelCatalog = new DefaultCamelCatalog();
-        String camelYamlSchema;
         try (var is = YamlRoutesBuilderLoader.class.getClassLoader().getResourceAsStream("schema/camelYamlDsl.json")) {
             assert is != null;
             camelYamlSchema = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -302,5 +308,52 @@ class EIPGeneratorTest {
                         .withObject("correlationExpression");
 
         assertTrue(correlationExpressionNode.has("format"));
+    }
+
+    @Test
+    void shouldSetRedHatProviderIfAvailable() throws JsonProcessingException {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5.redhat-00008");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema);
+        var processorsMap = eipGenerator.generate();
+
+        var logNode = processorsMap.get("log");
+        var modelProvider = logNode.withObject("model").get("provider").asText();
+
+        assertEquals("Red Hat", modelProvider);
+    }
+
+    @Test
+    void shouldNotSetRedHatProviderIfUnavailable() throws JsonProcessingException {
+        CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5");
+        assertTrue(loaded, "The catalog version wasn't loaded");
+
+        CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
+        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema);
+        var processorsMap = eipGenerator.generate();
+
+        var logNode = processorsMap.get("log");
+        var componentProvider = logNode.withObject("model").get("provider");
+
+        assertNull(componentProvider);
+    }
+
+    @Test
+    void shouldLogWarningAndReturnNullOnException() {
+        TestLoggerHandler mockLoggerHandler = new TestLoggerHandler();
+        Logger logger = Logger.getLogger(EIPGenerator.class.getName());
+        logger.setUseParentHandlers(false);
+        logger.addHandler(mockLoggerHandler);
+
+        ObjectNode result = eipGenerator.getModelJson("invalidEIP");
+
+        assertNull(result, "Expected null result for invalid component");
+        assertTrue(mockLoggerHandler.getRecords().stream()
+                        .anyMatch(msg -> msg.getMessage().contains("invalidEIP: model definition not found in the catalog")),
+                "Expected warning message not logged");
     }
 }

@@ -19,6 +19,7 @@ export interface ICamelProcessorModel {
   abstract?: boolean;
   input?: boolean;
   output?: boolean;
+  provider?: string;
 }
 
 export interface ICamelProcessorProperty extends CamelPropertyCommon {
