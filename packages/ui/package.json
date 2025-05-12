@@ -35,9 +35,9 @@
     "lib"
   ],
   "scripts": {
-    "start": "vite",
+    "start": "vite --mode=dev",
     "build": "tsc && vite build --config vite.config.mjs",
-    "build:dev": "tsc && vite build --mode dev --config vite.config.mjs",
+    "build:dev": "tsc && vite build --mode=dev --config vite.config.mjs",
     "build:lib": "yarn rimraf ./lib && yarn copy-catalog && yarn build:esm && yarn build:cjs && yarn write-version",
     "build:esm": "tsc --project tsconfig.esm.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/esm",
     "build:cjs": "tsc --project tsconfig.cjs.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/cjs",
