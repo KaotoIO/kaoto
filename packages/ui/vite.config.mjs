@@ -1,7 +1,7 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
 import { dirname, relative } from 'node:path';
-import { defineConfig, loadEnv, normalizePath } from 'vite';
+import { defineConfig, normalizePath } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
 import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files.mjs';
@@ -9,11 +9,10 @@ import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
 // https://vitejs.dev/config/
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async () => {
   const outDir = './dist';
   const lastCommitInfo = await getLastCommitInfo();
   const { basePath, files: camelCatalogFiles } = getCamelCatalogFiles();
-  const env = loadEnv(mode, process.cwd());
 
   return {
     plugins: [
@@ -38,7 +37,6 @@ export default defineConfig(async ({ mode }) => {
       __GIT_HASH: JSON.stringify(lastCommitInfo.hash),
       __GIT_DATE: JSON.stringify(lastCommitInfo.date),
       __KAOTO_VERSION: JSON.stringify(packageJson.version),
-      __ENABLE_DATAMAPPER_DEBUGGER: env['VITE_ENABLE_DATAMAPPER_DEBUGGER'],
     },
     build: {
       outDir,
