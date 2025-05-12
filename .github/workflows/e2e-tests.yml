@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
 
     steps:
@@ -69,7 +69,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
 
     steps:
@@ -129,7 +129,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
 
     steps:
@@ -189,7 +189,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-20.13.1-chrome-125.0.6422.60-1-ff-126.0-edge-125.0.2535.51-1
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
 
     steps:
