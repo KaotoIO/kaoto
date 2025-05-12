@@ -36,15 +36,18 @@ public class EIPGenerator implements Generator {
     CamelCatalog camelCatalog;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;
     String camelYamlSchema;
+    Map<String, String> kaotoPatterns;
     ObjectMapper jsonMapper = new ObjectMapper()
             .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     ObjectNode camelYamlSchemaNode;
     CamelYAMLSchemaReader camelYAMLSchemaReader;
 
-    public EIPGenerator(CamelCatalog camelCatalog, String camelYamlSchema) throws JsonProcessingException {
+    public EIPGenerator(CamelCatalog camelCatalog, String camelYamlSchema, Map<String, String> kaotoPatterns)
+            throws JsonProcessingException {
         this.camelCatalog = camelCatalog;
         this.camelCatalogSchemaEnhancer = new CamelCatalogSchemaEnhancer(camelCatalog);
         this.camelYamlSchema = camelYamlSchema;
+        this.kaotoPatterns = kaotoPatterns;
         this.camelYamlSchemaNode = (ObjectNode) jsonMapper.readTree(camelYamlSchema);
         this.camelYAMLSchemaReader = new CamelYAMLSchemaReader(camelYamlSchemaNode);
     }
@@ -60,6 +63,7 @@ public class EIPGenerator implements Generator {
 
         getEIPNames().forEach(eipName -> {
             var processorJSON = getModelJson(eipName);
+            setProvider(processorJSON);
             if (processorJSON != null) {
                 String javaType = camelCatalogSchemaEnhancer.getJavaTypeByModelName(eipName);
                 var processorJSONSchema = camelYAMLSchemaReader.getEIPJSONSchema(eipName, javaType);
@@ -72,6 +76,7 @@ public class EIPGenerator implements Generator {
 
         getRestProcessorNames().forEach(processorName -> {
             var processorJSON = getModelJson(processorName);
+            setProvider(processorJSON);
             if (processorJSON != null) {
                 var processorJSONSchema = camelYAMLSchemaReader.getRestProcessorJSONSchema(processorName);
                 processorJSON.set("propertiesSchema", processorJSONSchema);
@@ -80,6 +85,19 @@ public class EIPGenerator implements Generator {
                 processorMap.put(processorName, processorJSON);
             }
         });
+
+        // Add Kaoto custom patterns schemas
+        for (var kaotoPatternEntry : kaotoPatterns.entrySet()) {
+            var name = kaotoPatternEntry.getKey();
+
+            try {
+                ObjectNode processorJSON = (ObjectNode) jsonMapper.readTree(kaotoPatternEntry.getValue());
+                setProvider(processorJSON);
+                processorMap.put(name, processorJSON);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, String.format("Cannot load %s definition", name), e);
+            }
+        }
 
         return processorMap;
     }
@@ -158,16 +176,7 @@ public class EIPGenerator implements Generator {
         String eipJson = camelCatalog.modelJSonSchema(modelName);
 
         try {
-            /* The rootEIPDefinition object contains the EIP definition and its properties */
-            ObjectNode rootEIPDefinition = (ObjectNode) jsonMapper.readTree(eipJson);
-            ObjectNode modelDefinition = rootEIPDefinition.withObject("model");
-            String modelVersion = camelCatalog.getLoadedVersion();
-
-            if (modelVersion.contains("redhat")) {
-                modelDefinition.put("provider", "Red Hat");
-            }
-
-            return rootEIPDefinition;
+            return (ObjectNode) jsonMapper.readTree(eipJson);
         } catch (IllegalArgumentException | JsonProcessingException e) {
             LOGGER.log(Level.WARNING, modelName + ": model definition not found in the catalog");
         }
@@ -190,5 +199,13 @@ public class EIPGenerator implements Generator {
             EipModel model = camelCatalogSchemaEnhancer.getCamelModelByJavaType(javaType);
             consumer.accept(model, node);
         });
+    }
+
+    private void setProvider(ObjectNode modelDefinition) {
+        String modelVersion = camelCatalog.getLoadedVersion();
+
+        if (modelVersion.contains("redhat")) {
+            modelDefinition.withObjectProperty("model").put("provider", "Red Hat");
+        }
     }
 }

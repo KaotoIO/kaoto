@@ -15,6 +15,7 @@ export interface ICamelProcessorModel {
   description?: string;
   deprecated: boolean;
   label: string;
+  supportLevel?: string;
   javaType?: string;
   abstract?: boolean;
   input?: boolean;

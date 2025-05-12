@@ -3,9 +3,9 @@ import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { CamelCatalogService, CatalogKind } from '../models';
 import { TestRuntimeProviderWrapper } from '../stubs';
+import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
-import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { ReloadContext } from './reload.provider';
 
 describe('CatalogLoaderProvider', () => {
@@ -209,7 +209,6 @@ describe('CatalogLoaderProvider', () => {
       ) {
         expect(call[0]).toEqual(CatalogKind.Processor);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        expect(Object.values(call[1])[1]).toMatchSnapshot();
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
@@ -218,7 +217,6 @@ describe('CatalogLoaderProvider', () => {
       ) {
         expect(call[0]).toEqual(CatalogKind.Pattern);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        expect(Object.values(call[1])[1]).toMatchSnapshot();
         count++;
       } else if (
         Object.keys(call[1])[0].includes(

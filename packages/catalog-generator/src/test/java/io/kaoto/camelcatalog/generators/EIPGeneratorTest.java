@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EIPGeneratorTest {
     EIPGenerator eipGenerator;
     String camelYamlSchema;
+    CamelCatalogVersionLoader camelCatalogVersionLoader;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -47,7 +48,10 @@ class EIPGeneratorTest {
             camelYamlSchema = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
 
-        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema);
+        camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
+        camelCatalogVersionLoader.loadKaotoPatterns();
+
+        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema, camelCatalogVersionLoader.getKaotoPatterns());
     }
 
     @Test
@@ -90,7 +94,6 @@ class EIPGeneratorTest {
 
         assertFalse(processorList.contains("whenSkipSendToEndpoint"));
     }
-
 
     @Test
     void shouldGetModelJson() {
@@ -311,19 +314,31 @@ class EIPGeneratorTest {
     }
 
     @Test
+    void shouldLoadKaotoPatterns() {
+        var processorsMap = eipGenerator.generate();
+
+        assertTrue(processorsMap.containsKey("kaoto-datamapper"));
+    }
+
+    @Test
     void shouldSetRedHatProviderIfAvailable() throws JsonProcessingException {
         CamelCatalogVersionLoader camelCatalogVersionLoader = new CamelCatalogVersionLoader(CatalogRuntime.Main, false);
         boolean loaded = camelCatalogVersionLoader.loadCamelCatalog("4.8.5.redhat-00008");
         assertTrue(loaded, "The catalog version wasn't loaded");
 
         CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
-        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema);
+        camelCatalogVersionLoader.loadKaotoPatterns();
+
+        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema, camelCatalogVersionLoader.getKaotoPatterns());
         var processorsMap = eipGenerator.generate();
 
-        var logNode = processorsMap.get("log");
-        var modelProvider = logNode.withObject("model").get("provider").asText();
+        var logProcessor = processorsMap.get("log").withObject("model").get("provider").asText();
+        var getProcessor = processorsMap.get("get").withObject("model").get("provider").asText();
+        var kaotoDataMapperProcessor = processorsMap.get("kaoto-datamapper").withObject("model").get("provider").asText();
 
-        assertEquals("Red Hat", modelProvider);
+        assertEquals("Red Hat", logProcessor);
+        assertEquals("Red Hat", getProcessor);
+        assertEquals("Red Hat", kaotoDataMapperProcessor);
     }
 
     @Test
@@ -333,7 +348,7 @@ class EIPGeneratorTest {
         assertTrue(loaded, "The catalog version wasn't loaded");
 
         CamelCatalog camelCatalog = camelCatalogVersionLoader.getCamelCatalog();
-        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema);
+        eipGenerator = new EIPGenerator(camelCatalog, camelYamlSchema, camelCatalogVersionLoader.getKaotoPatterns());
         var processorsMap = eipGenerator.generate();
 
         var logNode = processorsMap.get("log");

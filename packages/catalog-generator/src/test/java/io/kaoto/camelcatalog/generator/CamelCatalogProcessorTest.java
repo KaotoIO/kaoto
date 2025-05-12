@@ -28,7 +28,6 @@ import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -63,9 +62,11 @@ class CamelCatalogProcessorTest {
         camelCatalogVersionLoader.loadCamelYamlDsl(catalog.getCatalogVersion());
         camelCatalogVersionLoader.loadKubernetesSchema();
         camelCatalogVersionLoader.loadLocalSchemas();
+        camelCatalogVersionLoader.loadKaotoPatterns();
 
         ComponentGenerator componentGenerator = new ComponentGenerator(catalog, CatalogRuntime.Main);
-        EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema));
+        EIPGenerator eipGenerator = new EIPGenerator(catalog, jsonMapper.writeValueAsString(yamlDslSchema),
+                camelCatalogVersionLoader.getKaotoPatterns());
         EntityGenerator entityGenerator = new EntityGenerator(
                 catalog,
                 jsonMapper.writeValueAsString(yamlDslSchema),
