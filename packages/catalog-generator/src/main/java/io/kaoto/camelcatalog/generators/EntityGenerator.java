@@ -67,7 +67,7 @@ public class EntityGenerator implements Generator {
      * containing the camel JSON model and the JSON schema from the Camel YAML schema
      */
     public Map<String, ObjectNode> generate() {
-        Map<String, ObjectNode> EntityMap = new LinkedHashMap<>();
+        Map<String, ObjectNode> entityMap = new LinkedHashMap<>();
 
         getEntityNames().forEach(entityName -> {
             ObjectNode entityJSON = getModelJson(entityName);
@@ -76,7 +76,7 @@ public class EntityGenerator implements Generator {
                 entityJSON.set("propertiesSchema", processorJSONSchema);
                 enhanceJSONSchema(entityName, processorJSONSchema);
 
-                EntityMap.put("beans".equals(entityName) ? "bean" : entityName, entityJSON);
+                entityMap.put("beans".equals(entityName) ? "bean" : entityName, entityJSON);
             }
         });
 
@@ -85,7 +85,7 @@ public class EntityGenerator implements Generator {
         camelCatalogSchemaEnhancer.fillSchemaInformation(objectMetaJSON);
         ObjectNode objectMetaSchema = jsonMapper.createObjectNode();
         objectMetaSchema.set("propertiesSchema", objectMetaJSON);
-        EntityMap.put("ObjectMeta", objectMetaSchema);
+        entityMap.put("ObjectMeta", objectMetaSchema);
 
         // Add custom schemas
         for (var localSchemaEntry : localSchemas.entrySet()) {
@@ -93,13 +93,13 @@ public class EntityGenerator implements Generator {
                 var name = localSchemaEntry.getKey();
                 ObjectNode schema = jsonMapper.createObjectNode();
                 schema.set("propertiesSchema", jsonMapper.readTree(localSchemaEntry.getValue()));
-                EntityMap.put(name, schema);
+                entityMap.put(name, schema);
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Local Schema definition not found");
             }
         }
 
-        return EntityMap;
+        return entityMap;
     }
 
     /**

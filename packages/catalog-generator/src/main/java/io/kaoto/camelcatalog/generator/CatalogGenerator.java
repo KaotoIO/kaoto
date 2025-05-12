@@ -63,6 +63,7 @@ public class CatalogGenerator {
         camelCatalogVersionLoader.loadKubernetesSchema();
         camelCatalogVersionLoader.loadCamelKCRDs(camelKCRDsVersion);
         camelCatalogVersionLoader.loadLocalSchemas();
+        camelCatalogVersionLoader.loadKaotoPatterns();
         camelCatalogVersionLoader.loadCamelYamlDsl(camelCatalogVersion);
 
         var catalogDefinition = new CatalogDefinition();

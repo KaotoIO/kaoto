@@ -34,15 +34,20 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
 };
 
 export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): ITile => {
-  const { name, title, description, label, provider } = processorDef.model;
+  const { name, title, description, supportLevel, label, provider } = processorDef.model;
+  const headerTags: string[] = ['Processor'];
   const tags = label.split(',');
+
+  if (supportLevel) {
+    headerTags.push(supportLevel);
+  }
 
   return {
     type: CatalogKind.Processor,
     name,
     title,
     description,
-    headerTags: ['Processor'],
+    headerTags,
     tags,
     provider,
   };

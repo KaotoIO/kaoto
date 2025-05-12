@@ -15,6 +15,15 @@
  */
 package io.kaoto.camelcatalog.maven;
 
+import io.kaoto.camelcatalog.model.CatalogRuntime;
+import io.kaoto.camelcatalog.model.Constants;
+import io.kaoto.camelcatalog.model.MavenCoordinates;
+import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.DefaultRuntimeProvider;
+import org.apache.camel.catalog.quarkus.QuarkusRuntimeProvider;
+import org.apache.camel.springboot.catalog.SpringBootRuntimeProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -24,27 +33,11 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.DefaultCamelCatalog;
-import org.apache.camel.catalog.DefaultRuntimeProvider;
-import org.apache.camel.catalog.quarkus.QuarkusRuntimeProvider;
-import org.apache.camel.springboot.catalog.SpringBootRuntimeProvider;
-
-import io.kaoto.camelcatalog.model.CatalogRuntime;
-import io.kaoto.camelcatalog.model.Constants;
-import io.kaoto.camelcatalog.model.MavenCoordinates;
 
 public class CamelCatalogVersionLoader {
     private static final Logger LOGGER = Logger.getLogger(CamelCatalogVersionLoader.class.getName());
@@ -54,6 +47,7 @@ public class CamelCatalogVersionLoader {
     private final Map<String, String> kamelets = new HashMap<>();
     private final List<String> camelKCRDs = new ArrayList<>();
     private final Map<String, String> localSchemas = new HashMap<>();
+    private final Map<String, String> kaotoPatterns = new HashMap<>();
     private final CatalogRuntime runtime;
     private String camelYamlDSLSchema;
     private String kubernetesSchema;
@@ -96,6 +90,10 @@ public class CamelCatalogVersionLoader {
 
     public Map<String, String> getLocalSchemas() {
         return localSchemas;
+    }
+
+    public Map<String, String> getKaotoPatterns() {
+        return kaotoPatterns;
     }
 
     public boolean loadCamelCatalog(String version) {
@@ -212,6 +210,10 @@ public class CamelCatalogVersionLoader {
 
     public void loadLocalSchemas() {
         loadResourcesFromFolderAsString("schemas", localSchemas, ".json");
+    }
+
+    public void loadKaotoPatterns() {
+        loadResourcesFromFolderAsString("kaoto-patterns", kaotoPatterns, ".json");
     }
 
     private void configureRepositories(String version) {

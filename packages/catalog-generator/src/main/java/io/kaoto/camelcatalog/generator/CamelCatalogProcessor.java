@@ -24,13 +24,11 @@ import io.kaoto.camelcatalog.generators.EntityGenerator;
 import io.kaoto.camelcatalog.maven.CamelCatalogVersionLoader;
 import io.kaoto.camelcatalog.model.CatalogRuntime;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.tooling.model.ComponentModel;
 import org.apache.camel.tooling.model.EipModel;
 import org.apache.camel.tooling.model.EipModel.EipOptionModel;
 import org.apache.camel.tooling.model.JsonMapper;
 import org.apache.camel.tooling.model.Kind;
 
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.logging.Logger;
@@ -80,7 +78,8 @@ public class CamelCatalogProcessor {
         var dataFormatCatalog = getDataFormatCatalog();
         var languageCatalog = getLanguageCatalog();
         var modelCatalog = getModelCatalog();
-        EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema());
+        EIPGenerator eipGenerator = new EIPGenerator(camelCatalog, camelCatalogVersionLoader.getCamelYamlDslSchema(),
+                camelCatalogVersionLoader.getKaotoPatterns());
         var patternCatalog = Util.getPrettyJSON(eipGenerator.generate());
         EntityGenerator entityGenerator = new EntityGenerator(camelCatalog,
                 camelCatalogVersionLoader.getCamelYamlDslSchema(),
@@ -97,13 +96,6 @@ public class CamelCatalogProcessor {
         answer.put("loadbalancers", loadBalancerCatalog);
         return answer;
     }
-
-    /**
-     * Get aggregated Camel component Catalog.
-     *
-     * @return
-     * @throws Exception
-     */
 
     /**
      * Get aggregated Camel DataFormat catalog with a custom dataformat added.
@@ -211,7 +203,8 @@ public class CamelCatalogProcessor {
         return writer.toString();
     }
 
-    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema, List<EipOptionModel> entityCatalogOptions) {
+    private void sortPropertiesAccordingToCamelCatalog(ObjectNode entitySchema,
+                                                       List<EipOptionModel> entityCatalogOptions) {
         var sortedSchemaProperties = jsonMapper.createObjectNode();
         var camelYamlDslProperties = entitySchema.withObject("/properties").properties().stream().map(Map.Entry::getKey)
                 .sorted(

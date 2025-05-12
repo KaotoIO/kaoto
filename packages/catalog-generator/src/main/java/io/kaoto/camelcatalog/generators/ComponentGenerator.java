@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ComponentGenerator implements Generator {
-    static final Logger LOGGER  = Logger.getLogger(ComponentGenerator.class.getName());
+    static final Logger LOGGER = Logger.getLogger(ComponentGenerator.class.getName());
     CamelCatalog camelCatalog;
     CatalogRuntime runtime;
     CamelCatalogSchemaEnhancer camelCatalogSchemaEnhancer;

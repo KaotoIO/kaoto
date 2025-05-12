@@ -1,6 +1,5 @@
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
-import kaotoPatterns from '../assets/kaoto-patterns/kaoto-patterns.json';
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
@@ -90,14 +89,8 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         ]);
 
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
-        CamelCatalogService.setCatalogKey(CatalogKind.Processor, {
-          ...camelModels.body,
-          ...(kaotoPatterns as unknown as ComponentsCatalog[CatalogKind.Pattern]),
-        });
-        CamelCatalogService.setCatalogKey(CatalogKind.Pattern, {
-          ...camelPatterns.body,
-          ...(kaotoPatterns as unknown as ComponentsCatalog[CatalogKind.Pattern]),
-        });
+        CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Entity, camelEntities.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
