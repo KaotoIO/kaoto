@@ -205,7 +205,7 @@ public class EIPGenerator implements Generator {
         String modelVersion = camelCatalog.getLoadedVersion();
 
         if (modelVersion.contains("redhat")) {
-            modelDefinition.withObjectProperty("model").put("provider", "Red Hat");
+            modelDefinition.withObject("model").put("provider", "Red Hat");
         }
     }
 }

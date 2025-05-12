@@ -23,7 +23,7 @@ public class ComponentGeneratorTest {
     // 4.8.0
     static String SINGLE_VERSION_REGEXP = "[\\w.]+";
     // 4.8.0 (CEQ "3.15.0")
-    static String MULTI_VERSION_REGEXP = "[\\w.]+ \\(CEQ \"[\\w.]+\"\\)";
+    static String MULTI_VERSION_REGEXP = "[\\w.]+ \\(CEQ [\\w.]+\\)";
 
     ComponentGenerator componentGenerator;
 
@@ -167,6 +167,7 @@ public class ComponentGeneratorTest {
 
         var logNode = componentsMap.get("log");
         var componentVersion = logNode.withObject("component").get("version").asText();
+
 
         assertTrue(Pattern.matches(MULTI_VERSION_REGEXP, componentVersion));
     }

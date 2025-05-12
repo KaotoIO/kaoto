@@ -91,7 +91,7 @@ public class ComponentGenerator implements Generator {
             /* The rootComponentDefinition object contains the component definition and its properties */
             ObjectNode rootComponentDefinition = (ObjectNode) jsonMapper.readTree(componentJson);
             ObjectNode componentDefinition = rootComponentDefinition.withObject("component");
-            String componentVersion = componentDefinition.get("version").toString();
+            String componentVersion = componentDefinition.get("version").asText();
 
             /*
              * Quarkus has a different versioning scheme, therefore we need to get the Camel
