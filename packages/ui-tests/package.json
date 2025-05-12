@@ -41,7 +41,7 @@
     "@storybook/theming": "^8.2.8",
     "@types/eslint__js": "^8.42.3",
     "chromatic": "^11.0.0",
-    "cypress": "^13.11.0",
+    "cypress": "^14.3.3",
     "cypress-file-upload": "^5.0.8",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
