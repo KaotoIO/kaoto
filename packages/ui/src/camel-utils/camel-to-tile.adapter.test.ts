@@ -101,6 +101,19 @@ describe('camelProcessorToTile', () => {
     expect(tile.description).toEqual('My Processor Description');
   });
 
+  it('should populate the headerTags', () => {
+    const processorDef = {
+      model: {
+        supportLevel: 'Preview',
+        label: 'label1,label2',
+      },
+    } as ICamelProcessorDefinition;
+
+    const tile = camelProcessorToTile(processorDef);
+
+    expect(tile.headerTags).toEqual(['Processor', 'Preview']);
+  });
+
   it('should populate the tags', () => {
     const processorDef = {
       model: {
