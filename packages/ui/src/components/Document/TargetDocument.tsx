@@ -127,7 +127,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
               {hasChildren && (
                 <Icon className="node__spacer" onClick={handleClickToggle}>
                   <AngleDownIcon
-                    data-testid="expand-target-icon"
+                    data-testid={`expand-target-icon-${nodeData.title}`}
                     className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })}
                   />
                 </Icon>
