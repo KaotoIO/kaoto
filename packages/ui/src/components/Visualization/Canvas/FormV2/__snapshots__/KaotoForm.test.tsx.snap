@@ -45,7 +45,6 @@ exports[`KaotoForm should validate the model 1`] = `
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for Name field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-7"
@@ -162,7 +161,6 @@ exports[`KaotoForm should validate the model 1`] = `
           class="pf-v6-c-helper-text__item pf-m-error"
         >
           <span
-            aria-hidden="true"
             class="pf-v6-c-helper-text__item-icon"
           >
             <svg
@@ -248,7 +246,6 @@ exports[`KaotoForm should validate the model 1`] = `
         >
           No field found matching this criteria. Please switch to the 
           <button
-            aria-disabled="false"
             class="pf-v6-c-button pf-m-link pf-m-inline"
             data-ouia-component-id="OUIA-Generated-Button-link-7"
             data-ouia-component-type="PF6/Button"

@@ -53,7 +53,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for [object Object] field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-1"
@@ -104,7 +103,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             class="pf-v6-l-split__item"
           >
             <button
-              aria-disabled="false"
               aria-label="Add a new property"
               class="pf-v6-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-2"
@@ -168,7 +166,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for creationTimestamp field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-3"
@@ -283,7 +280,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for deletionGracePeriodSeconds field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-4"
@@ -398,7 +394,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for deletionTimestamp field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-5"
@@ -503,7 +498,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           class="pf-v6-c-card__actions"
         >
           <button
-            aria-disabled="false"
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-6"
@@ -547,7 +541,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 style="display: contents;"
               >
                 <span
-                  aria-disabled="false"
                   aria-label="More info for finalizers field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                   data-ouia-component-id="OUIA-Generated-Button-plain-7"
@@ -606,7 +599,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for generateName field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-8"
@@ -721,7 +713,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for generation field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-9"
@@ -843,7 +834,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for [object Object] field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-10"
@@ -894,7 +884,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             class="pf-v6-l-split__item"
           >
             <button
-              aria-disabled="false"
               aria-label="Add a new property"
               class="pf-v6-c-button pf-m-plain"
               data-ouia-component-id="OUIA-Generated-Button-plain-11"
@@ -948,7 +937,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           class="pf-v6-c-card__actions"
         >
           <button
-            aria-disabled="false"
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-12"
@@ -992,7 +980,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 style="display: contents;"
               >
                 <span
-                  aria-disabled="false"
                   aria-label="More info for managedFields field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                   data-ouia-component-id="OUIA-Generated-Button-plain-13"
@@ -1051,7 +1038,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for name field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-14"
@@ -1166,7 +1152,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for namespace field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-15"
@@ -1271,7 +1256,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           class="pf-v6-c-card__actions"
         >
           <button
-            aria-disabled="false"
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-16"
@@ -1315,7 +1299,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 style="display: contents;"
               >
                 <span
-                  aria-disabled="false"
                   aria-label="More info for ownerReferences field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
                   data-ouia-component-id="OUIA-Generated-Button-plain-17"
@@ -1374,7 +1357,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for resourceVersion field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-18"
@@ -1489,7 +1471,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for selfLink field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-19"
@@ -1604,7 +1585,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             style="display: contents;"
           >
             <span
-              aria-disabled="false"
               aria-label="More info for uid field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
               data-ouia-component-id="OUIA-Generated-Button-plain-20"
@@ -1745,7 +1725,6 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           No field found matching this criteria. Please switch to the
            
           <button
-            aria-disabled="false"
             class="pf-v6-c-button pf-m-link pf-m-inline"
             data-ouia-component-id="OUIA-Generated-Button-link-1"
             data-ouia-component-type="PF6/Button"
