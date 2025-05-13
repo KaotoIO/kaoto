@@ -1,11 +1,13 @@
 Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-sourceBody-Body-button"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="expand-source-icon"]').should('be.visible');
 });
 
 Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-targetBody-Body-button"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="expand-target-icon"]').should('be.visible');
 });
 
 Cypress.Commands.add('addParameter', (name: string) => {
