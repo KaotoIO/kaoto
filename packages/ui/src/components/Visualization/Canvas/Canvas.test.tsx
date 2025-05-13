@@ -155,7 +155,7 @@ describe('Canvas', () => {
     });
 
     // Click the Delete ContextMenuItem
-    const deleteRoute = screen.getByRole('menuitem', { name: 'Delete' });
+    const deleteRoute = await screen.findByRole('menuitem', { name: 'Delete' });
     expect(deleteRoute).toBeInTheDocument();
 
     await act(async () => {
@@ -216,7 +216,7 @@ describe('Canvas', () => {
     });
 
     // click the Delete ContextMenuItem
-    const deleteKamelet = screen.getByRole('menuitem', { name: 'Delete' });
+    const deleteKamelet = await screen.findByRole('menuitem', { name: 'Delete' });
     expect(deleteKamelet).toBeInTheDocument();
 
     await act(async () => {
