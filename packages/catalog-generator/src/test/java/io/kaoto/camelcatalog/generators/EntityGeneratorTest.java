@@ -256,7 +256,7 @@ class EntityGeneratorTest {
         var entitiesMap = entityGenerator.generate();
 
         var oneOfArray = entitiesMap.get("onCompletion").withObject("propertiesSchema").withObject("definitions")
-                .withObject("org.apache.camel.model.WhenDefinition").withArray("anyOf").get(0);
+                .withObject("org.apache.camel.model.OnWhenDefinition").withArray("anyOf").get(0);
 
         assertTrue(oneOfArray.has("format"));
     }
@@ -266,7 +266,7 @@ class EntityGeneratorTest {
         var entitiesMap = entityGenerator.generate();
 
         var oneOfArray = entitiesMap.get("onException").withObject("propertiesSchema").withObject("definitions")
-                .withObject("org.apache.camel.model.WhenDefinition").withArray("anyOf").get(0);
+                .withObject("org.apache.camel.model.OnWhenDefinition").withArray("anyOf").get(0);
 
         assertTrue(oneOfArray.has("format"));
     }

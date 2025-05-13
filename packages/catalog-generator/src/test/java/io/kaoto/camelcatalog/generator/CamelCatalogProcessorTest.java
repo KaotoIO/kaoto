@@ -113,12 +113,12 @@ class CamelCatalogProcessorTest {
                 .withObject("/component");
         assertEquals("Direct", directModel.get("title").asText());
 
-        var as2Schema = componentCatalog
-                .withObject("/as2")
+        var googleCalendarSchema = componentCatalog
+                .withObject("/google-calendar")
                 .withObject("/propertiesSchema");
-        var as2srmaProperty = as2Schema.withObject("/properties").withObject("/signedReceiptMicAlgorithms");
-        assertEquals("array", as2srmaProperty.get("type").asText());
-        assertEquals("string", as2srmaProperty.withObject("/items").get("type").asText());
+        var scopesProperty = googleCalendarSchema.withObject("/properties").withObject("/scopes");
+        assertEquals("array", scopesProperty.get("type").asText());
+        assertEquals("string", scopesProperty.withObject("/items").get("type").asText());
 
         var gdSchema = componentCatalog
                 .withObject("/google-drive")
@@ -138,11 +138,11 @@ class CamelCatalogProcessorTest {
         var sqlBEHProperty = sqlSchema.withObject("/properties").withObject("/bridgeErrorHandler");
         assertFalse(sqlBEHProperty.has("default"));
 
-        var etcdSchema = componentCatalog
-                .withObject("/etcd3")
+        var activeMQSchema = componentCatalog
+                .withObject("/activemq")
                 .withObject("/propertiesSchema");
-        var etcdEProperty = etcdSchema.withObject("/properties").withObject("/endpoints");
-        assertEquals("http://localhost:2379", etcdEProperty.get("default").asText());
+        var destinationTypeProperty = activeMQSchema.withObject("/properties").withObject("/destinationType");
+        assertEquals("queue", destinationTypeProperty.get("default").asText());
 
         var smbSchema = componentCatalog
                 .withObject("/smb")

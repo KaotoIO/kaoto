@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class EIPGeneratorTest {
     EIPGenerator eipGenerator;
@@ -93,6 +95,34 @@ class EIPGeneratorTest {
         var processorList = eipGenerator.getEIPNames();
 
         assertFalse(processorList.contains("whenSkipSendToEndpoint"));
+    }
+
+    @Test
+    void shouldNotifyWhenKaotoPatternsCannotBeLoaded() throws Exception {
+        TestLoggerHandler mockLoggerHandler = new TestLoggerHandler();
+        Logger logger = Logger.getLogger(EIPGenerator.class.getName());
+        logger.setUseParentHandlers(false);
+        logger.addHandler(mockLoggerHandler);
+
+        eipGenerator.kaotoPatterns.put("invalidEIP", "5@");
+        eipGenerator.generate();
+
+        assertTrue(mockLoggerHandler.getRecords().stream()
+                        .anyMatch(msg -> msg.getMessage().contains("Cannot load invalidEIP definition")),
+                "Expected warning message not logged");
+    }
+
+    @Test
+    void shouldNotLoadNullEntries() throws Exception {
+        EIPGenerator spiedEipGenerator = spy(eipGenerator);
+        when(spiedEipGenerator.getEIPNames()).thenReturn(List.of("invalidEIP"));
+        when(spiedEipGenerator.getRestProcessorNames()).thenReturn(List.of("invalidRest"));
+        spiedEipGenerator.kaotoPatterns.clear();
+
+        var result = spiedEipGenerator.generate();
+
+        assertTrue(result.isEmpty(), "Expected empty result for invalid component");
+
     }
 
     @Test
@@ -334,7 +364,8 @@ class EIPGeneratorTest {
 
         var logProcessor = processorsMap.get("log").withObject("model").get("provider").asText();
         var getProcessor = processorsMap.get("get").withObject("model").get("provider").asText();
-        var kaotoDataMapperProcessor = processorsMap.get("kaoto-datamapper").withObject("model").get("provider").asText();
+        var kaotoDataMapperProcessor =
+                processorsMap.get("kaoto-datamapper").withObject("model").get("provider").asText();
 
         assertEquals("Red Hat", logProcessor);
         assertEquals("Red Hat", getProcessor);
