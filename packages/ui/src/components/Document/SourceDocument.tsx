@@ -108,7 +108,10 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
                 <Icon className="node__spacer" onClick={handleClickToggle}>
-                  <AngleDownIcon className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })} />
+                  <AngleDownIcon
+                    data-testid="expand-source-icon"
+                    className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })}
+                  />
                 </Icon>
               )}
 
