@@ -109,7 +109,7 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
               {hasChildren && (
                 <Icon className="node__spacer" onClick={handleClickToggle}>
                   <AngleDownIcon
-                    data-testid="expand-source-icon"
+                    data-testid={`expand-source-icon-${nodeData.title}`}
                     className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })}
                   />
                 </Icon>
