@@ -2912,8 +2912,8 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "workspace:*"
-    "@kie-tools-core/editor": "npm:0.32.0"
-    "@kie-tools-core/notifications": "npm:0.32.0"
+    "@kie-tools-core/editor": "npm:^10.0.0"
+    "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:6.2.3"
     "@patternfly/react-code-editor": "npm:6.2.2"
     "@patternfly/react-core": "npm:6.2.2"
@@ -3001,118 +3001,118 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kie-tools-core/backend@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/backend@npm:0.32.0"
+"@kie-tools-core/backend@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/backend@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/i18n": "npm:0.32.0"
-    "@kie-tools-core/notifications": "npm:0.32.0"
-    "@kie-tools-core/workspace": "npm:0.32.0"
-    axios: "npm:^0.27.2"
+    "@kie-tools-core/i18n": "npm:10.0.0"
+    "@kie-tools-core/notifications": "npm:10.0.0"
+    "@kie-tools-core/workspace": "npm:10.0.0"
+    axios: "npm:^1.6.8"
     fast-xml-parser: "npm:^4.3.1"
     portfinder: "npm:^1.0.32"
     semver: "npm:^7.5.4"
     sinon: "npm:^11.1.1"
-  checksum: 10/e43f9122e1817a98a47d6fe96b65a7df497f95e9f53a17cc777a5a2d878b7ef295311cd7e6202949a33f1a9d5456539d2386d4d95adda1ab94f5468c375b0bca
+  checksum: 10/79e38abbb9a68746e95477ffde1688a048f10bb779ecf716728f3d40a450553c9a21c047f07c0efbee78ee79aa0bdabdf2ed50ce9d6e8e9186c31c82652bc1f4
   languageName: node
   linkType: hard
 
-"@kie-tools-core/editor@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/editor@npm:0.32.0"
+"@kie-tools-core/editor@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/editor@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/backend": "npm:0.32.0"
-    "@kie-tools-core/envelope": "npm:0.32.0"
-    "@kie-tools-core/envelope-bus": "npm:0.32.0"
-    "@kie-tools-core/i18n": "npm:0.32.0"
-    "@kie-tools-core/keyboard-shortcuts": "npm:0.32.0"
-    "@kie-tools-core/notifications": "npm:0.32.0"
-    "@kie-tools-core/operating-system": "npm:0.32.0"
-    "@kie-tools-core/patternfly-base": "npm:0.32.0"
-    "@kie-tools-core/workspace": "npm:0.32.0"
+    "@kie-tools-core/backend": "npm:10.0.0"
+    "@kie-tools-core/envelope": "npm:10.0.0"
+    "@kie-tools-core/envelope-bus": "npm:10.0.0"
+    "@kie-tools-core/i18n": "npm:10.0.0"
+    "@kie-tools-core/keyboard-shortcuts": "npm:10.0.0"
+    "@kie-tools-core/notifications": "npm:10.0.0"
+    "@kie-tools-core/operating-system": "npm:10.0.0"
+    "@kie-tools-core/patternfly-base": "npm:10.0.0"
+    "@kie-tools-core/workspace": "npm:10.0.0"
     "@patternfly/react-core": "npm:^4.276.6"
     "@patternfly/react-icons": "npm:^4.93.6"
     csstype: "npm:^3.0.11"
     minimatch: "npm:^3.0.5"
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
-  checksum: 10/0f0dada7f8e67765e3e06ecb1d6ca547f785e6850446e58db35f080c461c0ffa94ed44f2e78f90c48306e7c81279e645e866056afc53c592401213c0312b539d
+  checksum: 10/a17f99f537dfb5408cbc4e2672f8435246552d0945809a5daa43eef19502a4d187563630598c2e2d028339d7cacd9136a3b4a032fef55ab18aa1a1f10b9ef180
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope-bus@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/envelope-bus@npm:0.32.0"
+"@kie-tools-core/envelope-bus@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/envelope-bus@npm:10.0.0"
   dependencies:
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
-  checksum: 10/021e9c02c945e3c7702611aa5a6ba0139204cd2ba88021b2cc080e278c1f067ac8e791c97514593bed30c3ce8b293c683efbba2e2e3b6a540b50aeebadad4f80
+  checksum: 10/3b152757d1c990ab85cba78ce4b63ebe22c5c6220cbe6d4a5c9e0eafe44f89dd7a9e5f21e555b520ee47bb12536d799ebfbd38284890c26a62504e7b3684ef43
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/envelope@npm:0.32.0"
+"@kie-tools-core/envelope@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/envelope@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:0.32.0"
+    "@kie-tools-core/envelope-bus": "npm:10.0.0"
     csstype: "npm:^3.0.11"
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
-  checksum: 10/3a64100d36887b6ba78ecd91e5935aeec7868db61a7df1c839cb25951737294779e61f342307232f8ba26272c3debd7529f9bcab3af462f7b4d5c94ff43acab0
+  checksum: 10/de6e4f5173dbdf220595f72fef192c131d91ac7258e5c0f1a20c3ab8f5f9eac9ac6196b8ec16e83bdb2d107ee9054f445b3628a1e2ed1ebd57e90ae47d8267d1
   languageName: node
   linkType: hard
 
-"@kie-tools-core/i18n@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/i18n@npm:0.32.0"
+"@kie-tools-core/i18n@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/i18n@npm:10.0.0"
   dependencies:
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
-  checksum: 10/4e04707950735e70392f512994de67744f9364a0c29832a85937ad12942833d029e284e123854fd072162e20a8e9746ac65dd77b8808dd01cf07640ae966ebb8
+  checksum: 10/54964ee26047ab9b9a6719fe7a2fcc7d2449a8861d7026f7ee9b0c505962e69c1ac8021cae9c984b6734f852da8ddc4f52e65e1fa78e7aee24067059467f76ed
   languageName: node
   linkType: hard
 
-"@kie-tools-core/keyboard-shortcuts@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/keyboard-shortcuts@npm:0.32.0"
+"@kie-tools-core/keyboard-shortcuts@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/keyboard-shortcuts@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:0.32.0"
-    "@kie-tools-core/operating-system": "npm:0.32.0"
+    "@kie-tools-core/envelope-bus": "npm:10.0.0"
+    "@kie-tools-core/operating-system": "npm:10.0.0"
     react: "npm:^17.0.2"
-  checksum: 10/76e8c0498ba4303c95669cad3c33b3a52427e2d4f477c210c4a16242b08b5104221ece6098518ded150f3e64d3f2a5dd6ef76810e1ada7e6015dbdc6c6b7341a
+  checksum: 10/4399642c1dc54399c40a1ba5af0301d15dd99a4482885281f821b4d7328dc0b2d902bcd5009f8231b79165215087c5598165221b5f12f128baa8c88140d10d63
   languageName: node
   linkType: hard
 
-"@kie-tools-core/notifications@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/notifications@npm:0.32.0"
+"@kie-tools-core/notifications@npm:10.0.0, @kie-tools-core/notifications@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/notifications@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/i18n": "npm:0.32.0"
-    "@kie-tools-core/workspace": "npm:0.32.0"
-  checksum: 10/a85bd8ebd734382253fb47c6dc7741943346f47e764d8a0111daf63d0ccc0eed379b23b0e88e0248546dfd3fba25a52e34f1b5338124a3ae4d43cdb680649995
+    "@kie-tools-core/i18n": "npm:10.0.0"
+    "@kie-tools-core/workspace": "npm:10.0.0"
+  checksum: 10/925acb957b86360f7dbab42675b808b783cb1788168a320904ceea3221388a747af2db5852f8f13f54d603fea52e38bf11639d8a73b75d28a64977af38a362cc
   languageName: node
   linkType: hard
 
-"@kie-tools-core/operating-system@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/operating-system@npm:0.32.0"
-  checksum: 10/b9e0bbc1374ea1c9159ec5d03648b55eaa6542c8fbb33ebb4d7168546364619cc25d0a83bb72848a75a054b95677406c25b3124dc4ce6ab1ce0a3e1e62860402
+"@kie-tools-core/operating-system@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/operating-system@npm:10.0.0"
+  checksum: 10/0115802801de4fbf1994efe1902468da4e30612ecfd92c5403bca852f4bd4d746ae37c5ee849a3f248dbc83b93815cacd4344157077d8a904deb4e1051c8fbe4
   languageName: node
   linkType: hard
 
-"@kie-tools-core/patternfly-base@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/patternfly-base@npm:0.32.0"
-  checksum: 10/b7a605b2ca80f67c12579c7a730f97fd2538c73d536f0668e7d4f6c54e454703189b29267785f203710b5433b88b402ed8e0e39f554391622226aae2511d20bd
+"@kie-tools-core/patternfly-base@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/patternfly-base@npm:10.0.0"
+  checksum: 10/9759c356bd5af574bda5c5ec18d0f4e504e6bb3082a651dd353428aff18164d9d0870adc1495804dbfa837c562979a64dd8ce591011b957d08be1420ceb04e87
   languageName: node
   linkType: hard
 
-"@kie-tools-core/workspace@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@kie-tools-core/workspace@npm:0.32.0"
+"@kie-tools-core/workspace@npm:10.0.0":
+  version: 10.0.0
+  resolution: "@kie-tools-core/workspace@npm:10.0.0"
   dependencies:
-    "@kie-tools-core/operating-system": "npm:0.32.0"
-  checksum: 10/5fabfb03ad62fd3a768da7ab79b64b701bf183782defdeed0bb86b1d36a969bc82533c05ba051f8c713a3ace5bd6eb67e65e5d517e1eabf57b9c4306af858f96
+    "@kie-tools-core/operating-system": "npm:10.0.0"
+  checksum: 10/4b4db2acb0839894ae25b6ce3390789353f6cccb0b57bd43dabe53276b44bae99a9a09eaee43a423d6cda8d0434a79cbfd17bd9bb78c8324a6613038af239087
   languageName: node
   linkType: hard
 

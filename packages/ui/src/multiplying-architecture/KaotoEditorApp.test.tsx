@@ -44,6 +44,7 @@ describe('KaotoEditorApp', () => {
     };
 
     envelopeContext = {
+      supportedThemes: [EditorTheme.DARK, EditorTheme.LIGHT],
       channelApi: {
         notifications: {
           kogitoEditor_ready: getNotificationMock(),
@@ -77,6 +78,7 @@ describe('KaotoEditorApp', () => {
       initialLocale: 'en-us',
       isReadOnly: false,
       channel: ChannelType.VSCODE_DESKTOP,
+      workspaceRootAbsolutePosixPath: '/workspace',
     };
 
     settingsAdapter = new DefaultSettingsAdapter();
