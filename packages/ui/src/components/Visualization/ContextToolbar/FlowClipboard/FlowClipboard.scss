@@ -1,0 +1,6 @@
+.flow-clipboard-control[data-copied='true'] {
+  --pf-v6-c-button--m-clicked--BorderColor: var(--pf-t--global--icon--color--status--success--default) !important;
+  --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--success--default) !important;
+
+  border-color: var(--pf-t--global--icon--color--status--success--default) !important;
+}
