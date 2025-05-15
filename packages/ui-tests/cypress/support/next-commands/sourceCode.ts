@@ -65,6 +65,8 @@ Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
     return line.replace(/\s/g, '\u00a0');
   });
 
+  // workaround for sporadic failures of basicXml.cy.ts on edge - https://github.com/KaotoIO/kaoto/issues/2278
+  cy.get('.monaco-editor').invoke('text').should('not.be.empty', { timeout: 5000 });
   cy.get('.monaco-editor')
     .invoke('text')
     .then(($value) => {
