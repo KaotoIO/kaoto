@@ -44,6 +44,6 @@ export function FlowExportImage() {
       onClick={onClick}
       variant="control"
       data-testid="exportImageButton"
-    ></Button>
+    />
   );
 }
