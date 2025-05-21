@@ -40,6 +40,8 @@ import icon_eip_set_body from '../assets/eip/setbody.png';
 import icon_eip_set_header from '../assets/eip/setheader.png';
 import icon_eip_set_headers from '../assets/eip/setheaders.png';
 import icon_eip_set_property from '../assets/eip/setproperty.png';
+import icon_eip_set_variable from '../assets/eip/setvariable.png';
+import icon_eip_set_variables from '../assets/eip/setvariables.png';
 import icon_eip_sort from '../assets/eip/sort.png';
 import icon_eip_split from '../assets/eip/split.png';
 import icon_eip_step from '../assets/eip/step.png';
@@ -968,6 +970,10 @@ export class NodeIconResolver {
         return icon_eip_set_headers;
       case 'setProperty':
         return icon_eip_set_property;
+      case 'setVariable':
+        return icon_eip_set_variable;
+      case 'setVariables':
+        return icon_eip_set_variables;
       case 'sort':
         return icon_eip_sort;
       case 'split':
