@@ -12,6 +12,7 @@ describe('Test for catalog versions', () => {
     { type: 'Main', version: 'Camel Main 4.4.0.redhat-00046' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.20.0' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.15.3' },
+    { type: 'Quarkus', version: 'Camel Quarkus 3.20.0.redhat-00002' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.15.0.redhat-00010' },
     { type: 'Quarkus', version: 'Camel Quarkus 3.8.0.redhat-00018' },
     { type: 'Spring Boot', version: 'Camel Spring Boot 4.11.0' },
