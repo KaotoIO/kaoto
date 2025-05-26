@@ -1,20 +1,39 @@
-import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core';
-import { FunctionComponent, useContext, useState } from 'react';
-import { isDefined } from '../../../../../utils';
+import {
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupMainProps,
+  TextInputGroupUtilities,
+} from '@patternfly/react-core';
+import { FunctionComponent, ReactNode, useContext, useRef, useState } from 'react';
+import { isDefined, isRawString } from '../../../../../utils';
 import { useFieldValue } from '../hooks/field-value';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../typings';
 import { FieldActions } from './FieldActions';
 import { FieldWrapper } from './FieldWrapper';
 
-export const StringField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
+interface StringFieldProps extends FieldProps {
+  fieldType?: TextInputGroupMainProps['type'];
+  additionalUtility?: ReactNode;
+}
+
+export const StringField: FunctionComponent<StringFieldProps> = ({
+  propName,
+  required,
+  onRemove: onRemoveProps,
+  fieldType = 'text',
+  additionalUtility,
+}) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', errors, onChange, isRaw, disabled } = useFieldValue<string | number>(propName);
-  const [fieldValue, setFieldValue] = useState<string | number>(value);
-  const lastPropName = propName.split('.').pop();
-  const ariaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
-  const schemaType = typeof schema.type === 'string' ? schema.type : 'unknown';
+  const { value = '', errors, disabled, isRaw, onChange } = useFieldValue<string | number>(propName);
   const isNumberSchema = schema.type === 'number' || schema.type === 'integer';
+  const [fieldValue, setFieldValue] = useState<string | number>(value);
+
+  const lastPropName = propName.split('.').pop();
+  const clearButtonAriaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
+  const toggleRawAriaLabel = `Toggle RAW wrap for ${lastPropName} field`;
+  const schemaType = typeof schema.type === 'string' ? schema.type : 'unknown';
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const onFieldChange = (_event: unknown, newValue: string) => {
     setFieldValue(newValue);
@@ -40,6 +59,16 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
 
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
+    setFieldValue('');
+    inputRef.current?.focus();
+  };
+
+  const toggleRawValueWrap = () => {
+    if (typeof value !== 'string') return;
+
+    const newValue = isRawString(value) ? value.substring(4, value.length - 1) : `RAW(${value})`;
+    onChange(newValue);
+    setFieldValue(newValue);
   };
 
   const id = `${propName}-popover`;
@@ -57,7 +86,7 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
     >
       <TextInputGroup validated={errors ? 'error' : undefined} isDisabled={disabled}>
         <TextInputGroupMain
-          type="text"
+          type={fieldType}
           role="textbox"
           className="pf-m-icon kaoto-form__string-field"
           id={propName}
@@ -67,10 +96,19 @@ export const StringField: FunctionComponent<FieldProps> = ({ propName, required,
           onChange={onFieldChange}
           aria-label={schema.title}
           aria-describedby={id}
+          ref={inputRef}
         />
 
         <TextInputGroupUtilities>
-          <FieldActions propName={propName} clearAriaLabel={ariaLabel} onRemove={onRemove} />
+          {additionalUtility}
+
+          <FieldActions
+            propName={propName}
+            clearAriaLabel={clearButtonAriaLabel}
+            toggleRawAriaLabel={toggleRawAriaLabel}
+            onRemove={onRemove}
+            toggleRawValueWrap={toggleRawValueWrap}
+          />
         </TextInputGroupUtilities>
       </TextInputGroup>
     </FieldWrapper>
