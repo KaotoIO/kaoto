@@ -2,17 +2,23 @@ import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } f
 import { EllipsisVIcon, PortIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useState } from 'react';
 import { DEFAULT_POPPER_PROPS } from '../../../../../models/popper-default';
-import { useFieldValue } from '../hooks/field-value';
 
 export interface FieldActionsProps {
   propName: string;
   clearAriaLabel: string;
+  toggleRawAriaLabel?: string;
+  toggleRawValueWrap?: () => void;
   onRemove: () => void;
 }
 
-export const FieldActions: FunctionComponent<FieldActionsProps> = ({ propName, clearAriaLabel, onRemove }) => {
+export const FieldActions: FunctionComponent<FieldActionsProps> = ({
+  propName,
+  clearAriaLabel,
+  toggleRawAriaLabel,
+  toggleRawValueWrap,
+  onRemove,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { value, wrapValueWithRaw } = useFieldValue(propName);
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -51,14 +57,18 @@ export const FieldActions: FunctionComponent<FieldActionsProps> = ({ propName, c
         >
           Clear
         </DropdownItem>
-        <DropdownItem
-          onClick={wrapValueWithRaw}
-          data-testid={`${propName}__toRaw`}
-          disabled={value === ''}
-          icon={<PortIcon />}
-        >
-          Raw
-        </DropdownItem>
+
+        {toggleRawValueWrap && (
+          <DropdownItem
+            onClick={toggleRawValueWrap}
+            data-testid={`${propName}__toRaw`}
+            aria-label={toggleRawAriaLabel}
+            title={toggleRawAriaLabel}
+            icon={<PortIcon />}
+          >
+            Raw
+          </DropdownItem>
+        )}
       </DropdownList>
     </Dropdown>
   );

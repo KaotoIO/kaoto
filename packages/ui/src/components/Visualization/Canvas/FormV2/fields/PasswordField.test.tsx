@@ -1,8 +1,8 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { ROOT_PATH } from '../../../../../utils';
-import { PasswordField } from './PasswordField';
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
+import { PasswordField } from './PasswordField';
 
 describe('PasswordField', () => {
   it('should render', () => {
@@ -67,6 +67,48 @@ describe('PasswordField', () => {
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
+  });
+
+  it('should use onRemoveProps callback if specified when using the clear button', async () => {
+    const onPropertyChangeSpy = jest.fn();
+    const onRemoveSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
+        <PasswordField propName={ROOT_PATH} onRemove={onRemoveSpy} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /remove/i });
+    act(() => {
+      fireEvent.click(clearButton);
+    });
+
+    expect(onPropertyChangeSpy).not.toHaveBeenCalled();
+    expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    expect(onRemoveSpy).toHaveBeenCalledWith(ROOT_PATH);
+  });
+
+  it('should show errors if available for its property path', () => {
+    const onPropertyChangeSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider
+        model="Value"
+        errors={{ [ROOT_PATH]: ['error message'] }}
+        onPropertyChange={onPropertyChangeSpy}
+      >
+        <PasswordField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+
+    const errorMessage = wrapper.getByText('error message');
+    expect(errorMessage).toBeInTheDocument();
   });
 
   it('should hide password by default', () => {

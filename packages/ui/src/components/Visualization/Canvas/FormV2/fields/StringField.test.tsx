@@ -92,6 +92,31 @@ describe('StringField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
   });
 
+  it('should use onRemoveProps callback if specified when using the clear button', async () => {
+    const onPropertyChangeSpy = jest.fn();
+    const onRemoveSpy = jest.fn();
+
+    const wrapper = render(
+      <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
+        <StringField propName={ROOT_PATH} onRemove={onRemoveSpy} />
+      </ModelContextProvider>,
+    );
+
+    const fieldActions = wrapper.getByTestId(`${ROOT_PATH}__field-actions`);
+    act(() => {
+      fireEvent.click(fieldActions);
+    });
+
+    const clearButton = await wrapper.findByRole('menuitem', { name: /remove/i });
+    act(() => {
+      fireEvent.click(clearButton);
+    });
+
+    expect(onPropertyChangeSpy).not.toHaveBeenCalled();
+    expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    expect(onRemoveSpy).toHaveBeenCalledWith(ROOT_PATH);
+  });
+
   it('should show errors if available for its property path', () => {
     const onPropertyChangeSpy = jest.fn();
 
@@ -153,5 +178,16 @@ describe('StringField', () => {
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'Test Value');
+  });
+
+  it('should show additional utility if provided', () => {
+    const additionalUtility = <span data-testid="additional-utility">Utility</span>;
+    const wrapper = render(
+      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+        <StringField propName={ROOT_PATH} additionalUtility={additionalUtility} />
+      </ModelContextProvider>,
+    );
+
+    expect(wrapper.getByTestId('additional-utility')).toBeInTheDocument();
   });
 });
