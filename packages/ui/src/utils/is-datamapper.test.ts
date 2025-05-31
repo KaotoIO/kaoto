@@ -1,5 +1,5 @@
 import { Step } from '@kaoto/camel-catalog/types';
-import { datamapperRouteDefinitionStub } from '../stubs/data-mapper';
+import { datamapperRouteDefinitionStub } from '../stubs/datamapper/data-mapper';
 import { isDataMapperNode } from './is-datamapper';
 
 describe('isDataMapperNode', () => {

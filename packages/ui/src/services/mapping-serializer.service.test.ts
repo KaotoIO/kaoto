@@ -1,4 +1,4 @@
-import { EMPTY_XSL, MappingSerializerService, NS_XSL } from './mapping-serializer.service';
+import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
 import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
 import {
   ChooseItem,
@@ -21,8 +21,9 @@ import {
   invoice850Xsd,
   shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderCollectionIndexXslt,
-} from '../stubs/data-mapper';
+} from '../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { NS_XSL } from '../models/datamapper/xslt';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -37,9 +38,7 @@ describe('MappingSerializerService', () => {
     expect(stylesheet[0].namespaceURI).toBe(NS_XSL);
     expect(stylesheet[0].localName).toBe('stylesheet');
     const template = xslt.getElementsByTagNameNS(NS_XSL, 'template');
-    expect(template.length).toEqual(1);
-    expect(template[0].namespaceURI).toBe(NS_XSL);
-    expect(template[0].localName).toBe('template');
+    expect(template.length).toEqual(0);
   });
 
   describe('deserialize()', () => {
@@ -264,8 +263,7 @@ describe('MappingSerializerService', () => {
         .evaluate('/xsl:stylesheet/xsl:template', dom, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE)
         .iterateNext();
       expect(template).toBeTruthy();
-      expect(template!.childNodes.length).toEqual(1);
-      expect(template!.childNodes[0].nodeType).toEqual(Node.TEXT_NODE);
+      expect(template!.childNodes.length).toEqual(0);
     });
 
     it('should serialize mappings', () => {

@@ -1,5 +1,8 @@
 import { Step } from '@kaoto/camel-catalog/types';
-import { datamapperRouteDefinitionStub, twoDataMapperRouteDefinitionStub } from '../../../../../stubs/data-mapper';
+import {
+  datamapperRouteDefinitionStub,
+  twoDataMapperRouteDefinitionStub,
+} from '../../../../../stubs/datamapper/data-mapper';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';

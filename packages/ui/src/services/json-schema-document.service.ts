@@ -1,5 +1,5 @@
 import { DocumentType } from '../models/datamapper/path';
-import { BaseDocument, BaseField, ITypeFragment, Types } from '../models/datamapper';
+import { BaseDocument, BaseField, DocumentDefinitionType, ITypeFragment, Types } from '../models/datamapper';
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 import { DocumentService } from './document.service';
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
@@ -17,6 +17,7 @@ export class JsonSchemaDocument extends BaseDocument {
   totalFieldCount: number = 0;
   fields: JsonSchemaField[] = [];
   namedTypeFragments: Record<string, JsonSchemaTypeFragment> = {};
+  definitionType: DocumentDefinitionType;
 
   constructor(
     public jsonSchema: JSONSchemaMetadata,
@@ -26,12 +27,14 @@ export class JsonSchemaDocument extends BaseDocument {
     super(documentType, documentId);
     this.name = documentId;
     const field = JsonSchemaDocumentService.createFieldFromJSONSchema(this, '', this.jsonSchema);
-    this.fields.push(field);
-    this.schemaType = 'JSON';
+    if (field.type !== Types.AnyType) {
+      this.fields.push(field);
+    }
+    this.definitionType = DocumentDefinitionType.JSON_SCHEMA;
   }
 }
 
-type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
+export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
 
 /**
  * Represents the field in JSON schema document.
@@ -67,7 +70,7 @@ export class JsonSchemaField extends BaseField {
     this._type = type;
     // Set the field expression with XSLT3 lossless representation of the JSON,
     // which is directly used for XPath
-    const nameQuery = this.name ? `[@key="${this.name}"]` : '';
+    const nameQuery = this.name ? `[@key='${this.name}']` : '';
     switch (type) {
       case Types.String:
         this.expression = `${this.namespacePrefix}:string${nameQuery}`;

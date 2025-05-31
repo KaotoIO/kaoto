@@ -3,7 +3,7 @@ import { IVisualizationNode } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
-import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/data-mapper';
+import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
 describe('DataMapperPage', () => {

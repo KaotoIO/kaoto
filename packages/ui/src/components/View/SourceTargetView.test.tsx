@@ -3,7 +3,7 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { SourceTargetView } from './SourceTargetView';
 
-import { shipOrderXsd } from '../../stubs/data-mapper';
+import { shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 
 describe('SourceTargetView', () => {

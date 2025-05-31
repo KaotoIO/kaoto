@@ -1,0 +1,216 @@
+import { DocumentType } from '../models/datamapper/path';
+import {
+  FROM_JSON_SOURCE_SUFFIX,
+  MappingSerializerJsonAddon,
+  TO_JSON_TARGET_VARIABLE,
+} from './mapping-serializer-json-addon';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinitionType,
+  FieldItem,
+  MappingTree,
+  NS_XSL,
+  PrimitiveDocument,
+  Types,
+} from '../models/datamapper';
+import { MappingSerializerService } from './mapping-serializer.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { shipOrderXsd } from '../stubs/datamapper/data-mapper';
+
+describe('mappingSerializerJsonAddon', () => {
+  describe('populateXmlToJsonVariable()', () => {
+    it('should populate a variable', () => {
+      const xsltDocument = MappingSerializerService.createNew();
+      const stylesheet = xsltDocument.children[0];
+      const template = xsltDocument.createElementNS(NS_XSL, 'template');
+      template.setAttribute('match', '/');
+      stylesheet.appendChild(template);
+
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
+      MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
+
+      expect(template.children.length).toBe(1);
+      const valueOf = template.children[0];
+      expect(valueOf.namespaceURI).toEqual(NS_XSL);
+      expect(valueOf.localName).toEqual('value-of');
+      expect(valueOf.getAttribute('select')).toEqual(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
+
+      expect(stylesheet.children.length).toBe(3);
+      const output = stylesheet.children[0];
+      expect(output.getAttribute('method')).toEqual('text');
+
+      const variable = stylesheet.children[1];
+      expect(variable.namespaceURI).toEqual(NS_XSL);
+      expect(variable.localName).toEqual('variable');
+      expect(variable.getAttribute('name')).toEqual(TO_JSON_TARGET_VARIABLE);
+    });
+
+    it('should not populate a variable if not JSON target', () => {
+      const xsltDocument = MappingSerializerService.createNew();
+      const stylesheet = xsltDocument.children[0];
+      const template = xsltDocument.createElementNS(NS_XSL, 'template');
+      template.setAttribute('match', '/');
+      stylesheet.appendChild(template);
+
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
+      const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
+
+      expect(root).toBeNull();
+      expect(template.children.length).toBe(0);
+
+      expect(stylesheet.children.length).toBe(2);
+      const output = stylesheet.children[0];
+      expect(output.getAttribute('method')).toEqual('xml');
+    });
+  });
+
+  describe('populateJsonToXmlVariable', () => {
+    it('should populate a variable', () => {
+      const xsltDocument = MappingSerializerService.createNew();
+      const stylesheet = xsltDocument.children[0];
+      const paramName = 'testParam';
+      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.PARAM, paramName);
+      MappingSerializerJsonAddon.populateJsonToXmlVariable(doc, stylesheet, paramName);
+
+      expect(stylesheet.children.length).toBe(2);
+      const variable = stylesheet.children[1];
+      expect(variable.getAttribute('name')).toEqual(paramName + FROM_JSON_SOURCE_SUFFIX);
+      expect(variable.getAttribute('select')).toEqual(`json-to-xml($${paramName})`);
+    });
+
+    it('should not populate a variable if not JSON param', () => {
+      const xsltDocument = MappingSerializerService.createNew();
+      const stylesheet = xsltDocument.children[0];
+      const paramName = 'testParam';
+      const doc = new PrimitiveDocument(DocumentType.PARAM, paramName);
+      MappingSerializerJsonAddon.populateJsonToXmlVariable(doc, stylesheet, paramName);
+      expect(stylesheet.children.length).toBe(1);
+    });
+  });
+
+  describe('populateFieldItem()', () => {
+    const xsltDocument = MappingSerializerService.createNew();
+    const stylesheet = xsltDocument.children[0];
+    const template = xsltDocument.createElementNS(NS_XSL, 'template');
+    template.setAttribute('match', '/');
+    stylesheet.appendChild(template);
+
+    it('should populate a FieldItem', () => {
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
+      const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
+      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+
+      let mapField = new JsonSchemaField(doc, '', Types.Container);
+      let fieldItem = new FieldItem(mappings, mapField);
+      let created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('map');
+      expect(created!.getAttribute('key')).toBeNull();
+
+      mapField = new JsonSchemaField(doc, 'SomeParent', Types.Container);
+      fieldItem = new FieldItem(mappings, mapField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('map');
+      expect(created!.getAttribute('key')).toEqual('SomeParent');
+
+      const arrayField = new JsonSchemaField(doc, 'SomeArray', Types.Array);
+      fieldItem = new FieldItem(mappings, arrayField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('array');
+      expect(created!.getAttribute('key')).toEqual('SomeArray');
+
+      const stringField = new JsonSchemaField(doc, 'SomeString', Types.String);
+      fieldItem = new FieldItem(mappings, stringField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('string');
+      expect(created!.getAttribute('key')).toEqual('SomeString');
+
+      const numberField = new JsonSchemaField(doc, 'SomeNumber', Types.Numeric);
+      fieldItem = new FieldItem(mappings, numberField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('number');
+      expect(created!.getAttribute('key')).toEqual('SomeNumber');
+
+      const booleanField = new JsonSchemaField(doc, 'SomeBoolean', Types.Boolean);
+      fieldItem = new FieldItem(mappings, booleanField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('boolean');
+      expect(created!.getAttribute('key')).toEqual('SomeBoolean');
+    });
+
+    it('should not populate a FieldItem if not JSON field', () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        BODY_DOCUMENT_ID,
+        shipOrderXsd,
+      );
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
+      const field = new XmlSchemaField(doc, '', false);
+      const fieldItem = new FieldItem(mappings, field);
+
+      const created = MappingSerializerJsonAddon.populateFieldItem(template, fieldItem);
+      expect(created).toBeNull();
+    });
+  });
+
+  describe('getOrCreateJsonField()', () => {
+    it('should create a JsonSchemaField', () => {
+      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+      const mapElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'map');
+      let mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
+      expect(mapField instanceof JsonSchemaField).toBeTruthy();
+      expect(mapField!.name).toEqual('');
+      expect(mapField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(mapField!.type).toEqual(Types.Container);
+      mapElement.setAttribute('key', 'SomeMap');
+      mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
+      expect(mapField!.name).toEqual('SomeMap');
+
+      const arrayElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'array');
+      arrayElement.setAttribute('key', 'SomeArray');
+      const arrayField = MappingSerializerJsonAddon.getOrCreateJsonField(arrayElement, doc);
+      expect(arrayField instanceof JsonSchemaField).toBeTruthy();
+      expect(arrayField!.name).toEqual('SomeArray');
+      expect(arrayField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(arrayField!.type).toEqual(Types.Array);
+
+      const stringElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'string');
+      stringElement.setAttribute('key', 'SomeString');
+      const stringField = MappingSerializerJsonAddon.getOrCreateJsonField(stringElement, doc);
+      expect(stringField instanceof JsonSchemaField).toBeTruthy();
+      expect(stringField!.name).toEqual('SomeString');
+      expect(stringField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(stringField!.type).toEqual(Types.String);
+
+      const numberElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'number');
+      numberElement.setAttribute('key', 'SomeNumber');
+      const numberField = MappingSerializerJsonAddon.getOrCreateJsonField(numberElement, doc);
+      expect(numberField instanceof JsonSchemaField).toBeTruthy();
+      expect(numberField!.name).toEqual('SomeNumber');
+      expect(numberField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(numberField!.type).toEqual(Types.Numeric);
+
+      const booleanElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'boolean');
+      booleanElement.setAttribute('key', 'SomeBoolean');
+      const booleanField = MappingSerializerJsonAddon.getOrCreateJsonField(booleanElement, doc);
+      expect(booleanField instanceof JsonSchemaField).toBeTruthy();
+      expect(booleanField!.name).toEqual('SomeBoolean');
+      expect(booleanField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(booleanField!.type).toEqual(Types.Boolean);
+    });
+
+    it('should not create a field if not lossless element', () => {
+      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+      const testElement = document.createElementNS('test', 'Test');
+      const testField = MappingSerializerJsonAddon.getOrCreateJsonField(testElement, doc);
+      expect(testField).toBeNull();
+    });
+  });
+});

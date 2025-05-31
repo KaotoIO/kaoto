@@ -1,4 +1,4 @@
-import { camelYamlDslJsonSchema } from '../stubs/data-mapper';
+import { camelYamlDslJsonSchema } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper';
@@ -114,21 +114,21 @@ describe('JsonSchemaDocumentService', () => {
     expect(strProp.name).toBe('strProp');
     expect(strProp.maxOccurs).toEqual(1);
     expect(strProp.fields.length).toBe(0);
-    expect(strProp.expression).toEqual('xf:string[@key="strProp"]');
+    expect(strProp.expression).toEqual("xf:string[@key='strProp']");
 
     const numProp = root.fields[1];
     expect(numProp.type).toEqual(Types.Numeric);
     expect(numProp.name).toBe('numProp');
     expect(numProp.maxOccurs).toEqual(1);
     expect(numProp.fields.length).toBe(0);
-    expect(numProp.expression).toEqual('xf:number[@key="numProp"]');
+    expect(numProp.expression).toEqual("xf:number[@key='numProp']");
 
     const objProp = root.fields[2];
     expect(objProp.type).toEqual(Types.Container);
     expect(objProp.name).toBe('objProp');
     expect(objProp.maxOccurs).toEqual(1);
     expect(objProp.fields.length).toBe(2);
-    expect(objProp.expression).toEqual('xf:map[@key="objProp"]');
+    expect(objProp.expression).toEqual("xf:map[@key='objProp']");
 
     const objOne = objProp.fields[0];
     expect(objOne.type).toEqual(Types.String);
@@ -136,7 +136,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(objOne.minOccurs).toEqual(1);
     expect(objOne.maxOccurs).toEqual(1);
     expect(objOne.fields.length).toBe(0);
-    expect(objOne.expression).toEqual('xf:string[@key="objOne"]');
+    expect(objOne.expression).toEqual("xf:string[@key='objOne']");
 
     const objTwo = objProp.fields[1];
     expect(objTwo.type).toEqual(Types.String);
@@ -144,14 +144,14 @@ describe('JsonSchemaDocumentService', () => {
     expect(objTwo.minOccurs).toEqual(0);
     expect(objTwo.maxOccurs).toEqual(1);
     expect(objTwo.fields.length).toBe(0);
-    expect(objTwo.expression).toEqual('xf:string[@key="objTwo"]');
+    expect(objTwo.expression).toEqual("xf:string[@key='objTwo']");
 
     const arrProp = root.fields[3];
     expect(arrProp.type).toEqual(Types.Array);
     expect(arrProp.name).toBe('arrProp');
     expect(arrProp.maxOccurs).toEqual(1);
     expect(arrProp.fields.length).toBe(1);
-    expect(arrProp.expression).toEqual('xf:array[@key="arrProp"]');
+    expect(arrProp.expression).toEqual("xf:array[@key='arrProp']");
 
     const arrItem = arrProp.fields[0];
     expect(arrItem.type).toEqual(Types.Container);
@@ -166,7 +166,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(arrOne.minOccurs).toEqual(0);
     expect(arrOne.maxOccurs).toEqual(1);
     expect(arrOne.fields.length).toBe(0);
-    expect(arrOne.expression).toEqual('xf:string[@key="arrOne"]');
+    expect(arrOne.expression).toEqual("xf:string[@key='arrOne']");
 
     const arrTwo = arrItem.fields[1];
     expect(arrTwo.type).toEqual(Types.String);
@@ -174,7 +174,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(arrTwo.minOccurs).toEqual(1);
     expect(arrTwo.maxOccurs).toEqual(1);
     expect(arrTwo.fields.length).toBe(0);
-    expect(arrTwo.expression).toEqual('xf:string[@key="arrTwo"]');
+    expect(arrTwo.expression).toEqual("xf:string[@key='arrTwo']");
   });
 
   it('should parse camelYamlDsl', () => {

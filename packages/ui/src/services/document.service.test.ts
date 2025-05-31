@@ -1,6 +1,6 @@
 import { DocumentService } from './document.service';
 
-import { TestUtil } from '../stubs/data-mapper';
+import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType, PrimitiveDocument } from '../models/datamapper';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { JsonSchemaDocument } from './json-schema-document.service';

@@ -29,7 +29,7 @@ import {
   shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
   TestUtil,
-} from '../stubs/data-mapper';
+} from '../stubs/datamapper/data-mapper';
 import { DocumentType } from '../models/datamapper/path';
 
 describe('VisualizationService', () => {

@@ -29,7 +29,7 @@ import {
   XmlSchemaType,
   XmlSchemaUse,
 } from '../xml-schema-ts';
-import { BaseDocument, BaseField, IField, ITypeFragment } from '../models/datamapper/document';
+import { BaseDocument, BaseField, DocumentDefinitionType, IField, ITypeFragment } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { DocumentType } from '../models/datamapper/path';
 import { DocumentService } from './document.service';
@@ -44,6 +44,7 @@ export class XmlSchemaDocument extends BaseDocument {
   namedTypeFragments: Record<string, XmlSchemaTypeFragment> = {};
   totalFieldCount = 0;
   isNamespaceAware = true;
+  definitionType: DocumentDefinitionType;
 
   constructor(
     public xmlSchema: XmlSchema,
@@ -58,7 +59,7 @@ export class XmlSchemaDocument extends BaseDocument {
     // TODO let user choose the root element from top level elements if there're multiple
     this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
     XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
-    this.schemaType = 'XML';
+    this.definitionType = DocumentDefinitionType.XML_SCHEMA;
   }
 }
 

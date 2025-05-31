@@ -106,7 +106,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
   const [mappingTree, setMappingTree] = useState<MappingTree>(
-    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
+    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType),
   );
 
   const [alerts, setAlerts] = useState<Partial<AlertProps>[]>([]);
@@ -151,7 +151,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   );
 
   const refreshMappingTree = useCallback(() => {
-    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.children = mappingTree.children.map((child) => {
       child.parent = newMapping;
       return child;
@@ -159,13 +159,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
-  }, [mappingTree, onUpdateMappings, sourceParameterMap]);
+  }, [mappingTree, onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const resetMappingTree = useCallback(() => {
-    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
-  }, [mappingTree, onUpdateMappings, sourceParameterMap]);
+  }, [mappingTree, onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const removeStaleMappings = useCallback(
     (documentType: DocumentType, documentId: string, newDocument: IDocument) => {

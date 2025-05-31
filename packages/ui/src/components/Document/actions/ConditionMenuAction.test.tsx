@@ -10,7 +10,7 @@ import {
 } from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping.service';
 import { VisualizationService } from '../../../services/visualization.service';
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { ConditionMenuAction } from './ConditionMenuAction';
 
 describe('ConditionMenuAction', () => {

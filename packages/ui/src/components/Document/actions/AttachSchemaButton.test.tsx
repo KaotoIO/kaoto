@@ -6,7 +6,7 @@ import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
-import { noTopElementXsd, shipOrderEmptyFirstLineXsd, shipOrderXsd } from '../../../stubs/data-mapper';
+import { noTopElementXsd, shipOrderEmptyFirstLineXsd, shipOrderXsd } from '../../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';

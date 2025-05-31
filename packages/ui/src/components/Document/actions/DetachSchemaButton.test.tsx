@@ -7,7 +7,7 @@ import { DocumentType } from '../../../models/datamapper/path';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 
 describe('DetachSchemaButton', () => {
   it('should detach the schema', async () => {

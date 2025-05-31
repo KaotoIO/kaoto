@@ -7,7 +7,7 @@ import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 import { MappingTree } from '../../../models/datamapper/mapping';
-import { shipOrderToShipOrderXslt, TestUtil } from '../../../stubs/data-mapper';
+import { shipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { IMappingLink, NodeReference } from '../../../models/datamapper/visualization';
 import { useMappingLinks } from '../../../hooks/useMappingLinks';
 import { MappingLinksService } from '../../../services/mapping-links.service';

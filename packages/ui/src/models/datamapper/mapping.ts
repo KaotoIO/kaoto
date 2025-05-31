@@ -1,4 +1,4 @@
-import { IField } from './document';
+import { DocumentDefinitionType, IField } from './document';
 import { DocumentType, NodePath, Path } from './path';
 import { Types } from './types';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
@@ -6,7 +6,11 @@ import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 export type MappingParentType = MappingTree | MappingItem;
 
 export class MappingTree {
-  constructor(documentType: DocumentType, documentId: string) {
+  constructor(
+    documentType: DocumentType,
+    documentId: string,
+    public documentDefinitionType: DocumentDefinitionType = DocumentDefinitionType.XML_SCHEMA,
+  ) {
     this.nodePath = NodePath.fromDocument(documentType, documentId);
   }
   children: MappingItem[] = [];
