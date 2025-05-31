@@ -13,7 +13,7 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import { DocumentType } from '../models/datamapper/path';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { IDocument } from '../models/datamapper/document';
-import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/data-mapper';
+import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/datamapper/data-mapper';
 import { XPathService } from './xpath/xpath.service';
 import { MappingLinksService } from './mapping-links.service';
 

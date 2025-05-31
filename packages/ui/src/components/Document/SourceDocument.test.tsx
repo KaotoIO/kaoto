@@ -4,7 +4,7 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BODY_DOCUMENT_ID, PrimitiveDocument } from '../../models/datamapper/document';
 import { DocumentType } from '../../models/datamapper/path';
-import { TestUtil } from '../../stubs/data-mapper';
+import { TestUtil } from '../../stubs/datamapper/data-mapper';
 
 describe('SourceDocument', () => {
   it('should render primitive document', async () => {

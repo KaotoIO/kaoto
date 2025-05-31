@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 
 describe('DocumentActions', () => {
   it('should render', async () => {

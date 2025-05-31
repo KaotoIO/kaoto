@@ -8,7 +8,7 @@ import { DocumentType } from '../models/datamapper/path';
 import { useCanvas } from '../hooks/useCanvas';
 import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
 import { screen } from '@testing-library/react';
-import { TestUtil } from '../stubs/data-mapper';
+import { TestUtil } from '../stubs/datamapper/data-mapper';
 
 describe('CanvasProvider', () => {
   it('should render', async () => {

@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'yaml';
-import { IDocument, PrimitiveDocument } from '../models/datamapper/document';
-import { DocumentType } from '../models/datamapper/path';
-import { XmlSchemaDocumentService } from '../services/xml-schema-document.service';
-import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../utils';
+import { IDocument, PrimitiveDocument } from '../../models/datamapper/document';
+import { DocumentType } from '../../models/datamapper/path';
+import { XmlSchemaDocumentService } from '../../services/xml-schema-document.service';
+import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
 
 export const datamapperRouteDefinitionStub = parse(`
   from:
@@ -36,54 +36,59 @@ export const twoDataMapperRouteDefinitionStub = parse(`
                 uri: ${XSLT_COMPONENT_NAME}:transform-2.xsl`);
 
 export const shipOrderXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrder.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrder.xsd'))
   .toString();
 export const testDocumentXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/TestDocument.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/TestDocument.xsd'))
   .toString();
 export const noTopElementXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/NoTopElement.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/NoTopElement.xsd'))
   .toString();
 export const camelSpringXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/camel-spring.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/camel-spring.xsd'))
   .toString();
 export const shipOrderToShipOrderXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl'))
   .toString();
 export const shipOrderToShipOrderInvalidForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderInvalidForEach.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderInvalidForEach.xsl'))
   .toString();
 export const shipOrderEmptyFirstLineXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
   .toString();
 export const shipOrderToShipOrderMultipleForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderMultipleForEach.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderMultipleForEach.xsl'))
   .toString();
 export const shipOrderToShipOrderCollectionIndexXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/ShipOrderToShipOrderCollectionIndex.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderCollectionIndex.xsl'))
   .toString();
 
 export const x12837PDfdlXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))
   .toString();
 export const message837Xsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/Message837.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/Message837.xsd'))
   .toString();
 export const x12837PXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-837.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-837.xsl'))
   .toString();
 
 export const x12850DfdlXsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-850.dfdl.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-850.dfdl.xsd'))
   .toString();
 export const invoice850Xsd = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/Invoice850.xsd'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/Invoice850.xsd'))
   .toString();
 export const x12850ForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../xml-schema-ts/test-resources/X12-850-Invoice-for-each.xsl'))
+  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-850-Invoice-for-each.xsl'))
   .toString();
 
 export const camelYamlDslJsonSchema = fs.readFileSync(path.resolve(__dirname, './camelYamlDsl.json')).toString();
+
+export const cartJsonSchema = fs.readFileSync(path.resolve(__dirname, './Cart.schema.json')).toString();
+export const accountJsonSchema = fs.readFileSync(path.resolve(__dirname, './Account.schema.json')).toString();
+export const shipOrderJsonSchema = fs.readFileSync(path.resolve(__dirname, './ShipOrder.schema.json')).toString();
+export const shipOrderJsonXslt = fs.readFileSync(path.resolve(__dirname, './ShipOrderJson.xsl')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {

@@ -6,7 +6,7 @@ import { DocumentType } from '../../../models/datamapper/path';
 import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 
 describe('DeleteMappingItemAction', () => {
   it('should invoke onDelete()', async () => {

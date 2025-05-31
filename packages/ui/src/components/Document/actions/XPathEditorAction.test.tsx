@@ -6,7 +6,7 @@ import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {

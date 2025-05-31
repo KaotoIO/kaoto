@@ -2,7 +2,12 @@ import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.
 import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
 import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
-import { camelSpringXsd, shipOrderXsd, shipOrderEmptyFirstLineXsd, testDocumentXsd } from '../stubs/data-mapper';
+import {
+  camelSpringXsd,
+  shipOrderXsd,
+  shipOrderEmptyFirstLineXsd,
+  testDocumentXsd,
+} from '../stubs/datamapper/data-mapper';
 
 describe('XmlSchemaDocumentService', () => {
   it('should parse ShipOrder XML schema', () => {

@@ -47,7 +47,7 @@ export interface IDocument {
   documentType: DocumentType;
   documentId: string;
   name: string;
-  schemaType: string;
+  definitionType: DocumentDefinitionType;
   fields: IField[];
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment>;
@@ -64,7 +64,7 @@ export abstract class BaseDocument implements IDocument {
   }
   fields: IField[] = [];
   name: string = '';
-  schemaType = '';
+  abstract definitionType: DocumentDefinitionType;
   path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment> = {};
   abstract totalFieldCount: number;
@@ -80,6 +80,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
     this.path = NodePath.fromDocument(documentType, documentId);
   }
 
+  definitionType: DocumentDefinitionType = DocumentDefinitionType.Primitive;
   ownerDocument: IDocument = this;
   defaultValue: string | null = null;
   isAttribute: boolean = false;

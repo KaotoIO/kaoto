@@ -11,7 +11,7 @@ import {
   x12837PXslt,
   x12850DfdlXsd,
   x12850ForEachXslt,
-} from '../stubs/data-mapper';
+} from '../stubs/datamapper/data-mapper';
 import { IDocument } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';

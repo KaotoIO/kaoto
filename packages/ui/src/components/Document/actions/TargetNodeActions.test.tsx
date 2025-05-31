@@ -6,7 +6,7 @@ import { DocumentType } from '../../../models/datamapper/path';
 import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { TestUtil } from '../../../stubs/data-mapper';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 
 describe('TargetNodeActions', () => {
   it('should render', async () => {
