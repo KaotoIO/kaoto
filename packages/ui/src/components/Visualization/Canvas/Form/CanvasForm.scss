@@ -1,8 +1,10 @@
 .canvas-form {
   height: 100%;
-  border-radius: 15px;
 
   &__body {
     overflow: auto;
+
+    /** Added a transparent border to the card body. [https://github.com/KaotoIO/kaoto/issues/2053] */
+    border: var(--pf-v6-c-card--BorderWidth) var(--pf-v6-c-card--BorderStyle) transparent;
   }
 }
