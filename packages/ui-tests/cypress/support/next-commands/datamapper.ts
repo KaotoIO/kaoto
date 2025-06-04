@@ -43,8 +43,8 @@ Cypress.Commands.add('resetMappings', () => {
 });
 
 Cypress.Commands.add('checkFieldSelected', (type: string, fieldName: string, selected: boolean) => {
-  cy.get(`[data-testid^="node-${type}-field-${fieldName}`).should(selected ? 'not.exist' : 'be.visible');
-  cy.get(`[data-testid^="node-${type}-selected-field-${fieldName}`).should(selected ? 'be.visible' : 'not.exist');
+  cy.get(`[data-testid^="node-${type}-fx-${fieldName}`).should(selected ? 'not.exist' : 'be.visible');
+  cy.get(`[data-testid^="node-${type}-selected-fx-${fieldName}`).should(selected ? 'be.visible' : 'not.exist');
 });
 
 Cypress.Commands.add('checkMappingLineSelected', (selected: boolean) => {

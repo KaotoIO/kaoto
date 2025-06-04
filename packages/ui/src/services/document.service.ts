@@ -3,16 +3,18 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentInitializationModel,
+  DocumentType,
   IDocument,
   IField,
   IParentType,
-  ITypeFragment,
   PrimitiveDocument,
 } from '../models/datamapper/document';
-import { DocumentType } from '../models/datamapper/path';
 import { IMetadataApi } from '../providers';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { PathSegment } from '../models/datamapper';
+import { XPathService } from './xpath/xpath.service';
+import { DocumentUtilService } from './document-util.service';
 
 interface InitialDocumentsSet {
   sourceBodyDocument?: IDocument;
@@ -20,6 +22,16 @@ interface InitialDocumentsSet {
   targetBodyDocument?: IDocument;
 }
 
+/**
+ * The collection of the Document handling logic. In order to avoid circular dependency, the common routines
+ * to be used by the format specific document services such as {@link XmlSchemaDocumentService} and
+ * {@link JsonSchemaDocumentService} have been split into {@link DocumentUtilService}.
+ *
+ * @see DocumentUtilService
+ * @see XmlSchemaDocumentService
+ * @see JsonSchemaDocumentService
+ * @see XPathService
+ */
 export class DocumentService {
   static async createDocumentDefinition(
     api: IMetadataApi,
@@ -80,16 +92,6 @@ export class DocumentService {
     return answer;
   }
 
-  static getFieldStack(field: IField, includeItself: boolean = false) {
-    if (field instanceof PrimitiveDocument) return [];
-    const fieldStack: IField[] = [];
-    if (includeItself) fieldStack.push(field);
-    for (let next = field.parent; 'parent' in next && next !== next.parent; next = (next as IField).parent) {
-      fieldStack.push(next);
-    }
-    return fieldStack;
-  }
-
   static hasField(document: IDocument, field: IField) {
     if (
       document.documentType !== field.ownerDocument.documentType ||
@@ -110,7 +112,7 @@ export class DocumentService {
     if (field instanceof PrimitiveDocument) return undefined;
 
     let left: IField | undefined = undefined;
-    const fieldStack = DocumentService.getFieldStack(field, true);
+    const fieldStack = DocumentUtilService.getFieldStack(field, true);
     for (const right of fieldStack.reverse()) {
       const parent: IParentType = left ? left : document;
       left = parent.fields.find((leftTest: IField) => {
@@ -126,20 +128,18 @@ export class DocumentService {
     return left;
   }
 
-  static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {
-    const resolvedParent = 'parent' in parent ? DocumentService.resolveTypeFragment(parent) : parent;
-    return resolvedParent.fields.find((f) => {
-      return f.name === name && ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI);
-    });
-  }
-
-  static getFieldFromPathSegments(document: IDocument, pathSegments: string[]) {
+  static getFieldFromPathSegments(
+    namespaces: { [p: string]: string },
+    document: IDocument,
+    pathSegments: PathSegment[],
+  ) {
     let parent: IDocument | IField = document;
+
     for (const segment of pathSegments) {
       if (!segment) continue;
       const child: IField | undefined = parent.fields.find((f) => {
-        const resolvedField = DocumentService.resolveTypeFragment(f);
-        return DocumentService.getFieldExpression(resolvedField) === segment;
+        const resolvedField = DocumentUtilService.resolveTypeFragment(f);
+        return XPathService.matchSegment(namespaces, resolvedField, segment);
       });
       if (!child) {
         return undefined;
@@ -149,50 +149,6 @@ export class DocumentService {
     return parent;
   }
 
-  static getFieldFromPathExpression(document: IDocument, pathExpression: string) {
-    return DocumentService.getFieldFromPathSegments(document, pathExpression.split('/'));
-  }
-
-  static getFieldExpression(field: IField) {
-    return field.isAttribute ? `@${field.name}` : field.name;
-  }
-
-  static getFieldExpressionNS(field: IField, namespaceMap: { [prefix: string]: string }) {
-    let answer = field.isAttribute ? '@' : '';
-    const nsPair =
-      field.namespaceURI &&
-      Object.entries(namespaceMap).find(([prefix, uri]) => prefix && uri && field.namespaceURI === uri);
-    if (nsPair) answer += nsPair[0] + ':';
-    return answer + field.name;
-  }
-
-  static getOwnerDocument<DocumentType extends IDocument>(docOrField: IParentType): DocumentType {
-    return ('ownerDocument' in docOrField ? docOrField.ownerDocument : docOrField) as DocumentType;
-  }
-
-  static resolveTypeFragment(field: IField) {
-    if (field.namedTypeFragmentRefs.length === 0) return field;
-    const doc = DocumentService.getOwnerDocument(field);
-    field.namedTypeFragmentRefs.forEach((ref) => {
-      const fragment = doc.namedTypeFragments[ref];
-      DocumentService.adoptTypeFragment(field, fragment);
-    });
-    field.namedTypeFragmentRefs = [];
-    return field;
-  }
-
-  private static adoptTypeFragment(field: IField, fragment: ITypeFragment) {
-    const doc = DocumentService.getOwnerDocument(field);
-    if (fragment.type) field.type = fragment.type;
-    if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
-    if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
-    fragment.fields.forEach((f) => f.adopt(field));
-    fragment.namedTypeFragmentRefs.forEach((childRef) => {
-      const childFragment = doc.namedTypeFragments[childRef];
-      DocumentService.adoptTypeFragment(field, childFragment);
-    });
-  }
-
   static isNonPrimitiveField(parent: IParentType) {
     return parent && !('documentType' in parent);
   }
@@ -200,7 +156,7 @@ export class DocumentService {
   static isRecursiveField(field: IField) {
     const name = field.name;
     const namespace = field.namespaceURI;
-    const stack = DocumentService.getFieldStack(field);
+    const stack = DocumentUtilService.getFieldStack(field);
     return !!stack.find((f) => f.name === name && f.namespaceURI === namespace);
   }
 

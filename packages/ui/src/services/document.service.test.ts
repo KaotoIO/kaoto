@@ -1,15 +1,22 @@
 import { DocumentService } from './document.service';
 
 import { TestUtil } from '../stubs/datamapper/data-mapper';
-import { DocumentDefinition, DocumentDefinitionType, DocumentType, PrimitiveDocument } from '../models/datamapper';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  PathSegment,
+  PrimitiveDocument,
+} from '../models/datamapper';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { JsonSchemaDocument } from './json-schema-document.service';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
   const targetDoc = TestUtil.createTargetOrderDoc();
+  const namespaces = { kaoto: 'io.kaoto.datamapper.poc.test' };
 
-  describe('creawteDocument()', () => {
+  describe('createDocument()', () => {
     it('should create a primitive document', () => {
       const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test', {});
       const doc = DocumentService.createDocument(docDef);
@@ -66,17 +73,6 @@ describe('DocumentService', () => {
     });
   });
 
-  describe('getFieldStack()', () => {
-    it('', () => {
-      const stack = DocumentService.getFieldStack(sourceDoc.fields[0].fields[1]);
-      expect(stack.length).toEqual(1);
-      expect(stack[0].name).toEqual('ShipOrder');
-      const stackWithSelf = DocumentService.getFieldStack(sourceDoc.fields[0].fields[1], true);
-      expect(stackWithSelf.length).toEqual(2);
-      expect(stackWithSelf[0].name).toEqual('OrderPerson');
-    });
-  });
-
   describe('hasField()', () => {
     it('', () => {
       expect(DocumentService.hasField(sourceDoc, sourceDoc.fields[0].fields[0])).toBeTruthy();
@@ -84,18 +80,10 @@ describe('DocumentService', () => {
     });
   });
 
-  describe('getFieldFromPathExpression()', () => {
-    it('', () => {
-      const pathExpression = '/ShipOrder/ShipTo';
-      const field = DocumentService.getFieldFromPathExpression(sourceDoc, pathExpression);
-      expect(field?.name).toEqual('ShipTo');
-    });
-  });
-
   describe('getFieldFromPathSegments()', () => {
     it('', () => {
-      const pathSegments = ['ShipOrder', 'ShipTo'];
-      const field = DocumentService.getFieldFromPathSegments(sourceDoc, pathSegments);
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('ShipTo')];
+      const field = DocumentService.getFieldFromPathSegments(namespaces, sourceDoc, pathSegments);
       expect(field?.name).toEqual('ShipTo');
     });
   });

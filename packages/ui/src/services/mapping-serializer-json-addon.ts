@@ -9,8 +9,12 @@ import {
   Types,
 } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import { DocumentService } from './document.service';
-import { JsonSchemaDocument, JsonSchemaField, JsonSchemaParentType } from './json-schema-document.service';
+import {
+  JsonSchemaDocument,
+  JsonSchemaDocumentService,
+  JsonSchemaField,
+  JsonSchemaParentType,
+} from './json-schema-document.service';
 
 export const FROM_JSON_SOURCE_SUFFIX = '-x';
 export const TO_JSON_TARGET_VARIABLE = 'mapped-xml';
@@ -93,8 +97,9 @@ export class MappingSerializerJsonAddon {
     }
 
     const element = xsltDocument.createElementNS(NS_XPATH_FUNCTIONS, elementName);
-    if (mapping.field.name) {
-      element.setAttribute('key', mapping.field.name);
+    const key = (mapping.field as JsonSchemaField).key;
+    if (key) {
+      element.setAttribute('key', key);
     }
     parent.appendChild(element);
     return element;
@@ -155,10 +160,10 @@ export class MappingSerializerJsonAddon {
       default:
     }
 
-    const fieldName = item.getAttribute('key') ?? '';
-    const existing = DocumentService.getChildField(parentField, fieldName, namespace);
+    const fieldKey = item.getAttribute('key') ?? '';
+    const existing = JsonSchemaDocumentService.getChildField(parentField, type, fieldKey, namespace);
     if (existing) return existing;
-    const field = new JsonSchemaField(parentField as JsonSchemaParentType, fieldName, type);
+    const field = new JsonSchemaField(parentField as JsonSchemaParentType, fieldKey, type);
     field.namespaceURI = namespace;
     parentField.fields.push(field);
     return field;

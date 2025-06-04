@@ -1,6 +1,6 @@
-import { IDocument, IField, PrimitiveDocument } from './document';
+import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
-import { DocumentType, NodePath } from './path';
+import { NodePath } from './nodepath';
 import { RefObject } from 'react';
 
 export interface NodeData {
@@ -52,7 +52,7 @@ export class FieldNodeData implements NodeData {
     public parent: NodeData,
     public field: IField,
   ) {
-    this.title = field.name;
+    this.title = field.displayName;
     this.id = field.id;
     this.path = NodePath.childOf(parent.path, this.id);
     this.isSource = parent.isSource;
@@ -104,7 +104,7 @@ export class FieldItemNodeData extends MappingNodeData {
     public mapping: FieldItem,
   ) {
     super(parent, mapping);
-    this.title = mapping.field.name;
+    this.title = mapping.field.displayName;
     this.field = mapping.field;
   }
   public field: IField;

@@ -86,8 +86,8 @@ describe('DataMapperPage', () => {
     expect(screen.getByTestId('node-source-doc-param-testparam1')).toBeInTheDocument();
     expect(screen.getByTestId('node-source-doc-sourceBody-Body')).toBeInTheDocument();
     expect(screen.getByTestId('node-target-doc-targetBody-Body')).toBeInTheDocument();
-    expect(screen.getByTestId(/node-source-field-OrderId-\n*/)).toBeInTheDocument();
-    expect(screen.getByTestId(/node-target-field-OrderId-\n*/)).toBeInTheDocument();
+    expect(screen.getByTestId(/node-source-fx-OrderId-\n*/)).toBeInTheDocument();
+    expect(screen.getByTestId(/node-target-fx-OrderId-\n*/)).toBeInTheDocument();
     // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
   });
 

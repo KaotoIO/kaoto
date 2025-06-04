@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
-import { DocumentType } from '../../../models/datamapper/path';
 import {
   AddMappingNodeData,
   MappingNodeData,

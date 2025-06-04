@@ -1,7 +1,21 @@
-import { DocumentType } from '../models/datamapper/path';
-import { BaseDocument, BaseField, DocumentDefinitionType, ITypeFragment, Types } from '../models/datamapper';
+import { DocumentType, IParentType } from '../models/datamapper/document';
+import {
+  BaseDocument,
+  BaseField,
+  DocumentDefinitionType,
+  IField,
+  ITypeFragment,
+  PathExpression,
+  PathSegment,
+  Types,
+} from '../models/datamapper';
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { FROM_JSON_SOURCE_SUFFIX } from './mapping-serializer-json-addon';
+import { NodePath } from '../models/datamapper/nodepath';
+import { Predicate, PredicateOperator } from '../models/datamapper/xpath';
+import { DocumentUtilService } from './document-util.service';
 
 export interface JsonSchemaTypeFragment extends ITypeFragment {
   fields: JsonSchemaField[];
@@ -11,6 +25,11 @@ export interface JSONSchemaMetadata extends JSONSchema7 {
   path: string;
 }
 
+/**
+ * Represents the JSON schema document.
+ *
+ * @see {@link JsonSchemaField}
+ */
 export class JsonSchemaDocument extends BaseDocument {
   isNamespaceAware: boolean = false;
   totalFieldCount: number = 0;
@@ -31,6 +50,14 @@ export class JsonSchemaDocument extends BaseDocument {
     }
     this.definitionType = DocumentDefinitionType.JSON_SCHEMA;
   }
+
+  getReferenceId(_namespaceMap: { [prefix: string]: string }): string {
+    // @FIXME Currently JSON body is not supported, i.e. it should be always a param.
+    // We should change this accordingly when JSON body is supported.
+    return this.documentType === DocumentType.PARAM
+      ? `${this.documentId}${FROM_JSON_SOURCE_SUFFIX}`
+      : `body${FROM_JSON_SOURCE_SUFFIX}`;
+  }
 }
 
 export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
@@ -45,61 +72,100 @@ export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
  * Also in JSON schema, when `type` is omitted, it could be any type. This fact basically conflicts with what
  * we want to do with XSLT3 lossless JSON representation where it explicitly has to specify the type.
  * Until we get a concrete idea of how to handle this in DataMapper UI, just pick one type and use it.
+ *
+ * Unlike XML, JSON could have anonymous object and array. In the JSON lossless representation in XSLT,
+ * object is represented by `xf:map` and array is represented by `xf:array` while the name is specified with
+ * `key` attribute, such as `xf:map[@key='objectName']` and `xf:map[@key='arrayName']`. `xf:map` and `xf:array`
+ * simply represents anonymous object and array. In order to take this into account, {@link JsonSchemaField.name}
+ * holds the field type such as `map` or `array`, and {@link JsonSchemaField.key} holds the name if it's named one.
+ * The `key` will be an empty string for the anonymous JSON field. Alternatively {@link JsonSchemaField.displayName}
+ * provides human-readable label for the field, which shows JSON field type such as `map` and `array`, as well as
+ * {@link JsonSchemaField.key} in case the field is a named one.
+ * @see {@link XmlSchemaField}
  */
 export class JsonSchemaField extends BaseField {
   fields: JsonSchemaField[] = [];
-  namespaceURI: string | null = 'http://www.w3.org/2005/xpath-functions';
-  namespacePrefix: string | null = 'xf';
+  namespaceURI: string = NS_XPATH_FUNCTIONS;
+  namespacePrefix: string = 'xf';
   isAttribute = false;
+  predicates: Predicate[] = [];
 
   constructor(
-    public parent: JsonSchemaParentType,
-    public name: string,
-    type: Types,
+    public readonly parent: JsonSchemaParentType,
+    public readonly key: string,
+    public readonly type: Types,
   ) {
     const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as JsonSchemaDocument;
-    super(parent, ownerDocument, name);
+    super(parent, ownerDocument, key);
     this.type = type;
-  }
+    this.name = JsonSchemaDocumentService.toXsltTypeName(this.type);
+    const keyPart = this.key ? `-${this.key}` : '';
+    this.id = `fj-${this.name}${keyPart}${getCamelRandomId('', 4)}`;
+    this.path = NodePath.childOf(parent.path, this.id);
+    const queryPart = this.key ? ` [@key = ${this.key}]` : '';
+    this.displayName = `${this.name}${queryPart}`;
 
-  public get type() {
-    return this._type;
-  }
-
-  public set type(type: Types) {
-    this._type = type;
-    // Set the field expression with XSLT3 lossless representation of the JSON,
-    // which is directly used for XPath
-    const nameQuery = this.name ? `[@key='${this.name}']` : '';
-    switch (type) {
-      case Types.String:
-        this.expression = `${this.namespacePrefix}:string${nameQuery}`;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'string'}`, 4);
-        break;
-      case Types.Numeric:
-        this.expression = `${this.namespacePrefix}:number${nameQuery}`;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'number'}`, 4);
-        break;
-      case Types.Boolean:
-        this.expression = `${this.namespacePrefix}:boolean${nameQuery}`;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'boolean'}`, 4);
-        break;
-      case Types.Container:
-        this.expression = `${this.namespacePrefix}:map${nameQuery}`;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'map'}`, 4);
-        break;
-      case Types.Array:
-        this.expression = `${this.namespacePrefix}:array${nameQuery}`;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'array'}`, 4);
-        break;
-      default:
-        this.expression = this.name;
-        this.id = getCamelRandomId(`field-${this.name ? this.name : 'any'}`, 4);
+    if (this.key) {
+      const left = new PathExpression();
+      left.isRelative = true;
+      left.pathSegments = [new PathSegment('key', true)];
+      this.predicates = [new Predicate(left, PredicateOperator.Equal, this.key)];
     }
+  }
+
+  adopt(parent: IField) {
+    if (!(parent instanceof JsonSchemaField)) return super.adopt(parent);
+
+    const adopted = new JsonSchemaField(parent, this.name, this.type);
+    this.copyTo(adopted);
+    parent.fields.push(adopted);
+    return adopted;
+  }
+
+  copyTo(to: JsonSchemaField) {
+    to.minOccurs = this.minOccurs;
+    to.maxOccurs = this.maxOccurs;
+    to.defaultValue = this.defaultValue;
+    to.namespacePrefix = this.namespacePrefix;
+    to.namespaceURI = this.namespaceURI;
+    to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
+    return to;
+  }
+
+  getExpression(namespaceMap: { [p: string]: string }): string {
+    let nsPrefix = Object.keys(namespaceMap).find((key) => namespaceMap[key] === this.namespaceURI);
+    if (!nsPrefix) {
+      namespaceMap[this.namespacePrefix] = this.namespaceURI;
+      nsPrefix = this.namespacePrefix;
+    }
+
+    const prefix = nsPrefix ? `${nsPrefix}:` : '';
+    const keyQuery = this.key ? `[@key='${this.key}']` : '';
+    return `${prefix}${this.name}${keyQuery}`;
   }
 }
 
 export class JsonSchemaDocumentService {
+  static toXsltTypeName(type: Types): string {
+    switch (type) {
+      case Types.String:
+        return 'string';
+      case Types.Numeric:
+        return 'number';
+      case Types.Boolean:
+        return 'boolean';
+      case Types.Container:
+        return 'map';
+      case Types.Array:
+        return 'array';
+      case Types.AnyType:
+        return 'any';
+      default:
+        return 'unknown';
+    }
+  }
+
   static parseJsonSchema(content: string): JSONSchemaMetadata {
     try {
       const row = JSON.parse(content) as JSONSchema7;
@@ -144,7 +210,7 @@ export class JsonSchemaDocumentService {
       else if (types.includes('number')) fieldType = Types.Numeric;
       else if (types.includes('boolean')) fieldType = Types.Boolean;
       field = new JsonSchemaField(parent, propName, fieldType);
-      JsonSchemaDocumentService.enrichFieldFromComposition(field, schema);
+      JsonSchemaDocumentService.updateFieldFromComposition(field, schema);
     }
 
     return field;
@@ -189,9 +255,9 @@ export class JsonSchemaDocumentService {
       });
     }
     field.fields.forEach((subField) => {
-      subField.minOccurs = schema.required?.includes(subField.name) ? 1 : 0;
+      subField.minOccurs = schema.required?.includes(subField.key) ? 1 : 0;
     });
-    JsonSchemaDocumentService.enrichFieldFromComposition(field, schema);
+    JsonSchemaDocumentService.updateFieldFromComposition(field, schema);
   }
 
   private static populateTypeFragmentFromDefinition(parent: JsonSchemaParentType, schema: JSONSchemaMetadata) {
@@ -216,51 +282,70 @@ export class JsonSchemaDocumentService {
   private static populateFieldFromJSONSchemaDefinition(
     parent: JsonSchemaParentType,
     parentPath: string,
-    fieldName: string,
+    fieldKey: string,
     schemaDef: JSONSchema7Definition,
   ) {
-    const existingField = parent.fields.find((field) => field.name === fieldName);
+    const existingField = parent.fields.find((field) => field.key === fieldKey);
     if (existingField) {
-      JsonSchemaDocumentService.doEnrichWithJSONSchemaDefinition(
+      JsonSchemaDocumentService.doUpdateWithJSONSchemaDefinition(
         existingField,
         schemaDef,
-        parentPath + `/${existingField.name}`,
+        parentPath + `/${existingField.key}`,
       );
       return;
     }
 
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) {
       // boolean or empty schema means it inherits from the composition, deferring to enrich it with composition
-      const field = new JsonSchemaField(parent, fieldName, Types.AnyType);
+      const field = new JsonSchemaField(parent, fieldKey, Types.AnyType);
       parent.fields.push(field);
       return;
     }
 
-    const field = JsonSchemaDocumentService.createFieldFromJSONSchema(parent, fieldName, {
+    const field = JsonSchemaDocumentService.createFieldFromJSONSchema(parent, fieldKey, {
       ...schemaDef,
       path: parentPath,
     });
     parent.fields.push(field);
   }
 
-  private static enrichFieldFromComposition(field: JsonSchemaField, schema: JSONSchemaMetadata) {
-    schema.anyOf?.forEach((compositionSchemaDef) =>
-      JsonSchemaDocumentService.doEnrichWithJSONSchemaDefinition(field, compositionSchemaDef, schema.path + '/anyOf'),
+  private static updateFieldFromComposition(field: JsonSchemaField, schema: JSONSchemaMetadata): JsonSchemaField {
+    let updated = schema.anyOf?.reduce(
+      (current, compositionSchemaDef) =>
+        JsonSchemaDocumentService.doUpdateWithJSONSchemaDefinition(
+          current,
+          compositionSchemaDef,
+          schema.path + '/anyOf',
+        ),
+      field,
     );
-    schema.oneOf?.forEach((compositionSchemaDef) =>
-      JsonSchemaDocumentService.doEnrichWithJSONSchemaDefinition(field, compositionSchemaDef, schema.path + '/oneOf'),
+    updated = schema.oneOf?.reduce(
+      (current, compositionSchemaDef) =>
+        JsonSchemaDocumentService.doUpdateWithJSONSchemaDefinition(
+          current,
+          compositionSchemaDef,
+          schema.path + '/oneOf',
+        ),
+      updated ?? field,
     );
-    schema.allOf?.forEach((compositionSchemaDef) =>
-      JsonSchemaDocumentService.doEnrichWithJSONSchemaDefinition(field, compositionSchemaDef, schema.path + '/allOf'),
+    updated = schema.allOf?.reduce(
+      (current, compositionSchemaDef) =>
+        JsonSchemaDocumentService.doUpdateWithJSONSchemaDefinition(
+          current,
+          compositionSchemaDef,
+          schema.path + '/allOf',
+        ),
+      updated ?? field,
     );
+    return updated ?? field;
   }
 
-  private static doEnrichWithJSONSchemaDefinition(
+  private static doUpdateWithJSONSchemaDefinition(
     field: JsonSchemaField,
     schemaDef: JSONSchema7Definition,
     schemaPath: string,
-  ) {
-    if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) return;
+  ): JsonSchemaField {
+    if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) return field;
     schemaDef.$ref && field.namedTypeFragmentRefs.push(schemaDef.$ref);
 
     const schemaMeta = { ...schemaDef, path: schemaPath };
@@ -268,23 +353,52 @@ export class JsonSchemaDocumentService {
 
     const types = JsonSchemaDocumentService.getSchemaTypes(schemaMeta);
 
+    let updatedField = field;
     // update field type if necessary
     if (types.includes('array')) {
-      field.type = Types.Array;
-      JsonSchemaDocumentService.populateArrayItems(field, schemaMeta);
-    } else if (types.includes('object') && field.type !== Types.Array) {
-      field.type = Types.Container;
-      JsonSchemaDocumentService.populateObjectProperties(field, schemaMeta);
-    } else if (![Types.Array, Types.Container].includes(field.type)) {
+      updatedField = JsonSchemaDocumentService.convertFieldType(updatedField, Types.Array);
+      JsonSchemaDocumentService.populateArrayItems(updatedField, schemaMeta);
+    } else if (types.includes('object') && updatedField.type !== Types.Array) {
+      updatedField = JsonSchemaDocumentService.convertFieldType(updatedField, Types.Container);
+      JsonSchemaDocumentService.populateObjectProperties(updatedField, schemaMeta);
+    } else if (![Types.Array, Types.Container].includes(updatedField.type)) {
+      let type: Types = updatedField.type;
       if (types.includes('string')) {
-        field.type = Types.String;
-      } else if (types.includes('number') && field.type !== Types.String) {
-        field.type = Types.Numeric;
-      } else if (types.includes('boolean') && ![Types.String, Types.Numeric].includes(field.type)) {
-        field.type = Types.Boolean;
+        type = Types.String;
+      } else if (types.includes('number') && updatedField.type !== Types.String) {
+        type = Types.Numeric;
+      } else if (types.includes('boolean') && ![Types.String, Types.Numeric].includes(updatedField.type)) {
+        type = Types.Boolean;
       }
+      updatedField = JsonSchemaDocumentService.convertFieldType(updatedField, type);
     }
 
-    JsonSchemaDocumentService.enrichFieldFromComposition(field, schemaMeta);
+    JsonSchemaDocumentService.updateFieldFromComposition(updatedField, schemaMeta);
+    return updatedField;
+  }
+
+  private static convertFieldType(field: JsonSchemaField, type: Types): JsonSchemaField {
+    if (field.type === type) return field;
+
+    const answer = new JsonSchemaField(field.parent, field.key, type);
+    field.parent.fields = field.parent.fields.map((orig) => (orig === field ? answer : orig));
+    return field.copyTo(answer);
+  }
+
+  static getChildField(
+    parentField: IParentType,
+    type: Types,
+    fieldKey: string,
+    namespaceURI: string,
+  ): IField | undefined {
+    const resolvedParent = 'parent' in parentField ? DocumentUtilService.resolveTypeFragment(parentField) : parentField;
+    return resolvedParent.fields.find((f) => {
+      return (
+        'key' in f &&
+        f.key === fieldKey &&
+        f.type === type &&
+        ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI)
+      );
+    });
   }
 }

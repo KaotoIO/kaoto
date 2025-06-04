@@ -29,9 +29,19 @@ import {
   XmlSchemaType,
   XmlSchemaUse,
 } from '../xml-schema-ts';
-import { BaseDocument, BaseField, DocumentDefinitionType, IField, ITypeFragment } from '../models/datamapper/document';
+import {
+  BaseDocument,
+  BaseField,
+  DocumentType,
+  DocumentDefinitionType,
+  IField,
+  ITypeFragment,
+  IParentType,
+} from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
-import { DocumentType } from '../models/datamapper/path';
+import { getCamelRandomId } from '../camel-utils/camel-random-id';
+import { NodePath } from '../models/datamapper/nodepath';
+import { DocumentUtilService } from './document-util.service';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
@@ -76,6 +86,8 @@ export class XmlSchemaField extends BaseField {
   ) {
     const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     super(parent, ownerDocument, name);
+    this.id = getCamelRandomId(`fx-${this.name}`, 4);
+    this.path = NodePath.childOf(parent.path, this.id);
   }
 
   adopt(parent: IField) {
@@ -92,6 +104,13 @@ export class XmlSchemaField extends BaseField {
     adopted.fields = this.fields.map((child) => child.adopt(adopted) as XmlSchemaField);
     parent.fields.push(adopted);
     return adopted;
+  }
+
+  getExpression(namespaceMap: { [p: string]: string }): string {
+    const nsPrefix = Object.keys(namespaceMap).find((key) => namespaceMap[key] === this.namespaceURI);
+    const prefix = nsPrefix ? `${nsPrefix}:` : '';
+    const name = this.isAttribute ? `@${this.name}` : this.name;
+    return prefix + name;
   }
 }
 
@@ -428,5 +447,12 @@ export class XmlSchemaDocumentService {
     _restriction: XmlSchemaComplexContentRestriction,
   ) {
     // TODO restriction support
+  }
+
+  static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {
+    const resolvedParent = 'parent' in parent ? DocumentUtilService.resolveTypeFragment(parent) : parent;
+    return resolvedParent.fields.find((f) => {
+      return f.name === name && ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI);
+    });
   }
 }

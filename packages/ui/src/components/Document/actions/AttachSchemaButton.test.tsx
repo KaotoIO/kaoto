@@ -1,8 +1,7 @@
 import { AttachSchemaButton } from './AttachSchemaButton';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { DocumentType } from '../../../models/datamapper/path';
-import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 

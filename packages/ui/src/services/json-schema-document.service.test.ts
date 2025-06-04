@@ -1,10 +1,15 @@
 import { camelYamlDslJsonSchema } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { DocumentType } from '../models/datamapper/path';
-import { Types } from '../models/datamapper';
+import { DocumentType } from '../models/datamapper/document';
+import { PathExpression, Types } from '../models/datamapper';
 import { JSONSchema7 } from 'json-schema';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 
 describe('JsonSchemaDocumentService', () => {
+  const namespaces = {
+    xf: NS_XPATH_FUNCTIONS,
+  };
+
   it('should parse string', () => {
     const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
       DocumentType.SOURCE_BODY,
@@ -17,9 +22,12 @@ describe('JsonSchemaDocumentService', () => {
 
     const rootField = doc.fields[0];
     expect(rootField.type).toBe(Types.String);
-    expect(rootField.name).toBe('');
+    expect(rootField.name).toBe('string');
+    expect(rootField.predicates.length).toBe(0);
     expect(rootField.maxOccurs).toEqual(1);
-    expect(rootField.expression).toEqual('xf:string');
+    expect(rootField.getExpression(namespaces)).toEqual('xf:string');
+    // default prefix 'xf' is used even if it's not yet in namespace map
+    expect(rootField.getExpression({})).toEqual('xf:string');
   });
 
   it('should parse number', () => {
@@ -34,9 +42,10 @@ describe('JsonSchemaDocumentService', () => {
 
     const rootField = doc.fields[0];
     expect(rootField.type).toBe(Types.Numeric);
-    expect(rootField.name).toBe('');
+    expect(rootField.name).toBe('number');
+    expect(rootField.predicates.length).toBe(0);
     expect(rootField.maxOccurs).toEqual(1);
-    expect(rootField.expression).toEqual('xf:number');
+    expect(rootField.getExpression(namespaces)).toEqual('xf:number');
   });
 
   it('should parse topmost string array', () => {
@@ -54,16 +63,18 @@ describe('JsonSchemaDocumentService', () => {
 
     const rootArrayField = doc.fields[0];
     expect(rootArrayField.type).toBe(Types.Array);
-    expect(rootArrayField.name).toBe('');
+    expect(rootArrayField.name).toBe('array');
+    expect(rootArrayField.predicates.length).toBe(0);
     expect(rootArrayField.maxOccurs).toEqual(1);
     expect(rootArrayField.fields.length).toEqual(1);
-    expect(rootArrayField.expression).toEqual('xf:array');
+    expect(rootArrayField.getExpression(namespaces)).toEqual('xf:array');
 
     const arrayItemField = rootArrayField.fields[0];
     expect(arrayItemField.type).toBe(Types.String);
-    expect(arrayItemField.name).toBe('');
+    expect(arrayItemField.name).toBe('string');
+    expect(arrayItemField.predicates.length).toBe(0);
     expect(arrayItemField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
-    expect(arrayItemField.expression).toEqual('xf:string');
+    expect(arrayItemField.getExpression(namespaces)).toEqual('xf:string');
   });
 
   it('should parse object', () => {
@@ -104,77 +115,129 @@ describe('JsonSchemaDocumentService', () => {
 
     const root = doc.fields[0];
     expect(root.type).toEqual(Types.Container);
-    expect(root.name).toBe('');
+    expect(root.name).toBe('map');
+    expect(root.predicates.length).toBe(0);
+    expect(root.displayName).toEqual('map');
     expect(root.maxOccurs).toEqual(1);
     expect(root.fields.length).toBe(4);
-    expect(root.expression).toEqual('xf:map');
+    expect(root.getExpression(namespaces)).toEqual('xf:map');
 
     const strProp = root.fields[0];
     expect(strProp.type).toEqual(Types.String);
-    expect(strProp.name).toBe('strProp');
+    expect(strProp.name).toBe('string');
+    expect(strProp.predicates.length).toBe(1);
+    let left = strProp.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(strProp.predicates[0].right).toEqual('strProp');
+    expect(strProp.displayName).toEqual('string [@key = strProp]');
     expect(strProp.maxOccurs).toEqual(1);
     expect(strProp.fields.length).toBe(0);
-    expect(strProp.expression).toEqual("xf:string[@key='strProp']");
+    expect(strProp.getExpression(namespaces)).toEqual("xf:string[@key='strProp']");
 
     const numProp = root.fields[1];
     expect(numProp.type).toEqual(Types.Numeric);
-    expect(numProp.name).toBe('numProp');
+    expect(numProp.name).toEqual('number');
+    expect(numProp.predicates.length).toBe(1);
+    left = numProp.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(numProp.predicates[0].right).toEqual('numProp');
+    expect(numProp.displayName).toEqual('number [@key = numProp]');
     expect(numProp.maxOccurs).toEqual(1);
     expect(numProp.fields.length).toBe(0);
-    expect(numProp.expression).toEqual("xf:number[@key='numProp']");
+    expect(numProp.getExpression(namespaces)).toEqual("xf:number[@key='numProp']");
 
     const objProp = root.fields[2];
     expect(objProp.type).toEqual(Types.Container);
-    expect(objProp.name).toBe('objProp');
+    expect(objProp.name).toEqual('map');
+    expect(objProp.predicates.length).toBe(1);
+    left = objProp.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(objProp.predicates[0].right).toEqual('objProp');
+    expect(objProp.displayName).toEqual('map [@key = objProp]');
     expect(objProp.maxOccurs).toEqual(1);
     expect(objProp.fields.length).toBe(2);
-    expect(objProp.expression).toEqual("xf:map[@key='objProp']");
+    expect(objProp.getExpression(namespaces)).toEqual("xf:map[@key='objProp']");
 
     const objOne = objProp.fields[0];
     expect(objOne.type).toEqual(Types.String);
-    expect(objOne.name).toBe('objOne');
+    expect(objOne.name).toBe('string');
+    expect(objOne.predicates.length).toBe(1);
+    left = objOne.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(objOne.predicates[0].right).toEqual('objOne');
+    expect(objOne.displayName).toEqual('string [@key = objOne]');
     expect(objOne.minOccurs).toEqual(1);
     expect(objOne.maxOccurs).toEqual(1);
     expect(objOne.fields.length).toBe(0);
-    expect(objOne.expression).toEqual("xf:string[@key='objOne']");
+    expect(objOne.getExpression(namespaces)).toEqual("xf:string[@key='objOne']");
 
     const objTwo = objProp.fields[1];
     expect(objTwo.type).toEqual(Types.String);
-    expect(objTwo.name).toBe('objTwo');
+    expect(objTwo.name).toBe('string');
+    expect(objTwo.predicates.length).toBe(1);
+    left = objTwo.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(objTwo.predicates[0].right).toEqual('objTwo');
+    expect(objTwo.displayName).toEqual('string [@key = objTwo]');
     expect(objTwo.minOccurs).toEqual(0);
     expect(objTwo.maxOccurs).toEqual(1);
     expect(objTwo.fields.length).toBe(0);
-    expect(objTwo.expression).toEqual("xf:string[@key='objTwo']");
+    expect(objTwo.getExpression(namespaces)).toEqual("xf:string[@key='objTwo']");
 
     const arrProp = root.fields[3];
     expect(arrProp.type).toEqual(Types.Array);
-    expect(arrProp.name).toBe('arrProp');
+    expect(arrProp.name).toBe('array');
+    expect(arrProp.predicates.length).toBe(1);
+    left = arrProp.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(arrProp.predicates[0].right).toEqual('arrProp');
+    expect(arrProp.displayName).toEqual('array [@key = arrProp]');
     expect(arrProp.maxOccurs).toEqual(1);
     expect(arrProp.fields.length).toBe(1);
-    expect(arrProp.expression).toEqual("xf:array[@key='arrProp']");
+    expect(arrProp.getExpression(namespaces)).toEqual("xf:array[@key='arrProp']");
 
     const arrItem = arrProp.fields[0];
     expect(arrItem.type).toEqual(Types.Container);
-    expect(arrItem.name).toBe('');
+    expect(arrItem.name).toBe('map');
+    expect(arrItem.predicates.length).toBe(0);
+    expect(arrItem.displayName).toEqual('map');
     expect(arrItem.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
     expect(arrItem.fields.length).toBe(2);
-    expect(arrItem.expression).toEqual('xf:map');
+    expect(arrItem.getExpression(namespaces)).toEqual('xf:map');
 
     const arrOne = arrItem.fields[0];
     expect(arrOne.type).toEqual(Types.String);
-    expect(arrOne.name).toBe('arrOne');
+    expect(arrOne.name).toBe('string');
+    expect(arrOne.predicates.length).toBe(1);
+    left = arrOne.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(arrOne.predicates[0].right).toEqual('arrOne');
+    expect(arrOne.displayName).toEqual('string [@key = arrOne]');
     expect(arrOne.minOccurs).toEqual(0);
     expect(arrOne.maxOccurs).toEqual(1);
     expect(arrOne.fields.length).toBe(0);
-    expect(arrOne.expression).toEqual("xf:string[@key='arrOne']");
+    expect(arrOne.getExpression(namespaces)).toEqual("xf:string[@key='arrOne']");
 
     const arrTwo = arrItem.fields[1];
     expect(arrTwo.type).toEqual(Types.String);
-    expect(arrTwo.name).toBe('arrTwo');
+    expect(arrTwo.name).toBe('string');
+    expect(arrTwo.predicates.length).toBe(1);
+    left = arrTwo.predicates[0].left as PathExpression;
+    expect(left.pathSegments[0].name).toEqual('key');
+    expect(left.pathSegments[0].isAttribute).toBeTruthy();
+    expect(arrTwo.predicates[0].right).toEqual('arrTwo');
+    expect(arrTwo.displayName).toEqual('string [@key = arrTwo]');
     expect(arrTwo.minOccurs).toEqual(1);
     expect(arrTwo.maxOccurs).toEqual(1);
     expect(arrTwo.fields.length).toBe(0);
-    expect(arrTwo.expression).toEqual("xf:string[@key='arrTwo']");
+    expect(arrTwo.getExpression(namespaces)).toEqual("xf:string[@key='arrTwo']");
   });
 
   it('should parse camelYamlDsl', () => {
@@ -189,17 +252,17 @@ describe('JsonSchemaDocumentService', () => {
 
     const rootArrayField = camelDoc.fields[0];
     expect(rootArrayField.type).toEqual(Types.Array);
-    expect(rootArrayField.name).toEqual('');
+    expect(rootArrayField.name).toEqual('array');
     expect(rootArrayField.maxOccurs).toEqual(1);
     expect(rootArrayField.fields.length).toEqual(1);
 
     const rootObjectField = rootArrayField.fields[0];
     expect(rootObjectField.type).toEqual(Types.Container);
-    expect(rootObjectField.name).toEqual('');
+    expect(rootObjectField.name).toEqual('map');
     expect(rootObjectField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
     expect(rootObjectField.fields.length).toBeGreaterThan(10);
 
-    const beansField = rootObjectField.fields.find((f) => f.name === 'beans');
+    const beansField = rootObjectField.fields.find((f) => f.key === 'beans');
     expect(beansField).toBeDefined();
     expect(beansField!.type).toEqual(Types.AnyType);
     expect(beansField!.namedTypeFragmentRefs.length).toBe(1);
@@ -211,7 +274,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(beansDef.fields.length).toBe(1);
     const beansArrayField = beansDef.fields[0];
     expect(beansArrayField.type).toEqual(Types.AnyType);
-    expect(beansArrayField.name).toEqual('');
+    expect(beansArrayField.name).toEqual('any');
     expect(beansArrayField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
     expect(beansArrayField.namedTypeFragmentRefs.length).toBe(1);
 
@@ -232,18 +295,18 @@ describe('JsonSchemaDocumentService', () => {
       '#/items/definitions/org.apache.camel.model.language.ExpressionDefinition',
     );
 
-    const setBodyExpression = setBodyDef.fields.find((f) => f.name === 'expression');
+    const setBodyExpression = setBodyDef.fields.find((f) => f.key === 'expression');
     expect(setBodyExpression).toBeDefined();
-    expect(setBodyExpression!.name).toEqual('expression');
+    expect(setBodyExpression!.name).toEqual('any');
     expect(setBodyExpression!.namedTypeFragmentRefs.length).toBe(1);
     expect(setBodyExpression!.namedTypeFragmentRefs[0]).toEqual(
       '#/items/definitions/org.apache.camel.model.language.ExpressionDefinition',
     );
 
-    const setBodySimple = setBodyDef.fields.find((f) => f.name === 'simple');
+    const setBodySimple = setBodyDef.fields.find((f) => f.key === 'simple');
     expect(setBodySimple).toBeDefined();
     expect(setBodySimple!.type).toEqual(Types.AnyType);
-    expect(setBodySimple!.name).toEqual('simple');
+    expect(setBodySimple!.name).toEqual('any');
     expect(setBodySimple!.namedTypeFragmentRefs.length).toBe(0);
 
     const expressionDef =
@@ -254,10 +317,10 @@ describe('JsonSchemaDocumentService', () => {
     expect(expressionDef.maxOccurs).toEqual(1);
     expect(expressionDef.fields.length).toBeGreaterThan(25);
 
-    const expressionSimple = expressionDef.fields.find((f) => f.name === 'simple');
+    const expressionSimple = expressionDef.fields.find((f) => f.key === 'simple');
     expect(expressionSimple).toBeDefined();
     expect(expressionSimple!.type).toEqual(Types.AnyType);
-    expect(expressionSimple!.name).toEqual('simple');
+    expect(expressionSimple!.name).toEqual('any');
     expect(expressionSimple!.namedTypeFragmentRefs.length).toBe(1);
     expect(expressionSimple!.namedTypeFragmentRefs[0]).toEqual(
       '#/items/definitions/org.apache.camel.model.language.SimpleExpression',

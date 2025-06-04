@@ -4,9 +4,8 @@ import { DataMapperProvider } from './datamapper.provider';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { SourceTargetView } from '../components/View/SourceTargetView';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { DocumentType } from '../models/datamapper/path';
 import { useCanvas } from '../hooks/useCanvas';
-import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
 import { screen } from '@testing-library/react';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 

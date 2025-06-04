@@ -1,4 +1,4 @@
-import { DocumentType } from '../models/datamapper/path';
+import { DocumentType } from '../models/datamapper/document';
 import {
   FROM_JSON_SOURCE_SUFFIX,
   MappingSerializerJsonAddon,
@@ -164,46 +164,51 @@ describe('mappingSerializerJsonAddon', () => {
     it('should create a JsonSchemaField', () => {
       const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
       const mapElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'map');
-      let mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
+      const mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
       expect(mapField instanceof JsonSchemaField).toBeTruthy();
-      expect(mapField!.name).toEqual('');
-      expect(mapField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(mapField!.type).toEqual(Types.Container);
+      let mapJsonField = mapField as JsonSchemaField;
+      expect(mapJsonField.key).toEqual('');
+      expect(mapJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(mapJsonField.type).toEqual(Types.Container);
       mapElement.setAttribute('key', 'SomeMap');
-      mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
-      expect(mapField!.name).toEqual('SomeMap');
+      mapJsonField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc) as JsonSchemaField;
+      expect(mapJsonField.key).toEqual('SomeMap');
 
       const arrayElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'array');
       arrayElement.setAttribute('key', 'SomeArray');
       const arrayField = MappingSerializerJsonAddon.getOrCreateJsonField(arrayElement, doc);
       expect(arrayField instanceof JsonSchemaField).toBeTruthy();
-      expect(arrayField!.name).toEqual('SomeArray');
-      expect(arrayField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(arrayField!.type).toEqual(Types.Array);
+      const arrayJsonField = arrayField as JsonSchemaField;
+      expect(arrayJsonField.key).toEqual('SomeArray');
+      expect(arrayJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(arrayJsonField.type).toEqual(Types.Array);
 
       const stringElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'string');
       stringElement.setAttribute('key', 'SomeString');
       const stringField = MappingSerializerJsonAddon.getOrCreateJsonField(stringElement, doc);
       expect(stringField instanceof JsonSchemaField).toBeTruthy();
-      expect(stringField!.name).toEqual('SomeString');
-      expect(stringField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(stringField!.type).toEqual(Types.String);
+      const stringJsonField = stringField as JsonSchemaField;
+      expect(stringJsonField.key).toEqual('SomeString');
+      expect(stringJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(stringJsonField.type).toEqual(Types.String);
 
       const numberElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'number');
       numberElement.setAttribute('key', 'SomeNumber');
       const numberField = MappingSerializerJsonAddon.getOrCreateJsonField(numberElement, doc);
       expect(numberField instanceof JsonSchemaField).toBeTruthy();
-      expect(numberField!.name).toEqual('SomeNumber');
-      expect(numberField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(numberField!.type).toEqual(Types.Numeric);
+      const numberJsonField = numberField as JsonSchemaField;
+      expect(numberJsonField.key).toEqual('SomeNumber');
+      expect(numberJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(numberJsonField.type).toEqual(Types.Numeric);
 
       const booleanElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'boolean');
       booleanElement.setAttribute('key', 'SomeBoolean');
       const booleanField = MappingSerializerJsonAddon.getOrCreateJsonField(booleanElement, doc);
       expect(booleanField instanceof JsonSchemaField).toBeTruthy();
-      expect(booleanField!.name).toEqual('SomeBoolean');
-      expect(booleanField!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(booleanField!.type).toEqual(Types.Boolean);
+      const booleanJsonField = booleanField as JsonSchemaField;
+      expect(booleanJsonField.key).toEqual('SomeBoolean');
+      expect(booleanJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(booleanJsonField.type).toEqual(Types.Boolean);
     });
 
     it('should not create a field if not lossless element', () => {

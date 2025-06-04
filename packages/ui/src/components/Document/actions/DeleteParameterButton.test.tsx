@@ -4,8 +4,7 @@ import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.p
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
-import { DocumentType } from '../../../models/datamapper/path';
+import { DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
 
 describe('DeleteParameterButton', () => {
   it('should delete a parameter', async () => {

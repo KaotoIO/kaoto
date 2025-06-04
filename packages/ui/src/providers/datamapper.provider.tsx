@@ -21,11 +21,11 @@ import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentInitializationModel,
+  DocumentType,
   IDocument,
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import { CanvasView } from '../models/datamapper/view';
-import { DocumentType } from '../models/datamapper/path';
 import { MappingSerializerService } from '../services/mapping-serializer.service';
 import { MappingService } from '../services/mapping.service';
 import { DocumentService } from '../services/document.service';

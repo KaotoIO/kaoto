@@ -98,23 +98,23 @@ describe('DebugLayout', () => {
       </DataMapperProvider>,
     );
 
-    const targetOrderId = await screen.findByTestId(/node-target-field-OrderId-.*/);
+    const targetOrderId = await screen.findByTestId(/node-target-fx-OrderId-.*/);
     act(() => {
       fireEvent.click(targetOrderId);
     });
     await waitFor(() => {
       expect(selectedNodeReference?.current.path).toMatch(
-        /targetBody:ShipOrder.xsd:\/\/field-ShipOrder-.*\/field-OrderId-.*/,
+        /targetBody:ShipOrder.xsd:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/,
       );
     });
 
-    const sourceOrderId = await screen.findByTestId(/node-source-field-OrderId-.*/);
+    const sourceOrderId = await screen.findByTestId(/node-source-fx-OrderId-.*/);
     act(() => {
       fireEvent.click(sourceOrderId);
     });
     await waitFor(() => {
       expect(selectedNodeReference?.current.path).toMatch(
-        /sourceBody:ShipOrder.xsd:\/\/field-ShipOrder-.*\/field-OrderId-.*/,
+        /sourceBody:ShipOrder.xsd:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/,
       );
     });
   });

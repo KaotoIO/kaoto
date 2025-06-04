@@ -1,4 +1,4 @@
-import type { CstNode, ILexingError, IRecognitionException } from 'chevrotain';
+import type { CstNode, ILexingError, IRecognitionException, TokenType } from 'chevrotain';
 
 export interface XPathParserResult {
   cst: CstNode;
@@ -8,6 +8,7 @@ export interface XPathParserResult {
 
 export interface XPathParser {
   parseXPath(xpath: string): XPathParserResult;
+  getAllTokens(): TokenType[];
 }
 
 export enum FunctionGroup {

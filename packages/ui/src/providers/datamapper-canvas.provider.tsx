@@ -9,7 +9,8 @@ import {
   useState,
 } from 'react';
 import { DnDHandler } from './dnd/DnDHandler';
-import { DocumentType, NodePath } from '../models/datamapper/path';
+import { DocumentType } from '../models/datamapper/document';
+import { NodePath } from '../models/datamapper/nodepath';
 import { DatamapperDndProvider } from './datamapper-dnd.provider';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { MappingLinksProvider } from './data-mapping-links.provider';

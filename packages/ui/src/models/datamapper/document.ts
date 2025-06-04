@@ -1,6 +1,7 @@
 import { Types } from './types';
-import { DocumentType, NodePath } from './path';
+import { NodePath } from './nodepath';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import { Predicate } from './xpath';
 
 export const DEFAULT_MIN_OCCURS = 0;
 export const DEFAULT_MAX_OCCURS = 1;
@@ -21,7 +22,7 @@ export interface IField {
   ownerDocument: IDocument;
   id: string;
   name: string;
-  expression: string;
+  displayName: string;
   path: NodePath;
   type: Types;
   fields: IField[];
@@ -32,7 +33,9 @@ export interface IField {
   namespacePrefix: string | null;
   namespaceURI: string | null;
   namedTypeFragmentRefs: string[];
-  adopt: (parent: IField) => IField;
+  predicates: Predicate[];
+  adopt(parent: IField): IField;
+  getExpression(namespaceMap: { [prefix: string]: string }): string;
 }
 
 export interface ITypeFragment {
@@ -41,6 +44,12 @@ export interface ITypeFragment {
   maxOccurs?: number;
   fields: IField[];
   namedTypeFragmentRefs: string[];
+}
+
+export enum DocumentType {
+  SOURCE_BODY = 'sourceBody',
+  TARGET_BODY = 'targetBody',
+  PARAM = 'param',
 }
 
 export interface IDocument {
@@ -53,6 +62,8 @@ export interface IDocument {
   namedTypeFragments: Record<string, ITypeFragment>;
   totalFieldCount: number;
   isNamespaceAware: boolean;
+  getReferenceId(namespaceMap: { [prefix: string]: string }): string;
+  getExpression(namespaceMap: { [prefix: string]: string }): string;
 }
 
 export abstract class BaseDocument implements IDocument {
@@ -62,6 +73,7 @@ export abstract class BaseDocument implements IDocument {
   ) {
     this.path = NodePath.fromDocument(documentType, documentId);
   }
+
   fields: IField[] = [];
   name: string = '';
   abstract definitionType: DocumentDefinitionType;
@@ -69,13 +81,20 @@ export abstract class BaseDocument implements IDocument {
   namedTypeFragments: Record<string, ITypeFragment> = {};
   abstract totalFieldCount: number;
   abstract isNamespaceAware: boolean;
+  getReferenceId(_namespaceMap: { [p: string]: string }): string {
+    return this.documentType === DocumentType.PARAM ? this.documentId : '';
+  }
+
+  getExpression(namespaceMap: { [prefix: string]: string }): string {
+    return this.documentType === DocumentType.PARAM ? `$${this.getReferenceId(namespaceMap)}` : '';
+  }
 }
 
 export class PrimitiveDocument extends BaseDocument implements IField {
   constructor(documentType: DocumentType, documentId: string) {
     super(documentType, documentId);
     this.name = this.documentId;
-    this.expression = this.documentId;
+    this.displayName = this.name;
     this.id = this.documentId;
     this.path = NodePath.fromDocument(documentType, documentId);
   }
@@ -92,11 +111,15 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   type = Types.AnyType;
   path: NodePath;
   id: string;
-  expression: string;
+  displayName: string;
   namedTypeFragmentRefs = [];
   totalFieldCount = 1;
   isNamespaceAware = false;
-  adopt = () => this;
+  predicates: Predicate[] = [];
+
+  adopt(_field: IField) {
+    return this;
+  }
 }
 
 export class BaseField implements IField {
@@ -105,29 +128,24 @@ export class BaseField implements IField {
     public ownerDocument: IDocument,
     public name: string,
   ) {
-    this.id = getCamelRandomId(`field-${this.name}`, 4);
+    this.id = getCamelRandomId(`fb-${this.name}`, 4);
+    this.displayName = name;
     this.path = NodePath.childOf(parent.path, this.id);
-    this.expression = name;
   }
 
   id: string;
+  displayName: string;
   path: NodePath;
-  expression: string;
   fields: IField[] = [];
   isAttribute: boolean = false;
-  protected _type = Types.AnyType;
-  public get type() {
-    return this._type;
-  }
-  public set type(value) {
-    this._type = value;
-  }
+  type = Types.AnyType;
   minOccurs: number = DEFAULT_MIN_OCCURS;
   maxOccurs: number = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   namedTypeFragmentRefs: string[] = [];
+  predicates: Predicate[] = [];
 
   adopt(parent: IField) {
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
@@ -142,6 +160,10 @@ export class BaseField implements IField {
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);
     return adopted;
+  }
+
+  getExpression(_namespaceMap: { [prefix: string]: string }): string {
+    return this.name;
   }
 }
 
