@@ -1,7 +1,9 @@
-import { DocumentDefinitionType, IField } from './document';
-import { DocumentType, NodePath, Path } from './path';
+import { DocumentDefinitionType, DocumentType, IField } from './document';
+import { NodePath } from './nodepath';
 import { Types } from './types';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import { PathExpression } from './xpath';
+import { XPathService } from '../../services/xpath/xpath.service';
 
 export type MappingParentType = MappingTree | MappingItem;
 
@@ -15,7 +17,7 @@ export class MappingTree {
   }
   children: MappingItem[] = [];
   nodePath: NodePath;
-  contextPath?: Path;
+  contextPath?: PathExpression;
   namespaceMap: { [prefix: string]: string } = {};
 }
 
@@ -32,7 +34,7 @@ export abstract class MappingItem {
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);
   }
-  get contextPath(): Path | undefined {
+  get contextPath(): PathExpression | undefined {
     return this.parent.contextPath;
   }
   protected abstract doClone(): MappingItem;
@@ -48,7 +50,7 @@ export class FieldItem extends MappingItem {
     public parent: MappingParentType,
     public field: IField,
   ) {
-    const name = 'field-' + field.name;
+    const name = field.id;
     super(parent, name, getCamelRandomId(name, 4));
   }
   doClone() {
@@ -130,10 +132,18 @@ export class ForEachItem extends ExpressionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'for-each');
   }
+
   get contextPath() {
-    return new Path(this.expression, this.parent.contextPath);
+    const answer = XPathService.extractFieldPaths(this.expression)[0];
+    if (answer) {
+      answer.contextPath = this.parent.contextPath;
+      return answer;
+    }
+    return this.parent.contextPath;
   }
+
   sortItems: SortItem[] = [];
+
   doClone() {
     const cloned = new ForEachItem(this.parent);
     cloned.sortItems = this.sortItems.map((sort) => {

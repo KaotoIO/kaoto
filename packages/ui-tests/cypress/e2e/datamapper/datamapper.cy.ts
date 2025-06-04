@@ -10,7 +10,7 @@ describe('Test for DataMapper', () => {
     cy.importMappings('datamapper/xslt/ShipOrderToShipOrder.xsl');
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
-    cy.get('[data-testid^="node-source-field-OrderId"]').click();
+    cy.get('[data-testid^="node-source-fx-OrderId"]').click();
 
     cy.checkFieldSelected('source', 'OrderId', true);
     cy.checkFieldSelected('target', 'OrderId', true);

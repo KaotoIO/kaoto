@@ -1,6 +1,5 @@
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
-import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
-import { DocumentType } from '../models/datamapper/path';
+import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import {
   camelSpringXsd,

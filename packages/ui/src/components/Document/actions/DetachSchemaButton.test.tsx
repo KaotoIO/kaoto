@@ -2,8 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DetachSchemaButton } from './DetachSchemaButton';
-import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
-import { DocumentType } from '../../../models/datamapper/path';
+import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 

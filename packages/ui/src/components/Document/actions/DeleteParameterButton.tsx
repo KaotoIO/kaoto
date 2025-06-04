@@ -6,7 +6,7 @@ import { useToggle } from '../../../hooks/useToggle';
 import { MappingService } from '../../../services/mapping.service';
 
 import { useCanvas } from '../../../hooks/useCanvas';
-import { DocumentType } from '../../../models/datamapper/path';
+import { DocumentType } from '../../../models/datamapper/document';
 
 type DeleteParameterProps = {
   parameterName: string;

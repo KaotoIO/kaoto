@@ -1,5 +1,5 @@
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
-import { BODY_DOCUMENT_ID } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
@@ -10,7 +10,6 @@ import {
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
-import { DocumentType } from '../models/datamapper/path';
 import { Types } from '../models/datamapper/types';
 
 import {

@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'yaml';
-import { IDocument, PrimitiveDocument } from '../../models/datamapper/document';
-import { DocumentType } from '../../models/datamapper/path';
+import { DocumentType, IDocument, PrimitiveDocument } from '../../models/datamapper/document';
 import { XmlSchemaDocumentService } from '../../services/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
 

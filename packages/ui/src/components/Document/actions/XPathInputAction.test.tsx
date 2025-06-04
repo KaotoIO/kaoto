@@ -1,8 +1,7 @@
 import { XPathInputAction } from './XPathInputAction';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
-import { DocumentType } from '../../../models/datamapper/path';
+import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 
 describe('XPathInputAction', () => {
   let tree: MappingTree;

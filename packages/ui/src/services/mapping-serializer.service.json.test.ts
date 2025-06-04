@@ -18,7 +18,7 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocumentService, JsonSchemaField } from './json-schema-document.service';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
@@ -45,17 +45,20 @@ describe('MappingSerializerService / JSON', () => {
     it('should deserialize XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+      const namespaces = mappingTree.namespaceMap;
       expect(mappingTree.children.length).toBe(1);
       const root = mappingTree.children[0] as FieldItem;
-      expect(root.field.name).toEqual('');
+      expect(root.field.name).toEqual('map');
       expect(root.field.type).toEqual(Types.Container);
-      expect(root.field.expression).toEqual('xf:map');
+      expect(root.field.predicates.length).toEqual(0);
+      expect(root.field.getExpression(namespaces)).toEqual('xf:map');
       expect(root.children.length).toBe(4);
 
       const orderId = root.children[0] as FieldItem;
-      expect(orderId.field.name).toEqual('OrderId');
+      const orderIdJsonField = orderId.field as JsonSchemaField;
+      expect(orderIdJsonField.key).toEqual('OrderId');
       expect(orderId.field.type).toEqual(Types.String);
-      expect(orderId.field.expression).toEqual("xf:string[@key='OrderId']");
+      expect(orderId.field.getExpression(namespaces)).toEqual("xf:string[@key='OrderId']");
       expect(orderId.children.length).toBe(1);
       const orderIdValue = orderId.children[0] as ValueSelector;
       expect(orderIdValue.expression).toEqual(
@@ -63,52 +66,59 @@ describe('MappingSerializerService / JSON', () => {
       );
 
       const orderPerson = root.children[1] as FieldItem;
-      expect(orderPerson.field.name).toEqual('OrderPerson');
-      expect(orderPerson.field.type).toEqual(Types.String);
-      expect(orderPerson.field.expression).toEqual("xf:string[@key='OrderPerson']");
+      const orderPersonJsonField = orderPerson.field as JsonSchemaField;
+      expect(orderPersonJsonField.key).toEqual('OrderPerson');
+      expect(orderPersonJsonField.type).toEqual(Types.String);
+      expect(orderPersonJsonField.getExpression(namespaces)).toEqual("xf:string[@key='OrderPerson']");
 
       const shipTo = root.children[2] as FieldItem;
-      expect(shipTo.field.name).toEqual('ShipTo');
-      expect(shipTo.field.type).toEqual(Types.Container);
-      expect(shipTo.field.expression).toEqual("xf:map[@key='ShipTo']");
+      const shipToJsonField = shipTo.field as JsonSchemaField;
+      expect(shipToJsonField.key).toEqual('ShipTo');
+      expect(shipToJsonField.type).toEqual(Types.Container);
+      expect(shipToJsonField.getExpression(namespaces)).toEqual("xf:map[@key='ShipTo']");
       expect(shipTo.children.length).toBe(5);
 
       const shipToName = shipTo.children[0] as FieldItem;
-      expect(shipToName.field.name).toEqual('Name');
-      expect(shipToName.field.type).toEqual(Types.String);
-      expect(shipToName.field.expression).toEqual("xf:string[@key='Name']");
+      const shipToNameJsonField = shipToName.field as JsonSchemaField;
+      expect(shipToNameJsonField.key).toEqual('Name');
+      expect(shipToNameJsonField.type).toEqual(Types.String);
+      expect(shipToNameJsonField.getExpression(namespaces)).toEqual("xf:string[@key='Name']");
       expect(shipToName.children.length).toBe(1);
       const shipToNameValue = shipToName.children[0] as ValueSelector;
       expect(shipToNameValue.expression).toEqual("$Account-x/xf:map/xf:string[@key='Name']");
 
       const shipToStreet = shipTo.children[1] as FieldItem;
-      expect(shipToStreet.field.name).toEqual('Street');
-      expect(shipToStreet.field.type).toEqual(Types.String);
-      expect(shipToStreet.field.expression).toEqual("xf:string[@key='Street']");
+      const shipToStreetJsonField = shipToStreet.field as JsonSchemaField;
+      expect(shipToStreetJsonField.key).toEqual('Street');
+      expect(shipToStreetJsonField.type).toEqual(Types.String);
+      expect(shipToStreetJsonField.getExpression(namespaces)).toEqual("xf:string[@key='Street']");
       expect(shipToStreet.children.length).toBe(1);
       const shipToStreetValue = shipToStreet.children[0] as ValueSelector;
       expect(shipToStreetValue.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Street']");
 
       const shipToCity = shipTo.children[2] as FieldItem;
-      expect(shipToCity.field.name).toEqual('City');
-      expect(shipToCity.field.type).toEqual(Types.String);
-      expect(shipToCity.field.expression).toEqual("xf:string[@key='City']");
+      const shipToCityJsonField = shipToCity.field as JsonSchemaField;
+      expect(shipToCityJsonField.key).toEqual('City');
+      expect(shipToCityJsonField.type).toEqual(Types.String);
+      expect(shipToCityJsonField.getExpression(namespaces)).toEqual("xf:string[@key='City']");
       expect(shipToCity.children.length).toBe(1);
       const shipToCityValue = shipToCity.children[0] as ValueSelector;
       expect(shipToCityValue.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='City']");
 
       const shipToState = shipTo.children[3] as FieldItem;
-      expect(shipToState.field.name).toEqual('State');
-      expect(shipToState.field.type).toEqual(Types.String);
-      expect(shipToState.field.expression).toEqual("xf:string[@key='State']");
+      const shipToStateJsonField = shipToState.field as JsonSchemaField;
+      expect(shipToStateJsonField.key).toEqual('State');
+      expect(shipToStateJsonField.type).toEqual(Types.String);
+      expect(shipToStateJsonField.getExpression(namespaces)).toEqual("xf:string[@key='State']");
       expect(shipToState.children.length).toBe(1);
       const shipToStateValue = shipToState.children[0] as ValueSelector;
       expect(shipToStateValue.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='State']");
 
       const shipToCountry = shipTo.children[4] as FieldItem;
-      expect(shipToCountry.field.name).toEqual('Country');
-      expect(shipToCountry.field.type).toEqual(Types.String);
-      expect(shipToCountry.field.expression).toEqual("xf:string[@key='Country']");
+      const shipToCountryJsonField = shipToCountry.field as JsonSchemaField;
+      expect(shipToCountryJsonField.key).toEqual('Country');
+      expect(shipToCountryJsonField.type).toEqual(Types.String);
+      expect(shipToCountryJsonField.getExpression(namespaces)).toEqual("xf:string[@key='Country']");
       expect(shipToCountry.children.length).toBe(1);
       const shipToCountryValue = shipToCountry.children[0] as ValueSelector;
       expect(shipToCountryValue.expression).toEqual(
@@ -116,9 +126,10 @@ describe('MappingSerializerService / JSON', () => {
       );
 
       const item = root.children[3] as FieldItem;
-      expect(item.field.name).toEqual('Item');
-      expect(item.field.type).toEqual(Types.Array);
-      expect(item.field.expression).toEqual("xf:array[@key='Item']");
+      const itemJsonField = item.field as JsonSchemaField;
+      expect(itemJsonField.key).toEqual('Item');
+      expect(itemJsonField.type).toEqual(Types.Array);
+      expect(itemJsonField.getExpression(namespaces)).toEqual("xf:array[@key='Item']");
       expect(item.children.length).toBe(1);
 
       const forEach = item.children[0] as ForEachItem;
@@ -126,32 +137,36 @@ describe('MappingSerializerService / JSON', () => {
       expect(forEach.children.length).toBe(1);
 
       const forEachItem = forEach.children[0] as FieldItem;
-      expect(forEachItem.field.name).toEqual('');
-      expect(forEachItem.field.type).toEqual(Types.Container);
-      expect(forEachItem.field.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
-      expect(forEachItem.field.expression).toEqual('xf:map');
+      const forEachItemJsonField = forEachItem.field as JsonSchemaField;
+      expect(forEachItemJsonField.key).toEqual('');
+      expect(forEachItemJsonField.type).toEqual(Types.Container);
+      expect(forEachItemJsonField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
+      expect(forEachItemJsonField.getExpression(namespaces)).toEqual('xf:map');
       expect(forEachItem.children.length).toBe(3);
 
       const title = forEachItem.children[0] as FieldItem;
-      expect(title.field.name).toEqual('Title');
-      expect(title.field.type).toEqual(Types.String);
-      expect(title.field.expression).toEqual("xf:string[@key='Title']");
+      const titleJsonField = title.field as JsonSchemaField;
+      expect(titleJsonField.key).toEqual('Title');
+      expect(titleJsonField.type).toEqual(Types.String);
+      expect(titleJsonField.getExpression(namespaces)).toEqual("xf:string[@key='Title']");
       expect(title.children.length).toBe(1);
       const titleValue = title.children[0] as ValueSelector;
       expect(titleValue.expression).toEqual("xf:string[@key='Title']");
 
       const quantity = forEachItem.children[1] as FieldItem;
-      expect(quantity.field.name).toEqual('Quantity');
-      expect(quantity.field.type).toEqual(Types.Numeric);
-      expect(quantity.field.expression).toEqual("xf:number[@key='Quantity']");
+      const quantityJsonField = quantity.field as JsonSchemaField;
+      expect(quantityJsonField.key).toEqual('Quantity');
+      expect(quantityJsonField.type).toEqual(Types.Numeric);
+      expect(quantityJsonField.getExpression(namespaces)).toEqual("xf:number[@key='Quantity']");
       expect(quantity.children.length).toBe(1);
       const quantityValue = quantity.children[0] as ValueSelector;
       expect(quantityValue.expression).toEqual("xf:number[@key='Quantity']");
 
       const price = forEachItem.children[2] as FieldItem;
-      expect(price.field.name).toEqual('Price');
-      expect(price.field.type).toEqual(Types.Numeric);
-      expect(price.field.expression).toEqual("xf:number[@key='Price']");
+      const priceJsonField = price.field as JsonSchemaField;
+      expect(priceJsonField.key).toEqual('Price');
+      expect(priceJsonField.type).toEqual(Types.Numeric);
+      expect(priceJsonField.getExpression(namespaces)).toEqual("xf:number[@key='Price']");
       expect(price.children.length).toBe(1);
       const priceValue = price.children[0] as ValueSelector;
       expect(priceValue.expression).toEqual("xf:number[@key='Price']");

@@ -2,8 +2,7 @@ import { SourceDocument } from './SourceDocument';
 import { render, screen, waitFor } from '@testing-library/react';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { BODY_DOCUMENT_ID, PrimitiveDocument } from '../../models/datamapper/document';
-import { DocumentType } from '../../models/datamapper/path';
+import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 
 describe('SourceDocument', () => {

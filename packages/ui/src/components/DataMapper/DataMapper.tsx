@@ -17,11 +17,10 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState } from 
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { DocumentDefinition, DocumentInitializationModel } from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
 import { IVisualizationNode } from '../../models';
 import { EntitiesContext, MetadataContext } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { DocumentType } from '../../models/datamapper/path';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { Loading } from '../../components/Loading';
 

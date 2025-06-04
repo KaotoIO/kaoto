@@ -31,7 +31,12 @@ createToken({
 
 /* In order to refer from keywords for longer_alt, declare earlier here, but push as last ones later */
 const NCName = orgCreateToken({ name: 'NCName', pattern: fragments['Name'] });
-const DecimalLiteral = orgCreateToken({ name: 'DecimalLiteral', pattern: fragments['DecimalLiteral'] });
+const DoubleLiteral = orgCreateToken({ name: 'DoubleLiteral', pattern: fragments['DoubleLiteral'] });
+const DecimalLiteral = orgCreateToken({
+  name: 'DecimalLiteral',
+  pattern: fragments['DecimalLiteral'],
+  longer_alt: DoubleLiteral,
+});
 
 const Comma = createToken({ name: 'Comma', pattern: /,/ });
 const Return = createToken({ name: 'Returns', pattern: /return/, longer_alt: NCName });
@@ -119,12 +124,16 @@ const SchemaElement = createToken({ name: 'SchemaElement', pattern: /schema-elem
 const EmptySequence = createToken({ name: 'EmptySequence', pattern: /empty-sequence/, longer_alt: NCName });
 
 const StringLiteral = createToken({ name: 'StringLiteral', pattern: fragments['StringLiteral'] });
-const IntegerLiteral = createToken({ name: 'IntegerLiteral', pattern: fragments['Digits'] });
-const DoubleLiteral = createToken({ name: 'DoubleLiteral', pattern: fragments['DoubleLiteral'] });
+const IntegerLiteral = createToken({
+  name: 'IntegerLiteral',
+  pattern: fragments['Digits'],
+  longer_alt: [DoubleLiteral, DecimalLiteral],
+});
 
 /** DO NOT CHANGE @see {@link NCName}, {@link DecimalLiteral} */
 allTokens.push(NCName);
 allTokens.push(DecimalLiteral);
+allTokens.push(DoubleLiteral);
 
 /**
  * XPath 2.0 Parser which implements the EBNF defined in the W3C specification
@@ -140,7 +149,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
       dynamicTokensEnabled: false,
       outputCst: true,
       errorMessageProvider: defaultParserErrorProvider,
-      nodeLocationTracking: 'none',
+      nodeLocationTracking: 'full',
       traceInitPerf: false,
       skipValidations: false,
     } as IParserConfig & { outputCst: boolean });
@@ -157,6 +166,10 @@ export class XPath2Parser extends CstParser implements XPathParser {
       lexErrors: lexResult.errors,
       parseErrors: this.errors,
     };
+  }
+
+  getAllTokens(): TokenType[] {
+    return [...allTokens];
   }
 
   private Expr = this.RULE('Expr', () => {
@@ -255,8 +268,8 @@ export class XPath2Parser extends CstParser implements XPathParser {
         { ALT: () => this.CONSUME(Is) },
         { ALT: () => this.CONSUME2(Precede) },
         { ALT: () => this.CONSUME(Follow) },
-        { ALT: () => this.SUBRULE2(this.RangeExpr) },
       ]);
+      this.SUBRULE2(this.RangeExpr);
     });
   });
 

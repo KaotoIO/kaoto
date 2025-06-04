@@ -1,8 +1,7 @@
 import { XPathEditorAction } from './XPathEditorAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { DocumentType } from '../../../models/datamapper/path';
-import { BODY_DOCUMENT_ID } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';

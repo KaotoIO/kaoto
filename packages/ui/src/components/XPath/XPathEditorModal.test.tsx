@@ -1,7 +1,7 @@
 import { XPathEditorModal } from './XPathEditorModal';
 import { render, screen } from '@testing-library/react';
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
-import { DocumentType } from '../../models/datamapper/path';
+import { DocumentType } from '../../models/datamapper/document';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 

@@ -20,8 +20,7 @@ import { ExportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
-import { DocumentDefinition, DocumentDefinitionType } from '../../../models/datamapper/document';
-import { DocumentType } from '../../../models/datamapper/path';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;

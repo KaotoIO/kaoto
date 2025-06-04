@@ -26,6 +26,7 @@ import {
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import { MappingService } from './mapping.service';
 import { DocumentService } from './document.service';
+import { DocumentUtilService } from './document-util.service';
 
 type MappingNodePairType = {
   sourceNode?: SourceNodeDataType;
@@ -92,7 +93,7 @@ export class VisualizationService {
 
   static generateNonDocumentNodeDataChildren(parent: NodeData): NodeData[] {
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {
-      DocumentService.resolveTypeFragment(parent.field);
+      DocumentUtilService.resolveTypeFragment(parent.field);
       return VisualizationService.doGenerateNodeDataFromFields(
         parent,
         parent.field.fields,

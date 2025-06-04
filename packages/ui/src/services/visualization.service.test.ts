@@ -22,7 +22,7 @@ import {
 } from '../models/datamapper/mapping';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { BODY_DOCUMENT_ID, IDocument, PrimitiveDocument } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../models/datamapper/document';
 import {
   shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderInvalidForEachXslt,
@@ -30,7 +30,6 @@ import {
   shipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
-import { DocumentType } from '../models/datamapper/path';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -75,7 +74,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren[0].title).toEqual('OrderId');
         VisualizationService.applyIf(shipOrderChildren[0] as TargetNodeData);
 
-        expect(tree.children[0].name).toEqual('field-ShipOrder');
+        expect(tree.children[0].name).toContain('fx-ShipOrder');
         expect(tree.children[0].children[0].name).toEqual('if');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -115,7 +114,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren[1].title).toEqual('OrderPerson');
         VisualizationService.applyChooseWhenOtherwise(shipOrderChildren[1] as TargetNodeData);
 
-        expect(tree.children[0].name).toEqual('field-ShipOrder');
+        expect(tree.children[0].name).toContain('fx-ShipOrder');
         expect(tree.children[0].children[0].name).toEqual('choose');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -549,7 +548,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
         expect(addMappingNode.title).toEqual('Item');
-        expect(addMappingNode.id).toContain('add-mapping-field-Item');
+        expect(addMappingNode.id).toContain('add-mapping-fx-Item');
         expect(VisualizationService.allowForEach(addMappingNode)).toBeTruthy();
         expect(VisualizationService.allowIfChoose(addMappingNode)).toBeTruthy();
         expect(VisualizationService.allowConditionMenu(addMappingNode)).toBeTruthy();
@@ -636,7 +635,7 @@ describe('VisualizationService', () => {
     expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
     const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
     expect(addMappingNode.title).toEqual('Item');
-    expect(addMappingNode.id).toContain('add-mapping-field-Item');
+    expect(addMappingNode.id).toContain('add-mapping-fx-Item');
     expect(addMappingNode.field.name).toEqual('Item');
     expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
   });
@@ -677,7 +676,7 @@ describe('VisualizationService', () => {
     expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
     const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
     expect(addMappingNode.title).toEqual('Item');
-    expect(addMappingNode.id).toContain('add-mapping-field-Item');
+    expect(addMappingNode.id).toContain('add-mapping-fx-Item');
     expect(addMappingNode.field.name).toEqual('Item');
     expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
   });

@@ -3,6 +3,7 @@ import { MappingLinksService } from './mapping-links.service';
 import {
   invoice850Xsd,
   message837Xsd,
+  shipOrderJsonSchema,
   shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
@@ -12,13 +13,13 @@ import {
   x12850DfdlXsd,
   x12850ForEachXslt,
 } from '../stubs/datamapper/data-mapper';
-import { IDocument } from '../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { DocumentType } from '../models/datamapper/path';
 import { MutableRefObject, RefObject, useRef } from 'react';
 import { renderHook } from '@testing-library/react';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -43,23 +44,23 @@ describe('MappingLinksService', () => {
       expect(links[1].sourceNodePath).toMatch('OrderPerson');
       expect(links[1].targetNodePath).toMatch('/if-');
       expect(links[2].sourceNodePath).toMatch('OrderPerson');
-      expect(links[2].targetNodePath).toMatch(/if-.*field-OrderPerson/);
+      expect(links[2].targetNodePath).toMatch(/if-.*fx-OrderPerson/);
       expect(links[3].targetNodePath).toMatch('ShipTo');
       expect(links[3].targetNodePath).toMatch('ShipTo');
       expect(links[4].sourceNodePath).toMatch('Item');
       expect(links[4].targetNodePath).toMatch('/for-each');
       expect(links[5].sourceNodePath).toMatch('Title');
-      expect(links[5].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Title-.*/);
+      expect(links[5].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Title-.*/);
       expect(links[6].sourceNodePath).toMatch('Note');
-      expect(links[6].targetNodePath).toMatch(/for-each-.*field-Item-.*choose-.*when-.*/);
+      expect(links[6].targetNodePath).toMatch(/for-each-.*fx-Item-.*choose-.*when-.*/);
       expect(links[7].sourceNodePath).toMatch('Note');
-      expect(links[7].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Note-.*/);
+      expect(links[7].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Note-.*/);
       expect(links[8].sourceNodePath).toMatch('Title');
-      expect(links[8].targetNodePath).toMatch(/for-each-.*field-Item-.*choose-.*otherwise-.*field-Note-.*/);
+      expect(links[8].targetNodePath).toMatch(/for-each-.*fx-Item-.*choose-.*otherwise-.*fx-Note-.*/);
       expect(links[9].sourceNodePath).toMatch('Quantity');
-      expect(links[9].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Quantity-.*/);
+      expect(links[9].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Quantity-.*/);
       expect(links[10].sourceNodePath).toMatch('Price');
-      expect(links[10].targetNodePath).toMatch(/for-each-.*field-Item-.*field-Price-.*/);
+      expect(links[10].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Price-.*/);
     });
 
     it('should generate mapping links for the cached type fragments field', () => {
@@ -77,34 +78,34 @@ describe('MappingLinksService', () => {
       MappingSerializerService.deserialize(x12837PXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.length).toEqual(14);
-      expect(links[0].sourceNodePath).toMatch('field-GS-02');
-      expect(links[0].targetNodePath).toMatch('field-From');
-      expect(links[1].sourceNodePath).toMatch('field-GS-03');
-      expect(links[1].targetNodePath).toMatch('field-To');
-      expect(links[2].sourceNodePath).toMatch('field-GS-04');
-      expect(links[2].targetNodePath).toMatch('field-Date');
-      expect(links[3].sourceNodePath).toMatch('field-GS-05');
-      expect(links[3].targetNodePath).toMatch('field-Time');
-      expect(links[4].sourceNodePath).toMatch('field-Loop2000');
+      expect(links[0].sourceNodePath).toMatch('fx-GS-02');
+      expect(links[0].targetNodePath).toMatch('fx-From');
+      expect(links[1].sourceNodePath).toMatch('fx-GS-03');
+      expect(links[1].targetNodePath).toMatch('fx-To');
+      expect(links[2].sourceNodePath).toMatch('fx-GS-04');
+      expect(links[2].targetNodePath).toMatch('fx-Date');
+      expect(links[3].sourceNodePath).toMatch('fx-GS-05');
+      expect(links[3].targetNodePath).toMatch('fx-Time');
+      expect(links[4].sourceNodePath).toMatch('fx-Loop2000');
       expect(links[4].targetNodePath).toMatch('for-each');
-      expect(links[5].sourceNodePath).toMatch('field-CLM-01');
-      expect(links[5].targetNodePath).toMatch('field-SubmitterId');
-      expect(links[6].sourceNodePath).toMatch('field-CLM-02');
-      expect(links[6].targetNodePath).toMatch('field-MonetaryAmount');
-      expect(links[7].sourceNodePath).toMatch('field-C023-01');
-      expect(links[7].targetNodePath).toMatch('field-FacilityCodeValue');
-      expect(links[8].sourceNodePath).toMatch('field-C023-02');
-      expect(links[8].targetNodePath).toMatch('field-FacilityCodeQualifier');
-      expect(links[9].sourceNodePath).toMatch('field-C023-03');
-      expect(links[9].targetNodePath).toMatch('field-ClaimFrequencyTypeCode');
-      expect(links[10].sourceNodePath).toMatch('field-CLM-06');
-      expect(links[10].targetNodePath).toMatch('field-YesNoConditionOrResponseCodeFile');
-      expect(links[11].sourceNodePath).toMatch('field-CLM-07');
-      expect(links[11].targetNodePath).toMatch('field-ProviderAcceptAssignmentCode');
-      expect(links[12].sourceNodePath).toMatch('field-CLM-08');
-      expect(links[12].targetNodePath).toMatch('field-YesNoConditionOrResponseCodeBenefits');
-      expect(links[13].sourceNodePath).toMatch('field-CLM-09');
-      expect(links[13].targetNodePath).toMatch('field-ReleaseOfInformationCode');
+      expect(links[5].sourceNodePath).toMatch('fx-CLM-01');
+      expect(links[5].targetNodePath).toMatch('fx-SubmitterId');
+      expect(links[6].sourceNodePath).toMatch('fx-CLM-02');
+      expect(links[6].targetNodePath).toMatch('fx-MonetaryAmount');
+      expect(links[7].sourceNodePath).toMatch('fx-C023-01');
+      expect(links[7].targetNodePath).toMatch('fx-FacilityCodeValue');
+      expect(links[8].sourceNodePath).toMatch('fx-C023-02');
+      expect(links[8].targetNodePath).toMatch('fx-FacilityCodeQualifier');
+      expect(links[9].sourceNodePath).toMatch('fx-C023-03');
+      expect(links[9].targetNodePath).toMatch('fx-ClaimFrequencyTypeCode');
+      expect(links[10].sourceNodePath).toMatch('fx-CLM-06');
+      expect(links[10].targetNodePath).toMatch('fx-YesNoConditionOrResponseCodeFile');
+      expect(links[11].sourceNodePath).toMatch('fx-CLM-07');
+      expect(links[11].targetNodePath).toMatch('fx-ProviderAcceptAssignmentCode');
+      expect(links[12].sourceNodePath).toMatch('fx-CLM-08');
+      expect(links[12].targetNodePath).toMatch('fx-YesNoConditionOrResponseCodeBenefits');
+      expect(links[13].sourceNodePath).toMatch('fx-CLM-09');
+      expect(links[13].targetNodePath).toMatch('fx-ReleaseOfInformationCode');
     });
 
     it('should not generate mapping link from the source body root', () => {
@@ -135,13 +136,23 @@ describe('MappingLinksService', () => {
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.length).toEqual(8);
     });
+
+    it('should generate mapping links for JSON documents', () => {
+      const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+        DocumentType.TARGET_BODY,
+        'ShipOrder',
+        shipOrderJsonSchema,
+      );
+      tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
+      MappingSerializerService.deserialize(shipOrderToShipOrderXslt, jsonTargetDoc, tree, paramsMap);
+    });
   });
 
   describe('isInSelectedMapping()', () => {
     it('should detect selected mapping', () => {
       const { result: refOrderId } = renderHook(() =>
         useRef<NodeReference>({
-          path: 'sourceBody:ShipOrder.xsd://field-ShipOrder-1234/field-OrderId-1234',
+          path: 'sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-OrderId-1234',
           isSource: true,
           containerRef: null,
           headerRef: null,
@@ -149,7 +160,7 @@ describe('MappingLinksService', () => {
       );
       const { result: refShipToName } = renderHook(() =>
         useRef<NodeReference>({
-          path: 'sourceBody:ShipOrder.xsd://field-ShipOrder-1234/field-ShipTo-1234/field-Name-1234',
+          path: 'sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-ShipTo-1234/fx-Name-1234',
           isSource: true,
           containerRef: null,
           headerRef: null,
@@ -200,19 +211,19 @@ describe('MappingLinksService', () => {
         } as unknown as SVGSVGElement,
       };
 
-      const refOrderId = getNodeReference('sourceBody:ShipOrder.xsd://field-ShipOrder-1234/field-OrderId-1234');
+      const refOrderId = getNodeReference('sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-OrderId-1234');
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, refOrderId);
       expect(links.length).toEqual(11);
-      expect(links[0].sourceNodePath).toContain('field-OrderId');
-      expect(links[0].targetNodePath).toContain('field-OrderId');
+      expect(links[0].sourceNodePath).toContain('fx-OrderId');
+      expect(links[0].targetNodePath).toContain('fx-OrderId');
       expect(links[0].isSelected).toBeTruthy();
       const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
       expect(lineProps.length).toEqual(11);
-      expect(lineProps[0].sourceNodePath).not.toContain('field-OrderId');
+      expect(lineProps[0].sourceNodePath).not.toContain('fx-OrderId');
       expect(lineProps[0].isSelected).toBeFalsy();
-      expect(lineProps[10].sourceNodePath).toContain('field-OrderId');
-      expect(lineProps[10].targetNodePath).toContain('field-OrderId');
+      expect(lineProps[10].sourceNodePath).toContain('fx-OrderId');
+      expect(lineProps[10].targetNodePath).toContain('fx-OrderId');
       expect(lineProps[10].isSelected).toBeTruthy();
     });
   });
