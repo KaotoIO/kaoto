@@ -22,17 +22,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apidevtools/json-schema-ref-parser@npm:^11.5.5":
-  version: 11.6.4
-  resolution: "@apidevtools/json-schema-ref-parser@npm:11.6.4"
-  dependencies:
-    "@jsdevtools/ono": "npm:^7.1.3"
-    "@types/json-schema": "npm:^7.0.15"
-    js-yaml: "npm:^4.1.0"
-  checksum: 10/66ab61d49d29915d7a95f452d753f5fccdc26e565262864cf3a44b838b25d8bca1961d0b285b119d1daa44321f606ddf22ee2090a49a5af5e7d348dc63c916e0
-  languageName: node
-  linkType: hard
-
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.10.4, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.21.4, @babel/code-frame@npm:^7.22.13, @babel/code-frame@npm:^7.24.7":
   version: 7.24.7
   resolution: "@babel/code-frame@npm:7.24.7"
@@ -2892,31 +2881,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsdevtools/ono@npm:^7.1.3":
-  version: 7.1.3
-  resolution: "@jsdevtools/ono@npm:7.1.3"
-  checksum: 10/d4a036ccb9d2b21b7e4cec077c59a5a83fad58adacbce89e7e6b77a703050481ff5b6d813aef7f5ff0a8347a85a0eedf599e2e6bb5784a971a93e53e43b10157
+"@kaoto/camel-catalog@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@kaoto/camel-catalog@npm:0.1.0"
+  checksum: 10/74433df125bf877f2f918f5cbb976aeb23c48222b318dd8592767c2446e07ecc44315d9cd43915d53bd904091eeca3a7fd4737e676b4c63ae7cdb17dfa51db01
   languageName: node
   linkType: hard
-
-"@kaoto/camel-catalog@workspace:*, @kaoto/camel-catalog@workspace:packages/catalog-generator":
-  version: 0.0.0-use.local
-  resolution: "@kaoto/camel-catalog@workspace:packages/catalog-generator"
-  dependencies:
-    "@eslint/js": "npm:^9.10.0"
-    "@types/eslint__js": "npm:^8.42.3"
-    "@types/node": "npm:^20.0.0"
-    eslint: "npm:^9.10.0"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-plugin-prettier: "npm:^5.2.1"
-    json-schema-to-typescript: "npm:^15.0.0"
-    prettier: "npm:^3.0.0"
-    rimraf: "npm:^6.0.0"
-    ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.4.2"
-    typescript-eslint: "npm:^8.5.0"
-  languageName: unknown
-  linkType: soft
 
 "@kaoto/kaoto-tests@workspace:packages/ui-tests":
   version: 0.0.0-use.local
@@ -2973,7 +2943,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.21.5"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "workspace:*"
+    "@kaoto/camel-catalog": "npm:^0.1.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:6.2.3"
@@ -6133,7 +6103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4, @types/lodash@npm:^4.14.167, @types/lodash@npm:^4.14.172, @types/lodash@npm:^4.17.7":
+"@types/lodash@npm:^4, @types/lodash@npm:^4.14.167, @types/lodash@npm:^4.14.172":
   version: 4.17.17
   resolution: "@types/lodash@npm:4.17.17"
   checksum: 10/496459a3cb1a0733bb60532de3899ad6297717af0b9b26ad6821154b2005fec86f29ccd47a2e6f4da4a8c7c818bb8ae73901144e8057ea86b7b02a3d7bb9d13f
@@ -10689,18 +10659,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fdir@npm:^6.4.2":
-  version: 6.4.2
-  resolution: "fdir@npm:6.4.2"
-  peerDependencies:
-    picomatch: ^3 || ^4
-  peerDependenciesMeta:
-    picomatch:
-      optional: true
-  checksum: 10/5ff80d1d2034e75cc68be175401c9f64c4938a6b2c1e9a0c27f2d211ffbe491fd86d29e4576825d9da8aff9bd465f0283427c2dddc11653457906c46d3bbc448
-  languageName: node
-  linkType: hard
-
 "fdir@npm:^6.4.3":
   version: 6.4.3
   resolution: "fdir@npm:6.4.3"
@@ -13323,25 +13281,6 @@ __metadata:
   version: 3.0.2
   resolution: "json-parse-even-better-errors@npm:3.0.2"
   checksum: 10/6f04ea6c9ccb783630a59297959247e921cc90b917b8351197ca7fd058fccc7079268fd9362be21ba876fc26aa5039369dd0a2280aae49aae425784794a94927
-  languageName: node
-  linkType: hard
-
-"json-schema-to-typescript@npm:^15.0.0":
-  version: 15.0.4
-  resolution: "json-schema-to-typescript@npm:15.0.4"
-  dependencies:
-    "@apidevtools/json-schema-ref-parser": "npm:^11.5.5"
-    "@types/json-schema": "npm:^7.0.15"
-    "@types/lodash": "npm:^4.17.7"
-    is-glob: "npm:^4.0.3"
-    js-yaml: "npm:^4.1.0"
-    lodash: "npm:^4.17.21"
-    minimist: "npm:^1.2.8"
-    prettier: "npm:^3.2.5"
-    tinyglobby: "npm:^0.2.9"
-  bin:
-    json2ts: dist/src/cli.js
-  checksum: 10/99544c8b2e10f1487fd685357d8333e70f5eb9c1ba96fbdcc172d8cf62dc382158276ad82648a93911562f07da7c2adf7733d4608ffdeca9525d08d7930b9880
   languageName: node
   linkType: hard
 
@@ -18961,16 +18900,6 @@ __metadata:
     fdir: "npm:^6.4.3"
     picomatch: "npm:^4.0.2"
   checksum: 10/4ad28701fa9118b32ef0e27f409e0a6c5741e8b02286d50425c1f6f71e6d6c6ded9dd5bbbbb714784b08623c4ec4d150151f1d3d996cfabe0495f908ab4f7002
-  languageName: node
-  linkType: hard
-
-"tinyglobby@npm:^0.2.9":
-  version: 0.2.10
-  resolution: "tinyglobby@npm:0.2.10"
-  dependencies:
-    fdir: "npm:^6.4.2"
-    picomatch: "npm:^4.0.2"
-  checksum: 10/10c976866d849702edc47fc3fef27d63f074c40f75ef17171ecc1452967900699fa1e62373681dd58e673ddff2e3f6094bcd0a2101e3e4b30f4c2b9da41397f2
   languageName: node
   linkType: hard
 

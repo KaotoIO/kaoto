@@ -23,7 +23,6 @@
     "typescript": "5.5.4"
   },
   "scripts": {
-    "postinstall": "yarn workspace @kaoto/camel-catalog run build",
     "version": "lerna version",
     "publish": "lerna publish from-package"
   },
