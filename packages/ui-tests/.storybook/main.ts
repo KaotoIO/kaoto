@@ -27,7 +27,7 @@ const config: StorybookConfig = {
   docs: {},
   // Configures the static asset folder in> Storybook
   // Requires the catalog-generator build
-  staticDirs: [{ from: '../../catalog-generator/dist/camel-catalog', to: 'camel-catalog' }],
+  staticDirs: [{ from: '../../../node_modules/@kaoto/camel-catalog/dist/camel-catalog', to: 'camel-catalog' }],
   typescript: {
     check: false,
     checkOptions: {},
