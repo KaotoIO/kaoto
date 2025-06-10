@@ -31,20 +31,14 @@ jobs:
           scope: '@kaoto'
           cache: 'yarn'
 
-      - name: '🛰️ Setup Java'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
 
       - name: '🔧 Install dependencies'
         run: yarn
 
-      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
+      # Build packages
       - name: '🔧 Build packages'
         run: |
-          yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog run build
+          yarn workspaces foreach --verbose --all --topological-dev run build
 
       - name: '🔧 Tar UI Dist'
         shell: bash
