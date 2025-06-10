@@ -27,25 +27,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
       # Install dependencies
       - run: yarn install --immutable
 
-      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
+
       - name: Build packages
-        run: yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/camel-catalog run build:dev
+        run: yarn workspaces foreach --verbose --all --topological-dev run build:dev
 
       # Build lib
       - name: Build @kaoto/kaoto package in lib mode
@@ -58,12 +45,6 @@ jobs:
           if-no-files-found: error
           path: packages/ui/dist
 
-      - name: 💾 Save catalog build folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: catalog-dist
-          if-no-files-found: error
-          path: packages/catalog-generator/dist/camel-catalog
 
   test-on-firefox:
     needs: install
@@ -76,23 +57,11 @@ jobs:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
-
-      - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v4
-        with:
-          name: catalog-dist
-          path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
         uses: cypress-io/github-action@v6.10.0
@@ -136,23 +105,11 @@ jobs:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
-
-      - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v4
-        with:
-          name: catalog-dist
-          path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
         uses: cypress-io/github-action@v6.10.0
@@ -196,23 +153,11 @@ jobs:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
       - name: 🗄️ Download the UI build folder
         uses: actions/download-artifact@v4
         with:
           name: ui-dist
           path: packages/ui/dist
-
-      - name: 🗄️ Download the catalog build folder
-        uses: actions/download-artifact@v4
-        with:
-          name: catalog-dist
-          path: packages/camel-catalog/dist
 
       - name: 🔨 Cypress run
         uses: cypress-io/github-action@v6.10.0

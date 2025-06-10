@@ -2881,10 +2881,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@kaoto/camel-catalog@npm:0.1.0"
-  checksum: 10/74433df125bf877f2f918f5cbb976aeb23c48222b318dd8592767c2446e07ecc44315d9cd43915d53bd904091eeca3a7fd4737e676b4c63ae7cdb17dfa51db01
+"@kaoto/camel-catalog@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "@kaoto/camel-catalog@npm:0.1.2"
+  checksum: 10/7ce7431ea093a1741592b9ae080cbe7bd975ff243eaa72d26928df4e5c1be4ff0b46eb41a3218da242e8afbeafdea666b70d0eba49217e567ce4faaef98652d4
   languageName: node
   linkType: hard
 
@@ -2943,7 +2943,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.21.5"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.1.0"
+    "@kaoto/camel-catalog": "npm:^0.1.2"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:6.2.3"

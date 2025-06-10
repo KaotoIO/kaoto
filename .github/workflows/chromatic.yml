@@ -37,12 +37,6 @@ jobs:
           scope: '@kaoto'
           cache: 'yarn'
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
       # 👇 Install dependencies with the same package manager used in the project (replace it as needed), e.g. yarn, npm, pnpm
       - name: Install dependencies
         run: yarn
