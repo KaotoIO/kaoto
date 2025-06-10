@@ -19,11 +19,6 @@ jobs:
           scope: '@kaoto'
           cache: 'yarn'
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
 
       # Install dependencies
       - run: yarn
