@@ -11,6 +11,10 @@ function getAbsolutePath(value: string): string {
   return dirname(require.resolve(join(value, 'package.json')));
 }
 
+function getCatalogFilesPath(): string {
+  return dirname(require.resolve('@kaoto/camel-catalog/index.json'));
+}
+
 const config: StorybookConfig = {
   stories: ['../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: [
@@ -25,6 +29,9 @@ const config: StorybookConfig = {
     options: {},
   },
   docs: {},
+  // Configures the static asset folder in> Storybook
+  // Requires the camel catalog to be available in the same path
+  staticDirs: [{ from: getCatalogFilesPath(), to: 'camel-catalog' }],
   typescript: {
     check: false,
     checkOptions: {},
