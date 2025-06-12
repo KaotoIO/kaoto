@@ -10,6 +10,8 @@ import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from './camel-catalog.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './support/kamelet-schema.service';
+import { SourceSchemaType } from '../../camel/source-schema-type';
+import { AddStepMode } from '../base-visual-entity';
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
@@ -257,6 +259,63 @@ describe('Pipe', () => {
 
       expect(sinkNode.getPreviousNode()).toBe(stepNode);
       expect(sinkNode.getNextNode()).toBeUndefined();
+    });
+  });
+
+  describe('pasteStep', () => {
+    it('should append a new step to the model', () => {
+      pipeVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'avro-serialize-action',
+          type: SourceSchemaType.Pipe,
+          definition: {
+            ref: {
+              kind: 'Kamelet',
+              apiVersion: 'camel.apache.org/v1',
+              name: 'avro-serialize-action',
+            },
+          },
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          path: 'steps.0',
+          icon: '/src/assets/components/log.svg',
+        },
+      });
+
+      expect(pipeVisualEntity.pipe.spec!.steps).toHaveLength(2);
+      expect(pipeVisualEntity.pipe.spec!.steps).toMatchSnapshot();
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    it('should return the copied content for a step', () => {
+      const copiedContent = pipeVisualEntity.getCopiedContent('steps.0');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Pipe,
+        name: 'delay-action',
+        definition: {
+          ref: {
+            kind: 'Kamelet',
+            apiVersion: 'camel.apache.org/v1',
+            name: 'delay-action',
+          },
+        },
+      });
+    });
+
+    it('should return undefined if the path is undefined', () => {
+      const copiedContent = pipeVisualEntity.getCopiedContent();
+      expect(copiedContent).toBeUndefined();
+    });
+
+    it('should return undefined node default value if the path is invalid', () => {
+      const copiedContent = pipeVisualEntity.getCopiedContent('steps.1');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Pipe,
+        name: '',
+        defaultValue: undefined,
+      });
     });
   });
 });

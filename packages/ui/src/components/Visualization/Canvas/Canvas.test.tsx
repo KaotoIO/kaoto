@@ -245,7 +245,9 @@ describe('Canvas', () => {
 
       await act(async () => {
         result = render(
-          <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn() }}>
+          <CatalogModalContext.Provider
+            value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn(), checkCompatibility: jest.fn() }}
+          >
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
                 <Canvas entities={[entity]} />
