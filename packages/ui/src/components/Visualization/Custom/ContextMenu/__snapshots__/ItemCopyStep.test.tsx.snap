@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ItemCopyStep should render Copy ContextMenuItem 1`] = `
+<div>
+  <li
+    class="pf-v6-c-menu__list-item"
+    data-ouia-component-id="OUIA-Generated-DropdownItem-1"
+    data-ouia-component-type="PF6/DropdownItem"
+    data-ouia-safe="true"
+    role="none"
+  >
+    <button
+      class="pf-v6-c-menu__item"
+      role="menuitem"
+      tabindex="-1"
+      type="button"
+    >
+      <span
+        class="pf-v6-c-menu__item-main"
+      >
+        <span
+          class="pf-v6-c-menu__item-text"
+        >
+          <svg
+            aria-hidden="true"
+            class="pf-v6-svg"
+            fill="currentColor"
+            height="1em"
+            role="img"
+            viewBox="0 0 448 512"
+            width="1em"
+          >
+            <path
+              d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"
+            />
+          </svg>
+           Copy
+        </span>
+      </span>
+    </button>
+  </li>
+</div>
+`;

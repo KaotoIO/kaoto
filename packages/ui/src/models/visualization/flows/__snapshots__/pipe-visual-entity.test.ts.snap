@@ -51,3 +51,22 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
   "canReplaceStep": true,
 }
 `;
+
+exports[`Pipe pasteStep should append a new step to the model 1`] = `
+[
+  {
+    "ref": {
+      "apiVersion": "camel.apache.org/v1",
+      "kind": "Kamelet",
+      "name": "delay-action",
+    },
+  },
+  {
+    "ref": {
+      "apiVersion": "camel.apache.org/v1",
+      "kind": "Kamelet",
+      "name": "avro-serialize-action",
+    },
+  },
+]
+`;

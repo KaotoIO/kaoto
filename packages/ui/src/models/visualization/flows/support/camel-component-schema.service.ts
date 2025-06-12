@@ -16,6 +16,7 @@ import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentFilterService } from './camel-component-filter.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { IClipboardCopyObject } from '../../../../components/Visualization/Custom/hooks/copy-step.hook';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = [
@@ -34,6 +35,7 @@ export class CamelComponentSchemaService {
     ...CamelComponentFilterService.REST_DSL_METHODS,
   ];
   static DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
+  static readonly SPECIAL_CHILD_PROCESSORS = ['onFallback', 'when', 'otherwise', 'doCatch', 'doFinally'];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
@@ -350,6 +352,19 @@ export class CamelComponentSchemaService {
       return uriParts[0] + ':' + kameletName;
     }
     return uriParts[0];
+  }
+
+  /**
+   * Get the definition for a given component and property
+   */
+  static getNodeDefinitionValue(clipboardContent: IClipboardCopyObject): ProcessorDefinition {
+    const { name, definition: defaultValue } = clipboardContent;
+
+    if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
+      return defaultValue as ProcessorDefinition;
+    } else {
+      return { [name]: defaultValue } as ProcessorDefinition;
+    }
   }
 
   private static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {

@@ -8,6 +8,8 @@ import { NodeLabelType } from '../../../settings/settings.model';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { IClipboardCopyObject } from '../../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { SourceSchemaType } from '../../../camel/source-schema-type';
 
 describe('CamelComponentSchemaService', () => {
   let path: string;
@@ -722,6 +724,34 @@ describe('CamelComponentSchemaService', () => {
       const uri = 'timer';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
       expect(componentName).toEqual('timer');
+    });
+  });
+
+  describe('getNodeDefinitionValue', () => {
+    it('should return Node definition for a simple processor', () => {
+      const clipboadContent: IClipboardCopyObject = {
+        type: SourceSchemaType.Route,
+        name: 'log',
+        definition: {
+          id: 'log-3245',
+          message: '${body}',
+        },
+      };
+      const expectedValue = CamelComponentSchemaService.getNodeDefinitionValue(clipboadContent);
+      expect(expectedValue).toEqual({ log: { id: 'log-3245', message: '${body}' } });
+    });
+
+    it('should return Node definition for a Special processor', () => {
+      const clipboadContent: IClipboardCopyObject = {
+        type: SourceSchemaType.Route,
+        name: 'when',
+        definition: {
+          id: 'when-2765',
+          steps: [{ log: { id: 'log-2202', message: '${body}' } }],
+        },
+      };
+      const expectedValue = CamelComponentSchemaService.getNodeDefinitionValue(clipboadContent);
+      expect(expectedValue).toEqual({ id: 'when-2765', steps: [{ log: { id: 'log-2202', message: '${body}' } }] });
     });
   });
 });

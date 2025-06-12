@@ -1,6 +1,9 @@
+import { cloneDeep } from 'lodash';
 import { camelRouteJson } from '../../stubs/camel-route';
+import { SourceSchemaType } from '../camel';
 import { NodeLabelType } from '../settings';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   DISABLED_NODE_INTERACTION,
   IVisualizationNode,
@@ -8,6 +11,7 @@ import {
 } from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
+import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
 
 describe('VisualizationNode', () => {
   let node: IVisualizationNode;
@@ -243,7 +247,7 @@ describe('VisualizationNode', () => {
     });
 
     it('should delegate to the BaseVisualCamelEntity to remove the underlying child', () => {
-      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(camelRouteJson);
+      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
 
       node = camelRouteVisualEntityStub.toVizNode();
       const fromNode = node.getChildren()?.[0];
@@ -284,6 +288,91 @@ describe('VisualizationNode', () => {
 
       expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path);
       expect(validationText).toEqual('test-validation-text');
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
+      node = createVisualizationNode('test', {});
+      const copiedContent = node.getCopiedContent();
+
+      expect(copiedContent).toBeUndefined();
+    });
+
+    it('should return the validation text from the underlying BaseVisualCamelEntity', () => {
+      const getCopiedContentSpy = jest.fn().mockReturnValue('test-copied-content');
+      const visualEntity = {
+        getCopiedContent: getCopiedContentSpy,
+      } as unknown as BaseVisualCamelEntity;
+
+      node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+      const copiedContent = node.getCopiedContent();
+
+      expect(getCopiedContentSpy).toHaveBeenCalledWith(node.data.path);
+      expect(copiedContent).toEqual('test-copied-content');
+    });
+  });
+
+  describe('pasteBaseEntityStep', () => {
+    const clipboardContent: IClipboardCopyObject = {
+      type: SourceSchemaType.Route,
+      name: 'log',
+      definition: {
+        id: 'log-test',
+        message: '${body}',
+      },
+    };
+
+    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
+      node = createVisualizationNode('test', {});
+      const copiedContent = node.pasteBaseEntityStep(clipboardContent, AddStepMode.InsertChildStep);
+
+      expect(copiedContent).toBeUndefined();
+    });
+
+    it('should delegate to the BaseVisualCamelEntity to paste the step', () => {
+      const pasteStepSpy = jest.fn();
+      const visualEntity = {
+        pasteStep: pasteStepSpy,
+      } as unknown as BaseVisualCamelEntity;
+
+      node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+
+      /** call paste on set-header node */
+      node!.pasteBaseEntityStep(clipboardContent, AddStepMode.InsertChildStep);
+      expect(pasteStepSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should paste the step', () => {
+      const camelRouteVisualEntityStub = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
+      const clipboardContent: IClipboardCopyObject = {
+        type: SourceSchemaType.Route,
+        name: 'log',
+        definition: {
+          id: 'log-test',
+          message: '${body}',
+        },
+      };
+
+      node = camelRouteVisualEntityStub.toVizNode();
+      const fromNode = node.getChildren()?.[0];
+
+      /** Get set-header node */
+      const setHeaderNode = node.getChildren()?.[1];
+
+      /** call paste on set-header node */
+      setHeaderNode!.pasteBaseEntityStep(clipboardContent, AddStepMode.AppendStep);
+
+      /** Refresh the Viz Node */
+      node = camelRouteVisualEntityStub.toVizNode();
+
+      expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
+      expect(node.getChildren()?.[1].getNodeLabel()).toEqual('set-header');
+      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('log');
+      expect(node.getChildren()?.[3].getNodeLabel()).toEqual('choice');
+      expect(node.getChildren()?.[4].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()).toHaveLength(5);
+      expect(fromNode!.getChildren()).toHaveLength(0);
     });
   });
 });

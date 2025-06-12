@@ -9,6 +9,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { AddStepMode } from '../base-visual-entity';
+import { SourceSchemaType } from '../../camel';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -346,6 +347,131 @@ describe('AbstractCamelVisualEntity', () => {
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
       expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+  });
+
+  describe('pasteStep', () => {
+    it('should append a new step to the model', () => {
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'log',
+          type: SourceSchemaType.Route,
+          definition: {
+            id: 'test-id',
+            message: 'Test message',
+          },
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          path: 'route.from.steps.2.to',
+          icon: '/src/assets/components/log.svg',
+          processorName: 'to',
+          componentName: 'log',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
+      expect(abstractVisualEntity.entityDef.route.from.steps[3]).toMatchSnapshot();
+    });
+
+    it('should insert a new child step', () => {
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'log',
+          type: SourceSchemaType.Route,
+          definition: {
+            id: 'test-id',
+            message: 'Test message',
+          },
+        },
+        mode: AddStepMode.InsertChildStep,
+        data: {
+          componentName: 'timer',
+          icon: '/src/assets/components/timer.svg',
+          isGroup: false,
+          path: 'route.from',
+          processorName: 'from',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
+      expect(abstractVisualEntity.entityDef.route.from.steps).toMatchSnapshot();
+    });
+
+    it('should insert a new special child step belonging to an array like when or doCatch', () => {
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'when',
+          type: SourceSchemaType.Route,
+          definition: {
+            expression: 'simple("${body} contains \'test\'")',
+          },
+        },
+        mode: AddStepMode.InsertSpecialChildStep,
+        data: {
+          path: 'route.from.steps.1.choice',
+          icon: '/src/assets/eip/choice.png',
+          processorName: 'choice',
+          isGroup: true,
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+
+    it('should insert a new special child step belonging to a single property like otherwise or doFinally', () => {
+      abstractVisualEntity.removeStep('route.from.steps.1.choice.otherwise');
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'otherwise',
+          type: SourceSchemaType.Route,
+          definition: {
+            id: 'test-id',
+            steps: [],
+          },
+        },
+        mode: AddStepMode.InsertSpecialChildStep,
+        data: {
+          path: 'route.from.steps.1.choice',
+          icon: '/src/assets/eip/choice.png',
+          processorName: 'choice',
+          isGroup: true,
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    it('should return the copied content for a step', () => {
+      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Route,
+        name: 'to',
+        definition: {
+          uri: 'direct:my-route',
+          parameters: {
+            bridgeErrorHandler: true,
+          },
+        },
+      });
+    });
+
+    it('should return undefined if the path is undefined', () => {
+      const copiedContent = abstractVisualEntity.getCopiedContent();
+      expect(copiedContent).toBeUndefined();
+    });
+
+    it('should return undefined node default value if the path is invalid', () => {
+      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Route,
+        name: 'to',
+        defaultValue: undefined,
+      });
     });
   });
 });

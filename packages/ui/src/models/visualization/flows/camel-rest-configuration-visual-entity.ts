@@ -13,6 +13,7 @@ import {
 } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
+import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -68,6 +69,14 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   addStep(): void {
+    return;
+  }
+
+  getCopiedContent(): IClipboardCopyObject | undefined {
+    return undefined;
+  }
+
+  pasteStep(): void {
     return;
   }
 
