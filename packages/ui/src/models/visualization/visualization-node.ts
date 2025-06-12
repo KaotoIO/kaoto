@@ -10,6 +10,7 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from './base-visual-entity';
+import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
 
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
   id: string,
@@ -59,6 +60,14 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
     this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
+  }
+
+  getCopiedContent(): IClipboardCopyObject | undefined {
+    return this.getBaseEntity()?.getCopiedContent(this.data.path);
+  }
+
+  pasteBaseEntityStep(definition: IClipboardCopyObject, mode: AddStepMode): void {
+    this.getBaseEntity()?.pasteStep({ clipboadContent: definition, mode, data: this.data });
   }
 
   canDragNode(): boolean {

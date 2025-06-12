@@ -302,3 +302,141 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
   "canReplaceStep": true,
 }
 `;
+
+exports[`AbstractCamelVisualEntity pasteStep should append a new step to the model 1`] = `
+{
+  "log": {
+    "id": "test-id",
+    "message": "Test message",
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity pasteStep should insert a new child step 1`] = `
+[
+  {
+    "log": {
+      "id": "test-id",
+      "message": "Test message",
+    },
+  },
+  {
+    "set-header": {
+      "name": "myChoice",
+      "simple": "\${random(2)}",
+    },
+  },
+  {
+    "choice": {
+      "otherwise": {
+        "steps": [
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "log": {
+              "id": "log-2",
+              "message": "We got a \${body}",
+            },
+          },
+        ],
+      },
+      "when": [
+        {
+          "simple": "\${header.myChoice} == 1",
+          "steps": [
+            {
+              "log": {
+                "id": "log-1",
+                "message": "We got a one.",
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    "to": {
+      "parameters": {
+        "bridgeErrorHandler": true,
+      },
+      "uri": "direct:my-route",
+    },
+  },
+]
+`;
+
+exports[`AbstractCamelVisualEntity pasteStep should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
+{
+  "choice": {
+    "otherwise": {
+      "id": "test-id",
+      "steps": [],
+    },
+    "when": [
+      {
+        "simple": "\${header.myChoice} == 1",
+        "steps": [
+          {
+            "log": {
+              "id": "log-1",
+              "message": "We got a one.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity pasteStep should insert a new special child step belonging to an array like when or doCatch 1`] = `
+{
+  "choice": {
+    "otherwise": {
+      "steps": [
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "log": {
+            "id": "log-2",
+            "message": "We got a \${body}",
+          },
+        },
+      ],
+    },
+    "when": [
+      {
+        "expression": "simple("\${body} contains 'test'")",
+      },
+      {
+        "simple": "\${header.myChoice} == 1",
+        "steps": [
+          {
+            "log": {
+              "id": "log-1",
+              "message": "We got a one.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
