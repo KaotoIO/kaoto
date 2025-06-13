@@ -4,6 +4,7 @@ import { getCamelRandomId, getHexaDecimalRandomId } from '../../../../camel-util
 import { DefinedComponent } from '../../../camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { XSLT_COMPONENT_NAME } from '../../../../utils';
+import { CamelComponentFilterService } from './camel-component-filter.service';
 
 /**
  * CamelComponentDefaultService
@@ -31,6 +32,11 @@ export class CamelComponentDefaultService {
    * Get the default value for a given component and property
    */
   static getDefaultNodeDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
+    if (definedComponent.defaultValue) {
+      // If default value is defined, return it
+      return this.getNodeDefinitionValue(definedComponent);
+    }
+
     switch (definedComponent.type) {
       case CatalogKind.Component:
         return this.getDefaultValueFromComponent(definedComponent.name);
@@ -224,5 +230,15 @@ export class CamelComponentDefaultService {
 
   private static getPrefixedKameletName(kameletName: string): string {
     return `kamelet:${kameletName}`;
+  }
+
+  private static getNodeDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
+    const { name, defaultValue } = definedComponent;
+
+    if (CamelComponentFilterService.SPECIAL_PROCESSORS.includes(name)) {
+      return defaultValue as ProcessorDefinition;
+    } else {
+      return { [name]: defaultValue } as ProcessorDefinition;
+    }
   }
 }

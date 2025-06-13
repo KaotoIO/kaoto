@@ -18,6 +18,8 @@ import { CamelComponentDefaultService } from './support/camel-component-default.
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
+import { ClipboardManager } from '../../../utils/ClipboardManager';
+import { CamelComponentFilterService } from './support/camel-component-filter.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
   constructor(public entityDef: T) {}
@@ -268,6 +270,41 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
+    const canBeCopied = data.path !== 'route.from' && data.path !== 'template.from';
+
+    // Check if the clipboard has valid content to paste
+    const clipboardContent = ClipboardManager.getClipboardContent();
+
+    // Check if the clipboard content can be pasted as a next step
+    const canBePastedAsNextStep =
+      canHavePreviousStep &&
+      !!clipboardContent &&
+      CamelComponentFilterService.isCompatible(
+        clipboardContent?.name,
+        AddStepMode.AppendStep,
+        data as CamelRouteVisualEntityData,
+      );
+
+    // Check if the clipboard content can be pasted as a child step
+    const canBePastedAsChild =
+      canHaveChildren &&
+      !!clipboardContent &&
+      CamelComponentFilterService.isCompatible(
+        clipboardContent?.name,
+        AddStepMode.InsertChildStep,
+        data as CamelRouteVisualEntityData,
+      );
+
+    // Check if the clipboard content can be pasted as a special child step
+    const canBePastedAsSpecialChild =
+      canHaveSpecialChildren &&
+      !!clipboardContent &&
+      CamelComponentFilterService.isCompatible(
+        clipboardContent?.name,
+        AddStepMode.InsertSpecialChildStep,
+        data as CamelRouteVisualEntityData,
+        this.getComponentSchema(data.path)?.definition,
+      );
 
     return {
       canHavePreviousStep,
@@ -278,6 +315,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       canRemoveStep,
       canRemoveFlow,
       canBeDisabled,
+      canBeCopied,
+      canBePastedAsNextStep,
+      canBePastedAsChild,
+      canBePastedAsSpecialChild,
     };
   }
 

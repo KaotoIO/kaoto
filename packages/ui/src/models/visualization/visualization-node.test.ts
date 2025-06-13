@@ -206,6 +206,10 @@ describe('VisualizationNode', () => {
         canRemoveStep: true,
         canRemoveFlow: false,
         canBeDisabled: true,
+        canBeCopied: false,
+        canBePastedAsChild: false,
+        canBePastedAsNextStep: false,
+        canBePastedAsSpecialChild: false,
       };
       const getNodeInteractionSpy = jest.fn().mockReturnValue(mockNodeInteraction);
       const visualEntity = {

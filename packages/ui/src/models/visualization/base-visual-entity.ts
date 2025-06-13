@@ -188,6 +188,10 @@ export interface NodeInteraction {
   canRemoveStep: boolean;
   canRemoveFlow: boolean;
   canBeDisabled: boolean;
+  canBeCopied: boolean;
+  canBePastedAsNextStep: boolean;
+  canBePastedAsChild: boolean;
+  canBePastedAsSpecialChild: boolean;
 }
 
 export const DISABLED_NODE_INTERACTION: NodeInteraction = {
@@ -199,4 +203,8 @@ export const DISABLED_NODE_INTERACTION: NodeInteraction = {
   canRemoveStep: false,
   canRemoveFlow: false,
   canBeDisabled: false,
+  canBeCopied: false,
+  canBePastedAsNextStep: false,
+  canBePastedAsChild: false,
+  canBePastedAsSpecialChild: false,
 };

@@ -30,7 +30,7 @@ export type ComponentsCatalogTypes =
   | IKameletDefinition;
 export type DefinedComponent = {
   name: string;
-  type: CatalogKind;
+  type?: CatalogKind;
   definition?: ComponentsCatalogTypes;
   defaultValue?: object;
 };

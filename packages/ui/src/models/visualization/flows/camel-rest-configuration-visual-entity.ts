@@ -121,6 +121,10 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
       canReplaceStep: false,
       canRemoveFlow: true,
       canBeDisabled: false,
+      canBeCopied: false,
+      canBePastedAsChild: false,
+      canBePastedAsNextStep: false,
+      canBePastedAsSpecialChild: false,
     };
   }
 

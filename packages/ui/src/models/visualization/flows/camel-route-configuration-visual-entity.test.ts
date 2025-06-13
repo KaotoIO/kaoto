@@ -161,6 +161,10 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       canReplaceStep: true,
       canRemoveFlow: true,
       canBeDisabled: true,
+      canBeCopied: false,
+      canBePastedAsChild: false,
+      canBePastedAsNextStep: false,
+      canBePastedAsSpecialChild: false,
     };
     const superGetNodeInteractionSpy = jest
       .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction')

@@ -5,7 +5,7 @@ import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
   static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
-  private static readonly SPECIAL_PROCESSORS = [
+  static readonly SPECIAL_PROCESSORS = [
     'onFallback',
     'when',
     'otherwise',
@@ -116,5 +116,72 @@ export class CamelComponentFilterService {
     return (item: ITile) => {
       return (item.type === CatalogKind.Kamelet && item.name === 'sink') || camelComponentFilter(item);
     };
+  }
+
+  static isCompatible(
+    copiedProcessorName: string,
+    mode: AddStepMode,
+    visualEntityData: CamelRouteVisualEntityData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+  ): boolean {
+    if (mode === AddStepMode.InsertChildStep) {
+      return this.isCompatibleForInsertChildStep(copiedProcessorName);
+    }
+
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      return this.isCompatibleForInsertSpecialChildStep(copiedProcessorName, visualEntityData, definition);
+    }
+
+    if (mode === AddStepMode.AppendStep) {
+      return this.isCompatibleForAppendStep(copiedProcessorName);
+    }
+
+    return false;
+  }
+
+  private static isCompatibleForInsertChildStep(copiedProcessorName: string): boolean {
+    // If the copied processor is a SPECIAL_PROCESSORS, we don't want to allow it to be inserted as a child step
+    return !this.SPECIAL_PROCESSORS.includes(copiedProcessorName);
+  }
+
+  private static isCompatibleForInsertSpecialChildStep(
+    copiedProcessorName: string,
+    visualEntityData: CamelRouteVisualEntityData,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition?: any,
+  ): boolean {
+    const { processorName } = visualEntityData;
+
+    // If the base processor is not in the key list of SPECIAL_PROCESSORS_PARENTS_MAP, we don't want to allow it for any special child step insertion
+    if (!(processorName in this.SPECIAL_PROCESSORS_PARENTS_MAP)) {
+      return false;
+    }
+
+    const specialChildren =
+      this.SPECIAL_PROCESSORS_PARENTS_MAP[processorName as keyof typeof this.SPECIAL_PROCESSORS_PARENTS_MAP];
+
+    if (!specialChildren.includes(copiedProcessorName)) {
+      return false;
+    }
+
+    // Check for specific cases where certain special children should not be allowed
+    const definitionKeys = Object.keys(definition ?? {});
+    if (processorName === 'circuitBreaker' && definitionKeys.includes('onFallback')) {
+      return copiedProcessorName !== 'onFallback';
+    }
+    if (processorName === 'choice' && definitionKeys.includes('otherwise')) {
+      return copiedProcessorName !== 'otherwise';
+    }
+    if (processorName === 'doTry' && definitionKeys.includes('doFinally')) {
+      return copiedProcessorName !== 'doFinally';
+    }
+
+    return true;
+  }
+
+  private static isCompatibleForAppendStep(copiedProcessorName: string): boolean {
+    // Append step compatibility excludes SPECIAL_PROCESSORS
+    return !this.SPECIAL_PROCESSORS.includes(copiedProcessorName);
   }
 }

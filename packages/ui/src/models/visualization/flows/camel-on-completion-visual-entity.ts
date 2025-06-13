@@ -76,6 +76,10 @@ export class CamelOnCompletionVisualEntity
       canRemoveStep,
       canRemoveFlow: data.path === CamelOnCompletionVisualEntity.ROOT_PATH,
       canBeDisabled,
+      canBeCopied: false,
+      canBePastedAsChild: false,
+      canBePastedAsNextStep: false,
+      canBePastedAsSpecialChild: false,
     };
   }
 
