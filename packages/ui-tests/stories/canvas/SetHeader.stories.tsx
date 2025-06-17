@@ -1,5 +1,5 @@
+import { CanvasFormTabsContext } from '@kaoto/forms';
 import {
-  CanvasFormTabsContext,
   CanvasNode,
   CanvasSideBar,
   IVisualizationNode,

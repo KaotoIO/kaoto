@@ -1,15 +1,17 @@
+import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
-import { KaotoForm, KaotoFormProps } from '../../components/Visualization/Canvas/FormV2/KaotoForm';
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
-import { EntitiesContext } from '../../providers/entities.provider';
-import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
 import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
+import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
+import { EntitiesContext } from '../../providers/entities.provider';
 
 export const MetadataPage: FunctionComponent = () => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(
+    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
+    [],
+  );
   const entitiesContext = useContext(EntitiesContext);
   const camelkResource = entitiesContext?.camelResource as CamelKResource;
   const metadataSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'ObjectMeta')?.propertiesSchema || {};

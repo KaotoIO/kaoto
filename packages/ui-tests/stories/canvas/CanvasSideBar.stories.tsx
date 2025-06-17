@@ -1,6 +1,6 @@
+import { CanvasFormTabsContext } from '@kaoto/forms';
 import {
   CamelRouteVisualEntity,
-  CanvasFormTabsContext,
   CanvasNode,
   CanvasSideBar,
   IVisualizationNode,

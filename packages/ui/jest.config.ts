@@ -201,7 +201,7 @@ export default {
   transformIgnorePatterns: [
     // A RegExp to exclude `@patternfly/*` and `yaml` packages from the transformation ignore
     // This means that both packages will be transformed by babel to support ES modules
-    '\\\\node_modules/(?!(@patternfly|yaml)/)\\\\',
+    '\\\\node_modules/(?!(@patternfly|@kaoto-forms|yaml)/)\\\\',
   ],
 
   workerThreads: false,

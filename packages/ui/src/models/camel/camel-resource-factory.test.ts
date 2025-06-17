@@ -1,4 +1,4 @@
-import { SerializerType } from '../../serializers';
+import { SerializerType } from './camel-resource';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
 

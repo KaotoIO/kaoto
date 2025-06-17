@@ -4,14 +4,19 @@ import {
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+import { YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter } from '../../utils';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
-import { BaseVisualCamelEntityDefinition, CamelResource } from './camel-resource';
+import {
+  BaseVisualCamelEntityDefinition,
+  CamelResource,
+  CamelResourceSerializer,
+  SerializerType,
+} from './camel-resource';
 import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelResourceSerializer, SerializerType, YamlCamelResourceSerializer } from '../../serializers';
 
 export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
 

@@ -1,10 +1,11 @@
+import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
+
 import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { BeansEntity } from '../visualization/metadata';
 import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { SerializerType } from '../../serializers';
 
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
@@ -28,6 +29,23 @@ export interface CamelResource {
   ): TileFilter | undefined;
 
   sortFn?: (a: unknown, b: unknown) => number;
+}
+
+export enum SerializerType {
+  XML = 'XML',
+  YAML = 'YAML',
+}
+
+export type Metadata = { [key: string]: unknown };
+
+export interface CamelResourceSerializer {
+  parse: (code: string) => CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | undefined;
+  serialize: (resource: CamelResource) => string;
+  getComments: () => string[];
+  setComments: (comments: string[]) => void;
+  setMetadata: (metadata: Metadata) => void;
+  getMetadata: () => Metadata;
+  getType(): SerializerType;
 }
 
 export interface BaseVisualCamelEntityDefinition {

@@ -1,5 +1,5 @@
 import { CatalogDefinitionEntry } from '@kaoto/camel-catalog/types';
-import { KaotoSchemaDefinition } from '../models';
+import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 
 export class CatalogSchemaLoader {
   /** The `.` is required to support relative routes in GitHub pages */

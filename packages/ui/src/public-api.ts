@@ -1,7 +1,6 @@
 /** Public components */
 export * from './components/Catalog';
 export * from './components/InlineEdit';
-export * from './components/Form';
 export * from './components/PropertiesModal';
 export * from './components/Visualization';
 export * from './components/Settings';
