@@ -22,6 +22,7 @@ import { CanvasMonitor } from './CanvasMonitor';
 import { ContextToolbar } from './ContextToolbar';
 import { DataMapperMonitor } from './DataMapperMonitor';
 import './DebugLayout.scss';
+import { DataMapperDnDMonitor } from '../../../providers/dnd/DataMapperDndMonitor';
 
 export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;
@@ -40,6 +41,7 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
       <BrowserFilePickerMetadataProvider>
         <DataMapperMonitor />
         <CanvasMonitor />
+        <DataMapperDnDMonitor />
         <PageSection isFilled hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
           <DataMapperControl />
         </PageSection>

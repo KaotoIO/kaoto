@@ -16,7 +16,6 @@ import {
 import { NodeData } from '../models/datamapper';
 import { Label } from '@patternfly/react-core';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { DataMapperDnDMonitor } from './dnd/DataMapperDndMonitor';
 import './datamapper-dnd.provider.scss';
 
 export interface IDataMapperDndContext {
@@ -30,7 +29,7 @@ type DataMapperDndContextProps = PropsWithChildren & {
 };
 
 export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps> = (props) => {
-  const { mappingTree, refreshMappingTree, debug } = useDataMapper();
+  const { mappingTree, refreshMappingTree } = useDataMapper();
   const [activeData, setActiveData] = useState<DataRef<NodeData> | null>(null);
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -85,7 +84,6 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
             <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
           </div>
         </DragOverlay>
-        {debug && <DataMapperDnDMonitor />}
       </DndContext>
     </DataMapperDndContext.Provider>
   );

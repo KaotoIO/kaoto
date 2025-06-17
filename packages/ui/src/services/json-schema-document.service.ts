@@ -1,7 +1,6 @@
 import { DocumentType } from '../models/datamapper/path';
 import { BaseDocument, BaseField, DocumentDefinitionType, ITypeFragment, Types } from '../models/datamapper';
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-import { DocumentService } from './document.service';
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 
 export interface JsonSchemaTypeFragment extends ITypeFragment {
@@ -58,7 +57,8 @@ export class JsonSchemaField extends BaseField {
     public name: string,
     type: Types,
   ) {
-    super(parent, DocumentService.getOwnerDocument<JsonSchemaDocument>(parent), name);
+    const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as JsonSchemaDocument;
+    super(parent, ownerDocument, name);
     this.type = type;
   }
 
@@ -195,7 +195,7 @@ export class JsonSchemaDocumentService {
   }
 
   private static populateTypeFragmentFromDefinition(parent: JsonSchemaParentType, schema: JSONSchemaMetadata) {
-    const ownerDocument = DocumentService.getOwnerDocument<JsonSchemaDocument>(parent);
+    const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as JsonSchemaDocument;
     const definitions = { ...schema.$defs, ...schema.definitions };
     Object.entries(definitions).forEach(([definitionName, definitionSchema]) => {
       if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) return;
