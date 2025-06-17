@@ -32,7 +32,6 @@ import {
 import { BaseDocument, BaseField, DocumentDefinitionType, IField, ITypeFragment } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { DocumentType } from '../models/datamapper/path';
-import { DocumentService } from './document.service';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
@@ -75,7 +74,8 @@ export class XmlSchemaField extends BaseField {
     public name: string,
     public isAttribute: boolean,
   ) {
-    super(parent, DocumentService.getOwnerDocument<XmlSchemaDocument>(parent), name);
+    const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    super(parent, ownerDocument, name);
   }
 
   adopt(parent: IField) {
@@ -128,7 +128,7 @@ export class XmlSchemaDocumentService {
     field.maxOccurs = resolvedElement.getMaxOccurs();
     fields.push(field);
 
-    const ownerDoc = DocumentService.getOwnerDocument<XmlSchemaDocument>(parent);
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     const cachedTypeFragments = ownerDoc.namedTypeFragments;
     ownerDoc.totalFieldCount++;
     XmlSchemaDocumentService.populateSchemaType(cachedTypeFragments, field, resolvedElement.getSchemaType());
@@ -204,7 +204,7 @@ export class XmlSchemaDocumentService {
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     fields.push(field);
 
-    const ownerDoc = DocumentService.getOwnerDocument<XmlSchemaDocument>(parent);
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     ownerDoc.totalFieldCount++;
 
     const use = attr.getUse();
@@ -410,7 +410,7 @@ export class XmlSchemaDocumentService {
     parentTypeFragment?: XmlSchemaTypeFragment,
   ) {
     const baseTypeName = extension.getBaseTypeName();
-    const doc = DocumentService.getOwnerDocument<XmlSchemaDocument>(parent);
+    const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     const baseType = baseTypeName ? doc.xmlSchema.getSchemaTypes().get(baseTypeName) : undefined;
     if (baseType) {
       XmlSchemaDocumentService.populateSchemaType(cachedTypeFragments, parent, baseType, parentTypeFragment);
