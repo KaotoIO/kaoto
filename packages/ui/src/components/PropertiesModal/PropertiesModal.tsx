@@ -1,14 +1,14 @@
 import { Modal, ModalBody, ModalHeader, Tab, Tabs, capitalize } from '@patternfly/react-core';
 import { FunctionComponent, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  transformCamelComponentIntoTab,
-  transformCamelProcessorComponentIntoTab,
-  transformKameletComponentIntoTab,
-} from '../../camel-utils/camel-to-tabs.adapter';
 import { CatalogKind } from '../../models';
 import { CatalogContext } from '../../providers';
 import { NodeIconResolver, NodeIconType } from '../../utils';
 import { ITile } from '../Catalog';
+import {
+  transformCamelComponentIntoTab,
+  transformCamelProcessorComponentIntoTab,
+  transformKameletComponentIntoTab,
+} from './camel-to-tabs.adapter';
 import { IPropertiesTab } from './PropertiesModal.models';
 import './PropertiesModal.scss';
 import { PropertiesTabs } from './PropertiesTabs';

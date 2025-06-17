@@ -11,8 +11,8 @@ import {
   RuntimeProvider,
   SchemasLoaderProvider,
   SourceCodeProvider,
-  VisibleFLowsContextResult,
   VisibleFlowsContext,
+  VisibleFlowsContextResult,
   kameletJson,
   pipeJson,
 } from '@kaoto/kaoto/testing';
@@ -84,7 +84,7 @@ const Template: StoryFn<typeof Canvas> = (args) => {
   const firstVisibleEntity: unknown = { visibleFlows: { [visibleId]: true } };
 
   return (
-    <VisibleFlowsContext.Provider value={firstVisibleEntity as VisibleFLowsContextResult}>
+    <VisibleFlowsContext.Provider value={firstVisibleEntity as VisibleFlowsContextResult}>
       <Canvas {...args} />
     </VisibleFlowsContext.Provider>
   );

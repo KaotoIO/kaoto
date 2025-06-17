@@ -1,5 +1,4 @@
-import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
-import { initVisibleFlows } from './init-visible-flows';
+import { initVisibleFlows, IVisibleFlows } from './init-visible-flows';
 
 describe('initVisibleFlows', () => {
   it('should return an empty object when given an empty array', () => {

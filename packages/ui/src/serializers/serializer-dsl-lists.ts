@@ -1,5 +1,4 @@
-import { SerializerType } from './camel-resource-serializer';
-import { CamelResource, SourceSchemaType } from '../models/camel';
+import { CamelResource, SerializerType, SourceSchemaType } from '../models/camel';
 
 const DSL_LISTS: Record<SerializerType, SourceSchemaType[]> = {
   [SerializerType.YAML]: [SourceSchemaType.Route, SourceSchemaType.Kamelet, SourceSchemaType.Pipe],

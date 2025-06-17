@@ -1,8 +1,8 @@
 import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
-import { CamelResourceSerializer, XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
+import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
-import { CamelResource } from './camel-resource';
+import { CamelResource, CamelResourceSerializer } from './camel-resource';
 import { CamelRouteResource } from './camel-route-resource';
 import { getResourceTypeFromPath } from './source-schema-type';
 

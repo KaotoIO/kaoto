@@ -1,10 +1,8 @@
+import { CanvasFormTabsContext, FilteredFieldContext, FormTabsModes } from '@kaoto/forms';
 import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
-import { CanvasFormTabsContext } from '../../../../providers/canvas-form-tabs.provider';
-import { FilteredFieldContext } from '../../../../providers/filtered-field.provider';
 import './CanvasFormHeader.scss';
-import { FormTabsModes } from './canvasformtabs.modes';
 
 interface CanvasFormHeaderProps {
   nodeId: string;
@@ -40,7 +38,9 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props
               text={mode}
               buttonId={mode}
               isSelected={canvasFormTabsContext.selectedTab === mode}
-              onChange={canvasFormTabsContext.onTabChange}
+              onChange={() => {
+                canvasFormTabsContext.setSelectedTab(mode as keyof typeof FormTabsModes);
+              }}
             />
           ))}
         </ToggleGroup>

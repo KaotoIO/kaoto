@@ -1,4 +1,4 @@
-import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
+export type IVisibleFlows = Record<string, boolean>;
 
 const ensureAtLeastOneVisibleFlow = (state: IVisibleFlows) => {
   const entries = Object.keys(state);

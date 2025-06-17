@@ -1,3 +1,4 @@
+import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -5,14 +6,15 @@ import settingsSchema from '../../assets/settingsSchema.json';
 import { useReloadContext } from '../../hooks/useReloadContext/useReloadContext';
 import { KaotoSchemaDefinition } from '../../models';
 import { SettingsModel } from '../../models/settings';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers';
 import { SettingsContext } from '../../providers/settings.provider';
 import { Links } from '../../router/links.models';
-import { KaotoForm } from '../Visualization/Canvas/FormV2/KaotoForm';
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(
+    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
+    [],
+  );
   const navigate = useNavigate();
   const { lastRender, reloadPage } = useReloadContext();
   const [settings, setSettings] = useState(settingsAdapter.getSettings());

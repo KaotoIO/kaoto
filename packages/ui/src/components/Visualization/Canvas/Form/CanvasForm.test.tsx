@@ -1,5 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CanvasFormTabsContext, CanvasFormTabsProvider } from '@kaoto/forms';
+import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import {
   CamelCatalogService,
@@ -14,19 +16,13 @@ import {
 } from '../../../../models';
 import { IVisualizationNode, VisualComponentSchema } from '../../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
-import {
-  CanvasFormTabsContext,
-  CanvasFormTabsProvider,
-  VisibleFlowsContext,
-  VisibleFlowsProvider,
-} from '../../../../providers';
+import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
 import { camelRouteJson, kameletJson } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
-import { KaotoFormPageObject } from '../FormV2/testing/KaotoFormPageObject';
 import { CanvasForm } from './CanvasForm';
 
 describe('CanvasForm', () => {
@@ -158,7 +154,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              onTabChange: jest.fn(),
+              setSelectedTab: jest.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />
@@ -195,7 +191,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              onTabChange: jest.fn(),
+              setSelectedTab: jest.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />
@@ -233,7 +229,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              onTabChange: jest.fn(),
+              setSelectedTab: jest.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />

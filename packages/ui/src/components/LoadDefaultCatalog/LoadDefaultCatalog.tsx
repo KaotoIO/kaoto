@@ -11,7 +11,7 @@ import {
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import { useReloadContext } from '../../hooks/useReloadContext/useReloadContext';
-import { SettingsContext } from '../../providers';
+import { SettingsContext } from '../../providers/settings.provider';
 
 interface ILoadDefaultCatalogProps {
   errorMessage: string;
