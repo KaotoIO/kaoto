@@ -1,5 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CanvasFormTabsContext } from '@kaoto/forms';
+import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, render, screen } from '@testing-library/react';
 import {
   CamelCatalogService,
@@ -10,12 +12,11 @@ import {
   IKameletDefinition,
 } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CanvasFormTabsContext, VisibleFlowsProvider } from '../../../../providers';
+import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
-import { KaotoFormPageObject } from '../FormV2/testing/KaotoFormPageObject';
 import { CanvasFormBody } from './CanvasFormBody';
 
 describe('CanvasFormBody', () => {
@@ -77,7 +78,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
@@ -136,7 +137,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
@@ -200,7 +201,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
@@ -256,7 +257,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
@@ -317,7 +318,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
@@ -373,7 +374,7 @@ describe('CanvasFormBody', () => {
             <CanvasFormTabsContext.Provider
               value={{
                 selectedTab: 'All',
-                onTabChange: jest.fn(),
+                setSelectedTab: jest.fn(),
               }}
             >
               <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />

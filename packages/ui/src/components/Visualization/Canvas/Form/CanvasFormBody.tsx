@@ -1,9 +1,10 @@
+import { KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { isDefined, setValue } from '../../../../utils';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { CanvasNode } from '../canvas.models';
-import { KaotoForm } from '../FormV2/KaotoForm';
+import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
 
 interface CanvasFormTabsProps {
   selectedNode: CanvasNode;
@@ -60,6 +61,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
       onChangeProp={handleOnChangeIndividualProp}
       model={model}
       omitFields={omitFields.current}
+      customFieldsFactory={customFieldsFactoryfactory}
     />
   );
 };

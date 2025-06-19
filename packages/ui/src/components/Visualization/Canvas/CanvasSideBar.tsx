@@ -1,10 +1,10 @@
+import { FilteredFieldProvider } from '@kaoto/forms';
 import { TopologySideBar } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { ErrorBoundary } from '../../ErrorBoundary';
-import { CanvasForm } from './Form/CanvasForm';
 import { CanvasNode } from './canvas.models';
 import './CanvasSideBar.scss';
-import { FilteredFieldProvider } from '../../../providers';
+import { CanvasForm } from './Form/CanvasForm';
 
 interface CanvasSideBarProps {
   selectedNode: CanvasNode | undefined;

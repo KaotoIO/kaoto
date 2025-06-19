@@ -1,7 +1,6 @@
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
-import { SerializerType, XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
-import { CamelResourceSerializer } from '../../serializers/camel-resource-serializer';
+import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
@@ -20,7 +19,13 @@ import { CamelComponentFilterService } from '../visualization/flows/support/came
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity, isBeans } from '../visualization/metadata';
-import { BaseVisualCamelEntityDefinition, BeansAwareResource, CamelResource } from './camel-resource';
+import {
+  BaseVisualCamelEntityDefinition,
+  BeansAwareResource,
+  CamelResource,
+  CamelResourceSerializer,
+  SerializerType,
+} from './camel-resource';
 import { BaseCamelEntity, EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 

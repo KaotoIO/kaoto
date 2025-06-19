@@ -1,4 +1,6 @@
-import { BeansDeserializer, BeanFactory } from '@kaoto/camel-catalog/types';
+import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
+import { resolveSchemaWithRef } from '@kaoto/forms';
+import { isDefined } from '../../../utils';
 import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
@@ -6,7 +8,6 @@ import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from '../flows/camel-catalog.service';
 import { BeansEntity } from './beansEntity';
 import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
-import { isDefined, resolveSchemaWithRef } from '../../../utils';
 
 /**
  * This class is to absorb a little bit of difference between beans such as {@link BeanFactory}.

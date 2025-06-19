@@ -1,8 +1,7 @@
-import { isXML } from './xml/kaoto-xml-parser';
-import { CamelResource } from '../models/camel';
-import { parse, stringify } from 'yaml';
-import { CamelResourceSerializer, Metadata, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
+import { parse, stringify } from 'yaml';
+import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
+import { isXML } from './xml/kaoto-xml-parser';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   /**

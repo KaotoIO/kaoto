@@ -1,3 +1,6 @@
+import { toBlob } from 'html-to-image';
+import JSZip from 'jszip';
+import { MarkdownEntry, TableRow, tsMarkdown } from 'ts-markdown';
 import {
   BaseVisualCamelEntity,
   CamelRouteVisualEntity,
@@ -5,31 +8,28 @@ import {
   KameletVisualEntity,
   PipeVisualEntity,
 } from '../models';
-import { MarkdownEntry, TableRow, tsMarkdown } from 'ts-markdown';
-import JSZip from 'jszip';
-import { toBlob } from 'html-to-image';
-import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
-import { CamelRestConfigurationVisualEntity } from '../models/visualization/flows/camel-rest-configuration-visual-entity';
-import { CamelRouteConfigurationVisualEntity } from '../models/visualization/flows/camel-route-configuration-visual-entity';
+import { CamelResource } from '../models/camel';
 import { BaseCamelEntity } from '../models/camel/entities';
+import { DocumentationEntity, ParsedTable } from '../models/documentation';
+import { CamelErrorHandlerVisualEntity } from '../models/visualization/flows/camel-error-handler-visual-entity';
+import { CamelInterceptFromVisualEntity } from '../models/visualization/flows/camel-intercept-from-visual-entity';
+import { CamelInterceptSendToEndpointVisualEntity } from '../models/visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
+import { CamelInterceptVisualEntity } from '../models/visualization/flows/camel-intercept-visual-entity';
+import { CamelOnCompletionVisualEntity } from '../models/visualization/flows/camel-on-completion-visual-entity';
+import { CamelOnExceptionVisualEntity } from '../models/visualization/flows/camel-on-exception-visual-entity';
+import { CamelRestConfigurationVisualEntity } from '../models/visualization/flows/camel-rest-configuration-visual-entity';
+import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
+import { CamelRouteConfigurationVisualEntity } from '../models/visualization/flows/camel-route-configuration-visual-entity';
 import { BeansEntity, MetadataEntity } from '../models/visualization/metadata';
 import { PipeErrorHandlerEntity } from '../models/visualization/metadata/pipeErrorHandlerEntity';
 import { RouteTemplateBeansEntity } from '../models/visualization/metadata/routeTemplateBeansEntity';
-import { CamelErrorHandlerVisualEntity } from '../models/visualization/flows/camel-error-handler-visual-entity';
-import { CamelInterceptVisualEntity } from '../models/visualization/flows/camel-intercept-visual-entity';
-import { CamelInterceptFromVisualEntity } from '../models/visualization/flows/camel-intercept-from-visual-entity';
-import { CamelInterceptSendToEndpointVisualEntity } from '../models/visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
-import { CamelOnCompletionVisualEntity } from '../models/visualization/flows/camel-on-completion-visual-entity';
-import { CamelOnExceptionVisualEntity } from '../models/visualization/flows/camel-on-exception-visual-entity';
+import { IVisibleFlows } from '../utils';
 import { BeansParser } from './parsers/beans-parser';
+import { KameletParser } from './parsers/kamelet-parser';
+import { MiscParser } from './parsers/misc-parser';
+import { PipeParser } from './parsers/pipe-parser';
 import { RestParser } from './parsers/rest-parser';
 import { RouteParser } from './parsers/route-parser';
-import { MiscParser } from './parsers/misc-parser';
-import { DocumentationEntity, ParsedTable } from '../models/documentation';
-import { KameletParser } from './parsers/kamelet-parser';
-import { PipeParser } from './parsers/pipe-parser';
-import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
-import { CamelResource } from '../models/camel';
 
 export class DocumentationService {
   static generateDocumentationZip(flowImage: Blob, markdownText: string, fileNameBase: string): Promise<Blob> {

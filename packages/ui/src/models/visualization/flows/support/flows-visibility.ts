@@ -1,4 +1,4 @@
-import { initVisibleFlows } from '../../../../utils/init-visible-flows';
+import { initVisibleFlows, IVisibleFlows } from '../../../../utils/init-visible-flows';
 
 export interface IVisibleFlowsInformation {
   singleFlowId: string | undefined;
@@ -6,8 +6,6 @@ export interface IVisibleFlowsInformation {
   totalFlowsCount: number;
   isCanvasEmpty: boolean;
 }
-
-export type IVisibleFlows = Record<string, boolean>;
 
 export function getVisibleFlowsInformation(visibleFlows: IVisibleFlows): IVisibleFlowsInformation {
   const flowsArray = Object.entries(visibleFlows);

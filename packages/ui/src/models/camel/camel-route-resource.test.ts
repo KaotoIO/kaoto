@@ -1,3 +1,5 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
@@ -6,12 +8,11 @@ import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visua
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
+import { SerializerType } from './camel-resource';
+import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelResourceFactory } from './camel-resource-factory';
-import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
-import { SerializerType, XMLMetadata } from '../../serializers';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {

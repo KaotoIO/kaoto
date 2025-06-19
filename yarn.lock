@@ -2888,6 +2888,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kaoto/forms@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@kaoto/forms@npm:1.0.0"
+  dependencies:
+    ajv: "npm:^8.12.0"
+    ajv-formats: "npm:^3.0.0"
+    clsx: "npm:^2.1.0"
+    lodash.clonedeep: "npm:^4.5.0"
+    usehooks-ts: "npm:^3.0.0"
+  peerDependencies:
+    "@patternfly/react-core": ^6.1.0
+    "@patternfly/react-icons": ^6.1.0
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: 10/cf00dfbb43e11b29912733768673c4df2be6783f13966cf977a337312ef22c32d7187516e1ccdf8f960f0c0f9cf8539c1c62cd1e97421b869ac362dc760d36c6
+  languageName: node
+  linkType: hard
+
 "@kaoto/kaoto-tests@workspace:packages/ui-tests":
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto-tests@workspace:packages/ui-tests"
@@ -2944,6 +2962,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.1.2"
+    "@kaoto/forms": "npm:^1.0.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:6.2.3"
@@ -13674,6 +13693,13 @@ __metadata:
   dependencies:
     p-locate: "npm:^6.0.0"
   checksum: 10/1c6d269d4efec555937081be964e8a9b4a136319c79ca1d45ac6382212a8466113c75bd89e44521ca8ecd1c47fb08523b56eee5c0712bc7d14fec5f729deeb42
+  languageName: node
+  linkType: hard
+
+"lodash.clonedeep@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.clonedeep@npm:4.5.0"
+  checksum: 10/957ed243f84ba6791d4992d5c222ffffca339a3b79dbe81d2eaf0c90504160b500641c5a0f56e27630030b18b8e971ea10b44f928a977d5ced3c8948841b555f
   languageName: node
   linkType: hard
 

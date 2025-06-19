@@ -1,6 +1,6 @@
+import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { FunctionComponent, JSX, PropsWithChildren, ReactNode } from 'react';
 import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
-import { CanvasFormTabsProvider } from '../../providers';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Canvas } from './Canvas';
 import { CanvasFallback } from './CanvasFallback';

@@ -1,9 +1,9 @@
-import { KaotoForm, KaotoFormProps, MetadataPage } from '@kaoto/kaoto';
+import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
+import { MetadataPage } from '@kaoto/kaoto';
+import { KaotoSchemaDefinition } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-
-import mockSchema from '../../cypress/fixtures/metadata/metadataSchema.json';
 import mockModel from '../../cypress/fixtures/metadata/metadataModel.json';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoSchemaDefinition } from '@kaoto/kaoto/testing';
+import mockSchema from '../../cypress/fixtures/metadata/metadataSchema.json';
 
 export default {
   title: 'KaotoForm/MetadataEditor',

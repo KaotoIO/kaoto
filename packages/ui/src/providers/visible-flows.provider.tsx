@@ -1,12 +1,8 @@
-import { FunctionComponent, PropsWithChildren, createContext, useContext, useEffect, useMemo, useReducer } from 'react';
-import {
-  IVisibleFlows,
-  VisibleFlowsReducer,
-  VisualFlowsApi,
-} from '../models/visualization/flows/support/flows-visibility';
-import { EntitiesContext } from './entities.provider';
+import { createContext, FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo, useReducer } from 'react';
+import { VisibleFlowsReducer, VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
+import { initVisibleFlows, IVisibleFlows } from '../utils/init-visible-flows';
 import { isSameArray } from '../utils/is-same-array';
-import { initVisibleFlows } from '../utils/init-visible-flows';
+import { EntitiesContext } from './entities.provider';
 
 export interface VisibleFlowsContextResult {
   visibleFlows: IVisibleFlows;

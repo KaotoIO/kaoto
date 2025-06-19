@@ -1,10 +1,9 @@
+import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
 import './MetadataEditor.scss';
 import { TopmostArrayTable } from './TopmostArrayTable';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../../providers/canvas-form-tabs.provider';
-import { KaotoForm } from '../Visualization/Canvas/FormV2/KaotoForm';
 
 interface MetadataEditorProps {
   name: string;
@@ -17,7 +16,10 @@ interface MetadataEditorProps {
 }
 
 export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(() => ({ selectedTab: 'All', onTabChange: () => {} }), []);
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(
+    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
+    [],
+  );
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);

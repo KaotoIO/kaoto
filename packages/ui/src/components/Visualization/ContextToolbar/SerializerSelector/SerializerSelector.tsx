@@ -1,9 +1,8 @@
-import { FunctionComponent, RefObject, useContext, useState } from 'react';
 import { MenuToggle, Select, SelectList, SelectOption, ToolbarItem } from '@patternfly/react-core';
-import { SerializerType } from '../../../../serializers';
+import { FunctionComponent, RefObject, useContext, useState } from 'react';
+import { SerializerType, SourceSchemaType } from '../../../../models/camel';
 import { EntitiesContext } from '../../../../providers';
 import './SerializerSelector.scss';
-import { SourceSchemaType } from '../../../../models/camel';
 
 export const SerializerSelector: FunctionComponent = () => {
   const { camelResource, updateSourceCodeFromEntities } = useContext(EntitiesContext)!;

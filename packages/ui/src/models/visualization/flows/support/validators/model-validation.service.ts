@@ -1,6 +1,6 @@
-import { ExpressionService } from '../../../../../components/Visualization/Canvas/FormV2/fields/ExpressionField/expression.service';
+import { resolveSchemaWithRef } from '@kaoto/forms';
+import { ExpressionService } from '../../../../../components/Visualization/Canvas/Form/fields/ExpressionField/expression.service';
 import { isDefined } from '../../../../../utils/is-defined';
-import { resolveSchemaWithRef } from '../../../../../utils/resolve-schema-with-ref';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { VisualComponentSchema } from '../../../base-visual-entity';
 

@@ -2,19 +2,18 @@ import { act, renderHook } from '@testing-library/react';
 import JSZip from 'jszip';
 import { useContext } from 'react';
 import { PipeVisualEntity } from '../models';
-import { IVisibleFlows } from '../models/visualization/flows/support/flows-visibility';
+import { CamelResource, CamelRouteResource } from '../models/camel';
 import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
 import { camelRouteYaml, kameletYaml, pipeYaml } from '../stubs';
 import { beansYaml } from '../stubs/beans';
 import { kameletAwsCloudtailSourceYaml } from '../stubs/kamelet-aws-cloudtail-source';
+import { kameletWithMultilineXmlPropYaml } from '../stubs/kamelet-with-multiline-xml-prop';
 import { restStub } from '../stubs/rest';
 import { restConfigurationStub } from '../stubs/rest-configuration';
 import { restOperationsYaml } from '../stubs/rest-operations';
 import { routeConfigurationFullYaml } from '../stubs/route-configuration-full';
-import { EventNotifier } from '../utils';
+import { EventNotifier, IVisibleFlows } from '../utils';
 import { DocumentationService } from './documentation.service';
-import { kameletWithMultilineXmlPropYaml } from '../stubs/kamelet-with-multiline-xml-prop';
-import { CamelResource, CamelRouteResource } from '../models/camel';
 
 describe('DocumentationService', () => {
   let eventNotifier: EventNotifier;

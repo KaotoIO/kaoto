@@ -1,11 +1,10 @@
-import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
-import { CamelResource } from '../models/camel/camel-resource';
-import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
-import { CamelResourceSerializer, Metadata, SerializerType } from './camel-resource-serializer';
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
-import { EntityType } from '../models/camel/entities';
-import { EntityDefinition } from './xml/serializers/entitiy-definition';
 import xmlFormat from 'xml-formatter';
+import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
+import { EntityType } from '../models/camel/entities';
+import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
+import { EntityDefinition } from './xml/serializers/entitiy-definition';
+import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
 
 export type XMLMetadata = {
   xmlDeclaration: string;
