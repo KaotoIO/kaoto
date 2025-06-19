@@ -19,6 +19,7 @@ import { CatalogContext } from './catalog.provider';
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;
   getNewComponent: (catalogFilter?: TileFilter) => Promise<DefinedComponent | undefined>;
+  checkCompatibility: (name: string, catalogFilter?: TileFilter) => boolean;
 }
 
 export const CatalogModalContext = createContext<CatalogModalContextValue | undefined>(undefined);
@@ -89,12 +90,24 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
     [tiles],
   );
 
+  const checkCompatibility = useCallback(
+    (name: string, catalogFilter?: TileFilter) => {
+      const tile = tiles.find((t) => t.name === name);
+
+      if (!isDefined(catalogFilter) || !isDefined(tile)) return false;
+
+      return catalogFilter(tile);
+    },
+    [tiles],
+  );
+
   const value: CatalogModalContextValue = useMemo(
     () => ({
       setIsModalOpen,
       getNewComponent,
+      checkCompatibility,
     }),
-    [getNewComponent],
+    [checkCompatibility, getNewComponent],
   );
 
   return (

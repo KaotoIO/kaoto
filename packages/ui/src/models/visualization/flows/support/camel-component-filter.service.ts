@@ -5,7 +5,7 @@ import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
   static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
-  private static readonly SPECIAL_PROCESSORS = [
+  static readonly SPECIAL_PROCESSORS = [
     'onFallback',
     'when',
     'otherwise',

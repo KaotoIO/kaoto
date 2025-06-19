@@ -18,6 +18,8 @@ import { CamelComponentDefaultService } from './support/camel-component-default.
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
+import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
   constructor(public entityDef: T) {}
@@ -125,41 +127,28 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     data: IVisualizationNodeData;
     targetProperty?: string;
   }) {
-    if (options.data.path === undefined) return;
     const defaultValue = CamelComponentDefaultService.getDefaultNodeDefinitionValue(options.definedComponent);
-    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      (options.data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
-    );
+    this.addNewStep(defaultValue, options.mode, options.data, options.definedComponent.name);
+  }
 
-    if (options.mode === AddStepMode.InsertChildStep || options.mode === AddStepMode.InsertSpecialChildStep) {
-      this.insertChildStep(options, stepsProperties, defaultValue);
-      return;
-    }
+  getCopiedContent(path?: string): IClipboardCopyObject | undefined {
+    if (!path) return;
 
-    const pathArray = options.data.path.split('.');
-    const last = pathArray[pathArray.length - 1];
-    const penultimate = pathArray[pathArray.length - 2];
+    const componentModel = getValue(this.entityDef, path);
+    const componentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, componentModel);
 
-    /**
-     * If the last segment is a string and the penultimate is a number, it means the target is member of an array
-     * therefore we need to look for the array and insert the element at the given index + 1
-     *
-     * f.i. route.from.steps.0.setHeader
-     * penultimate: 0
-     * last: setHeader
-     */
-    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
-      /** If we're in Append mode, we need to insert the step after the selected index hence `Number(penultimate) + 1` */
-      const desiredStartIndex = options.mode === AddStepMode.AppendStep ? Number(penultimate) + 1 : Number(penultimate);
+    if (componentLookup === undefined) return;
 
-      /** If we're in Replace mode, we need to delete the existing step */
-      const deleteCount = options.mode === AddStepMode.ReplaceStep ? 1 : 0;
+    return {
+      type: SourceSchemaType.Route,
+      name: componentLookup.processorName as string,
+      defaultValue: componentModel,
+    };
+  }
 
-      const stepsArray: ProcessorDefinition[] = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
-      stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
-
-      return;
-    }
+  pasteStep(options: { clipboadContent: IClipboardCopyObject; mode: AddStepMode; data: IVisualizationNodeData }) {
+    const defaultValue = CamelComponentSchemaService.getNodeDefinitionValue(options.clipboadContent);
+    this.addNewStep(defaultValue, options.mode, options.data, options.clipboadContent.name);
   }
 
   canDragNode(path?: string) {
@@ -330,23 +319,64 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return routeGroupNode;
   }
 
+  private addNewStep(
+    defaultValue: ProcessorDefinition,
+    mode: AddStepMode,
+    data: IVisualizationNodeData,
+    childName: string,
+  ) {
+    if (data.path === undefined) return;
+    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      (data as CamelRouteVisualEntityData).processorName,
+    );
+
+    if (mode === AddStepMode.InsertChildStep || mode === AddStepMode.InsertSpecialChildStep) {
+      this.insertChildStep(mode, data, childName, stepsProperties, defaultValue);
+      return;
+    }
+
+    const pathArray = data.path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    /**
+     * If the last segment is a string and the penultimate is a number, it means the target is member of an array
+     * therefore we need to look for the array and insert the element at the given index + 1
+     *
+     * f.i. route.from.steps.0.setHeader
+     * penultimate: 0
+     * last: setHeader
+     */
+    if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate))) {
+      /** If we're in Append mode, we need to insert the step after the selected index hence `Number(penultimate) + 1` */
+      const desiredStartIndex = mode === AddStepMode.AppendStep ? Number(penultimate) + 1 : Number(penultimate);
+
+      /** If we're in Replace mode, we need to delete the existing step */
+      const deleteCount = mode === AddStepMode.ReplaceStep ? 1 : 0;
+
+      const stepsArray: ProcessorDefinition[] = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
+      stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
+
+      return;
+    }
+  }
+
   private insertChildStep(
-    options: Parameters<AbstractCamelVisualEntity<object>['addStep']>[0],
+    mode: AddStepMode,
+    data: IVisualizationNodeData,
+    childName: string,
     stepsProperties: CamelProcessorStepsProperties[],
     defaultValue: ProcessorDefinition = {},
   ) {
     const property = stepsProperties.find((property) =>
-      options.mode === AddStepMode.InsertChildStep ? 'steps' : options.definedComponent.name === property.name,
+      mode === AddStepMode.InsertChildStep ? 'steps' : childName === property.name,
     );
     if (property === undefined) return;
 
     if (property.type === 'single-clause') {
-      setValue(this.entityDef, `${options.data.path}.${property.name}`, defaultValue);
+      setValue(this.entityDef, `${data.path}.${property.name}`, defaultValue);
     } else {
-      const arrayPath: ProcessorDefinition[] = getArrayProperty(
-        this.entityDef,
-        `${options.data.path}.${property.name}`,
-      );
+      const arrayPath: ProcessorDefinition[] = getArrayProperty(this.entityDef, `${data.path}.${property.name}`);
       arrayPath.unshift(defaultValue);
     }
   }
