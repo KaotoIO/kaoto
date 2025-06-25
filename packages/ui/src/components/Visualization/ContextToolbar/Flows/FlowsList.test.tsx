@@ -402,6 +402,24 @@ describe('FlowsList.tsx', () => {
     expect(flows).toHaveLength(2);
   });
 
+  it('should have the delete button disabled when there are no routes', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource });
+
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+    const searchInput = wrapper.getByRole('textbox', { name: 'search' });
+
+    act(() => {
+      fireEvent.change(searchInput, { target: { value: 'noroute' } });
+    });
+
+    const deleteBtn = await wrapper.findByTestId('delete-filtered-btn');
+    expect(deleteBtn).toBeDisabled();
+  });
+
   it('should delete filtered flows when clicking the delete filtered button', async () => {
     const { Provider } = TestProvidersWrapper({ camelResource });
     const wrapper = render(
