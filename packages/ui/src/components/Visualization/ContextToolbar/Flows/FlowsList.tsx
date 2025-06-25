@@ -1,7 +1,7 @@
 import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { FunctionComponent, MouseEvent, useCallback, useContext, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ValidationResult } from '../../../../models';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import {
@@ -33,6 +33,10 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     delete: 'Delete',
   });
 
+  const filteredIds = useMemo(() => {
+    return visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
+  }, [visualEntities, searchString]);
+
   const onSelectFlow = useCallback(
     (flowId: string): void => {
       visualFlowsApi.hideFlows();
@@ -59,8 +63,6 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
 
   const onToggleAll = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      const filteredIds = visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
-
       if (areFlowsVisible()) {
         visualFlowsApi.hideFlows(filteredIds.length > 0 ? filteredIds : undefined);
       } else {
@@ -79,7 +81,6 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
         text: 'All steps will be lost.',
       });
       if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
-      const filteredIds = visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
       if (filteredIds.length === 0) {
         return;
       }
@@ -127,13 +128,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
               />
             </Th>
             <Th>
-              {' '}
               <Button
                 title="Delete all flows"
                 data-testid="delete-filtered-btn"
                 icon={<TrashIcon />}
                 variant="plain"
                 onClick={onDeleteAll}
+                isDisabled={filteredIds.length === 0}
               />
             </Th>
           </Tr>
