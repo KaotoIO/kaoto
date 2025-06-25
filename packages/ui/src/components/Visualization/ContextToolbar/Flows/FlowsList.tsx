@@ -115,6 +115,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                 title={allFlowsVisible ? 'Hide all flows' : 'Show all flows'}
                 data-testid="toggle-btn-all-flows"
                 onClick={onToggleAll}
+                isDisabled={filteredIds.length === 0}
                 icon={
                   <Icon isInline>
                     {areFlowsVisible() ? (
