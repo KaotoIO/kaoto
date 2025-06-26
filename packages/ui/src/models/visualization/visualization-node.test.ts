@@ -188,7 +188,7 @@ describe('VisualizationNode', () => {
     const nextNode = createVisualizationNode('next', {});
     node.setNextNode(nextNode);
 
-    expect(node.getNextNode()).toEqual(nextNode);
+    expect(node.getNextNode()![0]).toEqual(nextNode);
   });
 
   it('should add a child', () => {

@@ -38,7 +38,7 @@ export class ControllerService {
 
     return new DagreGroupsLayout(graph, {
       rankdir: isHorizontal ? LEFT_TO_RIGHT : TOP_TO_BOTTOM,
-      nodeDistance: isHorizontal ? 30 : 40,
+      nodeDistance: isHorizontal ? 20 : 30,
       ranker: 'network-simplex',
       nodesep: 10,
       edgesep: 10,
