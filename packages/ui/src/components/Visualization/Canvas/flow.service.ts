@@ -7,6 +7,7 @@ export class FlowService {
   static nodes: CanvasNode[] = [];
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
+  private static additionalGroupNodes: string[] = [];
 
   static getFlowDiagram(scope: string, vizNode: IVisualizationNode): CanvasNodesAndEdges {
     this.nodes = [];
@@ -36,9 +37,32 @@ export class FlowService {
     }
 
     let node: CanvasNode;
-
     const children = vizNodeParam.getChildren();
-    if (vizNodeParam.data.isGroup && children) {
+    const parentNodeId = vizNodeParam.getParentNode()?.id;
+
+    if (vizNodeParam.data.nodeType === 'choice') {
+      // Create Choice as a regular node
+      node = this.getNode(vizNodeParam.id, {
+        parentNode: parentNodeId,
+        data: { vizNode: vizNodeParam },
+      });
+      node.type = 'choice';
+
+      const choiceNextNode = { ...vizNodeParam.getNextNode() };
+      vizNodeParam.setNextNode(undefined);
+
+      // Process all When/Otherwise and create edges directly to their children
+      if (children) {
+        children.forEach((whenOrOtherwise) => {
+          whenOrOtherwise.setNextNode(choiceNextNode[0]);
+          this.appendNodesAndEdges(whenOrOtherwise);
+        });
+        children.map((whenOrOtherwise) => {
+          this.additionalGroupNodes.push(whenOrOtherwise.id);
+          vizNodeParam.addNextNode(whenOrOtherwise);
+        });
+      }
+    } else if (vizNodeParam.data.isGroup && children) {
       children.forEach((child) => {
         this.appendNodesAndEdges(child);
       });
@@ -46,10 +70,11 @@ export class FlowService {
       const containerId = vizNodeParam.id;
       node = this.getGroup(containerId, {
         label: containerId,
-        children: children.map((child) => child.id),
-        parentNode: vizNodeParam.getParentNode()?.id,
+        children: [...children.map((child) => child.id), ...this.additionalGroupNodes],
+        parentNode: parentNodeId,
         data: { vizNode: vizNodeParam },
       });
+      this.additionalGroupNodes = [];
     } else {
       node = this.getCanvasNode(vizNodeParam);
     }
@@ -83,7 +108,9 @@ export class FlowService {
     const edges: CanvasEdge[] = [];
 
     if (vizNodeParam.getNextNode() !== undefined) {
-      edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
+      vizNodeParam.getNextNode()!.forEach((nextNode) => {
+        edges.push(this.getEdge(vizNodeParam.id, nextNode.id));
+      });
     }
 
     return edges;

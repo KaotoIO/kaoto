@@ -342,7 +342,7 @@ describe('Camel Route', () => {
 
       /** choice */
       const choiceNode = setHeaderNode.getNextNode()!;
-      expect(choiceNode.data.path).toEqual('route.from.steps.1.choice');
+      expect(choiceNode.data.pdadeath).toEqual('route.from.steps.1.choice');
       expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBe(setHeaderNode);
       expect(choiceNode.getNextNode()).toBeDefined();

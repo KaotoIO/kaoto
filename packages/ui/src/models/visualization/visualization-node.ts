@@ -27,7 +27,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   lastUpdate: number = 0;
   private parentNode: IVisualizationNode | undefined = undefined;
   private previousNode: IVisualizationNode | undefined = undefined;
-  private nextNode: IVisualizationNode | undefined = undefined;
+  private nextNode: IVisualizationNode[] = [];
   private children: IVisualizationNode[] | undefined;
   private readonly DISABLED_NODE_INTERACTION: NodeInteraction = DISABLED_NODE_INTERACTION;
 
@@ -102,16 +102,20 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.previousNode;
   }
 
+  addNextNode(node: IVisualizationNode) {
+    this.nextNode.push(node);
+  }
+
   setPreviousNode(previousNode?: IVisualizationNode) {
     this.previousNode = previousNode;
   }
 
-  getNextNode(): IVisualizationNode | undefined {
-    return this.nextNode;
+  getNextNode(): IVisualizationNode[] | undefined {
+    return this.nextNode.length > 0 ? this.nextNode : undefined;
   }
 
   setNextNode(node?: IVisualizationNode) {
-    this.nextNode = node;
+    this.nextNode = node ? [node] : [];
   }
 
   getChildren(): IVisualizationNode[] | undefined {
