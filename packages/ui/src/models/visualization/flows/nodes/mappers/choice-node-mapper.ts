@@ -17,7 +17,8 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
       path,
       icon: NodeIconResolver.getIcon(processorName, NodeIconType.EIP),
       processorName,
-      isGroup: true,
+      isGroup: false, // Choice is a node, not a group
+      nodeType: 'choice',
     };
 
     const vizNode = createVisualizationNode(path, data);

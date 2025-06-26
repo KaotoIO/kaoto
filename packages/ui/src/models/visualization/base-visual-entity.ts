@@ -124,9 +124,11 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   setPreviousNode(previousNode?: IVisualizationNode): void;
 
-  getNextNode(): IVisualizationNode | undefined;
+  getNextNode(): IVisualizationNode[] | undefined;
 
   setNextNode(node?: IVisualizationNode): void;
+
+  addNextNode(node: IVisualizationNode): void;
 
   getChildren(): IVisualizationNode[] | undefined;
 
@@ -144,6 +146,7 @@ export interface IVisualizationNodeData {
   entity?: BaseVisualCamelEntity;
   isPlaceholder?: boolean;
   isGroup?: boolean;
+  nodeType?: string;
   [key: string]: unknown;
 }
 
