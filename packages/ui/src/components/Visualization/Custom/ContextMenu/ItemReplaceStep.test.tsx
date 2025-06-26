@@ -62,6 +62,7 @@ describe('ItemReplaceStep', () => {
     const mockCatalogModalContext = {
       setIsModalOpen: jest.fn(),
       getNewComponent: () => Promise.resolve({} as DefinedComponent),
+      checkCompatibility: jest.fn(),
     };
     const mockReplaceModalContext = {
       actionConfirmation: () => Promise.resolve(ACTION_ID_CONFIRM),

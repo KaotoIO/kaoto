@@ -11,6 +11,8 @@ import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../b
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
+import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
   id: string;
@@ -121,6 +123,19 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     }
 
     super.addStep(options);
+  }
+
+  getCopiedContent(path?: string): IClipboardCopyObject | undefined {
+    // Call the super method to get the copied content
+    const copiedContent = super.getCopiedContent(path);
+
+    if (!copiedContent) return;
+
+    // Update the type in the copied content
+    return {
+      ...copiedContent,
+      type: SourceSchemaType.Kamelet,
+    };
   }
 
   removeStep(path?: string): void {

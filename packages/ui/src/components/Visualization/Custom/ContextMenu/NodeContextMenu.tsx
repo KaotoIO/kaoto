@@ -1,7 +1,7 @@
-import { ArrowDownIcon, ArrowUpIcon, CodeBranchIcon, PlusIcon } from '@patternfly/react-icons';
+import { ArrowDownIcon, ArrowUpIcon, CodeBranchIcon, CopyIcon, PasteIcon, PlusIcon } from '@patternfly/react-icons';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
-import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
+import { AddStepMode, IVisualizationNode, NodeInteraction } from '../../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { ItemAddStep } from './ItemAddStep';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
@@ -10,6 +10,8 @@ import { ItemDisableStep } from './ItemDisableStep';
 import { ItemEnableAllSteps } from './ItemEnableAllSteps';
 import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
+import { ItemCopyStep } from './ItemCopyStep';
+import { ItemPasteStep } from './ItemPasteStep';
 
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
@@ -44,6 +46,9 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       </ItemAddStep>,
     );
   }
+
+  addCopyPasteItems(items, nodeInteractions, vizNode);
+
   if (nodeInteractions.canHavePreviousStep || nodeInteractions.canHaveNextStep) {
     items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
   }
@@ -124,3 +129,50 @@ export const NodeContextMenu = forwardRef<HTMLDivElement, { element: GraphElemen
     );
   },
 );
+
+const addCopyPasteItems = (items: ReactElement[], nodeInteractions: NodeInteraction, vizNode: IVisualizationNode) => {
+  items.push(
+    <ItemCopyStep key="context-menu-item-copy" data-testid="context-menu-item-copy" vizNode={vizNode}>
+      <CopyIcon /> Copy
+    </ItemCopyStep>,
+  );
+
+  if (nodeInteractions.canHaveChildren) {
+    items.push(
+      <ItemPasteStep
+        key="context-menu-item-paste-as-child"
+        data-testid="context-menu-item-paste-as-child"
+        mode={AddStepMode.InsertChildStep}
+        vizNode={vizNode}
+      >
+        <PasteIcon /> Paste as child
+      </ItemPasteStep>,
+    );
+  }
+
+  if (nodeInteractions.canHaveNextStep) {
+    items.push(
+      <ItemPasteStep
+        key="context-menu-item-paste-as-next-step"
+        data-testid="context-menu-item-paste-as-next-step"
+        mode={AddStepMode.AppendStep}
+        vizNode={vizNode}
+      >
+        <PasteIcon /> Paste as next step
+      </ItemPasteStep>,
+    );
+  }
+
+  if (nodeInteractions.canHaveSpecialChildren) {
+    items.push(
+      <ItemPasteStep
+        key="context-menu-item-paste-as-special-child"
+        data-testid="context-menu-item-paste-as-special-child"
+        mode={AddStepMode.InsertSpecialChildStep}
+        vizNode={vizNode}
+      >
+        <PasteIcon /> Paste as special child
+      </ItemPasteStep>,
+    );
+  }
+};
