@@ -7,6 +7,7 @@ export class FlowService {
   static nodes: CanvasNode[] = [];
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
+  private static groupNodes: string[] = [];
 
   static getFlowDiagram(scope: string, vizNode: IVisualizationNode): CanvasNodesAndEdges {
     this.nodes = [];
@@ -35,25 +36,29 @@ export class FlowService {
       return;
     }
 
-    let node: CanvasNode;
-
+    let node: CanvasNode = this.getCanvasNode(vizNodeParam);
     const children = vizNodeParam.getChildren();
-    if (vizNodeParam.data.isGroup && children) {
-      children.forEach((child) => {
-        this.appendNodesAndEdges(child);
+    const parentNodeId = vizNodeParam.getParentNode()?.id;
+
+    if (children) {
+      children.forEach((branchChild) => {
+        this.appendNodesAndEdges(branchChild);
+        this.groupNodes.push(branchChild.id);
       });
 
-      const containerId = vizNodeParam.id;
-      node = this.getGroup(containerId, {
-        label: containerId,
-        children: children.map((child) => child.id),
-        parentNode: vizNodeParam.getParentNode()?.id,
-        data: { vizNode: vizNodeParam },
-      });
-    } else {
-      node = this.getCanvasNode(vizNodeParam);
+      if (vizNodeParam.data.isGroup) {
+        const containerId = vizNodeParam.id;
+
+        node = this.getGroup(containerId, {
+          label: containerId,
+          children: [...this.groupNodes],
+          parentNode: parentNodeId,
+          data: { vizNode: vizNodeParam },
+        });
+
+        this.groupNodes = [];
+      }
     }
-
     /** Add node */
     this.nodes.push(node);
     this.visitedNodes.push(node.id);
@@ -82,10 +87,20 @@ export class FlowService {
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
 
-    if (vizNodeParam.getNextNode() !== undefined) {
-      edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
-    }
+    // Add edges from the vizNodeParam data if available
+    vizNodeParam.data.edges?.forEach((edge) => {
+      edges.push(this.getEdge(edge.sourceId, edge.targetId));
+    });
 
+    if (vizNodeParam.getNextNode() !== undefined) {
+      const endNodes = vizNodeParam.getEndNodes();
+
+      if (endNodes.length > 0) {
+        endNodes.forEach((endNode) => {
+          edges.push(this.getEdge(endNode.id, vizNodeParam.getNextNode()!.id));
+        });
+      } else edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
+    }
     return edges;
   }
 

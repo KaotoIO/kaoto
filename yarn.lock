@@ -2882,19 +2882,20 @@ __metadata:
   linkType: hard
 
 "@kaoto/camel-catalog@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@kaoto/camel-catalog@npm:0.1.2"
-  checksum: 10/7ce7431ea093a1741592b9ae080cbe7bd975ff243eaa72d26928df4e5c1be4ff0b46eb41a3218da242e8afbeafdea666b70d0eba49217e567ce4faaef98652d4
+  version: 0.1.5
+  resolution: "@kaoto/camel-catalog@npm:0.1.5"
+  checksum: 10/a1142c5d64052e79a19975d13675e8a5dda1a7506a133470e42c1923819eb79964b2e1b538d90049a45b082bb5d284db20b884434a8daa2037750d014eaf3b2b
   languageName: node
   linkType: hard
 
 "@kaoto/forms@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@kaoto/forms@npm:1.0.0"
+  version: 1.0.4
+  resolution: "@kaoto/forms@npm:1.0.4"
   dependencies:
     ajv: "npm:^8.12.0"
     ajv-formats: "npm:^3.0.0"
     clsx: "npm:^2.1.0"
+    cypress: "npm:^14.5.0"
     lodash.clonedeep: "npm:^4.5.0"
     usehooks-ts: "npm:^3.0.0"
   peerDependencies:
@@ -2902,7 +2903,7 @@ __metadata:
     "@patternfly/react-icons": ^6.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 10/cf00dfbb43e11b29912733768673c4df2be6783f13966cf977a337312ef22c32d7187516e1ccdf8f960f0c0f9cf8539c1c62cd1e97421b869ac362dc760d36c6
+  checksum: 10/344d66af499ab65288b5f30f906dad300d58ecd3597ceb6a0e517f19d60945d51f4c9b4b086784e0d479b28008098681b27dddc7b1ade576a7d174009448ccaa
   languageName: node
   linkType: hard
 
@@ -8819,6 +8820,60 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cypress@npm:^14.5.0":
+  version: 14.5.0
+  resolution: "cypress@npm:14.5.0"
+  dependencies:
+    "@cypress/request": "npm:^3.0.8"
+    "@cypress/xvfb": "npm:^1.2.4"
+    "@types/sinonjs__fake-timers": "npm:8.1.1"
+    "@types/sizzle": "npm:^2.3.2"
+    arch: "npm:^2.2.0"
+    blob-util: "npm:^2.0.2"
+    bluebird: "npm:^3.7.2"
+    buffer: "npm:^5.7.1"
+    cachedir: "npm:^2.3.0"
+    chalk: "npm:^4.1.0"
+    check-more-types: "npm:^2.24.0"
+    ci-info: "npm:^4.1.0"
+    cli-cursor: "npm:^3.1.0"
+    cli-table3: "npm:0.6.1"
+    commander: "npm:^6.2.1"
+    common-tags: "npm:^1.8.0"
+    dayjs: "npm:^1.10.4"
+    debug: "npm:^4.3.4"
+    enquirer: "npm:^2.3.6"
+    eventemitter2: "npm:6.4.7"
+    execa: "npm:4.1.0"
+    executable: "npm:^4.1.1"
+    extract-zip: "npm:2.0.1"
+    figures: "npm:^3.2.0"
+    fs-extra: "npm:^9.1.0"
+    getos: "npm:^3.2.1"
+    hasha: "npm:5.2.2"
+    is-installed-globally: "npm:~0.4.0"
+    lazy-ass: "npm:^1.6.0"
+    listr2: "npm:^3.8.3"
+    lodash: "npm:^4.17.21"
+    log-symbols: "npm:^4.0.0"
+    minimist: "npm:^1.2.8"
+    ospath: "npm:^1.2.2"
+    pretty-bytes: "npm:^5.6.0"
+    process: "npm:^0.11.10"
+    proxy-from-env: "npm:1.0.0"
+    request-progress: "npm:^3.0.0"
+    semver: "npm:^7.7.1"
+    supports-color: "npm:^8.1.1"
+    tmp: "npm:~0.2.3"
+    tree-kill: "npm:1.2.2"
+    untildify: "npm:^4.0.0"
+    yauzl: "npm:^2.10.0"
+  bin:
+    cypress: bin/cypress
+  checksum: 10/e7191106eb12a7427030e6902a654fe67f8ca6d4122829d3f1de71838fc1b8c9f8a1c729e8012c792c3227f897c1303c98b00fc60e2ab2577e788102848648ca
+  languageName: node
+  linkType: hard
+
 "d3-array@npm:2 - 3, d3-array@npm:2.10.0 - 3, d3-array@npm:2.5.0 - 3, d3-array@npm:3, d3-array@npm:^3.2.0":
   version: 3.2.4
   resolution: "d3-array@npm:3.2.4"
@@ -11598,6 +11653,16 @@ __metadata:
   version: 2.0.1
   resolution: "has-unicode@npm:2.0.1"
   checksum: 10/041b4293ad6bf391e21c5d85ed03f412506d6623786b801c4ab39e4e6ca54993f13201bceb544d92963f9e0024e6e7fbf0cb1d84c9d6b31cb9c79c8c990d13d8
+  languageName: node
+  linkType: hard
+
+"hasha@npm:5.2.2":
+  version: 5.2.2
+  resolution: "hasha@npm:5.2.2"
+  dependencies:
+    is-stream: "npm:^2.0.0"
+    type-fest: "npm:^0.8.0"
+  checksum: 10/06cc474bed246761ff61c19d629977eb5f53fa817be4313a255a64ae0f433e831a29e83acb6555e3f4592b348497596f1d1653751008dda4f21c9c21ca60ac5a
   languageName: node
   linkType: hard
 
@@ -19214,6 +19279,13 @@ __metadata:
   version: 0.21.3
   resolution: "type-fest@npm:0.21.3"
   checksum: 10/f4254070d9c3d83a6e573bcb95173008d73474ceadbbf620dd32d273940ca18734dff39c2b2480282df9afe5d1675ebed5499a00d791758748ea81f61a38961f
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^0.8.0":
+  version: 0.8.1
+  resolution: "type-fest@npm:0.8.1"
+  checksum: 10/fd4a91bfb706aeeb0d326ebd2e9a8ea5263979e5dec8d16c3e469a5bd3a946e014a062ef76c02e3086d3d1c7209a56a20a4caafd0e9f9a5c2ab975084ea3d388
   languageName: node
   linkType: hard
 
