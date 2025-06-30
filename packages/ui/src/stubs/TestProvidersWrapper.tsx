@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelResource } from '../models/camel/camel-resource';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
@@ -12,6 +13,7 @@ interface TestProviderWrapperProps extends PropsWithChildren {
 
 interface TestProvidersWrapperResult {
   Provider: FunctionComponent<PropsWithChildren>;
+  camelResource: CamelResource;
   updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
   updateSourceCodeFromEntitiesSpy: EntitiesContextResult['updateSourceCodeFromEntities'];
 }
@@ -43,9 +45,11 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
         } as unknown as EntitiesContextResult
       }
     >
-      <VisibleFlowsContext.Provider value={visibleFlowsContext}>{props.children}</VisibleFlowsContext.Provider>
+      <VisibleFlowsContext.Provider value={visibleFlowsContext}>
+        <SuggestionRegistryProvider>{props.children}</SuggestionRegistryProvider>
+      </VisibleFlowsContext.Provider>
     </EntitiesContext.Provider>
   );
 
-  return { Provider, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };
+  return { Provider, camelResource, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };
 };

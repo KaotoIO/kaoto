@@ -1,8 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext } from '@kaoto/forms';
+import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {
   CamelCatalogService,
   CamelRouteVisualEntity,
@@ -11,12 +11,12 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
 } from '../../../../models';
-import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IVisualizationNode, VisualComponentSchema } from '../../../../models/visualization/base-visual-entity';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
-import { CanvasNode } from '../canvas.models';
 import { CanvasFormBody } from './CanvasFormBody';
 
 describe('CanvasFormBody', () => {
@@ -64,25 +64,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: setHeaderNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={setHeaderNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -123,25 +118,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: setHeaderNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={setHeaderNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -187,25 +177,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: marshalNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={marshalNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -243,25 +228,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: marshalNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={marshalNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -304,25 +284,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: loadBalanceNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={loadBalanceNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -360,25 +335,20 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: loadBalanceNode,
-        },
-      };
 
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: jest.fn(),
-              }}
-            >
-              <CanvasFormBody selectedNode={selectedNode as unknown as CanvasNode} />
-            </CanvasFormTabsContext.Provider>
+            <SuggestionRegistryProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: jest.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={loadBalanceNode} />
+              </CanvasFormTabsContext.Provider>
+            </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
       );
@@ -394,6 +364,50 @@ describe('CanvasFormBody', () => {
       await formPageObject.inputText('Distribution Ratio', '3.5');
       expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
+    });
+  });
+
+  it('should show suggestions', async () => {
+    const { Provider, camelResource } = TestProvidersWrapper();
+    const vizNode = camelResource.getVisualEntities()[0].toVizNode();
+    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue({
+      schema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            title: 'Name',
+          },
+        },
+      },
+      definition: {
+        name: 'test-component',
+      },
+    } as VisualComponentSchema);
+
+    const wrapper = render(
+      <Provider>
+        <CanvasFormTabsContext.Provider
+          value={{
+            selectedTab: 'All',
+            setSelectedTab: jest.fn(),
+          }}
+        >
+          <CanvasFormBody vizNode={vizNode} />
+        </CanvasFormTabsContext.Provider>
+      </Provider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    const inputField = formPageObject.getFieldByDisplayName('Name')!;
+
+    await act(async () => {
+      fireEvent.focus(inputField);
+      fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
+    });
+
+    await waitFor(() => {
+      expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();
     });
   });
 });

@@ -1,54 +1,40 @@
 import { KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { isDefined, setValue } from '../../../../utils';
 import { UnknownNode } from '../../Custom/UnknownNode';
-import { CanvasNode } from '../canvas.models';
 import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
+import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
 
 interface CanvasFormTabsProps {
-  selectedNode: CanvasNode;
+  vizNode: IVisualizationNode;
 }
 
-export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) => {
+export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
-  const omitFields = useRef(props.selectedNode.data?.vizNode?.getOmitFormFields() || []);
-
-  const visualComponentSchema = useMemo(() => {
-    const answer = props.selectedNode.data?.vizNode?.getComponentSchema();
-    // Overriding parameters with an empty object When the parameters property is mistakenly set to null
-    if (answer?.definition?.parameters === null) {
-      answer!.definition.parameters = {};
-    }
-    return answer;
-  }, [props.selectedNode.data?.vizNode]);
-  const model = visualComponentSchema?.definition;
+  const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
+  const schema = useMemo(() => vizNode.getComponentSchema()?.schema, [vizNode]);
 
   const isUnknownComponent = useMemo(() => {
-    return (
-      !isDefined(visualComponentSchema) ||
-      !isDefined(visualComponentSchema.schema) ||
-      Object.keys(visualComponentSchema.schema).length === 0
-    );
-  }, [visualComponentSchema]);
+    return !isDefined(schema) || Object.keys(schema).length === 0;
+  }, [schema]);
+
+  const model = vizNode.getComponentSchema()?.definition;
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!props.selectedNode.data?.vizNode) {
-        return;
-      }
-
       let updatedValue = value;
       if (typeof value === 'string' && value.trim() === '') {
         updatedValue = undefined;
       }
 
-      const newModel = props.selectedNode.data.vizNode.getComponentSchema()?.definition || {};
+      const newModel = vizNode.getComponentSchema()?.definition ?? {};
       setValue(newModel, path, updatedValue);
-      props.selectedNode.data.vizNode.updateModel(newModel);
+      vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, props.selectedNode.data?.vizNode],
+    [entitiesContext, vizNode],
   );
 
   if (isUnknownComponent) {
@@ -56,12 +42,14 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = (props) =>
   }
 
   return (
-    <KaotoForm
-      schema={visualComponentSchema?.schema}
-      onChangeProp={handleOnChangeIndividualProp}
-      model={model}
-      omitFields={omitFields.current}
-      customFieldsFactory={customFieldsFactoryfactory}
-    />
+    <SuggestionRegistrar>
+      <KaotoForm
+        schema={schema}
+        onChangeProp={handleOnChangeIndividualProp}
+        model={model}
+        omitFields={omitFields.current}
+        customFieldsFactory={customFieldsFactoryfactory}
+      />
+    </SuggestionRegistrar>
   );
 };

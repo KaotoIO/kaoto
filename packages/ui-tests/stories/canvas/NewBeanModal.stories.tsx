@@ -1,6 +1,6 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoSchemaDefinition, NewBeanModal } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { useState } from 'react';
 
 const beanSchema: KaotoSchemaDefinition['schema'] = {
   title: 'Bean Factory',
@@ -31,13 +31,17 @@ const beanSchema: KaotoSchemaDefinition['schema'] = {
 export default {
   title: 'Canvas/NewBeanModal',
   component: NewBeanModal,
-  decorators: [(Story: StoryFn) => <Story />],
+  decorators: [
+    (Story: StoryFn) => (
+      <SuggestionRegistryProvider>
+        <Story />
+      </SuggestionRegistryProvider>
+    ),
+  ],
 } as Meta<typeof NewBeanModal>;
 
 const Template: StoryFn<typeof NewBeanModal> = (args) => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const handleClose = () => setIsModalOpen(!isModalOpen);
-  return <NewBeanModal {...args} onCancelCreateBean={handleClose} isOpen={isModalOpen} />;
+  return <NewBeanModal {...args} onCancelCreateBean={() => {}} />;
 };
 
 export const Default = Template.bind({});

@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext } from '@kaoto/forms';
+import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import {
   CamelRouteVisualEntity,
   CanvasNode,
@@ -94,6 +94,13 @@ const unknownSelectedNode: CanvasNode = {
 export default {
   title: 'Canvas/CanvasSideBar',
   component: CanvasSideBar,
+  decorators: [
+    (Story: StoryFn) => (
+      <SuggestionRegistryProvider>
+        <Story />
+      </SuggestionRegistryProvider>
+    ),
+  ],
 } as Meta<typeof CanvasSideBar>;
 
 const Template: StoryFn<typeof CanvasSideBar> = (args) => {

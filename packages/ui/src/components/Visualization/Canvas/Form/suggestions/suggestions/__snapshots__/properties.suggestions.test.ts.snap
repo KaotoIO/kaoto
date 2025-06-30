@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Properties Suggestions should return suggestions 1`] = `
+[
+  {
+    "description": "Use the RAW value of the 'test' property",
+    "value": "RAW(test)",
+  },
+  {
+    "description": "Use 'test' as a property reference",
+    "value": "{{test}}",
+  },
+  {
+    "description": "Use 'test' with a default value as a property reference",
+    "value": "{{test:default}}",
+  },
+  {
+    "description": "Use 'test' as an optional property reference",
+    "group": "Property references",
+    "value": "{{?test}}",
+  },
+  {
+    "description": "Use 'test' as a negated property reference",
+    "group": "Property references",
+    "value": "{{!test}}",
+  },
+  {
+    "description": "Use the 'test' OS environment variable",
+    "group": "Property functions",
+    "value": "{{env:test}}",
+  },
+  {
+    "description": "Use the 'test' Java JVM system property",
+    "group": "Property functions",
+    "value": "{{sys:test}}",
+  },
+  {
+    "description": "Use the TEST service, defined using the service naming idiom. Services are expected to be defined as OS TEST_SERVICE_HOST and TEST_SERVICE_PORT environment variables.",
+    "group": "Property functions",
+    "value": "{{service:TEST}}",
+  },
+  {
+    "description": "Use the TEST service hostname",
+    "group": "Property functions",
+    "value": "{{service.name:TEST}}",
+  },
+  {
+    "description": "Use the TEST service port",
+    "group": "Property functions",
+    "value": "{{service.port:TEST}}",
+  },
+  {
+    "description": "Use the test ConfigMap. It should be in the format 'configmap:configmap-name/configmap-key'",
+    "group": "Kubernetes",
+    "value": "{{configmap:test}}",
+  },
+  {
+    "description": "Use the test ConfigMap with a default value",
+    "group": "Kubernetes",
+    "value": "{{configmap:test}}:defaultValue",
+  },
+  {
+    "description": "Use the binary test ConfigMap",
+    "group": "Kubernetes",
+    "value": "{{configmap-binary:test}}",
+  },
+  {
+    "description": "Use the test Secret. It should be in the format 'secret:secret-name/secret-key'",
+    "group": "Kubernetes",
+    "value": "{{secret:test}}",
+  },
+  {
+    "description": "Use the binary test Secret.",
+    "group": "Kubernetes",
+    "value": "{{secret-binary:test}}",
+  },
+]
+`;

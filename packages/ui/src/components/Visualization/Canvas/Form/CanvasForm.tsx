@@ -42,9 +42,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ selectedNode, o
           <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
         </CardHeader>
 
-        <CardBody className="canvas-form__body">
-          <CanvasFormBody selectedNode={selectedNode} />
-        </CardBody>
+        <CardBody className="canvas-form__body">{vizNode && <CanvasFormBody vizNode={vizNode} />}</CardBody>
       </Card>
     </ErrorBoundary>
   );

@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Properties Suggestions should return suggestions 1`] = `
+[
+  {
+    "description": "SQL: Use the body of the message",
+    "group": "SQL Syntax",
+    "value": "#\${body}",
+  },
+  {
+    "description": "SQL: Use the 'test' header of the message",
+    "group": "SQL Syntax",
+    "value": "#\${header.test}",
+  },
+  {
+    "description": "SQL: Use the 'test' variable of the message",
+    "group": "SQL Syntax",
+    "value": "#\${variable.test}",
+  },
+]
+`;
