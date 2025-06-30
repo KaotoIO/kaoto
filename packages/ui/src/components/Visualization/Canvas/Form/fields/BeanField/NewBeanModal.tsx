@@ -12,6 +12,7 @@ import { cloneDeep } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { isDefined } from '../../../../../../utils';
+import { SuggestionRegistrar } from '../../suggestions/SuggestionsProvider';
 
 export type NewBeanModalProps = {
   beanSchema?: KaotoSchemaDefinition['schema'];
@@ -66,13 +67,15 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
       <ModalBody>
         <FilteredFieldProvider>
           <CanvasFormTabsContext.Provider value={formTabsValue}>
-            <KaotoForm
-              data-testid="new-bean-form"
-              schema={beanSchema}
-              model={beanModel}
-              onChange={setBeanModel as KaotoFormProps['onChange']}
-              ref={formRef}
-            />
+            <SuggestionRegistrar>
+              <KaotoForm
+                data-testid="new-bean-form"
+                schema={beanSchema}
+                model={beanModel}
+                onChange={setBeanModel as KaotoFormProps['onChange']}
+                ref={formRef}
+              />
+            </SuggestionRegistrar>
           </CanvasFormTabsContext.Provider>
         </FilteredFieldProvider>
       </ModalBody>

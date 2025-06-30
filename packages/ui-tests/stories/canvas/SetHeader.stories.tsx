@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext } from '@kaoto/forms';
+import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import {
   CanvasNode,
   CanvasSideBar,
@@ -485,6 +485,13 @@ const selectedNode: CanvasNode = {
 export default {
   title: 'Canvas/SetHeader',
   component: CanvasSideBar,
+  decorators: [
+    (Story: StoryFn) => (
+      <SuggestionRegistryProvider>
+        <Story />
+      </SuggestionRegistryProvider>
+    ),
+  ],
 } as Meta<typeof CanvasSideBar>;
 
 const Template: StoryFn<typeof CanvasSideBar> = (args) => {
