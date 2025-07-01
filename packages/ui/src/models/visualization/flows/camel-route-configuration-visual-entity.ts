@@ -1,11 +1,8 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
-import Ajv, { ValidateFunction } from 'ajv';
-import addFormats from 'ajv-formats';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
-import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
@@ -16,8 +13,9 @@ import {
 import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
@@ -26,7 +24,6 @@ export class CamelRouteConfigurationVisualEntity
   id: string;
   readonly type = EntityType.RouteConfiguration;
   static readonly ROOT_PATH = 'routeConfiguration';
-  private schemaValidator: ValidateFunction<RouteConfigurationDefinition> | undefined;
   private readonly OMIT_FORM_FIELDS = [
     'intercept',
     'interceptFrom',
@@ -127,17 +124,11 @@ export class CamelRouteConfigurationVisualEntity
     return super.getNodeInteraction(data);
   }
 
-  getNodeValidationText(): string | undefined {
-    const componentVisualSchema = this.getComponentSchema();
+  getNodeValidationText(path?: string | undefined): string | undefined {
+    const componentVisualSchema = this.getComponentSchema(path);
     if (!componentVisualSchema) return undefined;
 
-    if (!this.schemaValidator) {
-      this.schemaValidator = this.getValidatorFunction(componentVisualSchema.schema);
-    }
-
-    this.schemaValidator?.({ ...this.routeConfigurationDef.routeConfiguration });
-
-    return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
+    return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
   toVizNode(): IVisualizationNode {
@@ -177,26 +168,5 @@ export class CamelRouteConfigurationVisualEntity
 
   protected getRootUri(): string | undefined {
     return undefined;
-  }
-
-  private getValidatorFunction(
-    schema: KaotoSchemaDefinition['schema'],
-  ): ValidateFunction<RouteConfigurationDefinition> | undefined {
-    return undefined;
-    const ajv = new Ajv({
-      strict: false,
-      allErrors: true,
-      useDefaults: 'empty',
-    });
-    addFormats(ajv);
-
-    let schemaValidator: ValidateFunction<RouteConfigurationDefinition> | undefined;
-    try {
-      schemaValidator = ajv.compile<RouteConfigurationDefinition>(schema);
-    } catch (error) {
-      console.error('Could not compile schema', error);
-    }
-
-    return schemaValidator;
   }
 }
