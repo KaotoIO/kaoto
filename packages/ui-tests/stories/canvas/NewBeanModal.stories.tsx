@@ -1,6 +1,5 @@
 import { KaotoSchemaDefinition, NewBeanModal } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { useState } from 'react';
 
 const beanSchema: KaotoSchemaDefinition['schema'] = {
   title: 'Bean Factory',
@@ -35,9 +34,7 @@ export default {
 } as Meta<typeof NewBeanModal>;
 
 const Template: StoryFn<typeof NewBeanModal> = (args) => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const handleClose = () => setIsModalOpen(!isModalOpen);
-  return <NewBeanModal {...args} onCancelCreateBean={handleClose} isOpen={isModalOpen} />;
+  return <NewBeanModal {...args} />;
 };
 
 export const Default = Template.bind({});

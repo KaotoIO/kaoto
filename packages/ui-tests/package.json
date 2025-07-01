@@ -25,7 +25,6 @@
   "devDependencies": {
     "@cypress/grep": "^4.1.0",
     "@eslint/js": "^9.10.0",
-    "@kaoto/kaoto": "workspace:*",
     "@storybook/addon-essentials": "^8.2.8",
     "@storybook/addon-interactions": "^8.2.8",
     "@storybook/addon-links": "^8.2.8",
@@ -62,6 +61,15 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
+    "@kaoto/camel-catalog": "^0.1.2",
+    "@kaoto/forms": "^1.1.3",
+    "@kaoto/kaoto": "workspace:*",
+    "@patternfly/patternfly": "^6.2.3",
+    "@patternfly/react-code-editor": "^6.2.2",
+    "@patternfly/react-core": "^6.2.2",
+    "@patternfly/react-icons": "^6.2.2",
+    "@patternfly/react-table": "^6.2.2",
+    "@patternfly/react-topology": "^6.2.0",
     "storybook": "^8.2.8"
   },
   "eslintConfig": {

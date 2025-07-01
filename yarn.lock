@@ -2954,7 +2954,15 @@ __metadata:
   dependencies:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
+    "@kaoto/camel-catalog": "npm:^0.1.2"
+    "@kaoto/forms": "npm:^1.1.3"
     "@kaoto/kaoto": "workspace:*"
+    "@patternfly/patternfly": "npm:^6.2.3"
+    "@patternfly/react-code-editor": "npm:^6.2.2"
+    "@patternfly/react-core": "npm:^6.2.2"
+    "@patternfly/react-icons": "npm:^6.2.2"
+    "@patternfly/react-table": "npm:^6.2.2"
+    "@patternfly/react-topology": "npm:^6.2.0"
     "@storybook/addon-essentials": "npm:^8.2.8"
     "@storybook/addon-interactions": "npm:^8.2.8"
     "@storybook/addon-links": "npm:^8.2.8"
@@ -3079,6 +3087,7 @@ __metadata:
     yaml: "npm:^2.3.2"
     zustand: "npm:^4.3.9"
   peerDependencies:
+    "@kaoto/camel-catalog": ^0.1.2
     "@patternfly/patternfly": ^6.2.0
     "@patternfly/react-code-editor": ^6.2.0
     "@patternfly/react-core": ^6.2.0

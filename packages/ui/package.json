@@ -77,6 +77,7 @@
     "zustand": "^4.3.9"
   },
   "peerDependencies": {
+    "@kaoto/camel-catalog": "^0.1.2",
     "@patternfly/patternfly": "^6.2.0",
     "@patternfly/react-code-editor": "^6.2.0",
     "@patternfly/react-core": "^6.2.0",

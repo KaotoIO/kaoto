@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { ChannelType, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { VisualizationProvider } from '@patternfly/react-topology';
@@ -117,7 +118,9 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
             <MetadataProvider api={metadataApi}>
               <RegisterComponents>
                 <NodeInteractionAddonProvider>
-                  <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+                  <RegisterNodeInteractionAddons>
+                    <SuggestionRegistryProvider>{children}</SuggestionRegistryProvider>
+                  </RegisterNodeInteractionAddons>
                 </NodeInteractionAddonProvider>
               </RegisterComponents>
             </MetadataProvider>

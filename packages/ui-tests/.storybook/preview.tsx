@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import '@patternfly/patternfly/patternfly.css';
 import '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
 import '@patternfly/patternfly/utilities/Display/display.css';
@@ -22,7 +23,9 @@ const preview: Preview = {
     (Story) => (
       <div style={{ height: '600px', width: '100%' }}>
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
-        <Story />
+        <SuggestionRegistryProvider>
+          <Story />
+        </SuggestionRegistryProvider>
       </div>
     ),
   ],

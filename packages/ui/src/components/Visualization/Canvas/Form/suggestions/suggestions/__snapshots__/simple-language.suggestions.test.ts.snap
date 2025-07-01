@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Properties Suggestions should return suggestions 1`] = `
+[
+  {
+    "description": "Use the body of the message",
+    "group": "Simple Language",
+    "value": "\${body}",
+  },
+  {
+    "description": "Use the 'test' header of the message",
+    "group": "Simple Language",
+    "value": "\${header.test}",
+  },
+  {
+    "description": "Use the 'test' variable of the message",
+    "group": "Simple Language",
+    "value": "\${variable.test}",
+  },
+]
+`;

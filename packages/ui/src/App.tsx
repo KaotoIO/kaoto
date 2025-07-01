@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { useLayoutEffect, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -52,7 +53,9 @@ function App() {
                           <RegisterComponents>
                             <NodeInteractionAddonProvider>
                               <RegisterNodeInteractionAddons>
-                                <Outlet />
+                                <SuggestionRegistryProvider>
+                                  <Outlet />
+                                </SuggestionRegistryProvider>
                               </RegisterNodeInteractionAddons>
                             </NodeInteractionAddonProvider>
                           </RegisterComponents>
