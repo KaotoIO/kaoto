@@ -1912,7 +1912,7 @@ const Template: StoryFn<typeof CanvasSideBar> = (args) => {
     <CanvasFormTabsContext.Provider
       value={{
         selectedTab: 'All',
-        onTabChange: () => {},
+        setSelectedTab: () => {},
       }}
     >
       <VisibleFlowsProvider>
