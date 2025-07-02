@@ -14994,8 +14994,8 @@ __metadata:
   linkType: hard
 
 "monaco-yaml@npm:^5.1.1":
-  version: 5.2.3
-  resolution: "monaco-yaml@npm:5.2.3"
+  version: 5.4.0
+  resolution: "monaco-yaml@npm:5.4.0"
   dependencies:
     jsonc-parser: "npm:^3.0.0"
     monaco-languageserver-types: "npm:^0.4.0"
@@ -15003,14 +15003,14 @@ __metadata:
     monaco-types: "npm:^0.1.0"
     monaco-worker-manager: "npm:^2.0.0"
     path-browserify: "npm:^1.0.0"
-    prettier: "npm:^2.0.0"
+    prettier: "npm:^3.0.0"
     vscode-languageserver-textdocument: "npm:^1.0.0"
     vscode-languageserver-types: "npm:^3.0.0"
     vscode-uri: "npm:^3.0.0"
     yaml: "npm:^2.0.0"
   peerDependencies:
     monaco-editor: ">=0.36"
-  checksum: 10/1745cc241c14de1b7dbccc4b6d60b1dce0e9862220cb119a6b242d05ad2d0e6399a5c7b5d128edd5290e9f45ab77692c3245b22f4f693f849846a79ea40789ee
+  checksum: 10/84c88539c4193bcfcc3d6794d256f55183713b5d2f73f4d0579fe25650eafad09220dc4d7fdbfcbe0e7c4a56f2f89dd333f5bcdccf3f0b59f339663689e78116
   languageName: node
   linkType: hard
 
