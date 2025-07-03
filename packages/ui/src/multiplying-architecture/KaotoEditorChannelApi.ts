@@ -57,4 +57,11 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * Return the runtime information if the opened file is part of a Maven project.
+   * The returned string is a json string coming from Camel JBang.
+   * In case i ti snot a Maven project or a problem occured, undefined is returned.
+   */
+  getRuntimeInfoFromMavenContext(): Promise<string | undefined>;
 }
