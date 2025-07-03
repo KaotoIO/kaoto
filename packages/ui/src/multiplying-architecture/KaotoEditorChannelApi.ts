@@ -1,6 +1,11 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
 import { ISettingsModel } from '../models/settings';
+import {
+  CamelMainMavenInformation,
+  CamelQuarkusMavenInformation,
+  CamelSpringBootMavenInformation,
+} from '../models/runtime-maven-information';
 
 export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   /**
@@ -67,4 +72,13 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * @returns A promise that resolves to an array of suggestions, each containing a value, optional description, and optional group.
    */
   getSuggestions(topic: string, word: string, context: SuggestionRequestContext): Promise<Suggestion[]>;
+
+  /**
+   * @returns the runtime information if the opened file is part of a Maven project.
+   * The returned Object is a direct parsing of the json string coming from Camel JBang.
+   * In case it is not a Maven project or a problem occured, undefined is returned.
+   */
+  getRuntimeInfoFromMavenContext(): Promise<
+    CamelMainMavenInformation | CamelQuarkusMavenInformation | CamelSpringBootMavenInformation | undefined
+  >;
 }
