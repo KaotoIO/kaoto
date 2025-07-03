@@ -57,4 +57,9 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * Detect if the current opened file is part of a Maven project or not
+   */
+  isInsideMavenProject(): Promise<boolean>;
 }
