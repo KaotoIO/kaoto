@@ -17,7 +17,9 @@ export class WhenNodeMapper extends BaseNodeMapper {
       path,
       icon: NodeIconResolver.getIcon(processorName, NodeIconType.EIP),
       processorName,
-      isGroup: true,
+      isGroup: false,
+      nodeType: 'branch',
+      edges: [],
     };
 
     const vizNode = createVisualizationNode(path, data);
@@ -26,6 +28,11 @@ export class WhenNodeMapper extends BaseNodeMapper {
     children.forEach((child) => {
       vizNode.addChild(child);
     });
+
+    if (!data.isGroup) {
+      vizNode.setEndNodes([children[children.length - 1]]);
+      data.edges?.push({ sourceId: vizNode.id, targetId: children[0].id });
+    }
 
     return vizNode;
   }
