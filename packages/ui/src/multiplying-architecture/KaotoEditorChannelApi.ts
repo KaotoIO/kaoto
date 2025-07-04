@@ -1,3 +1,4 @@
+import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
 import { ISettingsModel } from '../models/settings';
 
@@ -57,4 +58,13 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * Query the host application for suggestions
+   * @param topic The topic for which suggestions are being requested (e.g., "properties", "kubernetes", "beans", etc.)
+   * @param word The current word or input value for which suggestions are being requested
+   * @param context Additional context for the suggestions, such as the property name and current input value.
+   * @returns A promise that resolves to an array of suggestions, each containing a value, optional description, and optional group.
+   */
+  getSuggestions(topic: string, word: string, context: SuggestionRequestContext): Promise<Suggestion[]>;
 }
