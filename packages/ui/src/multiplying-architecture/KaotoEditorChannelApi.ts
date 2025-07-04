@@ -57,4 +57,29 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * Query the host application for suggestions
+   * @param topic The topic for which suggestions are being requested (e.g., "properties", "kubernetes", "beans", etc.)
+   * @param word The current word or input value for which suggestions are being requested
+   * @param context Additional context for the suggestions, such as the property name and current input value.
+   * @returns A promise that resolves to an array of suggestions, each containing a value, optional description, and optional group.
+   */
+  getSuggestions(
+    topic: string,
+    word: string,
+    context: { propertyName: string; inputValue: string | number; cursorPosition?: number | null },
+  ): Promise<
+    // Taken from @kaoto/forms Suggestion type
+    {
+      /** The value of the suggestion that will be inserted into the input field. */
+      value: string;
+
+      /** Additional information about the suggestion, such as a description or tooltip */
+      description?: string;
+
+      /** Optional group for the suggestion */
+      group?: string;
+    }[]
+  >;
 }
