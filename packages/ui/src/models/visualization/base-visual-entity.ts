@@ -1,3 +1,4 @@
+import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
@@ -45,6 +46,15 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
     mode: AddStepMode;
     data: IVisualizationNodeData;
     targetProperty?: string;
+  }) => void;
+
+  /** Given a path, get the content to be copied */
+  getCopiedContent: (path?: string) => IClipboardCopyObject | undefined;
+
+  pasteStep: (options: {
+    clipboadContent: IClipboardCopyObject;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
   }) => void;
 
   /** Check if the node is draggable */
@@ -100,6 +110,11 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getNodeTitle(): string;
 
   addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
+
+  /** This method return the content to be copied for the node */
+  getCopiedContent(): IClipboardCopyObject | undefined;
+
+  pasteBaseEntityStep(definedComponent: IClipboardCopyObject, mode: AddStepMode): void;
 
   canDragNode(): boolean;
 
