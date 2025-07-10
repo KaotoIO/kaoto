@@ -3,6 +3,7 @@ import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
+import { CanvasEdge } from '../../components/Visualization/Canvas';
 
 /**
  * BaseVisualCamelEntity
@@ -76,12 +77,13 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   getNodeValidationText(path?: string): string | undefined;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
-  toVizNode: () => IVisualizationNode;
+  toVizNode: () => VizNodeWithEdges;
 }
 
 export interface BaseVisualCamelEntityConstructor {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   new (...args: any[]): BaseVisualCamelEntity;
+
   isApplicable: (entity: unknown) => boolean;
 }
 
@@ -149,8 +151,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   appendEndNodes(...endNode: IVisualizationNode[]): void;
 
-  addNextNode(node: IVisualizationNode): void;
-
   getChildren(): IVisualizationNode[] | undefined;
 
   addChild(child: IVisualizationNode): void;
@@ -167,7 +167,6 @@ export interface IVisualizationNodeData {
   entity?: BaseVisualCamelEntity;
   isPlaceholder?: boolean;
   isGroup?: boolean;
-  edges?: { sourceId: string, targetId: string }[];
 
   [key: string]: unknown;
 }
@@ -224,4 +223,14 @@ export const DISABLED_NODE_INTERACTION: NodeInteraction = {
   canRemoveStep: false,
   canRemoveFlow: false,
   canBeDisabled: false,
+};
+
+export type VizNodeWithEdges = {
+  vizNode: IVisualizationNode;
+  edges: CanvasEdge[];
+};
+
+export type VizNodesWithEdges = {
+  nodes: IVisualizationNode[];
+  edges: CanvasEdge[];
 };

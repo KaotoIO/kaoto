@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodeWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -12,7 +12,7 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodeWithEdges {
     const processorName = this.getProcessorName();
 
     const data: CamelRouteVisualEntityData = {
@@ -23,8 +23,9 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
+    console.log('vizNode', vizNode.getEndNodes());
     const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    children.forEach((child) => {
+    children.nodes.forEach((child) => {
       vizNode.addChild(child);
       /**
        * Remove the previous and next node from the child to prevent
@@ -34,6 +35,6 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       child.setNextNode(undefined);
     });
 
-    return vizNode;
+    return { vizNode, edges: [] };
   }
 }

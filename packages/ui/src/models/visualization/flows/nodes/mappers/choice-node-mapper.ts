@@ -1,16 +1,18 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodeWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
+import { EdgeStyle } from '@patternfly/react-topology';
+import { CanvasEdge } from '../../../../../components/Visualization/Canvas';
 
 export class ChoiceNodeMapper extends BaseNodeMapper {
   getVizNodeFromProcessor(
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodeWithEdges {
     const processorName: keyof ProcessorDefinition = 'choice';
 
     const data: CamelRouteVisualEntityData = {
@@ -18,29 +20,27 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
       icon: NodeIconResolver.getIcon(processorName, NodeIconType.EIP),
       processorName,
       isGroup: false, // Choice is a node, not a group
-      edges: [],
     };
 
     const vizNode = createVisualizationNode(path, data);
-    console.log(vizNode.getNextNode());
+    vizNode.setEndNodes([]);
+    const edges: CanvasEdge[] = [];
 
-
-    const whenNodes = this.getChildrenFromArrayClause(`${path}.when`, entityDefinition);
-    whenNodes.forEach((whenNode) => {
+    const whenNodesWithEdges = this.getChildrenFromArrayClause(`${path}.when`, entityDefinition);
+    whenNodesWithEdges.nodes.forEach((whenNode) => {
       vizNode.addChild(whenNode);
-      if (!whenNode.data.isGroup) {
-        data.edges?.push({ sourceId: vizNode.id, targetId: whenNode.id });
-        vizNode.appendEndNodes(...whenNode.getEndNodes());
-      }
+      edges.push(ChoiceNodeMapper.getEdge(vizNode.id, whenNode.id, EdgeStyle.dashed));
+      vizNode.appendEndNodes(...whenNode.getEndNodes());
     });
 
-    const otherwiseNode = this.getChildrenFromSingleClause(`${path}.otherwise`, entityDefinition);
-    if (otherwiseNode.length > 0) {
-      vizNode.addChild(otherwiseNode[0]);
-      vizNode.appendEndNodes(...otherwiseNode[0].getEndNodes());
-      data.edges?.push({ sourceId: vizNode.id, targetId: otherwiseNode[0].id });
+    const otherwiseNodeWithEdges = this.getChildrenFromSingleClause(`${path}.otherwise`, entityDefinition);
+    if (otherwiseNodeWithEdges.nodes.length > 0) {
+      vizNode.addChild(otherwiseNodeWithEdges.nodes[0]);
+      vizNode.appendEndNodes(...otherwiseNodeWithEdges.nodes[0].getEndNodes());
+      edges.push(ChoiceNodeMapper.getEdge(vizNode.id, otherwiseNodeWithEdges.nodes[0].id));
     }
 
-    return vizNode;
+    edges.push(...whenNodesWithEdges.edges, ...otherwiseNodeWithEdges.edges);
+    return { vizNode, edges };
   }
 }

@@ -1,16 +1,17 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodeWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
+import { EdgeStyle } from '@patternfly/react-topology';
 
 export class OtherwiseNodeMapper extends BaseNodeMapper {
   getVizNodeFromProcessor(
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodeWithEdges {
     const processorName = 'otherwise' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -24,14 +25,18 @@ export class OtherwiseNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    children.forEach((child) => {
+    const childrenWithEdges = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
+    childrenWithEdges.nodes.forEach((child) => {
       vizNode.addChild(child);
     });
 
-    vizNode.setEndNodes([children[children.length - 1]]);
+    const lastIndex = childrenWithEdges.nodes.length - 1;
+    vizNode.setEndNodes([childrenWithEdges.nodes[lastIndex]]);
 
-    data.edges?.push({sourceId: vizNode.id, targetId: children[0].id});
-    return vizNode;
+    childrenWithEdges.edges.push(
+      OtherwiseNodeMapper.getEdge(vizNode.id, childrenWithEdges.nodes[0].id, EdgeStyle.dashed),
+    );
+
+    return { vizNode, edges: childrenWithEdges.edges };
   }
 }

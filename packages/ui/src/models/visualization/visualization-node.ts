@@ -41,6 +41,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
       lastUpdate: observable,
       updateModel: action,
     });
+    this.endNode = [this];
   }
 
   getId(): string | undefined {

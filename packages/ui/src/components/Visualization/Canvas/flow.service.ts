@@ -1,37 +1,36 @@
-import { EdgeStyle } from '@patternfly/react-topology';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import { IVisualizationNode, VizNodeWithEdges } from '../../../models/visualization/base-visual-entity';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges } from './canvas.models';
+import { NodeShape } from '@patternfly/react-topology';
 
 export class FlowService {
   static nodes: CanvasNode[] = [];
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
-  private static groupNodes: string[] = [];
+  private static groupNodesStack: string[][] = [];
 
-  static getFlowDiagram(scope: string, vizNode: IVisualizationNode): CanvasNodesAndEdges {
+  static getFlowDiagram(scope: string, nodeWithEdges: VizNodeWithEdges): CanvasNodesAndEdges {
     this.nodes = [];
-    this.edges = [];
     this.visitedNodes = [];
-
-    this.appendNodesAndEdges(vizNode);
+    console.log(nodeWithEdges);
+    this.appendNodes(nodeWithEdges.vizNode);
 
     this.nodes.forEach((node) => {
       node.id = `${scope}|${node.id}`;
       node.children = node.children?.map((child) => `${scope}|${child}`);
       node.parentNode = node.parentNode ? `${scope}|${node.parentNode}` : undefined;
     });
-    this.edges.forEach((edge) => {
+    nodeWithEdges.edges.forEach((edge) => {
       edge.id = `${scope}|${edge.id}`;
       edge.source = `${scope}|${edge.source}`;
       edge.target = `${scope}|${edge.target}`;
     });
 
-    return { nodes: this.nodes, edges: this.edges };
+    return { nodes: this.nodes, edges: nodeWithEdges.edges };
   }
 
   /** Method for iterating over all the IVisualizationNode and its children using a depth-first algorithm */
-  private static appendNodesAndEdges(vizNodeParam: IVisualizationNode): void {
+  private static appendNodes(vizNodeParam: IVisualizationNode): void {
     if (this.visitedNodes.includes(vizNodeParam.id)) {
       return;
     }
@@ -40,10 +39,12 @@ export class FlowService {
     const children = vizNodeParam.getChildren();
     const parentNodeId = vizNodeParam.getParentNode()?.id;
 
+    if (vizNodeParam.data.isGroup) this.groupNodesStack.push([]);
+
     if (children) {
       children.forEach((branchChild) => {
-        this.appendNodesAndEdges(branchChild);
-        this.groupNodes.push(branchChild.id);
+        this.groupNodesStack[this.groupNodesStack.length - 1].push(branchChild.id);
+        this.appendNodes(branchChild);
       });
 
       if (vizNodeParam.data.isGroup) {
@@ -51,20 +52,16 @@ export class FlowService {
 
         node = this.getGroup(containerId, {
           label: containerId,
-          children: [...this.groupNodes],
+          children: [...this.groupNodesStack.pop()!],
           parentNode: parentNodeId,
           data: { vizNode: vizNodeParam },
         });
-
-        this.groupNodes = [];
       }
     }
     /** Add node */
     this.nodes.push(node);
-    this.visitedNodes.push(node.id);
 
-    /** Add edges */
-    this.edges.push(...this.getEdgesFromVizNode(vizNodeParam));
+    this.visitedNodes.push(node.id);
   }
 
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
@@ -82,26 +79,6 @@ export class FlowService {
     }
 
     return canvasNode;
-  }
-
-  private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
-    const edges: CanvasEdge[] = [];
-
-    // Add edges from the vizNodeParam data if available
-    vizNodeParam.data.edges?.forEach((edge) => {
-      edges.push(this.getEdge(edge.sourceId, edge.targetId));
-    });
-
-    if (vizNodeParam.getNextNode() !== undefined) {
-      const endNodes = vizNodeParam.getEndNodes();
-
-      if (endNodes.length > 0) {
-        endNodes.forEach((endNode) => {
-          edges.push(this.getEdge(endNode.id, vizNodeParam.getNextNode()!.id));
-        });
-      } else edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
-    }
-    return edges;
   }
 
   private static getGroup(
@@ -130,17 +107,7 @@ export class FlowService {
       data: options.data,
       width: CanvasDefaults.DEFAULT_NODE_WIDTH,
       height: CanvasDefaults.DEFAULT_NODE_HEIGHT,
-      shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
-    };
-  }
-
-  private static getEdge(source: string, target: string): CanvasEdge {
-    return {
-      id: `${source} >>> ${target}`,
-      type: 'edge',
-      source,
-      target,
-      edgeStyle: EdgeStyle.solid,
+      shape: NodeShape.circle,
     };
   }
 }
