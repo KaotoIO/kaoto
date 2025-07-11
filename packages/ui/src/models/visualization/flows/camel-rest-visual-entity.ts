@@ -9,6 +9,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -98,15 +99,15 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return undefined;
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const restGroupNode = NodeMapperService.getVizNode(
+  toVizNode(): VizNodesWithEdges {
+    const { nodes: restGroupNode } = NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: 'rest' as keyof ProcessorDefinition },
       this.restDef,
     );
-    restGroupNode.data.entity = this;
-    restGroupNode.data.isGroup = true;
-    restGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    restGroupNode[0].data.entity = this;
+    restGroupNode[0].data.isGroup = true;
+    restGroupNode[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return restGroupNode;
   }

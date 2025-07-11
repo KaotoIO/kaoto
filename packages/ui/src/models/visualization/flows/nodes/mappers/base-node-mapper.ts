@@ -1,7 +1,7 @@
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
 import { getValue } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { IVisualizationNode, VizNodesWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
 import {
@@ -10,6 +10,7 @@ import {
   ICamelElementLookupResult,
 } from '../../support/camel-component-types';
 import { INodeMapper } from '../node-mapper';
+import { CanvasEdge } from '../../../../../components/Visualization/Canvas';
 
 export class BaseNodeMapper implements INodeMapper {
   constructor(protected readonly rootNodeMapper: INodeMapper) {}
@@ -18,7 +19,7 @@ export class BaseNodeMapper implements INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodesWithEdges {
     const nodeIconType = componentLookup.componentName ? NodeIconType.Component : NodeIconType.EIP;
     const data: CamelRouteVisualEntityData = {
       path,
@@ -28,6 +29,7 @@ export class BaseNodeMapper implements INodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
+    vizNode.setEndNodes([vizNode]);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName,
@@ -37,22 +39,24 @@ export class BaseNodeMapper implements INodeMapper {
       vizNode.data.isGroup = true;
     }
 
+    const edges: CanvasEdge[] = [];
     childrenStepsProperties.forEach((stepsProperty) => {
-      const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
+      const nodesWithEdges = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
 
-      childrenVizNodes.forEach((childVizNode) => {
+      nodesWithEdges.nodes.forEach((childVizNode) => {
         vizNode.addChild(childVizNode);
       });
+      edges.push(...nodesWithEdges.edges);
     });
 
-    return vizNode;
+    return { nodes: [vizNode], edges };
   }
 
   protected getVizNodesFromChildren(
     path: string,
     stepsProperty: CamelProcessorStepsProperties,
     entityDefinition: unknown,
-  ): IVisualizationNode[] {
+  ): VizNodesWithEdges {
     const subpath = `${path}.${stepsProperty.name}`;
 
     switch (stepsProperty.type) {
@@ -66,70 +70,109 @@ export class BaseNodeMapper implements INodeMapper {
         return this.getChildrenFromArrayClause(subpath, entityDefinition);
 
       default:
-        return [];
+        return { nodes: [], edges: [] };
     }
   }
 
-  protected getChildrenFromBranch(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromBranch(path: string, entityDefinition: unknown): VizNodesWithEdges {
     const stepsList = getValue(entityDefinition, path, []) as ProcessorDefinition[];
+    //const canvasEdges: CanvasEdge[] = [];
 
-    const branchVizNodes = stepsList.reduce((accStepsNodes, step, index) => {
-      const singlePropertyName = Object.keys(step)[0];
-      const childPath = `${path}.${index}.${singlePropertyName}`;
-      const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
-        childPath,
-        getValue(step, singlePropertyName),
-      );
+    const { nodes: branchNodes, edges: branchEdges } = stepsList.reduce(
+      (accStepsNodes, step, index) => {
+        const { nodes: accNodes, edges: accEdges } = accStepsNodes;
+        const singlePropertyName = Object.keys(step)[0];
+        const childPath = `${path}.${index}.${singlePropertyName}`;
+        const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
+          childPath,
+          getValue(step, singlePropertyName),
+        );
 
-      const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+        const { nodes, edges } = this.rootNodeMapper.getVizNodeFromProcessor(
+          childPath,
+          childComponentLookup,
+          entityDefinition,
+        );
+        const vizNode = nodes[0];
+        const previousVizNode = accNodes[accNodes.length - 1];
 
-      const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
-      if (previousVizNode !== undefined) {
-        previousVizNode.setNextNode(vizNode);
-        vizNode.setPreviousNode(previousVizNode);
-      }
+        if (previousVizNode !== undefined) {
+          previousVizNode.setNextNode(vizNode);
+          vizNode.setPreviousNode(previousVizNode);
 
-      accStepsNodes.push(vizNode);
-      return accStepsNodes;
-    }, [] as IVisualizationNode[]);
+          /// Add edge between previous and current node
+          previousVizNode.getEndNodes().forEach((endNode) => {
+            edges.push(BaseNodeMapper.getEdge(endNode.id, vizNode.id));
+          });
+        }
+
+        accNodes.push(...nodes);
+        accEdges.push(...edges);
+        return { nodes: accNodes, edges: accEdges };
+      },
+      { nodes: [], edges: [] } as VizNodesWithEdges,
+    );
 
     /** Empty steps branch placeholder */
-    if (branchVizNodes.length === 0) {
-      const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
-      const previousNode = branchVizNodes[branchVizNodes.length - 1];
+    if (branchNodes.length === 0) {
+      const placeholderPath = `${path}.${branchNodes.length}.placeholder`;
+      const previousNode = branchNodes[branchNodes.length - 1];
       const placeholderNode = createVisualizationNode(placeholderPath, {
         isPlaceholder: true,
         path: placeholderPath,
       });
-      branchVizNodes.push(placeholderNode);
 
       if (previousNode) {
         previousNode.setNextNode(placeholderNode);
         placeholderNode.setPreviousNode(previousNode);
+
+        previousNode.getEndNodes().forEach((endNode) => {
+          branchEdges.push(BaseNodeMapper.getEdge(endNode.id, placeholderNode.id));
+        });
       }
+      branchNodes.push(placeholderNode);
     }
 
-    return branchVizNodes;
+    return { nodes: branchNodes, edges: branchEdges };
   }
 
-  protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): VizNodesWithEdges {
     const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, entityDefinition);
 
     /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
-    if (getValue(entityDefinition, path) === undefined) return [];
+    if (getValue(entityDefinition, path) === undefined) return { nodes: [], edges: [] };
 
-    return [this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition)];
+    return this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition);
   }
 
-  protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): VizNodesWithEdges {
     const expressionList = getValue(entityDefinition, path, []) as When1[] | DoCatch[];
+    const vizNodes: IVisualizationNode[] = [];
+    const edges: CanvasEdge[] = [];
 
-    return expressionList.map((_step, index) => {
+    expressionList.forEach((_step, index) => {
       const childPath = `${path}.${index}`;
       const processorName = path.split('.').pop() as keyof ProcessorDefinition;
       const childComponentLookup = { processorName }; // when, doCatch
 
-      return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      const { nodes, edges } = this.rootNodeMapper.getVizNodeFromProcessor(
+        childPath,
+        childComponentLookup,
+        entityDefinition,
+      );
+      vizNodes.push(...nodes);
+      edges.push(...edges);
     });
+
+    return { nodes: vizNodes, edges: edges };
+  }
+
+  static getEdge(source: string, target: string): CanvasEdge {
+    return {
+      id: `${source} >>> ${target}`,
+      type: 'edge',
+      source,
+      target,
+    };
   }
 }

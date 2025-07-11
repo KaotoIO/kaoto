@@ -1,6 +1,6 @@
 import { BaseNodeMapper } from './base-node-mapper';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
-import { VizNodeWithEdges } from '../../../base-visual-entity';
+import { VizNodesWithEdges } from '../../../base-visual-entity';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils';
 import { createVisualizationNode } from '../../../visualization-node';
@@ -11,7 +11,7 @@ export class FromNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): VizNodeWithEdges {
+  ): VizNodesWithEdges {
     const processorName = 'from' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -23,16 +23,12 @@ export class FromNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const childrenWithEdges = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    childrenWithEdges.nodes.forEach((child) => {
-      vizNode.addChild(child);
-    });
+    const { nodes, edges } = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
+    vizNode.setNextNode(nodes[0] ?? undefined);
+    nodes[0]?.setPreviousNode(vizNode);
 
-    vizNode.setNextNode(childrenWithEdges.nodes[0] ?? undefined);
-    childrenWithEdges.nodes[0]?.setPreviousNode(vizNode);
+    edges.push(BaseNodeMapper.getEdge(vizNode.id, nodes[0].id));
 
-    childrenWithEdges.edges.push(BaseNodeMapper.getEdge(vizNode.id, childrenWithEdges.nodes[0].id));
-
-    return { vizNode, edges: childrenWithEdges.edges };
+    return { nodes: [vizNode, ...nodes], edges };
   }
 }

@@ -4,6 +4,6 @@ import { INodeMapper } from '../../node-mapper';
 
 export const noopNodeMapper: INodeMapper = {
   getVizNodeFromProcessor: (path: string, componentLookup: ICamelElementLookupResult, entityDefinition: unknown) => {
-    return createVisualizationNode('noop', { path, componentLookup, entityDefinition });
+    return { nodes: [createVisualizationNode('noop', { path, componentLookup, entityDefinition })], edges: [] };
   },
 };
