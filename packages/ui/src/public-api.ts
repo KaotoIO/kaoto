@@ -7,6 +7,7 @@ export * from './components/Settings';
 export * from './components/Visualization/Canvas';
 export * from './components/Visualization/ContextToolbar';
 export * from './components/MetadataEditor';
+export * from './models/runtime-maven-information';
 export * from './multiplying-architecture';
 export * from './external/RouteVisualization/RouteVisualization';
 export * from './pages/PipeErrorHandler/PipeErrorHandlerPage';
