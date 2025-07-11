@@ -10,6 +10,13 @@ import { CatalogModalContext } from '../../../../providers/catalog-modal.provide
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 
+// Mock the permission API
+Object.assign(navigator, {
+  permissions: {
+    query: jest.fn(),
+  },
+});
+
 describe('usePasteStep', () => {
   const camelResource = new CamelRouteResource();
   const getCompatibleComponentsSpy = jest.spyOn(camelResource, 'getCompatibleComponents');
@@ -47,22 +54,36 @@ describe('usePasteStep', () => {
   );
 
   it('should return the isCompatible false', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    // Mock the clipboard API to make clipboard read() return error
-    Object.assign(navigator, {
-      clipboard: {
-        read: jest.fn().mockRejectedValue(new Error('Nothing in the Clipboard')),
-      },
-    });
+    jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+    jest.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce(null);
+
     const vizNode = createVisualizationNode('test', {});
     const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
-    const { isCompatible } = result.current;
 
-    expect(isCompatible).toBe(false);
-    expect(navigator.clipboard.read as jest.Mock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(result.current.isCompatible).toBe(false);
+    });
+
+    expect(navigator.permissions.query as jest.Mock).toHaveBeenCalledTimes(1);
   });
 
-  it('should call ClipboardManager.paste', async () => {
+  it('should return the isCompatible true when clipboard-read permission returns rejected', async () => {
+    jest.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const vizNode = createVisualizationNode('test', {});
+    const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
+    // Initially, isCompatible should be false
+    expect(result.current.isCompatible).toBe(false);
+
+    await waitFor(() => {
+      expect(result.current.isCompatible).toBe(true);
+    });
+
+    expect(navigator.permissions.query as jest.Mock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
+    jest.spyOn(navigator.permissions, 'query').mockResolvedValue({ state: 'granted' } as PermissionStatus);
     const mockVizNode = {
       getComponentSchema: jest.fn(),
       pasteBaseEntityStep: jest.fn(),
@@ -72,19 +93,57 @@ describe('usePasteStep', () => {
     const pasteSpy = jest
       .spyOn(ClipboardManager, 'paste')
       .mockImplementation(async () => Promise.resolve(copiedContent as IClipboardCopyObject));
+    // Mock the compatibility check to return true
+    jest.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
 
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
     await waitFor(() => {
+      expect(result.current.isCompatible).toBe(true);
       // ClipboardManager.paste() called 1st time to check the paste compatibilty
       expect(pasteSpy).toHaveBeenCalledTimes(1);
       expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(1);
       expect(getTypeSpy).toHaveBeenCalledTimes(1);
+      expect(mockCatalogModalContext.checkCompatibility as jest.Mock).toHaveBeenCalledTimes(1);
     });
 
     await result.current.onPasteStep();
     // ClipboardManager.paste() called another time by the onPasteStep() execution
     expect(pasteSpy).toHaveBeenCalledTimes(2);
+    expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(2);
+    expect(getTypeSpy).toHaveBeenCalledTimes(2);
+    expect(mockCatalogModalContext.checkCompatibility as jest.Mock).toHaveBeenCalledTimes(2);
     expect(mockVizNode.pasteBaseEntityStep as jest.Mock).toHaveBeenCalledTimes(1);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
+    jest.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
+    const mockVizNode = {
+      pasteBaseEntityStep: jest.fn(),
+    } as unknown as IVisualizationNode;
+
+    // Mock the ClipboardManager.paste() to return a content which isn't compatible
+    const pasteSpy = jest.spyOn(ClipboardManager, 'paste').mockImplementation(async () =>
+      Promise.resolve({
+        type: SourceSchemaType.Pipe,
+        name: 'log',
+        definition: { id: 'test', message: 'hello' },
+      } as IClipboardCopyObject),
+    );
+
+    const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
+    await waitFor(() => {
+      // ClipboardManager.paste() call skipped as the permission query failed
+      expect(pasteSpy).toHaveBeenCalledTimes(0);
+      // Compatibility set to true intentionally
+      expect(result.current.isCompatible).toBe(true);
+    });
+
+    await result.current.onPasteStep();
+    // ClipboardManager.paste() called first time by the onPasteStep() execution
+    expect(pasteSpy).toHaveBeenCalledTimes(1);
+    expect(getTypeSpy).toHaveBeenCalledTimes(1);
+    expect(mockVizNode.pasteBaseEntityStep as jest.Mock).toHaveBeenCalledTimes(0);
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(0);
   });
 });
