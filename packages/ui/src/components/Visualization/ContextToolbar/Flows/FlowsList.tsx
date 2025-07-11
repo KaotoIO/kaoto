@@ -199,9 +199,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                       const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
                         title:
                           "Do you want to delete the '" +
-                          flow.toVizNode().getId() +
+                          flow.toVizNode().vizNode.getId() +
                           "' " +
-                          flow.toVizNode().getNodeTitle() +
+                          flow.toVizNode().vizNode.getNodeTitle() +
                           '?',
                         text: 'All steps will be lost.',
                       });
