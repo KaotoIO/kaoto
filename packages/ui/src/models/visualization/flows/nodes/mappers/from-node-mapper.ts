@@ -5,6 +5,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
+import { CanvasEdge } from '../../../../../components/Visualization/Canvas';
 
 export class FromNodeMapper extends BaseNodeMapper {
   getVizNodeFromProcessor(
@@ -22,17 +23,19 @@ export class FromNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
+    const edges: CanvasEdge[] = [];
 
     const childrenWithEdges = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    childrenWithEdges.nodes.forEach((child) => {
-      vizNode.addChild(child);
+    childrenWithEdges.forEach((child) => {
+      vizNode.addChild(child.vizNode);
+      edges.push(...child.edges);
     });
 
-    vizNode.setNextNode(childrenWithEdges.nodes[0] ?? undefined);
-    childrenWithEdges.nodes[0]?.setPreviousNode(vizNode);
+    vizNode.setNextNode(childrenWithEdges[0].vizNode ?? undefined);
+    childrenWithEdges[0]?.vizNode.setPreviousNode(vizNode);
 
-    childrenWithEdges.edges.push(BaseNodeMapper.getEdge(vizNode.id, childrenWithEdges.nodes[0].id));
+    edges.push(BaseNodeMapper.getEdge(vizNode.id, childrenWithEdges[0].vizNode.id));
 
-    return { vizNode, edges: childrenWithEdges.edges };
+    return { vizNode, edges };
   }
 }
