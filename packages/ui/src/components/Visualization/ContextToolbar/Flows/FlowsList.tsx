@@ -70,7 +70,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       }
       event.stopPropagation();
     },
-    [visualEntities, areFlowsVisible, searchString, visualFlowsApi],
+    [areFlowsVisible, visualFlowsApi, filteredIds],
   );
 
   const onDeleteAll = useCallback(
@@ -87,7 +87,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       camelResource.removeEntity(filteredIds);
       updateEntitiesFromCamelResource();
     },
-    [searchString, visualEntities, camelResource],
+    [props, deleteModalContext, filteredIds, camelResource, updateEntitiesFromCamelResource],
   );
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />

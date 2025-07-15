@@ -39,7 +39,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
     if (!hasSameIds) {
       visualFlowsApi.initVisibleFlows(visualEntitiesIds);
     }
-  }, [visualEntitiesIds, visualFlowsApi]);
+  }, [visibleFlowsIds, visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {
     return {

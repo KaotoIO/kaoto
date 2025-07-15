@@ -60,7 +60,15 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [catalogModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, replaceModalContext, vizNode]);
+  }, [
+    catalogModalContext,
+    entitiesContext,
+    getRegisteredInteractionAddons,
+    hasChildren,
+    isPlaceholderNode,
+    replaceModalContext,
+    vizNode,
+  ]);
 
   const value = useMemo(
     () => ({

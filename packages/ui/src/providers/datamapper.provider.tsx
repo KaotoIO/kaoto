@@ -281,6 +281,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     updateDocumentDefinition,
     mappingTree,
     refreshMappingTree,
+    resetMappingTree,
     alerts,
     addAlert,
     debug,

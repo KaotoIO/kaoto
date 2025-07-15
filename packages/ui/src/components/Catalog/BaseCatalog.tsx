@@ -35,7 +35,7 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
     } else if (page === 0 && itemCount > 0) setPage(1);
 
     catalogBodyRef.current!.scrollTop = 0;
-  }, [props.tiles]);
+  }, [itemCount, page, perPage, props.tiles, startIndex]);
 
   const onSelectDataListItem = useCallback(
     (_event: React.MouseEvent | React.KeyboardEvent, id: string) => {

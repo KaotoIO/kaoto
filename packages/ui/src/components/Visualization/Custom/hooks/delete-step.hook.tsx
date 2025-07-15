@@ -43,7 +43,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode) => {
 
     vizNode.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, vizNode]);
+  }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, isPlaceholderNode, vizNode]);
 
   const value = useMemo(
     () => ({
