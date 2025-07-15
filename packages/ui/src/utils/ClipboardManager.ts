@@ -2,7 +2,8 @@ import { IClipboardCopyObject } from '../components/Visualization/Custom/hooks/c
 import { updateIds } from './update-ids';
 
 export class ClipboardManager {
-  static readonly MIME_TYPE = 'text/plain';
+  static readonly KAOTO_MIME_TYPE = 'web text/kaoto';
+  static readonly TEXT_MIME_TYPE = 'text/plain';
   static readonly KAOTO_MARKER = 'kaoto-node';
 
   /**
@@ -16,11 +17,23 @@ export class ClipboardManager {
         ...object,
         __kaoto_marker: ClipboardManager.KAOTO_MARKER,
       };
+
       const clipboardItemData = {
-        [ClipboardManager.MIME_TYPE]: new Blob([JSON.stringify(markedObject)], {
-          type: ClipboardManager.MIME_TYPE,
+        [ClipboardManager.TEXT_MIME_TYPE]: new Blob([JSON.stringify(markedObject)], {
+          type: ClipboardManager.TEXT_MIME_TYPE,
         }),
       };
+
+      // Check if ClipboardItem.supports() method exists and if it supports our custom MIME type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ('supports' in ClipboardItem && (ClipboardItem as any).supports(ClipboardManager.KAOTO_MIME_TYPE)) {
+        Object.assign(clipboardItemData, {
+          [ClipboardManager.KAOTO_MIME_TYPE]: new Blob([JSON.stringify(object)], {
+            type: ClipboardManager.KAOTO_MIME_TYPE,
+          }),
+        });
+      }
+
       const clipboardItem = new ClipboardItem(clipboardItemData);
       await navigator.clipboard.write([clipboardItem]);
     } catch (err) {
@@ -36,8 +49,17 @@ export class ClipboardManager {
     try {
       const clipboardContents = await navigator.clipboard.read();
       for (const item of clipboardContents) {
-        if (item.types.includes(ClipboardManager.MIME_TYPE)) {
-          const blob = await item.getType(ClipboardManager.MIME_TYPE);
+        if (
+          'supports' in ClipboardItem &&
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (ClipboardItem as any).supports(ClipboardManager.KAOTO_MIME_TYPE) &&
+          item.types.includes(ClipboardManager.KAOTO_MIME_TYPE)
+        ) {
+          const blob = await item.getType(ClipboardManager.KAOTO_MIME_TYPE);
+          const parsedContent = JSON.parse(await blob.text());
+          return updateIds(parsedContent);
+        } else if (item.types.includes(ClipboardManager.TEXT_MIME_TYPE)) {
+          const blob = await item.getType(ClipboardManager.TEXT_MIME_TYPE);
           const parsedContent = JSON.parse(await blob.text());
 
           // Validate the marker to ensure it's Kaoto-specific content
