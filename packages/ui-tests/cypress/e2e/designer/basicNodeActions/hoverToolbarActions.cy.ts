@@ -91,4 +91,24 @@ describe('Test toolbar on hover actions', () => {
     cy.checkNodeExist('otherwise', 1);
     cy.checkNodeExist('log', 1);
   });
+
+  it('Keep group collapsed after the change in the route', () => {
+    cy.uploadFixture('flows/camelRoute/complex.yaml');
+    cy.openDesignPage();
+
+    cy.openGroupConfigurationTab('choice');
+
+    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.checkNodeExist('when', 0);
+    cy.checkNodeExist('otherwise', 0);
+
+    cy.selectReplaceNode('timer');
+    cy.chooseFromCatalog('component', 'aws2-s3');
+
+    cy.checkNodeExist('aws2-s3', 1);
+    cy.checkNodeExist('timer', 0);
+
+    cy.checkNodeExist('when', 0);
+    cy.checkNodeExist('otherwise', 0);
+  });
 });
