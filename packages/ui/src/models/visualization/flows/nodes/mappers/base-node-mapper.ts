@@ -1,7 +1,7 @@
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
 import { getValue } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodeWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
 import {
@@ -10,6 +10,7 @@ import {
   ICamelElementLookupResult,
 } from '../../support/camel-component-types';
 import { INodeMapper } from '../node-mapper';
+import { CanvasEdge } from '../../../../../components/Visualization/Canvas';
 
 export class BaseNodeMapper implements INodeMapper {
   constructor(protected readonly rootNodeMapper: INodeMapper) {}
@@ -18,7 +19,7 @@ export class BaseNodeMapper implements INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodeWithEdges {
     const nodeIconType = componentLookup.componentName ? NodeIconType.Component : NodeIconType.EIP;
     const data: CamelRouteVisualEntityData = {
       path,
@@ -28,6 +29,7 @@ export class BaseNodeMapper implements INodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
+    vizNode.setEndNodes([vizNode]);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName,
@@ -37,22 +39,24 @@ export class BaseNodeMapper implements INodeMapper {
       vizNode.data.isGroup = true;
     }
 
+    const edges: CanvasEdge[] = [];
     childrenStepsProperties.forEach((stepsProperty) => {
-      const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
+      const nodesWithEdges = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
 
-      childrenVizNodes.forEach((childVizNode) => {
-        vizNode.addChild(childVizNode);
+      nodesWithEdges.forEach((childVizNode) => {
+        vizNode.addChild(childVizNode.vizNode);
+        edges.push(...childVizNode.edges);
       });
     });
 
-    return vizNode;
+    return { vizNode, edges };
   }
 
   protected getVizNodesFromChildren(
     path: string,
     stepsProperty: CamelProcessorStepsProperties,
     entityDefinition: unknown,
-  ): IVisualizationNode[] {
+  ): VizNodeWithEdges[] {
     const subpath = `${path}.${stepsProperty.name}`;
 
     switch (stepsProperty.type) {
@@ -70,10 +74,10 @@ export class BaseNodeMapper implements INodeMapper {
     }
   }
 
-  protected getChildrenFromBranch(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromBranch(path: string, entityDefinition: unknown): VizNodeWithEdges[] {
     const stepsList = getValue(entityDefinition, path, []) as ProcessorDefinition[];
-
-    const branchVizNodes = stepsList.reduce((accStepsNodes, step, index) => {
+    //const canvasEdges: CanvasEdge[] = [];
+    const branchVizNodesWithEdges = stepsList.reduce((accStepsNodes, step, index) => {
       const singlePropertyName = Object.keys(step)[0];
       const childPath = `${path}.${index}.${singlePropertyName}`;
       const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
@@ -81,47 +85,63 @@ export class BaseNodeMapper implements INodeMapper {
         getValue(step, singlePropertyName),
       );
 
-      const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      const { vizNode, edges } = this.rootNodeMapper.getVizNodeFromProcessor(
+        childPath,
+        childComponentLookup,
+        entityDefinition,
+      );
 
-      const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
-      if (previousVizNode !== undefined) {
+      const previousVizNodeWithEdges = accStepsNodes[accStepsNodes.length - 1];
+      if (previousVizNodeWithEdges !== undefined) {
+        const previousVizNode = previousVizNodeWithEdges.vizNode;
+
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
+
+        /// Add edge between previous and current node
+        previousVizNode.getEndNodes().forEach((endNode) => {
+          edges.push(BaseNodeMapper.getEdge(endNode.id, vizNode.id));
+        });
       }
 
-      accStepsNodes.push(vizNode);
+      accStepsNodes.push({ vizNode, edges: edges });
       return accStepsNodes;
-    }, [] as IVisualizationNode[]);
+    }, [] as VizNodeWithEdges[]);
 
     /** Empty steps branch placeholder */
-    if (branchVizNodes.length === 0) {
-      const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
-      const previousNode = branchVizNodes[branchVizNodes.length - 1];
+    if (branchVizNodesWithEdges.length === 0) {
+      const placeholderPath = `${path}.${branchVizNodesWithEdges.length}.placeholder`;
+      const previousNodeWithEdges = branchVizNodesWithEdges[branchVizNodesWithEdges.length - 1];
       const placeholderNode = createVisualizationNode(placeholderPath, {
         isPlaceholder: true,
         path: placeholderPath,
       });
-      branchVizNodes.push(placeholderNode);
+      const placeholderNodeEdges: CanvasEdge[] = [];
+      if (previousNodeWithEdges) {
+        const previousNode = previousNodeWithEdges.vizNode;
 
-      if (previousNode) {
         previousNode.setNextNode(placeholderNode);
         placeholderNode.setPreviousNode(previousNode);
+
+        previousNode.getEndNodes().forEach((endNode) => {
+          placeholderNodeEdges.push(BaseNodeMapper.getEdge(endNode.id, placeholderNode.id));
+        });
       }
+      branchVizNodesWithEdges.push({ vizNode: placeholderNode, edges: placeholderNodeEdges });
     }
 
-    return branchVizNodes;
+    return branchVizNodesWithEdges;
   }
 
-  protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): VizNodeWithEdges[] {
     const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, entityDefinition);
 
     /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
     if (getValue(entityDefinition, path) === undefined) return [];
-
     return [this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition)];
   }
 
-  protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): VizNodeWithEdges[] {
     const expressionList = getValue(entityDefinition, path, []) as When1[] | DoCatch[];
 
     return expressionList.map((_step, index) => {
@@ -131,5 +151,14 @@ export class BaseNodeMapper implements INodeMapper {
 
       return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
     });
+  }
+
+  static getEdge(source: string, target: string): CanvasEdge {
+    return {
+      id: `${source} >>> ${target}`,
+      type: 'edge',
+      source,
+      target,
+    };
   }
 }
