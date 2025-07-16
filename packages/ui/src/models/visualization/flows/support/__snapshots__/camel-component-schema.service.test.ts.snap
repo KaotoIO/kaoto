@@ -2093,7 +2093,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "schedulerProperties": {
             "$comment": "group:scheduler",
-            "description": "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.",
+            "description": "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler. This is a multi-value option with prefix: scheduler.",
             "title": "Scheduler Properties",
             "type": "object",
           },
@@ -2742,7 +2742,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "schedulerProperties": {
             "$comment": "group:scheduler",
-            "description": "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.",
+            "description": "To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler. This is a multi-value option with prefix: scheduler.",
             "title": "Scheduler Properties",
             "type": "object",
           },
@@ -3059,7 +3059,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
           },
           "parameters": {
             "$comment": "group:advanced",
-            "description": "Used for configuring additional properties on the bean",
+            "description": "Used for configuring additional properties on the bean. This is a multi-value option with prefix: bean.",
             "title": "Parameters",
             "type": "object",
           },
@@ -3203,7 +3203,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
           },
           "parameters": {
             "$comment": "group:advanced",
-            "description": "Used for configuring additional properties on the bean",
+            "description": "Used for configuring additional properties on the bean. This is a multi-value option with prefix: bean.",
             "title": "Parameters",
             "type": "object",
           },
