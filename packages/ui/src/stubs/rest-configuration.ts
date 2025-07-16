@@ -75,6 +75,16 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
         'Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc. Then the proxy can send X-Forward headers (X-Forwarded-Proto) that influences the host names in the OpenAPI schema that camel-openapi-java generates from Rest DSL routes.',
       $comment: 'group:consumer (advanced)',
     },
+    validationLevels: {
+      $comment: 'group:consumer (advanced)',
+      description:
+        'Allows to configure custom validation levels when using camel-openapi-validator with client request/response validator.',
+      items: {
+        $ref: '#/definitions/org.apache.camel.model.rest.RestPropertyDefinition',
+      },
+      title: 'Validation Levels',
+      type: 'array',
+    },
     producerApiDoc: {
       type: 'string',
       title: 'Producer Api Doc',
@@ -147,6 +157,13 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       description:
         'Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.',
       $comment: 'group:consumer (advanced)',
+    },
+    clientResponseValidation: {
+      $comment: 'group:consumer (advanced)',
+      description:
+        'Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.',
+      title: 'Client Response Validation',
+      type: 'boolean',
     },
     enableCORS: {
       type: 'boolean',
