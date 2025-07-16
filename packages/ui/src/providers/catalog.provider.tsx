@@ -65,6 +65,10 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         const kameletBoundariesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
           `${relativeBasePath}/${catalogIndex.catalogs.kameletBoundaries.file}`,
         );
+        /** Functions catalog */
+        const functionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Function]>(
+          `${relativeBasePath}/${catalogIndex.catalogs.functions.file}`,
+        );
 
         const [
           camelComponents,
@@ -76,6 +80,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           camelLoadbalancers,
           kamelets,
           kameletBoundaries,
+          functions,
         ] = await Promise.all([
           camelComponentsFiles,
           camelModelsFiles,
@@ -86,6 +91,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           camelLoadbalancersFiles,
           kameletsFiles,
           kameletBoundariesFiles,
+          functionsFiles,
         ]);
 
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
@@ -96,6 +102,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, camelLoadbalancers.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
+        CamelCatalogService.setCatalogKey(CatalogKind.Function, functions.body);
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);

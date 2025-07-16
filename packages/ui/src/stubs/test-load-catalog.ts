@@ -1,4 +1,4 @@
-import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
 import {
   CamelCatalogIndex,
   ICamelComponentDefinition,
@@ -66,6 +66,11 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
   );
   delete entitiesCatalog.default;
 
+  const functionsCatalogMap: Record<string, Record<string, KaotoFunction>> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.functions.file}`
+  );
+  delete functionsCatalogMap.default;
+
   return {
     catalogDefinition,
     catalogPath,
@@ -78,5 +83,6 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     dataformatCatalog,
     loadbalancerCatalog,
     entitiesCatalog,
+    functionsCatalogMap,
   };
 };

@@ -155,6 +155,11 @@ describe('CatalogLoaderProvider', () => {
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelet-boundaries`),
     );
+    expect(fetchFileMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
+      ),
+    );
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -261,6 +266,14 @@ describe('CatalogLoaderProvider', () => {
           `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelets-aggregate`,
         );
         expect(Object.values(call[1])[1]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].includes(
+          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.Function);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else {
         throw new Error(call);

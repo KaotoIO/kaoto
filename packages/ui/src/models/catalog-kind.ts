@@ -23,4 +23,7 @@ export const enum CatalogKind {
 
   /** Camel kamelets catalog, f.i. xj-template-action */
   Kamelet = 'kamelet',
+
+  /** Functions catalog, f.i. simple/bodyAs, x-path/concatenate */
+  Function = 'function',
 }

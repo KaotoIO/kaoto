@@ -2,7 +2,8 @@ import { sqlSyntaxSuggestionProvider } from './sql.suggestions';
 
 describe('Properties Suggestions', () => {
   it.each([
-    { propertyName: 'test', schema: { type: 'string' }, expected: true },
+    { propertyName: '#.parameters.query', schema: { type: 'string' }, expected: true },
+    { propertyName: 'test', schema: { type: 'string' }, expected: false },
     { propertyName: 'test', schema: { type: 'number' }, expected: false },
     { propertyName: 'test', schema: { type: 'object' }, expected: false },
     { propertyName: 'test', schema: { type: 'array' }, expected: false },

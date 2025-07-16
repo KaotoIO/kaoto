@@ -1,4 +1,4 @@
-import { CatalogDefinitionEntry, CatalogDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogDefinitionEntry, CatalogDefinition, KaotoFunction } from '@kaoto/camel-catalog/types';
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from './camel-languages-catalog';
@@ -18,6 +18,7 @@ export interface CamelCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> {
     patterns: CatalogDefinitionEntry;
     entities: CatalogDefinitionEntry;
     loadbalancers: CatalogDefinitionEntry;
+    functions: CatalogDefinitionEntry;
   };
 }
 
@@ -27,7 +28,8 @@ export type ComponentsCatalogTypes =
   | ICamelLanguageDefinition
   | ICamelDataformatDefinition
   | ICamelLoadBalancerDefinition
-  | IKameletDefinition;
+  | IKameletDefinition
+  | Record<string, KaotoFunction>;
 export type DefinedComponent = {
   name: string;
   type: CatalogKind;
@@ -44,4 +46,5 @@ export interface ComponentsCatalog {
   [CatalogKind.Dataformat]?: Record<string, ICamelDataformatDefinition>;
   [CatalogKind.Loadbalancer]?: Record<string, ICamelLoadBalancerDefinition>;
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;
+  [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction>>;
 }
