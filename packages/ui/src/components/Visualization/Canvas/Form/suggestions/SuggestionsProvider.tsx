@@ -8,13 +8,13 @@ export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ chil
   const suggestionRegistryContext = useSuggestionRegistry();
 
   useEffect(() => {
-    suggestionRegistryContext?.registerProvider(propertiesSuggestionProvider);
     suggestionRegistryContext?.registerProvider(simpleLanguageSuggestionProvider);
+    suggestionRegistryContext?.registerProvider(propertiesSuggestionProvider);
     suggestionRegistryContext?.registerProvider(sqlSyntaxSuggestionProvider);
 
     return () => {
-      suggestionRegistryContext?.unregisterProvider(propertiesSuggestionProvider.id);
       suggestionRegistryContext?.unregisterProvider(simpleLanguageSuggestionProvider.id);
+      suggestionRegistryContext?.unregisterProvider(propertiesSuggestionProvider.id);
       suggestionRegistryContext?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
     };
   }, [suggestionRegistryContext]);

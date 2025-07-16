@@ -4,84 +4,87 @@ export const propertiesSuggestionProvider: SuggestionProvider = {
   id: 'properties-suggestion-provider',
   appliesTo: (_propName, schema) => schema.type === 'string',
   getSuggestions: async (word, _context) => {
-    word ??= 'foo';
+    const normalizedWord = word !== '' ? word : 'foo';
 
     return [
       // https://camel.apache.org/manual/using-propertyplaceholder.html
       {
-        value: `RAW(${word})`,
-        description: `Use the RAW value of the '${word}' property`,
+        value: `{{${normalizedWord}}}`,
+        description: `Use '${normalizedWord}' as a property reference`,
+        group: word === '' ? 'Property references' : undefined,
       },
       {
-        value: `{{${word}}}`,
-        description: `Use '${word}' as a property reference`,
-      },
-      {
-        value: `{{${word}:default}}`,
-        description: `Use '${word}' with a default value as a property reference`,
-      },
-      {
-        value: `{{?${word}}}`,
-        description: `Use '${word}' as an optional property reference`,
+        value: `{{${normalizedWord}:default}}`,
+        description: `Use '${normalizedWord}' with a default value as a property reference`,
         group: 'Property references',
       },
       {
-        value: `{{!${word}}}`,
-        description: `Use '${word}' as a negated property reference`,
+        value: `{{?${normalizedWord}}}`,
+        description: `Use '${normalizedWord}' as an optional property reference`,
+        group: 'Property references',
+      },
+      {
+        value: `{{!${normalizedWord}}}`,
+        description: `Use '${normalizedWord}' as a negated property reference`,
+        group: 'Property references',
+      },
+      {
+        value: `RAW(${normalizedWord})`,
+        description: `Use the RAW value of the '${normalizedWord}' property`,
         group: 'Property references',
       },
 
       // https://camel.apache.org/manual/using-propertyplaceholder.html#_using_property_placeholder_functions
       {
-        value: `{{env:${word}}}`,
-        description: `Use the '${word}' OS environment variable`,
+        value: `{{env:${normalizedWord}}}`,
+        description: `Use the '${normalizedWord}' OS environment variable`,
         group: 'Property functions',
       },
       {
-        value: `{{sys:${word}}}`,
-        description: `Use the '${word}' Java JVM system property`,
+        value: `{{sys:${normalizedWord}}}`,
+        description: `Use the '${normalizedWord}' Java JVM system property`,
         group: 'Property functions',
       },
       {
-        value: `{{service:${word.toUpperCase()}}}`,
-        description: `Use the ${word.toUpperCase()} service, defined using the service naming idiom. Services are expected to be defined as OS ${word.toUpperCase()}_SERVICE_HOST and ${word.toUpperCase()}_SERVICE_PORT environment variables.`,
+        value: `{{service:${normalizedWord.toUpperCase()}}}`,
+        description: `Use the ${normalizedWord.toUpperCase()} service, defined using the service naming idiom. Services are expected to be defined as OS ${normalizedWord.toUpperCase()}_SERVICE_HOST and ${normalizedWord.toUpperCase()}_SERVICE_PORT environment variables.`,
         group: 'Property functions',
       },
       {
-        value: `{{service.name:${word.toUpperCase()}}}`,
-        description: `Use the ${word.toUpperCase()} service hostname`,
+        value: `{{service.name:${normalizedWord.toUpperCase()}}}`,
+        description: `Use the ${normalizedWord.toUpperCase()} service hostname`,
         group: 'Property functions',
       },
       {
-        value: `{{service.port:${word.toUpperCase()}}}`,
-        description: `Use the ${word.toUpperCase()} service port`,
+        value: `{{service.port:${normalizedWord.toUpperCase()}}}`,
+        description: `Use the ${normalizedWord.toUpperCase()} service port`,
         group: 'Property functions',
       },
 
       // https://camel.apache.org/manual/using-propertyplaceholder.html#_using_kubernetes_property_placeholder_functions
       {
-        value: `{{configmap:${word}}}`,
-        description: `Use the ${word} ConfigMap. It should be in the format 'configmap:configmap-name/configmap-key'`,
+        value: `{{configmap:${normalizedWord}}}`,
+        description: `Use the ${normalizedWord} ConfigMap. It should be in the format 'configmap:configmap-name/configmap-key'`,
         group: 'Kubernetes',
       },
       {
-        value: `{{configmap:${word}}}:defaultValue`,
-        description: `Use the ${word} ConfigMap with a default value`,
+        value: `{{configmap:${normalizedWord}}}:defaultValue`,
+        description: `Use the ${normalizedWord} ConfigMap with a default value`,
         group: 'Kubernetes',
       },
       {
-        value: `{{configmap-binary:${word}}}`,
-        description: `Use the binary ${word} ConfigMap`,
+        value: `{{configmap-binary:${normalizedWord}}}`,
+        description: `Use the binary ${normalizedWord} ConfigMap`,
         group: 'Kubernetes',
       },
       {
-        value: `{{secret:${word}}}`,
-        description: `Use the ${word} Secret. It should be in the format 'secret:secret-name/secret-key'`,
+        value: `{{secret:${normalizedWord}}}`,
+        description: `Use the ${normalizedWord} Secret. It should be in the format 'secret:secret-name/secret-key'`,
         group: 'Kubernetes',
       },
       {
-        value: `{{secret-binary:${word}}}`,
-        description: `Use the binary ${word} Secret.`,
+        value: `{{secret-binary:${normalizedWord}}}`,
+        description: `Use the binary ${normalizedWord} Secret.`,
         group: 'Kubernetes',
       },
     ];

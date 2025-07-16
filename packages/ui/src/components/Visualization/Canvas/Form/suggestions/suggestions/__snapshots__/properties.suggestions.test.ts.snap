@@ -3,15 +3,13 @@
 exports[`Properties Suggestions should return suggestions 1`] = `
 [
   {
-    "description": "Use the RAW value of the 'test' property",
-    "value": "RAW(test)",
-  },
-  {
     "description": "Use 'test' as a property reference",
+    "group": undefined,
     "value": "{{test}}",
   },
   {
     "description": "Use 'test' with a default value as a property reference",
+    "group": "Property references",
     "value": "{{test:default}}",
   },
   {
@@ -23,6 +21,11 @@ exports[`Properties Suggestions should return suggestions 1`] = `
     "description": "Use 'test' as a negated property reference",
     "group": "Property references",
     "value": "{{!test}}",
+  },
+  {
+    "description": "Use the RAW value of the 'test' property",
+    "group": "Property references",
+    "value": "RAW(test)",
   },
   {
     "description": "Use the 'test' OS environment variable",

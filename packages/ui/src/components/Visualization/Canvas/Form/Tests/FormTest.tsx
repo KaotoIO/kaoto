@@ -6,7 +6,10 @@ import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../.
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { getSchemasSlice } from './get-schemas-slices';
 
-export const FormTest = (target: { kind: CatalogKind; range: { start: number; end: number | undefined } }) => {
+export const FormTest = (target: {
+  kind: CatalogKind.Component | CatalogKind.Pattern | CatalogKind.Kamelet;
+  range: { start: number; end: number | undefined };
+}) => {
   let schemas: [string, KaotoSchemaDefinition['schema']][] = [];
 
   beforeAll(async () => {

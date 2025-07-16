@@ -3,19 +3,12 @@
 exports[`Properties Suggestions should return suggestions 1`] = `
 [
   {
-    "description": "SQL: Use the body of the message",
-    "group": "SQL Syntax",
-    "value": "#\${body}",
+    "description": "Reference the 'test' variable",
+    "value": ":#\${variable.test}",
   },
   {
-    "description": "SQL: Use the 'test' header of the message",
-    "group": "SQL Syntax",
-    "value": "#\${header.test}",
-  },
-  {
-    "description": "SQL: Use the 'test' variable of the message",
-    "group": "SQL Syntax",
-    "value": "#\${variable.test}",
+    "description": "Reference the 'test' header",
+    "value": ":#\${header.test}",
   },
 ]
 `;

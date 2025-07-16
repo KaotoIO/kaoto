@@ -1,29 +1,47 @@
-import { SuggestionProvider } from '@kaoto/forms';
+import { Suggestion, SuggestionProvider } from '@kaoto/forms';
+import { CamelCatalogService, CatalogKind } from '../../../../../../models';
+
+const SIMPLE_LANGUAGE_ACTIVATED_FIELDS = [
+  '#.message', // This is a special case for the Log EIP
+  'simple.expression',
+];
 
 // This provider suggests syntax from: https://camel.apache.org/components/next/languages/simple-language.html
 export const simpleLanguageSuggestionProvider: SuggestionProvider = {
   id: 'simple-language-suggestion-provider',
-  appliesTo: (_propName, schema) => schema.type === 'string',
+  appliesTo: (propName, schema) => SIMPLE_LANGUAGE_ACTIVATED_FIELDS.includes(propName) && schema.type === 'string',
   getSuggestions: async (word, _context) => {
-    // If the word is empty, use `foo` as a placeholder
-    word ??= 'foo';
+    const suggestionWord = word !== '' ? word : 'name';
+    const suggestionWordLowercase = suggestionWord.toLowerCase();
 
-    return [
-      {
-        value: '${body}',
-        description: 'Use the body of the message',
-        group: 'Simple Language',
-      },
-      {
-        value: `\${header.${word}}`,
-        description: `Use the '${word}' header of the message`,
-        group: 'Simple Language',
-      },
-      {
-        value: `\${variable.${word}}`,
-        description: `Use the '${word}' variable of the message`,
-        group: 'Simple Language',
-      },
+    const simpleLangFunctions = CamelCatalogService.getComponent(CatalogKind.Function, 'simple') ?? {};
+    const {
+      body,
+      ['variable.name']: variableName,
+      ['header.name']: headerName,
+      ...remainingFunctions
+    } = simpleLangFunctions;
+
+    const suggestions: Suggestion[] = [
+      { value: `\${variable.${suggestionWord}}`, description: variableName?.description },
+      { value: `\${header.${suggestionWord}}`, description: headerName?.description },
     ];
+
+    const bodySuggestion: Suggestion = { value: '${body}', description: body?.description };
+    if (word === '') {
+      suggestions.unshift(bodySuggestion);
+    } else {
+      suggestions.push({ ...bodySuggestion, group: 'Simple Language' });
+    }
+
+    return suggestions.concat(
+      Object.entries(remainingFunctions)
+        .filter(([name]) => word === '' || name.toLowerCase().startsWith(suggestionWordLowercase))
+        .map(([name, func]) => ({
+          value: `\${${name}}`,
+          description: func.description,
+          group: 'Simple Language',
+        })),
+    );
   },
 };
