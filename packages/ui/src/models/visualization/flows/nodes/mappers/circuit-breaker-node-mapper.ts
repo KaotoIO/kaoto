@@ -10,7 +10,7 @@ export class CircuitBreakerNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName: keyof ProcessorDefinition = 'circuitBreaker';
 
     const data: CamelRouteVisualEntityData = {
@@ -32,6 +32,6 @@ export class CircuitBreakerNodeMapper extends BaseNodeMapper {
       vizNode.addChild(onFallbackNode[0]);
     }
 
-    return vizNode;
+    return [vizNode];
   }
 }

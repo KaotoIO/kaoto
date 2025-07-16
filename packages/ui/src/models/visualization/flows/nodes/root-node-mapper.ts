@@ -19,7 +19,7 @@ export class RootNodeMapper implements INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const mapper = this.mappers.get(componentLookup.processorName) || this.defaultMapper;
 
     if (!mapper) {

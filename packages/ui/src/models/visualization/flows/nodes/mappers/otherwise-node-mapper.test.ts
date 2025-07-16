@@ -40,7 +40,7 @@ describe('OtherwiseNodeMapper', () => {
       path,
       { processorName: 'otherwise' as keyof ProcessorDefinition },
       routeDefinition,
-    );
+    )[0];
 
     expect(vizNode.getChildren()).toHaveLength(1);
   });

@@ -39,7 +39,7 @@ describe('OnFallbackNodeMapper', () => {
       path,
       { processorName: 'onFallback' as keyof ProcessorDefinition },
       routeDefinition,
-    );
+    )[0];
 
     expect(vizNode.getChildren()).toHaveLength(1);
   });

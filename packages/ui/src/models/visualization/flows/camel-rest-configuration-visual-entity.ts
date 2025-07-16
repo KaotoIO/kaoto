@@ -150,7 +150,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
       this.getRootPath(),
       { processorName: 'restConfiguration' as keyof ProcessorDefinition },
       this.restConfigurationDef,
-    );
+    )[0];
     restConfigurationGroupNode.data.entity = this;
     restConfigurationGroupNode.data.isGroup = true;
     restConfigurationGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

@@ -10,7 +10,7 @@ export class WhenNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName = 'when' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -27,6 +27,6 @@ export class WhenNodeMapper extends BaseNodeMapper {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return [vizNode];
   }
 }

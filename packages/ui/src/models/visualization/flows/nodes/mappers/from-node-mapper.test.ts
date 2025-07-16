@@ -36,13 +36,13 @@ describe('FromNodeMapper', () => {
     };
   });
 
-  it('should return children for from node', () => {
+  it('should not return children for from node', () => {
     const vizNode = mapper.getVizNodeFromProcessor(
       path,
       { processorName: 'from' as keyof ProcessorDefinition },
       routeDefinition,
-    );
+    )[0];
 
-    expect(vizNode.getChildren()).toHaveLength(1);
+    expect(vizNode.getChildren()).toBeUndefined();
   });
 });

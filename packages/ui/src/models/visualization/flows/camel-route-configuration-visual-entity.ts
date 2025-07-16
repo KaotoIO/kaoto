@@ -152,7 +152,7 @@ export class CamelRouteConfigurationVisualEntity
               processorName: stepsProperty.name as keyof ProcessorDefinition,
             },
             this.routeConfigurationDef,
-          );
+          )[0];
 
           routeConfigurationGroupNode.addChild(childNode);
         });

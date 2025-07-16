@@ -285,7 +285,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       processorName: 'route',
     });
 
-    const fromNode = NodeMapperService.getVizNode(
+    const routeNodes = NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,
       {
         processorName: 'from' as keyof ProcessorDefinition,
@@ -294,8 +294,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       this.entityDef,
     );
 
-    routeGroupNode.addChild(fromNode);
-    fromNode.getChildren()?.forEach((child) => routeGroupNode.addChild(child));
+    routeNodes.forEach((child) => routeGroupNode.addChild(child));
     return routeGroupNode;
   }
 

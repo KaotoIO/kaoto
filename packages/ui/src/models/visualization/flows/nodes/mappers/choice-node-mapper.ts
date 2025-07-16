@@ -10,7 +10,7 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName: keyof ProcessorDefinition = 'choice';
 
     const data: CamelRouteVisualEntityData = {
@@ -32,6 +32,6 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
       vizNode.addChild(otherwiseNode[0]);
     }
 
-    return vizNode;
+    return [vizNode];
   }
 }

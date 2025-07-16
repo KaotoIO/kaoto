@@ -23,7 +23,7 @@ export class NodeMapperService {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     return this.getInstance().getVizNodeFromProcessor(path, componentLookup, entityDefinition);
   }
 

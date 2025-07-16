@@ -10,7 +10,7 @@ export class OnFallbackNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): [IVisualizationNode] {
     const processorName = 'onFallback' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -27,6 +27,6 @@ export class OnFallbackNodeMapper extends BaseNodeMapper {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return [vizNode];
   }
 }

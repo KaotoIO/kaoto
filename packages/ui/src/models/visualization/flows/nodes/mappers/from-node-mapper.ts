@@ -11,7 +11,7 @@ export class FromNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName = 'from' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -25,13 +25,12 @@ export class FromNodeMapper extends BaseNodeMapper {
 
     const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
 
-    children.forEach((child, index) => {
-      if (index === 0) {
-        child.setPreviousNode(vizNode);
-        vizNode.setNextNode(child);
-      }
-      vizNode.addChild(child);
-    });
-    return vizNode;
+    if (children.length > 0) {
+      children[0].setPreviousNode(vizNode);
+      vizNode.setNextNode(children[0]);
+    }
+
+    children.unshift(vizNode);
+    return children;
   }
 }

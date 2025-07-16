@@ -11,7 +11,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     _entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName = DATAMAPPER_ID_PREFIX;
 
     const data: CamelRouteVisualEntityData = {
@@ -21,7 +21,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
       isGroup: false,
     };
 
-    return createVisualizationNode(path + ':' + processorName, data);
+    return [createVisualizationNode(path + ':' + processorName, data)];
   }
 
   static isDataMapperNode(stepDefinition: Step): boolean {
