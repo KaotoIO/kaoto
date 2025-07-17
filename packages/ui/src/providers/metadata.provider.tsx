@@ -1,3 +1,4 @@
+import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren, createContext } from 'react';
 
 export interface IMetadataApi {
@@ -44,6 +45,14 @@ export interface IMetadataApi {
     exclude?: string,
     options?: Record<string, unknown>,
   ): Promise<string[] | string | undefined>;
+
+  /**
+   * Get suggestions from the channel API.
+   * @param topic The topic to get suggestions for
+   * @param word The word to get suggestions for
+   * @param context The context in which the suggestions are requested
+   */
+  getSuggestions(topic: string, word: string, context?: SuggestionRequestContext): Promise<Suggestion[]>;
 
   /**
    * A flag indicates that if the schema file needs to be saved or not. If it's running inside the VS Code,

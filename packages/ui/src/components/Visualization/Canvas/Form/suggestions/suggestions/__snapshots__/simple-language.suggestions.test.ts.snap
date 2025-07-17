@@ -15,6 +15,10 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${header.name}",
   },
   {
+    "description": "The OS environment variable with the given name",
+    "value": "\${env.name}",
+  },
+  {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
     "group": "Simple Language",
     "value": "\${bean(name.method)}",
@@ -58,11 +62,6 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
-  },
-  {
-    "description": "The OS environment variable with the given name",
-    "group": "Simple Language",
-    "value": "\${env.name}",
   },
   {
     "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
@@ -280,16 +279,275 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
 exports[`Properties Suggestions should return suggestions when \`word\` it is not specified 1`] = `
 [
   {
-    "description": undefined,
+    "description": "The message body",
     "value": "\${body}",
   },
   {
-    "description": undefined,
+    "description": "The variable with the given name",
     "value": "\${variable.name}",
   },
   {
-    "description": undefined,
+    "description": "The message header with the given name",
     "value": "\${header.name}",
+  },
+  {
+    "description": "The OS environment variable with the given name",
+    "value": "\${env.name}",
+  },
+  {
+    "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
+    "group": "Simple Language",
+    "value": "\${bean(name.method)}",
+  },
+  {
+    "description": "Converts the message body to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${bodyAs(type)}",
+  },
+  {
+    "description": "Converts the body to a String and removes all line-breaks, so the string is in one line.",
+    "group": "Simple Language",
+    "value": "\${bodyOneLine}",
+  },
+  {
+    "description": "The Camel Context",
+    "group": "Simple Language",
+    "value": "\${camelContext}",
+  },
+  {
+    "description": "The name of the CamelContext",
+    "group": "Simple Language",
+    "value": "\${camelId}",
+  },
+  {
+    "description": "The collate function iterates the message body and groups the data into sub lists of specified size. This can be used with the Splitter EIP to split a message body and group/batch the split sub message into a group of N sub lists.",
+    "group": "Simple Language",
+    "value": "\${collate(num)}",
+  },
+  {
+    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "group": "Simple Language",
+    "value": "\${date(command)}",
+  },
+  {
+    "description": "Formats the date to a String using the given date pattern, and with support for timezone. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "group": "Simple Language",
+    "value": "\${date-with-timezone(command:timezone:pattern)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
+    "group": "Simple Language",
+    "value": "\${empty(type)}",
+  },
+  {
+    "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception}",
+  },
+  {
+    "description": "The exception message (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception.message}",
+  },
+  {
+    "description": "The exception stacktrace (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception.stackTrace}",
+  },
+  {
+    "description": "The current exchange",
+    "group": "Simple Language",
+    "value": "\${exchange}",
+  },
+  {
+    "description": "The exchange id",
+    "group": "Simple Language",
+    "value": "\${exchangeId}",
+  },
+  {
+    "description": "The exchange property with the given name",
+    "group": "Simple Language",
+    "value": "\${exchangeProperty.name}",
+  },
+  {
+    "description": "The original route id where this exchange was created.",
+    "group": "Simple Language",
+    "value": "\${fromRouteId}",
+  },
+  {
+    "description": "Returns a hashed value (string in hex decimal) of the message body/expression using JDK MessageDigest. The algorithm can be SHA-256 (default) or SHA3-256.",
+    "group": "Simple Language",
+    "value": "\${hash(exp,algorithm)}",
+  },
+  {
+    "description": "Converts the message header to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${headerAs(key,type)}",
+  },
+  {
+    "description": "Returns all the message headers in a Map",
+    "group": "Simple Language",
+    "value": "\${headers}",
+  },
+  {
+    "description": "Returns the local hostname (may be empty if not possible to resolve).",
+    "group": "Simple Language",
+    "value": "\${hostName}",
+  },
+  {
+    "description": "The message id",
+    "group": "Simple Language",
+    "value": "\${id}",
+  },
+  {
+    "description": "Evaluates the predicate and returns the value of trueExp or falseExp. This function is similar to the ternary operator in Java.",
+    "group": "Simple Language",
+    "value": "\${iif(predicate,trueExp,falseExp)}",
+  },
+  {
+    "description": "The join function iterates the message body/expression and joins the data into a string. The separator is by default a comma. The prefix is optional. The join uses the message body as source by default. It is possible to refer to another source (simple language) such as a header via the exp parameter. For example \`join('&','id=','$\\{header.ids}')\`.",
+    "group": "Simple Language",
+    "value": "\${join(separator,prefix,exp)}",
+  },
+  {
+    "description": "When working with JSon data, then this allows using the JQ language, for example, to extract data from the message body (in JSon format). This requires having camel-jq JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${jq(input,exp)}",
+  },
+  {
+    "description": "When working with JSon data, then this allows using the JSonPath language, for example, to extract data from the message body (in JSon format). This requires having camel-jsonpath JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${jsonpath(input,exp)}",
+  },
+  {
+    "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
+    "group": "Simple Language",
+    "value": "\${mandatoryBodyAs(type)}",
+  },
+  {
+    "description": "Converts the message to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${messageAs(type)}",
+  },
+  {
+    "description": "The message history of the current exchange (how it has been routed). This is similar to the route stack-trace message history the error handler logs in case of an unhandled exception. The boolean can be used to turn off detailed information to be less verbose, and avoid printing sensitive data from the message.",
+    "group": "Simple Language",
+    "value": "\${messageHistory(boolean)}",
+  },
+  {
+    "description": "The message timestamp (millis since epoc) that this message originates from. Some systems like JMS, Kafka, AWS have a timestamp on the event/message that Camel received. This method returns the timestamp if a timestamp exists. The message timestamp and exchange created are different. An exchange always has a created timestamp which is the local timestamp when Camel created the exchange. The message timestamp is only available in some Camel components when the consumer is able to extract the timestamp from the source event. If the message has no timestamp, then 0 is returned.",
+    "group": "Simple Language",
+    "value": "\${messageTimestamp}",
+  },
+  {
+    "description": "Represents a null value",
+    "group": "Simple Language",
+    "value": "\${null}",
+  },
+  {
+    "description": "The original incoming body (only available if allowUseOriginalMessage=true).",
+    "group": "Simple Language",
+    "value": "\${originalBody}",
+  },
+  {
+    "description": "Converts the expression to a String, and attempts to pretty print if JSon or XML, otherwise the expression is returned as the String value.",
+    "group": "Simple Language",
+    "value": "\${pretty(exp)}",
+  },
+  {
+    "description": "Converts the body to a String, and attempts to pretty print if JSon or XML; otherwise the body is returned as the String value.",
+    "group": "Simple Language",
+    "value": "\${prettyBody}",
+  },
+  {
+    "description": "Lookup a property placeholder with the given key. If the key does not exist nor has a value, then an optional default value can be specified.",
+    "group": "Simple Language",
+    "value": "\${properties:key:default}",
+  },
+  {
+    "description": "Checks whether a property placeholder with the given key exists or not. The result can be negated by prefixing the key with !",
+    "group": "Simple Language",
+    "value": "\${propertiesExist:key}",
+  },
+  {
+    "description": "Returns a random number between min (included) and max (excluded).",
+    "group": "Simple Language",
+    "value": "\${random(min,max)}",
+  },
+  {
+    "description": "To look up a bean from the Registry with the given name.",
+    "group": "Simple Language",
+    "value": "\${ref:name}",
+  },
+  {
+    "description": "Replace all the string values in the message body/expression. To make it easier to replace single and double quotes, then you can use XML escaped values \`\\&quot;\` as double quote, \`\\&apos;\` as single quote, and \`\\&empty;\` as empty value.",
+    "group": "Simple Language",
+    "value": "\${replace(from,to,exp)}",
+  },
+  {
+    "description": "Returns the route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
+    "group": "Simple Language",
+    "value": "\${routeGroup}",
+  },
+  {
+    "description": "The route id of the current route the Exchange is being routed",
+    "group": "Simple Language",
+    "value": "\${routeId}",
+  },
+  {
+    "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
+    "group": "Simple Language",
+    "value": "\${skip(num)}",
+  },
+  {
+    "description": "Returns the id of the current step the Exchange is being routed.",
+    "group": "Simple Language",
+    "value": "\${stepId}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
+    "group": "Simple Language",
+    "value": "\${substring(head,tail)}",
+  },
+  {
+    "description": "The JVM system property with the given name",
+    "group": "Simple Language",
+    "value": "\${sys.name}",
+  },
+  {
+    "description": "Returns the id of the current thread. Can be used for logging.",
+    "group": "Simple Language",
+    "value": "\${threadId}",
+  },
+  {
+    "description": "Returns the name of the current thread. Can be used for logging.",
+    "group": "Simple Language",
+    "value": "\${threadName}",
+  },
+  {
+    "description": "To refer to a type or field by its classname. To refer to a field, you can append .FIELD_NAME. For example, you can refer to the constant field from Exchange as: \`org.apache.camel.Exchange.FILE_NAME\`",
+    "group": "Simple Language",
+    "value": "\${type:name.field}",
+  },
+  {
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the xref:manual::registry.adoc[Registry] with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "group": "Simple Language",
+    "value": "\${uuid(type)}",
+  },
+  {
+    "description": "Converts the variable to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${variableAs(key,type)}",
+  },
+  {
+    "description": "Returns all the variables from the current Exchange in a Map",
+    "group": "Simple Language",
+    "value": "\${variables}",
+  },
+  {
+    "description": "When working with XML data, then this allows using the XPath language, for example, to extract data from the message body (in XML format). This requires having camel-xpath JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the XML payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${xpath(input,exp)}",
   },
 ]
 `;
@@ -297,17 +555,297 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
 exports[`Properties Suggestions should return suggestions when \`word\` it is specified 1`] = `
 [
   {
-    "description": undefined,
+    "description": "The variable with the given name",
     "value": "\${variable.test}",
   },
   {
-    "description": undefined,
+    "description": "The message header with the given name",
     "value": "\${header.test}",
   },
   {
-    "description": undefined,
+    "description": "The message body",
     "group": "Simple Language",
     "value": "\${body}",
+  },
+  {
+    "description": "The OS environment variable with the given name",
+    "value": "\${env.test}",
+  },
+]
+`;
+
+exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
+[
+  {
+    "description": "The message body",
+    "value": "\${body}",
+  },
+  {
+    "description": "The variable with the given name",
+    "value": "\${variable.name}",
+  },
+  {
+    "description": "The message header with the given name",
+    "value": "\${header.name}",
+  },
+  {
+    "description": "The OS environment variable with the given name",
+    "value": "\${env.name}",
+  },
+  {
+    "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
+    "group": "Simple Language",
+    "value": "\${bean(name.method)}",
+  },
+  {
+    "description": "Converts the message body to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${bodyAs(type)}",
+  },
+  {
+    "description": "Converts the body to a String and removes all line-breaks, so the string is in one line.",
+    "group": "Simple Language",
+    "value": "\${bodyOneLine}",
+  },
+  {
+    "description": "The Camel Context",
+    "group": "Simple Language",
+    "value": "\${camelContext}",
+  },
+  {
+    "description": "The name of the CamelContext",
+    "group": "Simple Language",
+    "value": "\${camelId}",
+  },
+  {
+    "description": "The collate function iterates the message body and groups the data into sub lists of specified size. This can be used with the Splitter EIP to split a message body and group/batch the split sub message into a group of N sub lists.",
+    "group": "Simple Language",
+    "value": "\${collate(num)}",
+  },
+  {
+    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "group": "Simple Language",
+    "value": "\${date(command)}",
+  },
+  {
+    "description": "Formats the date to a String using the given date pattern, and with support for timezone. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "group": "Simple Language",
+    "value": "\${date-with-timezone(command:timezone:pattern)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
+    "group": "Simple Language",
+    "value": "\${empty(type)}",
+  },
+  {
+    "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception}",
+  },
+  {
+    "description": "The exception message (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception.message}",
+  },
+  {
+    "description": "The exception stacktrace (also from caught exceptions), is null if no exception present.",
+    "group": "Simple Language",
+    "value": "\${exception.stackTrace}",
+  },
+  {
+    "description": "The current exchange",
+    "group": "Simple Language",
+    "value": "\${exchange}",
+  },
+  {
+    "description": "The exchange id",
+    "group": "Simple Language",
+    "value": "\${exchangeId}",
+  },
+  {
+    "description": "The exchange property with the given name",
+    "group": "Simple Language",
+    "value": "\${exchangeProperty.name}",
+  },
+  {
+    "description": "The original route id where this exchange was created.",
+    "group": "Simple Language",
+    "value": "\${fromRouteId}",
+  },
+  {
+    "description": "Returns a hashed value (string in hex decimal) of the message body/expression using JDK MessageDigest. The algorithm can be SHA-256 (default) or SHA3-256.",
+    "group": "Simple Language",
+    "value": "\${hash(exp,algorithm)}",
+  },
+  {
+    "description": "Converts the message header to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${headerAs(key,type)}",
+  },
+  {
+    "description": "Returns all the message headers in a Map",
+    "group": "Simple Language",
+    "value": "\${headers}",
+  },
+  {
+    "description": "Returns the local hostname (may be empty if not possible to resolve).",
+    "group": "Simple Language",
+    "value": "\${hostName}",
+  },
+  {
+    "description": "The message id",
+    "group": "Simple Language",
+    "value": "\${id}",
+  },
+  {
+    "description": "Evaluates the predicate and returns the value of trueExp or falseExp. This function is similar to the ternary operator in Java.",
+    "group": "Simple Language",
+    "value": "\${iif(predicate,trueExp,falseExp)}",
+  },
+  {
+    "description": "The join function iterates the message body/expression and joins the data into a string. The separator is by default a comma. The prefix is optional. The join uses the message body as source by default. It is possible to refer to another source (simple language) such as a header via the exp parameter. For example \`join('&','id=','$\\{header.ids}')\`.",
+    "group": "Simple Language",
+    "value": "\${join(separator,prefix,exp)}",
+  },
+  {
+    "description": "When working with JSon data, then this allows using the JQ language, for example, to extract data from the message body (in JSon format). This requires having camel-jq JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${jq(input,exp)}",
+  },
+  {
+    "description": "When working with JSon data, then this allows using the JSonPath language, for example, to extract data from the message body (in JSon format). This requires having camel-jsonpath JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${jsonpath(input,exp)}",
+  },
+  {
+    "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
+    "group": "Simple Language",
+    "value": "\${mandatoryBodyAs(type)}",
+  },
+  {
+    "description": "Converts the message to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${messageAs(type)}",
+  },
+  {
+    "description": "The message history of the current exchange (how it has been routed). This is similar to the route stack-trace message history the error handler logs in case of an unhandled exception. The boolean can be used to turn off detailed information to be less verbose, and avoid printing sensitive data from the message.",
+    "group": "Simple Language",
+    "value": "\${messageHistory(boolean)}",
+  },
+  {
+    "description": "The message timestamp (millis since epoc) that this message originates from. Some systems like JMS, Kafka, AWS have a timestamp on the event/message that Camel received. This method returns the timestamp if a timestamp exists. The message timestamp and exchange created are different. An exchange always has a created timestamp which is the local timestamp when Camel created the exchange. The message timestamp is only available in some Camel components when the consumer is able to extract the timestamp from the source event. If the message has no timestamp, then 0 is returned.",
+    "group": "Simple Language",
+    "value": "\${messageTimestamp}",
+  },
+  {
+    "description": "Represents a null value",
+    "group": "Simple Language",
+    "value": "\${null}",
+  },
+  {
+    "description": "The original incoming body (only available if allowUseOriginalMessage=true).",
+    "group": "Simple Language",
+    "value": "\${originalBody}",
+  },
+  {
+    "description": "Converts the expression to a String, and attempts to pretty print if JSon or XML, otherwise the expression is returned as the String value.",
+    "group": "Simple Language",
+    "value": "\${pretty(exp)}",
+  },
+  {
+    "description": "Converts the body to a String, and attempts to pretty print if JSon or XML; otherwise the body is returned as the String value.",
+    "group": "Simple Language",
+    "value": "\${prettyBody}",
+  },
+  {
+    "description": "Lookup a property placeholder with the given key. If the key does not exist nor has a value, then an optional default value can be specified.",
+    "group": "Simple Language",
+    "value": "\${properties:key:default}",
+  },
+  {
+    "description": "Checks whether a property placeholder with the given key exists or not. The result can be negated by prefixing the key with !",
+    "group": "Simple Language",
+    "value": "\${propertiesExist:key}",
+  },
+  {
+    "description": "Returns a random number between min (included) and max (excluded).",
+    "group": "Simple Language",
+    "value": "\${random(min,max)}",
+  },
+  {
+    "description": "To look up a bean from the Registry with the given name.",
+    "group": "Simple Language",
+    "value": "\${ref:name}",
+  },
+  {
+    "description": "Replace all the string values in the message body/expression. To make it easier to replace single and double quotes, then you can use XML escaped values \`\\&quot;\` as double quote, \`\\&apos;\` as single quote, and \`\\&empty;\` as empty value.",
+    "group": "Simple Language",
+    "value": "\${replace(from,to,exp)}",
+  },
+  {
+    "description": "Returns the route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
+    "group": "Simple Language",
+    "value": "\${routeGroup}",
+  },
+  {
+    "description": "The route id of the current route the Exchange is being routed",
+    "group": "Simple Language",
+    "value": "\${routeId}",
+  },
+  {
+    "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
+    "group": "Simple Language",
+    "value": "\${skip(num)}",
+  },
+  {
+    "description": "Returns the id of the current step the Exchange is being routed.",
+    "group": "Simple Language",
+    "value": "\${stepId}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
+    "group": "Simple Language",
+    "value": "\${substring(head,tail)}",
+  },
+  {
+    "description": "The JVM system property with the given name",
+    "group": "Simple Language",
+    "value": "\${sys.name}",
+  },
+  {
+    "description": "Returns the id of the current thread. Can be used for logging.",
+    "group": "Simple Language",
+    "value": "\${threadId}",
+  },
+  {
+    "description": "Returns the name of the current thread. Can be used for logging.",
+    "group": "Simple Language",
+    "value": "\${threadName}",
+  },
+  {
+    "description": "To refer to a type or field by its classname. To refer to a field, you can append .FIELD_NAME. For example, you can refer to the constant field from Exchange as: \`org.apache.camel.Exchange.FILE_NAME\`",
+    "group": "Simple Language",
+    "value": "\${type:name.field}",
+  },
+  {
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the xref:manual::registry.adoc[Registry] with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "group": "Simple Language",
+    "value": "\${uuid(type)}",
+  },
+  {
+    "description": "Converts the variable to the given type (classname).",
+    "group": "Simple Language",
+    "value": "\${variableAs(key,type)}",
+  },
+  {
+    "description": "Returns all the variables from the current Exchange in a Map",
+    "group": "Simple Language",
+    "value": "\${variables}",
+  },
+  {
+    "description": "When working with XML data, then this allows using the XPath language, for example, to extract data from the message body (in XML format). This requires having camel-xpath JAR on the classpath. For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the XML payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${xpath(input,exp)}",
   },
 ]
 `;
