@@ -1,23 +1,32 @@
 import { useSuggestionRegistry } from '@kaoto/forms';
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
-import { propertiesSuggestionProvider } from './suggestions/properties.suggestions';
-import { simpleLanguageSuggestionProvider } from './suggestions/simple-language.suggestions';
+import { FunctionComponent, PropsWithChildren, useContext, useEffect } from 'react';
+import { IMetadataApi, MetadataContext } from '../../../../../providers';
+import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
+import { getSimpleLanguageSuggestionProvider } from './suggestions/simple-language.suggestions';
 import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
 
 export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ children }) => {
-  const suggestionRegistryContext = useSuggestionRegistry();
+  const suggestionRegistry = useSuggestionRegistry();
+  const getSuggestions = useContext(MetadataContext)?.getSuggestions ?? GET_SUGGESTIONS_NOOP;
 
   useEffect(() => {
-    suggestionRegistryContext?.registerProvider(simpleLanguageSuggestionProvider);
-    suggestionRegistryContext?.registerProvider(propertiesSuggestionProvider);
-    suggestionRegistryContext?.registerProvider(sqlSyntaxSuggestionProvider);
+    const simpleLanguageSuggestionProvider = getSimpleLanguageSuggestionProvider(getSuggestions);
+    const propertiesSuggestionProvider = getPropertiesSuggestionProvider(getSuggestions);
+
+    suggestionRegistry?.registerProvider(simpleLanguageSuggestionProvider);
+    suggestionRegistry?.registerProvider(propertiesSuggestionProvider);
+    suggestionRegistry?.registerProvider(sqlSyntaxSuggestionProvider);
 
     return () => {
-      suggestionRegistryContext?.unregisterProvider(simpleLanguageSuggestionProvider.id);
-      suggestionRegistryContext?.unregisterProvider(propertiesSuggestionProvider.id);
-      suggestionRegistryContext?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(simpleLanguageSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(propertiesSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
     };
-  }, [suggestionRegistryContext]);
+  }, [getSuggestions, suggestionRegistry]);
 
   return <>{children}</>;
+};
+
+const GET_SUGGESTIONS_NOOP: IMetadataApi['getSuggestions'] = async () => {
+  return [];
 };

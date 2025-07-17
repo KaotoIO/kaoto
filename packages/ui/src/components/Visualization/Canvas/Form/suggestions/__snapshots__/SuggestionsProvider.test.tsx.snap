@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SuggestionRegistrar renders children 1`] = `
+<div>
+  <span>
+    Snapshot Child
+  </span>
+</div>
+`;

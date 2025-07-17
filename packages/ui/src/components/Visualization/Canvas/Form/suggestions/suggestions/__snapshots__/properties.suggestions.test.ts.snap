@@ -29,7 +29,7 @@ exports[`Properties Suggestions should return suggestions 1`] = `
   },
   {
     "description": "Use the 'test' OS environment variable",
-    "group": "Property functions",
+    "group": "Placeholders: Environment variables",
     "value": "{{env:test}}",
   },
   {
@@ -76,6 +76,86 @@ exports[`Properties Suggestions should return suggestions 1`] = `
     "description": "Use the binary test Secret.",
     "group": "Kubernetes",
     "value": "{{secret-binary:test}}",
+  },
+]
+`;
+
+exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
+[
+  {
+    "description": "Use 'foo' as a property reference",
+    "group": "Property references",
+    "value": "{{foo}}",
+  },
+  {
+    "description": "Use 'foo' with a default value as a property reference",
+    "group": "Property references",
+    "value": "{{foo:default}}",
+  },
+  {
+    "description": "Use 'foo' as an optional property reference",
+    "group": "Property references",
+    "value": "{{?foo}}",
+  },
+  {
+    "description": "Use 'foo' as a negated property reference",
+    "group": "Property references",
+    "value": "{{!foo}}",
+  },
+  {
+    "description": "Use the RAW value of the 'foo' property",
+    "group": "Property references",
+    "value": "RAW(foo)",
+  },
+  {
+    "description": "Use the 'foo' OS environment variable",
+    "group": "Placeholders: Environment variables",
+    "value": "{{env:foo}}",
+  },
+  {
+    "description": "Use the 'foo' Java JVM system property",
+    "group": "Property functions",
+    "value": "{{sys:foo}}",
+  },
+  {
+    "description": "Use the FOO service, defined using the service naming idiom. Services are expected to be defined as OS FOO_SERVICE_HOST and FOO_SERVICE_PORT environment variables.",
+    "group": "Property functions",
+    "value": "{{service:FOO}}",
+  },
+  {
+    "description": "Use the FOO service hostname",
+    "group": "Property functions",
+    "value": "{{service.name:FOO}}",
+  },
+  {
+    "description": "Use the FOO service port",
+    "group": "Property functions",
+    "value": "{{service.port:FOO}}",
+  },
+  {
+    "description": "Use the foo ConfigMap. It should be in the format 'configmap:configmap-name/configmap-key'",
+    "group": "Kubernetes",
+    "value": "{{configmap:foo}}",
+  },
+  {
+    "description": "Use the foo ConfigMap with a default value",
+    "group": "Kubernetes",
+    "value": "{{configmap:foo}}:defaultValue",
+  },
+  {
+    "description": "Use the binary foo ConfigMap",
+    "group": "Kubernetes",
+    "value": "{{configmap-binary:foo}}",
+  },
+  {
+    "description": "Use the foo Secret. It should be in the format 'secret:secret-name/secret-key'",
+    "group": "Kubernetes",
+    "value": "{{secret:foo}}",
+  },
+  {
+    "description": "Use the binary foo Secret.",
+    "group": "Kubernetes",
+    "value": "{{secret-binary:foo}}",
   },
 ]
 `;

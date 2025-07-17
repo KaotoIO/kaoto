@@ -1,3 +1,6 @@
+import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
+
+import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import {
   Editor,
   EditorInitArgs,
@@ -7,7 +10,6 @@ import {
 } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
-import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 import { RefObject, createRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { AbstractSettingsAdapter } from '../models/settings';
@@ -17,6 +19,7 @@ import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeProvider } from '../providers/source-code.provider';
+import { promiseTimeout } from '../utils';
 import { setColorScheme } from '../utils/color-scheme';
 import { SourceCodeBridgeProviderRef } from './Bridge/editor-api';
 import { KaotoBridge } from './Bridge/KaotoBridge';
@@ -47,6 +50,7 @@ export class KaotoEditorApp implements Editor {
     this.saveResourceContent = this.saveResourceContent.bind(this);
     this.deleteResource = this.deleteResource.bind(this);
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
+    this.getSuggestions = this.getSuggestions.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -134,6 +138,18 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
   }
 
+  async getSuggestions(topic: string, word: string, context: SuggestionRequestContext): Promise<Suggestion[]> {
+    try {
+      return await promiseTimeout(
+        this.envelopeContext.channelApi.requests.getSuggestions(topic, word, context),
+        2_000,
+        [],
+      );
+    } catch (error) {
+      return []; // Return an empty array in case of error to avoid breaking the editor
+    }
+  }
+
   af_onOpen(): void {
     setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
@@ -158,6 +174,8 @@ export class KaotoEditorApp implements Editor {
                       saveResourceContent={this.saveResourceContent}
                       deleteResource={this.deleteResource}
                       askUserForFileSelection={this.askUserForFileSelection}
+                      getSuggestions={this.getSuggestions}
+                      shouldSaveSchema={false}
                     >
                       <RouterProvider router={kaotoEditorRouter} />
                     </KaotoBridge>

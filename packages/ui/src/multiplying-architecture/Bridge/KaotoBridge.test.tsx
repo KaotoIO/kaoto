@@ -12,6 +12,7 @@ describe('KaotoBridge', () => {
   const mockSaveResourceContent = jest.fn();
   const mockDeleteResource = jest.fn();
   const mockAskUserForFileSelection = jest.fn();
+  const mockGetSuggestions = jest.fn();
 
   const defaultProps = {
     onReady: mockOnReady,
@@ -23,6 +24,8 @@ describe('KaotoBridge', () => {
     saveResourceContent: mockSaveResourceContent,
     deleteResource: mockDeleteResource,
     askUserForFileSelection: mockAskUserForFileSelection,
+    getSuggestions: mockGetSuggestions,
+    shouldSaveSchema: false,
     channelType: ChannelType.VSCODE_DESKTOP,
   };
 
