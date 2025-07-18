@@ -1,9 +1,10 @@
-import { DataMapperProvider } from './datamapper.provider';
-import { render, screen, waitFor } from '@testing-library/react';
+import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { FieldItem, MappingTree } from '../models/datamapper/mapping';
-import { useEffect } from 'react';
-import { IField } from '../models/datamapper/document';
+import { act, useContext, useEffect } from 'react';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, IField } from '../models/datamapper/document';
+import { shipOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 
 describe('DataMapperProvider', () => {
   it('should render', async () => {
@@ -72,5 +73,28 @@ describe('DataMapperProvider', () => {
     );
     await waitFor(() => tree);
     expect(tree!.children.length).toEqual(0);
+  });
+
+  it("updateDocumentDefinition() should also update MappingTree.documentDefinitionType if it's target body", async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+    expect(result.current!.mappingTree.documentDefinitionType).toBe(DocumentDefinitionType.Primitive);
+
+    const docDef = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.JSON_SCHEMA,
+      'ShipOrderJson',
+      { ShipOrderJson: shipOrderJsonSchema },
+    );
+    act(() => {
+      result.current!.updateDocumentDefinition(docDef);
+    });
+
+    await waitFor(() => {
+      expect(result.current!.mappingTree.documentDefinitionType).toEqual(DocumentDefinitionType.JSON_SCHEMA);
+    });
   });
 });

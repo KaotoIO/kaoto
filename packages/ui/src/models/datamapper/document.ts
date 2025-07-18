@@ -197,3 +197,7 @@ export class DocumentInitializationModel {
     },
   ) {}
 }
+
+export const DEFAULT_FILE_NAME_PATTERN = '**/*';
+export const XML_SCHEMA_PATTERN = '**/*.{xsd,xml,XSD,XML}';
+export const JSON_SCHEMA_PATTERN = '**/*.{json,JSON}';

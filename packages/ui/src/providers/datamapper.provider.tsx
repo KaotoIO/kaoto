@@ -198,6 +198,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
         case DocumentType.TARGET_BODY:
           setTargetBodyDocument(newDocument);
+          mappingTree.documentDefinitionType = newDocument.definitionType;
           break;
         case DocumentType.PARAM:
           sourceParameterMap!.set(documentId, newDocument);
@@ -205,7 +206,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
       }
     },
-    [refreshSourceParameters, sourceParameterMap],
+    [mappingTree, refreshSourceParameters, sourceParameterMap],
   );
 
   const updateDocumentDefinition = useCallback(

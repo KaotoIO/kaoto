@@ -14,8 +14,6 @@ import type { XsltComponentDef } from '../utils/is-xslt-component';
 import { EMPTY_XSL } from './mapping-serializer.service';
 
 export class DataMapperMetadataService {
-  static readonly SCHEMA_NAME_PATTERN = '**/*.{xsd,xml,XSD,XML}';
-
   static getDataMapperMetadataId(vizNode: IVisualizationNode) {
     const model = vizNode.getComponentSchema()?.definition;
     return model.id;
@@ -211,8 +209,8 @@ export class DataMapperMetadataService {
     await api.saveResourceContent(metadata.xsltPath, xsltFile);
   }
 
-  static async selectDocumentSchema(api: IMetadataApi) {
-    return await api.askUserForFileSelection(this.SCHEMA_NAME_PATTERN, undefined, {
+  static async selectDocumentSchema(api: IMetadataApi, fileNamePattern: string) {
+    return await api.askUserForFileSelection(fileNamePattern, undefined, {
       canPickMany: false, // TODO set to true once we support xs:include/xs:import, i.e. multiple files
       placeHolder:
         'Choose the schema file to attach. Type a text to narrow down the candidates. The file path is shown as a relative path from the active Camel file opening with Kaoto.',
