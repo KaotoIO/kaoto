@@ -91,7 +91,7 @@ export class CamelOnCompletionVisualEntity
       CamelOnCompletionVisualEntity.ROOT_PATH,
       { processorName: CamelOnCompletionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onCompletionDef,
-    );
+    )[0];
     onCompletionGroupNode.data.entity = this;
     onCompletionGroupNode.data.isGroup = true;
     onCompletionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

@@ -12,7 +12,7 @@ export class StepNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName: keyof ProcessorDefinition = 'step';
 
     const data: CamelRouteVisualEntityData = {
@@ -40,6 +40,6 @@ export class StepNodeMapper extends BaseNodeMapper {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return [vizNode];
   }
 }

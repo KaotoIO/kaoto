@@ -12,7 +12,7 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName = this.getProcessorName();
 
     const data: CamelRouteVisualEntityData = {
@@ -34,6 +34,6 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       child.setNextNode(undefined);
     });
 
-    return vizNode;
+    return [vizNode];
   }
 }

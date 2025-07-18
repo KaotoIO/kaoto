@@ -160,7 +160,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
       this.getRootPath(),
       { processorName: 'errorHandler' as keyof ProcessorDefinition },
       this.errorHandlerDef,
-    );
+    )[0];
     errorHandlerGroupNode.data.entity = this;
     errorHandlerGroupNode.data.isGroup = true;
     errorHandlerGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

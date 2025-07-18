@@ -1,33 +1,34 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { RootNodeMapper } from '../root-node-mapper';
-import { OtherwiseNodeMapper } from './otherwise-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
+import { FromNodeMapper } from './from-node-mapper';
 
-describe('OtherwiseNodeMapper', () => {
-  let mapper: OtherwiseNodeMapper;
+describe('FromNodeMapper', () => {
+  let mapper: FromNodeMapper;
   let routeDefinition: RouteDefinition;
-  const path = 'from.steps.0.choice.otherwise';
+  const path = 'from';
 
   beforeEach(() => {
     const rootNodeMapper = new RootNodeMapper();
     rootNodeMapper.registerDefaultMapper(mapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
-    mapper = new OtherwiseNodeMapper(rootNodeMapper);
+    mapper = new FromNodeMapper(rootNodeMapper);
 
     routeDefinition = {
+      id: 'route-2207',
       from: {
+        id: 'from-3790',
         uri: 'timer',
         parameters: {
-          timerName: 'timerName',
+          period: '1000',
+          timerName: 'template',
         },
         steps: [
           {
-            choice: {
-              when: [{ simple: "${header.foo} == 'bar'" }, { simple: "${header.foo} == 'baz'" }],
-              otherwise: {
-                steps: [{ log: 'logName' }],
-              },
+            log: {
+              id: 'log-2397',
+              message: '${body}',
             },
           },
         ],
@@ -35,13 +36,13 @@ describe('OtherwiseNodeMapper', () => {
     };
   });
 
-  it('should return children', () => {
+  it('should not return children for from node', () => {
     const vizNode = mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'otherwise' as keyof ProcessorDefinition },
+      { processorName: 'from' as keyof ProcessorDefinition },
       routeDefinition,
     )[0];
 
-    expect(vizNode.getChildren()).toHaveLength(1);
+    expect(vizNode.getChildren()).toBeUndefined();
   });
 });

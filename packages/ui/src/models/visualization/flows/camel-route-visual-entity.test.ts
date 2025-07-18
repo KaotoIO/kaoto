@@ -281,7 +281,7 @@ describe('Camel Route', () => {
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
       expect(fromNode.getNextNode()).toBeDefined();
-      expect(fromNode.getChildren()).toHaveLength(0);
+      expect(fromNode.getChildren()).toBeUndefined();
 
       /** choice */
       const choiceNode = vizNode.getChildren()?.[1] as IVisualizationNode;
@@ -330,7 +330,7 @@ describe('Camel Route', () => {
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
       expect(fromNode.getNextNode()).toBeDefined();
-      expect(fromNode.getChildren()).toHaveLength(0);
+      expect(fromNode.getChildren()).toBeUndefined();
 
       /** setHeader */
       const setHeaderNode = vizNode.getChildren()?.[1] as IVisualizationNode;

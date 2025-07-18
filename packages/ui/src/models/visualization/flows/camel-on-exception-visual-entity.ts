@@ -91,7 +91,7 @@ export class CamelOnExceptionVisualEntity
       CamelOnExceptionVisualEntity.ROOT_PATH,
       { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onExceptionDef,
-    );
+    )[0];
     onExceptionGroupNode.data.entity = this;
     onExceptionGroupNode.data.isGroup = true;
     onExceptionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

@@ -265,7 +265,7 @@ describe('VisualizationNode', () => {
       expect(node.getChildren()?.[1].getNodeLabel()).toEqual('choice');
       expect(node.getChildren()?.[2].getNodeLabel()).toEqual('direct');
       expect(node.getChildren()).toHaveLength(3);
-      expect(fromNode!.getChildren()).toHaveLength(0);
+      expect(fromNode!.getChildren()).toBeUndefined();
     });
   });
 
@@ -372,7 +372,7 @@ describe('VisualizationNode', () => {
       expect(node.getChildren()?.[3].getNodeLabel()).toEqual('choice');
       expect(node.getChildren()?.[4].getNodeLabel()).toEqual('direct');
       expect(node.getChildren()).toHaveLength(5);
-      expect(fromNode!.getChildren()).toHaveLength(0);
+      expect(fromNode!.getChildren()).toBeUndefined();
     });
   });
 });

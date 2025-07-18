@@ -10,7 +10,7 @@ export class OtherwiseNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const processorName = 'otherwise' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -27,6 +27,6 @@ export class OtherwiseNodeMapper extends BaseNodeMapper {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return [vizNode];
   }
 }
