@@ -13,13 +13,32 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AlertVariant, Button } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext } from 'react';
+import {
+  AlertVariant,
+  Button,
+  InputGroup,
+  InputGroupItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Radio,
+  Stack,
+  StackItem,
+  TextInput,
+} from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
-import { ImportIcon } from '@patternfly/react-icons';
+import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import {
+  DEFAULT_FILE_NAME_PATTERN,
+  DocumentDefinitionType,
+  DocumentType,
+  JSON_SCHEMA_PATTERN,
+  XML_SCHEMA_PATTERN,
+} from '../../../models/datamapper/document';
 import { MetadataContext } from '../../../providers';
 import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
 import { DocumentService } from '../../../services/document.service';
@@ -38,18 +57,55 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   const api = useContext(MetadataContext)!;
   const { addAlert, setIsLoading, updateDocumentDefinition } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
+    DocumentDefinitionType.XML_SCHEMA,
+  );
+  const [filePaths, setFilePaths] = useState<string[]>([]);
 
-  const onClick = useCallback(async () => {
-    const paths = await DataMapperMetadataService.selectDocumentSchema(api);
-    if (!paths || (Array.isArray(paths) && paths.length === 0)) return;
+  const actionName = hasSchema ? 'Update' : 'Attach';
+
+  const documentTypeLabel = useMemo(() => {
+    if (documentType === DocumentType.PARAM) return `Parameter: ${documentId}`;
+    return documentType === DocumentType.SOURCE_BODY ? 'Source' : 'Target';
+  }, [documentId, documentType]);
+
+  const onModalOpen = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const onFileUpload = useCallback(async () => {
+    let fileNamePattern: string;
+    switch (selectedSchemaType) {
+      case DocumentDefinitionType.XML_SCHEMA:
+        fileNamePattern = XML_SCHEMA_PATTERN;
+        break;
+      case DocumentDefinitionType.JSON_SCHEMA:
+        fileNamePattern = JSON_SCHEMA_PATTERN;
+        break;
+      default:
+        fileNamePattern = DEFAULT_FILE_NAME_PATTERN;
+    }
+
+    const paths = await DataMapperMetadataService.selectDocumentSchema(api, fileNamePattern);
+    if (Array.isArray(paths)) {
+      setFilePaths(paths);
+    } else if (paths) {
+      setFilePaths([paths]);
+    } else {
+      setFilePaths([]);
+    }
+  }, [api, selectedSchemaType]);
+
+  const onCommit = useCallback(async () => {
     setIsLoading(true);
     try {
       const definition = await DocumentService.createDocumentDefinition(
         api,
         documentType,
-        DocumentDefinitionType.XML_SCHEMA,
+        selectedSchemaType,
         documentId,
-        Array.isArray(paths) ? paths : [paths],
+        filePaths,
       );
       if (!definition) return;
       await updateDocumentDefinition(definition);
@@ -62,25 +118,92 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     } finally {
       setIsLoading(false);
     }
+    setIsModalOpen(false);
   }, [
     addAlert,
     api,
     clearNodeReferencesForDocument,
     documentId,
     documentType,
+    filePaths,
     reloadNodeReferences,
     setIsLoading,
     updateDocumentDefinition,
   ]);
 
+  const onCancel = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
   return (
-    <Button
-      icon={<ImportIcon />}
-      variant="plain"
-      title={hasSchema ? 'Update schema' : 'Attach a schema'}
-      aria-label={hasSchema ? 'Update schema' : 'Attach schema'}
-      data-testid={`attach-schema-${documentType}-${documentId}-button`}
-      onClick={onClick}
-    />
+    <>
+      <Button
+        icon={<ImportIcon />}
+        variant="plain"
+        title={`${actionName} schema`}
+        aria-label={`${actionName} schema`}
+        data-testid={`attach-schema-${documentType}-${documentId}-button`}
+        onClick={onModalOpen}
+      />
+      <Modal isOpen={isModalOpen} variant="small" data-testid="attach-schema-modal">
+        <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
+        <ModalBody>
+          <Stack hasGutter>
+            <StackItem>
+              <InputGroup>
+                <InputGroupItem>
+                  <Radio
+                    id="option-xml-schema"
+                    name="schema-type"
+                    aria-label="XML Schema"
+                    label="XML Schema"
+                    data-testid="attach-schema-modal-option-xml"
+                    isChecked={selectedSchemaType === DocumentDefinitionType.XML_SCHEMA}
+                    onChange={() => setSelectedSchemaType(DocumentDefinitionType.XML_SCHEMA)}
+                  />
+                </InputGroupItem>
+                {documentType !== DocumentType.SOURCE_BODY && (
+                  <InputGroupItem>
+                    <Radio
+                      id="option-json-schema"
+                      name="schema-type"
+                      aria-label="JSON Schema"
+                      label="JSON Schema"
+                      data-testid="attach-schema-modal-option-json"
+                      isChecked={selectedSchemaType === DocumentDefinitionType.JSON_SCHEMA}
+                      onChange={() => setSelectedSchemaType(DocumentDefinitionType.JSON_SCHEMA)}
+                    />
+                  </InputGroupItem>
+                )}
+              </InputGroup>
+            </StackItem>
+            <StackItem>
+              <InputGroup>
+                <InputGroupItem isFill>
+                  <TextInput
+                    type="text"
+                    aria-label="Attaching schema file name"
+                    data-testid="attach-schema-modal-text"
+                    readOnly
+                    value={filePaths.join(', ')}
+                  />
+                </InputGroupItem>
+                <InputGroupItem>
+                  <Button data-testid="attach-schema-modal-btn-file" icon={<FileImportIcon />} onClick={onFileUpload} />
+                </InputGroupItem>
+              </InputGroup>
+            </StackItem>
+          </Stack>
+        </ModalBody>
+        <ModalFooter>
+          <Button key="Attach" data-testid="attach-schema-modal-btn-attach" variant="primary" onClick={onCommit}>
+            {actionName}
+          </Button>
+          <Button key="Cancel" data-testid="attach-schema-modal-btn-cancel" variant="link" onClick={onCancel}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
   );
 };

@@ -447,12 +447,14 @@ export class XPathService {
   static toXPathString(pathExpression: PathExpression): string {
     let prefix = '';
     if (!pathExpression.isRelative) {
-      prefix = pathExpression.documentReferenceName ? `$${pathExpression.documentReferenceName}/` : '/';
+      prefix = pathExpression.documentReferenceName ? `$${pathExpression.documentReferenceName}` : '/';
     }
 
     return pathExpression.pathSegments.reduce((acc, segment, index) => {
       const segmentString = XPathService.segmentToXPathString(segment);
-      const separator = index === 0 ? '' : '/';
+      const addSeparator =
+        index !== 0 || (index === 0 && !pathExpression.isRelative && pathExpression.documentReferenceName);
+      const separator = addSeparator ? '/' : '';
       return `${acc}${separator}${segmentString}`;
     }, prefix);
   }

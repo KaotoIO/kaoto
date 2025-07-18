@@ -1,6 +1,7 @@
 import { ChangeEvent, createRef, FunctionComponent, PropsWithChildren, useCallback, useRef } from 'react';
 import { readFileAsString } from './read-file-as-string';
 import { IMetadataApi, MetadataContext } from '../providers';
+import { JSON_SCHEMA_PATTERN, XML_SCHEMA_PATTERN } from '../models/datamapper';
 
 export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const fileInputRef = createRef<HTMLInputElement>();
@@ -12,10 +13,22 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
 
   const askUserForFileSelection = useCallback(
     (
-      _include: string,
+      include: string,
       _exclude?: string,
       _options?: Record<string, unknown>,
     ): Promise<string[] | string | undefined> => {
+      if (!fileInputRef.current) return Promise.resolve(undefined);
+
+      switch (include) {
+        case XML_SCHEMA_PATTERN:
+          fileInputRef.current.accept = '.xsd, .xml';
+          break;
+        case JSON_SCHEMA_PATTERN:
+          fileInputRef.current.accept = '.json';
+          break;
+        default:
+          fileInputRef.current.accept = '';
+      }
       fileInputRef.current?.click();
       return new Promise<Record<string, string>>((resolve, reject) => {
         fileSelectionRef.current = { resolve, reject };
@@ -66,7 +79,6 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
         style={{ display: 'none' }}
         data-testid={`attach-schema-file-input`}
         onChange={onImport}
-        accept=".xml, .xsd"
         ref={fileInputRef}
       />
     </MetadataContext.Provider>
