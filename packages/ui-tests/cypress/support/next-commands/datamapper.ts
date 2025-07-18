@@ -1,12 +1,18 @@
 Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-sourceBody-Body-button"]').click();
+  cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
   cy.get('[data-testid="expand-source-icon-Body"]').should('be.visible');
 });
 
 Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-targetBody-Body-button"]').click();
+  cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
   cy.get('[data-testid="expand-target-icon-Body"]').should('be.visible');
 });
 
@@ -18,7 +24,10 @@ Cypress.Commands.add('addParameter', (name: string) => {
 
 Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) => {
   cy.get(`[data-testid="attach-schema-param-${name}-button"]`).click();
+  cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
 });
 
 Cypress.Commands.add('importMappings', (filePath: string) => {

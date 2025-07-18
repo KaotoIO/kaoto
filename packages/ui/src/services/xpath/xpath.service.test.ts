@@ -3,6 +3,7 @@ import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { FunctionGroup } from './xpath-parser';
+import { PathExpression } from '../../models/datamapper';
 
 describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
@@ -256,5 +257,12 @@ describe('XPathService', () => {
     const tokens = XPathService.getAllTokens();
     expect(tokens.length).toEqual(86);
     ['If', 'Then', 'Else'].forEach((targetTokenName) => tokens.find((token) => token.name === targetTokenName));
+  });
+
+  it('toXPathString()', () => {
+    const pe = new PathExpression();
+    pe.documentReferenceName = 'Account-x';
+    const xpath = XPathService.toXPathString(pe);
+    expect(xpath).toEqual('$Account-x');
   });
 });
