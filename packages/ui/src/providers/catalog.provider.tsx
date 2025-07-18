@@ -66,9 +66,12 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           `${relativeBasePath}/${catalogIndex.catalogs.kameletBoundaries.file}`,
         );
         /** Functions catalog */
-        const functionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Function]>(
-          `${relativeBasePath}/${catalogIndex.catalogs.functions.file}`,
-        );
+        let functionsFiles;
+        if (catalogIndex.catalogs.functions !== undefined) {
+          functionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Function]>(
+            `${relativeBasePath}/${catalogIndex.catalogs.functions.file}`,
+          );
+        }
 
         const [
           camelComponents,
@@ -102,7 +105,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, camelLoadbalancers.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
-        CamelCatalogService.setCatalogKey(CatalogKind.Function, functions.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.Function, functions?.body);
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);
