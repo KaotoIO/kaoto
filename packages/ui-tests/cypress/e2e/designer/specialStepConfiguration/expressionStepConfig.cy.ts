@@ -82,11 +82,11 @@ describe('Tests for sidebar expression configuration', () => {
     cy.interactWithExpressionInputObject('simple.expression', `{{}{{}header.baz}}`);
     cy.get('textarea[name="simple.expression"]').should('have.value', '{{header.baz}}');
     cy.selectExpression('Constant');
-    cy.get('textarea[name="constant.expression"]').should('not.have.value', '{{header.baz}}');
+    cy.get('textarea[name="constant.expression"]').should('have.value', '{{header.baz}}');
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
-    cy.checkCodeSpanLine('expression: "{{header.baz}}"', 0);
+    cy.checkCodeSpanLine('expression: "{{header.baz}}"', 1);
   });
 
   it('Design - sidebar expression configuration in Kamelet', () => {

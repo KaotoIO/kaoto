@@ -38,6 +38,8 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
 
   const onExpressionChange = (propName: string, model: unknown) => {
     let localValue = parsedModel ?? {};
+
+    ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>);
     setValue(localValue, propName, model);
 
     if (isEmpty(localValue)) {
