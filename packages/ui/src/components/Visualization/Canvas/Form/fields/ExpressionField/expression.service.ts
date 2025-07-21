@@ -115,4 +115,26 @@ export class ExpressionService {
       return { [langName]: { expression: lang } } as ExpressionDefinition;
     }
   }
+
+  static updateExpressionFromModel(
+    sourceModel: Record<string, unknown> | undefined,
+    targetModel: Record<string, unknown>,
+  ): void {
+    if (!isDefined(sourceModel) || !isDefined(targetModel)) {
+      return;
+    }
+    const languageNames = this.getLanguageNames();
+    const sourceKey = Object.keys(sourceModel).find((key) => languageNames.includes(key));
+    const sourceExpressionString = sourceKey
+      ? (sourceModel[sourceKey] as Record<string, unknown>)?.expression
+      : undefined;
+
+    if (typeof sourceExpressionString === 'string') {
+      const targetKey = Object.keys(targetModel).find((key) => languageNames.includes(key));
+
+      if (targetKey) {
+        (targetModel[targetKey] as Record<string, unknown>).expression = sourceExpressionString;
+      }
+    }
+  }
 }

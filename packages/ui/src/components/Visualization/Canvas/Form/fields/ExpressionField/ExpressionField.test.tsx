@@ -85,6 +85,41 @@ describe('ExpressionField', () => {
     expect(expressionField).toBeInTheDocument();
   });
 
+  it('should call onPropertyChange with the preserved expression after selection change', async () => {
+    const onPropertyChangeSpy = jest.fn();
+    const EXPRESSION_STRING = 'Test';
+
+    render(
+      <FormComponentFactoryProvider>
+        <ModelContextProvider
+          model={{
+            id: 'setHeader-1891',
+            expression: {
+              simple: {
+                expression: EXPRESSION_STRING,
+              },
+            },
+          }}
+          onPropertyChange={onPropertyChangeSpy}
+        >
+          <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
+            <SchemaProvider schema={setHeaderExpressionSchema}>
+              <ExpressionField propName={ROOT_PATH} required={true} />
+            </SchemaProvider>
+          </SchemaDefinitionsProvider>
+        </ModelContextProvider>
+      </FormComponentFactoryProvider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
+    await formPageObject.selectTypeaheadItem('csimple');
+
+    expect(onPropertyChangeSpy).toHaveBeenCalled();
+    const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
+    expect(lastCall[1].csimple.expression).toBe(EXPRESSION_STRING);
+  });
+
   it('should clear the expression when using the clear button', async () => {
     const onPropertyChangeSpy = jest.fn();
 
