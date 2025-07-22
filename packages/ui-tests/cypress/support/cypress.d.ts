@@ -140,8 +140,21 @@ declare global {
       exportMappings(): Chainable<JQuery<Element>>;
       closeExportMappingsModal(): Chainable<JQuery<Element>>;
       resetMappings(): Chainable<JQuery<Element>>;
-      checkFieldSelected(type: string, fieldName: string, selected: boolean): Chainable<JQuery<Element>>;
+      checkFieldSelected(
+        type: string,
+        format: string,
+        fieldName: string,
+        selected: boolean,
+      ): Chainable<JQuery<Element>>;
       checkMappingLineSelected(selected: boolean): Chainable<JQuery<Element>>;
+      countMappingLines(num: number): Chainable<JQuery<Element>>;
+      getDataMapperNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
+      engageMapping(sourceNodePath: string[], targetNodePath: string[], testXPath: string): Chainable<JQuery<Element>>;
+      engageForEachMapping(
+        sourceNodePath: string[],
+        targetNodePath: string[],
+        testXPath: string,
+      ): Chainable<JQuery<Element>>;
     }
   }
 }
