@@ -33,11 +33,10 @@ import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import {
-  DEFAULT_FILE_NAME_PATTERN,
   DocumentDefinitionType,
   DocumentType,
-  JSON_SCHEMA_PATTERN,
-  XML_SCHEMA_PATTERN,
+  SCHEMA_FILE_NAME_PATTERN,
+  SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY,
 } from '../../../models/datamapper/document';
 import { MetadataContext } from '../../../providers';
 import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
@@ -64,6 +63,8 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   const [filePaths, setFilePaths] = useState<string[]>([]);
 
   const actionName = hasSchema ? 'Update' : 'Attach';
+  const fileNamePattern =
+    documentType === DocumentType.SOURCE_BODY ? SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY : SCHEMA_FILE_NAME_PATTERN;
 
   const documentTypeLabel = useMemo(() => {
     if (documentType === DocumentType.PARAM) return `Parameter: ${documentId}`;
@@ -75,27 +76,22 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, []);
 
   const onFileUpload = useCallback(async () => {
-    let fileNamePattern: string;
-    switch (selectedSchemaType) {
-      case DocumentDefinitionType.XML_SCHEMA:
-        fileNamePattern = XML_SCHEMA_PATTERN;
-        break;
-      case DocumentDefinitionType.JSON_SCHEMA:
-        fileNamePattern = JSON_SCHEMA_PATTERN;
-        break;
-      default:
-        fileNamePattern = DEFAULT_FILE_NAME_PATTERN;
-    }
-
     const paths = await DataMapperMetadataService.selectDocumentSchema(api, fileNamePattern);
+    let pathsArray: string[] = [];
     if (Array.isArray(paths)) {
-      setFilePaths(paths);
+      pathsArray = paths;
     } else if (paths) {
-      setFilePaths([paths]);
-    } else {
-      setFilePaths([]);
+      pathsArray = [paths];
     }
-  }, [api, selectedSchemaType]);
+    setFilePaths(pathsArray);
+
+    // @TODO update when we support multiple files
+    if (pathsArray.length > 0 && pathsArray[0].toLowerCase().endsWith('.json')) {
+      setSelectedSchemaType(DocumentDefinitionType.JSON_SCHEMA);
+    } else {
+      setSelectedSchemaType(DocumentDefinitionType.XML_SCHEMA);
+    }
+  }, [api, fileNamePattern]);
 
   const onCommit = useCallback(async () => {
     setIsLoading(true);
@@ -151,6 +147,22 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
           <Stack hasGutter>
             <StackItem>
               <InputGroup>
+                <InputGroupItem isFill>
+                  <TextInput
+                    type="text"
+                    aria-label="Attaching schema file name"
+                    data-testid="attach-schema-modal-text"
+                    readOnly
+                    value={filePaths.join(', ')}
+                  />
+                </InputGroupItem>
+                <InputGroupItem>
+                  <Button data-testid="attach-schema-modal-btn-file" icon={<FileImportIcon />} onClick={onFileUpload} />
+                </InputGroupItem>
+              </InputGroup>
+            </StackItem>
+            <StackItem>
+              <InputGroup>
                 <InputGroupItem>
                   <Radio
                     id="option-xml-schema"
@@ -175,22 +187,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
                     />
                   </InputGroupItem>
                 )}
-              </InputGroup>
-            </StackItem>
-            <StackItem>
-              <InputGroup>
-                <InputGroupItem isFill>
-                  <TextInput
-                    type="text"
-                    aria-label="Attaching schema file name"
-                    data-testid="attach-schema-modal-text"
-                    readOnly
-                    value={filePaths.join(', ')}
-                  />
-                </InputGroupItem>
-                <InputGroupItem>
-                  <Button data-testid="attach-schema-modal-btn-file" icon={<FileImportIcon />} onClick={onFileUpload} />
-                </InputGroupItem>
               </InputGroup>
             </StackItem>
           </Stack>

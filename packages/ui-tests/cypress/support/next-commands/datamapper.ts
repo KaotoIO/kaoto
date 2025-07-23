@@ -12,13 +12,20 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
 
 Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-targetBody-Body-button"]').click();
-  if (filePath.endsWith('json')) {
-    cy.get('[data-testid="attach-schema-modal-option-json"]').click();
-  }
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+
   cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  if (filePath.endsWith('json')) {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');
+  } else {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('not.be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('be.checked');
+  }
+
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
+
   cy.get('[data-testid="expand-target-icon-Body"]').should('be.visible');
 });
 
@@ -35,7 +42,16 @@ Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) =
   }
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+
   cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  if (filePath.endsWith('json')) {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');
+  } else {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('not.be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('be.checked');
+  }
+
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
 });
 
@@ -104,7 +120,8 @@ Cypress.Commands.add('engageMapping', (sourceNodePath: string[], targetNodePath:
     .trigger('mouseover', { dataTransfer, force: true })
     .trigger('mousemove', { dataTransfer, force: true })
     .wait(50)
-    .trigger('mouseup', { dataTransfer, force: true });
+    .trigger('mouseup', { dataTransfer, force: true })
+    .wait(50);
 
   cy.getDataMapperNode(targetNodePath)
     .find('[data-testid="transformation-xpath-input"]')
