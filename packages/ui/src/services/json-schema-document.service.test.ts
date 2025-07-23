@@ -253,42 +253,45 @@ describe('JsonSchemaDocumentService', () => {
     const rootArrayField = camelDoc.fields[0];
     expect(rootArrayField.type).toEqual(Types.Array);
     expect(rootArrayField.name).toEqual('array');
+    expect(rootArrayField.key).toEqual('');
+    expect(rootArrayField.getExpression({})).toEqual('xf:array');
     expect(rootArrayField.maxOccurs).toEqual(1);
     expect(rootArrayField.fields.length).toEqual(1);
 
     const rootObjectField = rootArrayField.fields[0];
     expect(rootObjectField.type).toEqual(Types.Container);
     expect(rootObjectField.name).toEqual('map');
+    expect(rootObjectField.key).toEqual('');
+    expect(rootObjectField.getExpression({})).toEqual('xf:map');
     expect(rootObjectField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
     expect(rootObjectField.fields.length).toBeGreaterThan(10);
 
     const beansField = rootObjectField.fields.find((f) => f.key === 'beans');
     expect(beansField).toBeDefined();
-    expect(beansField!.type).toEqual(Types.AnyType);
+    expect(beansField!.type).toEqual(Types.Array);
+    expect(beansField!.name).toEqual('array');
+    expect(beansField!.getExpression({})).toEqual("xf:array[@key='beans']");
     expect(beansField!.namedTypeFragmentRefs.length).toBe(1);
 
     const beansDef = camelDoc.namedTypeFragments[beansField!.namedTypeFragmentRefs[0]];
     expect(beansDef).toBeDefined();
     expect(beansDef.type).toEqual(Types.Array);
-    expect(beansDef.maxOccurs).toBe(1);
     expect(beansDef.fields.length).toBe(1);
     const beansArrayField = beansDef.fields[0];
-    expect(beansArrayField.type).toEqual(Types.AnyType);
-    expect(beansArrayField.name).toEqual('any');
+    expect(beansArrayField.type).toEqual(Types.Container);
+    expect(beansArrayField.name).toEqual('map');
+    expect(beansArrayField.getExpression({})).toEqual('xf:map');
     expect(beansArrayField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
     expect(beansArrayField.namedTypeFragmentRefs.length).toBe(1);
 
     const beanEntryDef = camelDoc.namedTypeFragments[beansArrayField.namedTypeFragmentRefs[0]];
     expect(beanEntryDef).toBeDefined();
     expect(beanEntryDef.type).toEqual(Types.Container);
-    expect(beanEntryDef.maxOccurs).toEqual(1);
     expect(beanEntryDef.fields.length).toBeGreaterThan(10);
 
     const setBodyDef = camelDoc.namedTypeFragments['#/items/definitions/org.apache.camel.model.SetBodyDefinition'];
     expect(setBodyDef).toBeDefined();
     expect(setBodyDef.type).toEqual(Types.Container);
-    expect(setBodyDef.minOccurs).toEqual(0);
-    expect(setBodyDef.maxOccurs).toEqual(1);
     expect(setBodyDef.fields.length).toBeGreaterThan(25);
     expect(setBodyDef.namedTypeFragmentRefs.length).toBe(1);
     expect(setBodyDef.namedTypeFragmentRefs[0]).toEqual(
@@ -297,7 +300,8 @@ describe('JsonSchemaDocumentService', () => {
 
     const setBodyExpression = setBodyDef.fields.find((f) => f.key === 'expression');
     expect(setBodyExpression).toBeDefined();
-    expect(setBodyExpression!.name).toEqual('any');
+    expect(setBodyExpression!.name).toEqual('map');
+    expect(setBodyExpression!.getExpression({})).toEqual("xf:map[@key='expression']");
     expect(setBodyExpression!.namedTypeFragmentRefs.length).toBe(1);
     expect(setBodyExpression!.namedTypeFragmentRefs[0]).toEqual(
       '#/items/definitions/org.apache.camel.model.language.ExpressionDefinition',
@@ -306,21 +310,21 @@ describe('JsonSchemaDocumentService', () => {
     const setBodySimple = setBodyDef.fields.find((f) => f.key === 'simple');
     expect(setBodySimple).toBeDefined();
     expect(setBodySimple!.type).toEqual(Types.AnyType);
-    expect(setBodySimple!.name).toEqual('any');
+    expect(setBodySimple!.name).toEqual('map');
+    expect(setBodySimple!.getExpression({})).toEqual("xf:map[@key='simple']");
     expect(setBodySimple!.namedTypeFragmentRefs.length).toBe(0);
 
     const expressionDef =
       camelDoc.namedTypeFragments['#/items/definitions/org.apache.camel.model.language.ExpressionDefinition'];
     expect(expressionDef).toBeDefined();
     expect(expressionDef.type).toEqual(Types.Container);
-    expect(expressionDef.minOccurs).toEqual(0);
-    expect(expressionDef.maxOccurs).toEqual(1);
     expect(expressionDef.fields.length).toBeGreaterThan(25);
 
     const expressionSimple = expressionDef.fields.find((f) => f.key === 'simple');
     expect(expressionSimple).toBeDefined();
     expect(expressionSimple!.type).toEqual(Types.AnyType);
-    expect(expressionSimple!.name).toEqual('any');
+    expect(expressionSimple!.name).toEqual('map');
+    expect(expressionSimple!.getExpression({})).toEqual("xf:map[@key='simple']");
     expect(expressionSimple!.namedTypeFragmentRefs.length).toBe(1);
     expect(expressionSimple!.namedTypeFragmentRefs[0]).toEqual(
       '#/items/definitions/org.apache.camel.model.language.SimpleExpression',

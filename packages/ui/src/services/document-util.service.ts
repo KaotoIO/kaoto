@@ -13,6 +13,13 @@ export class DocumentUtilService {
     return ('ownerDocument' in docOrField ? docOrField.ownerDocument : docOrField) as DocumentType;
   }
 
+  /**
+   * Resolve type fragments from reference and populate into the document tree so that it could be expanded in the UI.
+   *
+   *  @TODO is it safe to change field type dynamically even on XML field? we might eventually need to readahead field type
+   *  even for XML field just like JSON field does, see {@link JsonSchemaDocumentService.createJsonSchemaDocument}
+   * @param field
+   */
   static resolveTypeFragment(field: IField): IField {
     if (field.namedTypeFragmentRefs.length === 0) return field;
     const doc = DocumentUtilService.getOwnerDocument(field);
@@ -29,7 +36,10 @@ export class DocumentUtilService {
     if (fragment.type) field.type = fragment.type;
     if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
-    fragment.fields.forEach((f) => f.adopt(field));
+    fragment.fields.forEach((f) => {
+      f.adopt(field);
+      field.ownerDocument.totalFieldCount++;
+    });
     fragment.namedTypeFragmentRefs.forEach((childRef) => {
       const childFragment = doc.namedTypeFragments[childRef];
       DocumentUtilService.adoptTypeFragment(field, childFragment);

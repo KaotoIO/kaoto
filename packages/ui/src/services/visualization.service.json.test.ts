@@ -12,7 +12,12 @@ import {
   ValueSelector,
 } from '../models/datamapper';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { accountJsonSchema, cartJsonSchema, shipOrderJsonSchema } from '../stubs/datamapper/data-mapper';
+import {
+  accountJsonSchema,
+  camelYamlDslJsonSchema,
+  cartJsonSchema,
+  shipOrderJsonSchema,
+} from '../stubs/datamapper/data-mapper';
 import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
@@ -111,5 +116,37 @@ describe('VisualizationService / JSON', () => {
     const titleValueSelector = mappingTree.children[0].children[1].children[0].children[0].children[0]
       .children[0] as ValueSelector;
     expect(titleValueSelector.expression).toEqual("xf:string[@key='Title']");
+  });
+
+  it('should generate nodes from Camel YAML DSL JSON schema', () => {
+    mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
+    const camelYamlDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.TARGET_BODY,
+      'CamelYamlDsl.json',
+      camelYamlDslJsonSchema,
+    );
+    targetDocNode = new TargetDocumentNodeData(camelYamlDoc, mappingTree);
+    const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+    expect(targetChildren.length).toEqual(1);
+    const topmostArray = targetChildren[0] as TargetFieldNodeData;
+    expect(topmostArray.title).toEqual('array');
+
+    const topmostArrayItem = VisualizationService.generateNonDocumentNodeDataChildren(topmostArray);
+    expect(topmostArrayItem.length).toEqual(1);
+    const topmostArrayMap = topmostArrayItem[0] as TargetFieldNodeData;
+    expect(topmostArrayMap.title).toEqual('map');
+
+    const entities = VisualizationService.generateNonDocumentNodeDataChildren(topmostArrayMap);
+    expect(entities.length).toBeGreaterThan(10);
+
+    const beansArray = entities.find((entity) => entity.title === 'array [@key = beans]') as TargetFieldNodeData;
+    const beansArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(beansArray);
+    expect(beansArrayChildren.length).toEqual(1);
+
+    const beansEntity = beansArrayChildren[0] as TargetFieldNodeData;
+    expect(beansEntity.title).toEqual('map');
+
+    const beansProperties = VisualizationService.generateNonDocumentNodeDataChildren(beansEntity);
+    expect(beansProperties.length).toBeGreaterThan(10);
   });
 });
