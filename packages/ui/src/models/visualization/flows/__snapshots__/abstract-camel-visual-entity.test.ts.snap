@@ -440,3 +440,97 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new special child s
   },
 }
 `;
+
+exports[`AbstractCamelVisualEntity pasteStep should repace the special child step belonging to an array like when or doCatch 1`] = `
+{
+  "choice": {
+    "otherwise": {
+      "steps": [
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "to": {
+            "uri": "amqp:queue:",
+          },
+        },
+        {
+          "log": {
+            "id": "log-2",
+            "message": "We got a \${body}",
+          },
+        },
+      ],
+    },
+    "when": [
+      {
+        "expression": "simple("\${body} contains 'test'")",
+        "id": "when-replaced",
+        "steps": [
+          {
+            "log": {
+              "message": "Test message",
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity pasteStep should replace the step 1`] = `
+[
+  {
+    "set-header": {
+      "name": "myChoice",
+      "simple": "\${random(2)}",
+    },
+  },
+  {
+    "choice": {
+      "otherwise": {
+        "steps": [
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "to": {
+              "uri": "amqp:queue:",
+            },
+          },
+          {
+            "log": {
+              "id": "log-2",
+              "message": "We got a \${body}",
+            },
+          },
+        ],
+      },
+      "when": [
+        {
+          "simple": "\${header.myChoice} == 1",
+          "steps": [
+            {
+              "log": {
+                "id": "log-1",
+                "message": "We got a one.",
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    "log": {
+      "id": "test-id",
+      "message": "Test message",
+    },
+  },
+]
+`;
