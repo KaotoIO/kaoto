@@ -12,6 +12,7 @@ import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 import { ItemCopyStep } from './ItemCopyStep';
 import { ItemPasteStep } from './ItemPasteStep';
+import { ItemMoveStep } from './ItemMoveStep';
 
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
@@ -51,6 +52,36 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
 
   if (nodeInteractions.canHavePreviousStep || nodeInteractions.canHaveNextStep) {
     items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
+  }
+
+  if (nodeInteractions.canMoveNextStep) {
+    items.push(
+      <ItemMoveStep
+        key="context-menu-item-move-next"
+        data-testid="context-menu-item-move-next"
+        mode={AddStepMode.AppendStep}
+        vizNode={vizNode}
+      >
+        <ArrowDownIcon /> Move next
+      </ItemMoveStep>,
+    );
+  }
+
+  if (nodeInteractions.canMoveBeforeStep) {
+    items.push(
+      <ItemMoveStep
+        key="context-menu-item-move-before"
+        data-testid="context-menu-item-move-before"
+        mode={AddStepMode.PrependStep}
+        vizNode={vizNode}
+      >
+        <ArrowUpIcon /> Move Before
+      </ItemMoveStep>,
+    );
+  }
+
+  if (nodeInteractions.canMoveNextStep || nodeInteractions.canMoveBeforeStep) {
+    items.push(<ContextMenuSeparator key="context-menu-separator-move" />);
   }
 
   if (nodeInteractions.canHaveChildren) {

@@ -257,6 +257,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canRemoveFlow = data.path === this.getRootPath();
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
+    const pathArray = (data.path ?? '').split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+    const nextStepindex = Number(penultimate) + 1;
+    const previousStepindex = Number(penultimate) - 1;
+    // If the last segment is a string and the penultimate is a number, it means the target is member of an array
+    const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+    const canMoveNextStep =
+      isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), nextStepindex.toString()]));
+    const canMoveBeforeStep =
+      isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), previousStepindex.toString()]));
+
     return {
       canHavePreviousStep,
       canHaveNextStep: canHavePreviousStep,
@@ -266,6 +278,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       canRemoveStep,
       canRemoveFlow,
       canBeDisabled,
+      canMoveNextStep,
+      canMoveBeforeStep,
     };
   }
 
