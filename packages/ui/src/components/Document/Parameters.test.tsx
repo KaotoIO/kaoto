@@ -136,6 +136,10 @@ describe('Parameters', () => {
     await waitFor(() => {
       const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
       expect(text.value).toEqual('ShipOrder.xsd');
+      const xmlSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-xml');
+      expect(xmlSchemaRadio.checked).toBeTruthy();
+      const jsonSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-json');
+      expect(jsonSchemaRadio.checked).toBeFalsy();
     });
 
     const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
@@ -185,10 +189,6 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(attachButton);
     });
-    const jsonSchemaRadio = await screen.findByTestId('attach-schema-modal-option-json');
-    act(() => {
-      fireEvent.click(jsonSchemaRadio);
-    });
     const importButton = screen.getByTestId('attach-schema-modal-btn-file');
     act(() => {
       fireEvent.click(importButton);
@@ -203,6 +203,10 @@ describe('Parameters', () => {
     await waitFor(() => {
       const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
       expect(text.value).toEqual('ShipOrder.json');
+      const jsonSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-json');
+      expect(jsonSchemaRadio.checked).toBeTruthy();
+      const xmlSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-xml');
+      expect(xmlSchemaRadio.checked).toBeFalsy();
     });
 
     const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
