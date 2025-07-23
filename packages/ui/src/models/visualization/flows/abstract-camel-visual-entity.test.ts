@@ -443,6 +443,57 @@ describe('AbstractCamelVisualEntity', () => {
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
       expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
     });
+
+    it('should replace the step', () => {
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'log',
+          type: SourceSchemaType.Route,
+          definition: {
+            id: 'test-id',
+            message: 'Test message',
+          },
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          path: 'route.from.steps.2.to',
+          processorName: 'to',
+          componentName: 'direct',
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps).toMatchSnapshot();
+    });
+
+    it('should repace the special child step belonging to an array like when or doCatch', () => {
+      abstractVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'when',
+          type: SourceSchemaType.Route,
+          definition: {
+            expression: 'simple("${body} contains \'test\'")',
+            id: 'when-replaced',
+            steps: [
+              {
+                log: {
+                  message: 'Test message',
+                },
+              },
+            ],
+          },
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          path: 'route.from.steps.1.choice.when.0',
+          icon: '/src/assets/eip/when.png',
+          processorName: 'when',
+          isGroup: true,
+        },
+      });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
   });
 
   describe('getCopiedContent', () => {

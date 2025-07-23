@@ -6,7 +6,6 @@ import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 export interface IClipboardCopyObject {
   type: SourceSchemaType;
   name: string;
-  // can the type be more specific like: ProcessorDefinition[keyof ProcessorDefinition]
   definition: object;
 }
 
