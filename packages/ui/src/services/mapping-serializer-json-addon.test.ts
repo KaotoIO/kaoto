@@ -71,7 +71,7 @@ describe('mappingSerializerJsonAddon', () => {
       const xsltDocument = MappingSerializerService.createNew();
       const stylesheet = xsltDocument.children[0];
       const paramName = 'testParam';
-      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.PARAM, paramName);
+      const doc = new JsonSchemaDocument(DocumentType.PARAM, paramName);
       MappingSerializerJsonAddon.populateJsonToXmlVariable(doc, stylesheet, paramName);
 
       expect(stylesheet.children.length).toBe(2);
@@ -100,7 +100,7 @@ describe('mappingSerializerJsonAddon', () => {
     it('should populate a FieldItem', () => {
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
       const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
-      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+      const doc = new JsonSchemaDocument(DocumentType.TARGET_BODY, 'Body');
 
       let mapField = new JsonSchemaField(doc, '', Types.Container);
       let fieldItem = new FieldItem(mappings, mapField);
@@ -162,7 +162,7 @@ describe('mappingSerializerJsonAddon', () => {
 
   describe('getOrCreateJsonField()', () => {
     it('should create a JsonSchemaField', () => {
-      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+      const doc = new JsonSchemaDocument(DocumentType.TARGET_BODY, 'Body');
       const mapElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'map');
       const mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
       expect(mapField instanceof JsonSchemaField).toBeTruthy();
@@ -212,7 +212,7 @@ describe('mappingSerializerJsonAddon', () => {
     });
 
     it('should not create a field if not lossless element', () => {
-      const doc = new JsonSchemaDocument({ path: '#' }, DocumentType.TARGET_BODY, 'Body');
+      const doc = new JsonSchemaDocument(DocumentType.TARGET_BODY, 'Body');
       const testElement = document.createElementNS('test', 'Test');
       const testField = MappingSerializerJsonAddon.getOrCreateJsonField(testElement, doc);
       expect(testField).toBeNull();

@@ -47,7 +47,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
       ['node-target-fj-map', 'node-target-fj-string-OrderId'],
       "$Account-x/xf:map/xf:string[@key='AccountId'], $OrderSequence",
     );
-    cy.get('[data-testid^="mapping-link-"]').should('be.visible').click();
+    cy.get('[data-testid^="mapping-link-"]').should('be.visible').first().click();
 
     cy.engageMapping(
       ['node-source-fj-map', 'node-source-fj-string-Name'],

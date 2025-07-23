@@ -147,7 +147,7 @@ export class BaseField implements IField {
   namedTypeFragmentRefs: string[] = [];
   predicates: Predicate[] = [];
 
-  adopt(parent: IField) {
+  adopt(parent: IField): BaseField {
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
