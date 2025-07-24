@@ -12,14 +12,18 @@ describe('Tests for import of XML route', () => {
     const yamlRoute = [
       'id: camel-route',
       'from:',
-      'uri: timer:test',
+      'uri: timer',
+      'parameters:',
+      'timerName: test',
       'steps:',
       '- setHeader:',
       'name: test',
       '- marshal:',
       'id: marshal-1234',
       '- to:',
-      'uri: log:test',
+      'uri: log',
+      'parameters:',
+      'loggerName: test',
     ];
     cy.openSourceCode();
     cy.checkMultiLineContent(yamlRoute);
