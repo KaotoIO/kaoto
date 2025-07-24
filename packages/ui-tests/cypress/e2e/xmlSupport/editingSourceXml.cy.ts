@@ -15,17 +15,24 @@ describe('Tests for edit of XML document in code editor', () => {
     const yamlRoute = [
       'id: camel-route',
       'from:',
-      'uri: timer:test',
+      'uri: timer',
+      'parameters:',
+      'timerName: test',
       'steps:',
       '- setHeader:',
       'name: test',
       '- to:',
       'description: insert-field-XML',
-      'uri: log:InfoLogger?level=DEBUG',
+      'uri: log',
+      'parameters:',
+      'level: DEBUG',
+      'loggerName: InfoLogger',
       '- marshal:',
       'id: marshal-1234',
       '- to:',
-      'uri: log:test',
+      'uri: log',
+      'parameters:',
+      'loggerName: test',
     ];
     cy.openSourceCode();
     cy.checkMultiLineContent(yamlRoute);

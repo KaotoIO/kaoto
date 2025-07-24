@@ -516,4 +516,22 @@ export class CamelComponentSchemaService {
 
     return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
   }
+
+  static getComponentDefinitionFromUri(uri: string): { uri: string; parameters?: ParsedParameters } {
+    const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
+    if (!componentName) return { uri: uri };
+
+    const component = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    if (!component) {
+      return { uri: uri };
+    }
+
+    const [path, query] = uri.split('?');
+    const pathParams = CamelUriHelper.getParametersFromPathString(component?.component.syntax, path, {
+      requiredParameters: component?.propertiesSchema.required as [],
+    });
+
+    const queryParams = CamelUriHelper.getParametersFromQueryString(query);
+    return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
+  }
 }

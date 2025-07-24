@@ -18,6 +18,7 @@ import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel
 import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
 import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
+import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 
 export type ElementTransformer = (element: Element) => unknown;
 
@@ -70,7 +71,7 @@ export class StepParser {
           break;
         case 'attribute':
           if (element.hasAttribute(name)) {
-            processor[name] = element.getAttribute(name);
+            processor = { ...processor, ...this.parseAttributeType(name, element) };
           }
           break;
         case 'expression':
@@ -110,6 +111,18 @@ export class StepParser {
     }
 
     return undefined;
+  }
+
+  private static parseAttributeType(name: string, element: Element): { [key: string]: unknown } {
+    if (name === 'uri') {
+      const uriString = element.getAttribute('uri');
+      if (!uriString) return {};
+      return CamelComponentSchemaService.getComponentDefinitionFromUri(uriString) ?? {};
+    }
+    if (element.hasAttribute(name)) {
+      return { [name]: element.getAttribute(name) };
+    }
+    return {};
   }
 
   private static findSingleElement(
