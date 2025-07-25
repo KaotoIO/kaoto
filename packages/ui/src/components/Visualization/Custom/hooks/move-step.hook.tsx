@@ -9,7 +9,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
     if (!vizNode || !entitiesContext) return;
 
     const currentNodeContent = vizNode.getCopiedContent();
-    const targetNode = mode === AddStepMode.AppendStep ? vizNode.getNextNode() : vizNode.getPreviousNode();
+    const targetNode = mode === AddStepMode.AppendStep ? vizNode.getNextNodeToMove() : vizNode.getPreviousNodeToMove();
 
     const targetNodeContent = targetNode?.getCopiedContent();
 

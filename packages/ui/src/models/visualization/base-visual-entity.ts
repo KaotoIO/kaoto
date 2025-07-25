@@ -137,9 +137,13 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getPreviousNode(): IVisualizationNode | undefined;
 
+  getPreviousNodeToMove(): IVisualizationNode | undefined;
+
   setPreviousNode(previousNode?: IVisualizationNode): void;
 
   getNextNode(): IVisualizationNode | undefined;
+
+  getNextNodeToMove(): IVisualizationNode | undefined;
 
   setNextNode(node?: IVisualizationNode): void;
 

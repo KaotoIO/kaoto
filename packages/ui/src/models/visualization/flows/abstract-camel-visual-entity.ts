@@ -262,12 +262,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const penultimate = pathArray[pathArray.length - 2];
     const nextStepindex = Number(penultimate) + 1;
     const previousStepindex = Number(penultimate) - 1;
-    // If the last segment is a string and the penultimate is a number, it means the target is member of an array
+    // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
     const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+    // If the last segment is a number and the penultimate is a string, it means the target is member of an special processor
+    const isSpecialArray = Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate));
     const canMoveNextStep =
-      isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), nextStepindex.toString()]));
+      (isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), nextStepindex.toString()]))) ||
+      (isSpecialArray &&
+        isDefined(getValue(this.entityDef, [...pathArray.slice(0, -1), (Number(last) + 1).toString()])));
     const canMoveBeforeStep =
-      isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), previousStepindex.toString()]));
+      (isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), previousStepindex.toString()]))) ||
+      (isSpecialArray &&
+        isDefined(getValue(this.entityDef, [...pathArray.slice(0, -1), (Number(last) - 1).toString()])));
 
     return {
       canHavePreviousStep,
@@ -369,6 +375,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
       const stepsArray: ProcessorDefinition[] = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
+
+      return;
+    }
+
+    if (Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate))) {
+      const stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
+
+      /** If we're in Replace mode, we need to delete the existing step */
+      const deleteCount = mode === AddStepMode.ReplaceStep ? 1 : 0;
+
+      /** Add the dragged node before the drop target */
+      stepsArray.splice(Number(last), deleteCount, defaultValue);
 
       return;
     }

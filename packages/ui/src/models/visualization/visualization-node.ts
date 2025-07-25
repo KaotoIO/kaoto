@@ -111,12 +111,38 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.previousNode;
   }
 
+  getPreviousNodeToMove(): IVisualizationNode | undefined {
+    if (this.previousNode) return this.previousNode;
+
+    const imidiatePreviousNodePath = this.data.path
+      ?.split('.')
+      .slice(0, -1)
+      .concat((Number(this.data.path?.split('.').slice(-1)[0]) - 1).toString())
+      .join('.');
+    return this.getParentNode()
+      ?.getChildren()
+      ?.find((child) => child.data.path === imidiatePreviousNodePath);
+  }
+
   setPreviousNode(previousNode?: IVisualizationNode) {
     this.previousNode = previousNode;
   }
 
   getNextNode(): IVisualizationNode | undefined {
     return this.nextNode;
+  }
+
+  getNextNodeToMove(): IVisualizationNode | undefined {
+    if (this.nextNode) return this.nextNode;
+
+    const imidiateNextNodePath = this.data.path
+      ?.split('.')
+      .slice(0, -1)
+      .concat((Number(this.data.path?.split('.').slice(-1)[0]) + 1).toString())
+      .join('.');
+    return this.getParentNode()
+      ?.getChildren()
+      ?.find((child) => child.data.path === imidiateNextNodePath);
   }
 
   setNextNode(node?: IVisualizationNode) {
