@@ -36,6 +36,23 @@ export class CamelComponentSchemaService {
   ];
   static DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
   static readonly SPECIAL_CHILD_PROCESSORS = ['onFallback', 'when', 'otherwise', 'doCatch', 'doFinally'];
+  static readonly PROCESSOR_STRING_DEFINITIONS: Record<string, string> = {
+    to: 'uri',
+    toD: 'uri',
+    log: 'message',
+    convertBodyTo: 'type',
+    setExchangePattern: 'pattern',
+    bean: 'ref',
+    customLoadlBadalancer: ' ref',
+    routingSlip: 'expression',
+    routeBuilder: 'ref',
+    removeVariable: 'name',
+    removeProperty: 'name',
+    removeProperties: 'pattern',
+    removeHeader: 'name',
+    removeHeaders: 'pattern',
+    kamelet: 'name',
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
@@ -426,19 +443,10 @@ export class CamelComponentSchemaService {
   private static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
     /** Clone the original definition since we want to preserve the original one, until the form is changed */
     let updatedDefinition = cloneDeep(definition);
-    switch (camelElementLookup.processorName) {
-      case 'to':
-      case 'toD':
-        if (typeof definition === 'string') {
-          updatedDefinition = { uri: definition };
-        }
-        break;
 
-      case 'log':
-        if (typeof definition === 'string') {
-          updatedDefinition = { message: definition };
-        }
-        break;
+    const prop = this.PROCESSOR_STRING_DEFINITIONS[camelElementLookup.processorName];
+    if (prop && typeof definition === 'string') {
+      updatedDefinition = { [prop]: definition };
     }
 
     if (camelElementLookup.componentName !== undefined) {
