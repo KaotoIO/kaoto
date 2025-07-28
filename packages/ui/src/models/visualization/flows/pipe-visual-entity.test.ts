@@ -164,14 +164,14 @@ describe('Pipe', () => {
 
   describe('toVizNode', () => {
     it('should return the viz node and set the initial path to `#`', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
     });
 
     it('should use the path as the node id', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = sourceNode.getNextNode()!;
       const sinkNode = stepNode.getNextNode()!;
@@ -182,19 +182,19 @@ describe('Pipe', () => {
     });
 
     it('should use the uri as the node label', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
     });
 
     it('should set the title to `Pipe`', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeTitle()).toEqual('Pipe');
     });
 
     it('should get the titles from children nodes', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = vizNode.getChildren()![1];
@@ -208,7 +208,7 @@ describe('Pipe', () => {
     it('should set the node labels when the uri is not available', () => {
       pipeVisualEntity = new PipeVisualEntity({});
 
-      const sourceNode = pipeVisualEntity.toVizNode().getChildren()![0];
+      const sourceNode = pipeVisualEntity.toVizNode().nodes[0].getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
       expect(sourceNode.getNodeLabel()).toEqual('source');
@@ -216,7 +216,7 @@ describe('Pipe', () => {
     });
 
     it('should populate the viz node chain with the steps', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
@@ -243,7 +243,7 @@ describe('Pipe', () => {
     });
 
     it('should include all steps as children of the Pipe group', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+      const vizNode = pipeVisualEntity.toVizNode().nodes[0];
 
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = vizNode.getChildren()![1];

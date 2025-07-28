@@ -4,9 +4,9 @@ import { NodeIconResolver, NodeIconType, isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -86,15 +86,15 @@ export class CamelOnExceptionVisualEntity
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
+  toVizNode(): VizNodesWithEdges {
     const onExceptionGroupNode = NodeMapperService.getVizNode(
       CamelOnExceptionVisualEntity.ROOT_PATH,
       { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onExceptionDef,
     );
-    onExceptionGroupNode.data.entity = this;
-    onExceptionGroupNode.data.isGroup = true;
-    onExceptionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    onExceptionGroupNode.nodes[0].data.entity = this;
+    onExceptionGroupNode.nodes[0].data.isGroup = true;
+    onExceptionGroupNode.nodes[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return onExceptionGroupNode;
   }

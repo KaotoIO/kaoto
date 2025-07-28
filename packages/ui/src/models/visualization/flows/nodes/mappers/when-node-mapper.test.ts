@@ -43,7 +43,7 @@ describe('WhenNodeMapper', () => {
       path,
       { processorName: 'when' as keyof ProcessorDefinition },
       routeDefinition,
-    );
+    ).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(1);
   });

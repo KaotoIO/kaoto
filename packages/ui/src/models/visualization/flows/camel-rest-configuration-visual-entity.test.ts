@@ -186,7 +186,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
     it('should return visualization node', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = entity.toVizNode().nodes[0];
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
@@ -204,7 +204,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
     it('should return hardcoded schema title', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = entity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
     });

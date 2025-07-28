@@ -53,7 +53,7 @@ describe('ItemDeleteGroup', () => {
     const camelResource = new CamelRouteResource();
     const removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
     const entityId = camelResource.addNewEntity(EntityType.Route);
-    vizNode = camelResource.getVisualEntities()[0].toVizNode();
+    vizNode = camelResource.getVisualEntities()[0].toVizNode().nodes[0];
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
 
     const { Provider } = TestProvidersWrapper({ camelResource });

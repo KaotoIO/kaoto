@@ -356,7 +356,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -421,7 +421,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -487,7 +487,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -588,7 +588,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -649,7 +649,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -711,7 +711,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = entity.toVizNode().nodes[0];
       const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',

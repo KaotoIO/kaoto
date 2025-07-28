@@ -249,7 +249,7 @@ describe('VisualizationNode', () => {
     it('should delegate to the BaseVisualCamelEntity to remove the underlying child', () => {
       const camelRouteVisualEntityStub = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
 
-      node = camelRouteVisualEntityStub.toVizNode();
+      node = camelRouteVisualEntityStub.toVizNode().nodes[0];
       const fromNode = node.getChildren()?.[0];
 
       /** Get set-header node */
@@ -259,13 +259,13 @@ describe('VisualizationNode', () => {
       setHeaderNode!.removeChild();
 
       /** Refresh the Viz Node */
-      node = camelRouteVisualEntityStub.toVizNode();
+      node = camelRouteVisualEntityStub.toVizNode().nodes[0];
 
       expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
       expect(node.getChildren()?.[1].getNodeLabel()).toEqual('choice');
       expect(node.getChildren()?.[2].getNodeLabel()).toEqual('direct');
       expect(node.getChildren()).toHaveLength(3);
-      expect(fromNode!.getChildren()).toHaveLength(0);
+      expect(fromNode!.getChildren()).toBeUndefined();
     });
   });
 
@@ -354,7 +354,7 @@ describe('VisualizationNode', () => {
         },
       };
 
-      node = camelRouteVisualEntityStub.toVizNode();
+      node = camelRouteVisualEntityStub.toVizNode().nodes[0];
       const fromNode = node.getChildren()?.[0];
 
       /** Get set-header node */
@@ -364,7 +364,7 @@ describe('VisualizationNode', () => {
       setHeaderNode!.pasteBaseEntityStep(clipboardContent, AddStepMode.AppendStep);
 
       /** Refresh the Viz Node */
-      node = camelRouteVisualEntityStub.toVizNode();
+      node = camelRouteVisualEntityStub.toVizNode().nodes[0];
 
       expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
       expect(node.getChildren()?.[1].getNodeLabel()).toEqual('set-header');
@@ -372,7 +372,7 @@ describe('VisualizationNode', () => {
       expect(node.getChildren()?.[3].getNodeLabel()).toEqual('choice');
       expect(node.getChildren()?.[4].getNodeLabel()).toEqual('direct');
       expect(node.getChildren()).toHaveLength(5);
-      expect(fromNode!.getChildren()).toHaveLength(0);
+      expect(fromNode!.getChildren()).toBeUndefined();
     });
   });
 });

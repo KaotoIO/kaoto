@@ -17,9 +17,9 @@ describe('FlowService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', {});
+      const vizNodeWithEdges = { nodes: [createVisualizationNode('node', {})], edges: [] };
 
-      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNodeWithEdges);
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -32,7 +32,7 @@ describe('FlowService', () => {
       groupVizNode.addChild(child1VizNode);
       groupVizNode.addChild(child2VizNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram('test', groupVizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', { nodes: [groupVizNode], edges: [] });
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -43,7 +43,7 @@ describe('FlowService', () => {
       const childNode = createVisualizationNode('child', {});
       vizNode.addChild(childNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', { nodes: [vizNode], edges: [] });
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();
@@ -78,7 +78,7 @@ describe('FlowService', () => {
       const logNode = createVisualizationNode('log', {});
       processNode.addChild(logNode);
 
-      const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
+      const { nodes, edges } = FlowService.getFlowDiagram('test', { nodes: [vizNode], edges: [] });
 
       expect(nodes).toMatchSnapshot();
       expect(edges).toMatchSnapshot();

@@ -18,6 +18,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
         },
         "children": undefined,
         "data": {},
+        "endNode": [
+          [Circular],
+        ],
         "id": "child1",
         "lastUpdate": 0,
         "nextNode": undefined,
@@ -47,6 +50,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
               },
               "children": undefined,
               "data": {},
+              "endNode": [
+                [Circular],
+              ],
               "id": "child2",
               "lastUpdate": 0,
               "nextNode": undefined,
@@ -57,6 +63,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
           "data": {
             "isGroup": true,
           },
+          "endNode": [
+            [Circular],
+          ],
           "id": "group",
           "lastUpdate": 0,
           "nextNode": undefined,
@@ -89,6 +98,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
         },
         "children": undefined,
         "data": {},
+        "endNode": [
+          [Circular],
+        ],
         "id": "child2",
         "lastUpdate": 0,
         "nextNode": undefined,
@@ -117,6 +129,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
               },
               "children": undefined,
               "data": {},
+              "endNode": [
+                [Circular],
+              ],
               "id": "child1",
               "lastUpdate": 0,
               "nextNode": undefined,
@@ -128,6 +143,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
           "data": {
             "isGroup": true,
           },
+          "endNode": [
+            [Circular],
+          ],
           "id": "group",
           "lastUpdate": 0,
           "nextNode": undefined,
@@ -175,6 +193,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
             },
             "children": undefined,
             "data": {},
+            "endNode": [
+              [Circular],
+            ],
             "id": "child1",
             "lastUpdate": 0,
             "nextNode": undefined,
@@ -194,6 +215,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
             },
             "children": undefined,
             "data": {},
+            "endNode": [
+              [Circular],
+            ],
             "id": "child2",
             "lastUpdate": 0,
             "nextNode": undefined,
@@ -204,6 +228,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a group wi
         "data": {
           "isGroup": true,
         },
+        "endNode": [
+          [Circular],
+        ],
         "id": "group",
         "lastUpdate": 0,
         "nextNode": undefined,
@@ -243,6 +270,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
         },
         "children": undefined,
         "data": {},
+        "endNode": [
+          [Circular],
+        ],
         "id": "node",
         "lastUpdate": 0,
         "nextNode": VisualizationNode {
@@ -258,6 +288,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
           },
           "children": undefined,
           "data": {},
+          "endNode": [
+            [Circular],
+          ],
           "id": "set-header",
           "lastUpdate": 0,
           "nextNode": VisualizationNode {
@@ -297,6 +330,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
                     },
                     "children": undefined,
                     "data": {},
+                    "endNode": [
+                      [Circular],
+                    ],
                     "id": "when-leaf",
                     "lastUpdate": 0,
                     "nextNode": undefined,
@@ -305,6 +341,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
                   },
                 ],
                 "data": {},
+                "endNode": [
+                  [Circular],
+                ],
                 "id": "when",
                 "lastUpdate": 0,
                 "nextNode": undefined,
@@ -348,6 +387,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
                         },
                         "children": undefined,
                         "data": {},
+                        "endNode": [
+                          [Circular],
+                        ],
                         "id": "log",
                         "lastUpdate": 0,
                         "nextNode": undefined,
@@ -356,6 +398,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
                       },
                     ],
                     "data": {},
+                    "endNode": [
+                      [Circular],
+                    ],
                     "id": "process",
                     "lastUpdate": 0,
                     "nextNode": undefined,
@@ -364,6 +409,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
                   },
                 ],
                 "data": {},
+                "endNode": [
+                  [Circular],
+                ],
                 "id": "otherwise",
                 "lastUpdate": 0,
                 "nextNode": undefined,
@@ -372,6 +420,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
               },
             ],
             "data": {},
+            "endNode": [
+              [Circular],
+            ],
             "id": "choice",
             "lastUpdate": 0,
             "nextNode": VisualizationNode {
@@ -387,6 +438,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
               },
               "children": undefined,
               "data": {},
+              "endNode": [
+                [Circular],
+              ],
               "id": "direct",
               "lastUpdate": 0,
               "nextNode": undefined,
@@ -413,17 +467,7 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a multiple
 ]
 `;
 
-exports[`FlowService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 2`] = `
-[
-  {
-    "edgeStyle": "solid",
-    "id": "test|node >>> set-header",
-    "source": "test|node",
-    "target": "test|set-header",
-    "type": "edge",
-  },
-]
-`;
+exports[`FlowService getFlowDiagram should return nodes and edges for a multiple nodes VisualizationNode 2`] = `[]`;
 
 exports[`FlowService getFlowDiagram should return nodes and edges for a simple VisualizationNode 1`] = `
 [
@@ -443,6 +487,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a simple V
         },
         "children": undefined,
         "data": {},
+        "endNode": [
+          [Circular],
+        ],
         "id": "node",
         "lastUpdate": 0,
         "nextNode": undefined,
@@ -492,6 +539,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a two-node
             },
             "children": undefined,
             "data": {},
+            "endNode": [
+              [Circular],
+            ],
             "id": "child",
             "lastUpdate": 0,
             "nextNode": undefined,
@@ -500,6 +550,9 @@ exports[`FlowService getFlowDiagram should return nodes and edges for a two-node
           },
         ],
         "data": {},
+        "endNode": [
+          [Circular],
+        ],
         "id": "node",
         "lastUpdate": 0,
         "nextNode": undefined,

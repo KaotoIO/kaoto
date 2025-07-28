@@ -197,14 +197,14 @@ describe('Camel Route', () => {
 
   describe('toVizNode', () => {
     it(`should return the group viz node and set the initial path to '${CamelRouteVisualEntity.ROOT_PATH}'`, () => {
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(CamelRouteVisualEntity.ROOT_PATH);
     });
 
     it('should return the group first child and set the initial path to `route.from`', () => {
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
       const fromNode = vizNode.getChildren()?.[0];
 
       expect(fromNode).toBeDefined();
@@ -212,27 +212,27 @@ describe('Camel Route', () => {
     });
 
     it('should use the route ID as the group label', () => {
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeLabel()).toEqual('route-8888');
     });
 
     it('should use the route description as the group label if available', () => {
       camelEntity.entityDef.route.description = 'This is a route description';
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeLabel(NodeLabelType.Description)).toEqual('This is a route description');
     });
 
     it('should use the default group label if the id is not available', () => {
       camelEntity.entityDef.route.id = undefined;
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeLabel()).toEqual('route-8888');
     });
 
     it('should use the uri as the node label', () => {
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
       const fromNode = vizNode.getChildren()?.[0];
 
       expect(fromNode?.getNodeLabel()).toEqual('timer');
@@ -240,7 +240,7 @@ describe('Camel Route', () => {
 
     it('should set a default label if the uri is not available', () => {
       camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
       const fromNode = vizNode.getChildren()?.[0];
 
       expect(fromNode?.getNodeLabel()).toEqual('from: Unknown');
@@ -252,7 +252,7 @@ describe('Camel Route', () => {
           id: 'route-1234',
           from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
         },
-      }).toVizNode();
+      }).toVizNode().nodes[0];
       const fromNode = vizNode.getChildren()![0];
 
       /** Given a structure of
@@ -281,7 +281,7 @@ describe('Camel Route', () => {
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
       expect(fromNode.getNextNode()).toBeDefined();
-      expect(fromNode.getChildren()).toHaveLength(0);
+      expect(fromNode.getChildren()).toBeUndefined();
 
       /** choice */
       const choiceNode = vizNode.getChildren()?.[1] as IVisualizationNode;
@@ -299,7 +299,7 @@ describe('Camel Route', () => {
     });
 
     it('should populate the viz node chain with the steps', () => {
-      const vizNode = camelEntity.toVizNode();
+      const vizNode = camelEntity.toVizNode().nodes[0];
       const fromNode = vizNode.getChildren()![0];
 
       /** Given a structure of
@@ -330,7 +330,7 @@ describe('Camel Route', () => {
       /** Since this is the first child node, there's no previous step */
       expect(fromNode.getPreviousNode()).toBeUndefined();
       expect(fromNode.getNextNode()).toBeDefined();
-      expect(fromNode.getChildren()).toHaveLength(0);
+      expect(fromNode.getChildren()).toBeUndefined();
 
       /** setHeader */
       const setHeaderNode = vizNode.getChildren()?.[1] as IVisualizationNode;

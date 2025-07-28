@@ -6,10 +6,9 @@ import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
@@ -145,15 +144,15 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
+  toVizNode(): VizNodesWithEdges {
     const restConfigurationGroupNode = NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: 'restConfiguration' as keyof ProcessorDefinition },
       this.restConfigurationDef,
     );
-    restConfigurationGroupNode.data.entity = this;
-    restConfigurationGroupNode.data.isGroup = true;
-    restConfigurationGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    restConfigurationGroupNode.nodes[0].data.entity = this;
+    restConfigurationGroupNode.nodes[0].data.isGroup = true;
+    restConfigurationGroupNode.nodes[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return restConfigurationGroupNode;
   }

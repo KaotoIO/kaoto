@@ -39,19 +39,19 @@ describe('CircuitBreakerNodeMapper', () => {
   });
 
   it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(2);
   });
 
   it('should return step nodes as children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');
   });
 
   it('should return an `onFallback` node if defined', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.0.circuitBreaker.onFallback');
   });
@@ -59,7 +59,7 @@ describe('CircuitBreakerNodeMapper', () => {
   it('should not return an `onFallback` node if not defined', () => {
     routeDefinition.from.steps[0].circuitBreaker!.onFallback = undefined;
 
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(1);
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');

@@ -5,8 +5,6 @@ import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
   VizNodesWithEdges,
@@ -109,7 +107,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     restGroupNode[0].data.isGroup = true;
     restGroupNode[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
-    return restGroupNode;
+    return { nodes: restGroupNode, edges: [] };
   }
 
   toJSON(): { rest: Rest } {

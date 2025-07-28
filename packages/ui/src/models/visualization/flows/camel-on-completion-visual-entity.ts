@@ -4,9 +4,9 @@ import { NodeIconResolver, NodeIconType, isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -86,15 +86,15 @@ export class CamelOnCompletionVisualEntity
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
+  toVizNode(): VizNodesWithEdges {
     const onCompletionGroupNode = NodeMapperService.getVizNode(
       CamelOnCompletionVisualEntity.ROOT_PATH,
       { processorName: CamelOnCompletionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onCompletionDef,
     );
-    onCompletionGroupNode.data.entity = this;
-    onCompletionGroupNode.data.isGroup = true;
-    onCompletionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    onCompletionGroupNode.nodes[0].data.entity = this;
+    onCompletionGroupNode.nodes[0].data.isGroup = true;
+    onCompletionGroupNode.nodes[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return onCompletionGroupNode;
   }

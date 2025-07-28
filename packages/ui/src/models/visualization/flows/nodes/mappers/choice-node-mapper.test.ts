@@ -42,20 +42,20 @@ describe('ChoiceNodeMapper', () => {
   });
 
   it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(3);
   });
 
   it('should return `when` nodes as children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.choice.when.0');
     expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.0.choice.when.1');
   });
 
   it('should return an `otherwise` node if defined', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()?.[2].data.path).toBe('from.steps.0.choice.otherwise');
   });
@@ -63,7 +63,7 @@ describe('ChoiceNodeMapper', () => {
   it('should not return an `otherwise` node if not defined', () => {
     routeDefinition.from.steps[0].choice!.otherwise = undefined;
 
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(2);
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.choice.when.0');

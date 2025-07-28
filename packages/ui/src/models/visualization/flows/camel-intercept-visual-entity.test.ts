@@ -86,7 +86,7 @@ describe('CamelInterceptVisualEntity', () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
-    const vizNode = interceptVisualEntity.toVizNode();
+    const vizNode = interceptVisualEntity.toVizNode().nodes[0];
 
     expect(vizNode.data.processorName).toBe(CamelInterceptVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptVisualEntity);

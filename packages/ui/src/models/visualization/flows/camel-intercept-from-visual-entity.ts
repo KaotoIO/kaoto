@@ -4,9 +4,9 @@ import { NodeIconResolver, NodeIconType, isDefined } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -101,15 +101,15 @@ export class CamelInterceptFromVisualEntity
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
+  toVizNode(): VizNodesWithEdges {
     const interceptFromGroupNode = NodeMapperService.getVizNode(
       CamelInterceptFromVisualEntity.ROOT_PATH,
       { processorName: CamelInterceptFromVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.interceptFromDef,
     );
-    interceptFromGroupNode.data.entity = this;
-    interceptFromGroupNode.data.isGroup = true;
-    interceptFromGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    interceptFromGroupNode.nodes[0].data.entity = this;
+    interceptFromGroupNode.nodes[0].data.isGroup = true;
+    interceptFromGroupNode.nodes[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return interceptFromGroupNode;
   }

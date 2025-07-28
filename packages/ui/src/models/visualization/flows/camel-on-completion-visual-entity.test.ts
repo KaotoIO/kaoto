@@ -89,7 +89,7 @@ describe('CamelOnCompletionVisualEntity', () => {
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    const vizNode = onCompletionVisualEntity.toVizNode();
+    const vizNode = onCompletionVisualEntity.toVizNode().nodes[0];
 
     expect(vizNode.data.processorName).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(onCompletionVisualEntity);

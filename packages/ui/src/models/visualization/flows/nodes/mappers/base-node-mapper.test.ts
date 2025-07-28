@@ -24,7 +24,7 @@ describe('BaseNodeMapper', () => {
 
   describe('getVizNodeFromProcessor', () => {
     it('should return a VisualizationNode', () => {
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition).nodes[0];
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data).toMatchObject({
@@ -46,7 +46,7 @@ describe('BaseNodeMapper', () => {
         },
       };
 
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition).nodes[0];
       expect(vizNode.getChildren()).toHaveLength(2);
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.log');
       expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.1.to');
@@ -70,7 +70,7 @@ describe('BaseNodeMapper', () => {
         },
       };
 
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition).nodes[0];
       expect(vizNode.getChildren()).toHaveLength(1);
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.doTry');
 

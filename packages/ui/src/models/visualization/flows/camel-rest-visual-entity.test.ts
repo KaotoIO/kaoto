@@ -181,7 +181,7 @@ describe('CamelRestVisualEntity', () => {
     it('should return visualization node', () => {
       const entity = new CamelRestVisualEntity(restDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = entity.toVizNode().nodes[0];
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
