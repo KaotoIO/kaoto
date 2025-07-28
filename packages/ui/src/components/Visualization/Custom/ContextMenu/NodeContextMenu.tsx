@@ -54,35 +54,27 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
     items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
   }
 
-  if (nodeInteractions.canMoveNextStep) {
-    items.push(
-      <ItemMoveStep
-        key="context-menu-item-move-next"
-        data-testid="context-menu-item-move-next"
-        mode={AddStepMode.AppendStep}
-        vizNode={vizNode}
-      >
-        <ArrowDownIcon /> Move next
-      </ItemMoveStep>,
-    );
-  }
+  items.push(
+    <ItemMoveStep
+      key="context-menu-item-move-next"
+      data-testid="context-menu-item-move-next"
+      mode={AddStepMode.AppendStep}
+      vizNode={vizNode}
+    >
+      <ArrowDownIcon /> Move Next
+    </ItemMoveStep>,
+  );
 
-  if (nodeInteractions.canMoveBeforeStep) {
-    items.push(
-      <ItemMoveStep
-        key="context-menu-item-move-before"
-        data-testid="context-menu-item-move-before"
-        mode={AddStepMode.PrependStep}
-        vizNode={vizNode}
-      >
-        <ArrowUpIcon /> Move Before
-      </ItemMoveStep>,
-    );
-  }
-
-  if (nodeInteractions.canMoveNextStep || nodeInteractions.canMoveBeforeStep) {
-    items.push(<ContextMenuSeparator key="context-menu-separator-move" />);
-  }
+  items.push(
+    <ItemMoveStep
+      key="context-menu-item-move-before"
+      data-testid="context-menu-item-move-before"
+      mode={AddStepMode.PrependStep}
+      vizNode={vizNode}
+    >
+      <ArrowUpIcon /> Move Before
+    </ItemMoveStep>,
+  );
 
   if (nodeInteractions.canHaveChildren) {
     items.push(

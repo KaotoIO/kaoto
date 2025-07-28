@@ -1,9 +1,17 @@
 import { useCallback, useContext, useMemo } from 'react';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { isDefined } from '@kaoto/forms';
 
 export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.AppendStep | AddStepMode.PrependStep) => {
   const entitiesContext = useContext(EntitiesContext);
+  let canBeMoved = true;
+
+  if (mode === AddStepMode.AppendStep) {
+    canBeMoved = isDefined(vizNode.getNextNodeToMove());
+  } else {
+    canBeMoved = isDefined(vizNode.getPreviousNodeToMove());
+  }
 
   const onMoveStep = useCallback(async () => {
     if (!vizNode || !entitiesContext) return;
@@ -27,8 +35,9 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
   const value = useMemo(
     () => ({
       onMoveStep,
+      canBeMoved,
     }),
-    [onMoveStep],
+    [canBeMoved, onMoveStep],
   );
 
   return value;

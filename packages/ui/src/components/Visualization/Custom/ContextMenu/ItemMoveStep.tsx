@@ -10,7 +10,9 @@ interface ItemMoveStepProps extends PropsWithChildren<IDataTestID> {
 }
 
 export const ItemMoveStep: FunctionComponent<ItemMoveStepProps> = (props) => {
-  const { onMoveStep } = useMoveStep(props.vizNode, props.mode);
+  const { canBeMoved, onMoveStep } = useMoveStep(props.vizNode, props.mode);
+
+  if (!canBeMoved) return null;
 
   return (
     <ContextMenuItem onClick={onMoveStep} data-testid={props['data-testid']}>

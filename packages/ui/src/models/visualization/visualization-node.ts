@@ -112,16 +112,24 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getPreviousNodeToMove(): IVisualizationNode | undefined {
-    if (this.previousNode) return this.previousNode;
+    const pathArray = (this.data.path ?? '').split('.');
+    if (this.previousNode) {
+      const last = pathArray[pathArray.length - 1];
+      const penultimate = pathArray[pathArray.length - 2];
+      // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
+      const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+      return isStepArray && Number(penultimate) > 0 ? this.previousNode : undefined;
+    }
 
-    const imidiatePreviousNodePath = this.data.path
-      ?.split('.')
+    // If there is no previous node, we look for adjacent previous node in the same parent
+    // This applies to the case when the node is when, doCatch, etc.
+    const adjacentPreviousNodePath = pathArray
       .slice(0, -1)
       .concat((Number(this.data.path?.split('.').slice(-1)[0]) - 1).toString())
       .join('.');
     return this.getParentNode()
       ?.getChildren()
-      ?.find((child) => child.data.path === imidiatePreviousNodePath);
+      ?.find((child) => child.data.path === adjacentPreviousNodePath);
   }
 
   setPreviousNode(previousNode?: IVisualizationNode) {
@@ -133,16 +141,24 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNextNodeToMove(): IVisualizationNode | undefined {
-    if (this.nextNode) return this.nextNode;
+    const pathArray = (this.data.path ?? '').split('.');
+    if (this.nextNode) {
+      const last = pathArray[pathArray.length - 1];
+      const penultimate = pathArray[pathArray.length - 2];
+      // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
+      const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+      return isStepArray ? this.nextNode : undefined;
+    }
 
-    const imidiateNextNodePath = this.data.path
-      ?.split('.')
+    // If there is no next node, we look for adjacent next node in the same parent
+    // This applies to the case when the node is when, doCatch, etc.
+    const adjacentNextNodePath = pathArray
       .slice(0, -1)
       .concat((Number(this.data.path?.split('.').slice(-1)[0]) + 1).toString())
       .join('.');
     return this.getParentNode()
       ?.getChildren()
-      ?.find((child) => child.data.path === imidiateNextNodePath);
+      ?.find((child) => child.data.path === adjacentNextNodePath);
   }
 
   setNextNode(node?: IVisualizationNode) {
