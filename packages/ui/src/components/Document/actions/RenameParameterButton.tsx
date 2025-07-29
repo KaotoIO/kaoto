@@ -1,0 +1,72 @@
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { RedoIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useCallback } from 'react';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { useToggle } from '../../../hooks/useToggle';
+import { MappingService } from '../../../services/mapping.service';
+
+import { useCanvas } from '../../../hooks/useCanvas';
+import { DocumentType } from '../../../models/datamapper/document';
+
+type RenameParameterButtonProps = {
+  parameterName: string;
+};
+
+export const RenameParameterButton: FunctionComponent<RenameParameterButtonProps> = ({ parameterName }) => {
+  const { mappingTree, setMappingTree, deleteSourceParameter } = useDataMapper();
+  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
+  const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
+
+  const onConfirmDelete = useCallback(() => {
+    const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterName);
+    setMappingTree(cleaned);
+    deleteSourceParameter(parameterName);
+    clearNodeReferencesForDocument(DocumentType.PARAM, parameterName);
+    reloadNodeReferences();
+    closeModal();
+  }, [
+    clearNodeReferencesForDocument,
+    closeModal,
+    deleteSourceParameter,
+    mappingTree,
+    parameterName,
+    reloadNodeReferences,
+    setMappingTree,
+  ]);
+
+  return (
+    <>
+      <Button
+        icon={<RedoIcon />}
+        variant="plain"
+        title="Rename parameter"
+        aria-label="Rename parameter"
+        data-testid={`delete-parameter-${parameterName}-button`}
+        onClick={openModal}
+      />
+
+      <Modal
+        variant={ModalVariant.small}
+        isOpen={isModalOpen}
+        data-testid="delete-parameter-modal"
+        onClose={closeModal}
+      >
+        <ModalHeader title="Rename parameter" />
+        <ModalBody>Delete parameter &quot;{parameterName}&quot;? Related mappings will be also removed.</ModalBody>
+        <ModalFooter>
+          <Button
+            key="confirm"
+            variant="primary"
+            data-testid="delete-parameter-modal-confirm-btn"
+            onClick={onConfirmDelete}
+          >
+            Confirm
+          </Button>
+          <Button key="cancel" variant="link" data-testid="delete-parameter-modal-cancel-btn" onClick={closeModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
+  );
+};
