@@ -2,19 +2,18 @@ import {
   ComponentFactory,
   DagreGroupsLayout,
   Graph,
-  GraphComponent,
   GraphElement,
   Layout,
   LEFT_TO_RIGHT,
   ModelKind,
   TOP_TO_BOTTOM,
   Visualization,
-  withPanZoom,
 } from '@patternfly/react-topology';
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
 import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
 import { LayoutType } from './canvas.models';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
+import { CustomGraphWithSelection } from '../Custom/Graph/CustomGraph';
 
 export class ControllerService {
   static createController(): Visualization {
@@ -55,7 +54,7 @@ export class ControllerService {
       default:
         switch (kind) {
           case ModelKind.graph:
-            return withPanZoom()(GraphComponent);
+            return CustomGraphWithSelection;
           case ModelKind.node:
             return CustomNodeWithSelection;
           case ModelKind.edge:
