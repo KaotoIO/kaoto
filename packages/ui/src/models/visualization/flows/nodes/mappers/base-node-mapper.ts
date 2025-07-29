@@ -18,7 +18,7 @@ export class BaseNodeMapper implements INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): IVisualizationNode[] {
     const nodeIconType = componentLookup.componentName ? NodeIconType.Component : NodeIconType.EIP;
     const data: CamelRouteVisualEntityData = {
       path,
@@ -45,7 +45,7 @@ export class BaseNodeMapper implements INodeMapper {
       });
     });
 
-    return vizNode;
+    return [vizNode];
   }
 
   protected getVizNodesFromChildren(
@@ -81,7 +81,7 @@ export class BaseNodeMapper implements INodeMapper {
         getValue(step, singlePropertyName),
       );
 
-      const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition)[0];
 
       const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
       if (previousVizNode !== undefined) {
@@ -118,7 +118,7 @@ export class BaseNodeMapper implements INodeMapper {
     /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
     if (getValue(entityDefinition, path) === undefined) return [];
 
-    return [this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition)];
+    return this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition);
   }
 
   protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
@@ -129,7 +129,7 @@ export class BaseNodeMapper implements INodeMapper {
       const processorName = path.split('.').pop() as keyof ProcessorDefinition;
       const childComponentLookup = { processorName }; // when, doCatch
 
-      return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition)[0];
     });
   }
 }

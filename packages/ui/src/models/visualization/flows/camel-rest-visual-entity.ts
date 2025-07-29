@@ -103,7 +103,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       this.getRootPath(),
       { processorName: 'rest' as keyof ProcessorDefinition },
       this.restDef,
-    );
+    )[0];
     restGroupNode.data.entity = this;
     restGroupNode.data.isGroup = true;
     restGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

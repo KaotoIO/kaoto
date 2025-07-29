@@ -118,7 +118,7 @@ export class CamelInterceptSendToEndpointVisualEntity
       CamelInterceptSendToEndpointVisualEntity.ROOT_PATH,
       { processorName: CamelInterceptSendToEndpointVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.interceptSendToEndpointDef,
-    );
+    )[0];
     interceptSendToEndpointGroupNode.data.entity = this;
     interceptSendToEndpointGroupNode.data.isGroup = true;
     interceptSendToEndpointGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);

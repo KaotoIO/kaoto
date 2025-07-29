@@ -6,5 +6,5 @@ export interface INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode;
+  ): IVisualizationNode[];
 }

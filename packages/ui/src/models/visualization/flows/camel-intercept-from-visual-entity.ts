@@ -106,7 +106,7 @@ export class CamelInterceptFromVisualEntity
       CamelInterceptFromVisualEntity.ROOT_PATH,
       { processorName: CamelInterceptFromVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.interceptFromDef,
-    );
+    )[0];
     interceptFromGroupNode.data.entity = this;
     interceptFromGroupNode.data.isGroup = true;
     interceptFromGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
