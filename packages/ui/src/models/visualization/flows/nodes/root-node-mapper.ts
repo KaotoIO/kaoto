@@ -1,5 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { IVisualizationNode } from '../../base-visual-entity';
+import { VizNodesWithEdges } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 import { INodeMapper } from './node-mapper';
 
@@ -19,7 +19,7 @@ export class RootNodeMapper implements INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodesWithEdges {
     const mapper = this.mappers.get(componentLookup.processorName) || this.defaultMapper;
 
     if (!mapper) {

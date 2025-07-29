@@ -1,7 +1,7 @@
 import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
 import { DATAMAPPER_ID_PREFIX, getValue } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodesWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -12,7 +12,7 @@ export class StepNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodesWithEdges {
     const processorName: keyof ProcessorDefinition = 'step';
 
     const data: CamelRouteVisualEntityData = {
@@ -35,11 +35,11 @@ export class StepNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(processorName, data);
 
-    const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    children.forEach((child) => {
+    const { nodes, edges } = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
+    nodes.forEach((child) => {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return { nodes: [vizNode], edges };
   }
 }

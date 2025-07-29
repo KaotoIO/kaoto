@@ -4,10 +4,9 @@ import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '.
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -155,15 +154,15 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return undefined;
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
+  toVizNode(): VizNodesWithEdges {
     const errorHandlerGroupNode = NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: 'errorHandler' as keyof ProcessorDefinition },
       this.errorHandlerDef,
     );
-    errorHandlerGroupNode.data.entity = this;
-    errorHandlerGroupNode.data.isGroup = true;
-    errorHandlerGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    errorHandlerGroupNode.nodes[0].data.entity = this;
+    errorHandlerGroupNode.nodes[0].data.isGroup = true;
+    errorHandlerGroupNode.nodes[0].data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
 
     return errorHandlerGroupNode;
   }

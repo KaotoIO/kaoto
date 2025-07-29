@@ -20,6 +20,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { KameletSchemaService } from './support/kamelet-schema.service';
@@ -235,7 +236,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode {
+  toVizNode(): VizNodesWithEdges {
     const pipeGroupNode = createVisualizationNode(this.id, {
       path: this.getRootPath(),
       entity: this,
@@ -255,7 +256,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     if (stepNodes.length === 0) {
       sourceNode.setNextNode(sinkNode);
       sinkNode.setPreviousNode(sourceNode);
-      return pipeGroupNode;
+      return { nodes: [pipeGroupNode], edges: [] };
     }
 
     /** Connect the `source` with the first step */
@@ -272,7 +273,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
       sinkNode.setPreviousNode(lastStepNode);
     }
 
-    return pipeGroupNode;
+    return { nodes: [pipeGroupNode], edges: [] };
   }
 
   private addNewStep(step: PipeStep, mode: AddStepMode, data: IVisualizationNodeData) {

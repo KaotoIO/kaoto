@@ -200,7 +200,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     it('should return visualization node', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = entity.toVizNode().nodes[0];
 
       expect(vizNode.data).toEqual({
         entity,
@@ -213,7 +213,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
     it('should return hardcoded schema title', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = entity.toVizNode().nodes[0];
 
       expect(vizNode.getNodeTitle()).toEqual('Route Configuration');
     });

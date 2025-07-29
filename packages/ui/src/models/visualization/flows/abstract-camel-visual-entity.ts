@@ -8,10 +8,10 @@ import { NodeLabelType } from '../../settings/settings.model';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
-  IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { NodeMapperService } from './nodes/node-mapper.service';
@@ -276,7 +276,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode {
+  toVizNode(): VizNodesWithEdges {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
       path: this.getRootPath(),
       entity: this,
@@ -285,7 +285,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       processorName: 'route',
     });
 
-    const fromNode = NodeMapperService.getVizNode(
+    const { nodes: fromNodes, edges: fromEdges } = NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,
       {
         processorName: 'from' as keyof ProcessorDefinition,
@@ -294,28 +294,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       this.entityDef,
     );
 
-    if (!this.getRootUri()) {
-      fromNode.data.icon = NodeIconResolver.getPlaceholderIcon();
-    }
-    routeGroupNode.addChild(fromNode);
-
-    fromNode.getChildren()?.forEach((child, index) => {
-      routeGroupNode.addChild(child);
-      if (index === 0) {
-        fromNode.setNextNode(child);
-        child.setPreviousNode(fromNode);
-      }
-
-      const previousChild = fromNode.getChildren()?.[index - 1];
-      if (previousChild) {
-        previousChild.setNextNode(child);
-        child.setPreviousNode(previousChild);
-      }
+    fromNodes.forEach((node) => {
+      routeGroupNode.addChild(node);
     });
-    fromNode.getChildren()?.splice(0);
-    fromNode.data.isGroup = false;
 
-    return routeGroupNode;
+    return { nodes: [routeGroupNode], edges: fromEdges };
   }
 
   private addNewStep(

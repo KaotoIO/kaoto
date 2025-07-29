@@ -5,10 +5,10 @@ import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
   BaseVisualCamelEntity,
-  IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
   VisualComponentSchema,
+  VizNodesWithEdges,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
@@ -16,6 +16,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
+import { CanvasEdge } from '../../../components/Visualization/Canvas';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
@@ -131,7 +132,7 @@ export class CamelRouteConfigurationVisualEntity
     return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
-  toVizNode(): IVisualizationNode {
+  toVizNode(): VizNodesWithEdges {
     const routeConfigurationGroupNode = createVisualizationNode(this.id, {
       path: this.getRootPath(),
       entity: this,
@@ -139,11 +140,12 @@ export class CamelRouteConfigurationVisualEntity
       icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
       processorName: this.getRootPath(),
     });
-
+    const edges: CanvasEdge[] = [];
     CamelComponentSchemaService.getProcessorStepsProperties(this.getRootPath() as keyof ProcessorDefinition).forEach(
       (stepsProperty) => {
         const childEntities = getValue(this.routeConfigurationDef.routeConfiguration, stepsProperty.name, []);
         if (!Array.isArray(childEntities)) return;
+        const edges: CanvasEdge[] = [];
 
         childEntities.forEach((childEntity, index) => {
           const childNode = NodeMapperService.getVizNode(
@@ -154,12 +156,13 @@ export class CamelRouteConfigurationVisualEntity
             this.routeConfigurationDef,
           );
 
-          routeConfigurationGroupNode.addChild(childNode);
+          routeConfigurationGroupNode.addChild(childNode.nodes[0]);
+          edges.push(...childNode.edges);
         });
       },
     );
 
-    return routeConfigurationGroupNode;
+    return { nodes: [routeConfigurationGroupNode], edges };
   }
 
   toJSON(): { routeConfiguration: RouteConfigurationDefinition } {

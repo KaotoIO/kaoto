@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { VizNodesWithEdges } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -10,7 +10,7 @@ export class WhenNodeMapper extends BaseNodeMapper {
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodesWithEdges {
     const processorName = 'when' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
@@ -22,11 +22,11 @@ export class WhenNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
-    children.forEach((child) => {
+    const { nodes, edges } = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
+    nodes.forEach((child) => {
       vizNode.addChild(child);
     });
 
-    return vizNode;
+    return { nodes: [vizNode], edges };
   }
 }

@@ -35,7 +35,7 @@ describe('StepNodeMapper', () => {
   });
 
   it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition).nodes[0];
 
     expect(vizNode.getChildren()).toHaveLength(1);
   });

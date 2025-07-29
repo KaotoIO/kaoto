@@ -1,4 +1,4 @@
-import { IVisualizationNode } from '../../base-visual-entity';
+import { VizNodesWithEdges } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 
 export interface INodeMapper {
@@ -6,5 +6,5 @@ export interface INodeMapper {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode;
+  ): VizNodesWithEdges;
 }

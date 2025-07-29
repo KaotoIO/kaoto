@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
-import { IVisualizationNode } from '../../base-visual-entity';
+import { VizNodesWithEdges } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
@@ -14,6 +14,7 @@ import { StepNodeMapper } from './mappers/step-node-mapper';
 import { WhenNodeMapper } from './mappers/when-node-mapper';
 import { INodeMapper } from './node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
+import { FromNodeMapper } from './mappers/from-node-mapper';
 
 export class NodeMapperService {
   private static rootNodeMapper: RootNodeMapper;
@@ -22,7 +23,7 @@ export class NodeMapperService {
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): VizNodesWithEdges {
     return this.getInstance().getVizNodeFromProcessor(path, componentLookup, entityDefinition);
   }
 
@@ -49,6 +50,7 @@ export class NodeMapperService {
       new OtherwiseNodeMapper(this.rootNodeMapper),
     );
     this.rootNodeMapper.registerMapper('step', new StepNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('from' as keyof ProcessorDefinition, new FromNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(this.rootNodeMapper));

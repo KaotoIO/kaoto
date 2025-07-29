@@ -30,6 +30,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   private previousNode: IVisualizationNode | undefined = undefined;
   private nextNode: IVisualizationNode | undefined = undefined;
   private children: IVisualizationNode[] | undefined;
+  private endNode: IVisualizationNode[] = [];
   private readonly DISABLED_NODE_INTERACTION: NodeInteraction = DISABLED_NODE_INTERACTION;
 
   constructor(
@@ -40,6 +41,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
       lastUpdate: observable,
       updateModel: action,
     });
+    this.endNode = [this];
   }
 
   getId(): string | undefined {
@@ -111,6 +113,15 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.previousNode;
   }
 
+  getEndNodes(): IVisualizationNode[] {
+    return this.endNode;
+  }
+  setEndNodes(node: IVisualizationNode[]) {
+    this.endNode = node;
+  }
+  appendEndNodes(...node: IVisualizationNode[]) {
+    this.endNode.push(...node);
+  }
   setPreviousNode(previousNode?: IVisualizationNode) {
     this.previousNode = previousNode;
   }

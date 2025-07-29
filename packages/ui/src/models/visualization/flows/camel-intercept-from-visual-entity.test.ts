@@ -92,7 +92,7 @@ describe('CamelInterceptFromVisualEntity', () => {
     const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({
       interceptFrom: { id: 'id', uri: 'direct:a-reference' },
     });
-    const vizNode = interceptFromVisualEntity.toVizNode();
+    const vizNode = interceptFromVisualEntity.toVizNode().nodes[0];
 
     expect(vizNode.data.processorName).toBe(CamelInterceptFromVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptFromVisualEntity);

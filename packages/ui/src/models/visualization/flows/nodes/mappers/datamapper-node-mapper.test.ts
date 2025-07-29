@@ -26,7 +26,7 @@ describe('DataMapperNodeMapper', () => {
 
   describe('getVizNodeFromProcessor', () => {
     it('should not return any children', () => {
-      const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+      const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition).nodes[0];
 
       expect(vizNode.getChildren()).toBeUndefined();
     });
@@ -36,12 +36,12 @@ describe('DataMapperNodeMapper', () => {
         firstDataMapperPath,
         { processorName: 'step' },
         twoDataMapperRouteDefinition,
-      );
+      ).nodes[0];
       const secondVizNode = mapper.getVizNodeFromProcessor(
         secondDataMapperPath,
         { processorName: 'step' },
         twoDataMapperRouteDefinition,
-      );
+      ).nodes[0];
 
       expect(firstVizNode.id).toContain('kaoto-datamapper');
       expect(secondVizNode.id).toContain('kaoto-datamapper');

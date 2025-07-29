@@ -141,144 +141,6 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 253.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="174"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 267.5 L325 380"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 267.5 L325 380"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 366) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="307.75"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -417,6 +279,75 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 267.5 L325 380"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 267.5 L325 380"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 366) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="307.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -450,6 +381,75 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 width="40"
                                 x="305"
                                 y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 253.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
@@ -945,144 +945,6 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 253.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="174"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 267.5 L325 380"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 267.5 L325 380"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 366) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="307.75"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -1221,6 +1083,75 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 267.5 L325 380"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 267.5 L325 380"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 366) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="307.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -1254,6 +1185,75 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 width="40"
                                 x="305"
                                 y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 253.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
@@ -2604,144 +2604,6 @@ exports[`Canvas should render correctly 1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 253.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="174"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 267.5 L325 380"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 267.5 L325 380"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 366) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="307.75"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -2880,6 +2742,75 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 267.5 L325 380"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 267.5 L325 380"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 366) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="307.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -2913,6 +2844,75 @@ exports[`Canvas should render correctly 1`] = `
                                 width="40"
                                 x="305"
                                 y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 253.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3408,144 +3408,6 @@ exports[`Canvas should render correctly with more routes  1`] = `
                           data-layer-id="default"
                         >
                           <g
-                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 112.5 L325 267.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 253.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="174"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M325 267.5 L325 380"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M325 267.5 L325 380"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 366) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="305"
-                                y="307.75"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -3684,6 +3546,75 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 267.5 L325 380"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 267.5 L325 380"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 366) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="307.75"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -3717,6 +3648,75 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 width="40"
                                 x="305"
                                 y="955.25"
+                              >
+                                <div
+                                  aria-hidden="true"
+                                  class="custom-edge__add-step add-step-icon"
+                                  title="Add step"
+                                >
+                                  <div
+                                    class="add-step-icon__icon"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon pf-m-lg"
+                                    >
+                                      <span
+                                        class="pf-v6-c-icon__content"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="pf-v6-svg"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignobject>
+                            </g>
+                          </g>
+                          <g
+                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 112.5 L325 267.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow pf-topology__edge"
+                                transform="translate(325, 253.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                              <foreignobject
+                                height="40"
+                                width="40"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
