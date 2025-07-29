@@ -153,6 +153,29 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     this.addNewStep(step, options.mode, options.data);
   }
 
+  hasPreviousStep(path?: string): boolean {
+    const pathArray = path?.split('.') ?? [];
+    if (pathArray.length === 0) return false;
+    const last = pathArray[pathArray.length - 1];
+
+    return Number.isInteger(Number(last)) && Number(last) > 0;
+  }
+
+  hasNextStep(path?: string): boolean {
+    const pathArray = path?.split('.') ?? [];
+    if (pathArray.length === 0) return false;
+    const last = pathArray[pathArray.length - 1];
+
+    if (!Number.isInteger(Number(last))) return false;
+
+    const nextNodePath = pathArray
+      .slice(0, -1)
+      .concat((Number(last) + 1).toString())
+      .join('.');
+
+    return isDefined(getValue(this.pipe.spec, nextNodePath));
+  }
+
   getCopiedContent(path?: string) {
     if (!path) return;
 

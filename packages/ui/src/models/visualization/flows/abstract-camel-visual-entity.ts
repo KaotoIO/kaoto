@@ -257,24 +257,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canRemoveFlow = data.path === this.getRootPath();
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
-    const pathArray = (data.path ?? '').split('.');
-    const last = pathArray[pathArray.length - 1];
-    const penultimate = pathArray[pathArray.length - 2];
-    const nextStepindex = Number(penultimate) + 1;
-    const previousStepindex = Number(penultimate) - 1;
-    // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
-    const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
-    // If the last segment is a number and the penultimate is a string, it means the target is member of an special processor
-    const isSpecialArray = Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate));
-    const canMoveNextStep =
-      (isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), nextStepindex.toString()]))) ||
-      (isSpecialArray &&
-        isDefined(getValue(this.entityDef, [...pathArray.slice(0, -1), (Number(last) + 1).toString()])));
-    const canMoveBeforeStep =
-      (isStepArray && isDefined(getValue(this.entityDef, [...pathArray.slice(0, -2), previousStepindex.toString()]))) ||
-      (isSpecialArray &&
-        isDefined(getValue(this.entityDef, [...pathArray.slice(0, -1), (Number(last) - 1).toString()])));
-
     return {
       canHavePreviousStep,
       canHaveNextStep: canHavePreviousStep,
@@ -284,9 +266,25 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       canRemoveStep,
       canRemoveFlow,
       canBeDisabled,
-      canMoveNextStep,
-      canMoveBeforeStep,
     };
+  }
+
+  hasPreviousStep(path?: string): boolean {
+    const pathArray = path?.split('.') ?? [];
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+    // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
+    const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+    return isStepArray && Number(penultimate) > 0;
+  }
+
+  hasNextStep(path?: string): boolean {
+    const pathArray = path?.split('.') ?? [];
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+    // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
+    const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
+    return isStepArray;
   }
 
   getNodeValidationText(path?: string | undefined): string | undefined {

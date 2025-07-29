@@ -48,6 +48,10 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
     targetProperty?: string;
   }) => void;
 
+  hasPreviousStep(path?: string): boolean;
+
+  hasNextStep(path?: string): boolean;
+
   /** Given a path, get the content to be copied */
   getCopiedContent: (path?: string) => IClipboardCopyObject | undefined;
 
@@ -207,8 +211,6 @@ export interface NodeInteraction {
   canRemoveStep: boolean;
   canRemoveFlow: boolean;
   canBeDisabled: boolean;
-  canMoveNextStep: boolean;
-  canMoveBeforeStep: boolean;
 }
 
 export const DISABLED_NODE_INTERACTION: NodeInteraction = {
@@ -220,6 +222,4 @@ export const DISABLED_NODE_INTERACTION: NodeInteraction = {
   canRemoveStep: false,
   canRemoveFlow: false,
   canBeDisabled: false,
-  canMoveNextStep: false,
-  canMoveBeforeStep: false,
 };

@@ -114,11 +114,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   getPreviousNodeToMove(): IVisualizationNode | undefined {
     const pathArray = (this.data.path ?? '').split('.');
     if (this.previousNode) {
-      const last = pathArray[pathArray.length - 1];
-      const penultimate = pathArray[pathArray.length - 2];
-      // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
-      const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
-      return isStepArray && Number(penultimate) > 0 ? this.previousNode : undefined;
+      return this.getBaseEntity()?.hasPreviousStep(this.data.path) ? this.previousNode : undefined;
     }
 
     // If there is no previous node, we look for adjacent previous node in the same parent
@@ -143,11 +139,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   getNextNodeToMove(): IVisualizationNode | undefined {
     const pathArray = (this.data.path ?? '').split('.');
     if (this.nextNode) {
-      const last = pathArray[pathArray.length - 1];
-      const penultimate = pathArray[pathArray.length - 2];
-      // If the last segment is a string and the penultimate is a number, it means the target is member of a step array
-      const isStepArray = !Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate));
-      return isStepArray ? this.nextNode : undefined;
+      return this.getBaseEntity()?.hasNextStep(this.data.path) ? this.nextNode : undefined;
     }
 
     // If there is no next node, we look for adjacent next node in the same parent
