@@ -193,4 +193,29 @@ describe('ExpressionService', () => {
 
     expect(result).toEqual(expected);
   });
+  describe('updateExpressionFromModel', () => {
+    beforeAll(async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      const languageCatalog = catalogsMap.languageCatalog;
+      CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
+    });
+
+    it('should update the target model expression if supported', () => {
+      const sourceModel = { simple: { expression: 'sourceExpr' } };
+      const targetModel = { csimple: { expression: undefined } };
+
+      ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+
+      expect(targetModel.csimple.expression).toBe('sourceExpr');
+    });
+
+    it('should not update the target model if language does not support expression', () => {
+      const sourceModel = { simple: { expression: 'sourceExpr' } };
+      const targetModel = { bean: { expression: undefined } };
+
+      ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+
+      expect(targetModel.bean.expression).toBeUndefined();
+    });
+  });
 });
