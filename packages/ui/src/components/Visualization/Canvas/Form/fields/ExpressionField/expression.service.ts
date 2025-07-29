@@ -2,6 +2,7 @@ import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { CamelCatalogService } from '../../../../../../models/visualization/flows/camel-catalog.service';
 import { isDefined } from '../../../../../../utils';
+import { CatalogKind } from '../../../../../../models';
 
 export class ExpressionService {
   static getExpressionsSchema(schema: KaotoSchemaDefinition['schema']): KaotoSchemaDefinition['schema'] {
@@ -131,8 +132,9 @@ export class ExpressionService {
 
     if (typeof sourceExpressionString === 'string') {
       const targetKey = Object.keys(targetModel).find((key) => languageNames.includes(key));
+      const exprModel = CamelCatalogService.getComponent('language' as CatalogKind, targetKey)?.properties;
 
-      if (targetKey) {
+      if (targetKey && isDefined(exprModel) && 'expression' in exprModel) {
         (targetModel[targetKey] as Record<string, unknown>).expression = sourceExpressionString;
       }
     }
