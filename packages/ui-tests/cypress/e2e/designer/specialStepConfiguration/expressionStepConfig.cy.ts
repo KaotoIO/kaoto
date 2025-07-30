@@ -54,14 +54,14 @@ describe('Tests for sidebar expression configuration', () => {
 
     // Check the configured fields didn't disappear from the first node
     cy.expandWrappedSection('jq-Advanced');
-    cy.get(`input[name="jq.trim"]`).should(`be.checked`);
+    cy.get(`input[name="jq.trim"]`).should(`not.be.checked`);
     cy.interactWithExpressionInputObject('jq.resultType', 'java.lang.String');
     cy.interactWithExpressionInputObject('jq.expression', '.id');
 
     // Check the configured fields didn't disappear from the second node
     cy.openStepConfigurationTabByPath('custom-node__route.from.steps.1.setHeader');
     cy.expandWrappedSection('jq-Advanced');
-    cy.get(`input[name="jq.trim"]`).should(`be.checked`);
+    cy.get(`input[name="jq.trim"]`).should(`not.be.checked`);
     cy.interactWithExpressionInputObject('jq.resultType', 'java.lang.String');
     cy.interactWithExpressionInputObject('jq.expression', '.name');
 
