@@ -12,7 +12,6 @@ import {
   GraphElement,
   GraphElementProps,
   isNode,
-  LabelBadge,
   Layer,
   Node,
   observer,
@@ -28,8 +27,10 @@ import {
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useRef } from 'react';
+import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
@@ -37,6 +38,7 @@ import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { customNodeDropTargetSpec } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
+import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
 
@@ -59,6 +61,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const entitiesContext = useEntityContext();
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
+    const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
     const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
@@ -175,10 +179,24 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               <div title={tooltipContent} className="custom-node__container__image">
                 <img alt={tooltipContent} src={vizNode.data.icon} />
 
+                {childCount > 0 && (
+                  <FloatingCircle className="step-icon step-icon__processor">
+                    <span title={`${childCount}`}>{childCount}</span>
+                  </FloatingCircle>
+                )}
+                {ProcessorIcon && (
+                  <FloatingCircle className="step-icon step-icon__processor">
+                    <Icon status="info" size="lg">
+                      <ProcessorIcon title={processorDescription} />
+                    </Icon>
+                  </FloatingCircle>
+                )}
                 {isDisabled && (
-                  <Icon className="disabled-step-icon" status="danger" size="lg">
-                    <BanIcon />
-                  </Icon>
+                  <FloatingCircle className="step-icon step-icon__disabled">
+                    <Icon status="danger" size="lg">
+                      <BanIcon />
+                    </Icon>
+                  </FloatingCircle>
                 )}
               </div>
             </div>
@@ -242,8 +260,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               </AddStepIcon>
             </foreignObject>
           )}
-
-          {childCount && <LabelBadge badge={`${childCount}`} x={0} y={0} />}
         </g>
       </Layer>
     );

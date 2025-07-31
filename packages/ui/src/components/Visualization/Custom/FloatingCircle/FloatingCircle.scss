@@ -1,0 +1,17 @@
+@use '../custom';
+
+.floating-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--custom-node-BackgroundColor);
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid var(--custom-node-BorderColor);
+  box-shadow: var(--custom-node-Shadow);
+
+  [data-selected='true'] & {
+    @include custom.selected;
+  }
+}
