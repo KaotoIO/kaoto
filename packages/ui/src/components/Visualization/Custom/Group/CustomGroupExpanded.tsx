@@ -100,7 +100,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               </div>
 
               {isDisabled && (
-                <Icon className="disabled-step-icon" title="Step disabled">
+                <Icon className="custom-group__disabled-icon" title="Step disabled">
                   <BanIcon />
                 </Icon>
               )}

@@ -1,8 +1,15 @@
-.disabled-step-icon {
+.step-icon {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -12px;
   margin: var(--pf-t--global--spacer--xs);
+
+  &__disabled {
+    right: -12px;
+  }
+
+  &__processor {
+    left: -12px;
+  }
 }
 
 @mixin highligth {
