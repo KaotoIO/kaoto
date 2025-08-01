@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FloatingCircle applies custom className 1`] = `
+<div>
+  <div
+    class="floating-circle my-class"
+  >
+    Content
+  </div>
+</div>
+`;
+
+exports[`FloatingCircle renders children correctly 1`] = `
+<div>
+  <div
+    class="floating-circle"
+  >
+    Test Content
+  </div>
+</div>
+`;
+
+exports[`FloatingCircle renders without children 1`] = `
+<div>
+  <div
+    class="floating-circle"
+  />
+</div>
+`;

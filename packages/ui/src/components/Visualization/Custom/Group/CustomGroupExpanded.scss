@@ -52,6 +52,13 @@
         @include custom.disabled;
       }
     }
+
+    &__disabled-icon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: var(--pf-t--global--spacer--xs);
+    }
   }
 
   &__toolbar {

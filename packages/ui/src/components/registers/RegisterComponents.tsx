@@ -3,6 +3,7 @@ import { RenderingAnchorContext } from '../RenderingAnchor/rendering.provider';
 import { IRegisteredComponent } from '../RenderingAnchor/rendering.provider.model';
 import { Anchors } from './anchors';
 import { datamapperActivationFn } from './datamapper.activationfn';
+import { componentModeActivationFn } from './component-mode.activationfn';
 
 export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const { registerComponent } = useContext(RenderingAnchorContext);
@@ -12,6 +13,11 @@ export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ child
       anchor: Anchors.CanvasFormHeader,
       activationFn: datamapperActivationFn,
       component: lazy(() => import('../DataMapper/DataMapperLauncher')),
+    },
+    {
+      anchor: Anchors.CanvasFormHeader,
+      activationFn: componentModeActivationFn,
+      component: lazy(() => import('../ComponentMode/ComponentMode')),
     },
   ]);
 

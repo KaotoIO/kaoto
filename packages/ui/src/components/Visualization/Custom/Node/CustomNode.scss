@@ -33,13 +33,16 @@
       }
 
       &:hover &__image,
+      &:hover .step-icon,
       [data-toolbar-open='true'] & &__image,
+      [data-toolbar-open='true'] & .step-icon,
       [data-selected='true'] & &__image {
         border-color: var(--custom-node-BorderColor-hover);
         box-shadow: var(--custom-node-Shadow);
       }
 
-      [data-selected='true'] & &__image {
+      [data-selected='true'] & &__image,
+      [data-selected='true'] & .step-icon {
         @include custom.selected;
       }
 
