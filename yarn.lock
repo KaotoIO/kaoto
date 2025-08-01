@@ -18384,8 +18384,8 @@ __metadata:
   linkType: hard
 
 "storybook-addon-remix-react-router@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "storybook-addon-remix-react-router@npm:3.0.0"
+  version: 3.1.0
+  resolution: "storybook-addon-remix-react-router@npm:3.1.0"
   dependencies:
     compare-versions: "npm:^6.0.0"
     react-inspector: "npm:6.0.2"
@@ -18397,15 +18397,15 @@ __metadata:
     "@storybook/manager-api": ^8.0.0
     "@storybook/preview-api": ^8.0.0
     "@storybook/theming": ^8.0.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-router-dom: ^6.4.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-router-dom: ^6.4.0 || ^7.0.0
   peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 10/2213883135e894399c05f1ced0245d61fe679f4b61fe0a97cf2c5ceb0456aa9d2ad538e9fcdeebf4c9971220c36e839303059c3313561299fadf91c45d87c04c
+  checksum: 10/f35788f0cc3a42f1e3c1128999c3e8218a77116441bcc67ac5a652bcf6bcf0c2b45ac74bda52fd9b1e278a99e007831624a38cd812757a04e1e22dfa07269168
   languageName: node
   linkType: hard
 
