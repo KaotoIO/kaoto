@@ -8,7 +8,7 @@ jest.mock('../hooks/paste-step.hook', () => ({
   usePasteStep: jest.fn(),
 }));
 
-describe('ItemCopyStep', () => {
+describe('ItemPasteStep', () => {
   const vizNode = createVisualizationNode('test', {});
   const mockOnPasteStep = jest.fn();
 

@@ -1,4 +1,11 @@
-import { ArrowDownIcon, ArrowUpIcon, CodeBranchIcon, PlusIcon } from '@patternfly/react-icons';
+import {
+  AngleDoubleDownIcon,
+  AngleDoubleUpIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CodeBranchIcon,
+  PlusIcon,
+} from '@patternfly/react-icons';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
 import { AddStepMode, IVisualizationNode, NodeInteraction } from '../../../../models/visualization/base-visual-entity';
@@ -12,6 +19,7 @@ import { ItemInsertStep } from './ItemInsertStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 import { ItemCopyStep } from './ItemCopyStep';
 import { ItemPasteStep } from './ItemPasteStep';
+import { ItemMoveStep } from './ItemMoveStep';
 
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
@@ -52,6 +60,28 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   if (nodeInteractions.canHavePreviousStep || nodeInteractions.canHaveNextStep) {
     items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
   }
+
+  items.push(
+    <ItemMoveStep
+      key="context-menu-item-move-before"
+      data-testid="context-menu-item-move-before"
+      mode={AddStepMode.PrependStep}
+      vizNode={vizNode}
+    >
+      <AngleDoubleUpIcon /> Move Before
+    </ItemMoveStep>,
+  );
+
+  items.push(
+    <ItemMoveStep
+      key="context-menu-item-move-next"
+      data-testid="context-menu-item-move-next"
+      mode={AddStepMode.AppendStep}
+      vizNode={vizNode}
+    >
+      <AngleDoubleDownIcon /> Move Next
+    </ItemMoveStep>,
+  );
 
   if (nodeInteractions.canHaveChildren) {
     items.push(

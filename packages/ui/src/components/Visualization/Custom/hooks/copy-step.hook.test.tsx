@@ -9,7 +9,7 @@ describe('useCopyStep', () => {
   const copiedContent = {
     type: SourceSchemaType.Route,
     name: 'exampleNode',
-    defaultValue: { id: 'node1', type: 'exampleType' },
+    definition: { id: 'node1', type: 'exampleType' },
   };
 
   afterEach(() => {
