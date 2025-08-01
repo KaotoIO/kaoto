@@ -18,7 +18,7 @@ import icon_eip_filter from '../assets/eip/filter.png';
 import icon_eip_generic from '../assets/eip/generic.png';
 import icon_eip_idempotent_consumer from '../assets/eip/idempotentConsumer.png';
 import icon_eip_load_balance from '../assets/eip/load-balance.png';
-import icon_eip_log from '../assets/eip/log.png';
+import icon_eip_log from '../assets/eip/log.svg';
 import icon_eip_loop from '../assets/eip/loop.png';
 import icon_eip_multicast from '../assets/eip/multicast.png';
 import icon_eip_otherwise from '../assets/eip/otherwise.png';
