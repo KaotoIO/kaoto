@@ -61,7 +61,7 @@ jobs:
           path: packages/ui/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.10.1
+        uses: cypress-io/github-action@v6.10.2
         with:
           browser: firefox
           # we have already installed all dependencies above
@@ -109,7 +109,7 @@ jobs:
           path: packages/ui/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.10.1
+        uses: cypress-io/github-action@v6.10.2
         with:
           browser: chrome
           # we have already installed all dependencies above
@@ -157,7 +157,7 @@ jobs:
           path: packages/ui/dist
 
       - name: 🔨 Cypress run
-        uses: cypress-io/github-action@v6.10.1
+        uses: cypress-io/github-action@v6.10.2
         with:
           browser: edge
           # we have already installed all dependencies above
