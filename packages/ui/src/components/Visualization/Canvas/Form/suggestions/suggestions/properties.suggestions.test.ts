@@ -35,7 +35,35 @@ describe('Properties Suggestions', () => {
     expect(suggestions).toMatchSnapshot();
   });
 
-  it('should use metdata API for suggestions', async () => {
+  it('should use metadata API for application.properties suggestions', async () => {
+    const metadataMock: IMetadataApi['getSuggestions'] = jest.fn().mockResolvedValue([
+      {
+        value: 'quarkus.http.port',
+        description: `8080`,
+        group: 'application.properties',
+      },
+    ]);
+
+    const provider = getPropertiesSuggestionProvider(metadataMock);
+    const suggestions = await provider.getSuggestions('test', { inputValue: '', cursorPosition: 0, propertyName: '' });
+
+    expect(metadataMock).toHaveBeenCalledWith('properties', 'test', {
+      inputValue: '',
+      cursorPosition: 0,
+      propertyName: '',
+    });
+    expect(suggestions).toEqual(
+      expect.arrayContaining([
+        {
+          value: `{{quarkus.http.port}}`,
+          description: 'application.properties',
+          group: 'Placeholders: Properties',
+        },
+      ]),
+    );
+  });
+
+  it('should use metadata API for suggestions', async () => {
     const metadataMock: IMetadataApi['getSuggestions'] = jest.fn().mockResolvedValue([{ value: 'mocked-suggestion' }]);
 
     const provider = getPropertiesSuggestionProvider(metadataMock);
@@ -53,7 +81,7 @@ describe('Properties Suggestions', () => {
     );
   });
 
-  it('should add the default `{{env:name}}` syntax if there is no metdata API for suggestions', async () => {
+  it('should add the default `{{env:name}}` syntax if there is no metadata API for suggestions', async () => {
     const provider = getPropertiesSuggestionProvider();
     const suggestions = await provider.getSuggestions('test', { inputValue: '', cursorPosition: 0, propertyName: '' });
 
