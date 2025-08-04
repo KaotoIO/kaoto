@@ -49,7 +49,13 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   }, [validateXPath]);
 
   const errorContent = useMemo(() => {
-    return <List>{validationResult?.getErrors().map((e) => <ListItem key={e}>{e}</ListItem>)}</List>;
+    return (
+      <List>
+        {validationResult?.getErrors().map((e) => (
+          <ListItem key={e}>{e}</ListItem>
+        ))}
+      </List>
+    );
   }, [validationResult]);
 
   const header = useMemo(
