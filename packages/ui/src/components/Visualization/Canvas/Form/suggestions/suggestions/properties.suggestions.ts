@@ -37,6 +37,14 @@ export const getPropertiesSuggestionProvider = (metadata?: IMetadataApi['getSugg
         },
       ];
 
+      const propertiesVariables = (await metadata?.('properties', word, context)) ?? [];
+      const propertiesSuggestions = propertiesVariables.map((item) => ({
+        value: `{{${item.value}}}`,
+        description: item.group,
+        group: 'Placeholders: Properties',
+      }));
+      suggestions.push(...propertiesSuggestions);
+
       const environmentVariables = (await metadata?.('env', word, context)) ?? [];
       if (environmentVariables.length === 0) {
         suggestions.push({
