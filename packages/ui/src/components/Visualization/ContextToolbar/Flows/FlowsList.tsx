@@ -19,7 +19,7 @@ interface IFlowsList {
   onClose?: () => void;
 }
 
-export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
+export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, allFlowsVisible, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
@@ -41,9 +41,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
     (flowId: string): void => {
       visualFlowsApi.hideFlows();
       visualFlowsApi.toggleFlowVisible(flowId);
-      props.onClose?.();
+      onClose?.();
     },
-    [props, visualFlowsApi],
+    [onClose, visualFlowsApi],
   );
 
   const routeIdValidator = useCallback(
@@ -70,12 +70,12 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       }
       event.stopPropagation();
     },
-    [visualEntities, areFlowsVisible, searchString, visualFlowsApi],
+    [areFlowsVisible, visualFlowsApi, filteredIds],
   );
 
   const onDeleteAll = useCallback(
     async (_event: MouseEvent<HTMLButtonElement>) => {
-      props.onClose?.();
+      onClose?.();
       const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
         title: 'Do you want to delete the filtered routes ?',
         text: 'All steps will be lost.',
@@ -87,7 +87,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
       camelResource.removeEntity(filteredIds);
       updateEntitiesFromCamelResource();
     },
-    [searchString, visualEntities, camelResource],
+    [onClose, deleteModalContext, filteredIds, camelResource, updateEntitiesFromCamelResource],
   );
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
@@ -195,7 +195,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = (props) => {
                     variant="plain"
                     onClick={async (_event) => {
                       //close the dropdown if it is open to not to interfere with the delete modal
-                      props.onClose?.();
+                      onClose?.();
                       const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
                         title:
                           "Do you want to delete the '" +

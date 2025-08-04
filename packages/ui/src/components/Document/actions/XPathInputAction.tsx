@@ -50,8 +50,12 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
   const errorContent = useMemo(() => {
     return (
       <List>
-        {validationResult?.getErrors().map((e) => <ListItem key={e}>{e}</ListItem>)}
-        {validationResult?.getWarnings().map((w) => <ListItem key={w}>{w}</ListItem>)}
+        {validationResult?.getErrors().map((e) => (
+          <ListItem key={e}>{e}</ListItem>
+        ))}
+        {validationResult?.getWarnings().map((w) => (
+          <ListItem key={w}>{w}</ListItem>
+        ))}
       </List>
     );
   }, [validationResult]);

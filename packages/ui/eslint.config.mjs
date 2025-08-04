@@ -6,6 +6,11 @@ import rootConfig from '../../eslint.config.mjs';
 export default [
   ...rootConfig,
   {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     plugins: {
       ...pluginReact.configs.flat.recommended.plugins,
       'react-hooks': pluginReactHooks,

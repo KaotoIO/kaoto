@@ -2,8 +2,8 @@ import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
   findModalCustomizationRecursively,
   processNodeInteractionAddonRecursively,
@@ -43,7 +43,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode) => {
 
     vizNode.removeChild();
     entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, vizNode]);
+  }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, isPlaceholderNode, vizNode]);
 
   const value = useMemo(
     () => ({
