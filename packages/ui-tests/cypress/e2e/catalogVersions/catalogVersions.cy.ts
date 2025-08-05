@@ -1,27 +1,22 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+
 describe('Test for catalog versions', () => {
   beforeEach(() => {
     cy.openHomePage();
   });
 
-  const testData = [
-    { type: 'Main', version: 'Camel Main 4.11.0' },
-    { type: 'Main', version: 'Camel Main 4.10.4' },
-    { type: 'Main', version: 'Camel Main 4.8.6' },
-    { type: 'Main', version: 'Camel Main 4.10.3.redhat-00020' },
-    { type: 'Main', version: 'Camel Main 4.8.5.redhat-00008' },
-    { type: 'Main', version: 'Camel Main 4.4.0.redhat-00046' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.20.0' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.15.3' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.20.0.redhat-00002' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.15.0.redhat-00010' },
-    { type: 'Quarkus', version: 'Camel Quarkus 3.8.0.redhat-00018' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.11.0' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.10.4' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.6' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.10.3.redhat-00019' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.8.5.redhat-00008' },
-    { type: 'Spring Boot', version: 'Camel Spring Boot 4.4.0.redhat-00039' },
-  ];
+  const testData: { version: string; type: string }[] = [];
+
+  catalogLibrary.definitions.forEach((library) => {
+    const catalogVersion = library.version;
+    const catalogType = library.runtime;
+
+    testData.push({
+      version: `Camel ${catalogType} ${catalogVersion}`,
+      type: catalogType,
+    });
+  });
+
   testData.forEach((data) => {
     it(`Catalog version test for ${data.version}`, { tags: ['weekly'] }, () => {
       cy.uploadFixture('flows/camelRoute/catalogConfig.yaml');
