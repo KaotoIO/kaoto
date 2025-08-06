@@ -1,6 +1,7 @@
 import { ChannelType } from '@kie-tools-core/editor/dist/api';
 import { render } from '@testing-library/react';
 import { KaotoBridge } from './KaotoBridge';
+import { ComponentProps } from 'react';
 
 describe('KaotoBridge', () => {
   const mockOnReady = jest.fn();
@@ -14,7 +15,7 @@ describe('KaotoBridge', () => {
   const mockAskUserForFileSelection = jest.fn();
   const mockGetSuggestions = jest.fn();
 
-  const defaultProps = {
+  const defaultProps: ComponentProps<typeof KaotoBridge> = {
     onReady: mockOnReady,
     onStateControlCommandUpdate: mockOnStateControlCommandUpdate,
     setNotifications: mockSetNotifications,
@@ -26,6 +27,7 @@ describe('KaotoBridge', () => {
     askUserForFileSelection: mockAskUserForFileSelection,
     getSuggestions: mockGetSuggestions,
     shouldSaveSchema: false,
+    onStepAdded: jest.fn(),
     channelType: ChannelType.VSCODE_DESKTOP,
   };
 
