@@ -1,11 +1,12 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
-import { ISettingsModel } from '../models/settings';
+import { CatalogKind } from '../models';
 import {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
   CamelSpringBootMavenInformation,
 } from '../models/runtime-maven-information';
+import { ISettingsModel } from '../models/settings';
 
 export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   /**
@@ -81,4 +82,11 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   getRuntimeInfoFromMavenContext(): Promise<
     CamelMainMavenInformation | CamelQuarkusMavenInformation | CamelSpringBootMavenInformation | undefined
   >;
+
+  /**
+   * Notifies the host application that a step was added.
+   * @param stepType The type of the step that was added (e.g., "component", "processor", "entity").
+   * @param stepName The name of the step that was added.
+   */
+  onStepAdded(stepType: CatalogKind, stepName: string): Promise<void>;
 }
