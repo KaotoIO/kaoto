@@ -1,5 +1,6 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren, createContext } from 'react';
+import { CatalogKind } from '../models/catalog-kind';
 
 export interface IMetadataApi {
   /**
@@ -63,6 +64,13 @@ export interface IMetadataApi {
    *      in VS Code, i.e. expecting schema files already in some store and just pick from there, we can remove this.
    */
   shouldSaveSchema: boolean;
+
+  /**
+   * Notify the VS Code host that a new step was added to the flow.
+   * @param stepType The type of step that was added
+   * @param stepName The name/identifier of the step
+   */
+  onStepAdded(stepType: CatalogKind, stepName: string): Promise<void>;
 }
 
 export const MetadataContext = createContext<IMetadataApi | undefined>(undefined);
