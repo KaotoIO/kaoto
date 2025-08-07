@@ -75,13 +75,14 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
     };
   }, [props.handler]);
 
+  const draggingLabel = activeData?.current?.title ? activeData.current.title : 'dragging...';
   return (
     <DataMapperDndContext.Provider value={handler}>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
         {props.children}
         <DragOverlay dropAnimation={null}>
-          <div className={'pf-v6-c-draggable node__row dragging-container'}>
-            <Label>{activeData?.current?.title ? activeData.current.title : 'dragging...'}</Label>
+          <div className={'pf-v6-c-draggable node__row dragging-container'} data-dnd-dragging={draggingLabel}>
+            <Label>{draggingLabel}</Label>
           </div>
         </DragOverlay>
       </DndContext>
