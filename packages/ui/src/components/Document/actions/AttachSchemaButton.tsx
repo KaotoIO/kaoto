@@ -83,15 +83,40 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     } else if (paths) {
       pathsArray = [paths];
     }
+    if (pathsArray.length === 0) return;
+
+    const fileExtension = pathsArray[0].toLowerCase().substring(pathsArray[0].lastIndexOf('.'));
+    if (documentType === DocumentType.SOURCE_BODY) {
+      if (fileExtension === '.json') {
+        addAlert({
+          variant: AlertVariant.danger,
+          title:
+            'JSON source body is not supported at this moment. For the source body, only XML schema file (.xml, .xsd) is supported. In order to use JSON data, It must be either source parameter or target',
+        });
+        return;
+      } else if (!['.xml', '.xsd'].includes(fileExtension)) {
+        addAlert({
+          variant: AlertVariant.danger,
+          title: `Unknown file extension '${fileExtension}'. Only XML schema file (.xml, .xsd) is supported.`,
+        });
+        return;
+      }
+    } else if (!['.json', '.xsd', '.xml'].includes(fileExtension)) {
+      addAlert({
+        variant: AlertVariant.danger,
+        title: `Unknown file extension '${fileExtension}'. Either XML schema (.xsd, .xml) or JSON schema (.json) file is supported.`,
+      });
+      return;
+    }
+
     setFilePaths(pathsArray);
 
-    // @TODO update when we support multiple files
-    if (pathsArray.length > 0 && pathsArray[0].toLowerCase().endsWith('.json')) {
+    if (fileExtension === '.json') {
       setSelectedSchemaType(DocumentDefinitionType.JSON_SCHEMA);
     } else {
       setSelectedSchemaType(DocumentDefinitionType.XML_SCHEMA);
     }
-  }, [api, fileNamePattern]);
+  }, [addAlert, api, documentType, fileNamePattern]);
 
   const onCommit = useCallback(async () => {
     setIsLoading(true);
@@ -192,7 +217,13 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button key="Attach" data-testid="attach-schema-modal-btn-attach" variant="primary" onClick={onCommit}>
+          <Button
+            key="Attach"
+            data-testid="attach-schema-modal-btn-attach"
+            variant="primary"
+            onClick={onCommit}
+            isDisabled={filePaths.length === 0}
+          >
             {actionName}
           </Button>
           <Button key="Cancel" data-testid="attach-schema-modal-btn-cancel" variant="link" onClick={onCancel}>
