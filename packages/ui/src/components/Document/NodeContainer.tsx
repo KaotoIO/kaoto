@@ -27,6 +27,7 @@ export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ clas
       id={`droppable-${id}`}
       ref={setDroppableNodeRef}
       className={clsx(className, { 'droppable-container': isOver }, 'pf-v6-c-droppable')}
+      data-dnd-droppable={isOver ? `${id}` : undefined}
     >
       {children}
     </div>
@@ -35,6 +36,7 @@ export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ clas
 
 export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, nodeData, children }) => {
   const {
+    isDragging,
     attributes,
     listeners,
     setNodeRef: setDraggableNodeRef,
@@ -49,6 +51,7 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
       id={`draggable-${id}`}
       ref={setDraggableNodeRef}
       className={clsx({ 'draggable-container': isDefined(transform) }, 'pf-v6-c-draggable')}
+      data-dnd-draggable={isDragging ? `${id}` : undefined}
       {...listeners}
       {...attributes}
     >

@@ -105,23 +105,24 @@ Cypress.Commands.add('engageMapping', (sourceNodePath: string[], targetNodePath:
   const targetNode = cy.getDataMapperNode(targetNodePath);
 
   sourceNode
-    .find(`[id^="draggable-"]`)
+    .find('[id^="draggable-"]')
     .first()
     .trigger('mouseenter', { dataTransfer, force: true })
     .trigger('mouseover', { dataTransfer, force: true })
-    .trigger('mousedown', { dataTransfer, force: true })
-    .wait(50);
+    .trigger('mousedown', { dataTransfer, force: true });
+
+  targetNode.find('[id^="droppable-"]').first().trigger('mousemove', { dataTransfer, force: true });
+
+  cy.get('.source-target-view__source-panel').find('[data-dnd-draggable]').should('exist');
+
   targetNode
-    .find('[id^="droppable-"]')
-    .first()
-    .trigger('mousemove', { dataTransfer, force: true })
-    .wait(50)
     .trigger('mouseenter', { dataTransfer, force: true })
     .trigger('mouseover', { dataTransfer, force: true })
-    .trigger('mousemove', { dataTransfer, force: true })
-    .wait(50)
-    .trigger('mouseup', { dataTransfer, force: true })
-    .wait(50);
+    .trigger('mousemove', { dataTransfer, force: true });
+
+  cy.get('.source-target-view__target-panel-main').find('[data-dnd-droppable]').should('exist');
+
+  targetNode.trigger('mouseup', { dataTransfer, force: true });
 
   cy.getDataMapperNode(targetNodePath)
     .find('[data-testid="transformation-xpath-input"]')
