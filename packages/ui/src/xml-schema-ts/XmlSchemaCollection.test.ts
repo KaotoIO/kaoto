@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { QName } from './QName';
 import { XmlSchemaCollection } from './XmlSchemaCollection';
 import { XmlSchemaUse } from './XmlSchemaUse';
@@ -10,19 +8,18 @@ import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import {
+  camelSpringXsd,
+  namedTypesXsd,
+  shipOrderEmptyFirstLineXsd,
+  shipOrderXsd,
+  testDocumentXsd,
+} from '../stubs/datamapper/data-mapper';
 
 describe('XmlSchemaCollection', () => {
-  const orderXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/ShipOrder.xsd')).toString();
-  const testXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/TestDocument.xsd')).toString();
-  const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/NamedTypes.xsd')).toString();
-  const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, 'test-resources/camel-spring.xsd')).toString();
-  const orderXsdEmptyFirstLine = fs
-    .readFileSync(path.resolve(__dirname, 'test-resources/ShipOrderEmptyFirstLine.xsd'))
-    .toString();
-
   it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(orderXsd, () => {});
+    const xmlSchema = collection.read(shipOrderXsd, () => {});
     const attributes = xmlSchema.getAttributes();
     expect(attributes.size).toEqual(0);
 
@@ -87,7 +84,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should parse TestDocument XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(testXsd, () => {});
+    const xmlSchema = collection.read(testDocumentXsd, () => {});
     const attributes = xmlSchema.getAttributes();
     expect(attributes.size).toEqual(0);
     const elements = xmlSchema.getElements();
@@ -133,7 +130,7 @@ describe('XmlSchemaCollection', () => {
   it('should parse ShipOrderEmptyFirstLine.xsd', () => {
     const collection = new XmlSchemaCollection();
     try {
-      collection.read(orderXsdEmptyFirstLine, () => {});
+      collection.read(shipOrderEmptyFirstLineXsd, () => {});
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((error as any).message).toContain('an XML declaration must be at the start of the document');

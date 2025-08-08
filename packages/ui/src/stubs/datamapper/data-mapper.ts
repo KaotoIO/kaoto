@@ -34,60 +34,43 @@ export const twoDataMapperRouteDefinitionStub = parse(`
             - to:
                 uri: ${XSLT_COMPONENT_NAME}:transform-2.xsl`);
 
-export const shipOrderXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrder.xsd'))
-  .toString();
-export const testDocumentXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/TestDocument.xsd'))
-  .toString();
-export const noTopElementXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/NoTopElement.xsd'))
-  .toString();
-export const camelSpringXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/camel-spring.xsd'))
-  .toString();
+export const shipOrderXsd = fs.readFileSync(path.resolve(__dirname, './xml/ShipOrder.xsd')).toString();
+export const testDocumentXsd = fs.readFileSync(path.resolve(__dirname, './xml/TestDocument.xsd')).toString();
+export const noTopElementXsd = fs.readFileSync(path.resolve(__dirname, './xml/NoTopElement.xsd')).toString();
+export const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/NamedTypes.xsd')).toString();
+export const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, './xml/camel-spring.xsd')).toString();
 export const shipOrderToShipOrderXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrder.xsl'))
+  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrder.xsl'))
   .toString();
 export const shipOrderToShipOrderInvalidForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderInvalidForEach.xsl'))
+  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderInvalidForEach.xsl'))
   .toString();
 export const shipOrderEmptyFirstLineXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderEmptyFirstLine.xsd'))
+  .readFileSync(path.resolve(__dirname, './xml/ShipOrderEmptyFirstLine.xsd'))
   .toString();
 export const shipOrderToShipOrderMultipleForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderMultipleForEach.xsl'))
+  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderMultipleForEach.xsl'))
   .toString();
 export const shipOrderToShipOrderCollectionIndexXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/ShipOrderToShipOrderCollectionIndex.xsl'))
+  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderCollectionIndex.xsl'))
   .toString();
 
-export const x12837PDfdlXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-837P.dfdl.xsd'))
-  .toString();
-export const message837Xsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/Message837.xsd'))
-  .toString();
-export const x12837PXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-837.xsl'))
-  .toString();
+export const x12837PDfdlXsd = fs.readFileSync(path.resolve(__dirname, './xml/X12-837P.dfdl.xsd')).toString();
+export const message837Xsd = fs.readFileSync(path.resolve(__dirname, './xml/Message837.xsd')).toString();
+export const x12837PXslt = fs.readFileSync(path.resolve(__dirname, './xml/X12-837.xsl')).toString();
 
-export const x12850DfdlXsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-850.dfdl.xsd'))
-  .toString();
-export const invoice850Xsd = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/Invoice850.xsd'))
-  .toString();
+export const x12850DfdlXsd = fs.readFileSync(path.resolve(__dirname, './xml/X12-850.dfdl.xsd')).toString();
+export const invoice850Xsd = fs.readFileSync(path.resolve(__dirname, './xml/Invoice850.xsd')).toString();
 export const x12850ForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, '../../xml-schema-ts/test-resources/X12-850-Invoice-for-each.xsl'))
+  .readFileSync(path.resolve(__dirname, './xml/X12-850-Invoice-for-each.xsl'))
   .toString();
 
-export const camelYamlDslJsonSchema = fs.readFileSync(path.resolve(__dirname, './camelYamlDsl.json')).toString();
+export const camelYamlDslJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/camelYamlDsl.json')).toString();
 
-export const cartJsonSchema = fs.readFileSync(path.resolve(__dirname, './Cart.schema.json')).toString();
-export const accountJsonSchema = fs.readFileSync(path.resolve(__dirname, './Account.schema.json')).toString();
-export const shipOrderJsonSchema = fs.readFileSync(path.resolve(__dirname, './ShipOrder.schema.json')).toString();
-export const shipOrderJsonXslt = fs.readFileSync(path.resolve(__dirname, './ShipOrderJson.xsl')).toString();
+export const cartJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Cart.schema.json')).toString();
+export const accountJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Account.schema.json')).toString();
+export const shipOrderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/ShipOrder.schema.json')).toString();
+export const shipOrderJsonXslt = fs.readFileSync(path.resolve(__dirname, './json/ShipOrderJson.xsl')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
