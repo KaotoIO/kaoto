@@ -231,6 +231,17 @@ describe('XPathService', () => {
       expect(paths.length).toEqual(1);
       expect(paths[0].isRelative).toBeFalsy();
     });
+
+    it('extract field paths from current() function in predicate', () => {
+      // This test reproduces the reported issue - should not throw error
+      const paths = XPathService.extractFieldPaths('Sub[current()/Sub/Typ="5032"]');
+      expect(paths.length).toBeGreaterThan(0);
+
+      // Should extract at least the main element path 'Sub' and the path from current() argument
+      const mainPath = paths.find((p) => p.pathSegments.length === 1 && p.pathSegments[0].name === 'Sub');
+      expect(mainPath).toBeDefined();
+      expect(mainPath?.pathSegments[0].predicates.length).toEqual(1);
+    });
   });
 
   it('getXPathFunctionDefinitions()', () => {

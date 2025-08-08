@@ -133,11 +133,16 @@ export class XPathService {
 
     const varName = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'VarRef', 'QName', 'NCName']);
     const contextItem = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'ContextItemExpr']);
+    const functionCall = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'FunctionCall']);
+
     if (varName && 'image' in varName) {
       answer.isRelative = false;
       answer.documentReferenceName = varName.image;
     } else if (contextItem && 'image' in contextItem) {
       answer.pathSegments.push(new PathSegment(contextItem.image, false));
+    } else if (functionCall) {
+      // Skip function calls in the path expression as they don't represent field paths
+      // The function arguments are already processed by extractPathExprNode/collectPathExprNodes
     } else {
       const segment = XPathService.extractSegmentFromStepExpr(stepExpr);
       if (segment) {
