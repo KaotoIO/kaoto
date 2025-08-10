@@ -22,6 +22,7 @@ import {
 import { isDefined } from './utils';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
 import { setColorScheme } from './utils/color-scheme';
+import { EditorCommandsProvider } from './providers/editor-commands.provider';
 
 function App() {
   const controller = useMemo(() => ControllerService.createController(), []);
@@ -41,33 +42,35 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <EntitiesProvider>
-                <Shell>
-                  <CatalogTilesProvider>
-                    <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <Outlet />
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
-                    </VisualizationProvider>
-                  </CatalogTilesProvider>
-                </Shell>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
+        <EditorCommandsProvider>
+          <RuntimeProvider catalogUrl={catalogUrl}>
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
+                    <CatalogTilesProvider>
+                      <VisualizationProvider controller={controller}>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <Outlet />
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </VisualizationProvider>
+                    </CatalogTilesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
+        </EditorCommandsProvider>
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );
