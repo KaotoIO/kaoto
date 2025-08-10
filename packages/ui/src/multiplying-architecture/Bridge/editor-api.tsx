@@ -1,5 +1,7 @@
 import { EditorApi } from '@kie-tools-core/editor/dist/api';
 import { useCallback, useContext, useMemo, useRef } from 'react';
+import { StateControlCommand } from '@kie-tools-core/editor/dist/api';
+import { EditService } from '../EditService';
 import { SourceCodeApiContext } from '../../providers/source-code.provider';
 
 export interface SourceCodeBridgeProviderRef extends EditorApi {
@@ -7,7 +9,7 @@ export interface SourceCodeBridgeProviderRef extends EditorApi {
   getContent: () => Promise<string>;
 }
 
-export const useEditorApi = () => {
+export const useEditorApi = (onStateControlCommandUpdate?: (command: StateControlCommand) => void) => {
   const sourceCodeRef = useRef<string>('');
   const sourceCodeApiContext = useContext(SourceCodeApiContext);
 
@@ -57,16 +59,34 @@ export const useEditorApi = () => {
        */
       getContent: () => Promise.resolve(sourceCodeRef.current),
       getPreview: () => Promise.resolve(undefined),
-      undo: (): Promise<void> => {
-        return Promise.resolve();
+      undo: async (): Promise<void> => {
+        const previous = EditService.getInstance().undo();
+        if (previous === undefined) return;
+        try {
+          EditService.getInstance().beginUndoRedo();
+          sourceCodeApiContext.setCodeAndNotify(previous);
+          sourceCodeRef.current = previous;
+          onStateControlCommandUpdate?.(StateControlCommand.UNDO);
+        } finally {
+          EditService.getInstance().endUndoRedo();
+        }
       },
-      redo: (): Promise<void> => {
-        return Promise.resolve();
+      redo: async (): Promise<void> => {
+        const next = EditService.getInstance().redo();
+        if (next === undefined) return;
+        try {
+          EditService.getInstance().beginUndoRedo();
+          sourceCodeApiContext.setCodeAndNotify(next);
+          sourceCodeRef.current = next;
+          onStateControlCommandUpdate?.(StateControlCommand.REDO);
+        } finally {
+          EditService.getInstance().endUndoRedo();
+        }
       },
       validate: () => Promise.resolve([]),
       setTheme: () => Promise.resolve(),
     }),
-    [setContent],
+    [onStateControlCommandUpdate, setContent, sourceCodeApiContext],
   );
 
   const output = useMemo(() => {

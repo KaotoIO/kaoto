@@ -63,6 +63,8 @@ export class KaotoEditorApp implements Editor {
     EditService.getInstance().clearEdits();
 
     await this.editorRef.current?.setContent(path, content);
+    // Register the initial content so that the first user change can be undone back to this baseline
+    await EditService.getInstance().registerEdit(content);
   }
 
   async getContent(): Promise<string> {
@@ -159,7 +161,11 @@ export class KaotoEditorApp implements Editor {
       <ReloadProvider>
         <SettingsProvider adapter={this.settingsAdapter}>
           <SourceCodeProvider>
-            <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
+            <SourceCodeBridgeProvider
+              ref={this.editorRef}
+              onNewEdit={this.sendNewEdit}
+              onStateControlCommandUpdate={this.sendStateControlCommand}
+            >
               <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
                 <CatalogLoaderProvider>
                   <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
