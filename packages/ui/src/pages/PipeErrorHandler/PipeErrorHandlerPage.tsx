@@ -1,6 +1,6 @@
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { FocusEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PipeResource, SourceSchemaType } from '../../models/camel';
 import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
@@ -14,6 +14,8 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   );
   const entitiesContext = useContext(EntitiesContext);
   const pipeResource = entitiesContext?.camelResource as PipeResource;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
   const errorHandlerSchema = (CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeErrorHandler')
     ?.propertiesSchema || {}) as KaotoSchemaDefinition['schema'];
@@ -43,19 +45,46 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
       } else {
         pipeResource!.deleteErrorHandlerEntity();
       }
-      entitiesContext!.updateSourceCodeFromEntities();
+      setHasPendingChanges(true);
     },
     [entitiesContext, pipeResource],
   );
 
+  const flushPendingChanges = useCallback(() => {
+    if (hasPendingChanges) {
+      entitiesContext!.updateSourceCodeFromEntities();
+      setHasPendingChanges(false);
+    }
+  }, [entitiesContext, hasPendingChanges]);
+
+  const handleContainerBlur = useCallback(
+    (e: FocusEvent<HTMLDivElement>) => {
+      const current = containerRef.current;
+      const nextFocused = e.relatedTarget as Node | null;
+      if (!current || !nextFocused || !current.contains(nextFocused)) {
+        flushPendingChanges();
+      }
+    },
+    [flushPendingChanges],
+  );
+
+  useEffect(() => {
+    return () => {
+      flushPendingChanges();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return isSupported ? (
     <CanvasFormTabsContext.Provider value={formTabsValue}>
-      <KaotoForm
-        data-testid="pipe-error-handler-form"
-        schema={errorHandlerSchema}
-        model={getErrorHandlerModel()}
-        onChange={onChangeModel as KaotoFormProps['onChange']}
-      />
+      <div ref={containerRef} onBlur={handleContainerBlur}>
+        <KaotoForm
+          data-testid="pipe-error-handler-form"
+          schema={errorHandlerSchema}
+          model={getErrorHandlerModel()}
+          onChange={onChangeModel as KaotoFormProps['onChange']}
+        />
+      </div>
     </CanvasFormTabsContext.Provider>
   ) : (
     <Content>Not applicable</Content>
