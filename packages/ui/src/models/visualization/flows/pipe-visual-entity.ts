@@ -175,19 +175,6 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return this.canDragNode(path);
   }
 
-  moveNodeTo(options: { draggedNodePath: string; droppedNodePath?: string }) {
-    if (options.droppedNodePath === undefined) return;
-
-    const step = getValue(this.pipe.spec!, options.draggedNodePath);
-    const kameletArray = getArrayProperty(this.pipe.spec!, 'steps');
-
-    /** Remove the dragged node */
-    this.removeStep(options.draggedNodePath);
-
-    /** Add the dragged node at the target node index */
-    kameletArray.splice(Number(options.droppedNodePath.split('.').pop()), 0, step);
-  }
-
   removeStep(path?: string): void {
     /** This method needs to be enabled after passing the entire parent to this class*/
     if (!path) return;

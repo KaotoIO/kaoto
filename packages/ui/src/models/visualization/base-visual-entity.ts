@@ -63,9 +63,6 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Check if the node is droppable */
   canDropOnNode: (path?: string) => boolean;
 
-  /** Switch steps */
-  moveNodeTo: (options: { draggedNodePath: string; droppedNodePath?: string }) => void;
-
   /** Remove the step at a given path from the underlying Camel entity */
   removeStep: (path?: string) => void;
 
@@ -119,8 +116,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   canDragNode(): boolean;
 
   canDropOnNode(): boolean;
-
-  moveNodeTo(path: string): void;
 
   getNodeInteraction(): NodeInteraction;
 

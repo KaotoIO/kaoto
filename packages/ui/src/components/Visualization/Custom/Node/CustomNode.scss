@@ -13,6 +13,10 @@
         @include custom.drop-target;
       }
 
+      &__possibleDropTargets {
+        @include custom.possible-drop-targets;
+      }
+
       &__image {
         position: relative;
         display: flex;

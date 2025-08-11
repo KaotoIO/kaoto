@@ -733,6 +733,7 @@ exports[`SettingsForm should render 1`] = `
             <input
               aria-describedby="#.experimentalFeatures.enableDragAndDrop-popover"
               aria-label="Enable Drag & Drop"
+              checked=""
               class="pf-v6-c-switch__input"
               id="#.experimentalFeatures.enableDragAndDrop"
               name="#.experimentalFeatures.enableDragAndDrop"
