@@ -217,4 +217,143 @@ describe('Parameters', () => {
     const shipTo = await screen.findByText('map [@key = ShipTo]');
     expect(shipTo).toBeTruthy();
   });
+
+  it('should be read-only when isReadOnly is true', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={true} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const addButton = screen.queryByTestId('add-parameter-button');
+    expect(addButton).not.toBeInTheDocument();
+  });
+
+  it('should cancel adding new parameter', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={false} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const addButton = await screen.findByTestId('add-parameter-button');
+    act(() => {
+      fireEvent.click(addButton);
+    });
+
+    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    act(() => {
+      fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
+    });
+
+    const cancelButton = screen.getByTestId('add-new-parameter-cancel-btn');
+    act(() => {
+      fireEvent.click(cancelButton);
+    });
+
+    expect(screen.queryByTestId('add-new-parameter-name-input')).not.toBeInTheDocument();
+  });
+
+  it('should toggle parameters expanded state', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={false} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const header = await screen.findByTestId('card-source-parameters-header');
+
+    // Initially expanded should be true (default), click to collapse
+    act(() => {
+      fireEvent.click(header);
+    });
+
+    // Click again to expand
+    act(() => {
+      fireEvent.click(header);
+    });
+
+    expect(header).toBeInTheDocument();
+  });
+
+  it('should handle empty parameter name validation', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={false} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const addButton = await screen.findByTestId('add-parameter-button');
+    act(() => {
+      fireEvent.click(addButton);
+    });
+
+    const submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    expect(submitButton.disabled).toBeTruthy();
+
+    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    expect(paramNameInput).toHaveAttribute('placeholder', 'parameter name');
+  });
+
+  it('should handle parameter submission with duplicate parameter check', async () => {
+    const mockUpdateDocument = jest.fn();
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
+          <DataMapperCanvasProvider>
+            <Parameters isReadOnly={false} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const addButton = await screen.findByTestId('add-parameter-button');
+    act(() => {
+      fireEvent.click(addButton);
+    });
+
+    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    act(() => {
+      fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
+    });
+
+    const submitButton = screen.getByTestId('add-new-parameter-submit-btn');
+    act(() => {
+      fireEvent.click(submitButton);
+    });
+
+    // Try to add the same parameter again - should be prevented but handled gracefully
+    act(() => {
+      fireEvent.click(addButton);
+    });
+
+    const paramNameInput2 = screen.getByTestId('add-new-parameter-name-input');
+    act(() => {
+      fireEvent.change(paramNameInput2, { target: { value: 'testparam1' } });
+    });
+
+    const submitButton2 = screen.getByTestId('add-new-parameter-submit-btn');
+    act(() => {
+      fireEvent.click(submitButton2);
+    });
+
+    // Should still call updateDocument only once since duplicate is handled
+    expect(mockUpdateDocument).toHaveBeenCalledTimes(1);
+  });
 });

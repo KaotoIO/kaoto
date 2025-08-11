@@ -30,6 +30,7 @@ import { MappingSerializerService } from '../services/mapping-serializer.service
 import { MappingService } from '../services/mapping.service';
 import { DocumentService } from '../services/document.service';
 import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
+import { SendAlertProps } from '../models/datamapper';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -50,7 +51,8 @@ export interface IDataMapperContext {
   setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
   setTargetBodyDocument: (doc: IDocument) => void;
-  updateDocumentDefinition: (definition: DocumentDefinition) => void;
+  setNewDocument: (documentType: DocumentType, documentId: string, document: IDocument) => void;
+  updateDocument: (document: IDocument, definition: DocumentDefinition) => void;
 
   isSourceParametersExpanded: boolean;
   setSourceParametersExpanded: (expanded: boolean) => void;
@@ -60,8 +62,8 @@ export interface IDataMapperContext {
   resetMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
 
-  alerts: Partial<AlertProps>[];
-  addAlert: (alert: Partial<AlertProps>) => void;
+  alerts: SendAlertProps[];
+  sendAlert: (alert: SendAlertProps) => void;
 
   debug: boolean;
   setDebug(debug: boolean): void;
@@ -109,7 +111,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType),
   );
 
-  const [alerts, setAlerts] = useState<Partial<AlertProps>[]>([]);
+  const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
   useEffect(() => {
     const documents = DocumentService.createInitialDocuments(documentInitializationModel);
@@ -209,10 +211,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [mappingTree, refreshSourceParameters, sourceParameterMap],
   );
 
-  const updateDocumentDefinition = useCallback(
-    (definition: DocumentDefinition) => {
-      const document = DocumentService.createDocument(definition);
-      if (!document) return;
+  const updateDocument = useCallback(
+    (document: IDocument, definition: DocumentDefinition) => {
       removeStaleMappings(document.documentType, document.documentId, document);
       setNewDocument(document.documentType, document.documentId, document);
       onUpdateDocument && onUpdateDocument(definition);
@@ -220,8 +220,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [onUpdateDocument, removeStaleMappings, setNewDocument],
   );
 
-  const addAlert = useCallback(
-    (option: Partial<AlertProps>) => {
+  const sendAlert = useCallback(
+    (option: SendAlertProps) => {
       alerts.push(option);
       setAlerts([...alerts]);
     },
@@ -258,13 +258,14 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setSourceBodyDocument,
       targetBodyDocument,
       setTargetBodyDocument,
-      updateDocumentDefinition,
+      setNewDocument,
+      updateDocument,
       mappingTree,
       refreshMappingTree,
       resetMappingTree,
       setMappingTree,
       alerts,
-      addAlert,
+      sendAlert,
       debug,
       setDebug,
     };
@@ -279,11 +280,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     deleteSourceParameter,
     sourceBodyDocument,
     targetBodyDocument,
-    updateDocumentDefinition,
+    setNewDocument,
+    updateDocument,
     mappingTree,
     refreshMappingTree,
+    resetMappingTree,
     alerts,
-    addAlert,
+    sendAlert,
     debug,
   ]);
 
@@ -302,7 +305,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
                 timeout={option.timeout ?? true}
                 onTimeout={() => closeAlert(option)}
                 actionClose={<AlertActionCloseButton onClose={() => closeAlert(option)} />}
-              ></Alert>
+              >
+                {option.description && <>option.description</>}
+              </Alert>
             ))}
           </AlertGroup>
           {children}

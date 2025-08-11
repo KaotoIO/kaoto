@@ -3,7 +3,13 @@ import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { FieldItem, MappingTree } from '../models/datamapper/mapping';
 import { act, useContext, useEffect } from 'react';
-import { DocumentDefinition, DocumentDefinitionType, DocumentType, IField } from '../models/datamapper/document';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  IField,
+} from '../models/datamapper/document';
 import { shipOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 
 describe('DataMapperProvider', () => {
@@ -75,7 +81,7 @@ describe('DataMapperProvider', () => {
     expect(tree!.children.length).toEqual(0);
   });
 
-  it("updateDocumentDefinition() should also update MappingTree.documentDefinitionType if it's target body", async () => {
+  it("updateDocument() should also update MappingTree.documentDefinitionType if it's target body", async () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider>{children}</DataMapperProvider>
     );
@@ -89,12 +95,201 @@ describe('DataMapperProvider', () => {
       'ShipOrderJson',
       { ShipOrderJson: shipOrderJsonSchema },
     );
+
+    // Create a mock document - in practice this would come from DocumentService
+    const mockDocument = {
+      documentType: DocumentType.TARGET_BODY,
+      documentId: 'ShipOrderJson',
+      definitionType: DocumentDefinitionType.JSON_SCHEMA,
+    } as IDocument;
+
     act(() => {
-      result.current!.updateDocumentDefinition(docDef);
+      result.current!.updateDocument(mockDocument, docDef);
     });
 
     await waitFor(() => {
       expect(result.current!.mappingTree.documentDefinitionType).toEqual(DocumentDefinitionType.JSON_SCHEMA);
     });
+  });
+
+  it('updateDocument() should update source body document', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'ShipOrder', {});
+
+    const mockDocument = {
+      documentType: DocumentType.SOURCE_BODY,
+      documentId: 'Body',
+      definitionType: DocumentDefinitionType.XML_SCHEMA,
+    } as IDocument;
+
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+
+    expect(result.current.sourceBodyDocument).toEqual(mockDocument);
+  });
+
+  it('updateDocument() should update source parameter document', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+    } as IDocument;
+
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+
+    expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
+    expect(result.current.sourceParameterMap.get('testParam')).toEqual(mockDocument);
+  });
+
+  it('sendAlert() should add alert to alerts array', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    const alertProps = { variant: 'info' as const, title: 'Test alert' };
+
+    expect(result.current.alerts).toHaveLength(0);
+
+    act(() => {
+      result.current.sendAlert(alertProps);
+    });
+
+    expect(result.current.alerts).toHaveLength(1);
+    expect(result.current.alerts[0]).toEqual(alertProps);
+  });
+
+  it('deleteSourceParameter() should call onDeleteParameter callback if provided', async () => {
+    const mockOnDeleteParameter = jest.fn();
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider onDeleteParameter={mockOnDeleteParameter}>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    act(() => {
+      result.current.deleteSourceParameter('testParam');
+    });
+
+    expect(mockOnDeleteParameter).toHaveBeenCalledWith('testParam');
+  });
+
+  it('deleteSourceParameter() should remove parameter from map', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    // First add a parameter
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+    } as IDocument;
+
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+
+    expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
+
+    // Then delete it
+    act(() => {
+      result.current.deleteSourceParameter('testParam');
+    });
+
+    expect(result.current.sourceParameterMap.has('testParam')).toBeFalsy();
+  });
+
+  it('setSourceParametersExpanded() should update expanded state', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    // Default should be true
+    expect(result.current.isSourceParametersExpanded).toBeTruthy();
+
+    act(() => {
+      result.current.setSourceParametersExpanded(false);
+    });
+
+    expect(result.current.isSourceParametersExpanded).toBeFalsy();
+
+    act(() => {
+      result.current.setSourceParametersExpanded(true);
+    });
+
+    expect(result.current.isSourceParametersExpanded).toBeTruthy();
+  });
+
+  it('should handle onUpdateDocument callback when provided', async () => {
+    const mockOnUpdateDocument = jest.fn();
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider onUpdateDocument={mockOnUpdateDocument}>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    const docDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'ShipOrder', {});
+
+    const mockDocument = {
+      documentType: DocumentType.TARGET_BODY,
+      documentId: 'Body',
+      definitionType: DocumentDefinitionType.XML_SCHEMA,
+    } as IDocument;
+
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+
+    expect(mockOnUpdateDocument).toHaveBeenCalledWith(docDef);
+  });
+
+  it('updateDocument() should not update MappingTree.documentDefinitionType for non-target-body documents', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+    const originalType = result.current!.mappingTree.documentDefinitionType;
+
+    const docDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'ShipOrder', {});
+
+    const mockDocument = {
+      documentType: DocumentType.SOURCE_BODY,
+      documentId: 'Body',
+      definitionType: DocumentDefinitionType.XML_SCHEMA,
+    } as IDocument;
+
+    act(() => {
+      result.current!.updateDocument(mockDocument, docDef);
+    });
+
+    // MappingTree documentDefinitionType should remain unchanged for source documents
+    expect(result.current!.mappingTree.documentDefinitionType).toEqual(originalType);
   });
 });

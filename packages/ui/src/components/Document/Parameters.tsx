@@ -2,6 +2,7 @@ import {
   ActionList,
   ActionListGroup,
   ActionListItem,
+  AlertVariant,
   Button,
   Card,
   CardBody,
@@ -20,11 +21,12 @@ import { qname } from 'xml-name-validator';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
-import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { SourceDocument } from './SourceDocument';
 import { NodeReference } from '../../models/datamapper';
+import { DocumentService } from '../../services/document.service';
 
 enum ParameterNameValidation {
   EMPTY,
@@ -38,17 +40,30 @@ type AddNewParameterPlaceholderProps = {
 };
 
 const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderProps> = ({ onComplete }) => {
-  const { sourceParameterMap, updateDocumentDefinition } = useDataMapper();
+  const { sendAlert, sourceParameterMap, updateDocument } = useDataMapper();
   const [newParameterName, setNewParameterName] = useState<string>('');
 
   const submitNewParameter = useCallback(() => {
     if (!sourceParameterMap.has(newParameterName)) {
-      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, newParameterName);
-      updateDocumentDefinition(definition);
+      const result = DocumentService.createPrimitiveDocument(
+        DocumentType.PARAM,
+        DocumentDefinitionType.Primitive,
+        newParameterName,
+      );
+
+      if (result.validationStatus !== 'success') {
+        const variant = result.validationStatus === 'warning' ? AlertVariant.warning : AlertVariant.danger;
+        sendAlert({ variant: variant, title: result.validationMessage });
+      } else if (!result.documentDefinition || !result.document) {
+        sendAlert({ variant: AlertVariant.danger, title: 'Could not create a parameter' });
+      } else {
+        updateDocument(result.document, result.documentDefinition);
+      }
     }
+
     setNewParameterName('');
     onComplete();
-  }, [sourceParameterMap, newParameterName, onComplete, updateDocumentDefinition]);
+  }, [sourceParameterMap, newParameterName, onComplete, sendAlert, updateDocument]);
 
   const cancelNewParameter = useCallback(() => {
     setNewParameterName('');
