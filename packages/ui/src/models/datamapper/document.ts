@@ -198,6 +198,13 @@ export class DocumentInitializationModel {
   ) {}
 }
 
+export interface CreateDocumentResult {
+  validationStatus: 'success' | 'warning' | 'error';
+  validationMessage?: string;
+  documentDefinition?: DocumentDefinition;
+  document?: IDocument;
+}
+
 export const SCHEMA_FILE_NAME_PATTERN = '**/*.{xsd,XSD,xml,XML,json,JSON}';
 export const SCHEMA_FILE_ACCEPT_PATTERN = '.xsd, .xml, .json';
 // camel XSLT (including saxon) doesn't support JSON body

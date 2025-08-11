@@ -13,9 +13,6 @@ import {
   shipOrderXsd,
 } from '../../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { AlertProps } from '@patternfly/react-core';
 
 jest.mock('../../../stubs/read-file-as-string');
 const mockReadFileAsString = readFileAsString as jest.MockedFunction<typeof readFileAsString>;
@@ -131,24 +128,13 @@ describe('AttachSchemaButton', () => {
     });
   });
 
-  let capturedAlerts: Partial<AlertProps>[] = [];
-  const TestAlertCapture: FunctionComponent<PropsWithChildren> = ({ children }) => {
-    const { alerts } = useDataMapper();
-    useEffect(() => {
-      capturedAlerts = alerts;
-    }, [alerts]);
-    return <>{children}</>;
-  };
-
-  it('should show a toast alert for invalid schema', async () => {
+  it('should show inline error for invalid schema', async () => {
     mockReadFileAsString.mockResolvedValue(noTopElementXsd);
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <TestAlertCapture>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
-            </TestAlertCapture>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -170,30 +156,22 @@ describe('AttachSchemaButton', () => {
     });
 
     await waitFor(() => {
+      const helperText = screen.getByTestId('attach-schema-modal-text-helper');
+      expect(helperText).toBeInTheDocument();
+      expect(helperText.textContent).toContain('no top level Element');
+
       const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-      expect(text.value).toEqual('NoTopElement.xsd');
-    });
-
-    const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-    act(() => {
-      fireEvent.click(commitButton);
-    });
-
-    await waitFor(() => {
-      expect(capturedAlerts.length).toEqual(1);
-      expect(capturedAlerts[0].title).toContain('no top level Element');
+      expect(text.value).toEqual('');
     });
   });
 
-  it('should show a toast alert for XML parse error', async () => {
+  it('should show inline error for XML parse error', async () => {
     mockReadFileAsString.mockResolvedValue(shipOrderEmptyFirstLineXsd);
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <TestAlertCapture>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
-            </TestAlertCapture>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -217,30 +195,22 @@ describe('AttachSchemaButton', () => {
     });
 
     await waitFor(() => {
+      const helperText = screen.getByTestId('attach-schema-modal-text-helper');
+      expect(helperText).toBeInTheDocument();
+      expect(helperText.textContent).toContain('an XML declaration must be at the start of the document');
+
       const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-      expect(text.value).toEqual('ShipOrderEmptyFirstLine.xsd');
-    });
-
-    const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-    act(() => {
-      fireEvent.click(commitButton);
-    });
-
-    await waitFor(() => {
-      expect(capturedAlerts.length).toEqual(1);
-      expect(capturedAlerts[0].title).toContain('an XML declaration must be at the start of the document');
+      expect(text.value).toEqual('');
     });
   });
 
-  it('should show a toast alert when attaching JSON schema on the source body', async () => {
+  it('should show inline error when attaching JSON schema on the source body', async () => {
     mockReadFileAsString.mockResolvedValue(shipOrderJsonSchema);
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <TestAlertCapture>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
-            </TestAlertCapture>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -263,29 +233,26 @@ describe('AttachSchemaButton', () => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
 
-    await waitFor(() => {
-      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-      expect(text.value).toEqual('');
-    });
-
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toEqual(true);
 
     await waitFor(() => {
-      expect(capturedAlerts.length).toEqual(1);
-      expect(capturedAlerts[0].title).toContain('JSON source body is not supported');
+      const helperText = screen.getByTestId('attach-schema-modal-text-helper');
+      expect(helperText).toBeInTheDocument();
+      expect(helperText.textContent).toContain('JSON source body is not supported');
+
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('');
     });
   });
 
-  it('should show a toast alert when attaching unknown file to source body', async () => {
+  it('should show inline error when attaching unknown file to source body', async () => {
     mockReadFileAsString.mockResolvedValue(shipOrderJsonXslt);
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <TestAlertCapture>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
-            </TestAlertCapture>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -308,31 +275,28 @@ describe('AttachSchemaButton', () => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
 
-    await waitFor(() => {
-      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-      expect(text.value).toEqual('');
-    });
-
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toEqual(true);
 
     await waitFor(() => {
-      expect(capturedAlerts.length).toEqual(1);
-      expect(capturedAlerts[0].title).toContain(
+      const helperText = screen.getByTestId('attach-schema-modal-text-helper');
+      expect(helperText).toBeInTheDocument();
+      expect(helperText.textContent).toContain(
         "Unknown file extension '.xsl'. Only XML schema file (.xml, .xsd) is supported.",
       );
+
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('');
     });
   });
 
-  it('should show a toast alert when attaching unknown file to target body', async () => {
+  it('should show inline error when attaching unknown file to target body', async () => {
     mockReadFileAsString.mockResolvedValue(shipOrderJsonXslt);
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <TestAlertCapture>
-              <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
-            </TestAlertCapture>
+            <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -355,19 +319,87 @@ describe('AttachSchemaButton', () => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
 
-    await waitFor(() => {
-      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-      expect(text.value).toEqual('');
-    });
+    await waitFor(() => {});
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toEqual(true);
 
     await waitFor(() => {
-      expect(capturedAlerts.length).toEqual(1);
-      expect(capturedAlerts[0].title).toContain(
+      const helperText = screen.getByTestId('attach-schema-modal-text-helper');
+      expect(helperText).toBeInTheDocument();
+      expect(helperText.textContent).toContain(
         "Unknown file extension '.xsl'. Either XML schema (.xsd, .xml) or JSON schema (.json) file is supported.",
       );
+
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('');
     });
+  });
+
+  it('should close modal when cancel is clicked', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    let modal = screen.queryByTestId('attach-schema-modal');
+    expect(modal).toBeInTheDocument();
+
+    const cancelButton = await screen.findByTestId('attach-schema-modal-btn-cancel');
+    act(() => {
+      fireEvent.click(cancelButton);
+    });
+
+    await waitFor(() => {
+      modal = screen.queryByTestId('attach-schema-modal');
+      expect(modal).not.toBeInTheDocument();
+    });
+  });
+
+  it('should change schema type when radio button is clicked', async () => {
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    const xmlRadio = await screen.findByTestId('attach-schema-modal-option-xml');
+    const jsonRadio = await screen.findByTestId('attach-schema-modal-option-json');
+
+    expect(xmlRadio).toBeChecked();
+    expect(jsonRadio).not.toBeChecked();
+
+    act(() => {
+      fireEvent.click(jsonRadio);
+    });
+
+    expect(xmlRadio).not.toBeChecked();
+    expect(jsonRadio).toBeChecked();
+
+    act(() => {
+      fireEvent.click(xmlRadio);
+    });
+
+    expect(xmlRadio).toBeChecked();
+    expect(jsonRadio).not.toBeChecked();
   });
 });

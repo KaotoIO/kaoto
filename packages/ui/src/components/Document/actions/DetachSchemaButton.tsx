@@ -13,14 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { AlertVariant, Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ExportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
-import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { DocumentService } from '../../../services/document.service';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -28,23 +29,34 @@ type DeleteSchemaProps = {
 };
 
 export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
-  const { updateDocumentDefinition } = useDataMapper();
+  const { sendAlert, updateDocument } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
+
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const definition = new DocumentDefinition(documentType, DocumentDefinitionType.Primitive, documentId);
-    updateDocumentDefinition(definition);
-    clearNodeReferencesForDocument(documentType, documentId);
-    reloadNodeReferences();
+    const result = DocumentService.createPrimitiveDocument(documentType, DocumentDefinitionType.Primitive, documentId);
+
+    if (result.validationStatus !== 'success') {
+      const variant = result.validationStatus === 'warning' ? AlertVariant.warning : AlertVariant.danger;
+      sendAlert({ variant: variant, title: result.validationMessage });
+    } else if (!result.documentDefinition || !result.document) {
+      sendAlert({ variant: AlertVariant.danger, title: 'Could not detach schema' });
+    } else {
+      updateDocument(result.document, result.documentDefinition);
+      clearNodeReferencesForDocument(documentType, documentId);
+      reloadNodeReferences();
+    }
+
     closeModal();
   }, [
     documentType,
     documentId,
-    updateDocumentDefinition,
+    closeModal,
+    sendAlert,
+    updateDocument,
     clearNodeReferencesForDocument,
     reloadNodeReferences,
-    closeModal,
   ]);
 
   return (

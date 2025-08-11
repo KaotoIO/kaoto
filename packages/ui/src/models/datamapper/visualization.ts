@@ -2,6 +2,7 @@ import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
 import { NodePath } from './nodepath';
 import { RefObject } from 'react';
+import { AlertProps } from '@patternfly/react-core';
 
 export interface NodeData {
   title: string;
@@ -187,3 +188,5 @@ export type LineProps = LineCoord & {
   isSelected?: boolean;
   svgRef?: RefObject<SVGSVGElement>;
 };
+
+export type SendAlertProps = Partial<AlertProps & { description: string }>;
