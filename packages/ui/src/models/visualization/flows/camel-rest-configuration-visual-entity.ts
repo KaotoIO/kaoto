@@ -88,10 +88,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return false;
   }
 
-  moveNodeTo(_options: { draggedNodePath: string; droppedNodePath?: string }) {
-    return;
-  }
-
   removeStep(): void {
     return;
   }

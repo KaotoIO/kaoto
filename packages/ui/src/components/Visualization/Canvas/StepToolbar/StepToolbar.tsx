@@ -1,7 +1,5 @@
 import { Button } from '@patternfly/react-core';
 import {
-  AngleDoubleDownIcon,
-  AngleDoubleUpIcon,
   BanIcon,
   CheckIcon,
   CodeBranchIcon,
@@ -21,7 +19,6 @@ import { useEnableAllSteps } from '../../Custom/hooks/enable-all-steps.hook';
 import { useInsertStep } from '../../Custom/hooks/insert-step.hook';
 import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
 import './StepToolbar.scss';
-import { useMoveStep } from '../../Custom/hooks/move-step.hook';
 
 interface IStepToolbar extends IDataTestID {
   vizNode: IVisualizationNode;
@@ -46,39 +43,9 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   const { onReplaceNode } = useReplaceStep(vizNode);
   const { onDeleteStep } = useDeleteStep(vizNode);
   const { onDeleteGroup } = useDeleteGroup(vizNode);
-  const { canBeMoved: canMoveBefore, onMoveStep: onMoveBefore } = useMoveStep(vizNode, AddStepMode.PrependStep);
-  const { canBeMoved: canMoveAfter, onMoveStep: onMoveAfter } = useMoveStep(vizNode, AddStepMode.AppendStep);
 
   return (
     <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
-      {canMoveBefore && (
-        <Button
-          icon={<AngleDoubleUpIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-move-before"
-          variant="control"
-          title="Move before"
-          onClick={(event) => {
-            onMoveBefore();
-            event.stopPropagation();
-          }}
-        ></Button>
-      )}
-
-      {canMoveAfter && (
-        <Button
-          icon={<AngleDoubleDownIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-move-after"
-          variant="control"
-          title="Move after"
-          onClick={(event) => {
-            onMoveAfter();
-            event.stopPropagation();
-          }}
-        ></Button>
-      )}
-
       {canHaveSpecialChildren && (
         <Button
           icon={<CodeBranchIcon />}

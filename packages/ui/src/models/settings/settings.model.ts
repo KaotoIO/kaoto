@@ -35,7 +35,7 @@ export class SettingsModel implements ISettingsModel {
   nodeToolbarTrigger: NodeToolbarTrigger = NodeToolbarTrigger.onHover;
   colorScheme: ColorScheme = ColorScheme.Auto;
   experimentalFeatures = {
-    enableDragAndDrop: false,
+    enableDragAndDrop: true,
   };
 
   constructor(options: Partial<ISettingsModel> = {}) {

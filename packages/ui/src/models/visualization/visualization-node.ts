@@ -78,10 +78,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.canDropOnNode(this.data.path) ?? false;
   }
 
-  moveNodeTo(path: string): void {
-    this.getBaseEntity()?.moveNodeTo({ draggedNodePath: path, droppedNodePath: this.data.path });
-  }
-
   getNodeInteraction(): NodeInteraction {
     return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
   }

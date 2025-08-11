@@ -9,7 +9,7 @@ import {
 import { FunctionComponent } from 'react';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
-import { CustomNodeObserver } from '../Node/CustomNode';
+import { CustomNodeWithSelection } from '../Node/CustomNode';
 import { useCollapseStep } from '../hooks/collapse-step.hook';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
@@ -27,7 +27,7 @@ const CustomGroupInner: FunctionComponent<ICustomGroup> = observer(({ element, o
 
   if (element.isCollapsed()) {
     return (
-      <CustomNodeObserver
+      <CustomNodeWithSelection
         {...rest}
         element={element}
         onCollapseToggle={() => {
