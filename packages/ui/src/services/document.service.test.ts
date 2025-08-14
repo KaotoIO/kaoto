@@ -1,7 +1,13 @@
 import { DocumentService } from './document.service';
 
-import { TestUtil } from '../stubs/datamapper/data-mapper';
-import { DocumentDefinitionType, DocumentType, PathSegment, PrimitiveDocument } from '../models/datamapper';
+import { TestUtil, multipleElementsXsd } from '../stubs/datamapper/data-mapper';
+import {
+  DocumentDefinitionType,
+  DocumentType,
+  PathSegment,
+  PrimitiveDocument,
+  RootElementOption,
+} from '../models/datamapper';
 import { XmlSchemaDocument } from './xml-schema-document.service';
 import { JsonSchemaDocument } from './json-schema-document.service';
 import { IMetadataApi } from '../providers';
@@ -32,6 +38,33 @@ describe('DocumentService', () => {
       expect(result.documentDefinition).toBeDefined();
       expect(result.documentDefinition?.documentType).toBe(DocumentType.SOURCE_BODY);
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      expect(result.rootElementOptions).toBeDefined();
+      expect(result.rootElementOptions?.length).toEqual(1);
+    });
+
+    it('should create XML schema document with multiple root elements', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'multiple',
+        ['MultipleElements.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.document instanceof XmlSchemaDocument).toBeTruthy();
+      expect(result.rootElementOptions).toBeDefined();
+      expect(result.rootElementOptions?.length).toBe(3);
+
+      expect(result.rootElementOptions).toEqual([
+        { name: 'Order', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
+        { name: 'Invoice', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
+        { name: 'Shipment', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
+      ]);
     });
 
     it('should return error if XML schema is not parseable', async () => {
@@ -259,6 +292,88 @@ describe('DocumentService', () => {
       expect(result.document).toBeDefined();
       expect(result.documentDefinition).toBeDefined();
       expect(mockApi.getResourceContent).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('getRootElementQName()', () => {
+    it('should return null for non-XML schema documents', () => {
+      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+      const qName = DocumentService.getRootElementQName(primitiveDoc);
+      expect(qName).toBeNull();
+    });
+
+    it('should return null for undefined document', () => {
+      const qName = DocumentService.getRootElementQName();
+      expect(qName).toBeNull();
+    });
+
+    it('should return QName for XML schema document', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['MultipleElements.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const qName = DocumentService.getRootElementQName(result.document);
+      expect(qName).toBeDefined();
+      expect(qName?.getLocalPart()).toBe('Order'); // Default to first element
+      expect(qName?.getNamespaceURI()).toBe('io.kaoto.datamapper.test.multiple');
+    });
+  });
+
+  describe('updateRootElement()', () => {
+    it('should return original document for non-XML schema documents', () => {
+      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+      const rootElementOption: RootElementOption = {
+        name: 'Test',
+        namespaceUri: 'http://test.com',
+      };
+
+      const updatedDoc = DocumentService.updateRootElement(primitiveDoc, rootElementOption);
+      expect(updatedDoc).toBe(primitiveDoc);
+    });
+
+    it('should create new document with different root element for XML schema documents', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['MultipleElements.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const originalDocument = result.document as XmlSchemaDocument;
+
+      // Verify original document has Order as root element
+      const originalQName = DocumentService.getRootElementQName(originalDocument);
+      expect(originalQName?.getLocalPart()).toBe('Order');
+
+      // Update to Invoice root element
+      const invoiceOption: RootElementOption = {
+        name: 'Invoice',
+        namespaceUri: 'io.kaoto.datamapper.test.multiple',
+      };
+
+      const updatedDocument = DocumentService.updateRootElement(originalDocument, invoiceOption);
+      expect(updatedDocument).not.toBe(originalDocument); // Should be a new instance
+      expect(updatedDocument instanceof XmlSchemaDocument).toBeTruthy();
+
+      // Verify updated document has Invoice as root element
+      const updatedQName = DocumentService.getRootElementQName(updatedDocument);
+      expect(updatedQName?.getLocalPart()).toBe('Invoice');
+      expect(updatedQName?.getNamespaceURI()).toBe('io.kaoto.datamapper.test.multiple');
     });
   });
 

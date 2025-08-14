@@ -179,6 +179,7 @@ export class DocumentDefinition {
     public definitionType: DocumentDefinitionType,
     public name?: string,
     public definitionFiles?: Record<string, string>,
+    public rootElementChoice?: RootElementOption,
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
@@ -198,11 +199,17 @@ export class DocumentInitializationModel {
   ) {}
 }
 
+export type RootElementOption = {
+  namespaceUri: string;
+  name: string;
+};
+
 export interface CreateDocumentResult {
   validationStatus: 'success' | 'warning' | 'error';
   validationMessage?: string;
   documentDefinition?: DocumentDefinition;
   document?: IDocument;
+  rootElementOptions?: RootElementOption[];
 }
 
 export const SCHEMA_FILE_NAME_PATTERN = '**/*.{xsd,XSD,xml,XML,json,JSON}';

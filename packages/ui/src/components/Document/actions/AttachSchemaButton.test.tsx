@@ -1,11 +1,23 @@
 import { AttachSchemaButton } from './AttachSchemaButton';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  findByLabelText,
+  fireEvent,
+  getAllByLabelText,
+  getByLabelText,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { DocumentService } from '../../../services/document.service';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 import {
+  multipleElementsXsd,
   noTopElementXsd,
   shipOrderEmptyFirstLineXsd,
   shipOrderJsonSchema,
@@ -401,5 +413,276 @@ describe('AttachSchemaButton', () => {
 
     expect(xmlRadio).toBeChecked();
     expect(jsonRadio).not.toBeChecked();
+  });
+
+  describe('Root Element Selection', () => {
+    it('should show root element selector when multiple elements are available', async () => {
+      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+      act(() => {
+        fireEvent.click(attachButton);
+      });
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      act(() => {
+        fireEvent.click(importButton);
+      });
+
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      act(() => {
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+      });
+
+      await waitFor(() => {
+        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+        expect(text.value).toEqual('MultipleElements.xsd');
+      });
+
+      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
+      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
+      expect(typeaheadInput.getAttribute('value')).toEqual('Order');
+
+      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      act(() => {
+        fireEvent.click(dropdownToggle);
+      });
+
+      await waitFor(() => {
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
+        const order = getByLabelText(rootElementSelect, 'option order');
+        expect(order.getAttribute('aria-selected')).toEqual('true');
+
+        const invoice = getByLabelText(rootElementSelect, 'option invoice');
+        expect(invoice.getAttribute('aria-selected')).toEqual('false');
+
+        const shipment = getByLabelText(rootElementSelect, 'option shipment');
+        expect(shipment.getAttribute('aria-selected')).toEqual('false');
+      });
+    });
+
+    it('should show root element selector for single element schemas with pre-selected option', async () => {
+      mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+      act(() => {
+        fireEvent.click(attachButton);
+      });
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      act(() => {
+        fireEvent.click(importButton);
+      });
+
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      act(() => {
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+      });
+
+      await waitFor(() => {
+        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+        expect(text.value).toEqual('ShipOrder.xsd');
+      });
+
+      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
+      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
+      expect(typeaheadInput.getAttribute('value')).toEqual('ShipOrder');
+
+      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      act(() => {
+        fireEvent.click(dropdownToggle);
+      });
+
+      await waitFor(() => {
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
+        const options = getAllByLabelText(rootElementSelect, /option.*/);
+        expect(options.length).toEqual(1);
+        expect(options[0].getAttribute('aria-label')).toEqual('option shiporder');
+        expect(options[0].getAttribute('aria-selected')).toEqual('true');
+      });
+    });
+
+    it('should allow user to select different root elements', async () => {
+      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
+      act(() => {
+        fireEvent.click(attachButton);
+      });
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      act(() => {
+        fireEvent.click(importButton);
+      });
+
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      act(() => {
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+      });
+
+      await waitFor(() => {
+        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+        expect(text.value).toEqual('MultipleElements.xsd');
+      });
+
+      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
+      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
+      expect(typeaheadInput.getAttribute('value')).toEqual('Order');
+
+      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      act(() => {
+        fireEvent.click(dropdownToggle);
+      });
+
+      act(() => {
+        fireEvent.change(typeaheadInput, { target: { value: 'Invoice' } });
+      });
+      expect(typeaheadInput.getAttribute('value')).toEqual('Invoice');
+
+      await waitFor(() => {
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
+        const options = getAllByLabelText(rootElementSelect, /option.*/);
+        expect(options.length).toEqual(1);
+        expect(options[0].getAttribute('aria-label')).toEqual('option invoice');
+        expect(options[0].getAttribute('aria-selected')).toEqual('false');
+      });
+    });
+
+    it('should commit schema with selected root element', async () => {
+      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      let dataMapperContext: ReturnType<typeof useDataMapper>;
+
+      const TestComponent = () => {
+        dataMapperContext = useDataMapper();
+        return <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />;
+      };
+
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <TestComponent />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
+      act(() => {
+        fireEvent.click(attachButton);
+      });
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      act(() => {
+        fireEvent.click(importButton);
+      });
+
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      act(() => {
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+      });
+
+      await waitFor(() => {
+        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+        expect(text.value).toEqual('MultipleElements.xsd');
+      });
+
+      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      act(() => {
+        fireEvent.click(dropdownToggle);
+      });
+
+      const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
+      const invoice = await findByLabelText(rootElementSelect, 'option invoice');
+
+      act(() => {
+        fireEvent.click(invoice);
+      });
+
+      const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
+      expect(commitButton).not.toBeDisabled();
+
+      act(() => {
+        fireEvent.click(commitButton);
+      });
+
+      await waitFor(() => {
+        const modal = screen.queryByTestId('attach-schema-modal');
+        expect(modal).not.toBeInTheDocument();
+      });
+
+      const rootElementQName = DocumentService.getRootElementQName(dataMapperContext!.targetBodyDocument);
+      expect(rootElementQName).toBeDefined();
+      expect(rootElementQName?.getLocalPart()).toEqual('Invoice');
+      expect(rootElementQName?.getNamespaceURI()).toEqual('io.kaoto.datamapper.test.multiple');
+    });
+
+    it('should not show root element selector for JSON schemas', async () => {
+      mockReadFileAsString.mockResolvedValue(shipOrderJsonSchema);
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
+      act(() => {
+        fireEvent.click(attachButton);
+      });
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      act(() => {
+        fireEvent.click(importButton);
+      });
+
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', { type: 'text/plain' });
+      act(() => {
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+      });
+
+      await waitFor(() => {
+        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+        expect(text.value).toEqual('ShipOrder.json');
+      });
+
+      const rootElementSelector = screen.queryByTestId('attach-schema-root-element-typeahead-select-input');
+      expect(rootElementSelector).not.toBeInTheDocument();
+    });
   });
 });

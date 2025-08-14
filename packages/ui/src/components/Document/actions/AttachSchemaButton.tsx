@@ -20,6 +20,7 @@ import {
   HelperTextItem,
   InputGroup,
   InputGroupItem,
+  InputGroupText,
   Modal,
   ModalBody,
   ModalFooter,
@@ -30,6 +31,7 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { Typeahead, TypeaheadItem } from '@kaoto/forms';
 
 import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
@@ -38,6 +40,7 @@ import {
   CreateDocumentResult,
   DocumentDefinitionType,
   DocumentType,
+  RootElementOption,
   SCHEMA_FILE_NAME_PATTERN,
   SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY,
 } from '../../../models/datamapper/document';
@@ -127,6 +130,20 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       setSelectedSchemaType(schemaType);
     }
   }, [api, fileNamePattern, documentType, documentId]);
+
+  const hasRootElementOptions: boolean = useMemo(() => {
+    if (!createDocumentResult?.rootElementOptions) return false;
+    return createDocumentResult.rootElementOptions.length > 0;
+  }, [createDocumentResult?.rootElementOptions]);
+
+  const onUpdateRootElement = useCallback(
+    (option: RootElementOption) => {
+      if (!createDocumentResult?.document || !createDocumentResult?.documentDefinition) return;
+      createDocumentResult.documentDefinition.rootElementChoice = option;
+      createDocumentResult.document = DocumentService.updateRootElement(createDocumentResult?.document, option);
+    },
+    [createDocumentResult],
+  );
 
   const onCommit = useCallback(async () => {
     if (!createDocumentResult?.document || !createDocumentResult.documentDefinition) {
@@ -244,6 +261,16 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
                 )}
               </InputGroup>
             </StackItem>
+            {hasRootElementOptions && (
+              <StackItem>
+                <InputGroup>
+                  <InputGroupText>Root element</InputGroupText>
+                  <InputGroupItem>
+                    <RootElementSelect createDocumentResult={createDocumentResult!} onUpdate={onUpdateRootElement} />
+                  </InputGroupItem>
+                </InputGroup>
+              </StackItem>
+            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
@@ -262,5 +289,63 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         </ModalFooter>
       </Modal>
     </>
+  );
+};
+
+type RootElementSelectProps = {
+  createDocumentResult: CreateDocumentResult;
+  onUpdate: (option: RootElementOption) => void;
+};
+
+const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({ createDocumentResult, onUpdate }) => {
+  const rootQName = DocumentService.getRootElementQName(createDocumentResult.document);
+  const initialSelectedOption = rootQName
+    ? createDocumentResult.rootElementOptions?.find(
+        (option) =>
+          option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
+      )
+    : undefined;
+
+  const [selectedItem, setSelectedItem] = useState<TypeaheadItem | undefined>(
+    initialSelectedOption
+      ? {
+          name: initialSelectedOption.name,
+          value: initialSelectedOption.name,
+          description: initialSelectedOption.namespaceUri,
+        }
+      : undefined,
+  );
+
+  const items: TypeaheadItem[] = useMemo(() => {
+    if (!createDocumentResult?.rootElementOptions) return [];
+    return createDocumentResult.rootElementOptions.map((option) => ({
+      name: option.name,
+      value: option.name,
+      description: `Namespace URI: ${option.namespaceUri}`,
+    }));
+  }, [createDocumentResult?.rootElementOptions]);
+
+  const handleSelectionChange = useCallback(
+    (item?: TypeaheadItem) => {
+      if (!createDocumentResult.rootElementOptions || !item?.value) return;
+      const option = createDocumentResult.rootElementOptions.find((opt) => opt.name === item.value);
+      if (option) {
+        onUpdate(option);
+        setSelectedItem(item);
+      }
+    },
+    [createDocumentResult.rootElementOptions, onUpdate],
+  );
+
+  return (
+    <Typeahead
+      id="attach-schema-root-element"
+      data-testid="attach-schema-root-element"
+      aria-label="Attach schema / Choose Root Element"
+      placeholder={selectedItem?.name}
+      selectedItem={selectedItem}
+      onChange={handleSelectionChange}
+      items={items}
+    />
   );
 };

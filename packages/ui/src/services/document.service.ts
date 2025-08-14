@@ -9,10 +9,11 @@ import {
   IField,
   IParentType,
   PrimitiveDocument,
+  RootElementOption,
 } from '../models/datamapper/document';
 import { IMetadataApi } from '../providers';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 import { PathSegment } from '../models/datamapper';
 import { XPathService } from './xpath/xpath.service';
 import { DocumentUtilService } from './document-util.service';
@@ -70,11 +71,22 @@ export class DocumentService {
         return { validationStatus: 'error', validationMessage: 'Could not create a document from schema file(s)' };
       }
 
+      const rootElementOptions: RootElementOption[] = [];
+      if (document instanceof XmlSchemaDocument) {
+        const options: RootElementOption[] = Array.from(document.xmlSchema.getElements().keys())
+          .filter((key) => !!key.getLocalPart())
+          .map((key) => {
+            return { namespaceUri: key.getNamespaceURI() || '', name: key.getLocalPart() };
+          }) as RootElementOption[];
+        rootElementOptions.push(...options);
+      }
+
       return {
         validationStatus: 'success',
         validationMessage: 'Schema validation successful',
         documentDefinition,
         document,
+        rootElementOptions,
       };
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
@@ -131,12 +143,28 @@ export class DocumentService {
     const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
     switch (definition.definitionType) {
       case DocumentDefinitionType.XML_SCHEMA:
-        return XmlSchemaDocumentService.createXmlSchemaDocument(definition.documentType, documentId, content);
+        return XmlSchemaDocumentService.createXmlSchemaDocument(
+          definition.documentType,
+          documentId,
+          content,
+          definition.rootElementChoice,
+        );
       case DocumentDefinitionType.JSON_SCHEMA:
         return JsonSchemaDocumentService.createJsonSchemaDocument(definition.documentType, documentId, content);
       default:
         return null;
     }
+  }
+
+  static updateRootElement(document: IDocument, rootElementOption: RootElementOption): IDocument {
+    if (!(document instanceof XmlSchemaDocument)) return document;
+
+    return XmlSchemaDocumentService.updateRootElement(document, rootElementOption);
+  }
+
+  static getRootElementQName(document?: IDocument) {
+    if (!(document instanceof XmlSchemaDocument)) return null;
+    return document.rootElement?.getQName();
   }
 
   static createInitialDocuments(initModel?: DocumentInitializationModel): InitialDocumentsSet | null {

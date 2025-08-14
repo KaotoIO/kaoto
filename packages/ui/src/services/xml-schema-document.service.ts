@@ -37,18 +37,19 @@ import {
   IField,
   ITypeFragment,
   IParentType,
+  RootElementOption,
 } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { NodePath } from '../models/datamapper/nodepath';
 import { DocumentUtilService } from './document-util.service';
+import { QName } from '../xml-schema-ts/QName';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
 }
 
 export class XmlSchemaDocument extends BaseDocument {
-  rootElement: XmlSchemaElement;
   fields: XmlSchemaField[] = [];
   namedTypeFragments: Record<string, XmlSchemaTypeFragment> = {};
   totalFieldCount = 0;
@@ -59,14 +60,18 @@ export class XmlSchemaDocument extends BaseDocument {
     public xmlSchema: XmlSchema,
     documentType: DocumentType,
     documentId: string,
+    public rootElement?: XmlSchemaElement,
   ) {
     super(documentType, documentId);
     this.name = documentId;
     if (this.xmlSchema.getElements().size == 0) {
       throw Error("There's no top level Element in the schema");
     }
-    // TODO let user choose the root element from top level elements if there're multiple
-    this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
+
+    if (!this.rootElement) {
+      this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
+    }
+
     XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
     this.definitionType = DocumentDefinitionType.XML_SCHEMA;
   }
@@ -114,18 +119,46 @@ export class XmlSchemaField extends BaseField {
   }
 }
 
+/**
+ * The collection of XML schema handling logic. {@link createXmlSchemaDocument} consumes XML schema
+ * file and generate a {@link XmlSchemaDocument} object.
+ */
 export class XmlSchemaDocumentService {
   static parseXmlSchema(content: string): XmlSchema {
     const collection = new XmlSchemaCollection();
     return collection.read(content, () => {});
   }
 
-  static createXmlSchemaDocument(documentType: DocumentType, documentId: string, content: string) {
+  static createXmlSchemaDocument(
+    documentType: DocumentType,
+    documentId: string,
+    content: string,
+    rootElementChoice?: RootElementOption,
+  ) {
     const schema = XmlSchemaDocumentService.parseXmlSchema(content);
-    return new XmlSchemaDocument(schema, documentType, documentId);
+    let rootElement: XmlSchemaElement | undefined;
+
+    if (rootElementChoice) {
+      const qName = new QName(rootElementChoice.namespaceUri, rootElementChoice.name);
+      rootElement = schema.getElements().get(qName);
+    }
+
+    return new XmlSchemaDocument(schema, documentType, documentId, rootElement);
   }
 
-  static getFirstElement(xmlSchema: XmlSchema) {
+  /**
+   * Recreates {@link XmlSchemaDocument} object with a new root element. Other part including {@link XmlSchema} object
+   * is reused from passed in {@link XmlSchemaDocument} object.
+   * @param document
+   * @param rootElementOption
+   */
+  static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
+    const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
+    const newRootElement = document.xmlSchema.getElements().get(newRootQName);
+    return new XmlSchemaDocument(document.xmlSchema, document.documentType, document.documentId, newRootElement);
+  }
+
+  static getFirstElement(xmlSchema: XmlSchema): XmlSchemaElement {
     return xmlSchema.getElements().values().next().value;
   }
 

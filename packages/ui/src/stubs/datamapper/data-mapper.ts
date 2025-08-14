@@ -39,6 +39,7 @@ export const testDocumentXsd = fs.readFileSync(path.resolve(__dirname, './xml/Te
 export const noTopElementXsd = fs.readFileSync(path.resolve(__dirname, './xml/NoTopElement.xsd')).toString();
 export const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/NamedTypes.xsd')).toString();
 export const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, './xml/camel-spring.xsd')).toString();
+export const multipleElementsXsd = fs.readFileSync(path.resolve(__dirname, './xml/MultipleElements.xsd')).toString();
 export const shipOrderToShipOrderXslt = fs
   .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrder.xsl'))
   .toString();
