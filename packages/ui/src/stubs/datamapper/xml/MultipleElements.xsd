@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="io.kaoto.datamapper.test.multiple" 
+           xmlns:tns="io.kaoto.datamapper.test.multiple">
+  
+  <!-- First root element -->
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="OrderId" type="xs:string" />
+        <xs:element name="CustomerName" type="xs:string" />
+        <xs:element name="TotalAmount" type="xs:decimal" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <!-- Second root element -->
+  <xs:element name="Invoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="InvoiceNumber" type="xs:string" />
+        <xs:element name="BillingAddress" type="xs:string" />
+        <xs:element name="DueDate" type="xs:date" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <!-- Third root element -->
+  <xs:element name="Shipment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="TrackingNumber" type="xs:string" />
+        <xs:element name="Destination" type="xs:string" />
+        <xs:element name="EstimatedDelivery" type="xs:date" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>
