@@ -1,38 +1,31 @@
 import { Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, ReactElement, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
+import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
 import { EntityType } from '../../../../models/camel/entities';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import './NewEntity.scss';
 
 export const NewEntity: FunctionComponent = () => {
-  const { camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
-  const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const serializerType = camelResource.getSerializerType();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const groupedEntities = useMemo(() => camelResource.getCanvasEntityList(), [camelResource, serializerType]);
+  const { commonEntities, groupedEntities, createEntity } = useCanvasEntities();
 
   const onSelect = useCallback(
-    (_event: unknown, entityType: string | number | undefined) => {
+    (event: unknown, entityType: string | number | undefined) => {
+      // Prevent event bubbling to avoid context menu auto-close
+      if (event && typeof event === 'object' && 'stopPropagation' in event) {
+        (event as Event).stopPropagation();
+      }
+
       if (!entityType) {
         return;
       }
 
-      /**
-       * If it's the same DSL as we have in the existing Flows list,
-       * we don't need to do anything special, just add a new flow if
-       * supported
-       */
-      const newId = camelResource.addNewEntity(entityType as EntityType);
-      visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
-      updateEntitiesFromCamelResource();
+      createEntity(entityType as EntityType);
       setIsOpen(false);
     },
-    [camelResource, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
+    [createEntity],
   );
 
   const getMenuItem = useCallback(
@@ -48,7 +41,11 @@ export const NewEntity: FunctionComponent = () => {
           key={`new-entity-${name}`}
           data-testid={`new-entity-${name}`}
           itemId={name}
-          description={<span className="pf-v6-u-text-break-word entities-menu__description">{entity.description}</span>}
+          description={
+            <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
+              {entity.description}
+            </span>
+          }
           flyoutMenu={flyoutMenu}
         >
           {entity.title}
@@ -66,9 +63,9 @@ export const NewEntity: FunctionComponent = () => {
         <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
             <MenuList>
-              {groupedEntities.common.map((entityDef) => getMenuItem(entityDef))}
+              {commonEntities.map((entityDef) => getMenuItem(entityDef))}
 
-              {Object.entries(groupedEntities.groups).map(([group, entities]) => {
+              {Object.entries(groupedEntities).map(([group, entities]) => {
                 const flyoutMenu = (
                   <Menu className="entities-menu__submenu" onSelect={onSelect}>
                     <MenuContent>
