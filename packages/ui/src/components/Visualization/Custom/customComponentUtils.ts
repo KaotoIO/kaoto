@@ -16,26 +16,6 @@ const placeholderNodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, objec
   }),
 };
 
-const customNodeDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
-  accept: ['#node#'],
-  canDrop: (item, _monitor, props) => {
-    const targetNode = props.element;
-    const draggedNode = item as Node;
-
-    // Ensure that the node is not dropped onto itself
-    if (draggedNode !== targetNode) {
-      return targetNode.getData()?.vizNode?.canDropOnNode();
-    }
-
-    return false;
-  },
-  collect: (monitor) => ({
-    droppable: monitor.isDragging(),
-    hover: monitor.isOver(),
-    canDrop: monitor.canDrop(),
-  }),
-};
-
 const customGroupExpandedDropTargetSpec: DropTargetSpec<GraphElement, unknown, object, GraphElementProps> = {
   accept: ['#node#'],
   canDrop: () => {
@@ -46,4 +26,4 @@ const customGroupExpandedDropTargetSpec: DropTargetSpec<GraphElement, unknown, o
   }),
 };
 
-export { customGroupExpandedDropTargetSpec, customNodeDropTargetSpec, placeholderNodeDropTargetSpec, NODE_DRAG_TYPE };
+export { customGroupExpandedDropTargetSpec, placeholderNodeDropTargetSpec, NODE_DRAG_TYPE };

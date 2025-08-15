@@ -367,13 +367,14 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
      * last: 0
      */
     if (Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate))) {
-      const stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
+      /** If we're in Append mode, we need to insert the step after the selected index hence `Number(last) + 1` */
+      const desiredStartIndex = mode === AddStepMode.AppendStep ? Number(last) + 1 : Number(last);
 
       /** If we're in Replace mode, we need to delete the existing step */
       const deleteCount = mode === AddStepMode.ReplaceStep ? 1 : 0;
 
-      /** Add the dragged node before the drop target */
-      stepsArray.splice(Number(last), deleteCount, defaultValue);
+      const stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
+      stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
     }
   }
 

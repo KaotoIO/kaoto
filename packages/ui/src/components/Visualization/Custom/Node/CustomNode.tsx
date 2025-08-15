@@ -7,6 +7,7 @@ import {
   DragObjectWithType,
   DragSourceSpec,
   DragSpecOperationType,
+  DropTargetSpec,
   EditableDragOperationType,
   ElementModel,
   GraphElement,
@@ -19,28 +20,29 @@ import {
   TOP_LAYER,
   useAnchor,
   useCombineRefs,
+  useDndDrop,
   useDragNode,
   useHover,
   withContextMenu,
-  withDndDrop,
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useRef } from 'react';
+import { FunctionComponent, useContext, useRef, useMemo } from 'react';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
-import { customNodeDropTargetSpec } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
+import { isDefined } from '../../../../utils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -51,7 +53,7 @@ interface CustomNodeProps extends DefaultNodeProps {
 }
 
 const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, dndDropRef, hover, droppable, canDrop, selected, onSelect }) => {
+  ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomNodeInner must be used only on Node elements');
     }
@@ -59,6 +61,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const lastUpdate = vizNode?.lastUpdate;
     const entitiesContext = useEntityContext();
+    const catalogModalContext = useContext(CatalogModalContext);
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
@@ -92,54 +95,134 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       GraphElement,
       object,
       GraphElementProps
-    > = {
-      item: { type: '#node#' },
-      begin: () => {
-        // Hide all edges when dragging starts
-        element
-          .getGraph()
-          .getEdges()
-          .forEach((edge) => {
-            edge.setVisible(false);
-          });
-      },
-      canDrag: () => {
-        if (settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop) {
-          return element.getData()?.vizNode?.canDragNode();
-        } else {
-          return false;
-        }
-      },
-      end(dropResult, monitor) {
-        if (monitor.didDrop() && dropResult) {
-          const draggedNodePath = element.getData().vizNode.data.path;
-          dropResult.getData()?.vizNode?.moveNodeTo(draggedNodePath);
-          // Set an empty model to clear the graph
-          element.getController().fromModel({
-            nodes: [],
-            edges: [],
-          });
-
-          requestAnimationFrame(() => {
-            entitiesContext.updateEntitiesFromCamelResource();
-          });
-        } else {
-          // Show all edges after dropping
+    > = useMemo(
+      () => ({
+        item: { type: '#node#' },
+        begin: () => {
+          // Hide all edges when dragging starts
           element
             .getGraph()
             .getEdges()
             .forEach((edge) => {
-              edge.setVisible(true);
+              edge.setVisible(false);
             });
-          element.getGraph().layout();
-        }
-      },
-    };
+        },
+        canDrag: () => {
+          if (settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop) {
+            return element.getData()?.vizNode?.canDragNode();
+          } else {
+            return false;
+          }
+        },
+        end(dropResult, monitor) {
+          if (monitor.didDrop() && dropResult) {
+            const draggedVizNode = element.getData().vizNode as IVisualizationNode;
+            const droppedVizNode = dropResult.getData()?.vizNode as IVisualizationNode;
+            const draggedNodeContent = draggedVizNode.getCopiedContent();
+            if (!isDefined(draggedVizNode) || !isDefined(droppedVizNode) || !isDefined(draggedNodeContent)) return;
+
+            if (getDragAndDropDirection(draggedVizNode, droppedVizNode) === 'forward') {
+              droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.AppendStep);
+              draggedVizNode.removeChild();
+            } else {
+              draggedVizNode.removeChild();
+              droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.PrependStep);
+            }
+
+            // Set an empty model to clear the graph
+            element.getController().fromModel({
+              nodes: [],
+              edges: [],
+            });
+            requestAnimationFrame(() => {
+              entitiesContext.updateEntitiesFromCamelResource();
+            });
+          } else {
+            // Show all edges after dropping
+            element
+              .getGraph()
+              .getEdges()
+              .forEach((edge) => {
+                edge.setVisible(true);
+              });
+            element.getGraph().layout();
+          }
+        },
+      }),
+      [element, entitiesContext, settingsAdapter],
+    );
+
+    const customNodeDropTargetSpec: DropTargetSpec<
+      GraphElement,
+      unknown,
+      { droppable: boolean; hover: boolean; canDrop: boolean },
+      GraphElementProps
+    > = useMemo(
+      () => ({
+        accept: ['#node#'],
+        canDrop: (item, _monitor, _props) => {
+          const targetNode = element;
+          const draggedNode = item as Node;
+
+          // Ensure that the node is not dropped onto itself
+          if (draggedNode === targetNode) return false;
+
+          const draggedVizNode = draggedNode.getData()?.vizNode;
+          if (!isDefined(draggedVizNode) || !isDefined(vizNode)) return false;
+
+          const actionDirection = getDragAndDropDirection(draggedVizNode, vizNode);
+          const droppedVizNodeContent = draggedVizNode.getCopiedContent();
+          const targetVizNodeContent = vizNode.getCopiedContent();
+          if (!isDefined(droppedVizNodeContent) || !isDefined(targetVizNodeContent)) return false;
+
+          // Validation for step array nodes
+          if (
+            actionDirection === 'forward'
+              ? vizNode.getNodeInteraction().canHaveNextStep
+              : vizNode.getNodeInteraction().canHavePreviousStep
+          ) {
+            const filter = entitiesContext.camelResource.getCompatibleComponents(
+              actionDirection === 'forward' ? AddStepMode.AppendStep : AddStepMode.PrependStep,
+              vizNode.data,
+              vizNode.getComponentSchema()?.definition,
+            );
+            return catalogModalContext?.checkCompatibility(droppedVizNodeContent.name, filter) ?? false;
+          }
+
+          // validation for special children nodes in case of Route Entity
+          const draggedVizNodeParent = draggedVizNode.getParentNode();
+          const targetVizNodeParent = vizNode.getParentNode();
+          if (
+            draggedVizNodeParent &&
+            targetVizNodeParent &&
+            draggedVizNodeParent.getNodeInteraction().canHaveSpecialChildren &&
+            targetVizNodeParent.getNodeInteraction().canHaveSpecialChildren
+          ) {
+            if (droppedVizNodeContent.name !== targetVizNodeContent.name) return false;
+            const filter = entitiesContext.camelResource.getCompatibleComponents(
+              AddStepMode.InsertSpecialChildStep,
+              targetVizNodeParent.data,
+              targetVizNodeParent.getComponentSchema()?.definition,
+            );
+            return catalogModalContext?.checkCompatibility(draggedVizNode.getCopiedContent().name, filter) ?? false;
+          }
+
+          return false;
+        },
+        collect: (monitor) => ({
+          droppable: monitor.isDragging(),
+          hover: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+        }),
+      }),
+      [element, vizNode, entitiesContext, catalogModalContext],
+    );
 
     const [_, dragNodeRef] = useDragNode(nodeDragSourceSpec);
+    const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
     const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
 
-    if (!droppable || !boxRef.current) {
+    if (!dndDropProps.droppable || !boxRef.current) {
       boxRef.current = element.getBounds();
     }
     const labelX = (boxRef.current.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
@@ -173,7 +256,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           >
             <div
               className={clsx('custom-node__container', {
-                'custom-node__container__dropTarget': canDrop && hover,
+                'custom-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
+                'custom-node__container__possibleDropTarget':
+                  dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
               })}
             >
               <div title={tooltipContent} className="custom-node__container__image">
@@ -223,7 +308,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             </div>
           </foreignObject>
 
-          {!droppable && shouldShowToolbar && (
+          {!dndDropProps.droppable && shouldShowToolbar && (
             <Layer id={TOP_LAYER}>
               <foreignObject
                 ref={toolbarHoverRef}
@@ -243,7 +328,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             </Layer>
           )}
 
-          {!droppable && shouldShowAddStep && (
+          {!dndDropProps.droppable && shouldShowAddStep && (
             <foreignObject
               x={boxRef.current.width - 8}
               y={(boxRef.current.height - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2}
@@ -275,6 +360,24 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
 
 export const CustomNodeObserver = observer(CustomNode);
 
-export const CustomNodeWithSelection = withSelection()(
-  withDndDrop(customNodeDropTargetSpec)(withContextMenu(NodeContextMenuFn)(CustomNode)),
-);
+export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNode));
+
+export const getDragAndDropDirection = (
+  draggedVizNode: IVisualizationNode,
+  droppedVizNode: IVisualizationNode,
+): 'forward' | 'backward' => {
+  const isSameBaseEntity = draggedVizNode?.getId() === droppedVizNode?.getId();
+  if (!isSameBaseEntity) return 'forward';
+
+  const draggedNodeArray = draggedVizNode.data.path ?? ''.split('.');
+  const droppedNodeArray = droppedVizNode.data.path ?? ''.split('.');
+  for (let i = 0; i < Math.min(draggedNodeArray.length, droppedNodeArray.length); i++) {
+    if (draggedNodeArray[i] !== droppedNodeArray[i]) {
+      if (Number.isInteger(Number(draggedNodeArray[i])) && Number.isInteger(Number(droppedNodeArray[i]))) {
+        return draggedNodeArray[i] < droppedNodeArray[i] ? 'forward' : 'backward';
+      }
+    }
+  }
+
+  return 'forward';
+};
