@@ -27,6 +27,7 @@ import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
 import { EditService } from './EditService';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
+import { CatalogKind } from '../testing-api';
 
 export class KaotoEditorApp implements Editor {
   protected editorRef: RefObject<SourceCodeBridgeProviderRef>;
@@ -51,6 +52,7 @@ export class KaotoEditorApp implements Editor {
     this.deleteResource = this.deleteResource.bind(this);
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
     this.getSuggestions = this.getSuggestions.bind(this);
+    this.onStepAdded = this.onStepAdded.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -150,6 +152,10 @@ export class KaotoEditorApp implements Editor {
     }
   }
 
+  async onStepAdded(stepType: CatalogKind, stepName: string): Promise<void> {
+    return this.envelopeContext.channelApi.requests.onStepAdded(stepType, stepName);
+  }
+
   af_onOpen(): void {
     setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
@@ -176,6 +182,7 @@ export class KaotoEditorApp implements Editor {
                       askUserForFileSelection={this.askUserForFileSelection}
                       getSuggestions={this.getSuggestions}
                       shouldSaveSchema={false}
+                      onStepAdded={this.onStepAdded}
                     >
                       <RouterProvider router={kaotoEditorRouter} />
                     </KaotoBridge>

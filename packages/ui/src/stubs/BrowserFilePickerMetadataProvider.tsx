@@ -70,6 +70,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     deleteResource: () => Promise.resolve(true),
     saveResourceContent: () => Promise.resolve(),
     getSuggestions: () => Promise.resolve([]),
+    onStepAdded: () => Promise.resolve(),
   };
 
   return (

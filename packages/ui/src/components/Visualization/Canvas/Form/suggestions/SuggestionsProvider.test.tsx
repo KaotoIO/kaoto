@@ -46,6 +46,7 @@ describe('SuggestionRegistrar', () => {
       askUserForFileSelection: jest.fn(),
       getSuggestions: jest.fn(),
       shouldSaveSchema: false,
+      onStepAdded: jest.fn(),
     };
   });
 
