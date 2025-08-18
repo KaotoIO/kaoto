@@ -31,7 +31,7 @@ import {
   StackItem,
   TextInput,
 } from '@patternfly/react-core';
-import { act, FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { Typeahead, TypeaheadItem } from '@kaoto/forms';
 
 import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
