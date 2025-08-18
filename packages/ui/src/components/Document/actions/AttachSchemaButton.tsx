@@ -15,7 +15,6 @@
 */
 import {
   Alert,
-  AlertActionCloseButton,
   Button,
   FormHelperText,
   HelperText,
@@ -32,7 +31,7 @@ import {
   StackItem,
   TextInput,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { act, FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 import { Typeahead, TypeaheadItem } from '@kaoto/forms';
 
 import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
@@ -195,12 +194,12 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, []);
 
   const handleImport = useCallback(() => {
-    if (hasSchema) {
+    if (actionName === 'Update') {
       onWarningModalOpen();
     } else {
       onModalOpen();
     }
-  }, [hasSchema, onModalOpen, onWarningModalOpen]);
+  }, [actionName, onModalOpen, onWarningModalOpen]);
 
   const isReadyToSubmit = useMemo(() => {
     return (
