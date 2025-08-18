@@ -34,7 +34,7 @@ describe('AttachSchemaButton', () => {
     mockReadFileAsString.mockReset();
   });
 
-  it('should open modal', async () => {
+  it('should open attach schema modal when no schema is attached', async () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -55,6 +55,219 @@ describe('AttachSchemaButton', () => {
 
     modal = screen.queryByTestId('attach-schema-modal');
     expect(modal).toBeInTheDocument();
+  });
+
+  it('should open update schema warning modal when schema is already attached', async () => {
+    mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    let warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeNull();
+
+    let attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    let attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeInTheDocument();
+
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+    act(() => {
+      fireEvent.click(importButton);
+    });
+
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+
+    await waitFor(() => {
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('ShipOrder.xsd');
+    });
+
+    const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
+    act(() => {
+      fireEvent.click(commitButton);
+    });
+
+    await waitFor(() => {
+      expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+    });
+
+    attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeInTheDocument();
+  });
+
+  it('should cancel schema update when cancel button is clicked in warning modal', async () => {
+    mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    let warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeNull();
+
+    let attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    let attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeInTheDocument();
+
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+    act(() => {
+      fireEvent.click(importButton);
+    });
+
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+
+    await waitFor(() => {
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('ShipOrder.xsd');
+    });
+
+    const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
+    act(() => {
+      fireEvent.click(commitButton);
+    });
+
+    await waitFor(() => {
+      expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+    });
+
+    attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeInTheDocument();
+
+    const warningModalCancelButton = await screen.findByTestId('update-schema-warning-modal-btn-cancel');
+    act(() => {
+      fireEvent.click(warningModalCancelButton);
+    });
+
+    await waitFor(() => {
+      expect(warningModal).toBeNull();
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+  });
+
+  it('should open attach schema modal when continue button is clicked in warning modal', async () => {
+    mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <DataMapperCanvasProvider>
+            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+          </DataMapperCanvasProvider>
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    let warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeNull();
+
+    let attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    let attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeInTheDocument();
+
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+    act(() => {
+      fireEvent.click(importButton);
+    });
+
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+
+    await waitFor(() => {
+      const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
+      expect(text.value).toEqual('ShipOrder.xsd');
+    });
+
+    const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
+    act(() => {
+      fireEvent.click(commitButton);
+    });
+
+    await waitFor(() => {
+      expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+    });
+
+    attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
+    act(() => {
+      fireEvent.click(attachButton);
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeNull();
+
+    warningModal = screen.queryByTestId('update-schema-warning-modal');
+    expect(warningModal).toBeInTheDocument();
+
+    const warningModalContinueButton = await screen.findByTestId('update-schema-warning-modal-btn-continue');
+    act(() => {
+      fireEvent.click(warningModalContinueButton);
+    });
+
+    await waitFor(() => {
+      expect(warningModal).toBeNull();
+    });
+
+    attachSchemaModal = await screen.findByTestId('attach-schema-modal');
+    expect(attachSchemaModal).toBeInTheDocument();
   });
 
   it('should import XML schema', async () => {
