@@ -193,7 +193,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setIsWarningModalOpen(false);
   }, []);
 
-  const handleImport = useCallback(() => {
+  const handleWarningModal = useCallback(() => {
     if (actionName === 'Update') {
       onWarningModalOpen();
     } else {
@@ -215,40 +215,16 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         title={`${actionName} schema`}
         aria-label={`${actionName} schema`}
         data-testid={`attach-schema-${documentType}-${documentId}-button`}
-        onClick={handleImport}
+        onClick={handleWarningModal}
       />
 
-      <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-modal-warning">
-        <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
-        <ModalBody>
-          <Stack hasGutter>
-            <StackItem>
-              <Alert variant="warning" title="Warning">
-                {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it
-                might result in a loss of any existing data mappings.
-              </Alert>
-            </StackItem>
-          </Stack>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            key="Update-Schema-Warning-Button"
-            data-testid="update-schema-warning-modal-btn-update"
-            variant="primary"
-            onClick={onModalOpen}
-          >
-            Continue
-          </Button>
-          <Button
-            key="Cancel"
-            data-testid="update-schema-modal-btn-cancel"
-            variant="link"
-            onClick={onWarningModalClose}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <UpdateWarningModal
+        actionName={actionName}
+        documentTypeLabel={documentTypeLabel}
+        isWarningModalOpen={isWarningModalOpen}
+        onModalOpen={onModalOpen}
+        onWarningModalClose={onWarningModalClose}
+      />
 
       <Modal isOpen={isModalOpen} variant="small" data-testid="attach-schema-modal">
         <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
@@ -336,6 +312,58 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
             {actionName}
           </Button>
           <Button key="Cancel" data-testid="attach-schema-modal-btn-cancel" variant="link" onClick={onCancel}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
+  );
+};
+
+type UpdateWarningModalProps = {
+  actionName: string;
+  documentTypeLabel: string;
+  isWarningModalOpen: boolean;
+  onModalOpen: () => void;
+  onWarningModalClose: () => void;
+};
+
+const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
+  actionName,
+  documentTypeLabel,
+  isWarningModalOpen,
+  onModalOpen,
+  onWarningModalClose,
+}) => {
+  return (
+    <>
+      <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-modal-warning">
+        <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
+        <ModalBody>
+          <Stack hasGutter>
+            <StackItem>
+              <Alert variant="warning" title="Warning">
+                {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it
+                might result in a loss of any existing data mappings.
+              </Alert>
+            </StackItem>
+          </Stack>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            key="Update-Schema-Warning-Button"
+            data-testid="update-schema-warning-modal-btn-update"
+            variant="primary"
+            onClick={onModalOpen}
+          >
+            Continue
+          </Button>
+          <Button
+            key="Cancel"
+            data-testid="update-schema-modal-btn-cancel"
+            variant="link"
+            onClick={onWarningModalClose}
+          >
             Cancel
           </Button>
         </ModalFooter>
