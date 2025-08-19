@@ -336,39 +336,37 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
   onWarningModalClose,
 }) => {
   return (
-    <>
-      <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-warning-modal">
-        <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
-        <ModalBody>
-          <Stack hasGutter>
-            <StackItem>
-              <Alert variant="warning" title="Warning">
-                {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it
-                might result in a loss of any existing data mappings.
-              </Alert>
-            </StackItem>
-          </Stack>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            key="Update-Schema-Warning-Button"
-            data-testid="update-schema-warning-modal-btn-continue"
-            variant="primary"
-            onClick={onModalOpen}
-          >
-            Continue
-          </Button>
-          <Button
-            key="Cancel"
-            data-testid="update-schema-warning-modal-btn-cancel"
-            variant="link"
-            onClick={onWarningModalClose}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
-    </>
+    <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-warning-modal">
+      <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
+      <ModalBody>
+        <Stack hasGutter>
+          <StackItem>
+            <Alert variant="warning" title="Warning">
+              {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it might
+              result in a loss of any existing data mappings.
+            </Alert>
+          </StackItem>
+        </Stack>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          key="Update-Schema-Warning-Button"
+          data-testid="update-schema-warning-modal-btn-continue"
+          variant="primary"
+          onClick={onModalOpen}
+        >
+          Continue
+        </Button>
+        <Button
+          key="Cancel"
+          data-testid="update-schema-warning-modal-btn-cancel"
+          variant="link"
+          onClick={onWarningModalClose}
+        >
+          Cancel
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };
 
