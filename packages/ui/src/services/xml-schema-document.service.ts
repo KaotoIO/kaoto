@@ -176,8 +176,9 @@ export class XmlSchemaDocumentService {
     field.namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
     field.namespacePrefix = resolvedElement.getWireName()!.getPrefix();
     field.defaultValue = resolvedElement.defaultValue || resolvedElement.fixedValue;
-    field.minOccurs = resolvedElement.getMinOccurs();
-    field.maxOccurs = resolvedElement.getMaxOccurs();
+    // The occurrences must be taken from the referrer as opposed to the other attributes
+    field.minOccurs = element.getMinOccurs();
+    field.maxOccurs = element.getMaxOccurs();
     fields.push(field);
 
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
