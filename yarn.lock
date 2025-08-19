@@ -3124,7 +3124,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-markdown: "npm:^10.0.0"
-    react-monaco-editor: "npm:^0.56.0"
+    react-monaco-editor: "npm:^0.59.0"
     react-router-dom: "npm:^6.14.1"
     react-test-renderer: "npm:^18.2.0"
     remark-gfm: "npm:^4.0.1"
@@ -16755,16 +16755,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-monaco-editor@npm:^0.56.0":
-  version: 0.56.2
-  resolution: "react-monaco-editor@npm:0.56.2"
-  dependencies:
-    prop-types: "npm:^15.8.1"
+"react-monaco-editor@npm:^0.59.0":
+  version: 0.59.0
+  resolution: "react-monaco-editor@npm:0.59.0"
   peerDependencies:
-    "@types/react": ">=16 <= 18"
     monaco-editor: ^0.52.0
-    react: ">=16 <= 18"
-  checksum: 10/9e891803f766ab81349e1579ffc8cd7cba27eb34ac5113aaf34798f0998629da68415f67e2a0e76057ae632fe019c355eeab89baa607e612239315381777fff4
+    react: ">=16.8.0 <20.0.0"
+    react-dom: ">=16.8.0 <20.0.0"
+  checksum: 10/2eb1a5340718052a01e7145a5ebd42effe0a669bb15d337e74de0deb1846f1dcaa86464878ef75df90c5a2202408bd415b836e24a4b1943cc7bdb1cdae30690b
   languageName: node
   linkType: hard
 
