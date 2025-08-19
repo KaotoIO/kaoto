@@ -337,7 +337,7 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
 }) => {
   return (
     <>
-      <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-modal-warning">
+      <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-warning-modal">
         <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
         <ModalBody>
           <Stack hasGutter>
@@ -352,7 +352,7 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
         <ModalFooter>
           <Button
             key="Update-Schema-Warning-Button"
-            data-testid="update-schema-warning-modal-btn-update"
+            data-testid="update-schema-warning-modal-btn-continue"
             variant="primary"
             onClick={onModalOpen}
           >
@@ -360,7 +360,7 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
           </Button>
           <Button
             key="Cancel"
-            data-testid="update-schema-modal-btn-cancel"
+            data-testid="update-schema-warning-modal-btn-cancel"
             variant="link"
             onClick={onWarningModalClose}
           >
