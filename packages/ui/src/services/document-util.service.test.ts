@@ -1,7 +1,7 @@
-import { TestUtil } from '../stubs/datamapper/data-mapper';
+import { camelSpringXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
-import { Types } from '../models/datamapper';
-import { XmlSchemaField } from './xml-schema-document.service';
+import { BODY_DOCUMENT_ID, DocumentType, Types } from '../models/datamapper';
+import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 
 describe('DocumentUtilService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -52,6 +52,22 @@ describe('DocumentUtilService', () => {
       const refChildField = refField.fields[0];
       expect(refChildField.name).toEqual('testField');
       expect(refChildField.type).toEqual(Types.String);
+    });
+
+    it('should resolve collection type fragment', () => {
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        camelSpringXsd,
+        { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
+      );
+
+      const resolvedRoutes = DocumentUtilService.resolveTypeFragment(document.fields[0]);
+      const route = resolvedRoutes.fields.find((f) => f.name === 'route');
+      // https://github.com/KaotoIO/kaoto/issues/2457
+      // occurrences must be taken from the referrer as opposed to the other attributes
+      expect(route?.minOccurs).toEqual(0);
+      expect(route?.maxOccurs).toBeGreaterThan(1);
     });
   });
 });

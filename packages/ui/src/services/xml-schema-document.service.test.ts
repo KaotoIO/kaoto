@@ -55,6 +55,7 @@ describe('XmlSchemaDocumentService', () => {
     const aggregateDef = document.namedTypeFragments[aggregate.namedTypeFragmentRefs[0]];
     expect(aggregateDef.fields.length).toEqual(100);
     expect(aggregateDef.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}output');
+
     const outputDef = document.namedTypeFragments[aggregateDef.namedTypeFragmentRefs[0]];
     expect(outputDef.fields.length).toEqual(0);
     expect(outputDef.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}processorDefinition');
@@ -66,6 +67,24 @@ describe('XmlSchemaDocumentService', () => {
     const optionalIdentifiedDef = document.namedTypeFragments[processorDef.namedTypeFragmentRefs[0]];
     expect(optionalIdentifiedDef.fields.length).toEqual(3);
     expect(optionalIdentifiedDef.namedTypeFragmentRefs.length).toEqual(0);
+  });
+
+  it('should create XML schema document with routes as a root element', () => {
+    const document = XmlSchemaDocumentService.createXmlSchemaDocument(
+      DocumentType.TARGET_BODY,
+      BODY_DOCUMENT_ID,
+      camelSpringXsd,
+      { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
+    );
+    expect(document).toBeDefined();
+    expect(document.fields.length).toEqual(1);
+    const routes = document.fields[0];
+    expect(routes.fields.length).toEqual(0);
+    const routesRef = routes.namedTypeFragmentRefs[0];
+    const routeDef = document.namedTypeFragments[routesRef];
+    expect(routeDef.fields.length).toEqual(1);
+    const route = routeDef.fields[0];
+    expect(route.name).toEqual('route');
   });
 
   it('should create XML Schema Document', () => {
