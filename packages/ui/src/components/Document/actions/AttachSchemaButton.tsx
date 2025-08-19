@@ -14,6 +14,7 @@
     limitations under the License.
 */
 import {
+  Alert,
   Button,
   FormHelperText,
   HelperText,
@@ -63,6 +64,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   const { setIsLoading, updateDocument } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState<boolean>(false);
   const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
     DocumentDefinitionType.XML_SCHEMA,
   );
@@ -79,6 +81,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, [documentId, documentType]);
 
   const onModalOpen = useCallback(() => {
+    setIsWarningModalOpen(false);
     setIsModalOpen(true);
   }, []);
 
@@ -182,6 +185,22 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setFilePaths([]);
   }, []);
 
+  const onWarningModalOpen = useCallback(() => {
+    setIsWarningModalOpen(true);
+  }, []);
+
+  const onWarningModalClose = useCallback(() => {
+    setIsWarningModalOpen(false);
+  }, []);
+
+  const handleWarningModal = useCallback(() => {
+    if (actionName === 'Update') {
+      onWarningModalOpen();
+    } else {
+      onModalOpen();
+    }
+  }, [actionName, onModalOpen, onWarningModalOpen]);
+
   const isReadyToSubmit = useMemo(() => {
     return (
       filePaths.length > 0 && createDocumentResult?.validationStatus === 'success' && createDocumentResult?.document
@@ -196,8 +215,17 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         title={`${actionName} schema`}
         aria-label={`${actionName} schema`}
         data-testid={`attach-schema-${documentType}-${documentId}-button`}
-        onClick={onModalOpen}
+        onClick={handleWarningModal}
       />
+
+      <UpdateWarningModal
+        actionName={actionName}
+        documentTypeLabel={documentTypeLabel}
+        isWarningModalOpen={isWarningModalOpen}
+        onModalOpen={onModalOpen}
+        onWarningModalClose={onWarningModalClose}
+      />
+
       <Modal isOpen={isModalOpen} variant="small" data-testid="attach-schema-modal">
         <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
         <ModalBody>
@@ -289,6 +317,56 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         </ModalFooter>
       </Modal>
     </>
+  );
+};
+
+type UpdateWarningModalProps = {
+  actionName: string;
+  documentTypeLabel: string;
+  isWarningModalOpen: boolean;
+  onModalOpen: () => void;
+  onWarningModalClose: () => void;
+};
+
+const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
+  actionName,
+  documentTypeLabel,
+  isWarningModalOpen,
+  onModalOpen,
+  onWarningModalClose,
+}) => {
+  return (
+    <Modal isOpen={isWarningModalOpen} variant="small" data-testid="update-schema-warning-modal">
+      <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
+      <ModalBody>
+        <Stack hasGutter>
+          <StackItem>
+            <Alert variant="warning" title="Warning">
+              {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it might
+              result in a loss of any existing data mappings.
+            </Alert>
+          </StackItem>
+        </Stack>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          key="Update-Schema-Warning-Button"
+          data-testid="update-schema-warning-modal-btn-continue"
+          variant="primary"
+          onClick={onModalOpen}
+        >
+          Continue
+        </Button>
+        <Button
+          key="Cancel"
+          data-testid="update-schema-warning-modal-btn-cancel"
+          variant="link"
+          onClick={onWarningModalClose}
+        >
+          Cancel
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };
 
