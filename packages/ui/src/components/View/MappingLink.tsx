@@ -5,6 +5,9 @@ import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 
+const getY = (d: number[]) => d[1];
+const getX = (d: number[]) => d[0];
+
 export const MappingLink: FunctionComponent<LineProps> = ({
   x1,
   y1,
@@ -52,8 +55,8 @@ export const MappingLink: FunctionComponent<LineProps> = ({
           [canvasRight ? canvasRight : x2, y2],
           [x2, y2],
         ]}
-        x={(d) => d[0]}
-        y={(d) => d[1]}
+        x={getX}
+        y={getY}
         curve={curveMonotoneX}
         style={lineStyle}
         onClick={onLineClick}
