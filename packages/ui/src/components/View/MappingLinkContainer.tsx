@@ -9,14 +9,19 @@ import './MappingLinkContainer.scss';
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
-  const { getMappingLinks } = useMappingLinks();
+  const { getMappingLinks, mappingLinkCanvasRef } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const refreshLinks = useCallback(() => {
     const links = getMappingLinks();
-    const answer = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+    const answer = MappingLinksService.calculateMappingLinkCoordinates(
+      links,
+      svgRef,
+      getNodeReference,
+      mappingLinkCanvasRef,
+    );
     setLineCoordList(answer);
-  }, [getMappingLinks, getNodeReference]);
+  }, [getMappingLinks, getNodeReference, mappingLinkCanvasRef]);
 
   useEffect(() => {
     refreshLinks();
@@ -43,6 +48,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
+            clipDirection={lineProps.clipDirection}
+            clippedEnd={lineProps.clippedEnd}
           />
         ))}
       </g>
