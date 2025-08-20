@@ -1,0 +1,24 @@
+.mapping-link {
+  &__line {
+    stroke: gray;
+    stroke-width: 3;
+    pointer-events: auto;
+    transition: stroke-width 0.1s ease;
+
+    &--selected {
+      stroke: var(--pf-t--global--border--color--brand--default);
+    }
+
+    &--hover {
+      stroke-width: 6;
+    }
+  }
+
+  &__circle {
+    fill: gray;
+
+    &--hover {
+      fill: var(--pf-t--global--border--color--brand--default);
+    }
+  }
+}
