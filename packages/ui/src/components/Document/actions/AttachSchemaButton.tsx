@@ -87,6 +87,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, []);
 
   const onFileUpload = useCallback(async () => {
+    console.log('onFileUpload');
     setCreateDocumentResult(null);
     setFilePaths([]);
 
@@ -132,6 +133,21 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     if (result.validationStatus === 'success') {
       setFilePaths(pathsArray);
       setSelectedSchemaType(schemaType);
+
+      if (result === null) return;
+
+      const rootQName = DocumentService.getRootElementQName(result.document);
+      const initialSelectedOption = rootQName
+        ? result.rootElementOptions?.find(
+            (option) =>
+              option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
+          )
+        : undefined;
+      console.log({ initialSelectedOption });
+      setSelectedRootElement(initialSelectedOption);
+    } else {
+      setSelectedRootElement(undefined);
+      setFilePaths([]);
     }
   }, [api, fileNamePattern, documentType, documentId]);
 
@@ -400,15 +416,6 @@ const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
   selectedRootElement,
   setSelectedRootElement,
 }) => {
-  // const rootQName = DocumentService.getRootElementQName(createDocumentResult.document);
-  // const initialSelectedOption = rootQName
-  //   ? createDocumentResult.rootElementOptions?.find(
-  //       (option) =>
-  //         option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
-  //     )
-  //   : undefined;
-  // setSelectedRootElement(initialSelectedOption);
-
   const items: TypeaheadItem[] = useMemo(() => {
     if (!createDocumentResult?.rootElementOptions) return [];
     return createDocumentResult.rootElementOptions.map((option) => ({
