@@ -1,9 +1,10 @@
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 import { MappingLinksService } from '../../services/mapping-links.service';
 import { MappingLink } from './MappingLink';
+import './MappingLinksContainer.scss';
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
@@ -11,39 +12,35 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const { getMappingLinks } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const refreshLinks = useCallback(() => {
+  const refreshLinks = () => {
     const links = getMappingLinks();
     const answer = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
     setLineCoordList(answer);
-  }, [getMappingLinks, getNodeReference]);
+  };
 
   useEffect(() => {
     refreshLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getMappingLinks, getNodeReference]); // Refresh when dependencies change
+
+  useEffect(() => {
+    // These don't need to be removed/re-added constantly
     window.addEventListener('resize', refreshLinks);
     window.addEventListener('scroll', refreshLinks);
+
     return () => {
       window.removeEventListener('resize', refreshLinks);
       window.removeEventListener('scroll', refreshLinks);
     };
-  }, [refreshLinks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only set up once
 
   return (
-    <svg
-      ref={svgRef}
-      data-testid="mapping-links"
-      style={{
-        position: 'absolute',
-        pointerEvents: 'none',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-      }}
-    >
+    <svg ref={svgRef} data-testid="mapping-links" className="mapping-links-container">
       <g z={0}>
-        {lineCoordList.map((lineProps, index) => (
+        {lineCoordList.map((lineProps) => (
           <MappingLink
-            key={index}
+            key={`${lineProps.sourceNodePath}-${lineProps.targetNodePath}`}
             svgRef={svgRef}
             x1={lineProps.x1}
             y1={lineProps.y1}
