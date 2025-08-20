@@ -180,6 +180,8 @@ export type LineCoord = {
   y1: number;
   x2: number;
   y2: number;
+  clipDirection?: 'up' | 'down' | 'none';
+  clippedEnd?: 'source' | 'target' | 'both';
 };
 
 export type LineProps = LineCoord & {

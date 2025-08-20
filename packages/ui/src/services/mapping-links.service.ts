@@ -96,6 +96,7 @@ export class MappingLinksService {
     mappingLinks: IMappingLink[],
     svgRef: RefObject<SVGSVGElement>,
     getNodeReference: (path: string) => MutableRefObject<NodeReference> | null,
+    canvasRef?: RefObject<HTMLDivElement> | null,
   ): LineProps[] {
     return mappingLinks
       .reduce((acc, { sourceNodePath, targetNodePath, isSelected }) => {
@@ -105,7 +106,7 @@ export class MappingLinksService {
           const sourceFieldRef = getNodeReference(sourceClosestPath);
           const targetFieldRef = getNodeReference(targetClosestPath);
           if (sourceFieldRef && !!targetFieldRef) {
-            const coord = MappingLinksService.getCoordFromFieldRef(svgRef, sourceFieldRef, targetFieldRef);
+            const coord = MappingLinksService.getCoordFromFieldRef(svgRef, sourceFieldRef, targetFieldRef, canvasRef);
             if (coord)
               acc.push({ ...coord, sourceNodePath: sourceNodePath, targetNodePath: targetNodePath, isSelected });
           }
@@ -157,6 +158,7 @@ export class MappingLinksService {
     svgRef: RefObject<SVGSVGElement>,
     sourceRef: MutableRefObject<NodeReference>,
     targetRef: MutableRefObject<NodeReference>,
+    canvasRef?: RefObject<HTMLDivElement> | null,
   ): LineCoord | undefined {
     const svgRect = svgRef.current?.getBoundingClientRect();
     const sourceRect = sourceRef.current?.headerRef?.getBoundingClientRect();
@@ -165,11 +167,74 @@ export class MappingLinksService {
       return;
     }
 
+    const originalX1 = sourceRect.right - (svgRect ? svgRect.left : 0);
+    const originalY1 = sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - (svgRect ? svgRect.top : 0);
+    const originalX2 = targetRect.left - (svgRect ? svgRect.left : 0);
+    const originalY2 = targetRect.top + (targetRect.bottom - targetRect.top) / 2 - (svgRect ? svgRect.top : 0);
+    let x1 = originalX1;
+    let y1 = originalY1;
+    let x2 = originalX2;
+    let y2 = originalY2;
+    let clipDirection: 'up' | 'down' | 'none' = 'none';
+    let clippedEnd: 'source' | 'target' | 'both' | undefined = undefined;
+
+    // Check if source or target is outside the visible container bounds
+    if (svgRect && canvasRef?.current) {
+      const containerHeight = svgRect.height;
+      const containerBottom = containerHeight;
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      
+      // Calculate canvas center point relative to SVG
+      const canvasCenterX = canvasRect.left + canvasRect.width / 2 - svgRect.left;
+      
+      // Check clipping scenarios
+      const sourceAbove = originalY1 < 0;
+      const sourceBelow = originalY1 > containerBottom;
+      const targetAbove = originalY2 < 0;
+      const targetBelow = originalY2 > containerBottom;
+      
+      if ((sourceAbove || sourceBelow) && (targetAbove || targetBelow)) {
+        // Case 5: Both source and target are not visible
+        x1 = canvasCenterX;
+        y1 = 20; // Top center
+        x2 = canvasCenterX;
+        y2 = containerBottom - 20; // Bottom center
+        clipDirection = 'down'; // For rendering purposes (both ends)
+        clippedEnd = 'both';
+      } else if (sourceAbove) {
+        // Case 3: Source above, target visible
+        x1 = canvasCenterX;
+        y1 = 20;
+        clipDirection = 'up';
+        clippedEnd = 'source';
+      } else if (sourceBelow) {
+        // Case 4: Source below, target visible
+        x1 = canvasCenterX;
+        y1 = containerBottom - 20;
+        clipDirection = 'down';
+        clippedEnd = 'source';
+      } else if (targetAbove) {
+        // Case 1: Source visible, target above
+        x2 = canvasCenterX;
+        y2 = 20;
+        clipDirection = 'up';
+        clippedEnd = 'target';
+      } else if (targetBelow) {
+        // Case 2: Source visible, target below
+        x2 = canvasCenterX;
+        y2 = containerBottom - 20;
+        clipDirection = 'down';
+        clippedEnd = 'target';
+      }
+    }
+
     return {
-      x1: sourceRect.right - (svgRect ? svgRect.left : 0),
-      y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - (svgRect ? svgRect.top : 0),
-      x2: targetRect.left - (svgRect ? svgRect.left : 0),
-      y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2 - (svgRect ? svgRect.top : 0),
+      x1,
+      y1,
+      x2,
+      y2,
+      clipDirection,
+      clippedEnd,
     };
   }
 

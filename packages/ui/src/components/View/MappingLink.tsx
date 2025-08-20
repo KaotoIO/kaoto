@@ -14,6 +14,8 @@ const MappingLink: FunctionComponent<LineProps> = ({
   sourceNodePath,
   targetNodePath,
   isSelected = false,
+  clipDirection = 'none',
+  clippedEnd,
   svgRef,
 }) => {
   const { getNodeReference } = useCanvas();
@@ -30,6 +32,10 @@ const MappingLink: FunctionComponent<LineProps> = ({
   const canvasLeft = canvasRect ? canvasRect.left - (svgRect ? svgRect.left : 0) : undefined;
   const canvasRight = canvasRect ? canvasRect.right - (svgRect ? svgRect.left : 0) : undefined;
 
+  // Calculate canvas points for clipped lines
+  const canvas25Percent = canvasRect && svgRect ? canvasRect.left + canvasRect.width * 0.25 - svgRect.left : undefined;
+  const canvas75Percent = canvasRect && svgRect ? canvasRect.left + canvasRect.width * 0.75 - svgRect.left : undefined;
+
   const onMouseEnter = useCallback(() => {
     setIsOver(true);
   }, []);
@@ -45,14 +51,43 @@ const MappingLink: FunctionComponent<LineProps> = ({
 
   return (
     <>
-      <Circle r={dotRadius} cx={x1} cy={y1} />
+      {clipDirection === 'none' || clippedEnd !== 'source' ? <Circle r={dotRadius} cx={x1} cy={y1} /> : null}
       <LinePath<[number, number]>
-        data={[
-          [x1, y1],
-          [canvasLeft ? canvasLeft : x1, y1],
-          [canvasRight ? canvasRight : x2, y2],
-          [x2, y2],
-        ]}
+        data={
+          clipDirection !== 'none'
+            ? clippedEnd === 'both'
+              ? [
+                  // Case 5: Both not visible - straight line top to bottom
+                  [x1, y1],
+                  [x2, y2],
+                ]
+              : clippedEnd === 'target' && canvas25Percent
+                ? [
+                    // Cases 1,2: Source visible, target clipped - curve to top/bottom center
+                    [x1, y1],
+                    [canvas25Percent, y1],
+                    [x2, y2],
+                  ]
+                : clippedEnd === 'source' && canvas75Percent
+                  ? [
+                      // Cases 3,4: Source clipped, target visible - curve from top/bottom center
+                      [x1, y1],
+                      [canvas75Percent, y2],
+                      [x2, y2],
+                    ]
+                  : [
+                      // Fallback for clipped lines
+                      [x1, y1],
+                      [x2, y2],
+                    ]
+            : [
+                // Case 6: Normal lines - existing behavior
+                [x1, y1],
+                [canvasLeft ? canvasLeft : x1, y1],
+                [canvasRight ? canvasRight : x2, y2],
+                [x2, y2],
+              ]
+        }
         x={(d) => d[0]}
         y={(d) => d[1]}
         curve={curveMonotoneX}
@@ -63,7 +98,61 @@ const MappingLink: FunctionComponent<LineProps> = ({
         data-testid={`mapping-link-${isSelected ? 'selected-' : ''}${x1}-${y1}-${x2}-${y2}`}
         xlinkTitle={`Source: ${sourceNodePath}, Target: ${targetNodePath}`}
       />
-      <Circle r={dotRadius} cx={x2} cy={y2} />
+      {clipDirection !== 'none' ? (
+        clippedEnd === 'both' ? (
+          // Case 5: Both ends clipped - show arrows at both ends
+          <>
+            <polygon
+              points={`${x1 - 6},${y1 + 6} ${x1 + 6},${y1 + 6} ${x1},${y1 - 6}`}
+              fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+              style={{ pointerEvents: 'none' }}
+            />
+            <polygon
+              points={`${x2 - 6},${y2 - 6} ${x2 + 6},${y2 - 6} ${x2},${y2 + 6}`}
+              fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+              style={{ pointerEvents: 'none' }}
+            />
+          </>
+        ) : clippedEnd === 'source' ? (
+          // Source clipped - arrow at source end
+          <>
+            {clipDirection === 'down' ? (
+              <polygon
+                points={`${x1 - 6},${y1 - 6} ${x1 + 6},${y1 - 6} ${x1},${y1 + 6}`}
+                fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+                style={{ pointerEvents: 'none' }}
+              />
+            ) : (
+              <polygon
+                points={`${x1 - 6},${y1 + 6} ${x1 + 6},${y1 + 6} ${x1},${y1 - 6}`}
+                fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+            <Circle r={dotRadius} cx={x2} cy={y2} />
+          </>
+        ) : (
+          // Target clipped - arrow at target end
+          <>
+            <Circle r={dotRadius} cx={x1} cy={y1} />
+            {clipDirection === 'down' ? (
+              <polygon
+                points={`${x2 - 6},${y2 - 6} ${x2 + 6},${y2 - 6} ${x2},${y2 + 6}`}
+                fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+                style={{ pointerEvents: 'none' }}
+              />
+            ) : (
+              <polygon
+                points={`${x2 - 6},${y2 + 6} ${x2 + 6},${y2 + 6} ${x2},${y2 - 6}`}
+                fill={isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray'}
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
+          </>
+        )
+      ) : (
+        <Circle r={dotRadius} cx={x2} cy={y2} />
+      )}
     </>
   );
 };
@@ -71,14 +160,19 @@ const MappingLink: FunctionComponent<LineProps> = ({
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
-  const { getMappingLinks } = useMappingLinks();
+  const { getMappingLinks, mappingLinkCanvasRef } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const refreshLinks = useCallback(() => {
     const links = getMappingLinks();
-    const answer = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+    const answer = MappingLinksService.calculateMappingLinkCoordinates(
+      links,
+      svgRef,
+      getNodeReference,
+      mappingLinkCanvasRef,
+    );
     setLineCoordList(answer);
-  }, [getMappingLinks, getNodeReference]);
+  }, [getMappingLinks, getNodeReference, mappingLinkCanvasRef]);
 
   useEffect(() => {
     refreshLinks();
@@ -115,6 +209,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
+            clipDirection={lineProps.clipDirection}
+            clippedEnd={lineProps.clippedEnd}
           />
         ))}
       </g>
