@@ -7,6 +7,10 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 import './MappingLink.scss';
 
+// Static functions to avoid recreation on every render
+const getX = (d: [number, number]) => d[0];
+const getY = (d: [number, number]) => d[1];
+
 export const MappingLink: FunctionComponent<LineProps> = ({
   x1,
   y1,
@@ -64,8 +68,8 @@ export const MappingLink: FunctionComponent<LineProps> = ({
       <Circle className={circleClassName} r={dotRadius} cx={x1} cy={y1} />
       <LinePath<[number, number]>
         data={lineData}
-        x={(d) => d[0]}
-        y={(d) => d[1]}
+        x={getX}
+        y={getY}
         curve={curveMonotoneX}
         className={lineClassName}
         onClick={onLineClick}
