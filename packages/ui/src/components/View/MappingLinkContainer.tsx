@@ -4,6 +4,7 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 import { MappingLinksService } from '../../services/mapping-links.service';
 import { MappingLink } from './MappingLink';
+import './MappingLinkContainer.scss';
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
@@ -21,6 +22,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
     refreshLinks();
     window.addEventListener('resize', refreshLinks);
     window.addEventListener('scroll', refreshLinks);
+
     return () => {
       window.removeEventListener('resize', refreshLinks);
       window.removeEventListener('scroll', refreshLinks);
@@ -28,22 +30,11 @@ export const MappingLinksContainer: FunctionComponent = () => {
   }, [refreshLinks]);
 
   return (
-    <svg
-      ref={svgRef}
-      data-testid="mapping-links"
-      style={{
-        position: 'absolute',
-        pointerEvents: 'none',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-      }}
-    >
+    <svg className="mapping-links-container" ref={svgRef} data-testid="mapping-links">
       <g z={0}>
-        {lineCoordList.map((lineProps, index) => (
+        {lineCoordList.map((lineProps) => (
           <MappingLink
-            key={index}
+            key={`${lineProps.sourceNodePath}-${lineProps.targetNodePath}`}
             svgRef={svgRef}
             x1={lineProps.x1}
             y1={lineProps.y1}
