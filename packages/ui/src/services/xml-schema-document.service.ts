@@ -153,7 +153,13 @@ export class XmlSchemaDocumentService {
    * @param rootElementOption
    */
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
-    const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
+    // since XMLSchemaElement uses null, not empty strings to store namespace. We need to convert as it is used as key to search in document.xmlSchema.getElements()
+    const searchRootElementOption = {
+      namespaceUri: rootElementOption.namespaceUri === '' ? null : rootElementOption.namespaceUri,
+      name: rootElementOption.name === '' ? null : rootElementOption.name,
+    };
+
+    const newRootQName = new QName(searchRootElementOption.namespaceUri, searchRootElementOption.name);
     const newRootElement = document.xmlSchema.getElements().get(newRootQName);
     return new XmlSchemaDocument(document.xmlSchema, document.documentType, document.documentId, newRootElement);
   }
