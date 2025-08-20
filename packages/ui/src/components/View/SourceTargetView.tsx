@@ -37,35 +37,37 @@ export const SourceTargetView: FunctionComponent = () => {
   }, [setDefaultHandler]);
 
   return (
-    <Split className="source-target-view" onScroll={reloadNodeReferences}>
-      <SplitItem className="source-target-view__source-split" isFilled>
-        <SourcePanel />
-      </SplitItem>
-      <SplitItem className="source-target-view__line-blank">
-        <div ref={mappingLinkCanvasRef} />
-      </SplitItem>
-      <SplitItem className="source-target-view__target-split" isFilled>
-        <Panel id="panel-target" variant="bordered" isScrollable className="source-target-view__target-panel">
-          <PanelHeader>
-            <Content>
-              <Content component={ContentVariants.h3}>
-                <Truncate content="Target" className="source-target-view__truncate" />
+    <div className="source-target-view__container">
+      <Split className="source-target-view" onScroll={reloadNodeReferences}>
+        <SplitItem className="source-target-view__source-split" isFilled>
+          <SourcePanel />
+        </SplitItem>
+        <SplitItem className="source-target-view__line-blank">
+          <div ref={mappingLinkCanvasRef} />
+        </SplitItem>
+        <SplitItem className="source-target-view__target-split" isFilled>
+          <Panel id="panel-target" variant="bordered" isScrollable className="source-target-view__target-panel">
+            <PanelHeader>
+              <Content>
+                <Content component={ContentVariants.h3}>
+                  <Truncate content="Target" className="source-target-view__truncate" />
+                </Content>
               </Content>
-            </Content>
-          </PanelHeader>
-          <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
-            <Stack className="source-target-view__target-panel-main">
-              <StackItem>
-                <Divider component="div" inset={{ default: 'insetSm' }} className="source-target-view__divider" />
-              </StackItem>
-              <StackItem>
-                <TargetDocument document={targetBodyDocument} />
-              </StackItem>
-            </Stack>
-          </PanelMain>
-        </Panel>
-      </SplitItem>
+            </PanelHeader>
+            <PanelMain onScroll={reloadNodeReferences} className="source-target-view__target-panel-main">
+              <Stack className="source-target-view__target-panel-main">
+                <StackItem>
+                  <Divider component="div" inset={{ default: 'insetSm' }} className="source-target-view__divider" />
+                </StackItem>
+                <StackItem>
+                  <TargetDocument document={targetBodyDocument} />
+                </StackItem>
+              </Stack>
+            </PanelMain>
+          </Panel>
+        </SplitItem>
+      </Split>
       <MappingLinksContainer />
-    </Split>
+    </div>
   );
 };
