@@ -8,7 +8,13 @@ export class CatalogSchemaLoader {
 
   static async fetchFile<T>(file: string): Promise<{ body: T; uri: string }> {
     const response = await fetch(file);
-    const body = await response.json();
+
+    let body: T;
+    if (file.includes('.xsd')) {
+      body = (await response.text()) as T;
+    } else {
+      body = await response.json();
+    }
 
     return { body, uri: response.url };
   }
