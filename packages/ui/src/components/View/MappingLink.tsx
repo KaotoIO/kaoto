@@ -1,9 +1,11 @@
 import { curveMonotoneX } from '@visx/curve';
 import { Circle, LinePath } from '@visx/shape';
-import { CSSProperties, FunctionComponent, useCallback, useState } from 'react';
+import clsx from 'clsx';
+import { FunctionComponent, useCallback, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
+import './MappingLink.scss';
 
 const getY = (d: number[]) => d[1];
 const getX = (d: number[]) => d[0];
@@ -21,11 +23,6 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   const { getNodeReference } = useCanvas();
   const { mappingLinkCanvasRef, toggleSelectedNodeReference } = useMappingLinks();
   const [isOver, setIsOver] = useState<boolean>(false);
-  const lineStyle: CSSProperties = {
-    stroke: isSelected ? 'var(--pf-t--global--border--color--brand--default)' : 'gray',
-    strokeWidth: isOver ? 6 : 3,
-    pointerEvents: 'auto' as CSSProperties['pointerEvents'],
-  };
   const dotRadius = isOver ? 6 : 3;
   const svgRect = svgRef?.current?.getBoundingClientRect();
   const canvasRect = mappingLinkCanvasRef?.current?.getBoundingClientRect();
@@ -51,14 +48,16 @@ export const MappingLink: FunctionComponent<LineProps> = ({
       <LinePath<[number, number]>
         data={[
           [x1, y1],
-          [canvasLeft ? canvasLeft : x1, y1],
-          [canvasRight ? canvasRight : x2, y2],
+          [canvasLeft ?? x1, y1],
+          [canvasRight ?? x2, y2],
           [x2, y2],
         ]}
         x={getX}
         y={getY}
         curve={curveMonotoneX}
-        style={lineStyle}
+        className={clsx('mapping-link', {
+          'mapping-link--selected': isSelected,
+        })}
         onClick={onLineClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
