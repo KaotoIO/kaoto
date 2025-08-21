@@ -1,4 +1,4 @@
-import { readdirSync, existsSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { normalizePath } from 'vite';
@@ -42,7 +42,10 @@ export const getCamelCatalogFiles = () => {
   const jsonFiles = [];
   getFilesRecursively(camelCatalogPath, jsonFiles);
 
-  return { basePath: camelCatalogPath, files: jsonFiles.filter((file) => file.endsWith('.json')) };
+  return {
+    basePath: camelCatalogPath,
+    files: jsonFiles.filter((file) => file.endsWith('.json') || file.endsWith('.xsd')),
+  };
 };
 
 function getFilesRecursively(source, files) {
