@@ -480,7 +480,7 @@ describe('CamelComponentSchemaService', () => {
       };
       const actualContent = CamelComponentSchemaService.getTooltipContent(camelElementLookup);
 
-      expect(actualContent).toEqual('Deserialize payload to Avro.');
+      expect(actualContent).toEqual('Deserialize payload to Avro');
     });
 
     it('should return the kamelet name', () => {
