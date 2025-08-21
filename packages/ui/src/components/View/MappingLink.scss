@@ -1,0 +1,14 @@
+.mapping-link {
+  stroke: gray;
+  stroke-width: 3;
+  pointer-events: auto;
+
+  &:hover {
+    stroke-width: 6;
+  }
+
+  &--selected {
+    stroke: var(--pf-t--global--border--color--brand--default);
+    stroke-width: 6;
+  }
+}

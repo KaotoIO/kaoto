@@ -1,6 +1,7 @@
 .source-target-view {
   height: 100%;
   overflow-x: auto;
+  position: relative;
 
   &__source-split {
     width: 30%;
