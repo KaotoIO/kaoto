@@ -1103,7 +1103,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -1196,7 +1196,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -1499,7 +1499,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -1585,7 +1585,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -2871,7 +2871,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -2937,7 +2937,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -3026,7 +3026,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },
@@ -3164,7 +3164,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
-        "description": "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.",
+        "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
       },

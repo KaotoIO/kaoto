@@ -35,6 +35,52 @@ describe('CatalogSchemaLoader', () => {
         uri: 'http://localhost/file.json',
       });
     });
+
+    it('should handle XSD files by returning text content', async () => {
+      const xmlContent = '<?xml version="1.0"?><schema>content</schema>';
+      fetchMock.mockImplementationOnce(() =>
+        Promise.resolve({
+          text: () => Promise.resolve(xmlContent),
+          url: 'http://localhost/schema.xsd',
+        } as unknown as Response),
+      );
+
+      const result = await CatalogSchemaLoader.fetchFile('schema.xsd');
+
+      expect(result).toEqual({
+        body: xmlContent,
+        uri: 'http://localhost/schema.xsd',
+      });
+    });
+
+    it('should handle fetch errors', async () => {
+      const fetchError = new Error('Network error');
+      fetchMock.mockRejectedValueOnce(fetchError);
+
+      await expect(CatalogSchemaLoader.fetchFile('file.json')).rejects.toThrow('Network error');
+    });
+
+    it('should handle JSON parsing errors', async () => {
+      fetchMock.mockImplementationOnce(() =>
+        Promise.resolve({
+          json: () => Promise.reject(new Error('Invalid JSON')),
+          url: 'http://localhost/invalid.json',
+        } as unknown as Response),
+      );
+
+      await expect(CatalogSchemaLoader.fetchFile('invalid.json')).rejects.toThrow('Invalid JSON');
+    });
+
+    it('should handle text parsing errors for XSD files', async () => {
+      fetchMock.mockImplementationOnce(() =>
+        Promise.resolve({
+          text: () => Promise.reject(new Error('Text parsing failed')),
+          url: 'http://localhost/invalid.xsd',
+        } as unknown as Response),
+      );
+
+      await expect(CatalogSchemaLoader.fetchFile('invalid.xsd')).rejects.toThrow('Text parsing failed');
+    });
   });
 
   describe('getSchemasFiles', () => {
@@ -102,6 +148,28 @@ describe('CatalogSchemaLoader', () => {
           },
         },
       ]);
+    });
+  });
+
+  describe('getRelativeBasePath', () => {
+    it('should extract the base path from a catalog index file path', () => {
+      const result = CatalogSchemaLoader.getRelativeBasePath('http://localhost/camel-catalog/index.json');
+      expect(result).toBe('http://localhost/camel-catalog');
+    });
+
+    it('should handle paths with multiple directories', () => {
+      const result = CatalogSchemaLoader.getRelativeBasePath('/deep/nested/path/to/catalog/index.json');
+      expect(result).toBe('/deep/nested/path/to/catalog');
+    });
+
+    it('should handle single directory paths', () => {
+      const result = CatalogSchemaLoader.getRelativeBasePath('./catalog/index.json');
+      expect(result).toBe('./catalog');
+    });
+
+    it('should handle root level files', () => {
+      const result = CatalogSchemaLoader.getRelativeBasePath('index.json');
+      expect(result).toBe('');
     });
   });
 });

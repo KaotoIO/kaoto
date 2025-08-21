@@ -27,6 +27,10 @@ export default defineConfig(async () => {
             src: normalizedFile,
             dest,
             transform: (content, filename) => {
+              if (filename.endsWith('.xsd')) {
+                return content;
+              }
+
               return JSON.stringify(JSON.parse(content));
             },
           };
