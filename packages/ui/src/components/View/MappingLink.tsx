@@ -44,7 +44,7 @@ export const MappingLink: FunctionComponent<LineProps> = ({
 
   return (
     <>
-      <Circle r={dotRadius} cx={x1} cy={y1} />
+      <Circle role="presentation" r={dotRadius} cx={x1} cy={y1} />
       <LinePath<[number, number]>
         data={[
           [x1, y1],
@@ -64,7 +64,7 @@ export const MappingLink: FunctionComponent<LineProps> = ({
         data-testid={`mapping-link-${isSelected ? 'selected-' : ''}${x1}-${y1}-${x2}-${y2}`}
         xlinkTitle={`Source: ${sourceNodePath}, Target: ${targetNodePath}`}
       />
-      <Circle r={dotRadius} cx={x2} cy={y2} />
+      <Circle role="presentation" r={dotRadius} cx={x2} cy={y2} />
     </>
   );
 };
