@@ -153,7 +153,9 @@ export class XmlSchemaDocumentService {
    * @param rootElementOption
    */
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
-    // since XMLSchemaElement uses null, not empty strings to store namespace. We need to convert as it is used as key to search in document.xmlSchema.getElements()
+    // if there is no namespaceURI, rootElementOption uses empty string to store namespaceURI, not null.
+    // We need to convert as it is used as key to search in document.xmlSchema.getElements() map.
+    // document.xmlSchema.getElements() uses null for missing namespaceURI
     const searchRootElementOption = {
       namespaceUri: rootElementOption.namespaceUri === '' ? null : rootElementOption.namespaceUri,
       name: rootElementOption.name === '' ? null : rootElementOption.name,

@@ -87,7 +87,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   }, []);
 
   const onFileUpload = useCallback(async () => {
-    console.log('onFileUpload');
     setCreateDocumentResult(null);
     setFilePaths([]);
 
@@ -143,7 +142,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
               option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
           )
         : undefined;
-      console.log({ initialSelectedOption });
       setSelectedRootElement(initialSelectedOption);
     } else {
       setSelectedRootElement(undefined);
@@ -158,16 +156,11 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onUpdateRootElement = useCallback(
     (option: RootElementOption) => {
-      console.log({ option });
       const documentResult = createDocumentResult;
       if (!documentResult?.document || !documentResult?.documentDefinition) return;
 
-      console.log('Updating root element in AttachSchemaButton', { documentResult, option });
-
       documentResult.documentDefinition.rootElementChoice = option;
       documentResult.document = DocumentService.updateRootElement(documentResult.document, option);
-
-      console.log('Updated document after root element change', { documentResult });
 
       setCreateDocumentResult(documentResult);
       setSelectedRootElement(option);
@@ -176,7 +169,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   );
 
   const onCommit = useCallback(async () => {
-    console.log('onCommit', { createDocumentResult });
     if (!createDocumentResult?.document || !createDocumentResult.documentDefinition) {
       setCreateDocumentResult({ validationStatus: 'error', validationMessage: 'Please select a schema file first' });
       return;
@@ -195,8 +187,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       setIsLoading(false);
     }
     setIsModalOpen(false);
-    // setCreateDocumentResult(null);
-    // setFilePaths([]);
   }, [
     clearNodeReferencesForDocument,
     documentId,
@@ -209,8 +199,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onCancel = useCallback(() => {
     setIsModalOpen(false);
-    // setCreateDocumentResult(null);
-    // setFilePaths([]);
   }, []);
 
   const onWarningModalOpen = useCallback(() => {
@@ -433,8 +421,6 @@ const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
         onUpdate(option);
         setSelectedRootElement(option);
       }
-
-      console.log('Root element updated in handleSelectionChange', { option });
     },
     [createDocumentResult.rootElementOptions, onUpdate, setSelectedRootElement],
   );
