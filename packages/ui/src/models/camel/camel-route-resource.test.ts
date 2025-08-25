@@ -13,6 +13,7 @@ import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
+import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
@@ -82,10 +83,31 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()[1].id).toEqual(id);
     });
 
+    it('should add the given entities at the end of the list and return its ID', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity();
+      const id = resource.addNewEntity(
+        EntityType.Route,
+        FlowTemplateService.getFlowTemplate(SourceSchemaType.Route)[0],
+      );
+
+      expect(resource.getVisualEntities()).toHaveLength(2);
+      expect(resource.getVisualEntities()[1].id).toEqual(id);
+    });
+
     it('should add OnException entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnException);
+
+      expect(resource.getVisualEntities()).toHaveLength(2);
+      expect(resource.getVisualEntities()[0].id).toEqual(id);
+    });
+
+    it('should add the given OnException entity at the beginning of the list and return its ID', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity();
+      const id = resource.addNewEntity(EntityType.OnException, { onException: { id: 'onException-test' } });
 
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[0].id).toEqual(id);
@@ -100,10 +122,28 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()[0].id).toEqual(id);
     });
 
+    it('should add the given ErrorHandler entity at the beginning of the list and return its ID', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity();
+      const id = resource.addNewEntity(EntityType.ErrorHandler, { errorHandler: { id: 'errorHandler-test' } });
+
+      expect(resource.getVisualEntities()).toHaveLength(2);
+      expect(resource.getVisualEntities()[0].id).toEqual(id);
+    });
+
     it('should add OnCompletion entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnCompletion);
+
+      expect(resource.getVisualEntities()).toHaveLength(2);
+      expect(resource.getVisualEntities()[0].id).toEqual(id);
+    });
+
+    it('should add the given OnCompletion entity at the beginning of the list and return its ID', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity();
+      const id = resource.addNewEntity(EntityType.OnCompletion, { onCompletion: { id: 'onCompletion-test' } });
 
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[0].id).toEqual(id);

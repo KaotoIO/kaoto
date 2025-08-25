@@ -18,10 +18,16 @@ import { ControllerService } from '../../Canvas/controller.service';
 import { FlowService } from '../../Canvas/flow.service';
 import { NodeContextMenu } from './NodeContextMenu';
 import { usePasteStep } from '../hooks/paste-step.hook';
+import { useDuplicateStep } from '../hooks/duplicate-step.hook';
 
 // Mock the `usePasteStep` hook
 jest.mock('../hooks/paste-step.hook', () => ({
   usePasteStep: jest.fn(),
+}));
+
+// Mock the `useDuplicateStep` hook
+jest.mock('../hooks/duplicate-step.hook', () => ({
+  useDuplicateStep: jest.fn(),
 }));
 
 describe('NodeContextMenu', () => {
@@ -33,6 +39,14 @@ describe('NodeContextMenu', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+
+    (useDuplicateStep as jest.Mock).mockReturnValue({
+      canDuplicate: false,
+    });
+
+    (usePasteStep as jest.Mock).mockReturnValue({
+      isCompatible: false,
+    });
   });
 
   beforeEach(() => {
@@ -86,11 +100,6 @@ describe('NodeContextMenu', () => {
 
   it('should render an AppendStep item if canHaveNextStep is true', () => {
     nodeInteractions.canHaveNextStep = true;
-    // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
-      onPasteStep: jest.fn(),
-      isCompatible: false,
-    });
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
     const item = wrapper.getByTestId('context-menu-item-append');
@@ -98,17 +107,16 @@ describe('NodeContextMenu', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should render an Paste as next step item if canHaveNextStep and isCompatible is true ', () => {
+  it('should render a Duplicate item if canDuplicate is true ', () => {
     nodeInteractions.canHaveNextStep = true;
-    // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
-      onPasteStep: jest.fn(),
-      isCompatible: true,
+    // Mock the `useDuplicateStep` hook
+    (useDuplicateStep as jest.Mock).mockReturnValue({
+      canDuplicate: true,
     });
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
-    const item = wrapper.getByTestId('context-menu-item-paste-as-next-step');
+    const item = wrapper.getByTestId('context-menu-item-duplicate');
 
     expect(item).toBeInTheDocument();
   });
@@ -126,13 +134,26 @@ describe('NodeContextMenu', () => {
     nodeInteractions.canHaveChildren = true;
     // Mock the `usePasteStep` hook to return compatible state
     (usePasteStep as jest.Mock).mockReturnValue({
-      onPasteStep: jest.fn(),
       isCompatible: true,
     });
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
     const item = wrapper.getByTestId('context-menu-item-paste-as-child');
+
+    expect(item).toBeInTheDocument();
+  });
+
+  it('should render a Paste as next step item if canHaveNextStep and isCompatible is true ', () => {
+    nodeInteractions.canHaveNextStep = true;
+    // Mock the `usePasteStep` hook to return compatible state
+    (usePasteStep as jest.Mock).mockReturnValue({
+      isCompatible: true,
+    });
+
+    const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
+
+    const item = wrapper.getByTestId('context-menu-item-paste-as-next-step');
 
     expect(item).toBeInTheDocument();
   });
@@ -150,7 +171,6 @@ describe('NodeContextMenu', () => {
     nodeInteractions.canHaveSpecialChildren = true;
     // Mock the `usePasteStep` hook to return compatible state
     (usePasteStep as jest.Mock).mockReturnValue({
-      onPasteStep: jest.fn(),
       isCompatible: true,
     });
 

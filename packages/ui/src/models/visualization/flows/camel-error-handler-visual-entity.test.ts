@@ -5,6 +5,7 @@ import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-enti
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 describe('CamelErrorHandlerVisualEntity', () => {
   const ERROR_HANDLER_ID_REGEXP = /^errorHandler-[a-zA-Z0-9]{4}$/;
@@ -141,6 +142,16 @@ describe('CamelErrorHandlerVisualEntity', () => {
       canReplaceStep: false,
       canRemoveFlow: true,
       canBeDisabled: false,
+    });
+  });
+
+  it('getCopiedContent should return the content to be copied', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+    expect(entity.getCopiedContent()).toEqual({
+      type: SourceSchemaType.Route,
+      name: 'errorHandler',
+      definition: errorHandlerDef.errorHandler,
     });
   });
 
