@@ -6,6 +6,7 @@ import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 describe('CamelRestConfigurationVisualEntity', () => {
   const REST_CONFIGURATION_ID_REGEXP = /^restConfiguration-[a-zA-Z0-9]{4}$/;
@@ -207,6 +208,16 @@ describe('CamelRestConfigurationVisualEntity', () => {
       const vizNode = entity.toVizNode();
 
       expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
+    });
+  });
+
+  it('getCopiedContent should return the content to be copied', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    expect(entity.getCopiedContent()).toEqual({
+      type: SourceSchemaType.Route,
+      name: 'restConfiguration',
+      definition: restConfigurationDef.restConfiguration,
     });
   });
 
