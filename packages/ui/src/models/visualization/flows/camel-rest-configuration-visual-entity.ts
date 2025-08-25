@@ -14,6 +14,7 @@ import {
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -73,7 +74,11 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   getCopiedContent(): IClipboardCopyObject | undefined {
-    return undefined;
+    return {
+      type: SourceSchemaType.Route,
+      name: CamelRestConfigurationVisualEntity.ROOT_PATH,
+      definition: this.restConfigurationDef.restConfiguration,
+    };
   }
 
   pasteStep(): void {

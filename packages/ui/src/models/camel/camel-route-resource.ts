@@ -3,7 +3,11 @@ import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
-import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
+import {
+  AddStepMode,
+  BaseVisualCamelEntity,
+  BaseVisualCamelEntityConstructor,
+} from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
@@ -119,11 +123,17 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     this.serializer = serializer;
   }
 
-  addNewEntity(entityType?: EntityType): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addNewEntity(entityType?: EntityType, entityTemplate?: any): string {
     if (entityType && entityType !== EntityType.Route) {
       const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
       if (supportedEntity) {
-        const entity = new supportedEntity.Entity();
+        let entity: BaseVisualCamelEntity;
+        if (entityTemplate) {
+          entity = new supportedEntity.Entity(entityTemplate);
+        } else {
+          entity = new supportedEntity.Entity();
+        }
 
         /** Error related entities should be added at the beginning of the list */
         if (CamelRouteResource.ENTITIES_ORDER_PRIORITY.includes(entityType)) {
@@ -135,8 +145,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       }
     }
 
-    const template = FlowTemplateService.getFlowTemplate(this.getType());
-    const route = template[0] as RouteDefinition;
+    let route: RouteDefinition;
+    if (entityTemplate) {
+      route = entityTemplate as RouteDefinition;
+    } else {
+      const template = FlowTemplateService.getFlowTemplate(this.getType());
+      route = template[0] as RouteDefinition;
+    }
     const entity = new CamelRouteVisualEntity(route);
     this.entities.push(entity);
 

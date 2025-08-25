@@ -13,6 +13,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
 import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -92,7 +93,11 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   getCopiedContent(): IClipboardCopyObject | undefined {
-    return undefined;
+    return {
+      type: SourceSchemaType.Route,
+      name: CamelErrorHandlerVisualEntity.ROOT_PATH,
+      definition: this.errorHandlerDef.errorHandler,
+    };
   }
 
   pasteStep(): void {

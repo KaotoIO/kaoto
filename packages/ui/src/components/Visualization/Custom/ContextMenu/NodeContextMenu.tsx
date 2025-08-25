@@ -20,6 +20,7 @@ import { ItemReplaceStep } from './ItemReplaceStep';
 import { ItemCopyStep } from './ItemCopyStep';
 import { ItemPasteStep } from './ItemPasteStep';
 import { ItemMoveStep } from './ItemMoveStep';
+import { ItemDuplicateStep } from './ItemDuplicateStep';
 
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
@@ -54,6 +55,12 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       </ItemAddStep>,
     );
   }
+
+  items.push(
+    <ItemDuplicateStep key="context-menu-item-duplicate" data-testid="context-menu-item-duplicate" vizNode={vizNode}>
+      <AngleDoubleUpIcon /> Duplicate
+    </ItemDuplicateStep>,
+  );
 
   addCopyPasteItems(items, nodeInteractions, vizNode);
 
