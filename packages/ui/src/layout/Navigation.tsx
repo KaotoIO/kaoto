@@ -110,7 +110,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
 };
 
 const NAVIGATION_ELEMENTS = {
-  Beans: [SourceSchemaType.Route, SourceSchemaType.Kamelet],
+  Beans: [SourceSchemaType.RouteYAML, SourceSchemaType.Kamelet],
   Metadata: [
     SourceSchemaType.Integration,
     SourceSchemaType.Kamelet,
@@ -118,5 +118,5 @@ const NAVIGATION_ELEMENTS = {
     SourceSchemaType.Pipe,
   ],
   PipeErrorHandler: [SourceSchemaType.KameletBinding, SourceSchemaType.Pipe],
-  DataMapper: [SourceSchemaType.Route, SourceSchemaType.Kamelet],
+  DataMapper: [SourceSchemaType.RouteYAML, SourceSchemaType.Kamelet],
 };

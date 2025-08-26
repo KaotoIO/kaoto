@@ -15,7 +15,7 @@ config.config[SourceSchemaType.Kamelet].schema = {
   name: 'Kamelet',
   schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
 } as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Route].schema = {
+config.config[SourceSchemaType.RouteYAML].schema = {
   name: 'route',
   schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
 } as KaotoSchemaDefinition;
@@ -29,7 +29,7 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{
     <EntitiesContext.Provider
       value={
         {
-          currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
+          currentSchemaType: currentSchemaType ?? SourceSchemaType.RouteYAML,
           visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
           camelResource: new CamelRouteResource(undefined, xml ? new XmlCamelResourceSerializer() : undefined),
         } as unknown as EntitiesContextResult

@@ -10,7 +10,8 @@ export interface ISourceSchema {
 }
 
 interface IEntitySchemaConfig {
-  [SourceSchemaType.Route]: ISourceSchema;
+  [SourceSchemaType.RouteYAML]: ISourceSchema;
+  [SourceSchemaType.RouteXML]: ISourceSchema;
   [SourceSchemaType.Kamelet]: ISourceSchema;
   [SourceSchemaType.Pipe]: ISourceSchema;
   [SourceSchemaType.KameletBinding]: ISourceSchema;
@@ -19,12 +20,19 @@ interface IEntitySchemaConfig {
 
 class SourceSchemaConfig {
   config: IEntitySchemaConfig = {
-    [SourceSchemaType.Route]: {
+    [SourceSchemaType.RouteYAML]: {
       name: 'Camel Route',
       schema: undefined,
       multipleRoute: true,
       description:
-        'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.',
+        'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls. (YAML)',
+    },
+    [SourceSchemaType.RouteXML]: {
+      name: 'Camel Route',
+      schema: undefined,
+      multipleRoute: true,
+      description:
+        'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls. (XML)',
     },
     [SourceSchemaType.Kamelet]: {
       name: 'Kamelet',
@@ -57,7 +65,9 @@ class SourceSchemaConfig {
 
   setSchema(name: string, schema: KaotoSchemaDefinition) {
     if (name === 'camelYamlDsl') {
-      this.config[SourceSchemaType.Route].schema = schema;
+      this.config[SourceSchemaType.RouteYAML].schema = schema;
+    } else if (name.includes('xml')) {
+      this.config[SourceSchemaType.RouteXML].schema = schema;
     }
     if (isEnumType(name, SourceSchemaType)) {
       const type: SourceSchemaType = SourceSchemaType[name];

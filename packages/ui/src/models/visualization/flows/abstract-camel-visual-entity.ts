@@ -139,7 +139,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const componentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, componentModel);
 
     return {
-      type: SourceSchemaType.Route,
+      type: SourceSchemaType.RouteYAML,
       name: componentLookup.processorName as string,
       definition: componentModel,
     };

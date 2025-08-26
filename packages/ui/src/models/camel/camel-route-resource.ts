@@ -144,7 +144,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   getType(): SourceSchemaType {
-    return SourceSchemaType.Route;
+    if (this.serializer.getType() === SerializerType.XML) {
+      return SourceSchemaType.RouteXML;
+    }
+
+    return SourceSchemaType.RouteYAML;
   }
 
   supportsMultipleVisualEntities(): boolean {

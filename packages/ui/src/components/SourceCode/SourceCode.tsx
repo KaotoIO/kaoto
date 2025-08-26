@@ -30,7 +30,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const entityContext = useContext(EntitiesContext);
   const isDarkMode = isDarkModeEnabled();
-  const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
+  const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.RouteYAML;
   const currentSchema = sourceSchemaConfig.config[schemaType].schema;
   const monacoYamlHandlerRef: MutableRefObject<ReturnType<typeof configureMonacoYaml> | undefined> = useRef(undefined);
 

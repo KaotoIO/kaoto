@@ -731,7 +731,7 @@ describe('CamelComponentSchemaService', () => {
   describe('getNodeDefinitionValue', () => {
     it('should return Node definition for a simple processor', () => {
       const clipboadContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYAML,
         name: 'log',
         definition: {
           id: 'log-3245',
@@ -744,7 +744,7 @@ describe('CamelComponentSchemaService', () => {
 
     it('should return Node definition for a Special processor', () => {
       const clipboadContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYAML,
         name: 'when',
         definition: {
           id: 'when-2765',

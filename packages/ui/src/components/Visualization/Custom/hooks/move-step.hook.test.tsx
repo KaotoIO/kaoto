@@ -46,13 +46,13 @@ describe('useMoveStep', () => {
   );
 
   const vizNodeCopiedContent = {
-    type: SourceSchemaType.Route,
+    type: SourceSchemaType.RouteYAML,
     name: 'exampleVizNode',
     definition: { id: 'vizNode', Parameters: 'testParameters' },
   };
 
   const targetVizNodeCopiedContent = {
-    type: SourceSchemaType.Route,
+    type: SourceSchemaType.RouteYAML,
     name: 'exampleTargetVizNode',
     definition: { id: 'targetVizNode', type: 'testExampleType' },
   };

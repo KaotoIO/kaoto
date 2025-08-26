@@ -7,7 +7,7 @@ import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 describe('useCopyStep', () => {
   const copySpy = jest.spyOn(ClipboardManager, 'copy').mockImplementation(async (__object) => Promise.resolve());
   const copiedContent = {
-    type: SourceSchemaType.Route,
+    type: SourceSchemaType.RouteYAML,
     name: 'exampleNode',
     definition: { id: 'node1', type: 'exampleType' },
   };

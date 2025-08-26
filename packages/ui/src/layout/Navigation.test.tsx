@@ -6,7 +6,7 @@ import { Navigation } from './Navigation';
 
 describe('Navigation Component', () => {
   it.each([
-    SourceSchemaType.Route,
+    SourceSchemaType.RouteYAML,
     SourceSchemaType.Kamelet,
     SourceSchemaType.Pipe,
     SourceSchemaType.KameletBinding,

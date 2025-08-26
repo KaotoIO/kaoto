@@ -315,7 +315,7 @@ describe('VisualizationNode', () => {
 
   describe('pasteBaseEntityStep', () => {
     const clipboardContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+      type: SourceSchemaType.RouteYAML,
       name: 'log',
       definition: {
         id: 'log-test',
@@ -346,7 +346,7 @@ describe('VisualizationNode', () => {
     it('should paste the step', () => {
       const camelRouteVisualEntityStub = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
       const clipboardContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYAML,
         name: 'log',
         definition: {
           id: 'log-test',

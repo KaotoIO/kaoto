@@ -22,7 +22,7 @@ describe('NewFlow.tsx', () => {
     name: 'kameletBinding',
     schema: { description: 'desc' },
   } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.Route].schema = {
+  config.config[SourceSchemaType.RouteYAML].schema = {
     schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
   } as KaotoSchemaDefinition;
 

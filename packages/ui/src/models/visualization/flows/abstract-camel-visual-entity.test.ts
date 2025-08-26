@@ -355,7 +355,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -378,7 +378,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -402,7 +402,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'when',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             expression: 'simple("${body} contains \'test\'")',
           },
@@ -425,7 +425,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'otherwise',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             id: 'test-id',
             steps: [],
@@ -448,7 +448,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -470,7 +470,7 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'when',
-          type: SourceSchemaType.Route,
+          type: SourceSchemaType.RouteYAML,
           definition: {
             expression: 'simple("${body} contains \'test\'")',
             id: 'when-replaced',
@@ -500,7 +500,7 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYAML,
         name: 'to',
         definition: {
           uri: 'direct:my-route',
@@ -519,7 +519,7 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return undefined node default value if the path is invalid', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYAML,
         name: 'to',
         defaultValue: undefined,
       });

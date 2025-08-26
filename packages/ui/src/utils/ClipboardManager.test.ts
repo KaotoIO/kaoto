@@ -30,7 +30,7 @@ describe('ClipboardManager', () => {
   const testClipboardObject: IClipboardCopyObject = {
     name: 'exampleNode',
     definition: { id: 'node1', type: 'exampleType' },
-    type: SourceSchemaType.Route,
+    type: SourceSchemaType.RouteYAML,
   };
 
   beforeEach(() => {

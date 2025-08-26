@@ -17,14 +17,14 @@ import { SourceSchemaType } from './source-schema-type';
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYAML);
     expect(resource.getVisualEntities().length).toEqual(1);
     expect(resource.getEntities().length).toEqual(0);
   });
 
   it('should initialize Camel Route if no args is specified', () => {
     const resource = new CamelRouteResource(undefined);
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYAML);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });
@@ -112,7 +112,7 @@ describe('CamelRouteResource', () => {
 
   it('should return the right type', () => {
     const resource = new CamelRouteResource();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYAML);
   });
 
   it('should allow consumers to have multiple visual entities', () => {

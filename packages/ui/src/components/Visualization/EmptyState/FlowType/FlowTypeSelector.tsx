@@ -52,7 +52,7 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
   /** Override function to provide more useful help texts than available via schema */
   const getDescriptionForType = (type: string) => {
     switch (type) {
-      case SourceSchemaType.Route:
+      case SourceSchemaType.RouteYAML:
         return 'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.';
       case SourceSchemaType.Kamelet:
         return 'Defines a reusable Camel route as a building block. Kamelets can not be executed on their own, they are used as sources, actions or sinks in Camel Routes or Pipes.';
