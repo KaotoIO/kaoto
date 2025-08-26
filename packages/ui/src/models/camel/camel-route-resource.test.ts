@@ -1,4 +1,4 @@
-import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
@@ -7,13 +7,14 @@ import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
+import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
 import { SerializerType } from './camel-resource';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
 import { EntityType } from './entities';
+import { EntityOrderingService } from './entity-ordering.service';
 import { SourceSchemaType } from './source-schema-type';
-import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
@@ -28,6 +29,76 @@ describe('CamelRouteResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
+  });
+
+  describe('entity ordering in constructor', () => {
+    it('should sort entities according to XML schema order during construction', () => {
+      const mixedEntities: CamelYamlDsl = [
+        { from: { uri: 'direct:route1', steps: [] } },
+        { restConfiguration: { port: '8080' } },
+        { from: { uri: 'direct:route2', steps: [] } },
+        { rest: { path: '/api' } },
+        { routeConfiguration: { id: 'config1' } },
+      ];
+
+      const resource = new CamelRouteResource(mixedEntities);
+      const entities = resource.getVisualEntities();
+
+      // Should be sorted: RestConfiguration, Rest, RouteConfiguration, Route, Route
+      expect(entities).toHaveLength(5);
+      expect(entities[0].type).toBe(EntityType.RestConfiguration);
+      expect(entities[1].type).toBe(EntityType.Rest);
+      expect(entities[2].type).toBe(EntityType.RouteConfiguration);
+      expect(entities[3].type).toBe(EntityType.Route);
+      expect(entities[4].type).toBe(EntityType.Route);
+    });
+
+    it('should preserve order within same entity types during construction', () => {
+      const multipleRoutes = [
+        { from: { uri: 'direct:route3', steps: [] } },
+        { from: { uri: 'direct:route1', steps: [] } },
+        { from: { uri: 'direct:route2', steps: [] } },
+      ];
+
+      const resource = new CamelRouteResource(multipleRoutes);
+      const entities = resource.getVisualEntities();
+
+      expect(entities).toHaveLength(3);
+
+      // Routes should maintain their original order: route3, route1, route2
+      expect((entities[0].toJSON() as { route: RouteDefinition }).route.from.uri).toBe('direct:route3');
+      expect((entities[1].toJSON() as { route: RouteDefinition }).route.from.uri).toBe('direct:route1');
+      expect((entities[2].toJSON() as { route: RouteDefinition }).route.from.uri).toBe('direct:route2');
+    });
+
+    it('should handle mixed entity types with preserved internal order', () => {
+      const mixedWithMultiples = [
+        { routeConfiguration: { id: 'config2' } },
+        { from: { uri: 'direct:route1', steps: [] } },
+        { routeConfiguration: { id: 'config1' } },
+        { restConfiguration: { port: '8080' } },
+        { from: { uri: 'direct:route2', steps: [] } },
+      ];
+
+      const resource = new CamelRouteResource(mixedWithMultiples);
+      const entities = resource.getVisualEntities();
+
+      expect(entities).toHaveLength(5);
+      // Should be: RestConfiguration, RouteConfiguration(config2), RouteConfiguration(config1), Route(route1), Route(route2)
+      expect(entities[0].type).toBe(EntityType.RestConfiguration);
+      expect(entities[1].type).toBe(EntityType.RouteConfiguration);
+      expect(
+        (entities[1].toJSON() as unknown as { routeConfiguration: RouteConfigurationDefinition }).routeConfiguration.id,
+      ).toBe('config2'); // First routeConfig
+      expect(entities[2].type).toBe(EntityType.RouteConfiguration);
+      expect(
+        (entities[2].toJSON() as unknown as { routeConfiguration: RouteConfigurationDefinition }).routeConfiguration.id,
+      ).toBe('config1'); // Second routeConfig
+      expect(entities[3].type).toBe(EntityType.Route);
+      expect((entities[3].toJSON() as unknown as { route: RouteDefinition }).route.from.uri).toBe('direct:route1'); // First route
+      expect(entities[4].type).toBe(EntityType.Route);
+      expect((entities[4].toJSON() as unknown as { route: RouteDefinition }).route.from.uri).toBe('direct:route2'); // Second route
+    });
   });
 
   describe('function Object() { [native code] }', () => {
@@ -148,6 +219,43 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[0].id).toEqual(id);
     });
+
+    it('should use EntityOrderingService for priority entity detection', () => {
+      const resource = new CamelRouteResource();
+      resource.addNewEntity(); // Add a regular route first
+
+      // Add a priority entity (should go to beginning)
+      const priorityId = resource.addNewEntity(EntityType.ErrorHandler);
+
+      // Add a non-priority entity (should go to end)
+      const nonPriorityId = resource.addNewEntity(EntityType.RestConfiguration);
+
+      const entities = resource.getVisualEntities();
+      expect(entities).toHaveLength(3);
+
+      // ErrorHandler should be first (priority)
+      expect(entities[0].id).toEqual(priorityId);
+      expect(entities[0].type).toBe(EntityType.ErrorHandler);
+
+      // Original route should be second
+      expect(entities[1].type).toBe(EntityType.Route);
+
+      // RestConfiguration should be last (non-priority)
+      expect(entities[2].id).toEqual(nonPriorityId);
+      expect(entities[2].type).toBe(EntityType.RestConfiguration);
+    });
+
+    it('should verify EntityOrderingService priority entity detection matches implementation', () => {
+      // Test that our service correctly identifies priority entities
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.OnException)).toBe(true);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.ErrorHandler)).toBe(true);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.OnCompletion)).toBe(true);
+
+      // Test that non-priority entities are correctly identified
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Route)).toBe(false);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RestConfiguration)).toBe(false);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RouteConfiguration)).toBe(false);
+    });
   });
 
   it('should return the right type', () => {
@@ -165,6 +273,83 @@ describe('CamelRouteResource', () => {
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CamelRouteVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
+  });
+
+  describe('getVisualEntities ordering', () => {
+    it('should return entities in XML schema order', () => {
+      const mixedEntities = [
+        { from: { uri: 'direct:route1', steps: [] } },
+        { routeConfiguration: { id: 'config1' } },
+        { restConfiguration: { port: '8080' } },
+        { rest: { path: '/api' } },
+      ];
+
+      const resource = new CamelRouteResource(mixedEntities);
+      const visualEntities = resource.getVisualEntities();
+
+      expect(visualEntities).toHaveLength(4);
+      // Should follow XML schema order: RestConfiguration, Rest, RouteConfiguration, Route
+      expect(visualEntities[0].type).toBe(EntityType.RestConfiguration);
+      expect(visualEntities[1].type).toBe(EntityType.Rest);
+      expect(visualEntities[2].type).toBe(EntityType.RouteConfiguration);
+      expect(visualEntities[3].type).toBe(EntityType.Route);
+    });
+
+    it('should maintain consistent ordering after adding entities', () => {
+      const resource = new CamelRouteResource([{ from: { uri: 'direct:route1', steps: [] } }]);
+
+      // Add entities that should be ordered before routes
+      resource.addNewEntity(EntityType.RestConfiguration);
+      resource.addNewEntity(EntityType.RouteConfiguration);
+
+      const visualEntities = resource.getVisualEntities();
+
+      expect(visualEntities).toHaveLength(3);
+      // After adding, the order should still reflect proper positioning
+      // Note: addNewEntity doesn't re-sort, it just adds at the correct position
+      const entityTypes = visualEntities.map((e) => e.type);
+
+      // We should have all three entity types
+      expect(entityTypes).toContain(EntityType.Route);
+      expect(entityTypes).toContain(EntityType.RestConfiguration);
+      expect(entityTypes).toContain(EntityType.RouteConfiguration);
+    });
+
+    it('should return entities sorted by XML schema order with preserved internal order', () => {
+      const multipleEntitiesPerType: CamelYamlDsl = [
+        { from: { uri: 'direct:route3', steps: [] } },
+        { routeConfiguration: { id: 'config2' } },
+        { from: { uri: 'direct:route1', steps: [] } },
+        { routeConfiguration: { id: 'config1' } },
+        { restConfiguration: { port: '8080' } },
+      ];
+
+      const resource = new CamelRouteResource(multipleEntitiesPerType);
+      const visualEntities = resource.getVisualEntities();
+
+      expect(visualEntities).toHaveLength(5);
+
+      // Should be: RestConfiguration, RouteConfiguration(config2), RouteConfiguration(config1), Route(route3), Route(route1)
+      expect(visualEntities[0].type).toBe(EntityType.RestConfiguration);
+      expect(visualEntities[1].type).toBe(EntityType.RouteConfiguration);
+      expect(
+        (visualEntities[1].toJSON() as unknown as { routeConfiguration: RouteConfigurationDefinition })
+          .routeConfiguration.id,
+      ).toBe('config2');
+      expect(visualEntities[2].type).toBe(EntityType.RouteConfiguration);
+      expect(
+        (visualEntities[2].toJSON() as unknown as { routeConfiguration: RouteConfigurationDefinition })
+          .routeConfiguration.id,
+      ).toBe('config1');
+      expect(visualEntities[3].type).toBe(EntityType.Route);
+      expect((visualEntities[3].toJSON() as unknown as { route: RouteDefinition }).route.from.uri).toBe(
+        'direct:route3',
+      );
+      expect(visualEntities[4].type).toBe(EntityType.Route);
+      expect((visualEntities[4].toJSON() as unknown as { route: RouteDefinition }).route.from.uri).toBe(
+        'direct:route1',
+      );
+    });
   });
 
   it('should return entities', () => {

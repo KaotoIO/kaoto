@@ -110,11 +110,11 @@ describe('DocumentationService', () => {
 
       expect(documentationEntities.length).toEqual(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
-      expect(documentationEntities[0].label).toEqual('rest-1234');
-      expect(documentationEntities[0].entity!.type).toEqual('rest');
+      expect(documentationEntities[0].label).toEqual('restConfiguration-1234');
+      expect(documentationEntities[0].entity!.type).toEqual('restConfiguration');
       expect(documentationEntities[1].isVisualEntity).toBeTruthy();
-      expect(documentationEntities[1].label).toEqual('restConfiguration-1234');
-      expect(documentationEntities[1].entity!.type).toEqual('restConfiguration');
+      expect(documentationEntities[1].label).toEqual('rest-1234');
+      expect(documentationEntities[1].entity!.type).toEqual('rest');
     });
 
     it('should generate route configuration documentation entities', () => {

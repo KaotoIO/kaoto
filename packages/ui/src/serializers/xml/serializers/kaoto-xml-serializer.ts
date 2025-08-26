@@ -15,6 +15,7 @@
  */
 
 import { EntityType } from '../../../models/camel/entities';
+import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
 import { ElementType, StepXmlSerializer } from './step-xml-serializer';
 import { RestXmlSerializer } from './rest-xml-serializer';
 import { BeansXmlSerializer } from './beans-xml-serializer';
@@ -49,7 +50,9 @@ export class KaotoXmlSerializer {
 
     const beans = doc.createElement('beans');
 
-    entityDefinitions.forEach((entity) => {
+    const sortedEntities = EntityOrderingService.sortEntitiesForSerialization(entityDefinitions);
+
+    sortedEntities.forEach((entity) => {
       const entityType = entity.type;
 
       switch (entity.type) {

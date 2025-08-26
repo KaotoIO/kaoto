@@ -15,14 +15,16 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { KaotoXmlSerializer } from './kaoto-xml-serializer';
-import { EntityType } from '../../../models/camel/entities';
-import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { normalizeXml } from './serializer-test-utils';
-import { BeansEntity } from '../../../models/visualization/metadata';
+import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
+import { EntityType } from '../../../models/camel/entities';
+import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
 import { CamelErrorHandlerVisualEntity } from '../../../models/visualization/flows/camel-error-handler-visual-entity';
+import { BeansEntity } from '../../../models/visualization/metadata';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { EntityDefinition } from './entitiy-definition';
+import { KaotoXmlSerializer } from './kaoto-xml-serializer';
+import { normalizeXml } from './serializer-test-utils';
 
 describe('ToXMLConverter', () => {
   let domParser: DOMParser;
@@ -107,5 +109,241 @@ describe('ToXMLConverter', () => {
 
     const result = KaotoXmlSerializer.serialize([entity as unknown as BeansEntity]);
     expect(xmlSerializer.serializeToString(result)).toEqual(normalizeXml(xmlSerializer.serializeToString(doc)));
+  });
+
+  describe('Entity ordering in XML serialization', () => {
+    it('should serialize entities in XML schema order', () => {
+      const mixedEntities = [
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-1',
+              from: { uri: 'direct:start', steps: [{ to: { uri: 'direct:end' } }] },
+            },
+          },
+        },
+        {
+          type: EntityType.RestConfiguration,
+          restConfigurationDef: {
+            component: 'servlet',
+            contextPath: '/api',
+            port: '8080',
+          },
+        },
+        {
+          type: EntityType.Rest,
+          restDef: {
+            path: '/users',
+          },
+        },
+        {
+          type: EntityType.RouteConfiguration,
+          entityDef: {
+            id: 'myRouteConfig',
+            errorHandler: { deadLetterChannel: { deadLetterUri: 'mock:error' } },
+          },
+        },
+      ];
+
+      const result = KaotoXmlSerializer.serialize(mixedEntities as EntityDefinition[]);
+      const xmlString = xmlSerializer.serializeToString(result);
+      const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
+      const children = Array.from(resultDoc.documentElement.children);
+
+      expect(children[0].tagName).toBe('restConfiguration');
+      expect(children[1].tagName).toBe('rest');
+      expect(children[2].tagName).toBe('routeConfiguration');
+      expect(children[3].tagName).toBe('route');
+    });
+
+    it('should preserve order within same entity types during serialization', () => {
+      const multipleRoutes = [
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-3',
+              from: { uri: 'direct:third', steps: [] },
+            },
+          },
+        },
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-1',
+              from: { uri: 'direct:first', steps: [] },
+            },
+          },
+        },
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-2',
+              from: { uri: 'direct:second', steps: [] },
+            },
+          },
+        },
+      ] as unknown as EntityDefinition[];
+
+      const result = KaotoXmlSerializer.serialize(multipleRoutes);
+      const xmlString = xmlSerializer.serializeToString(result);
+      const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
+      const routeElements = Array.from(resultDoc.querySelectorAll('route'));
+
+      expect(routeElements[0].getAttribute('id')).toBe('route-3');
+      expect(routeElements[1].getAttribute('id')).toBe('route-1');
+      expect(routeElements[2].getAttribute('id')).toBe('route-2');
+    });
+
+    it('should use EntityOrderingService for sorting entities', () => {
+      const sortSpy = jest.spyOn(EntityOrderingService, 'sortEntitiesForSerialization');
+
+      const entities = [
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'test-route',
+              from: { uri: 'direct:start', steps: [] },
+            },
+          },
+        },
+      ] as unknown as EntityDefinition[];
+
+      KaotoXmlSerializer.serialize(entities);
+
+      expect(sortSpy).toHaveBeenCalledWith(entities);
+
+      sortSpy.mockRestore();
+    });
+
+    it('should handle complex mixed entity ordering with preserved internal order', () => {
+      const complexMixedEntities = [
+        {
+          type: EntityType.RouteConfiguration,
+          entityDef: {
+            id: 'config-2',
+            errorHandler: { deadLetterChannel: { deadLetterUri: 'mock:error2' } },
+          },
+        },
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-1',
+              from: { uri: 'direct:first', steps: [] },
+            },
+          },
+        },
+        {
+          type: EntityType.RouteConfiguration,
+          entityDef: {
+            id: 'config-1',
+            errorHandler: { deadLetterChannel: { deadLetterUri: 'mock:error1' } },
+          },
+        },
+        {
+          type: EntityType.RestConfiguration,
+          restConfigurationDef: {
+            component: 'servlet',
+            port: '8080',
+          },
+        },
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'route-2',
+              from: { uri: 'direct:second', steps: [] },
+            },
+          },
+        },
+      ] as unknown as EntityDefinition[];
+
+      const result = KaotoXmlSerializer.serialize(complexMixedEntities);
+      const xmlString = xmlSerializer.serializeToString(result);
+      const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
+      const children = Array.from(resultDoc.documentElement.children);
+
+      expect(children[0].tagName).toBe('restConfiguration');
+      expect(children[1].tagName).toBe('routeConfiguration');
+      expect(children[1].getAttribute('id')).toBe('config-2');
+      expect(children[2].tagName).toBe('routeConfiguration');
+      expect(children[2].getAttribute('id')).toBe('config-1');
+      expect(children[3].tagName).toBe('route');
+      expect(children[3].getAttribute('id')).toBe('route-1');
+      expect(children[4].tagName).toBe('route');
+      expect(children[4].getAttribute('id')).toBe('route-2');
+    });
+
+    it('should handle beans element placement correctly', () => {
+      const entitiesWithBeans = [
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'test-route',
+              from: { uri: 'direct:start', steps: [] },
+            },
+          },
+        },
+        {
+          type: EntityType.Beans,
+          parent: {
+            beans: [
+              {
+                name: 'testBean',
+                type: 'com.example.TestBean',
+              },
+            ],
+          },
+        },
+        {
+          type: EntityType.RestConfiguration,
+          restConfigurationDef: {
+            component: 'servlet',
+          },
+        },
+      ] as unknown as EntityDefinition[];
+
+      const result = KaotoXmlSerializer.serialize(entitiesWithBeans);
+      const xmlString = xmlSerializer.serializeToString(result);
+      const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
+      const children = Array.from(resultDoc.documentElement.children);
+
+      expect(children[0].tagName).toBe('restConfiguration');
+      expect(children[1].tagName).toBe('route');
+      expect(children[2].tagName).toBe('beans');
+
+      const beansElement = children[2];
+      const beanElements = beansElement.querySelectorAll('bean');
+      expect(beanElements).toHaveLength(1);
+      expect(beanElements[0].getAttribute('name')).toBe('testBean');
+    });
+
+    it('should maintain existing behavior for single entity types', () => {
+      const singleRouteEntity = [
+        {
+          type: EntityType.Route,
+          entityDef: {
+            route: {
+              id: 'single-route',
+              from: { uri: 'direct:start', steps: [{ to: { uri: 'direct:end' } }] },
+            },
+          },
+        },
+      ];
+
+      const result = KaotoXmlSerializer.serialize(singleRouteEntity as EntityDefinition[]);
+      const xmlString = xmlSerializer.serializeToString(result);
+      const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
+
+      expect(resultDoc.documentElement.tagName).toBe('camel');
+      expect(resultDoc.querySelectorAll('route')).toHaveLength(1);
+      expect(resultDoc.querySelector('route')?.getAttribute('id')).toBe('single-route');
+    });
   });
 });
