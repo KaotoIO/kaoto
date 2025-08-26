@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2025 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
@@ -31,6 +47,7 @@ import {
   SerializerType,
 } from './camel-resource';
 import { BaseCamelEntity, EntityType } from './entities';
+import { EntityOrderingService } from './entity-ordering.service';
 import { SourceSchemaType } from './source-schema-type';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
@@ -52,11 +69,6 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
     ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
-  private static readonly ENTITIES_ORDER_PRIORITY = [
-    EntityType.OnException,
-    EntityType.ErrorHandler,
-    EntityType.OnCompletion,
-  ];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
     b: unknown,
@@ -71,13 +83,15 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     if (!rawEntities) return;
 
     const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
-    this.entities = entities.reduce((acc, rawItem) => {
+    const parsedEntities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {
         acc.push(entity);
       }
       return acc;
     }, [] as BaseCamelEntity[]);
+
+    this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
 
   getCanvasEntityList(): BaseVisualCamelEntityDefinition {
@@ -136,7 +150,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
         }
 
         /** Error related entities should be added at the beginning of the list */
-        if (CamelRouteResource.ENTITIES_ORDER_PRIORITY.includes(entityType)) {
+        if (EntityOrderingService.isRuntimePriorityEntity(entityType)) {
           this.entities.unshift(entity);
         } else {
           this.entities.push(entity);
