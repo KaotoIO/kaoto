@@ -126,6 +126,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestTargetBodyDocument = documents.targetBodyDocument;
       }
     }
+    mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
+
     if (initialXsltFile) {
       const loaded = MappingSerializerService.deserialize(
         initialXsltFile,

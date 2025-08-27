@@ -1,16 +1,22 @@
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { FieldItem, MappingTree } from '../models/datamapper/mapping';
+import { FieldItem, ForEachItem, MappingTree } from '../models/datamapper/mapping';
 import { act, useContext, useEffect } from 'react';
 import {
   DocumentDefinition,
   DocumentDefinitionType,
+  DocumentInitializationModel,
   DocumentType,
   IDocument,
   IField,
 } from '../models/datamapper/document';
-import { shipOrderJsonSchema } from '../stubs/datamapper/data-mapper';
+import {
+  accountJsonSchema,
+  cartJsonSchema,
+  shipOrderJsonSchema,
+  shipOrderJsonXslt,
+} from '../stubs/datamapper/data-mapper';
 
 describe('DataMapperProvider', () => {
   it('should render', async () => {
@@ -291,5 +297,41 @@ describe('DataMapperProvider', () => {
 
     // MappingTree documentDefinitionType should remain unchanged for source documents
     expect(result.current!.mappingTree.documentDefinitionType).toEqual(originalType);
+  });
+
+  it('should initialize JSON mappings with DocumentInitializationModel and initialXsltFile', async () => {
+    const sourceDocDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'Body', {});
+    const targetDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, 'Body', {
+      ShipOrder: shipOrderJsonSchema,
+    });
+    const parameters = {
+      Account: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
+        Account: accountJsonSchema,
+      }),
+      Cart: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
+        Cart: cartJsonSchema,
+      }),
+      OrderSequence: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'OrderSequence', {}),
+    };
+    const documentInitializationModel = new DocumentInitializationModel(parameters, sourceDocDef, targetDocDef);
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider documentInitializationModel={documentInitializationModel} initialXsltFile={shipOrderJsonXslt}>
+        {children}
+      </DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current!.mappingTree.documentDefinitionType).toEqual(DocumentDefinitionType.JSON_SCHEMA);
+      expect(result.current!.targetBodyDocument.definitionType).toEqual(DocumentDefinitionType.JSON_SCHEMA);
+
+      const root = result.current?.mappingTree.children[0];
+      expect(root?.children.length).toEqual(4);
+      const forEachItem = root?.children[3].children[0];
+      expect(forEachItem instanceof ForEachItem).toBeTruthy();
+      expect((forEachItem as ForEachItem).expression).toEqual('$Cart-x/xf:array/xf:map');
+    });
   });
 });
