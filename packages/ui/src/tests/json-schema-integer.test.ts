@@ -12,11 +12,7 @@ describe('JsonSchemaDocumentService integer vs number', () => {
       }
     }`;
 
-    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
-      DocumentType.PARAM,
-      'TestDoc',
-      schema
-    );
+  const doc = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, 'TestDoc', schema);
 
     const root: JsonSchemaField = doc.fields[0] as JsonSchemaField;
     const quantity = root.fields.find((f: JsonSchemaField) => f.key === 'Quantity');
