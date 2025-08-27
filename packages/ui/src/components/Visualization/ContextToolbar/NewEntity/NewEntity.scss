@@ -1,4 +1,8 @@
 .entities-menu {
+  &__description {
+    word-break: keep-all;
+  }
+
   &__submenu {
     width: max-content;
   }

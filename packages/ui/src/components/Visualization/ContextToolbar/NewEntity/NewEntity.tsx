@@ -1,7 +1,6 @@
 import { Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, ReactElement, useCallback, useContext, useRef, useState } from 'react';
-import { BaseVisualCamelEntityDefinition } from '../../../../models/camel/camel-resource';
+import { FunctionComponent, ReactElement, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { EntityType } from '../../../../models/camel/entities';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
@@ -13,7 +12,9 @@ export const NewEntity: FunctionComponent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const groupedEntities = useRef<BaseVisualCamelEntityDefinition>(camelResource.getCanvasEntityList());
+  const serializerType = camelResource.getSerializerType();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const groupedEntities = useMemo(() => camelResource.getCanvasEntityList(), [camelResource, serializerType]);
 
   const onSelect = useCallback(
     (_event: unknown, entityType: string | number | undefined) => {
@@ -47,11 +48,7 @@ export const NewEntity: FunctionComponent = () => {
           key={`new-entity-${name}`}
           data-testid={`new-entity-${name}`}
           itemId={name}
-          description={
-            <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
-              {entity.description}
-            </span>
-          }
+          description={<span className="pf-v6-u-text-break-word entities-menu__description">{entity.description}</span>}
           flyoutMenu={flyoutMenu}
         >
           {entity.title}
@@ -69,9 +66,9 @@ export const NewEntity: FunctionComponent = () => {
         <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
             <MenuList>
-              {groupedEntities.current.common.map((entityDef) => getMenuItem(entityDef))}
+              {groupedEntities.common.map((entityDef) => getMenuItem(entityDef))}
 
-              {Object.entries(groupedEntities.current.groups).map(([group, entities]) => {
+              {Object.entries(groupedEntities.groups).map(([group, entities]) => {
                 const flyoutMenu = (
                   <Menu className="entities-menu__submenu" onSelect={onSelect}>
                     <MenuContent>

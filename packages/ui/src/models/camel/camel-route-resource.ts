@@ -51,23 +51,33 @@ import { EntityOrderingService } from './entity-ordering.service';
 import { SourceSchemaType } from './source-schema-type';
 
 export class CamelRouteResource implements CamelResource, BeansAwareResource {
-  static readonly SUPPORTED_ENTITIES: { type: EntityType; group: string; Entity: BaseVisualCamelEntityConstructor }[] =
-    [
-      { type: EntityType.Route, group: '', Entity: CamelRouteVisualEntity },
-      { type: EntityType.RouteConfiguration, group: 'Configuration', Entity: CamelRouteConfigurationVisualEntity },
-      { type: EntityType.Intercept, group: 'Configuration', Entity: CamelInterceptVisualEntity },
-      { type: EntityType.InterceptFrom, group: 'Configuration', Entity: CamelInterceptFromVisualEntity },
-      {
-        type: EntityType.InterceptSendToEndpoint,
-        group: 'Configuration',
-        Entity: CamelInterceptSendToEndpointVisualEntity,
-      },
-      { type: EntityType.OnCompletion, group: 'Configuration', Entity: CamelOnCompletionVisualEntity },
-      { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity },
-      { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity },
-      { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
-      { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
-    ];
+  static readonly SUPPORTED_ENTITIES: {
+    type: EntityType;
+    group: string;
+    Entity: BaseVisualCamelEntityConstructor;
+    isYamlOnly?: boolean;
+  }[] = [
+    { type: EntityType.Route, group: '', Entity: CamelRouteVisualEntity },
+    { type: EntityType.RouteConfiguration, group: 'Configuration', Entity: CamelRouteConfigurationVisualEntity },
+    { type: EntityType.Intercept, group: 'Configuration', Entity: CamelInterceptVisualEntity, isYamlOnly: true },
+    {
+      type: EntityType.InterceptFrom,
+      group: 'Configuration',
+      Entity: CamelInterceptFromVisualEntity,
+      isYamlOnly: true,
+    },
+    {
+      type: EntityType.InterceptSendToEndpoint,
+      group: 'Configuration',
+      Entity: CamelInterceptSendToEndpointVisualEntity,
+      isYamlOnly: true,
+    },
+    { type: EntityType.OnCompletion, group: 'Configuration', Entity: CamelOnCompletionVisualEntity, isYamlOnly: true },
+    { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity, isYamlOnly: true },
+    { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity, isYamlOnly: true },
+    { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
+    { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
+  ];
   static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
   readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
     a: unknown,
@@ -95,11 +105,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   getCanvasEntityList(): BaseVisualCamelEntityDefinition {
-    if (isDefined(this.resolvedEntities)) {
-      return this.resolvedEntities;
-    }
-
-    this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.reduce(
+    this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.filter(
+      ({ isYamlOnly }) =>
+        this.serializer.getType() === SerializerType.YAML ||
+        (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly),
+    ).reduce(
       (acc, { type, group }) => {
         const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
         const entityDefinition = {
