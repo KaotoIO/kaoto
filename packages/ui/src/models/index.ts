@@ -14,5 +14,6 @@ export * from './popper-default';
 export * from './react-component';
 export * from './settings';
 export * from './runtime-maven-information';
+export * from './step-update-action';
 export * from './validation';
 export * from './visualization';

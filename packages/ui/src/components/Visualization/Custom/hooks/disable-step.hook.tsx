@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { setValue } from '../../../../utils/set-value';
+import { setValue } from '@kaoto/forms';
 
 export const useDisableStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);

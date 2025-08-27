@@ -12,6 +12,7 @@ import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { RefObject, createRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
+import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
@@ -27,7 +28,6 @@ import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
 import { EditService } from './EditService';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
-import { CatalogKind } from '../testing-api';
 
 export class KaotoEditorApp implements Editor {
   protected editorRef: RefObject<SourceCodeBridgeProviderRef>;
@@ -52,7 +52,7 @@ export class KaotoEditorApp implements Editor {
     this.deleteResource = this.deleteResource.bind(this);
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
     this.getSuggestions = this.getSuggestions.bind(this);
-    this.onStepAdded = this.onStepAdded.bind(this);
+    this.onStepUpdated = this.onStepUpdated.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -152,8 +152,8 @@ export class KaotoEditorApp implements Editor {
     }
   }
 
-  async onStepAdded(stepType: CatalogKind, stepName: string): Promise<void> {
-    return this.envelopeContext.channelApi.requests.onStepAdded(stepType, stepName);
+  async onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> {
+    return this.envelopeContext.channelApi.requests.onStepUpdated(action, stepType, stepName);
   }
 
   af_onOpen(): void {
@@ -182,7 +182,7 @@ export class KaotoEditorApp implements Editor {
                       askUserForFileSelection={this.askUserForFileSelection}
                       getSuggestions={this.getSuggestions}
                       shouldSaveSchema={false}
-                      onStepAdded={this.onStepAdded}
+                      onStepUpdated={this.onStepUpdated}
                     >
                       <RouterProvider router={kaotoEditorRouter} />
                     </KaotoBridge>

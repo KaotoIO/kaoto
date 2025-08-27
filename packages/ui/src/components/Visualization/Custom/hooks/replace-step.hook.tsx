@@ -1,14 +1,16 @@
 import { useCallback, useContext, useMemo } from 'react';
+import { StepUpdateAction } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import {
   ACTION_ID_CANCEL,
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
   CatalogModalContext,
+  MetadataContext,
 } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
   findModalCustomizationRecursively,
   processNodeInteractionAddonRecursively,
@@ -17,6 +19,7 @@ import {
 export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
   const catalogModalContext = useContext(CatalogModalContext);
+  const metadataContext = useContext(MetadataContext);
   const replaceModalContext = useContext(ActionConfirmationModalContext);
   const childrenNodes = vizNode.getChildren();
   const hasChildren = childrenNodes !== undefined && childrenNodes.length > 0;
@@ -24,7 +27,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onReplaceNode = useCallback(async () => {
-    if (!vizNode || !entitiesContext) return;
+    if (!entitiesContext) return;
 
     const modalCustoms = findModalCustomizationRecursively(vizNode, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
@@ -60,12 +63,16 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
+
+    /** Notify VS Code host about the new step */
+    metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);
   }, [
     catalogModalContext,
     entitiesContext,
     getRegisteredInteractionAddons,
     hasChildren,
     isPlaceholderNode,
+    metadataContext,
     replaceModalContext,
     vizNode,
   ]);

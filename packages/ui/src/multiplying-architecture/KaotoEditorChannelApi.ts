@@ -1,6 +1,6 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
-import { CatalogKind } from '../models';
+import { CatalogKind, StepUpdateAction } from '../models';
 import {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
@@ -85,8 +85,9 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
 
   /**
    * Notifies the host application that a step was added.
+   * @param action The action performed on the step ('add', 'replace', 'remove').
    * @param stepType The type of the step that was added (e.g., "component", "processor", "entity").
    * @param stepName The name of the step that was added.
    */
-  onStepAdded(stepType: CatalogKind, stepName: string): Promise<void>;
+  onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void>;
 }

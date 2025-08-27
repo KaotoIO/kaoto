@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
+import { StepUpdateAction } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -29,7 +30,7 @@ export const useAddStep = (
     entitiesContext.updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
-    metadataContext?.onStepAdded?.(definedComponent.type, definedComponent.name);
+    metadataContext?.onStepUpdated?.(StepUpdateAction.Add, definedComponent.type, definedComponent.name);
   }, [catalogModalContext, entitiesContext, metadataContext, mode, vizNode]);
 
   const value = useMemo(

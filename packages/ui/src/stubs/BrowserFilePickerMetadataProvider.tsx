@@ -1,12 +1,12 @@
 import { ChangeEvent, createRef, FunctionComponent, PropsWithChildren, useCallback, useRef } from 'react';
-import { readFileAsString } from './read-file-as-string';
-import { IMetadataApi, MetadataContext } from '../providers';
 import {
   SCHEMA_FILE_ACCEPT_PATTERN,
   SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY,
   SCHEMA_FILE_NAME_PATTERN,
   SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY,
 } from '../models/datamapper';
+import { IMetadataApi, MetadataContext } from '../providers';
+import { readFileAsString } from './read-file-as-string';
 
 export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const fileInputRef = createRef<HTMLInputElement>();
@@ -70,7 +70,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     deleteResource: () => Promise.resolve(true),
     saveResourceContent: () => Promise.resolve(),
     getSuggestions: () => Promise.resolve([]),
-    onStepAdded: () => Promise.resolve(),
+    onStepUpdated: () => Promise.resolve(),
   };
 
   return (
