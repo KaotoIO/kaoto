@@ -202,7 +202,8 @@ export class CamelComponentDefaultService {
               - to:
                   id: ${getCamelRandomId('kaoto-datamapper-xslt')}
                   uri: ${XSLT_COMPONENT_NAME}
-                  parameters: {}
+                  parameters:
+                    failOnNullBody: false
           `);
 
       case 'delete' as keyof ProcessorDefinition:
