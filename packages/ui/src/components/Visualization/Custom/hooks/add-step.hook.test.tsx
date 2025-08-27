@@ -1,13 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { useAddStep } from './add-step.hook';
-import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
-import { MetadataContext, IMetadataApi } from '../../../../providers/metadata.provider';
-import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { ITile } from '../../../../components/Catalog/Catalog.models';
+import { StepUpdateAction } from '../../../../models';
+import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
+import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { IMetadataApi, MetadataContext } from '../../../../providers/metadata.provider';
+import { useAddStep } from './add-step.hook';
 
 describe('useAddStep', () => {
   const camelResource = new CamelRouteResource();
@@ -29,7 +30,7 @@ describe('useAddStep', () => {
   };
 
   const mockMetadataContext: IMetadataApi = {
-    onStepAdded: jest.fn(),
+    onStepUpdated: jest.fn(),
     getMetadata: jest.fn(),
     setMetadata: jest.fn(),
     getResourceContent: jest.fn(),
@@ -120,7 +121,11 @@ describe('useAddStep', () => {
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(addBaseEntityStepSpy).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.AppendStep);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
-    expect(mockMetadataContext.onStepAdded).toHaveBeenCalledWith(mockDefinedComponent.type, mockDefinedComponent.name);
+    expect(mockMetadataContext.onStepUpdated).toHaveBeenCalledWith(
+      StepUpdateAction.Add,
+      mockDefinedComponent.type,
+      mockDefinedComponent.name,
+    );
   });
 
   it('should work with PrependStep mode', async () => {
@@ -153,7 +158,7 @@ describe('useAddStep', () => {
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(addBaseEntityStepSpy).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(mockMetadataContext.onStepAdded).not.toHaveBeenCalled();
+    expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
   it('should return early when catalog modal returns undefined', async () => {
@@ -169,7 +174,7 @@ describe('useAddStep', () => {
 
     expect(addBaseEntityStepSpy).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(mockMetadataContext.onStepAdded).not.toHaveBeenCalled();
+    expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
   it('should handle missing metadata context gracefully', async () => {

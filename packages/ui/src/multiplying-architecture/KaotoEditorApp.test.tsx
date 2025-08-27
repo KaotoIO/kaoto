@@ -12,12 +12,12 @@ import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
+import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
+import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
-import { setColorScheme } from '../utils/color-scheme';
-import { CatalogKind } from '../models';
 
 jest.mock('../utils/color-scheme');
 
@@ -62,7 +62,7 @@ describe('KaotoEditorApp', () => {
           setMetadata: jest.fn(),
           getResourceContent: jest.fn(),
           saveResourceContent: jest.fn(),
-          onStepAdded: jest.fn(),
+          onStepUpdated: jest.fn(),
         } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
@@ -241,9 +241,13 @@ describe('KaotoEditorApp', () => {
     const stepType = CatalogKind.Component;
     const stepName = 'amqp';
 
-    await kaotoEditorApp.onStepAdded(stepType, stepName);
+    await kaotoEditorApp.onStepUpdated(StepUpdateAction.Add, stepType, stepName);
 
-    expect(envelopeContext.channelApi.requests.onStepAdded).toHaveBeenCalledWith(stepType, stepName);
+    expect(envelopeContext.channelApi.requests.onStepUpdated).toHaveBeenCalledWith(
+      StepUpdateAction.Add,
+      stepType,
+      stepName,
+    );
   });
 });
 

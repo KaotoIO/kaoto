@@ -1,5 +1,6 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren, createContext } from 'react';
+import { StepUpdateAction } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
 
 export interface IMetadataApi {
@@ -67,10 +68,11 @@ export interface IMetadataApi {
 
   /**
    * Notify the VS Code host that a new step was added to the flow.
-   * @param stepType The type of step that was added
-   * @param stepName The name/identifier of the step
+   * @param action The action performed on the step ('add', 'replace', 'remove').
+   * @param stepType The type of the step that was added (e.g., "component", "processor", "entity").
+   * @param stepName The name of the step that was added.
    */
-  onStepAdded(stepType: CatalogKind, stepName: string): Promise<void>;
+  onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void>;
 }
 
 export const MetadataContext = createContext<IMetadataApi | undefined>(undefined);

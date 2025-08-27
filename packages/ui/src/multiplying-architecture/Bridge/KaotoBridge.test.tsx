@@ -27,7 +27,7 @@ describe('KaotoBridge', () => {
     askUserForFileSelection: mockAskUserForFileSelection,
     getSuggestions: mockGetSuggestions,
     shouldSaveSchema: false,
-    onStepAdded: jest.fn(),
+    onStepUpdated: jest.fn(),
     channelType: ChannelType.VSCODE_DESKTOP,
   };
 
