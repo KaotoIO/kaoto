@@ -169,6 +169,19 @@ describe('CamelComponentDefaultService', () => {
       expect(removeHeadersDefault.removeHeaders.id as string).toMatch(/^removeHeaders-/);
       expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
     });
+
+    it('should return the default value for a DataMapper step with failOnNullBody set to false', () => {
+      const datamapperDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'processor',
+        name: 'kaoto-datamapper',
+      } as DefinedComponent) as any;
+      expect(datamapperDefault.step).toBeDefined();
+      expect(datamapperDefault.step.id as string).toMatch(/^kaoto-datamapper-/);
+      expect(datamapperDefault.step.steps).toHaveLength(1);
+      expect(datamapperDefault.step.steps[0].to).toBeDefined();
+      expect(datamapperDefault.step.steps[0].to.uri).toEqual('xslt-saxon');
+      expect(datamapperDefault.step.steps[0].to.parameters.failOnNullBody).toEqual(false);
+    });
   });
 
   it('should return the default value for a intercept entity', () => {
