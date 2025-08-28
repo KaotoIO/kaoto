@@ -87,6 +87,7 @@ export class MappingSerializerJsonAddon {
         elementName = 'array';
         break;
       case Types.Numeric:
+      case Types.Integer:
         elementName = 'number';
         break;
       case Types.Boolean:

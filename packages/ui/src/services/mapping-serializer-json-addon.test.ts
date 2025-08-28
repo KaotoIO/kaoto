@@ -143,6 +143,13 @@ describe('mappingSerializerJsonAddon', () => {
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(created!.localName).toEqual('boolean');
       expect(created!.getAttribute('key')).toEqual('SomeBoolean');
+
+      const integerField = new JsonSchemaField(doc, 'SomeInteger', Types.Integer);
+      fieldItem = new FieldItem(mappings, integerField);
+      created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
+      expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
+      expect(created!.localName).toEqual('number');
+      expect(created!.getAttribute('key')).toEqual('SomeInteger');
     });
 
     it('should not populate a FieldItem if not JSON field', () => {
