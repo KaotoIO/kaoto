@@ -61,7 +61,7 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
-    "@kaoto/camel-catalog": "^0.2.1",
+    "@kaoto/camel-catalog": "^0.2.2",
     "@kaoto/forms": "^1.4.0",
     "@kaoto/kaoto": "workspace:*",
     "@patternfly/patternfly": "^6.2.3",

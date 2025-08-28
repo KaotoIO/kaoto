@@ -210,6 +210,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "validate": {
             "$comment": "group:common",
+            "default": false,
             "description": "Whether if validation is required for this input type.",
             "title": "Validate",
             "type": "boolean",
@@ -245,6 +246,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "validate": {
             "$comment": "group:common",
+            "default": false,
             "description": "Whether if validation is required for this output type.",
             "title": "Validate",
             "type": "boolean",
@@ -269,6 +271,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "asyncDelayedRedelivery": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Allow asynchronous delayed redelivery. The route, in particular the consumer's component, must support the Asynchronous Routing Engine (e.g. seda).",
             "title": "Async Delayed Redelivery",
             "type": "boolean",
@@ -295,6 +298,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "disableRedelivery": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Disables redelivery (same as setting maximum redeliveries to 0)",
             "title": "Disable Redelivery",
             "type": "boolean",
@@ -313,6 +317,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "logContinued": {
             "$comment": "group:common",
+            "default": false,
             "description": "Sets whether continued exceptions should be logged or not. Can be used to include or reduce verbose.",
             "title": "Log Continued",
             "type": "boolean",
@@ -326,18 +331,21 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "logExhaustedMessageBody": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether exhausted message body should be logged including message history or not (supports property placeholders). Can be used to include or reduce verbose. Requires logExhaustedMessageHistory to be enabled.",
             "title": "Log Exhausted Message Body",
             "type": "boolean",
           },
           "logExhaustedMessageHistory": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether exhausted exceptions should be logged including message history or not (supports property placeholders). Can be used to include or reduce verbose.",
             "title": "Log Exhausted Message History",
             "type": "boolean",
           },
           "logHandled": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether handled exceptions should be logged or not. Can be used to include or reduce verbose.",
             "title": "Log Handled",
             "type": "boolean",
@@ -358,6 +366,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "logRetryStackTrace": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether stack traces should be logged when an retry attempt failed. Can be used to include or reduce verbose.",
             "title": "Log Retry Stack Trace",
             "type": "boolean",
@@ -430,12 +439,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "useCollisionAvoidance": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Turn on collision avoidance.",
             "title": "Use Collision Avoidance",
             "type": "boolean",
           },
           "useExponentialBackOff": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Turn on exponential back off",
             "title": "Use Exponential Back Off",
             "type": "boolean",
@@ -544,12 +555,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "useOriginalBody": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message body (original body only) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Body",
             "type": "boolean",
           },
           "useOriginalMessage": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message (original body and headers) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Message",
             "type": "boolean",
@@ -648,12 +661,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "useOriginalBody": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message body (original body only) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Body",
             "type": "boolean",
           },
           "useOriginalMessage": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message (original body and headers) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Message",
             "type": "boolean",
@@ -771,12 +786,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "useOriginalBody": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message body (original body only) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Body",
             "type": "boolean",
           },
           "useOriginalMessage": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message (original body and headers) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Message",
             "type": "boolean",
@@ -932,12 +949,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "useOriginalBody": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message body (original body only) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Body",
             "type": "boolean",
           },
           "useOriginalMessage": {
             "$comment": "group:common",
+            "default": false,
             "description": "Will use the original input org.apache.camel.Message (original body and headers) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the splitted message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.",
             "title": "Use Original Message",
             "type": "boolean",
@@ -950,7 +969,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
     "properties": {
       "autoStartup": {
         "$comment": "group:common",
-        "default": "true",
+        "default": true,
         "description": "Whether to auto start this route",
         "title": "Auto Startup",
         "type": "boolean",
@@ -996,7 +1015,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "logMask": {
         "$comment": "group:common",
-        "default": "false",
+        "default": false,
         "description": "Whether security mask for Logging is enabled on this route.",
         "title": "Log Mask",
         "type": "boolean",
@@ -1103,6 +1122,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -1196,6 +1216,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -1243,6 +1264,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "lazyStartProducer": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.",
             "title": "Lazy Start Producer",
             "type": "boolean",
@@ -1289,24 +1311,28 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "multiline": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "If enabled then each information is outputted on a newline.",
             "title": "Multiline",
             "type": "boolean",
           },
           "plain": {
             "$comment": "group:producer",
+            "default": false,
             "description": "If enabled only the body will be printed out",
             "title": "Plain",
             "type": "boolean",
           },
           "showAll": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Quick option for turning all options on. (multiline, maxChars has to be manually set if to be used)",
             "title": "Show All",
             "type": "boolean",
           },
           "showAllProperties": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show all of the exchange properties (both internal and custom).",
             "title": "Show All Properties",
             "type": "boolean",
@@ -1334,78 +1360,91 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "showCaughtException": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "If the exchange has a caught exception, show the exception message (no stack trace). A caught exception is stored as a property on the exchange (using the key org.apache.camel.Exchange#EXCEPTION_CAUGHT) and for instance a doCatch can catch exceptions.",
             "title": "Show Caught Exception",
             "type": "boolean",
           },
           "showException": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "If the exchange has an exception, show the exception message (no stacktrace)",
             "title": "Show Exception",
             "type": "boolean",
           },
           "showExchangeId": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show the unique exchange ID.",
             "title": "Show Exchange Id",
             "type": "boolean",
           },
           "showExchangePattern": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Shows the Message Exchange Pattern (or MEP for short).",
             "title": "Show Exchange Pattern",
             "type": "boolean",
           },
           "showFiles": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "If enabled Camel will output files",
             "title": "Show Files",
             "type": "boolean",
           },
           "showFuture": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "If enabled Camel will on Future objects wait for it to complete to obtain the payload to be logged.",
             "title": "Show Future",
             "type": "boolean",
           },
           "showHeaders": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show the message headers.",
             "title": "Show Headers",
             "type": "boolean",
           },
           "showProperties": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show the exchange properties (only custom). Use showAllProperties to show both internal and custom properties.",
             "title": "Show Properties",
             "type": "boolean",
           },
           "showRouteGroup": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show route Group.",
             "title": "Show Route Group",
             "type": "boolean",
           },
           "showRouteId": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show route ID.",
             "title": "Show Route Id",
             "type": "boolean",
           },
           "showStackTrace": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show the stack trace, if an exchange has an exception. Only effective if one of showAll, showException or showCaughtException are enabled.",
             "title": "Show Stack Trace",
             "type": "boolean",
           },
           "showStreams": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Whether Camel should show stream bodies or not (eg such as java.io.InputStream). Beware if you enable this option then you may not be able later to access the message body as the stream have already been read by this logger. To remedy this you will have to use Stream Caching.",
             "title": "Show Streams",
             "type": "boolean",
           },
           "showVariables": {
             "$comment": "group:formatting",
+            "default": false,
             "description": "Show the variables.",
             "title": "Show Variables",
             "type": "boolean",
@@ -1419,6 +1458,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "sourceLocationLoggerName": {
             "$comment": "group:producer",
+            "default": false,
             "description": "If enabled then the source location of where the log endpoint is used in Camel routes, would be used as logger name, instead of the given name. However, if the source location is disabled or not possible to resolve then the existing logger name will be used.",
             "title": "Source Location Logger Name",
             "type": "boolean",
@@ -1499,6 +1539,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -1585,6 +1626,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -1600,6 +1642,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "properties": {
           "allowNullBody": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Used to specify if a null body is allowed during file writing. If set to true then an empty file will be created, when set to false, and attempting to send a null body to the file component, a GenericFileWriteException of 'Cannot write null body to file.' will be thrown. If the fileExist option is set to 'Override', then the file will be truncated, and if set to append the file will remain unchanged.",
             "title": "Allow Null Body",
             "type": "boolean",
@@ -1638,6 +1681,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "autoCreateStepwise": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "When auto-creating directories should each subdirectory be created one at a time. This may be needed due to security issues on some file-shares.",
             "title": "Auto Create Stepwise",
             "type": "boolean",
@@ -1815,6 +1859,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "flatten": {
             "$comment": "group:producer",
+            "default": false,
             "description": "Flatten is used to flatten the file name path to strip any leading paths, so it's just the file name. This allows you to consume recursively into sub-directories, but when you eg write the files to another directory they will be written in a single directory. Setting this to true on the producer enforces that any file name in CamelFileName header will be stripped for any leading paths.",
             "title": "Flatten",
             "type": "boolean",
@@ -1828,12 +1873,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "greedy": {
             "$comment": "group:scheduler",
+            "default": false,
             "description": "If greedy is enabled, then the ScheduledPollConsumer will run immediately again, if the previous run polled 1 or more messages.",
             "title": "Greedy",
             "type": "boolean",
           },
           "idempotent": {
             "$comment": "group:filter",
+            "default": false,
             "description": "Option to use the Idempotent Consumer EIP pattern to let Camel skip already processed files. Will by default use a memory based LRUCache that holds 1000 entries. If noop=true then idempotent will be enabled as well to avoid consuming the same files over and over again.",
             "title": "Idempotent",
             "type": "boolean",
@@ -1886,12 +1933,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "keepLastModified": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Will keep the last modified timestamp from the source file (if any). Will use the FileConstants.FILE_LAST_MODIFIED header to located the timestamp. This header can contain either a java.util.Date or long with the timestamp. If the timestamp exists and the option is enabled it will set this timestamp on the written file. Note: This option only applies to the file producer. You cannot use this option with any of the ftp producers.",
             "title": "Keep Last Modified",
             "type": "boolean",
           },
           "lazyStartProducer": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.",
             "title": "Lazy Start Producer",
             "type": "boolean",
@@ -1967,6 +2016,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "readLockIdempotentReleaseAsync": {
             "$comment": "group:lock",
+            "default": false,
             "description": "Whether the delayed release task should be synchronous or asynchronous. See more details at the readLockIdempotentReleaseDelay option.",
             "title": "Read Lock Idempotent Release Async",
             "type": "boolean",
@@ -2029,6 +2079,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "readLockRemoveOnCommit": {
             "$comment": "group:lock",
+            "default": false,
             "description": "This option is applied only for readLock=idempotent. It allows to specify whether to remove the file name entry from the idempotent repository when processing the file is succeeded and a commit happens. By default the file is not removed which ensures that any race-condition do not occur so another active node may attempt to grab the file. Instead the idempotent repository may support eviction strategies that you can configure to evict the file name entry after X minutes - this ensures no problems with race conditions. See more details at the readLockIdempotentReleaseDelay option.",
             "title": "Read Lock Remove On Commit",
             "type": "boolean",
@@ -2049,6 +2100,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "renameUsingCopy": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Perform rename operations using a copy and delete strategy. This is primarily used in environments where the regular rename operation is unreliable (e.g., across different file systems or networks). This option takes precedence over the copyAndDeleteOnRenameFail parameter that will automatically fall back to the copy and delete strategy, but only after additional delays.",
             "title": "Rename Using Copy",
             "type": "boolean",
@@ -2099,6 +2151,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "shuffle": {
             "$comment": "group:sort",
+            "default": false,
             "description": "To shuffle the list of files (sort in random order)",
             "title": "Shuffle",
             "type": "boolean",
@@ -2125,6 +2178,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "synchronous": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether synchronous processing should be strictly used",
             "title": "Synchronous",
             "type": "boolean",
@@ -2264,6 +2318,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "autoCreateStepwise": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "When auto-creating directories should each subdirectory be created one at a time. This may be needed due to security issues on some file-shares.",
             "title": "Auto Create Stepwise",
             "type": "boolean",
@@ -2288,6 +2343,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "bridgeErrorHandler": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions (if possible) occurred while the Camel consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. Important: This is only possible if the 3rd party component allows Camel to be alerted if an exception was thrown. Some components handle this internally only, and therefore bridgeErrorHandler is not possible. In other situations we may improve the Camel component to hook into the 3rd party component and make this possible for future releases. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.",
             "title": "Bridge Error Handler",
             "type": "boolean",
@@ -2328,12 +2384,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "delete": {
             "$comment": "group:consumer",
+            "default": false,
             "description": "If true, the file will be deleted after it is processed successfully.",
             "title": "Delete",
             "type": "boolean",
           },
           "directoryMustExist": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Similar to the startingDirectoryMustExist option, but this applies during polling (after starting the consumer).",
             "title": "Directory Must Exist",
             "type": "boolean",
@@ -2427,12 +2485,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "greedy": {
             "$comment": "group:scheduler",
+            "default": false,
             "description": "If greedy is enabled, then the ScheduledPollConsumer will run immediately again, if the previous run polled 1 or more messages.",
             "title": "Greedy",
             "type": "boolean",
           },
           "idempotent": {
             "$comment": "group:filter",
+            "default": false,
             "description": "Option to use the Idempotent Consumer EIP pattern to let Camel skip already processed files. Will by default use a memory based LRUCache that holds 1000 entries. If noop=true then idempotent will be enabled as well to avoid consuming the same files over and over again.",
             "title": "Idempotent",
             "type": "boolean",
@@ -2478,12 +2538,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "includeHiddenDirs": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Whether to accept hidden directories. Directories which names starts with dot are regarded as a hidden directory, and by default are not included. Set this option to true to include hidden directories in the file consumer.",
             "title": "Include Hidden Dirs",
             "type": "boolean",
           },
           "includeHiddenFiles": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Whether to accept hidden files. Files which names starts with dot is regarded as a hidden file, and by default not included. Set this option to true to include hidden files in the file consumer.",
             "title": "Include Hidden Files",
             "type": "boolean",
@@ -2534,6 +2596,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "noop": {
             "$comment": "group:consumer",
+            "default": false,
             "description": "If true, the file is not moved or deleted in any way. This option is good for readonly data, or for ETL type requirements. If noop=true, Camel will set idempotent=true as well, to avoid consuming the same files over and over again.",
             "title": "Noop",
             "type": "boolean",
@@ -2560,12 +2623,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "preSort": {
             "$comment": "group:consumer",
+            "default": false,
             "description": "When pre-sort is enabled then the consumer will sort the file and directory names during polling, that was retrieved from the file system. You may want to do this in case you need to operate on the files in a sorted order. The pre-sort is executed before the consumer starts to filter, and accept files to process by Camel. This option is default=false meaning disabled.",
             "title": "Pre Sort",
             "type": "boolean",
           },
           "probeContentType": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Whether to enable probing of the content type. If enable then the consumer uses Files#probeContentType(java.nio.file.Path) to determine the content-type of the file, and store that as a header with key Exchange#FILE_CONTENT_TYPE on the Message.",
             "title": "Probe Content Type",
             "type": "boolean",
@@ -2610,6 +2675,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "readLockIdempotentReleaseAsync": {
             "$comment": "group:lock",
+            "default": false,
             "description": "Whether the delayed release task should be synchronous or asynchronous. See more details at the readLockIdempotentReleaseDelay option.",
             "title": "Read Lock Idempotent Release Async",
             "type": "boolean",
@@ -2672,6 +2738,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "readLockRemoveOnCommit": {
             "$comment": "group:lock",
+            "default": false,
             "description": "This option is applied only for readLock=idempotent. It allows to specify whether to remove the file name entry from the idempotent repository when processing the file is succeeded and a commit happens. By default the file is not removed which ensures that any race-condition do not occur so another active node may attempt to grab the file. Instead the idempotent repository may support eviction strategies that you can configure to evict the file name entry after X minutes - this ensures no problems with race conditions. See more details at the readLockIdempotentReleaseDelay option.",
             "title": "Read Lock Remove On Commit",
             "type": "boolean",
@@ -2692,12 +2759,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "recursive": {
             "$comment": "group:consumer",
+            "default": false,
             "description": "If a directory, will look for files in all the sub-directories as well.",
             "title": "Recursive",
             "type": "boolean",
           },
           "renameUsingCopy": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Perform rename operations using a copy and delete strategy. This is primarily used in environments where the regular rename operation is unreliable (e.g., across different file systems or networks). This option takes precedence over the copyAndDeleteOnRenameFail parameter that will automatically fall back to the copy and delete strategy, but only after additional delays.",
             "title": "Rename Using Copy",
             "type": "boolean",
@@ -2748,12 +2817,14 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "sendEmptyMessageWhenIdle": {
             "$comment": "group:consumer",
+            "default": false,
             "description": "If the polling consumer did not poll any files, you can enable this option to send an empty message (no body) instead.",
             "title": "Send Empty Message When Idle",
             "type": "boolean",
           },
           "shuffle": {
             "$comment": "group:sort",
+            "default": false,
             "description": "To shuffle the list of files (sort in random order)",
             "title": "Shuffle",
             "type": "boolean",
@@ -2780,18 +2851,21 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
           },
           "startingDirectoryMustExist": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Whether the starting directory must exist. Mind that the autoCreate option is default enabled, which means the starting directory is normally auto created if it doesn't exist. You can disable autoCreate and enable this to ensure the starting directory must exist. Will throw an exception if the directory doesn't exist.",
             "title": "Starting Directory Must Exist",
             "type": "boolean",
           },
           "startingDirectoryMustHaveAccess": {
             "$comment": "group:consumer (advanced)",
+            "default": false,
             "description": "Whether the starting directory has access permissions. Mind that the startingDirectoryMustExist parameter must be set to true to verify that the directory exists. Will throw an exception if the directory doesn't have read and write permissions.",
             "title": "Starting Directory Must Have Access",
             "type": "boolean",
           },
           "synchronous": {
             "$comment": "group:advanced",
+            "default": false,
             "description": "Sets whether synchronous processing should be strictly used",
             "title": "Synchronous",
             "type": "boolean",
@@ -2871,6 +2945,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -2937,6 +3012,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -3026,6 +3102,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -3047,6 +3124,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
           },
           "lazyStartProducer": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.",
             "title": "Lazy Start Producer",
             "type": "boolean",
@@ -3164,6 +3242,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "disabled": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Disables this EIP from the route.",
         "title": "Disabled",
         "type": "boolean",
@@ -3176,6 +3255,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
       },
       "ignoreInvalidEndpoint": {
         "$comment": "group:advanced",
+        "default": false,
         "description": "Whether to ignore invalid endpoint URIs and skip sending the message.",
         "title": "Ignore Invalid Endpoint",
         "type": "boolean",
@@ -3191,6 +3271,7 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
           },
           "lazyStartProducer": {
             "$comment": "group:producer (advanced)",
+            "default": false,
             "description": "Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel's routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.",
             "title": "Lazy Start Producer",
             "type": "boolean",
