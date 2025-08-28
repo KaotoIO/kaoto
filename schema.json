@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "title": "Cart Schema",
+  "description": "Schema for cart items array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Title": {
+        "type": "string",
+        "description": "Item title or name"
+      },
+      "Note": {
+        "type": "string",
+        "description": "Additional notes about the item"
+      },
+      "Quantity": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Quantity of the item"
+      },
+      "Price": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Price of the item"
+      }
+    },
+    "required": ["Title", "Quantity", "Price"],
+    "additionalProperties": false
+  }
+}

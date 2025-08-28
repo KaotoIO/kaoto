@@ -330,4 +330,29 @@ describe('JsonSchemaDocumentService', () => {
       '#/items/definitions/org.apache.camel.model.language.SimpleExpression',
     );
   });
+
+  it('should parse integer distinctly from number', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        Quantity: { type: 'integer' },
+        Price: { type: 'number' },
+      },
+    };
+    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'intTest',
+      JSON.stringify(schema),
+    );
+
+    const root = doc.fields[0];
+    const qty = root.fields.find((f) => f.key === 'Quantity');
+    const price = root.fields.find((f) => f.key === 'Price');
+    expect(qty).toBeDefined();
+    expect(price).toBeDefined();
+    expect(qty!.type).toBe(Types.Integer);
+    expect(qty!.name).toBe('number');
+    expect(price!.type).toBe(Types.Numeric);
+    expect(price!.name).toBe('number');
+  });
 });
