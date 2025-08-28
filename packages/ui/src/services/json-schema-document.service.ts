@@ -171,6 +171,8 @@ export class JsonSchemaDocumentService {
         return 'string';
       case Types.Numeric:
         return 'number';
+      case Types.Integer:
+        return 'number';
       case Types.Boolean:
         return 'boolean';
       case Types.Container:
@@ -288,6 +290,8 @@ export class JsonSchemaDocumentService {
     if (typesArray.includes('array')) return Types.Array;
     if (typesArray.includes('object')) return Types.Container;
     if (typesArray.includes('string')) return Types.String;
+    // treat JSON Schema integer distinctly so toXsltTypeName(Types.Integer) path is exercised
+    if (typesArray.includes('integer')) return Types.Integer;
     if (typesArray.includes('number')) return Types.Numeric;
     if (typesArray.includes('boolean')) return Types.Boolean;
 
