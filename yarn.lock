@@ -2990,9 +2990,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/forms@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "@kaoto/forms@npm:1.3.1"
+"@kaoto/forms@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@kaoto/forms@npm:1.4.0"
   dependencies:
     ajv: "npm:^8.12.0"
     clsx: "npm:^2.1.0"
@@ -3004,7 +3004,7 @@ __metadata:
     "@patternfly/react-icons": ^6.2.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 10/5edee8ad8ddae7f5816e41374f5403da1a25dfe0e1a99c8650b286aa77de88ffb632784ddc6439622e89c8c3d967167af4e89a23e6fd7e408bfea53cc6fcd018
+  checksum: 10/28ef8e67a40813a1ff36c92ba3b8982f5131736d542e24d3d4658b048e4db35ab39ab8dd66d71a0e01935858a32af74fab7fc392703834b2263a7031e50f3cc4
   languageName: node
   linkType: hard
 
@@ -3015,7 +3015,7 @@ __metadata:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.1"
-    "@kaoto/forms": "npm:^1.3.1"
+    "@kaoto/forms": "npm:^1.4.0"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.2.3"
     "@patternfly/react-code-editor": "npm:^6.2.2"
@@ -3072,7 +3072,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.1"
-    "@kaoto/forms": "npm:^1.3.1"
+    "@kaoto/forms": "npm:^1.4.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:^6.2.3"
