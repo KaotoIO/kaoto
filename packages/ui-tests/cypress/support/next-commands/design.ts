@@ -44,6 +44,18 @@ Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
   cy.get('[data-testid="quick-append-step"]').eq(nodeIndex).click({ force: true });
 });
 
+Cypress.Commands.add('selectDuplicateNode', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'duplicate', nodeIndex);
+});
+
+Cypress.Commands.add('selectMoveBeforeNode', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'move-before', nodeIndex);
+});
+
+Cypress.Commands.add('selectMoveAfterNode', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'move-next', nodeIndex);
+});
+
 Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });

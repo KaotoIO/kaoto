@@ -11,7 +11,7 @@ describe('Test of camel route with branches for XML', () => {
     const xml = [
       '<from uri="timer:template?period=1000"/>',
       '<choice>',
-      '<when>',
+      '<when description="when-setHeader">',
       '<simple>',
       '${header.foo} == 1',
       '</simple>',
@@ -21,7 +21,7 @@ describe('Test of camel route with branches for XML', () => {
       '</simple>',
       '</setHeader>',
       '</when>',
-      '<when>',
+      '<when description="when-log">',
       '<simple>',
       '${header.foo} == 1',
       '</simple>',

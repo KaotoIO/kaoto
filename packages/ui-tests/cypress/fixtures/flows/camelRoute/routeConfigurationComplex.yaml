@@ -1,0 +1,35 @@
+- routeConfiguration:
+    id: routeConfiguration-6082
+    description: routeConfiguration
+    intercept:
+      - intercept:
+          id: intercept-1234
+          description: intercept-amqp
+          steps:
+            - to:
+                id: to-3321
+                uri: amqp
+                parameters: {}
+      - intercept:
+          id: intercept-1234-2018
+          description: intercept-log
+          steps:
+            - log:
+                id: log-4033-2029
+                message: ${body}
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-2113
+          description: interceptFrom-amqp
+          steps:
+            - to:
+                id: to-2375
+                uri: amqp
+                parameters: {}
+      - interceptFrom:
+          id: interceptFrom-2113-2823
+          description: interceptFrom-log
+          steps:
+            - log:
+                id: log-7932-5463
+                message: ${body}
