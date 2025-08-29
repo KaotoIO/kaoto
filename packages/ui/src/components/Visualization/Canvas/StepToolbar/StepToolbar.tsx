@@ -60,7 +60,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onDuplicate();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
 
       {canHaveSpecialChildren && (
@@ -74,7 +74,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onInsertSpecial();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
 
       {canBeDisabled && (
@@ -103,7 +103,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onEnableAllSteps();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
 
       {canReplaceStep && (
@@ -117,7 +117,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onReplaceNode();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
 
       {onCollapseToggle && (
@@ -147,7 +147,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onDeleteStep();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
 
       {canRemoveFlow && (
@@ -162,7 +162,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             onDeleteGroup();
             event.stopPropagation();
           }}
-        ></Button>
+        />
       )}
     </div>
   );

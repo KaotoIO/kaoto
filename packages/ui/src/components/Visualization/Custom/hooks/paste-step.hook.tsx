@@ -5,6 +5,7 @@ import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { IClipboardCopyObject } from './copy-step.hook';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 
 export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => {
   const entitiesContext = useContext(EntitiesContext)!;
@@ -20,9 +21,13 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       const pastedNodeType = pastedNodeValue.type;
       const baseNodeType = entitiesContext.camelResource.getType();
       const isSameType = pastedNodeType === baseNodeType;
+      // Allow Route <-> Kamelet pasting
+      const isCompatibleType =
+        (pastedNodeType === SourceSchemaType.Route && baseNodeType === SourceSchemaType.Kamelet) ||
+        (pastedNodeType === SourceSchemaType.Kamelet && baseNodeType === SourceSchemaType.Route);
 
       /** Validate the pasted node */
-      if (!isSameType) return false;
+      if (!isSameType && !isCompatibleType) return false;
       /** Get compatible nodes and the location where can be introduced */
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         mode,
