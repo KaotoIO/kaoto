@@ -3,11 +3,19 @@
     from:
       uri: timer:template?period=1000
       steps:
+        - log:
+            message: ${body}
         - choice:
             otherwise:
               steps:
                 - marshal: {}
             when:
+              - description: when-log
+                steps:
+                  - log:
+                      message: ${body}
+                simple:
+                  expression: ${header.foo} == 1
               - description: when-setHeader
                 steps:
                   - setHeader:
@@ -16,11 +24,3 @@
                         expression: foo
                 simple:
                   expression: ${header.foo} == 1
-              - description: when-log
-                steps:
-                  - log:
-                      message: ${body}
-                simple:
-                  expression: ${header.foo} == 1
-        - log:
-            message: ${body}

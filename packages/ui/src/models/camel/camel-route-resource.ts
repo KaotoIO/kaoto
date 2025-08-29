@@ -19,11 +19,7 @@ import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
-import {
-  AddStepMode,
-  BaseVisualCamelEntity,
-  BaseVisualCamelEntityConstructor,
-} from '../visualization/base-visual-entity';
+import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
@@ -147,17 +143,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     this.serializer = serializer;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addNewEntity(entityType?: EntityType, entityTemplate?: any): string {
+  addNewEntity(entityType?: EntityType, entityTemplate?: unknown): string {
     if (entityType && entityType !== EntityType.Route) {
       const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
       if (supportedEntity) {
-        let entity: BaseVisualCamelEntity;
-        if (entityTemplate) {
-          entity = new supportedEntity.Entity(entityTemplate);
-        } else {
-          entity = new supportedEntity.Entity();
-        }
+        const entity = new supportedEntity.Entity(entityTemplate);
 
         /** Error related entities should be added at the beginning of the list */
         if (EntityOrderingService.isRuntimePriorityEntity(entityType)) {
