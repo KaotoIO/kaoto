@@ -11,6 +11,7 @@ describe('StepNodeMapper', () => {
   let routeDefinition: RouteDefinition;
   let rootNodeMapper: RootNodeMapper;
   const path = 'from.steps.0.step';
+  const path2 = 'from.steps.1.step';
 
   beforeEach(() => {
     rootNodeMapper = new RootNodeMapper();
@@ -31,6 +32,12 @@ describe('StepNodeMapper', () => {
               steps:
                 - log:
                     id: log-1234
+                    message: \${body}
+          - step:
+              id: step-5678
+              steps:
+                - log:
+                    id: log-5678
                     message: \${body}`);
   });
 
@@ -38,6 +45,15 @@ describe('StepNodeMapper', () => {
     const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
     expect(vizNode.getChildren()).toHaveLength(1);
+  });
+
+  it('should use path for viz node ID for non DataMapper step node', () => {
+    const vizNode1 = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    expect(vizNode1.id).toEqual('from.steps.0.step');
+    expect(vizNode1.getChildren()).toHaveLength(1);
+    const vizNode2 = mapper.getVizNodeFromProcessor(path2, { processorName: 'step' }, routeDefinition);
+    expect(vizNode2.id).toEqual('from.steps.1.step');
+    expect(vizNode2.getChildren()).toHaveLength(1);
   });
 
   it('should verify if this step node is a Kaoto DataMapper one', () => {
