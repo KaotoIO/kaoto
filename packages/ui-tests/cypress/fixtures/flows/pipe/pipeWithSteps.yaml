@@ -1,0 +1,26 @@
+apiVersion: camel.apache.org/v1
+kind: Pipe
+metadata:
+  name: pipe
+spec:
+  source:
+    properties:
+      message: hello
+    ref:
+      apiVersion: camel.apache.org/v1
+      kind: Kamelet
+      name: timer-source
+  steps:
+    - ref:
+        apiVersion: camel.apache.org/v1
+        kind: Kamelet
+        name: delay-action
+    - ref:
+        apiVersion: camel.apache.org/v1
+        kind: Kamelet
+        name: avro-deserialize-action
+  sink:
+    ref:
+      apiVersion: camel.apache.org/v1
+      kind: Kamelet
+      name: log-sink

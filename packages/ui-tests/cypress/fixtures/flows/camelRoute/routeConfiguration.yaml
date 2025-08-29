@@ -1,0 +1,28 @@
+- routeConfiguration:
+    id: routeConfiguration-6082
+    description: routeConfiguration
+    intercept:
+      - intercept:
+          id: intercept-1234
+          description: intercept
+          steps:
+            - log:
+                id: log-4033
+                message: ${body}
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-2113
+          description: interceptFrom
+          steps:
+            - log:
+                id: log-7932
+                message: ${body}
+    interceptSendToEndpoint:
+      - interceptSendToEndpoint:
+          id: interceptSendToEndpoint-3320
+          description: interceptSendToEndpoint
+          steps:
+            - log:
+                id: log-3882
+                message: ${body}
+    onCompletion: []

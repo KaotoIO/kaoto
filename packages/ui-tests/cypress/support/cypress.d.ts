@@ -8,6 +8,9 @@ declare global {
   type ActionType =
     | 'append'
     | 'prepend'
+    | 'duplicate'
+    | 'move-before'
+    | 'move-next'
     | 'replace'
     | 'insert'
     | 'insert-special'
@@ -57,6 +60,9 @@ declare global {
       closeCatalogModal(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectDuplicateNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectMoveBeforeNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectMoveAfterNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
