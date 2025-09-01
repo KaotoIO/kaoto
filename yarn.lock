@@ -2081,15 +2081,15 @@ __metadata:
   linkType: hard
 
 "@cypress/grep@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@cypress/grep@npm:4.1.0"
+  version: 4.1.1
+  resolution: "@cypress/grep@npm:4.1.1"
   dependencies:
     debug: "npm:^4.3.4"
     find-test-names: "npm:^1.28.18"
     globby: "npm:^11.0.4"
   peerDependencies:
     cypress: ">=10"
-  checksum: 10/15a40991fb3b1ab5738c171b1dcd42c9eb2bde1e2bcb0ec69a058aff624715b92ec3fc860f66ce811dca0d60c3ec6ff4eab86793aaf3f6bc855042c36c0c8d7b
+  checksum: 10/3d0d01a9c014c51cd0d289a0235540f754b8426cbef3a85bd206adfb5b5b23f4f77e0ec497477e7b091b75ba9f4f040046dd35a358fb2c1a95f73ef535d61d41
   languageName: node
   linkType: hard
 
