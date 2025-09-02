@@ -27,5 +27,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, nodeData, 
     );
   }
 
-  return <Truncate content={nodeData.title ?? ''} className={clsx('truncate', className)} />;
+  return (
+    <Truncate content={`${nodeData.title ?? ''} : ${nodeData.type ?? ''}`} className={clsx('truncate', className)} />
+  );
 };

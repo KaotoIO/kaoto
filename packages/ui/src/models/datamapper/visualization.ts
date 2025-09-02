@@ -6,6 +6,8 @@ import { AlertProps } from '@patternfly/react-core';
 
 export interface NodeData {
   title: string;
+  document?: IDocument;
+  type?: string;
   id: string;
   path: NodePath;
   isSource: boolean;
@@ -55,6 +57,7 @@ export class FieldNodeData implements NodeData {
   ) {
     this.title = field.displayName;
     this.id = field.id;
+    this.type = field.type;
     this.path = NodePath.childOf(parent.path, this.id);
     this.isSource = parent.isSource;
     this.isPrimitive = parent.isPrimitive;
