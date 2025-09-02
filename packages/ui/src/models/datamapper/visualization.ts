@@ -65,6 +65,7 @@ export class FieldNodeData implements NodeData {
 
   title: string;
   id: string;
+  type: string;
   path: NodePath;
   isSource: boolean;
   isPrimitive: boolean;
