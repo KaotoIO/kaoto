@@ -239,3 +239,66 @@ Cypress.Commands.add('cancelDeleteRoute', (index: number) => {
   });
   cy.closeFlowsListIfVisible();
 });
+
+Cypress.Commands.add('allowClipboardAccess', () => {
+  // use the Chrome debugger protocol to grant the current browser window
+  // access to the clipboard from the current origin
+  // https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-grantPermissions
+  // We are using cy.wrap to wait for the promise returned
+  // from the Cypress.automation call, so the test continues
+  // after the clipboard permission has been granted
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Browser.grantPermissions',
+      params: {
+        permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+        // make the permission tighter by allowing the current origin only
+        // like "http://localhost:56978"
+        origin: window.location.origin,
+      },
+    }),
+  );
+});
+
+Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
+  cy.window().then((win) => {
+    if (win.navigator?.clipboard?.read) {
+      win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
+        for (const item of text) {
+          if (item.types.includes('web text/kaoto')) {
+            const blob = await item.getType('web text/kaoto');
+            const parsedContent = JSON.parse(await blob.text());
+
+            expect(parsedContent).to.deep.equal(value);
+          }
+
+          if (item.types.includes('text/plain')) {
+            const blob = await item.getType('text/plain');
+            const parsedContent = JSON.parse(await blob.text());
+
+            // Validate the marker to ensure it's Kaoto-specific content
+            if (parsedContent.__kaoto_marker === 'kaoto-node') {
+              delete parsedContent.__kaoto_marker;
+            }
+
+            expect(parsedContent).to.deep.equal(value);
+          }
+        }
+      });
+    } else {
+      // For browsers without clipboard API support, skip the assertion
+      cy.log('Clipboard API not available - skipping clipboard assertion');
+    }
+  });
+});
+
+Cypress.Commands.add('addValueToClipboard', (value) => {
+  cy.window().then(async (win) => {
+    if (win.navigator?.clipboard?.writeText) {
+      await win.navigator?.clipboard?.writeText(JSON.stringify(value));
+    } else {
+      // For browsers without clipboard API support, skip this
+      cy.log('Clipboard API not available - skipping clipboard addition');
+    }
+  });
+});

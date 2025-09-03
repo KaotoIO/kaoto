@@ -11,6 +11,10 @@ declare global {
     | 'duplicate'
     | 'move-before'
     | 'move-next'
+    | 'copy'
+    | 'paste-as-child'
+    | 'paste-as-special-child'
+    | 'paste-as-next-step'
     | 'replace'
     | 'insert'
     | 'insert-special'
@@ -50,6 +54,9 @@ declare global {
       hideAllRoutes(): Chainable<JQuery<Element>>;
       showAllRoutes(): Chainable<JQuery<Element>>;
       openDataMapper(): Chainable<JQuery<Element>>;
+      allowClipboardAccess(): Chainable<JQuery<Element>>;
+      addValueToClipboard(value: object): Chainable<JQuery<Element>>;
+      assertValueCopiedToClipboard(expectedValue: object): Chainable<JQuery<Element>>;
       // design
       openGroupConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
@@ -63,6 +70,8 @@ declare global {
       selectDuplicateNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveBeforeNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveAfterNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectCopyNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      selectPasteNode(inputName: string, pasteType: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectReplaceNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectAppendNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectDisableNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
@@ -133,6 +142,7 @@ declare global {
       uploadFixture(fixture: string): Chainable<JQuery<Element>>;
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;
       checkCodeSpanLine(spanText: string, linesCount?: number): Chainable<JQuery<Element>>;
+      checkMultipleCodeSpanEntry(spanText: string, linesCount: number): Chainable<JQuery<Element>>;
       checkMultiLineContent(text: string[]): Chainable<JQuery<Element>>;
       editorClickUndoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       editorClickRedoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
