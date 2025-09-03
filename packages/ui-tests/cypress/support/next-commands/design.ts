@@ -60,6 +60,20 @@ Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number)
   cy.performNodeAction(nodeName, 'replace', nodeIndex);
 });
 
+Cypress.Commands.add('selectCopyNode', (nodeName: string, nodeIndex?: number) => {
+  cy.performNodeAction(nodeName, 'copy', nodeIndex);
+});
+
+Cypress.Commands.add('selectPasteNode', (nodeName: string, pasteType: string, nodeIndex?: number) => {
+  if (pasteType === 'paste-as-child') {
+    cy.performNodeAction(nodeName, `paste-as-child`, nodeIndex);
+  } else if (pasteType === 'paste-as-special-child') {
+    cy.performNodeAction(nodeName, `paste-as-special-child`, nodeIndex);
+  } else if (pasteType === 'paste-as-next-step') {
+    cy.performNodeAction(nodeName, `paste-as-next-step`, nodeIndex);
+  }
+});
+
 Cypress.Commands.add('selectAppendNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'append', nodeIndex);
 });

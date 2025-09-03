@@ -1,0 +1,17 @@
+- routeConfiguration:
+    id: routeConfiguration-test
+    intercept: []
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-test
+    interceptSendToEndpoint:
+      - interceptSendToEndpoint:
+          id: interceptSendToEndpoint-test
+          steps: []
+- intercept:
+    id: intercept
+    description: intercept-test
+    steps:
+      - log:
+          id: log-test
+          message: ${body}
