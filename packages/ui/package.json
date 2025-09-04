@@ -1,6 +1,6 @@
 {
   "name": "@kaoto/kaoto",
-  "version": "2.7.0",
+  "version": "2.7.1-dev",
   "type": "module",
   "description": "Kaoto UI",
   "repository": "https://github.com/KaotoIO/kaoto",
