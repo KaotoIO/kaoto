@@ -1,6 +1,6 @@
 import { Button, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { RedoIcon, UndoIcon } from '@patternfly/react-icons';
-import { FunctionComponent, JSX, useContext, useMemo } from 'react';
+import { FunctionComponent, JSX, useContext } from 'react';
 import { useUndoRedo } from '../../../hooks/undo-redo.hook';
 import { sourceSchemaConfig } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
@@ -16,7 +16,6 @@ export const ContextToolbar: FunctionComponent<{ additionalControls?: JSX.Elemen
   const { currentSchemaType } = useContext(EntitiesContext)!;
   const isMultipleRoutes = sourceSchemaConfig.config[currentSchemaType].multipleRoute;
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
-  const metaKey = useMemo(() => (navigator.userAgent.toLocaleLowerCase().includes('mac') ? '⌘' : 'Ctrl'), []);
 
   const toolbarItems: JSX.Element[] = [
     <ToolbarItem key="toolbar-flows-list">
@@ -41,24 +40,12 @@ export const ContextToolbar: FunctionComponent<{ additionalControls?: JSX.Elemen
       <ToolbarContent>
         {toolbarItems.concat([
           <ToolbarItem key="toolbar-undo">
-            <Button
-              aria-label="Undo"
-              title={`Undo\n${metaKey} + Z`}
-              variant="plain"
-              isDisabled={!canUndo}
-              onClick={undo}
-            >
+            <Button aria-label="Undo" title="Undo" variant="plain" isDisabled={!canUndo} onClick={undo}>
               <UndoIcon />
             </Button>
           </ToolbarItem>,
           <ToolbarItem key="toolbar-redo">
-            <Button
-              aria-label="Redo"
-              title={`Redo\n${metaKey} + Shift + Z`}
-              variant="plain"
-              isDisabled={!canRedo}
-              onClick={redo}
-            >
+            <Button aria-label="Redo" title="Redo" variant="plain" isDisabled={!canRedo} onClick={redo}>
               <RedoIcon />
             </Button>
           </ToolbarItem>,
