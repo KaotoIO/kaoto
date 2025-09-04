@@ -247,6 +247,12 @@ export class JsonSchemaDocumentService {
     }
 
     if (schema.$ref) {
+      if (!schema.$ref.startsWith('#')) {
+        throw new Error(
+          `Unsupported schema reference [${schema.$ref}]: External URI/file reference is not yet supported`,
+        );
+      }
+
       field.namedTypeFragmentRefs.push(schema.$ref);
     }
     if (schema.required) {
@@ -444,7 +450,15 @@ export class JsonSchemaDocumentService {
     schemaPath: string,
   ): JsonSchemaField {
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) return field;
-    schemaDef.$ref && field.namedTypeFragmentRefs.push(schemaDef.$ref);
+    if (schemaDef.$ref) {
+      if (!schemaDef.$ref.startsWith('#')) {
+        throw new Error(
+          `Unsupported schema reference [${schemaDef.$ref}]: External URI/file reference is not yet supported`,
+        );
+      }
+
+      field.namedTypeFragmentRefs.push(schemaDef.$ref);
+    }
 
     const schemaMeta = { ...schemaDef, path: schemaPath };
     schemaDef.definitions && this.populateTypeFragmentsFromDefinition(field, schemaMeta);
