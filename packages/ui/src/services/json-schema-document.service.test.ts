@@ -355,4 +355,68 @@ describe('JsonSchemaDocumentService', () => {
     expect(price!.type).toBe(Types.Numeric);
     expect(price!.name).toBe('number');
   });
+
+  it('should throw error for external URI reference in $ref', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        externalRef: { $ref: 'https://example.com/schema.json' },
+      },
+    };
+
+    expect(() => {
+      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+    }).toThrow(
+      'Unsupported schema reference [https://example.com/schema.json]: External URI/file reference is not yet supported',
+    );
+  });
+
+  it('should throw error for external file reference in $ref', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        fileRef: { $ref: './external-schema.json' },
+      },
+    };
+
+    expect(() => {
+      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+    }).toThrow(
+      'Unsupported schema reference [./external-schema.json]: External URI/file reference is not yet supported',
+    );
+  });
+
+  it('should throw error for external reference in nested schema definition', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          items: { $ref: 'http://json-schema.org/draft-07/schema#' },
+        },
+      },
+    };
+
+    expect(() => {
+      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+    }).toThrow(
+      'Unsupported schema reference [http://json-schema.org/draft-07/schema#]: External URI/file reference is not yet supported',
+    );
+  });
+
+  it('should allow internal references starting with #', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        internalRef: { $ref: '#/definitions/MyType' },
+      },
+      definitions: {
+        MyType: { type: 'string' },
+      },
+    };
+
+    expect(() => {
+      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+    }).not.toThrow();
+  });
 });
