@@ -153,7 +153,15 @@ export class XmlSchemaDocumentService {
    * @param rootElementOption
    */
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
-    const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
+    // if there is no namespaceURI, rootElementOption uses empty string to store namespaceURI, not null.
+    // We need to convert as it is used as key to search in document.xmlSchema.getElements() map.
+    // document.xmlSchema.getElements() uses null for missing namespaceURI
+    const searchRootElementOption = {
+      namespaceUri: rootElementOption.namespaceUri === '' ? null : rootElementOption.namespaceUri,
+      name: rootElementOption.name === '' ? null : rootElementOption.name,
+    };
+
+    const newRootQName = new QName(searchRootElementOption.namespaceUri, searchRootElementOption.name);
     const newRootElement = document.xmlSchema.getElements().get(newRootQName);
     return new XmlSchemaDocument(document.xmlSchema, document.documentType, document.documentId, newRootElement);
   }
