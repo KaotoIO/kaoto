@@ -56,7 +56,7 @@ describe('DebugLayout', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    await screen.findAllByText('ShipOrder');
+    await screen.findAllByText('ShipOrder : Container');
     const targetNodes = screen.getAllByTestId(/node-target-.*/);
     expect(targetNodes.length).toEqual(21);
     expect(mappingLinks.length).toEqual(11);

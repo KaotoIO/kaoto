@@ -27,8 +27,8 @@ describe('SourceDocument', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    expect(await screen.findByText('OrderPerson')).toBeTruthy();
-    expect(await screen.findByText('Country')).toBeInTheDocument();
+    expect(await screen.findByText('OrderPerson : string')).toBeTruthy();
+    expect(await screen.findByText('Country : string')).toBeInTheDocument();
   });
 
   it('should render camel-spring.xsd doc till 2nd level', async () => {
@@ -41,9 +41,9 @@ describe('SourceDocument', () => {
       </DataMapperProvider>,
     );
     await waitFor(async () => {
-      const aggregates = await screen.findAllByText('aggregate');
+      const aggregates = await screen.findAllByText('aggregate : Container');
       expect(aggregates.length).toEqual(2);
     });
-    expect(await screen.findByText('correlationExpression')).toBeTruthy();
+    expect(await screen.findByText('correlationExpression : Container')).toBeTruthy();
   }, 15_000);
 });

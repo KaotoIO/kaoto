@@ -10,6 +10,7 @@ export enum Types {
   Double = 'double',
   Integer = 'integer',
   Decimal = 'decimal',
+  PositiveInteger = 'positiveInteger',
   Boolean = 'boolean',
   Date = 'date',
   DateTime = 'dateTime',
