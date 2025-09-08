@@ -81,3 +81,7 @@
   border: 2px dashed var(--custom-node-BorderColor-possibleDropTargets);
   border-radius: var(--custom-node-BorderRadius);
 }
+
+@mixin non-draggable {
+  cursor: no-drop;
+}

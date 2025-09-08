@@ -85,6 +85,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const shouldShowAddStep =
       shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
     const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
+    const dndSettingsEnabled = settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop;
+    const canDragNode = vizNode?.canDragNode() ?? false;
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
@@ -109,11 +111,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             });
         },
         canDrag: () => {
-          if (settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop) {
-            return element.getData()?.vizNode?.canDragNode();
-          }
-
-          return false;
+          return dndSettingsEnabled && canDragNode;
         },
         end(dropResult, monitor) {
           if (monitor.didDrop() && dropResult) {
@@ -145,7 +143,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           }
         },
       }),
-      [element, entitiesContext, settingsAdapter],
+      [canDragNode, dndSettingsEnabled, element, entitiesContext],
     );
 
     const customNodeDropTargetSpec: DropTargetSpec<
@@ -226,6 +224,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
                 'custom-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
                 'custom-node__container__possibleDropTargets':
                   dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
+                'custom-node__container__draggable': dndSettingsEnabled && canDragNode,
+                'custom-node__container__nonDraggable': dndSettingsEnabled && !canDragNode,
               })}
             >
               <div title={tooltipContent} className="custom-node__container__image">
