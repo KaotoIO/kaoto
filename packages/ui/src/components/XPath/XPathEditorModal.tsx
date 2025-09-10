@@ -58,15 +58,9 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
     );
   }, [validationResult]);
 
-  const header = useMemo(
+  const headerHelper = useMemo(
     () => (
       <section id="xpath-editor-modal" className="xpath-editor-modal__header">
-        <h1 className="pf-v6-c-title pf-m-3xl">XPath Editor: {title}</h1>
-
-        <Popover bodyContent={<p>Grab a field or a function from the left panel and drag it to the right panel</p>}>
-          <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<QuestionCircleIcon />} />
-        </Popover>
-
         {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
           <Popover bodyContent={errorContent}>
             <Button
@@ -77,9 +71,21 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
             />
           </Popover>
         )}
+
+        <Popover
+          bodyContent={
+            <p>
+              Grab a field from the left panel and drag it into the editor on the right to create mappings. To apply
+              functions, open the Functions tab on the left and drag them into the right panel as well. You can also
+              type directly in the right-side editor to create mappings manually.
+            </p>
+          }
+        >
+          <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<QuestionCircleIcon />} />
+        </Popover>
       </section>
     ),
-    [errorContent, title, validationResult],
+    [errorContent, validationResult],
   );
 
   return (
@@ -93,7 +99,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
       onClose={onClose}
       data-testid="xpath-editor-modal"
     >
-      <ModalHeader title={header} />
+      <ModalHeader title={<h1 className="pf-v6-c-title pf-m-3xl">XPath Editor: {title}</h1>} help={headerHelper} />
       <ModalBody>
         <XPathEditorLayout mapping={mapping} onUpdate={onUpdate} />
       </ModalBody>
