@@ -70,6 +70,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   );
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [createDocumentResult, setCreateDocumentResult] = useState<CreateDocumentResult | null>(null);
+  const [selectedRootElement, setSelectedRootElement] = useState<RootElementOption | undefined>(undefined);
 
   const actionName = hasSchema ? 'Update' : 'Attach';
   const fileNamePattern =
@@ -131,6 +132,20 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     if (result.validationStatus === 'success') {
       setFilePaths(pathsArray);
       setSelectedSchemaType(schemaType);
+
+      if (result === null) return;
+
+      const rootQName = DocumentService.getRootElementQName(result.document);
+      const initialSelectedOption = rootQName
+        ? result.rootElementOptions?.find(
+            (option) =>
+              option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
+          )
+        : undefined;
+      setSelectedRootElement(initialSelectedOption);
+    } else {
+      setSelectedRootElement(undefined);
+      setFilePaths([]);
     }
   }, [api, fileNamePattern, documentType, documentId]);
 
@@ -141,9 +156,14 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onUpdateRootElement = useCallback(
     (option: RootElementOption) => {
-      if (!createDocumentResult?.document || !createDocumentResult?.documentDefinition) return;
-      createDocumentResult.documentDefinition.rootElementChoice = option;
-      createDocumentResult.document = DocumentService.updateRootElement(createDocumentResult?.document, option);
+      const documentResult = createDocumentResult;
+      if (!documentResult?.document || !documentResult?.documentDefinition) return;
+
+      documentResult.documentDefinition.rootElementChoice = option;
+      documentResult.document = DocumentService.updateRootElement(documentResult.document, option);
+
+      setCreateDocumentResult(documentResult);
+      setSelectedRootElement(option);
     },
     [createDocumentResult],
   );
@@ -167,8 +187,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       setIsLoading(false);
     }
     setIsModalOpen(false);
-    setCreateDocumentResult(null);
-    setFilePaths([]);
   }, [
     clearNodeReferencesForDocument,
     documentId,
@@ -181,8 +199,6 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onCancel = useCallback(() => {
     setIsModalOpen(false);
-    setCreateDocumentResult(null);
-    setFilePaths([]);
   }, []);
 
   const onWarningModalOpen = useCallback(() => {
@@ -294,7 +310,12 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
                 <InputGroup>
                   <InputGroupText>Root element</InputGroupText>
                   <InputGroupItem>
-                    <RootElementSelect createDocumentResult={createDocumentResult!} onUpdate={onUpdateRootElement} />
+                    <RootElementSelect
+                      createDocumentResult={createDocumentResult!}
+                      onUpdate={onUpdateRootElement}
+                      selectedRootElement={selectedRootElement}
+                      setSelectedRootElement={setSelectedRootElement}
+                    />
                   </InputGroupItem>
                 </InputGroup>
               </StackItem>
@@ -342,7 +363,7 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
         <Stack hasGutter>
           <StackItem>
             <Alert variant="warning" title="Warning">
-              {documentTypeLabel} already has a schema attached. Are you sure you want to replace it? Replacing it might
+              {documentTypeLabel} already has a schema attached. Are you sure you want to update it? Updating it might
               result in a loss of any existing data mappings.
             </Alert>
           </StackItem>
@@ -355,7 +376,7 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
           variant="primary"
           onClick={onModalOpen}
         >
-          Continue
+          Update Schema
         </Button>
         <Button
           key="Cancel"
@@ -373,27 +394,16 @@ const UpdateWarningModal: FunctionComponent<UpdateWarningModalProps> = ({
 type RootElementSelectProps = {
   createDocumentResult: CreateDocumentResult;
   onUpdate: (option: RootElementOption) => void;
+  selectedRootElement: RootElementOption | undefined;
+  setSelectedRootElement: (item: RootElementOption | undefined) => void;
 };
 
-const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({ createDocumentResult, onUpdate }) => {
-  const rootQName = DocumentService.getRootElementQName(createDocumentResult.document);
-  const initialSelectedOption = rootQName
-    ? createDocumentResult.rootElementOptions?.find(
-        (option) =>
-          option.namespaceUri === (rootQName.getNamespaceURI() || '') && option.name === rootQName.getLocalPart(),
-      )
-    : undefined;
-
-  const [selectedItem, setSelectedItem] = useState<TypeaheadItem | undefined>(
-    initialSelectedOption
-      ? {
-          name: initialSelectedOption.name,
-          value: initialSelectedOption.name,
-          description: initialSelectedOption.namespaceUri,
-        }
-      : undefined,
-  );
-
+const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
+  createDocumentResult,
+  onUpdate,
+  selectedRootElement,
+  setSelectedRootElement,
+}) => {
   const items: TypeaheadItem[] = useMemo(() => {
     if (!createDocumentResult?.rootElementOptions) return [];
     return createDocumentResult.rootElementOptions.map((option) => ({
@@ -409,10 +419,10 @@ const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({ createDo
       const option = createDocumentResult.rootElementOptions.find((opt) => opt.name === item.value);
       if (option) {
         onUpdate(option);
-        setSelectedItem(item);
+        setSelectedRootElement(option);
       }
     },
-    [createDocumentResult.rootElementOptions, onUpdate],
+    [createDocumentResult.rootElementOptions, onUpdate, setSelectedRootElement],
   );
 
   return (
@@ -420,8 +430,12 @@ const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({ createDo
       id="attach-schema-root-element"
       data-testid="attach-schema-root-element"
       aria-label="Attach schema / Choose Root Element"
-      placeholder={selectedItem?.name}
-      selectedItem={selectedItem}
+      placeholder={selectedRootElement?.name}
+      selectedItem={{
+        name: selectedRootElement?.name ?? '',
+        value: selectedRootElement?.name ?? '',
+        description: `Namespace URI: ${selectedRootElement?.namespaceUri}`,
+      }}
       onChange={handleSelectionChange}
       items={items}
     />
