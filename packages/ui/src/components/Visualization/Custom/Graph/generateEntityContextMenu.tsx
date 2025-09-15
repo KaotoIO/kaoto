@@ -12,7 +12,9 @@ export const generateEntityContextMenu = (entityData: CanvasEntities) => {
       <ContextMenuItem
         key={`new-entity-${entity.name}`}
         data-testid={`new-entity-${entity.name}`}
-        onClick={() => createEntity(entity.name)}
+        onClick={() => {
+          createEntity(entity.name);
+        }}
         description={
           <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
             {entity.description}
@@ -30,7 +32,14 @@ export const generateEntityContextMenu = (entityData: CanvasEntities) => {
       <ContextMenuItem
         key={`new-entity-${entity.name}`}
         data-testid={`new-entity-${entity.name}`}
-        onClick={() => createEntity(entity.name)}
+        /**
+         * We can't use onClick due to a race condition in the underlying Popper component from the ContextMenuItem
+         * that cancels the event bubble up, so we use onMouseDown to pick the event before the onClick. This is
+         * on Patternfly library.
+         */
+        onMouseDown={() => {
+          createEntity(entity.name);
+        }}
         description={
           <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
             {entity.description}

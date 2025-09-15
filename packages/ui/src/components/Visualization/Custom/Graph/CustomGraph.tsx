@@ -7,7 +7,7 @@ import {
   withContextMenu,
   withPanZoom,
 } from '@patternfly/react-topology';
-import { ReactElement, useContext } from 'react';
+import { FunctionComponent, ReactElement, useContext } from 'react';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
 import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityContextMenu';
 
@@ -44,7 +44,7 @@ export const GraphContextMenuFn = (entityContextMenuFn: () => ReactElement[]): R
   return items;
 };
 
-const BaseCustomGraph = ({ entityContextMenuFn, ...rest }: WithEntityContextMenuProps) => {
+const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
   const contextMenuFn = () => GraphContextMenuFn(entityContextMenuFn);
   const element = useContext(ElementContext);
   const EnhancedGraphComponent = withPanZoom()(withContextMenu(contextMenuFn)(GraphComponent));
