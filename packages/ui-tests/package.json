@@ -62,14 +62,14 @@
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.2.2",
-    "@kaoto/forms": "^1.4.1",
+    "@kaoto/forms": "^1.4.3",
     "@kaoto/kaoto": "workspace:*",
-    "@patternfly/patternfly": "^6.2.3",
-    "@patternfly/react-code-editor": "^6.2.2",
-    "@patternfly/react-core": "^6.2.2",
-    "@patternfly/react-icons": "^6.2.2",
-    "@patternfly/react-table": "^6.2.2",
-    "@patternfly/react-topology": "^6.2.0",
+    "@patternfly/patternfly": "^6.3.0",
+    "@patternfly/react-code-editor": "^6.3.0",
+    "@patternfly/react-core": "6.3.1-prerelease.13",
+    "@patternfly/react-icons": "^6.3.0",
+    "@patternfly/react-table": "^6.3.0",
+    "@patternfly/react-topology": "^6.3.0",
     "storybook": "^8.2.8"
   },
   "eslintConfig": {
