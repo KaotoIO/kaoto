@@ -8,7 +8,7 @@ Thank you for considering contributing to Kaoto! Community contributions are ess
 
 Before you start contributing, ensure that you have the following installed:
 
-- NodeJS (>v18.x)
+- NodeJS (>v22.x)
 - yarn (>v3.x)
 - Java 17+
 
