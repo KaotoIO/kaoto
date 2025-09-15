@@ -10,10 +10,10 @@ import {
   Visualization,
 } from '@patternfly/react-topology';
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
-import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
-import { LayoutType } from './canvas.models';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
 import { CustomGraphWithSelection } from '../Custom/Graph/CustomGraph';
+import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
+import { LayoutType } from './canvas.models';
 
 export class ControllerService {
   static createController(): Visualization {
