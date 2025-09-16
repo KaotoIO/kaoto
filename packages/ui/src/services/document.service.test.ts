@@ -1,9 +1,10 @@
 import { DocumentService } from './document.service';
 
-import { TestUtil, multipleElementsXsd } from '../stubs/datamapper/data-mapper';
+import { TestUtil, cartJsonSchema, multipleElementsXsd } from '../stubs/datamapper/data-mapper';
 import {
   DocumentDefinitionType,
   DocumentType,
+  IParentType,
   PathSegment,
   PrimitiveDocument,
   RootElementOption,
@@ -412,6 +413,78 @@ describe('DocumentService', () => {
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.Primitive);
       expect(result.documentDefinition?.name).toBe('testParam');
       expect(result.documentDefinition?.definitionFiles).toEqual({});
+    });
+  });
+
+  describe('renameDocument()', () => {
+    const testFieldPath = (parent: IParentType, parentPathSegment: string) => {
+      for (const field of parent.fields) {
+        expect(field.path.documentId).toBe(parentPathSegment);
+        if (field.fields && field.fields.length > 0) {
+          testFieldPath(field, parentPathSegment);
+        }
+      }
+    };
+
+    it('should rename a primitive document', () => {
+      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+
+      DocumentService.renameDocument(primitiveDoc, 'renamedTest');
+      expect(primitiveDoc).toBeDefined();
+      expect(primitiveDoc.documentId).toBe('renamedTest');
+      expect(primitiveDoc.name).toBe('renamedTest');
+      expect(primitiveDoc.displayName).toBe('renamedTest');
+      expect(primitiveDoc.path.documentId).toBe('renamedTest');
+    });
+
+    it('should rename a XML document', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.PARAM,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['MultipleElements.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const originalDocument = result.document as XmlSchemaDocument;
+
+      DocumentService.renameDocument(originalDocument, 'renamedTest');
+      expect(originalDocument).toBeDefined();
+      expect(originalDocument.documentId).toBe('renamedTest');
+      expect(originalDocument.name).toBe('renamedTest');
+      expect(originalDocument.path.documentId).toBe('renamedTest');
+
+      testFieldPath(originalDocument, 'renamedTest');
+    });
+
+    it('should rename a JSON document', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(cartJsonSchema),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.PARAM,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test',
+        ['Cart.schema.json'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const originalDocument = result.document as JsonSchemaDocument;
+
+      DocumentService.renameDocument(originalDocument, 'renamedTest');
+      expect(originalDocument).toBeDefined();
+      expect(originalDocument.documentId).toBe('renamedTest');
+      expect(originalDocument.name).toBe('renamedTest');
+      expect(originalDocument.path.documentId).toBe('renamedTest');
+
+      testFieldPath(originalDocument, 'renamedTest');
     });
   });
 });

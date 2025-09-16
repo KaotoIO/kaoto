@@ -268,4 +268,26 @@ export class DocumentService {
   static isCollectionField(field: IField) {
     return !!field.maxOccurs && field.maxOccurs > 1;
   }
+
+  static renameDocument(document: IDocument, newDocumentId: string): void {
+    document.documentId = newDocumentId;
+    document.name = newDocumentId;
+    if ('displayName' in document) {
+      document.displayName = newDocumentId;
+    }
+    document.path.documentId = newDocumentId;
+    DocumentService.renameFields(document, newDocumentId);
+  }
+
+  private static renameFields(parent: IParentType, parentPathSegment: string) {
+    for (const field of parent.fields) {
+      field.path.documentId = parentPathSegment;
+      if ('ownerDocument' in field && field.ownerDocument.documentId !== parentPathSegment) {
+        field.ownerDocument.documentId = parentPathSegment;
+      }
+      if (field.fields?.length > 0) {
+        DocumentService.renameFields(field, parentPathSegment);
+      }
+    }
+  }
 }

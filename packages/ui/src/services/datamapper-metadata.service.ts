@@ -205,6 +205,21 @@ export class DataMapperMetadataService {
     api.setMetadata(metadataId, metadata);
   }
 
+  static async renameSourceParameterMetadata(
+    api: IMetadataApi,
+    metadataId: string,
+    metadata: IDataMapperMetadata,
+    oldName: string,
+    newName: string,
+  ) {
+    // Remove old parameter and add with new name
+    const { [oldName]: value, ...rest } = metadata.sourceParameters;
+    metadata.sourceParameters = { ...rest, [newName]: value };
+    delete metadata.sourceParameters[oldName];
+
+    await api.setMetadata(metadataId, metadata);
+  }
+
   static async updateMappingFile(api: IMetadataApi, metadata: IDataMapperMetadata, xsltFile: string) {
     await api.saveResourceContent(metadata.xsltPath, xsltFile);
   }

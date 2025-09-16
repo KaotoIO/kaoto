@@ -85,6 +85,14 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata, metadataId],
   );
 
+  const onRenameParameter = useCallback(
+    (oldName: string, newName: string) => {
+      if (!metadataId || !metadata) return;
+      DataMapperMetadataService.renameSourceParameterMetadata(ctx, metadataId, metadata, oldName, newName);
+    },
+    [ctx, metadata, metadataId],
+  );
+
   const onUpdateMappings = useCallback(
     (xsltFile: string) => {
       if (!metadata) return;
@@ -102,6 +110,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       documentInitializationModel={documentInitializationModel}
       onUpdateDocument={onUpdateDocument}
       onDeleteParameter={onDeleteParameter}
+      onRenameParameter={onRenameParameter}
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
     >
