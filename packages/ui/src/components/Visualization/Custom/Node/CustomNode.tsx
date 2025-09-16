@@ -27,7 +27,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useRef, useMemo } from 'react';
+import { FunctionComponent, useContext, useRef, useMemo, useEffect } from 'react';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
@@ -44,6 +44,7 @@ import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
+import { useDeleteStep } from '../hooks/delete-step.hook';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -185,7 +186,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
 
     const [_, dragNodeRef] = useDragNode(nodeDragSourceSpec);
     const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
-    const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
+    const gRef = useRef<SVGGElement>(null);
+    const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef, gRef);
 
     if (!dndDropProps.droppable || !boxRef.current) {
       boxRef.current = element.getBounds();
@@ -195,9 +197,26 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const toolbarX = (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = CanvasDefaults.STEP_TOOLBAR_HEIGHT * -1;
 
+    useEffect(() => {
+      if (selected || isGHover) {
+        gRef.current?.focus();
+      }
+    }, [selected]);
+
     if (!vizNode) {
       return null;
     }
+
+    const { canRemoveStep, canRemoveFlow } = vizNode.getNodeInteraction();
+    const { onDeleteStep } = useDeleteStep(vizNode);
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+      if (event.key === 'Delete') {
+        if (!canRemoveStep && !canRemoveFlow) {
+          return;
+        }
+        onDeleteStep();
+      }
+    };
 
     return (
       <Layer id={DEFAULT_LAYER} data-lastupdate={lastUpdate}>
@@ -212,6 +231,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           data-warning={doesHaveWarnings}
           onClick={onSelect}
           onContextMenu={onContextMenu}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
         >
           <foreignObject
             data-nodelabel={label}
