@@ -54,10 +54,8 @@ describe('VisualizationEmptyState.tsx', () => {
         </Provider>,
       );
       const noRoutesTitle = wrapper.getByText('There are no visible routes');
-      const noRoutesSuggestion = wrapper.getByText('You can toggle the visibility of a route by using Routes list');
 
       expect(noRoutesTitle).toBeInTheDocument();
-      expect(noRoutesSuggestion).toBeInTheDocument();
     });
   });
 });

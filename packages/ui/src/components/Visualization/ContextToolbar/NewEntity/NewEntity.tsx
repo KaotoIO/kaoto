@@ -41,11 +41,7 @@ export const NewEntity: FunctionComponent = () => {
           key={`new-entity-${name}`}
           data-testid={`new-entity-${name}`}
           itemId={name}
-          description={
-            <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
-              {entity.description}
-            </span>
-          }
+          description={<span className="entities-menu__description">{entity.description}</span>}
           flyoutMenu={flyoutMenu}
         >
           {entity.title}
