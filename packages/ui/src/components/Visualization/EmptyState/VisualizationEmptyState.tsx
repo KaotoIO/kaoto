@@ -1,14 +1,20 @@
 import {
   Bullseye,
+  Button,
   Card,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { CubesIcon as PatternFlyCubesIcon, EyeSlashIcon as PatternFlyEyeSlashIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useMemo } from 'react';
+import {
+  EyeIcon,
+  CubesIcon as PatternFlyCubesIcon,
+  EyeSlashIcon as PatternFlyEyeSlashIcon,
+} from '@patternfly/react-icons';
+import { FunctionComponent, useContext, useMemo } from 'react';
 import { IDataTestID } from '../../../models';
+import { VisibleFlowsContext } from '../../../providers';
 import { NewFlow } from './FlowType/NewFlow';
 
 const CubesIcon: FunctionComponent = (props) => <PatternFlyCubesIcon data-testid="cubes-icon" {...props} />;
@@ -21,6 +27,7 @@ interface IVisualizationEmptyState extends IDataTestID {
 
 export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState> = (props) => {
   const hasRoutes = useMemo(() => props.entitiesNumber > 0, [props.entitiesNumber]);
+  const visibleFlowsContext = useContext(VisibleFlowsContext)!;
 
   return (
     <Bullseye className={props.className}>
@@ -33,7 +40,16 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
         >
           <EmptyStateBody>
             {hasRoutes ? (
-              <p>You can toggle the visibility of a route by using Routes list</p>
+              <Button
+                onClick={() => {
+                  visibleFlowsContext.visualFlowsApi?.showFlows();
+                }}
+                data-testid={'show-all-routes-button'}
+                variant="control"
+                icon={<EyeIcon />}
+              >
+                <span className="pf-v6-u-m-sm">Show all routes</span>
+              </Button>
             ) : (
               <p>You can create a new route using the New button</p>
             )}

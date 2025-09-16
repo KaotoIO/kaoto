@@ -1,5 +1,5 @@
 import { Divider } from '@patternfly/react-core';
-import { PlusIcon } from '@patternfly/react-icons';
+import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import {
   ContextSubMenuItem,
   ElementContext,
@@ -14,10 +14,12 @@ import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityC
 export const GraphContextMenuFn = (entityContextMenuFn: () => ReactElement[]): ReactElement[] => {
   const items: ReactElement[] = [
     <ShowOrHideAllFlows key="showAll" data-testid="context-menu-item-show-all" mode="showAll">
-      Show all
+      <EyeIcon />
+      <span className="pf-v6-u-m-sm">Show all</span>
     </ShowOrHideAllFlows>,
     <ShowOrHideAllFlows key="hideAll" data-testid="context-menu-item-hide-all" mode="hideAll">
-      Hide all
+      <EyeSlashIcon />
+      <span className="pf-v6-u-m-sm">Hide all</span>
     </ShowOrHideAllFlows>,
   ];
 
