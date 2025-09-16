@@ -1,152 +1,25 @@
 import {
   ActionList,
-  ActionListGroup,
   ActionListItem,
-  AlertVariant,
   Button,
   Card,
   CardBody,
   CardExpandableContent,
   CardHeader,
   CardTitle,
-  HelperText,
-  HelperTextItem,
   Stack,
   StackItem,
-  TextInput,
 } from '@patternfly/react-core';
-import { CheckIcon, PlusIcon, TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { qname } from 'xml-name-validator';
+import { PlusIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
-import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { SourceDocument } from './SourceDocument';
 import { NodeReference } from '../../models/datamapper';
-import { DocumentService } from '../../services/document.service';
-
-enum ParameterNameValidation {
-  EMPTY,
-  OK,
-  DUPLICATE,
-  INVALID,
-}
-
-type AddNewParameterPlaceholderProps = {
-  onComplete: () => void;
-};
-
-const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderProps> = ({ onComplete }) => {
-  const { sendAlert, sourceParameterMap, updateDocument } = useDataMapper();
-  const [newParameterName, setNewParameterName] = useState<string>('');
-
-  const submitNewParameter = useCallback(() => {
-    if (!sourceParameterMap.has(newParameterName)) {
-      const result = DocumentService.createPrimitiveDocument(
-        DocumentType.PARAM,
-        DocumentDefinitionType.Primitive,
-        newParameterName,
-      );
-
-      if (result.validationStatus !== 'success') {
-        const variant = result.validationStatus === 'warning' ? AlertVariant.warning : AlertVariant.danger;
-        sendAlert({ variant: variant, title: result.validationMessage });
-      } else if (!result.documentDefinition || !result.document) {
-        sendAlert({ variant: AlertVariant.danger, title: 'Could not create a parameter' });
-      } else {
-        updateDocument(result.document, result.documentDefinition);
-      }
-    }
-
-    setNewParameterName('');
-    onComplete();
-  }, [sourceParameterMap, newParameterName, onComplete, sendAlert, updateDocument]);
-
-  const cancelNewParameter = useCallback(() => {
-    setNewParameterName('');
-    onComplete();
-  }, [onComplete]);
-
-  const newParameterNameValidation: ParameterNameValidation = useMemo(() => {
-    if (newParameterName === '') return ParameterNameValidation.EMPTY;
-    if (sourceParameterMap.has(newParameterName)) return ParameterNameValidation.DUPLICATE;
-    if (!qname(newParameterName)) return ParameterNameValidation.INVALID;
-    return ParameterNameValidation.OK;
-  }, [newParameterName, sourceParameterMap]);
-
-  const textInputValidatedProp = useMemo(() => {
-    switch (newParameterNameValidation) {
-      case ParameterNameValidation.OK:
-        return 'success';
-      case ParameterNameValidation.EMPTY:
-        return 'default';
-      case ParameterNameValidation.DUPLICATE:
-      case ParameterNameValidation.INVALID:
-        return 'error';
-    }
-  }, [newParameterNameValidation]);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  return (
-    <ActionList className="parameter-actions">
-      <ActionListGroup>
-        <ActionListItem>
-          <TextInput
-            ref={inputRef}
-            id="new-parameter-name"
-            data-testid="add-new-parameter-name-input"
-            onChange={(_event, text) => setNewParameterName(text)}
-            placeholder="parameter name"
-            validated={textInputValidatedProp}
-          />
-          <HelperText data-testid="new-parameter-helper-text">
-            {newParameterNameValidation === ParameterNameValidation.DUPLICATE && (
-              <HelperTextItem data-testid="new-parameter-helper-text-duplicate" variant="error">
-                Parameter &apos;{newParameterName}&apos; already exists
-              </HelperTextItem>
-            )}
-            {newParameterNameValidation === ParameterNameValidation.INVALID && (
-              <HelperTextItem data-testid="new-parameter-helper-text-invalid" variant="error">
-                Invalid parameter name &apos;{newParameterName}&apos;: it must be a valid QName
-              </HelperTextItem>
-            )}
-          </HelperText>
-        </ActionListItem>
-      </ActionListGroup>
-      <ActionListGroup>
-        <ActionListItem>
-          <Button
-            icon={<CheckIcon />}
-            onClick={() => submitNewParameter()}
-            variant="link"
-            isDisabled={newParameterNameValidation !== ParameterNameValidation.OK}
-            id="add-new-parameter-submit-btn"
-            data-testid="add-new-parameter-submit-btn"
-            aria-label="Submit new parameter"
-          ></Button>
-        </ActionListItem>
-        <ActionListItem>
-          <Button
-            icon={<TimesIcon />}
-            onClick={() => cancelNewParameter()}
-            variant="plain"
-            id="add-new-parameter-cancel-btn"
-            data-testid="add-new-parameter-cancel-btn"
-            aria-label={'Cancel new parameter'}
-          />
-        </ActionListItem>
-      </ActionListGroup>
-    </ActionList>
-  );
-};
+import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
 type ParametersProps = {
   isReadOnly: boolean;
@@ -228,7 +101,7 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
           <Stack>
             {isAddingNewParameter && (
               <StackItem>
-                <AddNewParameterPlaceholder onComplete={() => toggleOffAddNewParameter()} />
+                <ParameterInputPlaceholder onComplete={() => toggleOffAddNewParameter()} />
               </StackItem>
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (

@@ -6,13 +6,15 @@ import '../Document.scss';
 import { AttachSchemaButton } from './AttachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
+import { RenameParameterButton } from './RenameParameterButton';
 
 type DocumentActionsProps = {
   className?: string;
   nodeData: DocumentNodeData;
+  onRenameClick: () => void;
 };
 
-export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ className, nodeData }) => {
+export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ className, nodeData, onRenameClick }) => {
   const documentType = nodeData.document.documentType;
   const documentId = nodeData.document.documentId;
   const handleStopPropagation = useCallback((event: MouseEvent) => {
@@ -32,9 +34,14 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ class
         <DetachSchemaButton documentType={documentType} documentId={documentId} />
       </ActionListItem>
       {documentType === DocumentType.PARAM && (
-        <ActionListItem>
-          <DeleteParameterButton parameterName={documentId} />
-        </ActionListItem>
+        <>
+          <ActionListItem>
+            <RenameParameterButton parameterName={documentId} onRenameClick={onRenameClick} />
+          </ActionListItem>
+          <ActionListItem>
+            <DeleteParameterButton parameterName={documentId} />
+          </ActionListItem>
+        </>
       )}
     </ActionListGroup>
   );

@@ -1,5 +1,5 @@
 import { SourceDocument } from './SourceDocument';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
@@ -16,6 +16,25 @@ describe('SourceDocument', () => {
       </DataMapperProvider>,
     );
     expect(await screen.findByText('Body')).toBeTruthy();
+  });
+
+  it('should render parameter renaming wizard for document', async () => {
+    const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
+    render(
+      <DataMapperProvider>
+        <DataMapperCanvasProvider>
+          <SourceDocument document={document} isReadOnly={false} />
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>,
+    );
+    expect(await screen.findByText('param1')).toBeTruthy();
+    const renameButton = screen.getByTestId('rename-parameter-param1-button');
+    act(() => {
+      fireEvent.click(renameButton);
+    });
+    expect(await screen.findByTestId('new-parameter-name-input')).toBeTruthy();
+    expect(await screen.findByTestId('new-parameter-submit-btn')).toBeTruthy();
+    expect(await screen.findByTestId('new-parameter-cancel-btn')).toBeTruthy();
   });
 
   it('should render ShipOrder doc', async () => {

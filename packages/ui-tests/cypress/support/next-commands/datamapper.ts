@@ -31,8 +31,8 @@ Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
 
 Cypress.Commands.add('addParameter', (name: string) => {
   cy.get('[data-testid="add-parameter-button"]').click();
-  cy.get('[data-testid="add-new-parameter-name-input"]').type(name);
-  cy.get('[data-testid="add-new-parameter-submit-btn"]').click();
+  cy.get('[data-testid="new-parameter-name-input"]').type(name);
+  cy.get('[data-testid="new-parameter-submit-btn"]').click();
 });
 
 Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) => {

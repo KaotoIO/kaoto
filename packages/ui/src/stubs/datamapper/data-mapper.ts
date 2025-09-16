@@ -1,9 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'yaml';
-import { DocumentType, IDocument, PrimitiveDocument } from '../../models/datamapper/document';
+import {
+  BaseDocument,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  PrimitiveDocument,
+} from '../../models/datamapper/document';
 import { XmlSchemaDocumentService } from '../../services/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
+import { JsonSchemaDocumentService } from '../../services/json-schema-document.service';
 
 export const datamapperRouteDefinitionStub = parse(`
   from:
@@ -35,13 +42,19 @@ export const twoDataMapperRouteDefinitionStub = parse(`
                 uri: ${XSLT_COMPONENT_NAME}:transform-2.xsl`);
 
 export const shipOrderXsd = fs.readFileSync(path.resolve(__dirname, './xml/ShipOrder.xsd')).toString();
+export const cartXsd = fs.readFileSync(path.resolve(__dirname, './xml/Cart.xsd')).toString();
+
 export const testDocumentXsd = fs.readFileSync(path.resolve(__dirname, './xml/TestDocument.xsd')).toString();
 export const noTopElementXsd = fs.readFileSync(path.resolve(__dirname, './xml/NoTopElement.xsd')).toString();
 export const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/NamedTypes.xsd')).toString();
 export const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, './xml/camel-spring.xsd')).toString();
 export const multipleElementsXsd = fs.readFileSync(path.resolve(__dirname, './xml/MultipleElements.xsd')).toString();
+export const cartToShipOrderXslt = fs.readFileSync(path.resolve(__dirname, './xml/CartToShipOrder.xsl')).toString();
 export const shipOrderToShipOrderXslt = fs
   .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrder.xsl'))
+  .toString();
+export const conditionalMappingsToShipOrderXslt = fs
+  .readFileSync(path.resolve(__dirname, './xml/ConditionalMappingsToShipOrder.xsl'))
   .toString();
 export const shipOrderToShipOrderInvalidForEachXslt = fs
   .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderInvalidForEach.xsl'))
@@ -72,10 +85,24 @@ export const cartJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Ca
 export const accountJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Account.schema.json')).toString();
 export const shipOrderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/ShipOrder.schema.json')).toString();
 export const shipOrderJsonXslt = fs.readFileSync(path.resolve(__dirname, './json/ShipOrderJson.xsl')).toString();
+export const cartToShipOrderJsonXslt = fs
+  .readFileSync(path.resolve(__dirname, './json/CartToShipOrderJson.xsl'))
+  .toString();
+export const conditionalMappingsToShipOrderJsonXslt = fs
+  .readFileSync(path.resolve(__dirname, './json/ConditionalMappingsToShipOrderJson.xsl'))
+  .toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
     return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', shipOrderXsd);
+  }
+
+  static createJSONSourceOrderDoc() {
+    return JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'ShipOrder.schema.json',
+      shipOrderJsonSchema,
+    );
   }
 
   static createCamelSpringXsdSourceDoc() {
@@ -90,8 +117,21 @@ export class TestUtil {
     return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.TARGET_BODY, 'ShipOrder.xsd', shipOrderXsd);
   }
 
-  static createParamOrderDoc(name: string) {
-    const answer = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, name, shipOrderXsd);
+  static createJSONTargetOrderDoc() {
+    return JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.TARGET_BODY,
+      'ShipOrder.schema.json',
+      shipOrderJsonSchema,
+    );
+  }
+
+  static createParamOrderDoc(name: string, schemaType?: DocumentDefinitionType, content?: string) {
+    let answer: BaseDocument;
+    if (schemaType === DocumentDefinitionType.JSON_SCHEMA) {
+      answer = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, name, content || cartJsonSchema);
+    } else {
+      answer = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, name, content || shipOrderXsd);
+    }
     answer.name = name;
     return answer;
   }
@@ -99,9 +139,20 @@ export class TestUtil {
   static createParameterMap() {
     const sourceParamDoc = TestUtil.createParamOrderDoc('sourceParam1');
     const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
+    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.XML_SCHEMA, cartXsd);
     return new Map<string, IDocument>([
       ['sourceParam1', sourceParamDoc],
       ['primitive', sourcePrimitiveParamDoc],
+      ['cart', cartParamDoc],
+    ]);
+  }
+
+  static createJSONParameterMap() {
+    const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
+    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
+    return new Map<string, IDocument>([
+      ['primitive', sourcePrimitiveParamDoc],
+      ['cart', cartParamDoc],
     ]);
   }
 }

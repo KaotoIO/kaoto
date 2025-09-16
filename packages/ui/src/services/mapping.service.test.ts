@@ -11,10 +11,18 @@ import {
 } from '../models/datamapper/mapping';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { XmlSchemaDocument } from './xml-schema-document.service';
-import { DocumentType, IDocument } from '../models/datamapper/document';
-import { shipOrderToShipOrderXslt, TestUtil } from '../stubs/datamapper/data-mapper';
+import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
+import {
+  cartToShipOrderJsonXslt,
+  cartToShipOrderXslt,
+  conditionalMappingsToShipOrderJsonXslt,
+  conditionalMappingsToShipOrderXslt,
+  shipOrderToShipOrderXslt,
+  TestUtil,
+} from '../stubs/datamapper/data-mapper';
 import { XPathService } from './xpath/xpath.service';
 import { MappingLinksService } from './mapping-links.service';
+import { DocumentService } from './document.service';
 
 describe('MappingService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -57,6 +65,106 @@ describe('MappingService', () => {
       expect(tree.children.length).toEqual(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'sourceParam1');
       expect(tree.children.length).toEqual(1);
+    });
+  });
+
+  describe('renameParameterInMappings()', () => {
+    const updateDoc = (paramsMap: Map<string, IDocument>, oldParam: string, newParam: string) => {
+      const document = paramsMap.get(oldParam);
+      // Update the document's properties
+      DocumentService.renameDocument(document!, newParam);
+
+      // Create a new map with the updated document
+      const newSourceParameterMap = new Map(paramsMap);
+      newSourceParameterMap.delete(oldParam);
+      newSourceParameterMap.set(newParam, document!);
+
+      return newSourceParameterMap;
+    };
+
+    it('should rename simple mappings for XML document', () => {
+      MappingSerializerService.deserialize(cartToShipOrderXslt, targetDoc, tree, paramsMap);
+      expect(tree.children.length).toEqual(1);
+      const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
+
+      // this is needed to simulate the renaming of the document in the params map
+      const newSourceParameterMap = updateDoc(paramsMap, 'cart', 'newTargetParam');
+
+      const linksAfter = MappingLinksService.extractMappingLinks(tree, newSourceParameterMap, sourceDoc);
+      expect(linksBefore.length).toEqual(linksAfter.length);
+      for (const link of linksAfter) {
+        expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
+      }
+    });
+
+    it('should rename conditional mappings for XML document', () => {
+      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      expect(tree.children.length).toEqual(1);
+      const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
+
+      // this is needed to simulate the renaming of the document in the params map
+      const newSourceParameterMap = updateDoc(paramsMap, 'cart', 'newTargetParam');
+
+      const linksAfter = MappingLinksService.extractMappingLinks(tree, newSourceParameterMap, sourceDoc);
+      expect(linksBefore.length).toEqual(linksAfter.length);
+      for (const link of linksAfter) {
+        expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
+      }
+    });
+
+    it('should rename simple mappings for JSON document', () => {
+      const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
+      const jsonParamsMap = TestUtil.createJSONParameterMap();
+      const mappingTree = new MappingTree(
+        targetJSONDoc.documentType,
+        targetJSONDoc.documentId,
+        DocumentDefinitionType.JSON_SCHEMA,
+      );
+      MappingSerializerService.deserialize(cartToShipOrderJsonXslt, targetJSONDoc, mappingTree, jsonParamsMap);
+
+      expect(mappingTree.children.length).toEqual(1);
+      const linksBefore = MappingLinksService.extractMappingLinks(mappingTree, jsonParamsMap, sourceDoc);
+      MappingService.renameParameterInMappings(mappingTree, 'cart', 'newTargetParam');
+
+      // this is needed to simulate the renaming of the document in the params map
+      const newSourceParameterMap = updateDoc(jsonParamsMap, 'cart', 'newTargetParam');
+
+      const linksAfter = MappingLinksService.extractMappingLinks(mappingTree, newSourceParameterMap, sourceDoc);
+      expect(linksBefore.length).toEqual(linksAfter.length);
+      for (const link of linksAfter) {
+        expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
+      }
+    });
+
+    it('should rename conditional mappings for JSON document', () => {
+      const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
+      const jsonParamsMap = TestUtil.createJSONParameterMap();
+      const mappingTree = new MappingTree(
+        targetJSONDoc.documentType,
+        targetJSONDoc.documentId,
+        DocumentDefinitionType.JSON_SCHEMA,
+      );
+      MappingSerializerService.deserialize(
+        conditionalMappingsToShipOrderJsonXslt,
+        targetJSONDoc,
+        mappingTree,
+        jsonParamsMap,
+      );
+
+      expect(mappingTree.children.length).toEqual(1);
+      const linksBefore = MappingLinksService.extractMappingLinks(mappingTree, jsonParamsMap, sourceDoc);
+      MappingService.renameParameterInMappings(mappingTree, 'cart', 'newTargetParam');
+
+      // this is needed to simulate the renaming of the document in the params map
+      const newSourceParameterMap = updateDoc(jsonParamsMap, 'cart', 'newTargetParam');
+
+      const linksAfter = MappingLinksService.extractMappingLinks(mappingTree, newSourceParameterMap, sourceDoc);
+      expect(linksBefore.length).toEqual(linksAfter.length);
+      for (const link of linksAfter) {
+        expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
+      }
     });
   });
 

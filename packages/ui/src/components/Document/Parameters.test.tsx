@@ -6,12 +6,17 @@ import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-m
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 
 describe('Parameters', () => {
-  it('should add and remove a parameter', async () => {
+  it('should add, rename, and remove a parameter', async () => {
     const mockUpdateDocument = jest.fn();
     const mockDeleteParameter = jest.fn();
+    const mockRenameParameter = jest.fn();
     render(
       <BrowserFilePickerMetadataProvider>
-        <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
+        <DataMapperProvider
+          onUpdateDocument={mockUpdateDocument}
+          onDeleteParameter={mockDeleteParameter}
+          onRenameParameter={mockRenameParameter}
+        >
           <DataMapperCanvasProvider>
             <Parameters isReadOnly={false} />
           </DataMapperCanvasProvider>
@@ -24,18 +29,31 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(addButton);
     });
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
-    const submitButton = screen.getByTestId('add-new-parameter-submit-btn');
+    const submitButton = screen.getByTestId('new-parameter-submit-btn');
     act(() => {
       fireEvent.click(submitButton);
     });
     expect(mockUpdateDocument.mock.calls.length).toEqual(1);
     expect(mockDeleteParameter.mock.calls.length).toEqual(0);
     expect(mockUpdateDocument.mock.calls[0][0]['name']).toEqual('testparam1');
-    const deleteButton = screen.getByTestId('delete-parameter-testparam1-button');
+
+    const renameButton = screen.getByTestId('rename-parameter-testparam1-button');
+    act(() => {
+      fireEvent.click(renameButton);
+    });
+    act(() => {
+      fireEvent.change(screen.getByTestId('new-parameter-name-input'), { target: { value: 'testparam2' } });
+    });
+    act(() => {
+      fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+    });
+    expect(mockRenameParameter).toHaveBeenCalledTimes(1);
+
+    const deleteButton = screen.getByTestId('delete-parameter-testparam2-button');
     act(() => {
       fireEvent.click(deleteButton);
     });
@@ -45,9 +63,9 @@ describe('Parameters', () => {
     });
     expect(mockUpdateDocument.mock.calls.length).toEqual(1);
     expect(mockDeleteParameter.mock.calls.length).toEqual(1);
-    expect(mockDeleteParameter.mock.calls[0][0]).toEqual('testparam1');
+    expect(mockDeleteParameter.mock.calls[0][0]).toEqual('testparam2');
     await screen.findByTestId('add-parameter-button');
-    const notexist = screen.queryByTestId('delete-parameter-testparam1-button');
+    const notexist = screen.queryByTestId('delete-parameter-testparam2-button');
     expect(notexist).toBeFalsy();
   });
 
@@ -69,12 +87,12 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(addButton);
     });
-    let paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    let paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1::' } });
     });
     expect(screen.getByTestId('new-parameter-helper-text-invalid')).toBeInTheDocument();
-    let submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    let submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
@@ -86,12 +104,12 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(addButton);
     });
-    paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
     expect(screen.getByTestId('new-parameter-helper-text-duplicate')).toBeInTheDocument();
-    submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
   });
 
@@ -109,11 +127,11 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(addButton);
     });
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
-    const submitButton = screen.getByTestId('add-new-parameter-submit-btn');
+    const submitButton = screen.getByTestId('new-parameter-submit-btn');
     act(() => {
       fireEvent.click(submitButton);
     });
@@ -176,11 +194,11 @@ describe('Parameters', () => {
     act(() => {
       fireEvent.click(addButton);
     });
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
-    const submitButton = screen.getByTestId('add-new-parameter-submit-btn');
+    const submitButton = screen.getByTestId('new-parameter-submit-btn');
     act(() => {
       fireEvent.click(submitButton);
     });
@@ -249,17 +267,17 @@ describe('Parameters', () => {
       fireEvent.click(addButton);
     });
 
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
 
-    const cancelButton = screen.getByTestId('add-new-parameter-cancel-btn');
+    const cancelButton = screen.getByTestId('new-parameter-cancel-btn');
     act(() => {
       fireEvent.click(cancelButton);
     });
 
-    expect(screen.queryByTestId('add-new-parameter-name-input')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('new-parameter-name-input')).not.toBeInTheDocument();
   });
 
   it('should toggle parameters expanded state', async () => {
@@ -304,10 +322,10 @@ describe('Parameters', () => {
       fireEvent.click(addButton);
     });
 
-    const submitButton = screen.getByTestId('add-new-parameter-submit-btn') as HTMLButtonElement;
+    const submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
 
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     expect(paramNameInput).toHaveAttribute('placeholder', 'parameter name');
   });
 
@@ -328,12 +346,12 @@ describe('Parameters', () => {
       fireEvent.click(addButton);
     });
 
-    const paramNameInput = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
 
-    const submitButton = screen.getByTestId('add-new-parameter-submit-btn');
+    const submitButton = screen.getByTestId('new-parameter-submit-btn');
     act(() => {
       fireEvent.click(submitButton);
     });
@@ -343,12 +361,12 @@ describe('Parameters', () => {
       fireEvent.click(addButton);
     });
 
-    const paramNameInput2 = screen.getByTestId('add-new-parameter-name-input');
+    const paramNameInput2 = screen.getByTestId('new-parameter-name-input');
     act(() => {
       fireEvent.change(paramNameInput2, { target: { value: 'testparam1' } });
     });
 
-    const submitButton2 = screen.getByTestId('add-new-parameter-submit-btn');
+    const submitButton2 = screen.getByTestId('new-parameter-submit-btn');
     act(() => {
       fireEvent.click(submitButton2);
     });

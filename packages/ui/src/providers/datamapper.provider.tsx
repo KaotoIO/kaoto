@@ -47,6 +47,7 @@ export interface IDataMapperContext {
   sourceParameterMap: Map<string, IDocument>;
   refreshSourceParameters: () => void;
   deleteSourceParameter: (name: string) => void;
+  renameSourceParameter: (oldName: string, newName: string) => void;
   sourceBodyDocument: IDocument;
   setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
@@ -77,6 +78,7 @@ type DataMapperProviderProps = PropsWithChildren & {
   documentInitializationModel?: DocumentInitializationModel;
   onUpdateDocument?: (definition: DocumentDefinition) => void;
   onDeleteParameter?: (name: string) => void;
+  onRenameParameter?: (oldName: string, newName: string) => void;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
 };
@@ -87,6 +89,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   documentInitializationModel,
   onUpdateDocument,
   onDeleteParameter,
+  onRenameParameter,
   initialXsltFile,
   onUpdateMappings,
   children,
@@ -170,6 +173,34 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
   }, [mappingTree, onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
+
+  const renameSourceParameter = useCallback(
+    (oldName: string, newName: string) => {
+      if (oldName === newName) return;
+
+      // Get the existing document
+      const document = sourceParameterMap.get(oldName);
+      if (!document) return;
+
+      // Update the document's properties
+      DocumentService.renameDocument(document, newName);
+
+      // Create a new map with the updated document
+      const newSourceParameterMap = new Map(sourceParameterMap);
+      newSourceParameterMap.delete(oldName);
+      newSourceParameterMap.set(newName, document);
+
+      // Update the state with the new map
+      setSourceParameterMap(newSourceParameterMap);
+
+      // Update mapping tree to reflect the parameter name change
+      MappingService.renameParameterInMappings(mappingTree, oldName, newName);
+      refreshMappingTree();
+
+      onRenameParameter?.(oldName, newName);
+    },
+    [sourceParameterMap, mappingTree, refreshMappingTree, onRenameParameter],
+  );
 
   const removeStaleMappings = useCallback(
     (documentType: DocumentType, documentId: string, newDocument: IDocument) => {
@@ -256,6 +287,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setSourceParametersExpanded,
       refreshSourceParameters,
       deleteSourceParameter,
+      renameSourceParameter,
       sourceBodyDocument,
       setSourceBodyDocument,
       targetBodyDocument,
@@ -280,6 +312,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     isSourceParametersExpanded,
     refreshSourceParameters,
     deleteSourceParameter,
+    renameSourceParameter,
     sourceBodyDocument,
     targetBodyDocument,
     setNewDocument,
