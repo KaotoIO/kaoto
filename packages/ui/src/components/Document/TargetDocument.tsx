@@ -157,7 +157,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
                 <span className="node__target__actions" />
               )}
 
-              {isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} />}
+              {isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />}
             </section>
           </NodeContainer>
         </div>

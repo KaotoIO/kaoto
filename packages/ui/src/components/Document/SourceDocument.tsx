@@ -1,4 +1,4 @@
-import { Icon } from '@patternfly/react-core';
+import { Icon, StackItem } from '@patternfly/react-core';
 import { AngleDownIcon, AtIcon, GripVerticalIcon, LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, useCallback, useRef, useState } from 'react';
@@ -12,6 +12,8 @@ import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
+import { useToggle } from '../../hooks/useToggle';
+import { ParameterInputPlaceholder } from './Parameters';
 
 type DocumentProps = {
   document: IDocument;
@@ -49,6 +51,11 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
 }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
   const { isInSelectedMapping, toggleSelectedNodeReference } = useMappingLinks();
+  const {
+    state: isRenamingParameter,
+    toggleOn: toggleOnRenamingParameter,
+    toggleOff: toggleOffRenamingParameter,
+  } = useToggle(false);
 
   const shouldCollapseByDefault =
     !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
@@ -131,10 +138,25 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
                 </Icon>
               )}
 
-              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+              {isRenamingParameter && (
+                <StackItem>
+                  <ParameterInputPlaceholder
+                    onComplete={() => toggleOffRenamingParameter()}
+                    parameter={nodeData.title}
+                  />
+                </StackItem>
+              )}
 
-              {!isReadOnly && isDocument ? (
-                <DocumentActions className="node__target__actions" nodeData={nodeData} />
+              {!isRenamingParameter && (
+                <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+              )}
+
+              {!isRenamingParameter && !isReadOnly && isDocument ? (
+                <DocumentActions
+                  className="node__target__actions"
+                  nodeData={nodeData}
+                  onRenameClick={() => toggleOnRenamingParameter()}
+                />
               ) : (
                 <span className="node__target__actions" />
               )}
