@@ -133,7 +133,7 @@ describe('BeansEntityHandler', () => {
       beansHandler.addNewBean({ name: 'myBean', type: 'myType' });
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       beansHandler.setBeansModel([{ name: 'myBean', type: 'myType' }]);
-      expect(beansHandler.getReferenceFromName('myBean')).toBeUndefined();
+      expect(beansHandler.getReferenceFromName('myBean')).toBe('');
       expect(beansHandler.stripReferenceQuote('#myBean')).toBeUndefined();
     });
 
@@ -145,7 +145,7 @@ describe('BeansEntityHandler', () => {
       beansHandler.addNewBean({ name: 'myBean', type: 'myType' });
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       beansHandler.setBeansModel([{ name: 'myBean', type: 'myType' }]);
-      expect(beansHandler.getReferenceFromName('myBean')).toBeUndefined();
+      expect(beansHandler.getReferenceFromName('myBean')).toBe('');
       expect(beansHandler.stripReferenceQuote('#myBean')).toBeUndefined();
     });
   });

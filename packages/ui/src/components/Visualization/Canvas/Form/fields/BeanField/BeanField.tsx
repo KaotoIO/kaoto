@@ -15,18 +15,26 @@ import { EntitiesContext } from '../../../../../../providers';
 import { getSerializedModel } from '../../../../../../utils';
 import { NewBeanModal } from './NewBeanModal';
 
-export const BeanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+export const PrefixedBeanField: FunctionComponent<FieldProps> = ({ propName, required }) => (
+  <BeanFieldBase propName={propName} required={required} shouldPrefixBeanName />
+);
+
+export const UnprefixedBeanField: FunctionComponent<FieldProps> = ({ propName, required }) => (
+  <BeanFieldBase propName={propName} required={required} shouldPrefixBeanName={false} />
+);
+
+interface BeanFieldProps extends FieldProps {
+  shouldPrefixBeanName: boolean;
+}
+
+const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({ propName, required, shouldPrefixBeanName }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beanReference = value;
-  const beansHandler = useMemo(() => {
-    return new BeansEntityHandler(camelResource);
-  }, [camelResource]);
-  const beanSchema = useMemo(() => {
-    return beansHandler.getBeanSchema();
-  }, [beansHandler]);
+  const beansHandler = useMemo(() => new BeansEntityHandler(camelResource), [camelResource]);
+  const beanSchema = useMemo(() => beansHandler.getBeanSchema(), [beansHandler]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(beanReference);
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
@@ -34,7 +42,7 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
   const items = useMemo(() => {
     return (
       beansHandler.getAllBeansNameAndType().map((item) => ({
-        name: item.name ? (beansHandler.getReferenceFromName(item.name) ?? '') : '',
+        name: shouldPrefixBeanName ? beansHandler.getReferenceFromName(item.name) : item.name,
         description: String(item.type),
         value: String(item.name),
       })) ?? []
@@ -83,16 +91,21 @@ export const BeanField: FunctionComponent<FieldProps> = ({ propName, required })
 
   const handleCreateBean = useCallback(
     (model: BeanFactory) => {
-      beansHandler.addNewBean(getSerializedModel(model as unknown as Record<string, unknown>));
+      beansHandler.addNewBean(
+        getSerializedModel(model as unknown as Record<string, unknown>) as unknown as BeanFactory,
+      );
 
-      const beanRef = beansHandler.getReferenceFromName(model.name);
+      let beanRef = model.name;
+      if (shouldPrefixBeanName) {
+        beanRef = beansHandler.getReferenceFromName(model.name);
+      }
 
       setIsOpen(false);
-      onChange(beanRef ?? '');
-      setInputValue(beanRef as string);
+      onChange(beanRef);
+      setInputValue(beanRef);
       setLastUpdated(Date.now());
     },
-    [beansHandler, onChange],
+    [beansHandler, onChange, shouldPrefixBeanName],
   );
 
   const handleCancelCreateBean = useCallback(() => {
