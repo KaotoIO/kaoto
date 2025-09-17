@@ -116,19 +116,22 @@ export class BeansEntityHandler {
   getAllBeansNameAndType(): { name: string; type: string }[] {
     const allBeans = this.getBeansModel();
     if (!allBeans) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return allBeans?.map((bean: any) => {
-      return { name: bean.name, type: bean.type };
+
+    return allBeans?.map((bean) => {
+      return { name: bean.name ?? '', type: bean.type ?? '' };
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addNewBean(model: any) {
+  addNewBean(model: BeanFactory) {
     const beansEntityToAdd = this.getBeansEntity() ? this.getBeansEntity() : this.createBeansEntity();
     beansEntityToAdd?.parent.beans.push(model);
   }
 
-  getReferenceFromName(name: string) {
+  getReferenceFromName(name?: string) {
+    if (!name || !this.type) {
+      return '';
+    }
+
     switch (this.type) {
       case 'beans':
         return '#' + name;
