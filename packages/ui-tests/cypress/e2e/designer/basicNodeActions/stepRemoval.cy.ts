@@ -20,6 +20,17 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('uri: log:test', 0);
   });
 
+  it('Design - delete node by pressing Delete key', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+    cy.get('foreignObject[data-nodelabel="log"]').click();
+    cy.get('body').type('{del}');
+    cy.checkNodeExist('log', 0);
+
+    cy.openSourceCode();
+    cy.checkCodeSpanLine('uri: log:test', 0);
+  });
+
   it('Design - remove steps from Pipe/KB', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openDesignPage();
