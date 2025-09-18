@@ -2997,24 +2997,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/forms@npm:^1.4.3":
-  version: 1.4.3
-  resolution: "@kaoto/forms@npm:1.4.3"
-  dependencies:
-    ajv: "npm:^8.12.0"
-    clsx: "npm:^2.1.0"
-    lodash.clonedeep: "npm:^4.5.0"
-    usehooks-ts: "npm:^3.0.0"
-  peerDependencies:
-    "@patternfly/patternfly": ^6.3.0
-    "@patternfly/react-core": 6.3.1-prerelease.13
-    "@patternfly/react-icons": ^6.3.0
-    react: ^18.2.0
-    react-dom: ^18.2.0
-  checksum: 10/66574e77dd18e82b43927b8353d8db93bec23528b737e7c52f82b4021f8464b521912ae284fc2beada71ad29e44f4a4f8fd3b616b19fd4c04396aac14ccf2335
-  languageName: node
-  linkType: hard
-
 "@kaoto/forms@npm:^1.4.4":
   version: 1.4.4
   resolution: "@kaoto/forms@npm:1.4.4"
@@ -3040,7 +3022,7 @@ __metadata:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.2"
-    "@kaoto/forms": "npm:^1.4.3"
+    "@kaoto/forms": "npm:^1.4.4"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.3.0"
     "@patternfly/react-code-editor": "npm:^6.3.0"
