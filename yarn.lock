@@ -3015,6 +3015,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kaoto/forms@npm:^1.4.4":
+  version: 1.4.4
+  resolution: "@kaoto/forms@npm:1.4.4"
+  dependencies:
+    ajv: "npm:^8.12.0"
+    clsx: "npm:^2.1.0"
+    lodash.clonedeep: "npm:^4.5.0"
+    usehooks-ts: "npm:^3.0.0"
+  peerDependencies:
+    "@patternfly/patternfly": ^6.3.0
+    "@patternfly/react-core": 6.3.1-prerelease.13
+    "@patternfly/react-icons": ^6.3.0
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: 10/bd541f539563252a16b92b9f25322accb4d2a6ef980584374468150a52491576a80d0ce1419ec7284127d783f925224533d366ec86c798f1c2aa173bfa0474da
+  languageName: node
+  linkType: hard
+
 "@kaoto/kaoto-tests@workspace:packages/ui-tests":
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto-tests@workspace:packages/ui-tests"
@@ -3079,7 +3097,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.2"
-    "@kaoto/forms": "npm:^1.4.3"
+    "@kaoto/forms": "npm:^1.4.4"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:^6.3.0"
