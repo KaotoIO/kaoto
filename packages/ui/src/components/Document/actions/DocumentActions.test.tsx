@@ -11,7 +11,7 @@ describe('DocumentActions', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <DocumentActions nodeData={docData} />
+          <DocumentActions nodeData={docData} onRenameClick={jest.fn()} />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );

@@ -47,6 +47,7 @@ export interface IDataMapperContext {
   sourceParameterMap: Map<string, IDocument>;
   refreshSourceParameters: () => void;
   deleteSourceParameter: (name: string) => void;
+  renameSourceParameter: (oldName: string, newName: string) => void;
   sourceBodyDocument: IDocument;
   setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
@@ -77,6 +78,7 @@ type DataMapperProviderProps = PropsWithChildren & {
   documentInitializationModel?: DocumentInitializationModel;
   onUpdateDocument?: (definition: DocumentDefinition) => void;
   onDeleteParameter?: (name: string) => void;
+  onRenameParameter?: (oldName: string, newName: string) => void;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
 };
@@ -87,6 +89,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   documentInitializationModel,
   onUpdateDocument,
   onDeleteParameter,
+  onRenameParameter,
   initialXsltFile,
   onUpdateMappings,
   children,
@@ -164,6 +167,32 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
   }, [mappingTree, onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
+
+  const renameSourceParameter = useCallback(
+    (oldName: string, newName: string) => {
+      if (oldName === newName) return;
+
+      // Get the existing document
+      const document = sourceParameterMap.get(oldName);
+      if (!document) return;
+
+      // Remove old parameter and add with new name
+      sourceParameterMap.delete(oldName);
+      sourceParameterMap.set(newName, document);
+
+      // Update the document's name and documentId
+      document.name = newName;
+      document.documentId = newName;
+
+      // Update mapping tree to reflect the parameter name change
+      MappingService.renameParameterInMappings(mappingTree, oldName, newName);
+      refreshMappingTree();
+
+      refreshSourceParameters();
+      onRenameParameter && onRenameParameter(oldName, newName);
+    },
+    [sourceParameterMap, mappingTree, refreshMappingTree, refreshSourceParameters, onRenameParameter],
+  );
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
@@ -256,6 +285,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setSourceParametersExpanded,
       refreshSourceParameters,
       deleteSourceParameter,
+      renameSourceParameter,
       sourceBodyDocument,
       setSourceBodyDocument,
       targetBodyDocument,
@@ -280,6 +310,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     isSourceParametersExpanded,
     refreshSourceParameters,
     deleteSourceParameter,
+    renameSourceParameter,
     sourceBodyDocument,
     targetBodyDocument,
     setNewDocument,

@@ -183,6 +183,24 @@ export class MappingService {
     wrapped.parent = wrapper;
   }
 
+  /**
+   * Renames a parameter in all mappings within the mapping tree.
+   * This updates XPath expressions that reference the old parameter name.
+   */
+  static renameParameterInMappings(
+    item: MappingTree | MappingItem,
+    oldDocumentId: string,
+    newDocumentId: string,
+  ): void {
+    item.children.forEach((child) => {
+      MappingService.renameParameterInMappings(child, oldDocumentId, newDocumentId);
+      // Update XPath expressions in the item
+      if (child instanceof ExpressionItem) {
+        child.expression = child.expression.replace(new RegExp(`\\$${oldDocumentId}\\b`, 'g'), `$${newDocumentId}`);
+      }
+    });
+  }
+
   static wrapWithForEach(wrapped: MappingItem) {
     MappingService.wrapWithItem(wrapped, new ForEachItem(wrapped.parent));
   }

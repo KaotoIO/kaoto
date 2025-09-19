@@ -35,16 +35,23 @@ enum ParameterNameValidation {
   INVALID,
 }
 
-type AddNewParameterPlaceholderProps = {
+type ParameterInputPlaceholderProps = {
   onComplete: () => void;
+  parameter?: string;
 };
 
-const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderProps> = ({ onComplete }) => {
-  const { sendAlert, sourceParameterMap, updateDocument } = useDataMapper();
-  const [newParameterName, setNewParameterName] = useState<string>('');
+export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlaceholderProps> = ({
+  onComplete,
+  parameter,
+}) => {
+  const { sendAlert, sourceParameterMap, renameSourceParameter, updateDocument } = useDataMapper();
+  const [newParameterName, setNewParameterName] = useState<string>(parameter ?? '');
 
   const submitNewParameter = useCallback(() => {
-    if (!sourceParameterMap.has(newParameterName)) {
+    if (parameter && parameter !== newParameterName) {
+      // renaming existing parameter
+      renameSourceParameter(parameter, newParameterName);
+    } else if (!sourceParameterMap.has(newParameterName)) {
       const result = DocumentService.createPrimitiveDocument(
         DocumentType.PARAM,
         DocumentDefinitionType.Primitive,
@@ -63,7 +70,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
 
     setNewParameterName('');
     onComplete();
-  }, [sourceParameterMap, newParameterName, onComplete, sendAlert, updateDocument]);
+  }, [parameter, sourceParameterMap, newParameterName, onComplete, renameSourceParameter, sendAlert, updateDocument]);
 
   const cancelNewParameter = useCallback(() => {
     setNewParameterName('');
@@ -72,10 +79,10 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
 
   const newParameterNameValidation: ParameterNameValidation = useMemo(() => {
     if (newParameterName === '') return ParameterNameValidation.EMPTY;
-    if (sourceParameterMap.has(newParameterName)) return ParameterNameValidation.DUPLICATE;
+    if (!parameter && sourceParameterMap.has(newParameterName)) return ParameterNameValidation.DUPLICATE;
     if (!qname(newParameterName)) return ParameterNameValidation.INVALID;
     return ParameterNameValidation.OK;
-  }, [newParameterName, sourceParameterMap]);
+  }, [newParameterName, parameter, sourceParameterMap]);
 
   const textInputValidatedProp = useMemo(() => {
     switch (newParameterNameValidation) {
@@ -106,6 +113,7 @@ const AddNewParameterPlaceholder: FunctionComponent<AddNewParameterPlaceholderPr
             onChange={(_event, text) => setNewParameterName(text)}
             placeholder="parameter name"
             validated={textInputValidatedProp}
+            value={newParameterName}
           />
           <HelperText data-testid="new-parameter-helper-text">
             {newParameterNameValidation === ParameterNameValidation.DUPLICATE && (
@@ -228,7 +236,7 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
           <Stack>
             {isAddingNewParameter && (
               <StackItem>
-                <AddNewParameterPlaceholder onComplete={() => toggleOffAddNewParameter()} />
+                <ParameterInputPlaceholder onComplete={() => toggleOffAddNewParameter()} />
               </StackItem>
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
