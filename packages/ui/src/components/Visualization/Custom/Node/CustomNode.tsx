@@ -277,6 +277,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       ['custom-node__container__draggedNode']: isDraggedNode,
     };
 
+
     return (
       <Layer id={DEFAULT_LAYER} data-lastupdate={lastUpdate}>
         <g
