@@ -1,16 +1,11 @@
+import { At, ChevronDown, ChevronRight, Draggable } from '@carbon/icons-react';
 import { ActionList, ActionListGroup, ActionListItem, Button, Icon } from '@patternfly/react-core';
-import {
-  AngleDownIcon,
-  AtIcon,
-  GripVerticalIcon,
-  LayerGroupIcon,
-  PlusCircleIcon,
-  PlusIcon,
-} from '@patternfly/react-icons';
+import { LayerGroupIcon, PlusCircleIcon, PlusIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, useCallback, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { IDocument } from '../../models/datamapper/document';
 import {
   AddMappingNodeData,
@@ -19,13 +14,13 @@ import {
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
+import { ConditionMenuAction } from './actions/ConditionMenuAction';
 import { DocumentActions } from './actions/DocumentActions';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import './Document.scss';
+import { FieldIcon } from './FieldIcon';
 import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
-import { ConditionMenuAction } from './actions/ConditionMenuAction';
-import { useMappingLinks } from '../../hooks/useMappingLinks';
 
 type DocumentProps = {
   document: IDocument;
@@ -126,16 +121,16 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
                 <Icon className="node__spacer" onClick={handleClickToggle}>
-                  <AngleDownIcon
-                    data-testid={`expand-target-icon-${nodeData.title}`}
-                    className={clsx('toggle-icon', { 'toggle-icon--collapsed': collapsed })}
-                  />
+                  {!collapsed && <ChevronDown />}
+                  {collapsed && <ChevronRight />}
                 </Icon>
               )}
 
               <Icon className="node__spacer" data-drag-handler>
-                <GripVerticalIcon />
+                <Draggable />
               </Icon>
+
+              <FieldIcon className="node__spacer" type={nodeData.type} />
 
               {isCollectionField && (
                 <Icon className="node__spacer">
@@ -145,7 +140,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
 
               {isAttributeField && (
                 <Icon className="node__spacer">
-                  <AtIcon />
+                  <At />
                 </Icon>
               )}
 

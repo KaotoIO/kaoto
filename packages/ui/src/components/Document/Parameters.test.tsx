@@ -214,7 +214,7 @@ describe('Parameters', () => {
       fireEvent.click(commitButton);
     });
 
-    const shipTo = await screen.findByText('map [@key = ShipTo] : Container');
+    const shipTo = await screen.findByText('map [@key = ShipTo]');
     expect(shipTo).toBeTruthy();
   });
 
