@@ -1,8 +1,8 @@
-import { Label, Title, Truncate } from '@patternfly/react-core';
+import { Label, Title } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 import { FieldItemNodeData, MappingNodeData, NodeData } from '../../models/datamapper/visualization';
-import './Document.scss';
+import './NodeTitle.scss';
 
 interface INodeTitle {
   className?: string;
@@ -11,23 +11,20 @@ interface INodeTitle {
 }
 
 export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, nodeData, isDocument }) => {
+  const title = nodeData.title;
+  const content = (
+    <span title={title} className={clsx('node-title__text', className)}>
+      {title}
+    </span>
+  );
+
   if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) {
-    return (
-      <Label>
-        <Truncate content={nodeData.title ?? ''} className={clsx('truncate', className)} />
-      </Label>
-    );
+    return <Label>{content}</Label>;
   }
 
   if (isDocument) {
-    return (
-      <Title headingLevel="h5">
-        <Truncate content={nodeData.title ?? ''} className={clsx('truncate', className)} />
-      </Title>
-    );
+    return <Title headingLevel="h5">{content}</Title>;
   }
 
-  return (
-    <Truncate content={`${nodeData.title ?? ''} : ${nodeData.type ?? ''}`} className={clsx('truncate', className)} />
-  );
+  return content;
 };

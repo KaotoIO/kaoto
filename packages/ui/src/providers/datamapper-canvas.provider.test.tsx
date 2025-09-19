@@ -69,7 +69,7 @@ describe('CanvasProvider', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    await screen.findAllByText('ShipOrder : Container');
+    await screen.findAllByText('ShipOrder');
     expect(afterNodePaths.length).toEqual(17);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
@@ -113,7 +113,7 @@ describe('CanvasProvider', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    await screen.findAllByText('ShipOrder : Container');
+    await screen.findAllByText('ShipOrder');
     expect(afterNodePaths.length).toBeGreaterThan(10);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });

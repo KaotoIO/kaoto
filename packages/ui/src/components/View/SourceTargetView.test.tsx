@@ -46,7 +46,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(commitButton);
       });
 
-      const shipTo = await screen.findByText('ShipTo : Container');
+      const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
       const detachButton = screen.getByTestId('detach-schema-sourceBody-Body-button');
       act(() => {
@@ -124,7 +124,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(commitButton);
       });
 
-      const shipTo = await screen.findByText('ShipTo : Container');
+      const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
       const detachButton = screen.getByTestId('detach-schema-targetBody-Body-button');
       act(() => {
@@ -180,7 +180,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(commitButton);
       });
 
-      const shipTo = await screen.findByText('map [@key = ShipTo] : Container');
+      const shipTo = await screen.findByText('map [@key = ShipTo]');
       expect(shipTo).toBeTruthy();
       const detachButton = screen.getByTestId('detach-schema-targetBody-Body-button');
       act(() => {
@@ -191,7 +191,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(detachConfirmButton);
       });
       await screen.findByTestId('attach-schema-sourceBody-Body-button');
-      expect(screen.queryByText('map [@key = ShipTo] : Container')).toBeFalsy();
+      expect(screen.queryByText('map [@key = ShipTo]')).toBeFalsy();
     });
 
     it('should attach Camel YAML JSON schema', async () => {
