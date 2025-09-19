@@ -1,13 +1,14 @@
+import { AlertProps } from '@patternfly/react-core';
+import { RefObject } from 'react';
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
 import { NodePath } from './nodepath';
-import { RefObject } from 'react';
-import { AlertProps } from '@patternfly/react-core';
+import { Types } from './types';
 
 export interface NodeData {
   title: string;
   document?: IDocument;
-  type?: string;
+  type?: Types;
   id: string;
   path: NodePath;
   isSource: boolean;
@@ -65,7 +66,7 @@ export class FieldNodeData implements NodeData {
 
   title: string;
   id: string;
-  type: string;
+  type: Types;
   path: NodePath;
   isSource: boolean;
   isPrimitive: boolean;
