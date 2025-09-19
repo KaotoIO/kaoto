@@ -44,6 +44,7 @@ import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { NodePath } from '../models/datamapper/nodepath';
 import { DocumentUtilService } from './document-util.service';
 import { QName } from '../xml-schema-ts/QName';
+import { capitalize } from '../serializers/xml/utils/xml-utils';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
@@ -196,7 +197,7 @@ export class XmlSchemaDocumentService {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
       const simple = schemaType as XmlSchemaSimpleType;
-      field.type = Types[simple.getName() as keyof typeof Types] || Types.AnyType;
+      field.type = Types[capitalize(simple.getName()!) as keyof typeof Types] || Types.AnyType;
       return;
     }
     field.type = Types.Container;
