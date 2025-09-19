@@ -44,6 +44,7 @@ import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
 import { FlowService } from './flow.service';
+import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 
 interface CanvasProps {
   vizNodes: IVisualizationNode[];
@@ -92,6 +93,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   useDeleteHotkey(selectedNode?.data?.vizNode, clearSelection);
+
+  useDeleteHotkey(selectedNode?.data?.vizNode, () => {
+    setSelectedIds([]);
+    setSelectedNode(undefined);
+  });
 
   /** Draw graph */
   useEffect(() => {
