@@ -9,15 +9,17 @@ import {
   processNodeInteractionAddonRecursively,
 } from '../ContextMenu/item-delete-helper';
 
-export const useDeleteStep = (vizNode: IVisualizationNode) => {
+export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
   const entitiesContext = useContext(EntitiesContext);
   const deleteModalContext = useContext(ActionConfirmationModalContext);
-  const childrenNodes = vizNode.getChildren();
+  const childrenNodes = vizNode?.getChildren();
   const hasChildren = childrenNodes !== undefined && childrenNodes.length > 0;
   const isPlaceholderNode = hasChildren && childrenNodes.length === 1 && childrenNodes[0].data.isPlaceholder;
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteStep = useCallback(async () => {
+    if (!vizNode) return;
+
     const modalCustoms = findModalCustomizationRecursively(vizNode, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );

@@ -9,7 +9,7 @@ import {
   processNodeInteractionAddonRecursively,
 } from '../ContextMenu/item-delete-helper';
 
-export const useDeleteGroup = (vizNode: IVisualizationNode) => {
+export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
   const entitiesContext = useContext(EntitiesContext);
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const flowId = vizNode?.getId();
@@ -17,6 +17,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteGroup = useCallback(async () => {
+    if (!vizNode) return;
     const modalCustoms = findModalCustomizationRecursively(vizNode, (vn) =>
       getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
     );

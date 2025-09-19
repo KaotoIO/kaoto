@@ -38,6 +38,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
+import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];
@@ -66,11 +67,16 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   }, [entities.length, visibleFlows]);
 
   const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
+  const clearSelection = useCallback(() => {
+    setSelectedIds([]);
+    setSelectedNode(undefined);
+  }, []);
+
+  useDeleteHotkey(selectedNode?.data?.vizNode, clearSelection);
 
   /** Draw graph */
   useEffect(() => {
-    setSelectedNode(undefined);
-    setSelectedIds([]);
+    clearSelection();
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
 
@@ -190,19 +196,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
     });
   }, [catalogModalContext, controller, setActiveLayout]);
 
-  const handleCloseSideBar = useCallback(() => {
-    setSelectedIds([]);
-    setSelectedNode(undefined);
-  }, []);
-
   const handleCanvasClick = useCallback(
     (event: React.MouseEvent) => {
       const target = event.target as HTMLElement;
       if (target.tagName === 'rect') {
-        handleCloseSideBar();
+        clearSelection();
       }
     },
-    [handleCloseSideBar],
+    [clearSelection],
   );
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
@@ -215,7 +216,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       onSideBarResize={setSidebarWidth}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
-      sideBar={isSidebarOpen ? <CanvasSideBar selectedNode={selectedNode} onClose={handleCloseSideBar} /> : null}
+      sideBar={isSidebarOpen ? <CanvasSideBar selectedNode={selectedNode} onClose={clearSelection} /> : null}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
       onClick={handleCanvasClick}
