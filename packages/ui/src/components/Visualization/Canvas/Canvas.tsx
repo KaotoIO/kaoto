@@ -38,6 +38,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { FlowService } from './flow.service';
+import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];
@@ -66,6 +67,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   }, [entities.length, visibleFlows]);
 
   const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
+
+  useDeleteHotkey(selectedNode?.data?.vizNode, () => {
+    setSelectedIds([]);
+    setSelectedNode(undefined);
+  });
 
   /** Draw graph */
   useEffect(() => {
