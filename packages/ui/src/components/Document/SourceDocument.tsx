@@ -110,8 +110,8 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
                 <Icon className="node__spacer" onClick={handleClickToggle}>
-                  {!collapsed && <ChevronDown />}
-                  {collapsed && <ChevronRight />}
+                  {!collapsed && <ChevronDown data-testid={`expand-source-icon-${nodeData.title}`} />}
+                  {collapsed && <ChevronRight data-testid={`collapse-source-icon-${nodeData.title}`} />}
                 </Icon>
               )}
 
