@@ -1,9 +1,16 @@
+import { EnumField } from '@kaoto/forms';
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
 import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 
 describe('customFieldsFactoryfactory', () => {
+  it('returns EnumField for enums regardless of the schema type', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'object', enum: ['option 1', 'option 2', 'option 3'] };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EnumField);
+  });
+
   it('returns PrefixedBeanField for string type with format starting with "bean:"', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'string', format: 'bean:myBean' };
     const result = customFieldsFactoryfactory(schema);
