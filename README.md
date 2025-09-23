@@ -98,13 +98,6 @@ To build the public components, execute:
 yarn workspace @kaoto/kaoto run build:lib
 ```
 
-## Camel Catalog and Supporting Schemas
-To build the Camel Catalog and the supporting schemas, run:
-```sh
-yarn workspace @kaoto/camel-catalog run build
-```
-_Optional: You can update the Camel version in the `pom.xml` file and then run the build command again._
-
 ## Storybook
 
 To view the storybook stories, go to [Chromatic](https://main--64ef22df8bb709ffa98c7a47.chromatic.com/). The stories are built for non-Dependabot pull requests and the link to storybook generated for PR is linked once the storybook is published. You can learn more about how to create a story for your UI component [here](https://storybook.js.org/docs/react/writing-stories/introduction).
