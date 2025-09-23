@@ -23,12 +23,14 @@ describe('Tests for Design page', () => {
   it('Design - delete node by pressing Delete key', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
-    cy.get('foreignObject[data-nodelabel="log"]').click();
+    cy.checkNodeExist('marshal', 1);
+    cy.openStepConfigurationTab('marshal');
     cy.get('body').type('{del}');
-    cy.checkNodeExist('log', 0);
+    cy.checkNodeExist('marshal', 0);
 
     cy.openSourceCode();
-    cy.checkCodeSpanLine('uri: log:test', 0);
+    cy.checkCodeSpanLine('- marshal:', 0);
+    cy.checkCodeSpanLine('id: marshal-3801', 0);
   });
 
   it('Design - remove steps from Pipe/KB', () => {
