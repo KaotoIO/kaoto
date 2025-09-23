@@ -99,15 +99,6 @@ yarn workspace @kaoto/kaoto-tests chromatic
 docker run --rm -p 8080:8080 --name kaoto quay.io/kaotoio/kaoto-app:main
 ```
 
-### Optional: Camel Catalog and Supporting Schemas
-
-If working on the Camel catalog package, build it as needed. This repository references `@kaoto/camel-catalog`; ensure it’s available in your workspace or use the published package if appropriate.
-
-```bash
-# only if the workspace/package is present locally
-yarn workspace @kaoto/camel-catalog build
-```
-
 ### Code Style and Conventions
 
 - TypeScript: strict mode enabled (`strict: true`), `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`.

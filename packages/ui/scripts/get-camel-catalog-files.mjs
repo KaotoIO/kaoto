@@ -31,8 +31,8 @@ export const getCamelCatalogFiles = () => {
     const message = [
       `The '${camelCatalogPath}' folder is empty.`,
       'No files found in the Camel Catalog directory.',
-      'Please run `yarn workspace @kaoto/camel-catalog run build`',
-      'or `yarn build` in the `@kaoto/camel-catalog` package',
+      'Please check the dependency is installed',
+      'or run `yarn add @kaoto/camel-catalog` to install it',
     ];
 
     throw new Error(message.join('\n\n'));

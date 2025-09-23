@@ -100,15 +100,6 @@ commands:
       group:
         kind: build
         isDefault: true
-  - id: build-camel-catalog-supporting-schemas
-    exec:
-      label: 'build the Camel Catalog and the supporting schemas'
-      component: tools
-      workingDir: ${PROJECT_SOURCE}
-      commandLine: 'yarn workspace @kaoto/camel-catalog run build'
-      group:
-        kind: build
-        isDefault: true
   - id: start-development-server
     exec:
       label: 'start the development server'
