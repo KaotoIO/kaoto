@@ -1,11 +1,11 @@
 import { ActionListGroup, ActionListItem } from '@patternfly/react-core';
-import { AttachSchemaButton } from './AttachSchemaButton';
-import { DetachSchemaButton } from './DetachSchemaButton';
+import { FunctionComponent, MouseEvent, useCallback } from 'react';
 import { DocumentType } from '../../../models/datamapper/document';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
-import { DeleteParameterButton } from './DeleteParameterButton';
-import { FunctionComponent, MouseEvent, useCallback } from 'react';
 import '../Document.scss';
+import { AttachSchemaButton } from './AttachSchemaButton';
+import { DeleteParameterButton } from './DeleteParameterButton';
+import { DetachSchemaButton } from './DetachSchemaButton';
 
 type DocumentActionsProps = {
   className?: string;
@@ -26,14 +26,10 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ class
       className={className}
     >
       <ActionListItem>
-        <AttachSchemaButton
-          documentType={documentType}
-          documentId={documentId}
-          hasSchema={!nodeData.isPrimitive}
-        ></AttachSchemaButton>
+        <AttachSchemaButton documentType={documentType} documentId={documentId} hasSchema={!nodeData.isPrimitive} />
       </ActionListItem>
       <ActionListItem>
-        <DetachSchemaButton documentType={documentType} documentId={documentId}></DetachSchemaButton>
+        <DetachSchemaButton documentType={documentType} documentId={documentId} />
       </ActionListItem>
       {documentType === DocumentType.PARAM && (
         <ActionListItem>

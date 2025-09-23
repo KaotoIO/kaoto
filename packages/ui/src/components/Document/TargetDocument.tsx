@@ -120,7 +120,7 @@ const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
           <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
-                <Icon className="node__spacer" onClick={handleClickToggle}>
+                <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
                   {!collapsed && <ChevronDown data-testid={`expand-target-icon-${nodeData.title}`} />}
                   {collapsed && <ChevronRight data-testid={`collapse-target-icon-${nodeData.title}`} />}
                 </Icon>

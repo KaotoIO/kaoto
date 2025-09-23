@@ -32,6 +32,10 @@
     padding: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
   }
 
+  &__row &__expand {
+    cursor: pointer;
+  }
+
   &__spacer {
     margin: var(--pf-t--global--spacer--sm) 0 var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm);
   }
@@ -66,14 +70,6 @@
 
 img {
   transition: transform 0.5s ease-in-out;
-}
-
-.toggle-icon {
-  cursor: pointer;
-
-  &--collapsed {
-    transform: rotate(-90deg);
-  }
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
