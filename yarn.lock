@@ -3108,6 +3108,7 @@ __metadata:
     chromatic: "npm:^11.0.0"
     cypress: "npm:^14.3.3"
     cypress-file-upload: "npm:^5.0.8"
+    cypress-real-events: "npm:^1.15.0"
     eslint: "npm:^9.10.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-prettier: "npm:^5.2.1"
@@ -8894,6 +8895,15 @@ __metadata:
   peerDependencies:
     cypress: ">3.0.0"
   checksum: 10/c2f66b6de7572ef1b2c609bf76ad63831ee20d7a8a2f144eccc2a7a1fb21994c2f5524ad4921a731bbd2e362aa6ff932506fa8c93c875bc1c0edda383e1125ba
+  languageName: node
+  linkType: hard
+
+"cypress-real-events@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "cypress-real-events@npm:1.15.0"
+  peerDependencies:
+    cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x || ^14.x || ^15.x
+  checksum: 10/a722b69c7b35fce34de6c7a1439c96d08651bfba976878bc7110d1927a89220f9ea23912970f3f7bd47a96fa2022bdf9ea1156fc1f7b09a1d2d7426fc004bf75
   languageName: node
   linkType: hard
 

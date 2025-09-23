@@ -220,6 +220,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             ref={dndDropRef}
           >
             <div
+              data-testid={`${vizNode.id}`}
               className={clsx('custom-node__container', {
                 'custom-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
                 'custom-node__container__possibleDropTargets':
