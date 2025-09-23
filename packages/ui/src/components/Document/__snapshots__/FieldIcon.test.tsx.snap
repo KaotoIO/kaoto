@@ -1,0 +1,673 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FieldIcon date and time types should render CalendarHeatMap icon for Date type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="date"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M26,4H22V2H20V4H12V2H10V4H6A2.0025,2.0025,0,0,0,4,6V26a2.0025,2.0025,0,0,0,2,2H26a2.0025,2.0025,0,0,0,2-2V6A2.0025,2.0025,0,0,0,26,4ZM6,6h4V8h2V6h8V8h2V6h4l0,4H6Zm0,6h5v6H6ZM19,26H13V20h6Zm0-8H13V12h6Zm2,8V20h5l.0012,6Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon date and time types should render EventSchedule icon for DateTime type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="dateTime"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21,30a8,8,0,1,1,8-8A8,8,0,0,1,21,30Zm0-14a6,6,0,1,0,6,6A6,6,0,0,0,21,16Z"
+        />
+        <path
+          d="M22.59 25L20 22.41 20 18 22 18 22 21.59 24 23.59 22.59 25z"
+        />
+        <path
+          d="M28,6a2,2,0,0,0-2-2H22V2H20V4H12V2H10V4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2h4V26H6V6h4V8h2V6h8V8h2V6h4v6h2Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon date and time types should render Hourglass icon for dayTimeDuration 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="dayTimeDuration"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M15 19H17V21H15zM15 23H17V25H15z"
+        />
+        <path
+          d="M23,11.67V4h3V2H6V4H9v7.67a2,2,0,0,0,.4,1.2L11.75,16,9.4,19.13a2,2,0,0,0-.4,1.2V28H6v2H26V28H23V20.33a2,2,0,0,0-.4-1.2L20.25,16l2.35-3.13A2,2,0,0,0,23,11.67ZM21,4v7H11V4Zm0,16.33V28H11V20.33L14.25,16,12,13h8l-2.25,3Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon date and time types should render Hourglass icon for duration 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="duration"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M15 19H17V21H15zM15 23H17V25H15z"
+        />
+        <path
+          d="M23,11.67V4h3V2H6V4H9v7.67a2,2,0,0,0,.4,1.2L11.75,16,9.4,19.13a2,2,0,0,0-.4,1.2V28H6v2H26V28H23V20.33a2,2,0,0,0-.4-1.2L20.25,16l2.35-3.13A2,2,0,0,0,23,11.67ZM21,4v7H11V4Zm0,16.33V28H11V20.33L14.25,16,12,13h8l-2.25,3Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon date and time types should render Time icon for Time type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="time"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16,30A14,14,0,1,1,30,16,14,14,0,0,1,16,30ZM16,4A12,12,0,1,0,28,16,12,12,0,0,0,16,4Z"
+        />
+        <path
+          d="M20.59 22L15 16.41 15 7 17 7 17 15.58 22 20.59 20.59 22z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render CharacterDecimal icon for decimal 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="decimal"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15H23V17H21z"
+        />
+        <path
+          d="M24 23H20a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0124 23zM20 11h0V21h4V11zM11 15H13V17H11z"
+        />
+        <path
+          d="M14 23H10a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0114 23zM10 11h0V21h4V11zM4 21H6V23H4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render CharacterDecimal icon for double 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="double"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15H23V17H21z"
+        />
+        <path
+          d="M24 23H20a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0124 23zM20 11h0V21h4V11zM11 15H13V17H11z"
+        />
+        <path
+          d="M14 23H10a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0114 23zM10 11h0V21h4V11zM4 21H6V23H4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render CharacterDecimal icon for float 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="float"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15H23V17H21z"
+        />
+        <path
+          d="M24 23H20a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0124 23zM20 11h0V21h4V11zM11 15H13V17H11z"
+        />
+        <path
+          d="M14 23H10a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0114 23zM10 11h0V21h4V11zM4 21H6V23H4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render CharacterDecimal icon for numeric 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="numeric"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15H23V17H21z"
+        />
+        <path
+          d="M24 23H20a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0124 23zM20 11h0V21h4V11zM11 15H13V17H11z"
+        />
+        <path
+          d="M14 23H10a2.0023 2.0023 0 01-2-2V11a2.002 2.002 0 012-2h4a2.0023 2.0023 0 012 2V21A2.0027 2.0027 0 0114 23zM10 11h0V21h4V11zM4 21H6V23H4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render StringInteger icon for integer 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="integer"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M26 12H22v2h4v2H23v2h3v2H22v2h4a2.0027 2.0027 0 002-2V14A2.0023 2.0023 0 0026 12zM19 22H13V18a2.002 2.002 0 012-2h2V14H13V12h4a2.0023 2.0023 0 012 2v2a2.0023 2.0023 0 01-2 2H15v2h4zM8 20L8 12 6 12 6 13 4 13 4 15 6 15 6 20 4 20 4 22 10 22 10 20 8 20z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon numeric types should render StringInteger icon for positiveInteger 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="positiveInteger"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M26 12H22v2h4v2H23v2h3v2H22v2h4a2.0027 2.0027 0 002-2V14A2.0023 2.0023 0 0026 12zM19 22H13V18a2.002 2.002 0 012-2h2V14H13V12h4a2.0023 2.0023 0 012 2v2a2.0023 2.0023 0 01-2 2H15v2h4zM8 20L8 12 6 12 6 13 4 13 4 15 6 15 6 20 4 20 4 22 10 22 10 20 8 20z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Array icon for Array type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="Array"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4,5v22c0,1.1.9,2,2,2h4v-2h-4V5h4v-2h-4c-1.1,0-2,.9-2,2ZM26,3h-4v2h4v22h-4v2h4c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Boolean icon for Boolean type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="boolean"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M23,23a7,7,0,1,1,7-7A7.0078,7.0078,0,0,1,23,23Zm0-12a5,5,0,1,0,5,5A5.0055,5.0055,0,0,0,23,11Z"
+        />
+        <circle
+          cx="9"
+          cy="16"
+          r="7"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Document icon for DocumentNode type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="document-node()"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M25.7,9.3l-7-7C18.5,2.1,18.3,2,18,2H8C6.9,2,6,2.9,6,4v24c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V10C26,9.7,25.9,9.5,25.7,9.3 z M18,4.4l5.6,5.6H18V4.4z M24,28H8V4h8v6c0,1.1,0.9,2,2,2h6V28z"
+        />
+        <path
+          d="M10 22H22V24H10zM10 16H22V18H10z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Help icon for anyAtomicType 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="anyAtomicType"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 16 16"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6S11.3,14,8,14z"
+        />
+        <circle
+          cx="8"
+          cy="11.8"
+          r=".8"
+        />
+        <path
+          d="M8.5,4H7.8C6.5,4,5.5,5,5.5,6.2c0,0,0,0,0,0v0.2h1V6.2C6.5,5.6,7.1,5,7.8,5h0.8c0.7,0,1.2,0.6,1.2,1.2S9.2,7.5,8.5,7.5h-1 v2.2h1V8.5c1.2,0,2.2-1,2.2-2.2S9.7,4,8.5,4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Help icon for anyType 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="anyType"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 16 16"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6S11.3,14,8,14z"
+        />
+        <circle
+          cx="8"
+          cy="11.8"
+          r=".8"
+        />
+        <path
+          d="M8.5,4H7.8C6.5,4,5.5,5,5.5,6.2c0,0,0,0,0,0v0.2h1V6.2C6.5,5.6,7.1,5,7.8,5h0.8c0.7,0,1.2,0.6,1.2,1.2S9.2,7.5,8.5,7.5h-1 v2.2h1V8.5c1.2,0,2.2-1,2.2-2.2S9.7,4,8.5,4z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Http icon for AnyURI type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="anyURI"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M30 11H25V21h2V18h3a2.0027 2.0027 0 002-2V13A2.0023 2.0023 0 0030 11zm-3 5V13h3l.001 3zM10 13L12 13 12 21 14 21 14 13 16 13 16 11 10 11 10 13zM23 11L17 11 17 13 19 13 19 21 21 21 21 13 23 13 23 11zM6 11L6 15 3 15 3 11 1 11 1 21 3 21 3 17 6 17 6 21 8 21 8 11 6 11z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon other types should render Object icon for Container type 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="Container"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M6,3h4v2h-4v8c0,1.2002-.5425,2.2661-1.3823,3,.8398.7339,1.3823,1.7998,1.3823,3v8h4v2h-4c-1.103,0-2-.8975-2-2v-8c0-1.1025-.897-2-2-2v-2c1.103,0,2-.8975,2-2V5c0-1.1025.897-2,2-2ZM28,13V5c0-1.1025-.897-2-2-2h-4v2h4v8c0,1.2002.5425,2.2661,1.3823,3-.8398.7339-1.3823,1.7998-1.3823,3v8h-4v2h4c1.103,0,2-.8975,2-2v-8c0-1.1025.897-2,2-2v-2c-1.103,0-2-.8975-2-2Z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything for special types 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="QName"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything for special types 2`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="NCName"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything for special types 3`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="item()"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything for special types 4`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="element()"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything for special types 5`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="node()"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should not render anything missing types 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    />
+  </span>
+</DocumentFragment>
+`;
+
+exports[`FieldIcon should render an icon for known types 1`] = `
+<DocumentFragment>
+  <span
+    class="pf-v6-c-icon"
+    title="string"
+  >
+    <span
+      class="pf-v6-c-icon__content"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 32 32"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M29 22H24a2.0027 2.0027 0 01-2-2V14a2.0023 2.0023 0 012-2h5v2H24v6h5zM18 12H14V8H12V22h6a2.0027 2.0027 0 002-2V14A2.0023 2.0023 0 0018 12zm-4 8V14h4v6zM8 12H3v2H8v2H4a2 2 0 00-2 2v2a2 2 0 002 2h6V14A2.0023 2.0023 0 008 12zm0 8H4V18H8z"
+        />
+      </svg>
+    </span>
+  </span>
+</DocumentFragment>
+`;
