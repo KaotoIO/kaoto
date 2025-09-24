@@ -212,3 +212,11 @@ Cypress.Commands.add('checkDarkMode', () => {
 Cypress.Commands.add('checkLightMode', () => {
   cy.get('html').should('not.have.class', 'pf-v6-theme-dark');
 });
+
+Cypress.Commands.add('DnD', (sourceNodeName: string, targetNodeName: string) => {
+  const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
+  const targetNode = cy.get(`[data-testid="${targetNodeName}"]`);
+
+  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
+  targetNode.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
+});
