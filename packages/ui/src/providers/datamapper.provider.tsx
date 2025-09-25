@@ -185,13 +185,10 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       // Update the document's properties
       DocumentService.renameDocument(document, newName);
 
-      // Create a new map with the updated document
-      const newSourceParameterMap = new Map(sourceParameterMap);
-      newSourceParameterMap.delete(oldName);
-      newSourceParameterMap.set(newName, document);
-
-      // Update the state with the new map
-      setSourceParameterMap(newSourceParameterMap);
+      // Update the sourceParameterMap
+      sourceParameterMap.delete(oldName);
+      sourceParameterMap.set(newName, document);
+      refreshSourceParameters();
 
       // Update mapping tree to reflect the parameter name change
       MappingService.renameParameterInMappings(mappingTree, oldName, newName);
@@ -199,7 +196,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
       onRenameParameter?.(oldName, newName);
     },
-    [sourceParameterMap, mappingTree, refreshMappingTree, onRenameParameter],
+    [sourceParameterMap, refreshSourceParameters, mappingTree, refreshMappingTree, onRenameParameter],
   );
 
   const removeStaleMappings = useCallback(

@@ -17,6 +17,8 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
+import { DocumentService } from '../services/document.service';
+import { MappingService } from '../services/mapping.service';
 
 describe('DataMapperProvider', () => {
   it('should render', async () => {
@@ -85,6 +87,70 @@ describe('DataMapperProvider', () => {
     );
     await waitFor(() => tree);
     expect(tree!.children.length).toEqual(0);
+  });
+
+  it('refreshSourceParameters should re-create the SourceParameters instance', async () => {
+    let initialSourceParameterMap: Map<string, IDocument>;
+    let newSourceParameterMap: Map<string, IDocument>;
+    let done = false;
+    const TestRefreshSourceParameters = () => {
+      const { sourceParameterMap, refreshSourceParameters } = useDataMapper();
+      useEffect(() => {
+        if (done) {
+          newSourceParameterMap = sourceParameterMap;
+        } else {
+          initialSourceParameterMap = sourceParameterMap;
+          initialSourceParameterMap.set('testParam', {} as IDocument);
+          refreshSourceParameters();
+          done = true;
+        }
+      }, [refreshSourceParameters, sourceParameterMap]);
+      return <div data-testid="testdiv"></div>;
+    };
+    render(
+      <DataMapperProvider>
+        <TestRefreshSourceParameters />
+      </DataMapperProvider>,
+    );
+    await screen.findByTestId('testdiv');
+    expect(initialSourceParameterMap!).toBeDefined();
+    expect(newSourceParameterMap!).toBeDefined();
+    expect(initialSourceParameterMap! !== newSourceParameterMap!).toBeTruthy();
+    expect(initialSourceParameterMap!.get('testParam') === newSourceParameterMap!.get('testParam')).toBeTruthy();
+  });
+
+  it('refreshSourceParameters() should update the sourceParameters', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+    // First add a parameter
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+      path: { documentId: 'testParam' },
+      fields: [] as IField[],
+    } as IDocument;
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+    // Verify it was added
+    const originalMap = result.current.sourceParameterMap;
+    expect(originalMap.has('testParam')).toBeTruthy();
+
+    // Update the sourceParameterMap directly to simulate an external change
+    originalMap.delete('testParam');
+    originalMap.set('newTestParam', mockDocument);
+
+    act(() => {
+      result.current.refreshSourceParameters();
+    });
+
+    expect(originalMap.get('newTestParam')).toBeDefined();
+    expect(originalMap.get('testParam')).not.toBeDefined();
   });
 
   it("updateDocument() should also update MappingTree.documentDefinitionType if it's target body", async () => {
@@ -226,6 +292,72 @@ describe('DataMapperProvider', () => {
     });
 
     expect(result.current.sourceParameterMap.has('testParam')).toBeFalsy();
+  });
+
+  it('renameSourceParameter() should renameDocument, renameParameterInMappings, and call onRenameParameter callback(if provided)', async () => {
+    const mockOnRenameParameter = jest.fn();
+    const renameDocSpy = jest.spyOn(DocumentService, 'renameDocument');
+    const renameParameterInMappingsSpy = jest.spyOn(MappingService, 'renameParameterInMappings');
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider onRenameParameter={mockOnRenameParameter}>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    // First add a parameter
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+      path: { documentId: 'testParam' },
+      fields: [] as IField[],
+    } as IDocument;
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+    // Verify it was added
+    expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
+
+    act(() => {
+      result.current.renameSourceParameter('testParam', 'newTestParam');
+    });
+
+    expect(renameDocSpy).toHaveBeenCalledWith(mockDocument, 'newTestParam');
+    expect(renameParameterInMappingsSpy).toHaveBeenCalledWith(result.current.mappingTree, 'testParam', 'newTestParam');
+    expect(mockOnRenameParameter).toHaveBeenCalledWith('testParam', 'newTestParam');
+  });
+
+  it('renameSourceParameter() should rename parameter in the map and mappings', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    // First add a parameter
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+      path: { documentId: 'testParam' },
+      fields: [] as IField[],
+    } as IDocument;
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef);
+    });
+    // Verify it was added
+    expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
+
+    // Then rename it
+    act(() => {
+      result.current.renameSourceParameter('testParam', 'newTestParam');
+    });
+
+    expect(result.current.sourceParameterMap.has('testParam')).toBeFalsy();
+    expect(result.current.sourceParameterMap.has('newTestParam')).toBeTruthy();
   });
 
   it('setSourceParametersExpanded() should update expanded state', async () => {
