@@ -1,14 +1,10 @@
-import { VisualizationService } from './visualization.service';
 import {
-  AddMappingNodeData,
-  DocumentNodeData,
-  FieldItemNodeData,
-  FieldNodeData,
-  MappingNodeData,
-  TargetDocumentNodeData,
-  TargetFieldNodeData,
-  TargetNodeData,
-} from '../models/datamapper/visualization';
+  BODY_DOCUMENT_ID,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  PrimitiveDocument,
+} from '../models/datamapper/document';
 import {
   ChooseItem,
   ExpressionItem,
@@ -20,15 +16,16 @@ import {
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
-import { MappingSerializerService } from './mapping-serializer.service';
 import {
-  BODY_DOCUMENT_ID,
-  DocumentDefinitionType,
-  DocumentType,
-  IDocument,
-  PrimitiveDocument,
-} from '../models/datamapper/document';
+  AddMappingNodeData,
+  DocumentNodeData,
+  FieldItemNodeData,
+  FieldNodeData,
+  MappingNodeData,
+  TargetDocumentNodeData,
+  TargetFieldNodeData,
+  TargetNodeData,
+} from '../models/datamapper/visualization';
 import {
   contactsXsd,
   extensionComplexXsd,
@@ -41,6 +38,9 @@ import {
   shipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
+import { MappingSerializerService } from './mapping-serializer.service';
+import { VisualizationService } from './visualization.service';
+import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -61,6 +61,44 @@ describe('VisualizationService', () => {
   describe('without pre-populated mappings', () => {
     beforeEach(() => {
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    });
+
+    describe('generateNodeDataChildren', () => {
+      it('should generate primitive document children', () => {
+        const primitiveSpy = jest.spyOn(VisualizationService, 'generatePrimitiveDocumentChildren');
+        const structuredSpy = jest.spyOn(VisualizationService, 'generateStructuredDocumentChildren');
+        const nonDocumentSpy = jest.spyOn(VisualizationService, 'generateNonDocumentNodeDataChildren');
+        sourceDocNode.isPrimitive = true;
+        VisualizationService.generateNodeDataChildren(sourceDocNode);
+
+        expect(primitiveSpy).toHaveBeenCalled();
+        expect(structuredSpy).not.toHaveBeenCalled();
+        expect(nonDocumentSpy).not.toHaveBeenCalled();
+      });
+
+      it('should generate structured document children', () => {
+        const primitiveSpy = jest.spyOn(VisualizationService, 'generatePrimitiveDocumentChildren');
+        const structuredSpy = jest.spyOn(VisualizationService, 'generateStructuredDocumentChildren');
+        const nonDocumentSpy = jest.spyOn(VisualizationService, 'generateNonDocumentNodeDataChildren');
+        sourceDocNode.isPrimitive = false;
+        VisualizationService.generateNodeDataChildren(sourceDocNode);
+
+        expect(primitiveSpy).not.toHaveBeenCalled();
+        expect(structuredSpy).toHaveBeenCalled();
+        expect(nonDocumentSpy).not.toHaveBeenCalled();
+      });
+
+      it('should generate non document children', () => {
+        const primitiveSpy = jest.spyOn(VisualizationService, 'generatePrimitiveDocumentChildren');
+        const structuredSpy = jest.spyOn(VisualizationService, 'generateStructuredDocumentChildren');
+        const nonDocumentSpy = jest.spyOn(VisualizationService, 'generateNonDocumentNodeDataChildren');
+
+        VisualizationService.generateNodeDataChildren(new FieldNodeData(sourceDocNode, sourceDoc.fields[0]));
+
+        expect(primitiveSpy).not.toHaveBeenCalled();
+        expect(structuredSpy).not.toHaveBeenCalled();
+        expect(nonDocumentSpy).toHaveBeenCalled();
+      });
     });
 
     describe('testNodePair()', () => {

@@ -10,14 +10,14 @@ type DocumentProps = {
 };
 
 export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) => {
-  const { initialExpandedFieldRank, mappingTree, maxTotalFieldCountToExpandAll } = useDataMapper();
+  const { mappingTree } = useDataMapper();
   const nodeData = new TargetDocumentNodeData(document, mappingTree);
 
   return (
     <TargetDocumentNode
       nodeData={nodeData}
-      expandAll={document.totalFieldCount < maxTotalFieldCountToExpandAll}
-      initialExpandedRank={initialExpandedFieldRank}
+      expandAll={document.totalFieldCount < 100}
+      initialExpandedRank={1}
       rank={0}
     />
   );

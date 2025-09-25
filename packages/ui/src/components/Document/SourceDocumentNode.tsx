@@ -2,12 +2,16 @@ import { At, ChevronDown, ChevronRight, Draggable } from '@carbon/icons-react';
 import { Icon, StackItem } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, useCallback, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { useToggle } from '../../hooks/useToggle';
-import { NodeData, NodeReference } from '../../models/datamapper/visualization';
+import { DocumentTreeNode } from '../../models/datamapper/tree';
+import { NodeReference } from '../../models/datamapper/visualization';
+import { TreeParsingService } from '../../services/tree-parsing.service';
+import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import './Document.scss';
 import { FieldIcon } from './FieldIcon';
@@ -15,19 +19,21 @@ import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
-type DocumentNodeProps = {
-  nodeData: NodeData;
+type TreeSourceNodeProps = {
+  treeNode: DocumentTreeNode;
+  documentId: string;
   isReadOnly: boolean;
-  expandAll: boolean;
-  initialExpandedRank: number;
   rank: number;
 };
 
-export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
-  nodeData,
+/**
+ * Tree-based source node component that uses pre-parsed tree structure
+ * for improved performance with large schemas
+ */
+export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
+  treeNode,
+  documentId,
   isReadOnly,
-  expandAll,
-  initialExpandedRank,
   rank,
 }) => {
   const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
@@ -38,25 +44,24 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
     toggleOff: toggleOffRenamingParameter,
   } = useToggle(false);
 
-  const shouldCollapseByDefault =
-    !expandAll && VisualizationService.shouldCollapseByDefault(nodeData, initialExpandedRank, rank);
-  const [collapsed, setCollapsed] = useState(shouldCollapseByDefault);
+  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
+  const nodeData = treeNode.nodeData;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const hasChildren = VisualizationService.hasChildren(nodeData);
+  const hasChildren = TreeParsingService.canNodeHaveChildren(nodeData);
 
   const handleClickToggle = useCallback(
     (event: MouseEvent) => {
+      event.stopPropagation();
       if (!hasChildren) return;
 
-      setCollapsed(!collapsed);
-      event.stopPropagation();
+      TreeUIService.toggleNode(documentId, treeNode.path);
       reloadNodeReferences();
     },
-    [collapsed, hasChildren, reloadNodeReferences],
+    [hasChildren, documentId, treeNode.path, reloadNodeReferences],
   );
 
-  const children = collapsed ? [] : VisualizationService.generateNodeDataChildren(nodeData);
+  // TODO: Move all this node aspects to the DocumentTree store
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -96,8 +101,8 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
             <section className="node__row" data-draggable={isDraggable}>
               {hasChildren && (
                 <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
-                  {!collapsed && <ChevronDown data-testid={`expand-source-icon-${nodeData.title}`} />}
-                  {collapsed && <ChevronRight data-testid={`collapse-source-icon-${nodeData.title}`} />}
+                  {isExpanded && <ChevronDown data-testid={`expand-source-icon-${nodeData.title}`} />}
+                  {!isExpanded && <ChevronRight data-testid={`collapse-source-icon-${nodeData.title}`} />}
                 </Icon>
               )}
 
@@ -129,7 +134,13 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
               )}
 
               {!isRenamingParameter && (
-                <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+                <NodeTitle
+                  className="node__spacer"
+                  data-rank={rank}
+                  nodeData={nodeData}
+                  isDocument={isDocument}
+                  rank={rank}
+                />
               )}
 
               {!isRenamingParameter && !isReadOnly && isDocument ? (
@@ -145,16 +156,15 @@ export const SourceDocumentNode: FunctionComponent<DocumentNodeProps> = ({
           </NodeContainer>
         </div>
 
-        {hasChildren && !collapsed && (
+        {hasChildren && isExpanded && (
           <div className={clsx({ node__children: !isDocument })}>
-            {children.map((child) => (
+            {treeNode.children.map((childTreeNode) => (
               <SourceDocumentNode
-                nodeData={child}
-                key={child.id}
+                treeNode={childTreeNode}
+                documentId={documentId}
+                key={childTreeNode.path}
                 isReadOnly={isReadOnly}
-                initialExpandedRank={initialExpandedRank}
                 rank={rank + 1}
-                expandAll={expandAll}
               />
             ))}
           </div>

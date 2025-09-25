@@ -1,16 +1,4 @@
-import {
-  MappingNodeData,
-  DocumentNodeData,
-  FieldNodeData,
-  NodeData,
-  SourceNodeDataType,
-  TargetDocumentNodeData,
-  TargetNodeData,
-  TargetFieldNodeData,
-  TargetNodeDataType,
-  FieldItemNodeData,
-  AddMappingNodeData,
-} from '../models/datamapper/visualization';
+import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
   ExpressionItem,
@@ -23,10 +11,22 @@ import {
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
-import { IField, PrimitiveDocument } from '../models/datamapper/document';
-import { MappingService } from './mapping.service';
-import { DocumentService } from './document.service';
+import {
+  AddMappingNodeData,
+  DocumentNodeData,
+  FieldItemNodeData,
+  FieldNodeData,
+  MappingNodeData,
+  NodeData,
+  SourceNodeDataType,
+  TargetDocumentNodeData,
+  TargetFieldNodeData,
+  TargetNodeData,
+  TargetNodeDataType,
+} from '../models/datamapper/visualization';
 import { DocumentUtilService } from './document-util.service';
+import { DocumentService } from './document.service';
+import { MappingService } from './mapping.service';
 
 type MappingNodePairType = {
   sourceNode?: SourceNodeDataType;
@@ -34,15 +34,19 @@ type MappingNodePairType = {
 };
 
 export class VisualizationService {
-  static generateNodeDataChildren(nodeData: NodeData) {
+  static generateNodeDataChildren(nodeData: NodeData): NodeData[] {
     const isDocument = nodeData instanceof DocumentNodeData;
     const isPrimitive = nodeData.isPrimitive;
-    return isDocument
-      ? isPrimitive
-        ? VisualizationService.generatePrimitiveDocumentChildren(nodeData as DocumentNodeData)
-        : VisualizationService.generateStructuredDocumentChildren(nodeData as DocumentNodeData)
-      : VisualizationService.generateNonDocumentNodeDataChildren(nodeData);
+
+    if (isDocument && isPrimitive) {
+      return VisualizationService.generatePrimitiveDocumentChildren(nodeData as DocumentNodeData);
+    } else if (isDocument && !isPrimitive) {
+      return VisualizationService.generateStructuredDocumentChildren(nodeData as DocumentNodeData);
+    } else {
+      return VisualizationService.generateNonDocumentNodeDataChildren(nodeData);
+    }
   }
+
   static generatePrimitiveDocumentChildren(document: DocumentNodeData): NodeData[] {
     if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children
