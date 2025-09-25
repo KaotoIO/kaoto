@@ -48,7 +48,12 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData }>
                 <Icon className="node__spacer">
                   <LayerGroupIcon className="node__add__mapping__icon" />
                 </Icon>
-                <NodeTitle className="node__spacer node__add__mapping__text" nodeData={nodeData} isDocument={false} />
+                <NodeTitle
+                  className="node__spacer node__add__mapping__text"
+                  nodeData={nodeData}
+                  isDocument={false}
+                  rank={0}
+                />
               </span>
 
               <ActionList>

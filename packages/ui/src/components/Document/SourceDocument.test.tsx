@@ -1,9 +1,9 @@
-import { SourceDocument } from './SourceDocument';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { SourceDocument } from './SourceDocument';
 
 describe('SourceDocument', () => {
   it('should render primitive document', async () => {
@@ -50,7 +50,7 @@ describe('SourceDocument', () => {
     expect(await screen.findByText('Country')).toBeInTheDocument();
   });
 
-  it('should render camel-spring.xsd doc till 2nd level', async () => {
+  it('should render camel-spring.xsd doc till 3rd level', async () => {
     const document = TestUtil.createCamelSpringXsdSourceDoc();
     render(
       <DataMapperProvider>
@@ -59,10 +59,15 @@ describe('SourceDocument', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
+
     await waitFor(async () => {
-      const aggregates = await screen.findAllByText('aggregate');
-      expect(aggregates.length).toEqual(2);
+      const aggregate = await screen.findByText('aggregate', { selector: '[data-rank="1"]' });
+      expect(aggregate).toBeInTheDocument();
     });
-    expect(await screen.findByText('correlationExpression')).toBeTruthy();
+
+    await waitFor(async () => {
+      const correlationExpression = await screen.findByText('correlationExpression', { selector: '[data-rank="2"]' });
+      expect(correlationExpression).toBeInTheDocument();
+    });
   }, 15_000);
 });
