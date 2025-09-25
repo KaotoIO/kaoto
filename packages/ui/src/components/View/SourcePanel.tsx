@@ -1,18 +1,18 @@
-import { FunctionComponent } from 'react';
 import {
+  Content,
+  ContentVariants,
   Divider,
   Panel,
   PanelHeader,
   PanelMain,
   Stack,
   StackItem,
-  Content,
-  ContentVariants,
   Truncate,
 } from '@patternfly/react-core';
-import { Parameters } from '../Document/Parameters';
-import { useDataMapper } from '../../hooks/useDataMapper';
+import { FunctionComponent } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
+import { useDataMapper } from '../../hooks/useDataMapper';
+import { Parameters } from '../Document/Parameters';
 import { SourceDocument } from '../Document/SourceDocument';
 import './SourceTargetView.scss';
 

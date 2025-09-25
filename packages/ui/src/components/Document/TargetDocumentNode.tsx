@@ -125,7 +125,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({
                 </Icon>
               )}
 
-              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} />
+              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />
 
               {showNodeActions ? (
                 <TargetNodeActions className="node__target__actions" nodeData={nodeData} onUpdate={handleUpdate} />
