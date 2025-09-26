@@ -7,6 +7,7 @@ import { AttachSchemaButton } from './AttachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
 import { RenameParameterButton } from './RenameParameterButton';
+import { useDataMapper } from '../../../hooks/useDataMapper';
 
 type DocumentActionsProps = {
   className?: string;
@@ -15,8 +16,10 @@ type DocumentActionsProps = {
 };
 
 export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ className, nodeData, onRenameClick }) => {
+  const { mappingTree } = useDataMapper();
   const documentType = nodeData.document.documentType;
   const documentId = nodeData.document.documentId;
+  const documentReferenceId = nodeData.document.getReferenceId(mappingTree.namespaceMap);
   const handleStopPropagation = useCallback((event: MouseEvent) => {
     event.stopPropagation();
   }, []);
@@ -28,10 +31,19 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ class
       className={className}
     >
       <ActionListItem>
-        <AttachSchemaButton documentType={documentType} documentId={documentId} hasSchema={!nodeData.isPrimitive} />
+        <AttachSchemaButton
+          documentType={documentType}
+          documentId={documentId}
+          documentReferenceId={documentReferenceId}
+          hasSchema={!nodeData.isPrimitive}
+        />
       </ActionListItem>
       <ActionListItem>
-        <DetachSchemaButton documentType={documentType} documentId={documentId} />
+        <DetachSchemaButton
+          documentType={documentType}
+          documentId={documentId}
+          documentReferenceId={documentReferenceId}
+        />
       </ActionListItem>
       {documentType === DocumentType.PARAM && (
         <>
@@ -39,7 +51,7 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ class
             <RenameParameterButton parameterName={documentId} onRenameClick={onRenameClick} />
           </ActionListItem>
           <ActionListItem>
-            <DeleteParameterButton parameterName={documentId} />
+            <DeleteParameterButton parameterName={documentId} parameterReferenceId={documentReferenceId} />
           </ActionListItem>
         </>
       )}

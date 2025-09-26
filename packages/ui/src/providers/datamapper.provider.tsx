@@ -53,7 +53,7 @@ export interface IDataMapperContext {
   targetBodyDocument: IDocument;
   setTargetBodyDocument: (doc: IDocument) => void;
   setNewDocument: (documentType: DocumentType, documentId: string, document: IDocument) => void;
-  updateDocument: (document: IDocument, definition: DocumentDefinition) => void;
+  updateDocument: (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => void;
 
   isSourceParametersExpanded: boolean;
   setSourceParametersExpanded: (expanded: boolean) => void;
@@ -144,6 +144,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Update mapping tree when target document changes
+  useEffect(() => {
+    refreshMappingTree();
+  }, [targetBodyDocument]);
+
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
   }, [sourceParameterMap]);
@@ -200,7 +205,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   );
 
   const removeStaleMappings = useCallback(
-    (documentType: DocumentType, documentId: string, newDocument: IDocument) => {
+    (documentType: DocumentType, documentId: string, newDocument: IDocument, documentReferenceId: string) => {
       let isFromPrimitive: boolean;
       switch (documentType) {
         case DocumentType.SOURCE_BODY:
@@ -215,7 +220,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       const isToPrimitive = newDocument instanceof PrimitiveDocument;
       const cleaned =
         isFromPrimitive || isToPrimitive
-          ? MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId)
+          ? MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentReferenceId)
           : MappingService.removeStaleMappingsForDocument(mappingTree, newDocument);
       setMappingTree(cleaned);
     },
@@ -230,7 +235,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
         case DocumentType.TARGET_BODY:
           setTargetBodyDocument(newDocument);
-          mappingTree.documentDefinitionType = newDocument.definitionType;
           break;
         case DocumentType.PARAM:
           sourceParameterMap!.set(documentId, newDocument);
@@ -238,16 +242,21 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
       }
     },
-    [mappingTree, refreshSourceParameters, sourceParameterMap],
+    [refreshSourceParameters, sourceParameterMap],
   );
 
   const updateDocument = useCallback(
-    (document: IDocument, definition: DocumentDefinition) => {
-      removeStaleMappings(document.documentType, document.documentId, document);
+    (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => {
+      /** For removing stale mappings when the document structure has changed, we need to know the previous
+       * documentReferenceId. This is especially important for JSON Schema where the documentId and documentReferenceId
+       * can be different.
+       */
+      removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
       setNewDocument(document.documentType, document.documentId, document);
-      onUpdateDocument && onUpdateDocument(definition);
+      refreshMappingTree();
+      onUpdateDocument?.(definition);
     },
-    [onUpdateDocument, removeStaleMappings, setNewDocument],
+    [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
   );
 
   const sendAlert = useCallback(

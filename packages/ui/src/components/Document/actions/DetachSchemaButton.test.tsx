@@ -30,7 +30,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTest>
-            <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.SOURCE_BODY} />
+            <DetachSchemaButton
+              documentId={BODY_DOCUMENT_ID}
+              documentType={DocumentType.SOURCE_BODY}
+              documentReferenceId="ShipOrder.xsd"
+            />
           </DetachTest>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
@@ -53,7 +57,11 @@ describe('DetachSchemaButton', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.SOURCE_BODY} />
+          <DetachSchemaButton
+            documentId={BODY_DOCUMENT_ID}
+            documentType={DocumentType.SOURCE_BODY}
+            documentReferenceId="test"
+          />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
@@ -92,7 +100,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTestParam>
-            <DetachSchemaButton documentId="testParam" documentType={DocumentType.PARAM} />
+            <DetachSchemaButton
+              documentId="testParam"
+              documentType={DocumentType.PARAM}
+              documentReferenceId="testParam"
+            />
           </DetachTestParam>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
@@ -127,7 +139,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTestTarget>
-            <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.TARGET_BODY} />
+            <DetachSchemaButton
+              documentId={BODY_DOCUMENT_ID}
+              documentType={DocumentType.TARGET_BODY}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DetachTestTarget>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
@@ -167,7 +183,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTestError>
-            <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.SOURCE_BODY} />
+            <DetachSchemaButton
+              documentId={BODY_DOCUMENT_ID}
+              documentType={DocumentType.SOURCE_BODY}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DetachTestError>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
@@ -211,7 +231,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTestWarning>
-            <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.SOURCE_BODY} />
+            <DetachSchemaButton
+              documentId={BODY_DOCUMENT_ID}
+              documentType={DocumentType.SOURCE_BODY}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DetachTestWarning>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
@@ -256,7 +280,11 @@ describe('DetachSchemaButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <DetachTestMissing>
-            <DetachSchemaButton documentId={BODY_DOCUMENT_ID} documentType={DocumentType.SOURCE_BODY} />
+            <DetachSchemaButton
+              documentId={BODY_DOCUMENT_ID}
+              documentType={DocumentType.SOURCE_BODY}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DetachTestMissing>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,

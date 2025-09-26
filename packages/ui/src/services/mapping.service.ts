@@ -76,10 +76,7 @@ export class MappingService {
   ) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentId);
-      if (
-        child instanceof ExpressionItem &&
-        MappingService.hasStaleSourceDocument(child.expression as string, documentType, documentId)
-      ) {
+      if (child instanceof ExpressionItem && MappingService.hasStaleSourceDocument(child, documentType, documentId)) {
         return acc;
       }
       if (child instanceof FieldItem && child.children.length === 0) return acc;
@@ -88,8 +85,12 @@ export class MappingService {
     }, [] as MappingItem[]);
   }
 
-  private static hasStaleSourceDocument(expression: string, documentType: DocumentType, documentId: string) {
-    const stalePath = XPathService.extractFieldPaths(expression).find((xpath) => {
+  private static hasStaleSourceDocument(
+    expressionItem: ExpressionItem,
+    documentType: DocumentType,
+    documentId: string,
+  ) {
+    const stalePath = XPathService.extractFieldPaths(expressionItem.expression).find((xpath) => {
       return (
         (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
         (documentType === DocumentType.PARAM && xpath.documentReferenceName === documentId)

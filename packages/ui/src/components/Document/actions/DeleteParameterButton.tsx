@@ -10,17 +10,22 @@ import { DocumentType } from '../../../models/datamapper/document';
 
 type DeleteParameterProps = {
   parameterName: string;
+  parameterReferenceId: string;
 };
 
-export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({ parameterName }) => {
-  const { mappingTree, setMappingTree, deleteSourceParameter } = useDataMapper();
+export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
+  parameterName,
+  parameterReferenceId,
+}) => {
+  const { mappingTree, setMappingTree, refreshMappingTree, deleteSourceParameter } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterName);
+    const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterReferenceId);
     setMappingTree(cleaned);
     deleteSourceParameter(parameterName);
+    refreshMappingTree();
     clearNodeReferencesForDocument(DocumentType.PARAM, parameterName);
     reloadNodeReferences();
     closeModal();
@@ -30,6 +35,8 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
     deleteSourceParameter,
     mappingTree,
     parameterName,
+    parameterReferenceId,
+    refreshMappingTree,
     reloadNodeReferences,
     setMappingTree,
   ]);

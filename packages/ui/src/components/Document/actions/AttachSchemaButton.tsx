@@ -52,12 +52,14 @@ import { DocumentService } from '../../../services/document.service';
 type AttachSchemaProps = {
   documentType: DocumentType;
   documentId: string;
+  documentReferenceId: string;
   hasSchema?: boolean;
 };
 
 export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   documentType,
   documentId,
+  documentReferenceId,
   hasSchema = false,
 }) => {
   const api = useContext(MetadataContext)!;
@@ -156,7 +158,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
     setIsLoading(true);
     try {
-      updateDocument(createDocumentResult.document, createDocumentResult.documentDefinition);
+      updateDocument(createDocumentResult.document, createDocumentResult.documentDefinition, documentReferenceId);
       clearNodeReferencesForDocument(documentType, documentId);
       reloadNodeReferences();
       /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -177,6 +179,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setIsLoading,
     updateDocument,
     createDocumentResult,
+    documentReferenceId,
   ]);
 
   const onCancel = useCallback(() => {

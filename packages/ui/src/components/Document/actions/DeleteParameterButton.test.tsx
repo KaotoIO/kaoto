@@ -24,7 +24,7 @@ describe('DeleteParameterButton', () => {
       <DataMapperProvider>
         <DataMapperCanvasProvider>
           <ParamTest>
-            <DeleteParameterButton parameterName="testparam1" />
+            <DeleteParameterButton parameterName="testparam1" parameterReferenceId="testparam1" />
           </ParamTest>
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
