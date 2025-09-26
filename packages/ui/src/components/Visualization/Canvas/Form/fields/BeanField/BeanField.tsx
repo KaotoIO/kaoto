@@ -23,11 +23,32 @@ export const UnprefixedBeanField: FunctionComponent<FieldProps> = ({ propName, r
   <BeanFieldBase propName={propName} required={required} shouldPrefixBeanName={false} />
 );
 
+export const DataSourceBeanField: FunctionComponent<FieldProps> = ({ propName, required }) => (
+  <BeanFieldBase
+    propName={propName}
+    required={required}
+    shouldPrefixBeanName={false}
+    isDataSource
+    defaultItems={[
+      { name: 'default', value: 'default' },
+      { name: 'dataSource', value: 'dataSource' },
+    ]}
+  />
+);
+
 interface BeanFieldProps extends FieldProps {
   shouldPrefixBeanName: boolean;
+  isDataSource?: boolean;
+  defaultItems?: TypeaheadItem<string>[];
 }
 
-const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({ propName, required, shouldPrefixBeanName }) => {
+const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
+  propName,
+  required,
+  shouldPrefixBeanName,
+  isDataSource = false,
+  defaultItems,
+}) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   const entitiesContext = useContext(EntitiesContext);
@@ -40,13 +61,18 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({ propName, required, 
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
 
   const items = useMemo(() => {
-    return (
-      beansHandler.getAllBeansNameAndType().map((item) => ({
-        name: shouldPrefixBeanName ? beansHandler.getReferenceFromName(item.name) : item.name,
-        description: String(item.type),
-        value: String(item.name),
-      })) ?? []
-    );
+    const beanItems =
+      beansHandler
+        .getAllBeansNameAndType()
+        .filter((item) => !isDataSource || item.type.includes('DataSource'))
+        .map((item) => ({
+          name: shouldPrefixBeanName ? beansHandler.getReferenceFromName(item.name) : item.name,
+          description: String(item.type),
+          value: String(item.name),
+        })) ?? [];
+
+    return [...(defaultItems ?? []), ...beanItems];
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beansHandler, lastUpdated]);
 
