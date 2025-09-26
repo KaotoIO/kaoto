@@ -218,8 +218,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           ? MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentId)
           : MappingService.removeStaleMappingsForDocument(mappingTree, newDocument);
       setMappingTree(cleaned);
+      refreshMappingTree();
     },
-    [mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument],
+    [mappingTree, refreshMappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument],
   );
 
   const setNewDocument = useCallback(
