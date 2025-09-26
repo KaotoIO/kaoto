@@ -135,7 +135,7 @@ describe('DataMapperProvider', () => {
       fields: [] as IField[],
     } as IDocument;
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'testParam');
     });
     // Verify it was added
     const originalMap = result.current.sourceParameterMap;
@@ -176,7 +176,7 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current!.updateDocument(mockDocument, docDef);
+      result.current!.updateDocument(mockDocument, docDef, 'test');
     });
 
     await waitFor(() => {
@@ -200,7 +200,7 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
 
     expect(result.current.sourceBodyDocument).toEqual(mockDocument);
@@ -222,11 +222,34 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
 
     expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
     expect(result.current.sourceParameterMap.get('testParam')).toEqual(mockDocument);
+  });
+
+  it('updateDocument() should call onUpdateDocument callback if provided', async () => {
+    const mockOnUpdateDocument = jest.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider onUpdateDocument={mockOnUpdateDocument}>{children}</DataMapperProvider>
+    );
+
+    const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+    const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam', {});
+
+    const mockDocument = {
+      documentType: DocumentType.PARAM,
+      documentId: 'testParam',
+      definitionType: DocumentDefinitionType.Primitive,
+    } as IDocument;
+
+    act(() => {
+      result.current.updateDocument(mockDocument, docDef, 'test');
+    });
+
+    expect(mockOnUpdateDocument).toHaveBeenCalledWith(docDef);
   });
 
   it('sendAlert() should add alert to alerts array', async () => {
@@ -281,7 +304,7 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
 
     expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
@@ -315,7 +338,7 @@ describe('DataMapperProvider', () => {
       fields: [] as IField[],
     } as IDocument;
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
     // Verify it was added
     expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
@@ -346,7 +369,7 @@ describe('DataMapperProvider', () => {
       fields: [] as IField[],
     } as IDocument;
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
     // Verify it was added
     expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
@@ -401,7 +424,7 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current.updateDocument(mockDocument, docDef);
+      result.current.updateDocument(mockDocument, docDef, 'test');
     });
 
     expect(mockOnUpdateDocument).toHaveBeenCalledWith(docDef);
@@ -424,7 +447,7 @@ describe('DataMapperProvider', () => {
     } as IDocument;
 
     act(() => {
-      result.current!.updateDocument(mockDocument, docDef);
+      result.current!.updateDocument(mockDocument, docDef, 'test');
     });
 
     // MappingTree documentDefinitionType should remain unchanged for source documents

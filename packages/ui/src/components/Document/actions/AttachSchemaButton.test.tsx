@@ -39,7 +39,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -66,6 +70,7 @@ describe('AttachSchemaButton', () => {
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
+              documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -95,6 +100,7 @@ describe('AttachSchemaButton', () => {
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
+              documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -137,6 +143,7 @@ describe('AttachSchemaButton', () => {
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
+              documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -176,7 +183,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -217,7 +228,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -259,7 +274,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -296,7 +315,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -335,7 +358,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -377,7 +404,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -421,7 +452,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -466,7 +501,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -496,7 +535,11 @@ describe('AttachSchemaButton', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+            <AttachSchemaButton
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+            />
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -535,7 +578,11 @@ describe('AttachSchemaButton', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <DataMapperCanvasProvider>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+              <AttachSchemaButton
+                documentType={DocumentType.SOURCE_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+              />
             </DataMapperCanvasProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
@@ -590,7 +637,11 @@ describe('AttachSchemaButton', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <DataMapperCanvasProvider>
-              <AttachSchemaButton documentType={DocumentType.SOURCE_BODY} documentId={BODY_DOCUMENT_ID} />
+              <AttachSchemaButton
+                documentType={DocumentType.SOURCE_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+              />
             </DataMapperCanvasProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
@@ -641,7 +692,11 @@ describe('AttachSchemaButton', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <DataMapperCanvasProvider>
-              <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+              <AttachSchemaButton
+                documentType={DocumentType.TARGET_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+              />
             </DataMapperCanvasProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
@@ -697,7 +752,13 @@ describe('AttachSchemaButton', () => {
 
       const TestComponent = () => {
         dataMapperContext = useDataMapper();
-        return <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />;
+        return (
+          <AttachSchemaButton
+            documentType={DocumentType.TARGET_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+          />
+        );
       };
 
       render(
@@ -767,7 +828,11 @@ describe('AttachSchemaButton', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <DataMapperCanvasProvider>
-              <AttachSchemaButton documentType={DocumentType.TARGET_BODY} documentId={BODY_DOCUMENT_ID} />
+              <AttachSchemaButton
+                documentType={DocumentType.TARGET_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+              />
             </DataMapperCanvasProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,

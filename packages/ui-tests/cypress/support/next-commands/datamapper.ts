@@ -35,6 +35,11 @@ Cypress.Commands.add('addParameter', (name: string) => {
   cy.get('[data-testid="new-parameter-submit-btn"]').click();
 });
 
+Cypress.Commands.add('deleteParameter', (name: string) => {
+  cy.get(`[data-testid="delete-parameter-${name}-button"]`).click();
+  cy.get('[data-testid="delete-parameter-modal-confirm-btn"]').click();
+});
+
 Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) => {
   cy.get(`[data-testid="attach-schema-param-${name}-button"]`).click();
   if (filePath.endsWith('json')) {
@@ -53,6 +58,11 @@ Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) =
   }
 
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
+});
+
+Cypress.Commands.add('detachParameterSchema', (name: string) => {
+  cy.get(`[data-testid="detach-schema-param-${name}-button"]`).click();
+  cy.get('[data-testid="detach-schema-modal-confirm-btn"]').click();
 });
 
 Cypress.Commands.add('importMappings', (filePath: string) => {

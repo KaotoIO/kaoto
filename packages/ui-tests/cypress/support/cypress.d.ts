@@ -152,7 +152,9 @@ declare global {
       attachSourceBodySchema(filePath: string): Chainable<JQuery<Element>>;
       attachTargetBodySchema(filePath: string): Chainable<JQuery<Element>>;
       addParameter(name: string): Chainable<JQuery<Element>>;
+      deleteParameter(name: string): Chainable<JQuery<Element>>;
       attachParameterSchema(name: string, filePath: string): Chainable<JQuery<Element>>;
+      detachParameterSchema(name: string): Chainable<JQuery<Element>>;
       importMappings(filePath: string): Chainable<JQuery<Element>>;
       exportMappings(): Chainable<JQuery<Element>>;
       closeExportMappingsModal(): Chainable<JQuery<Element>>;

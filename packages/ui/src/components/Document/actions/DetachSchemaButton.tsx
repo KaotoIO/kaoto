@@ -26,9 +26,14 @@ import { DocumentService } from '../../../services/document.service';
 type DeleteSchemaProps = {
   documentType: DocumentType;
   documentId: string;
+  documentReferenceId: string;
 };
 
-export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ documentType, documentId }) => {
+export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
+  documentType,
+  documentId,
+  documentReferenceId,
+}) => {
   const { sendAlert, updateDocument } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
 
@@ -43,7 +48,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
     } else if (!result.documentDefinition || !result.document) {
       sendAlert({ variant: AlertVariant.danger, title: 'Could not detach schema' });
     } else {
-      updateDocument(result.document, result.documentDefinition);
+      updateDocument(result.document, result.documentDefinition, documentReferenceId);
       clearNodeReferencesForDocument(documentType, documentId);
       reloadNodeReferences();
     }
@@ -55,6 +60,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({ docum
     closeModal,
     sendAlert,
     updateDocument,
+    documentReferenceId,
     clearNodeReferencesForDocument,
     reloadNodeReferences,
   ]);

@@ -66,6 +66,28 @@ describe('MappingService', () => {
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'sourceParam1');
       expect(tree.children.length).toEqual(1);
     });
+
+    it('should remove mappings related to the removed param in case of XML schema', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+      expect(tree.children.length).toEqual(1);
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart');
+      expect(tree.children.length).toEqual(0);
+    });
+
+    it('should remove mappings related to the removed param in case of JSON schema', () => {
+      const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
+      paramsMap = TestUtil.createJSONParameterMap();
+      tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId);
+      MappingSerializerService.deserialize(conditionalMappingsToShipOrderJsonXslt, targetJSONDoc, tree, paramsMap);
+
+      expect(tree.children.length).toEqual(1);
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
+      expect(tree.children[0].children.length).toEqual(0);
+    });
   });
 
   describe('renameParameterInMappings()', () => {

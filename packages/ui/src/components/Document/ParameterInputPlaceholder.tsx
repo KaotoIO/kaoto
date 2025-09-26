@@ -51,7 +51,7 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
       } else if (!result.documentDefinition || !result.document) {
         sendAlert({ variant: AlertVariant.danger, title: 'Could not create a parameter' });
       } else {
-        updateDocument(result.document, result.documentDefinition);
+        updateDocument(result.document, result.documentDefinition, newParameterName);
       }
     }
 

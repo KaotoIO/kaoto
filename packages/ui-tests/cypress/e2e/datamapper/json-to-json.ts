@@ -122,4 +122,102 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
     cy.countMappingLines(12);
   });
+
+  it('attach parameter schema, engage mappings, detach parameter schema', () => {
+    cy.openDataMapper();
+    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.addParameter('Account');
+    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-AccountId'],
+      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      "$Account-x/xf:map/xf:string[@key='AccountId']",
+    );
+
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-Name'],
+      ['node-target-fj-map', 'node-target-fj-string-OrderPerson'],
+      "$Account-x/xf:map/xf:string[@key='Name']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-Name'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
+      "$Account-x/xf:map/xf:string[@key='Name']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Street']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='City']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='State']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Country']",
+    );
+
+    cy.countMappingLines(7);
+
+    cy.detachParameterSchema('Account');
+    cy.countMappingLines(0);
+  });
+
+  it('attach parameter schema, engage mappings, delete parameter', () => {
+    cy.openDataMapper();
+    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.addParameter('Account');
+    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-AccountId'],
+      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      "$Account-x/xf:map/xf:string[@key='AccountId']",
+    );
+
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-Name'],
+      ['node-target-fj-map', 'node-target-fj-string-OrderPerson'],
+      "$Account-x/xf:map/xf:string[@key='Name']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-string-Name'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
+      "$Account-x/xf:map/xf:string[@key='Name']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Street']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='City']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='State']",
+    );
+    cy.engageMapping(
+      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
+      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
+      "$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Country']",
+    );
+
+    cy.countMappingLines(7);
+
+    cy.deleteParameter('Account');
+    cy.countMappingLines(0);
+  });
 });
