@@ -1,5 +1,5 @@
 import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
-import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
@@ -10,6 +10,8 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
     return PrefixedBeanField;
   } else if (schema.type === 'string' && schema.title === 'Ref') {
     return UnprefixedBeanField;
+  } else if (schema.type === 'string' && schema.title?.includes('Data Source')) {
+    return DataSourceBeanField;
   } else if (schema.format === 'expression' || schema.format === 'expressionProperty') {
     return ExpressionField;
   }

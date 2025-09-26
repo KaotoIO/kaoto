@@ -12,7 +12,7 @@ import { DocumentationService } from '../../../../../../services/documentation.s
 import { TestProvidersWrapper } from '../../../../../../stubs';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { IVisibleFlows, ROOT_PATH } from '../../../../../../utils';
-import { PrefixedBeanField, UnprefixedBeanField } from './BeanField';
+import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField';
 
 describe('BeanField', () => {
   let onPropertyChangeSpy: jest.Mock;
@@ -531,6 +531,163 @@ describe('BeanField', () => {
       const anotherBeanOption = beanOptions.find((option) => option.textContent?.includes('anotherBean'));
       expect(anotherBeanOption).toHaveTextContent('anotherBean');
       expect(anotherBeanOption).not.toHaveTextContent('#anotherBean');
+    });
+  });
+
+  describe('DataSourceBeanField', () => {
+    let onPropertyChangeSpy: jest.Mock;
+    let formPageObject: KaotoFormPageObject;
+
+    const dataSourceSchema: KaotoSchemaDefinition['schema'] = { title: 'Data Source', type: 'string' };
+
+    beforeEach(async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+      onPropertyChangeSpy = jest.fn();
+      cleanup();
+    });
+
+    it('should include default items in dropdown options', async () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              <DataSourceBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+
+      const beanOptions = screen.getAllByRole('option');
+
+      // Should have default items plus create new option
+      expect(beanOptions).toHaveLength(3);
+      expect(beanOptions[0]).toHaveTextContent('default');
+      expect(beanOptions[1]).toHaveTextContent('dataSource');
+      expect(beanOptions[2]).toHaveTextContent('Create new bean');
+    });
+
+    it('should allow selection of default items', async () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              <DataSourceBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.selectTypeaheadItem('default');
+
+      expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'default');
+    });
+
+    it('should filter beans to only show DataSource types', async () => {
+      const { Provider } = TestProvidersWrapper();
+
+      // First create regular bean and DataSource bean
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+              <UnprefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      let formPageObject = new KaotoFormPageObject(screen, act);
+
+      // Create regular bean
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.inputText('Data Source', 'regularBean');
+      await formPageObject.selectTypeaheadItem('create-new-with-name');
+      await formPageObject.inputText('Type', 'io.kaoto.test.RegularBean');
+
+      let createButton = screen.getAllByRole('button').filter((b) => b.textContent === 'Create')[0];
+      await act(async () => {
+        fireEvent.click(createButton);
+      });
+
+      cleanup();
+
+      // Create DataSource bean
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+              <UnprefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.inputText('Data Source', 'dataSourceBean');
+      await formPageObject.selectTypeaheadItem('create-new-with-name');
+      await formPageObject.inputText('Type', 'javax.sql.DataSource');
+
+      createButton = screen.getAllByRole('button').filter((b) => b.textContent === 'Create')[0];
+      await act(async () => {
+        fireEvent.click(createButton);
+      });
+
+      cleanup();
+
+      // Now test DataSourceBeanField only shows DataSource beans
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              <DataSourceBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+
+      const beanOptions = screen.getAllByRole('option');
+
+      // Should have: default, dataSource, dataSourceBean, Create new bean
+      expect(beanOptions).toHaveLength(4);
+      expect(beanOptions.find((option) => option.textContent?.includes('dataSourceBean'))).toBeDefined();
+      expect(beanOptions.find((option) => option.textContent?.includes('regularBean'))).toBeUndefined();
+    });
+
+    it('should show new bean modal when creating DataSource bean', async () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <SchemaProvider schema={dataSourceSchema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              <DataSourceBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+
+      formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.inputText('Data Source', 'MY_DATASOURCE');
+      await formPageObject.selectTypeaheadItem('create-new-with-name');
+
+      const beanModal = screen.getByTestId('NewBeanModal-MY_DATASOURCE');
+      expect(beanModal).toBeInTheDocument();
     });
   });
 });
