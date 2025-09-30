@@ -102,8 +102,12 @@ const AncestorOrSelf = createToken({ name: 'AncestorOrSelf', pattern: /ancestor-
 const Ancestor = createToken({ name: 'Ancestor', pattern: /ancestor/, longer_alt: NCName });
 const PrecedingSibling = createToken({ name: 'PrecedingSibling', pattern: /preceding-sibling/, longer_alt: NCName });
 const Preceding = createToken({ name: 'Preceding', pattern: /preceding/, longer_alt: NCName });
-const ContextItemExpr = createToken({ name: 'ContextItemExpr', pattern: /\./, longer_alt: DecimalLiteral });
 const AbbrevReverseStep = createToken({ name: 'AbbrevReverseStep', pattern: /\.\./ });
+const ContextItemExpr = createToken({
+  name: 'ContextItemExpr',
+  pattern: /\./,
+  longer_alt: [AbbrevReverseStep, DecimalLiteral],
+});
 const At = createToken({ name: 'At', pattern: /@/ });
 const LSquare = createToken({ name: 'LSquare', pattern: /\[/ });
 const RSquare = createToken({ name: 'RSquare', pattern: /]/ });

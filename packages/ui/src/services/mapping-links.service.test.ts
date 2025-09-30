@@ -1,8 +1,11 @@
 import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 import { MappingLinksService } from './mapping-links.service';
 import {
+  contactsXsd,
   invoice850Xsd,
   message837Xsd,
+  orgToContactsXslt,
+  orgXsd,
   shipOrderJsonSchema,
   shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderMultipleForEachXslt,
@@ -145,6 +148,41 @@ describe('MappingLinksService', () => {
       );
       tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(shipOrderToShipOrderXslt, jsonTargetDoc, tree, paramsMap);
+    });
+
+    it('should generate mapping links for parent references', () => {
+      const orgSourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        'Org.xsd',
+        orgXsd,
+      );
+      const contactsTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.TARGET_BODY,
+        'Contacts.xsd',
+        contactsXsd,
+      );
+
+      tree = new MappingTree(contactsTargetDoc.documentType, contactsTargetDoc.documentId);
+      MappingSerializerService.deserialize(orgToContactsXslt, contactsTargetDoc, tree, paramsMap);
+
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, orgSourceDoc);
+
+      expect(links.length).toBeGreaterThan(0);
+
+      const orgNameLink = links.find(
+        (link) => link.sourceNodePath.includes('Name') && link.targetNodePath.includes('OrgName'),
+      );
+      expect(orgNameLink).toBeDefined();
+
+      const personNameLink = links.find(
+        (link) => link.sourceNodePath.includes('Name') && link.targetNodePath.includes('PersonName'),
+      );
+      expect(personNameLink).toBeDefined();
+
+      const emailLink = links.find(
+        (link) => link.sourceNodePath.includes('Email') && link.targetNodePath.includes('Email'),
+      );
+      expect(emailLink).toBeDefined();
     });
   });
 

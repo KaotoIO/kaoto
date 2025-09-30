@@ -92,6 +92,10 @@ export const conditionalMappingsToShipOrderJsonXslt = fs
   .readFileSync(path.resolve(__dirname, './json/ConditionalMappingsToShipOrderJson.xsl'))
   .toString();
 
+export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
+export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
+export const orgToContactsXslt = fs.readFileSync(path.resolve(__dirname, './xml/OrgToContacts.xsl')).toString();
+
 export class TestUtil {
   static createSourceOrderDoc() {
     return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', shipOrderXsd);

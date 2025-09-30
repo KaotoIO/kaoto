@@ -3,7 +3,7 @@ import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { FunctionGroup } from './xpath-parser';
-import { PathExpression } from '../../models/datamapper';
+import { PathExpression, PathSegment } from '../../models/datamapper';
 
 describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
@@ -116,6 +116,17 @@ describe('XPathService', () => {
         'DoubleLiteral',
       ]) as any;
       expect(literalNode.image).toEqual('4268.22752E11');
+    });
+
+    it('should parse xpath with relative parent reference inside for-each', () => {
+      const result = XPathService.parse('../Name');
+      expect(result.lexErrors.length).toEqual(0);
+      expect(result.parseErrors.length).toEqual(0);
+      expect(result.cst).toBeDefined();
+      const result2 = XPathService.parse('../../Name');
+      expect(result2.lexErrors.length).toEqual(0);
+      expect(result2.parseErrors.length).toEqual(0);
+      expect(result2.cst).toBeDefined();
     });
   });
 
@@ -241,6 +252,41 @@ describe('XPathService', () => {
       const mainPath = paths.find((p) => p.pathSegments.length === 1 && p.pathSegments[0].name === 'Sub');
       expect(mainPath).toBeDefined();
       expect(mainPath?.pathSegments[0].predicates.length).toEqual(1);
+    });
+
+    it('extract field paths with relative parent reference', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments = [new PathSegment('Org', false), new PathSegment('Person'), new PathSegment('Emails')];
+      const paths = XPathService.extractFieldPaths('../Name', contextPath);
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[1].name).toEqual('Name');
+
+      const paths2 = XPathService.extractFieldPaths('../../Name', contextPath);
+      expect(paths2.length).toEqual(1);
+      expect(paths2[0].isRelative).toBeTruthy();
+      expect(paths2[0].pathSegments.length).toEqual(3);
+      expect(paths2[0].pathSegments[2].name).toEqual('Name');
+    });
+
+    it('extract field path with ContextItemExpr (.)', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments = [new PathSegment('Org', false), new PathSegment('Person'), new PathSegment('Email')];
+      const paths = XPathService.extractFieldPaths('.', contextPath);
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeFalsy();
+      expect(paths[0].pathSegments.length).toEqual(3);
+      expect(paths[0].pathSegments[2].name).toEqual('Email');
+    });
+
+    it('should generate context item expression for empty relative path', () => {
+      const emptyRelativePath = new PathExpression();
+      emptyRelativePath.isRelative = true;
+      emptyRelativePath.pathSegments = [];
+
+      const xpathString = XPathService.toXPathString(emptyRelativePath);
+      expect(xpathString).toEqual('.');
     });
   });
 

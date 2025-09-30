@@ -165,6 +165,13 @@ export class XPathService {
   }
 
   private static extractSegmentFromStepExpr(stepExpr: CstElement): PathSegment | undefined {
+    const relativeParent = XPathService.getSingleNode(stepExpr, ['ReverseStep', 'AbbrevReverseStep']);
+    if (relativeParent && 'image' in relativeParent) {
+      const predicateList = XPathService.getSingleNode(stepExpr, ['PredicateList']);
+      const predicates = XPathService.extractPredicates(predicateList);
+      return new PathSegment('..', false, '', predicates);
+    }
+
     const isAttribute = !!('children' in stepExpr && stepExpr.children['At']);
     const nameTest = XPathService.getSingleNode(stepExpr, ['NodeTest', 'NameTest']);
     if (!nameTest || !('children' in nameTest)) return;
@@ -275,7 +282,7 @@ export class XPathService {
         const existing = acc.find((comp) => XPathService.matchPath(comp, pathObj));
         !existing && acc.push(pathObj);
       } else if ('image' in node && node.image === '.') {
-        const pathObj = new PathExpression();
+        const pathObj = contextPath ?? new PathExpression();
         acc.push(pathObj);
       }
       return acc;
@@ -450,6 +457,10 @@ export class XPathService {
    * @param pathExpression
    */
   static toXPathString(pathExpression: PathExpression): string {
+    if (pathExpression.isRelative && pathExpression.pathSegments.length === 0) {
+      return '.';
+    }
+
     let prefix = '';
     if (!pathExpression.isRelative) {
       prefix = pathExpression.documentReferenceName ? `$${pathExpression.documentReferenceName}` : '/';
@@ -509,6 +520,22 @@ export class XPathService {
       targetParentPath = targetParentPath.contextPath;
     }
 
+    answer.pathSegments = XPathService.handleParentReferences(answer.pathSegments);
+
     return answer;
+  }
+
+  private static handleParentReferences(pathSegments: PathSegment[]): PathSegment[] {
+    const processedSegments: PathSegment[] = [];
+    for (const segment of pathSegments) {
+      if (segment.name === '..') {
+        if (processedSegments.length > 0) {
+          processedSegments.pop();
+        }
+      } else {
+        processedSegments.push(segment);
+      }
+    }
+    return processedSegments;
   }
 }
