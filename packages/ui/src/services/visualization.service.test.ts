@@ -492,7 +492,7 @@ describe('VisualizationService', () => {
         expect((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).toBeUndefined();
       });
     });
-    it('should fill ContextItemExpr (.) in xpath when it maps from for-each iterating item itself', () => {
+    it('should fill ContextItemExpr (.) and AbbrevReverseStep (..) in xpath when it maps under for-each', () => {
       const orgDoc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'Org.xsd', orgXsd);
       const contactsDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.TARGET_BODY,
@@ -505,9 +505,13 @@ describe('VisualizationService', () => {
       const targetContactsNode = new TargetDocumentNodeData(contactsDoc, orgToContactsTree);
 
       const orgSourceChildren = VisualizationService.generateStructuredDocumentChildren(orgSourceNode);
-      const orgPersonChildren = VisualizationService.generateNonDocumentNodeDataChildren(orgSourceChildren[0]);
-      const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(orgPersonChildren[1]); // Person field
-      const emailField = personChildren[1] as FieldNodeData; // Email field
+      const orgChildren = VisualizationService.generateNonDocumentNodeDataChildren(orgSourceChildren[0]);
+      const orgNameField = orgChildren.find((f) => f.title === 'Name') as FieldNodeData;
+      const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+        orgChildren.find((f) => f.title === 'Person') as FieldNodeData,
+      );
+      const personNameField = personChildren.find((f) => f.title === 'Name') as FieldNodeData;
+      const emailField = personChildren.find((f) => f.title === 'Email') as FieldNodeData; // Email field
 
       let targetContactsChildren = VisualizationService.generateStructuredDocumentChildren(targetContactsNode);
       let contactsChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetContactsChildren[0]);
@@ -523,24 +527,46 @@ describe('VisualizationService', () => {
       contactsChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetContactsChildren[0]);
       let targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(contactsChildren[0]);
       let targetContactChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
+
+      let targetOrgNameField = targetContactChildren.find(
+        (child) => (child as TargetFieldNodeData).field?.name === 'OrgName',
+      ) as TargetFieldNodeData;
+      VisualizationService.engageMapping(orgToContactsTree, orgNameField, targetOrgNameField);
+      let targetPersonNameField = targetContactChildren.find(
+        (child) => (child as TargetFieldNodeData).field?.name === 'PersonName',
+      ) as TargetFieldNodeData;
+      VisualizationService.engageMapping(orgToContactsTree, personNameField, targetPersonNameField);
       let targetEmailField = targetContactChildren.find(
         (child) => (child as TargetFieldNodeData).field?.name === 'Email',
       ) as TargetFieldNodeData;
-
-      expect(targetEmailField).toBeDefined();
-
       VisualizationService.engageMapping(orgToContactsTree, emailField, targetEmailField);
 
       targetContactsChildren = VisualizationService.generateStructuredDocumentChildren(targetContactsNode);
       contactsChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetContactsChildren[0]);
       targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(contactsChildren[0]);
       targetContactChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
+
+      targetOrgNameField = targetContactChildren.find(
+        (child) => (child as TargetFieldNodeData).field?.name === 'OrgName',
+      ) as TargetFieldNodeData;
+      expect(targetOrgNameField.mapping).toBeDefined();
+      let valueSelector = targetOrgNameField.mapping?.children[0] as ValueSelector;
+      expect(valueSelector).toBeDefined();
+      expect(valueSelector.expression).toEqual('../../Name');
+
+      targetPersonNameField = targetContactChildren.find(
+        (child) => (child as TargetFieldNodeData).field?.name === 'PersonName',
+      ) as TargetFieldNodeData;
+      expect(targetPersonNameField.mapping).toBeDefined();
+      valueSelector = targetPersonNameField.mapping?.children[0] as ValueSelector;
+      expect(valueSelector).toBeDefined();
+      expect(valueSelector.expression).toEqual('../Name');
+
       targetEmailField = targetContactChildren.find(
         (child) => (child as TargetFieldNodeData).field?.name === 'Email',
       ) as TargetFieldNodeData;
-
       expect(targetEmailField.mapping).toBeDefined();
-      const valueSelector = targetEmailField.mapping?.children[0] as ValueSelector;
+      valueSelector = targetEmailField.mapping?.children[0] as ValueSelector;
       expect(valueSelector).toBeDefined();
       expect(valueSelector.expression).toEqual('.');
     });

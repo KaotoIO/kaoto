@@ -431,13 +431,43 @@ export class XPathService {
 
     const parentAbsPath = contextPath && XPathService.toAbsolutePath(contextPath);
     const fieldStack = DocumentUtilService.getFieldStack(source, true).reverse();
-    return fieldStack.reduce((acc, field, index) => {
-      if (parentAbsPath && index < parentAbsPath.pathSegments.length) return acc;
 
+    if (!parentAbsPath) {
+      return fieldStack.reduce((acc, field) => {
+        const segment = XPathService.extractSegmentFromField(namespaceMap, field);
+        acc.pathSegments.push(segment);
+        return acc;
+      }, answer);
+    }
+
+    const sourceAbsPath = new PathExpression();
+    sourceAbsPath.documentReferenceName = answer.documentReferenceName;
+    for (const field of fieldStack) {
       const segment = XPathService.extractSegmentFromField(namespaceMap, field);
-      acc.pathSegments.push(segment);
-      return acc;
-    }, answer);
+      sourceAbsPath.pathSegments.push(segment);
+    }
+
+    const contextSegments = parentAbsPath.pathSegments;
+    const sourceSegments = sourceAbsPath.pathSegments;
+
+    let commonLength = 0;
+    while (
+      commonLength < Math.min(contextSegments.length, sourceSegments.length) &&
+      contextSegments[commonLength].name === sourceSegments[commonLength].name
+    ) {
+      commonLength++;
+    }
+
+    const parentRefsNeeded = contextSegments.length - commonLength;
+    for (let i = 0; i < parentRefsNeeded; i++) {
+      answer.pathSegments.push(new PathSegment('..', false));
+    }
+
+    for (let i = commonLength; i < sourceSegments.length; i++) {
+      answer.pathSegments.push(sourceSegments[i]);
+    }
+
+    return answer;
   }
 
   private static extractSegmentFromField(namespaceMap: { [p: string]: string }, field: IField): PathSegment {
