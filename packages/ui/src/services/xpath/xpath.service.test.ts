@@ -128,6 +128,121 @@ describe('XPathService', () => {
       expect(result2.parseErrors.length).toEqual(0);
       expect(result2.cst).toBeDefined();
     });
+
+    describe('should parse with reserved word', () => {
+      describe('in the path', () => {
+        it('to in the middle of the path', () => {
+          let result = XPathService.parse('/from/to/you');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+          result = XPathService.parse('/to/from');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+
+        it('to as the last field', () => {
+          const result = XPathService.parse('/note/to');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+
+        it('item in the middle of the path', () => {
+          let result = XPathService.parse('/items/item/title');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+          result = XPathService.parse('/item/title');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+
+        it('item as the last field', () => {
+          const result = XPathService.parse('/items/item');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+      });
+
+      describe('as a param name', () => {
+        it('to', () => {
+          const result = XPathService.parse('$to/me/from/you');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+
+        it('item', () => {
+          const result = XPathService.parse('$item/title');
+          expect(result.lexErrors.length).toEqual(0);
+          expect(result.parseErrors.length).toEqual(0);
+          expect(result.cst).toBeDefined();
+        });
+      });
+
+      it('in the predicate', () => {
+        let result = XPathService.parse("/items[for='me']");
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse("/items[@for='me']");
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse("/items[item='me']");
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse("/items[@item='me']");
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+      });
+
+      it('as an attribute name', () => {
+        let result = XPathService.parse('/items/@for');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse('/items/@item');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse('$item/@node');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+        result = XPathService.parse('$node/@for');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+      });
+
+      it('item in both param and path', () => {
+        const result = XPathService.parse('$item/items/item/title');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+      });
+
+      it('for in both param and path', () => {
+        const result = XPathService.parse('$for/items/for');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+      });
+
+      it('node in both param and path', () => {
+        const result = XPathService.parse('$node/elements/node');
+        expect(result.lexErrors.length).toEqual(0);
+        expect(result.parseErrors.length).toEqual(0);
+        expect(result.cst).toBeDefined();
+      });
+    });
   });
 
   describe('validate()', () => {
@@ -287,6 +402,100 @@ describe('XPathService', () => {
 
       const xpathString = XPathService.toXPathString(emptyRelativePath);
       expect(xpathString).toEqual('.');
+    });
+
+    describe('should extract field paths with reserved keyword', () => {
+      it('to', () => {
+        const paths = XPathService.extractFieldPaths('/note/to');
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('note');
+        expect(paths[0].pathSegments[1].name).toEqual('to');
+      });
+
+      it('item', () => {
+        const paths = XPathService.extractFieldPaths('/items/item/title');
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(3);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[2].name).toEqual('title');
+      });
+
+      it('to as a variable name', () => {
+        const paths = XPathService.extractFieldPaths('$to/address');
+        expect(paths.length).toEqual(1);
+        expect(paths[0].documentReferenceName).toEqual('to');
+        expect(paths[0].pathSegments.length).toEqual(1);
+        expect(paths[0].pathSegments[0].name).toEqual('address');
+      });
+
+      it('in predicate', () => {
+        let paths = XPathService.extractFieldPaths("/items/item[to='me']");
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[1].predicates.length).toEqual(1);
+        let predicate = paths[0].pathSegments[1].predicates[0];
+        expect(predicate.left).toBeInstanceOf(PathExpression);
+        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('to');
+        expect(predicate.right).toEqual('me');
+
+        paths = XPathService.extractFieldPaths("/items/item[item='some']");
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[1].predicates.length).toEqual(1);
+        predicate = paths[0].pathSegments[1].predicates[0];
+        expect(predicate.left).toBeInstanceOf(PathExpression);
+        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('item');
+        expect(predicate.right).toEqual('some');
+
+        paths = XPathService.extractFieldPaths("/items/item[@to='me']");
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[1].predicates.length).toEqual(1);
+        predicate = paths[0].pathSegments[1].predicates[0];
+        expect(predicate.left).toBeInstanceOf(PathExpression);
+        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('to');
+        expect((predicate.left as PathExpression).pathSegments[0].isAttribute).toBeTruthy();
+        expect(predicate.right).toEqual('me');
+
+        paths = XPathService.extractFieldPaths("/items/item[@item='some']");
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[1].predicates.length).toEqual(1);
+        predicate = paths[0].pathSegments[1].predicates[0];
+        expect(predicate.left).toBeInstanceOf(PathExpression);
+        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('item');
+        expect((predicate.left as PathExpression).pathSegments[0].isAttribute).toBeTruthy();
+        expect(predicate.right).toEqual('some');
+      });
+
+      it('for as an attribute', () => {
+        const paths = XPathService.extractFieldPaths('/items/@for');
+        expect(paths.length).toEqual(1);
+        expect(paths[0].pathSegments.length).toEqual(2);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('for');
+        expect(paths[0].pathSegments[1].isAttribute).toBeTruthy();
+      });
+
+      it('multiple', () => {
+        const paths = XPathService.extractFieldPaths('$item/items/item/node');
+        expect(paths.length).toEqual(1);
+        expect(paths[0].documentReferenceName).toEqual('item');
+        expect(paths[0].pathSegments.length).toEqual(3);
+        expect(paths[0].pathSegments[0].name).toEqual('items');
+        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[2].name).toEqual('node');
+      });
     });
   });
 
