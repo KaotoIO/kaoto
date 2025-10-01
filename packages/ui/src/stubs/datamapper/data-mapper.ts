@@ -91,6 +91,9 @@ export const cartToShipOrderJsonXslt = fs
 export const conditionalMappingsToShipOrderJsonXslt = fs
   .readFileSync(path.resolve(__dirname, './json/ConditionalMappingsToShipOrderJson.xsl'))
   .toString();
+export const multipleForEachJsonXslt = fs
+  .readFileSync(path.resolve(__dirname, './json/MultipleForEach.xsl'))
+  .toString();
 
 export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
 export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
@@ -154,9 +157,11 @@ export class TestUtil {
   static createJSONParameterMap() {
     const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
     const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
+    const cart2ParamDoc = TestUtil.createParamOrderDoc('cart2', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
     return new Map<string, IDocument>([
       ['primitive', sourcePrimitiveParamDoc],
       ['cart', cartParamDoc],
+      ['cart2', cart2ParamDoc],
     ]);
   }
 }

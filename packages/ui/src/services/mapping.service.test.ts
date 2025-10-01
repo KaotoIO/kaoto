@@ -2,6 +2,7 @@ import { MappingService } from './mapping.service';
 import {
   ChooseItem,
   FieldItem,
+  ForEachItem,
   IfItem,
   MappingTree,
   OtherwiseItem,
@@ -17,6 +18,7 @@ import {
   cartToShipOrderXslt,
   conditionalMappingsToShipOrderJsonXslt,
   conditionalMappingsToShipOrderXslt,
+  multipleForEachJsonXslt,
   shipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
@@ -86,12 +88,33 @@ describe('MappingService', () => {
     it('should remove mappings related to the removed param in case of JSON schema', () => {
       const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
       paramsMap = TestUtil.createJSONParameterMap();
-      tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId);
+      tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(conditionalMappingsToShipOrderJsonXslt, targetJSONDoc, tree, paramsMap);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children[0].children[0].children.length).toEqual(1);
+      const forEach = tree.children[0].children[0].children[0] as ForEachItem;
+      expect(forEach.expression).toEqual('$cart-x/xf:array/xf:map');
+
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
-      expect(tree.children[0].children.length).toEqual(0);
+      expect(tree.children.length).toEqual(0);
+    });
+
+    it('should remove mappings related to the removed param in case of JSON schema, but not the other', () => {
+      const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
+      paramsMap = TestUtil.createJSONParameterMap();
+      tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
+      MappingSerializerService.deserialize(multipleForEachJsonXslt, targetJSONDoc, tree, paramsMap);
+
+      expect(tree.children[0].children[0].children.length).toEqual(2);
+      let forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
+      const forEach2 = tree.children[0].children[0].children[1] as ForEachItem;
+      expect(forEach1.expression).toEqual('$cart-x/xf:array/xf:map');
+      expect(forEach2.expression).toEqual('$cart2-x/xf:array/xf:map');
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
+      expect(tree.children[0].children[0].children.length).toEqual(1);
+      forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
+      expect(forEach1.expression).toEqual('$cart2-x/xf:array/xf:map');
     });
   });
 
