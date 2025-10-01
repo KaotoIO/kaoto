@@ -29,6 +29,6 @@
     ]
   },
   "include": ["src/public-api.ts", "src/models-api.ts", "src/testing-api.ts","src/components-api.ts", "src/global.d.ts"],
-  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts"],
+  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/**/stubs/**"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
