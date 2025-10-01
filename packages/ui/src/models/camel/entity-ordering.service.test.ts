@@ -66,9 +66,12 @@ describe('EntityOrderingService', () => {
   describe('RUNTIME_PRIORITY_ENTITIES', () => {
     it('should define the correct runtime priority entities', () => {
       expect(EntityOrderingService.RUNTIME_PRIORITY_ENTITIES).toEqual([
-        EntityType.OnException,
         EntityType.ErrorHandler,
+        EntityType.OnException,
         EntityType.OnCompletion,
+        EntityType.Intercept,
+        EntityType.InterceptFrom,
+        EntityType.InterceptSendToEndpoint,
       ]);
     });
 
@@ -198,9 +201,9 @@ describe('EntityOrderingService', () => {
       expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RestConfiguration)).toBe(false);
       expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Rest)).toBe(false);
       expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RouteConfiguration)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Intercept)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptFrom)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptSendToEndpoint)).toBe(false);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Intercept)).toBe(true);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptFrom)).toBe(true);
+      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptSendToEndpoint)).toBe(true);
       expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Beans)).toBe(false);
     });
 
