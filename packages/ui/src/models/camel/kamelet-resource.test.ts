@@ -1,12 +1,17 @@
+import { cloneDeep } from 'lodash';
+import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
+import { CamelKResourceFactory } from './camel-k-resource-factory';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { CamelKResourceFactory } from './camel-k-resource-factory';
-import { cloneDeep } from 'lodash';
 
 describe('KameletResource', () => {
+  beforeAll(() => {
+    mockRandomValues();
+  });
+
   it('should create a new KameletResource', () => {
     const kameletResource = new KameletResource();
     expect(kameletResource).toMatchSnapshot();

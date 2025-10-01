@@ -3,6 +3,7 @@ import { PropsWithChildren, useContext } from 'react';
 import { parse } from 'yaml';
 import { CamelResource, SerializerType } from '../models/camel';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
+import { mockRandomValues } from '../stubs';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
 import { EventNotifier } from '../utils';
@@ -126,6 +127,8 @@ describe('EntitiesProvider', () => {
   });
 
   it('should notify subscribers when the entities are updated', () => {
+    mockRandomValues();
+
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
 

@@ -18,6 +18,7 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import { MutableRefObject, RefObject, useRef } from 'react';
 import { renderHook } from '@testing-library/react';
 import { JsonSchemaDocument, JsonSchemaDocumentService } from './json-schema-document.service';
+import { mockRandomValues } from '../stubs';
 
 describe('MappingLinksService : JSON', () => {
   let cartParamDoc: JsonSchemaDocument;
@@ -26,6 +27,10 @@ describe('MappingLinksService : JSON', () => {
   let paramsMap: Map<string, IDocument>;
   let mappingTree: MappingTree;
   const dummySourceBodyDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+
+  beforeAll(() => {
+    mockRandomValues();
+  });
 
   beforeEach(() => {
     accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(

@@ -1,10 +1,10 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../models';
-import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
+import { CamelRouteResource, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
-import { FlowTypeSelector } from './FlowTypeSelector';
 import { XmlCamelResourceSerializer } from '../../../../serializers';
+import { FlowTypeSelector } from './FlowTypeSelector';
 
 const config = sourceSchemaConfig;
 config.config[SourceSchemaType.Pipe].schema = {
@@ -41,15 +41,23 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{
 };
 
 describe('FlowTypeSelector.tsx', () => {
-  test('component renders', () => {
-    const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = wrapper.queryByTestId('viz-dsl-list-dropdown');
-    expect(toggle).toBeInTheDocument();
+  it('component renders', async () => {
+    await act(async () => {
+      render(<FlowTypeSelectorWithContext />);
+    });
+
+    waitFor(() => {
+      const toggle = screen.queryByTestId('viz-dsl-list-dropdown');
+      expect(toggle).toBeInTheDocument();
+    });
   });
 
-  test('should call onSelect when clicking on the MenuToggleAction', async () => {
-    const wrapper = render(<FlowTypeSelectorWithContext />);
-    const toggle = await wrapper.findByTestId('dsl-list-btn');
+  it('should call onSelect when clicking on the MenuToggleAction', async () => {
+    await act(async () => {
+      render(<FlowTypeSelectorWithContext />);
+    });
+
+    const toggle = await screen.findByTestId('dsl-list-btn');
 
     /** Click on button */
     act(() => {
@@ -61,7 +69,7 @@ describe('FlowTypeSelector.tsx', () => {
     });
   });
 
-  test('should disable the MenuToggleAction if the current DSL does not support multiple flows and there is an existing flow', async () => {
+  it('should disable the MenuToggleAction if the current DSL does not support multiple flows and there is an existing flow', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.KameletBinding} />);
     const toggle = await wrapper.findByTestId('dsl-list-btn');
 
@@ -70,7 +78,7 @@ describe('FlowTypeSelector.tsx', () => {
     });
   });
 
-  test('should toggle list of DSLs', async () => {
+  it('should toggle list of DSLs', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -90,7 +98,7 @@ describe('FlowTypeSelector.tsx', () => {
     expect(element).not.toBeInTheDocument();
   });
 
-  test('should show list of DSLs', async () => {
+  it('should show list of DSLs', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -105,7 +113,7 @@ describe('FlowTypeSelector.tsx', () => {
     expect(element).toBeInTheDocument();
   });
 
-  test('should show only Camel Route when XML serializer is in place', async () => {
+  it('should show only Camel Route when XML serializer is in place', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext xml={true} />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -120,7 +128,7 @@ describe('FlowTypeSelector.tsx', () => {
     expect(element).toBeInTheDocument();
   });
 
-  test('should disable a SelectOption if is already selected and does not support multiple flows', async () => {
+  it('should disable a SelectOption if is already selected and does not support multiple flows', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.Pipe} />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -136,7 +144,7 @@ describe('FlowTypeSelector.tsx', () => {
     expect(option).toHaveClass('pf-m-disabled');
   });
 
-  test('should show selected value', async () => {
+  it('should show selected value', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -161,7 +169,7 @@ describe('FlowTypeSelector.tsx', () => {
     expect(element).toHaveTextContent('Camel Route');
   });
 
-  test('should not have anything selected if "isStatic=true"', async () => {
+  it('should not have anything selected if "isStatic=true"', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -187,7 +195,7 @@ describe('FlowTypeSelector.tsx', () => {
     });
   });
 
-  test('should have selected DSL if provided', async () => {
+  it('should have selected DSL if provided', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -203,7 +211,7 @@ describe('FlowTypeSelector.tsx', () => {
     });
   });
 
-  test('should close Select when pressing ESC', async () => {
+  it('should close Select when pressing ESC', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
@@ -234,7 +242,7 @@ describe('FlowTypeSelector.tsx', () => {
     });
   });
 
-  test('should render children components', async () => {
+  it('should render children components', async () => {
     const wrapper = render(<FlowTypeSelectorWithContext />);
     waitFor(() => {
       const child = wrapper.getByText('This is a child component');

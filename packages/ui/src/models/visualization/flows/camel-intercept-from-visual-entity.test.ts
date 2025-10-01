@@ -1,8 +1,13 @@
+import { mockRandomValues } from '../../../stubs';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptFromVisualEntity } from './camel-intercept-from-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 describe('CamelInterceptFromVisualEntity', () => {
+  beforeAll(() => {
+    mockRandomValues();
+  });
+
   describe('function Object() { [native code] }', () => {
     it('should allow to create an instance out of the string definition', () => {
       const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({ interceptFrom: 'a-reference' });

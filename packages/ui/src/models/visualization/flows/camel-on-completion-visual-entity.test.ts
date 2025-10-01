@@ -2,8 +2,13 @@ import { OnCompletion } from '@kaoto/camel-catalog/types';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
+import { mockRandomValues } from '../../../stubs';
 
 describe('CamelOnCompletionVisualEntity', () => {
+  beforeAll(() => {
+    mockRandomValues();
+  });
+
   describe('function Object() { [native code] }', () => {
     it('should allow to create an instance out of the object definition', () => {
       const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({

@@ -23,12 +23,17 @@ import {
 import { XPathService } from './xpath/xpath.service';
 import { MappingLinksService } from './mapping-links.service';
 import { DocumentService } from './document.service';
+import { mockRandomValues } from '../stubs';
 
 describe('MappingService', () => {
   let sourceDoc: XmlSchemaDocument;
   let targetDoc: XmlSchemaDocument;
   let paramsMap: Map<string, IDocument>;
   let tree: MappingTree;
+
+  beforeAll(() => {
+    mockRandomValues();
+  });
 
   beforeEach(() => {
     sourceDoc = TestUtil.createSourceOrderDoc();
