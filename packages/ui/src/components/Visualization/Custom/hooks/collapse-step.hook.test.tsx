@@ -31,6 +31,8 @@ describe('useCollapseStep', () => {
   });
 
   it('should throw error when element is not a node', () => {
+    jest.spyOn(console, 'error').mockImplementation(() => null);
+
     const nonNodeElement = {
       getKind: jest.fn().mockReturnValue('edge'),
     } as unknown as GraphElement<ElementModel, unknown>;

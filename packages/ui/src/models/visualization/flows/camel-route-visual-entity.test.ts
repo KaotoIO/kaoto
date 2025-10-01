@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../camel/entities/base-entity';
@@ -56,6 +57,7 @@ describe('Camel Route', () => {
     });
 
     it('should use a default camel random id if the route id is not provided', () => {
+      mockRandomValues();
       const route = new CamelRouteVisualEntity({ from: { uri: 'direct:foo', steps: [] } });
 
       /** This is being mocked at the window.crypto.get */

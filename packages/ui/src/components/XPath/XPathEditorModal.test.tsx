@@ -1,9 +1,9 @@
-import { XPathEditorModal } from './XPathEditorModal';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentType } from '../../models/datamapper/document';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { XPathEditorModal } from './XPathEditorModal';
 
 describe('XPathEditorModal', () => {
   window.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -18,23 +18,20 @@ describe('XPathEditorModal', () => {
   const onUpdate = jest.fn();
 
   const setup = () => {
-    return render(
+    render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <XPathEditorModal
-            isOpen={true}
-            mapping={mapping}
-            onClose={onClose}
-            onUpdate={onUpdate}
-            title={'XPath Editor'}
-          />
+          <XPathEditorModal isOpen mapping={mapping} onClose={onClose} onUpdate={onUpdate} title="XPath Editor" />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
   };
 
   it('should render', async () => {
-    setup();
+    await act(async () => {
+      setup();
+    });
+
     const xpathEditor = screen.getByTestId('xpath-editor');
     expect(xpathEditor).toBeInTheDocument();
 
@@ -44,10 +41,14 @@ describe('XPathEditorModal', () => {
   });
 
   it('should show popover when hint button is clicked', async () => {
-    setup();
-    act(() => {
+    await act(async () => {
+      setup();
+    });
+
+    await act(async () => {
       fireEvent.click(screen.getByTestId('xpath-editor-hint'));
     });
+
     expect(
       screen.getByText(
         'Grab a field from the left panel and drag it into the editor on the right to create mappings. To apply functions, open the Functions tab on the left and drag them into the right panel as well. You can also type directly in the right-side editor to create mappings manually.',

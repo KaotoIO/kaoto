@@ -1,5 +1,9 @@
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
-import { MappingLinksService } from './mapping-links.service';
+import { renderHook } from '@testing-library/react';
+import { MutableRefObject, RefObject, useRef } from 'react';
+import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
+import { MappingTree } from '../models/datamapper/mapping';
+import { NodeReference } from '../models/datamapper/visualization';
+import { mockRandomValues } from '../stubs';
 import {
   contactsXsd,
   invoice850Xsd,
@@ -16,19 +20,20 @@ import {
   x12850DfdlXsd,
   x12850ForEachXslt,
 } from '../stubs/datamapper/data-mapper';
-import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
-import { MappingTree } from '../models/datamapper/mapping';
-import { NodeReference } from '../models/datamapper/visualization';
-import { MappingSerializerService } from './mapping-serializer.service';
-import { MutableRefObject, RefObject, useRef } from 'react';
-import { renderHook } from '@testing-library/react';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { MappingLinksService } from './mapping-links.service';
+import { MappingSerializerService } from './mapping-serializer.service';
+import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
   let targetDoc: XmlSchemaDocument;
   let paramsMap: Map<string, IDocument>;
   let tree: MappingTree;
+
+  beforeAll(() => {
+    mockRandomValues();
+  });
 
   beforeEach(() => {
     sourceDoc = TestUtil.createSourceOrderDoc();

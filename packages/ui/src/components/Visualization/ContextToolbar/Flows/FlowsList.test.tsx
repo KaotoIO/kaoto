@@ -7,11 +7,15 @@ import {
   ActionConfirmationModalContextProvider,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.provider';
-import { TestProvidersWrapper } from '../../../../stubs';
+import { mockRandomValues, TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
 
 describe('FlowsList.tsx', () => {
   let camelResource: CamelRouteResource;
+
+  beforeAll(() => {
+    mockRandomValues();
+  });
 
   beforeEach(() => {
     camelResource = new CamelRouteResource();

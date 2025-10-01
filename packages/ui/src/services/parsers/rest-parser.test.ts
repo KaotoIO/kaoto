@@ -1,12 +1,17 @@
-import { RestParser } from './rest-parser';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { restOperationsYaml } from '../../stubs/rest-operations';
-import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
-import { restConfigurationStub } from '../../stubs/rest-configuration';
+import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { mockRandomValues } from '../../stubs';
 import { restStub } from '../../stubs/rest';
+import { restConfigurationStub } from '../../stubs/rest-configuration';
+import { restOperationsYaml } from '../../stubs/rest-operations';
+import { RestParser } from './rest-parser';
 
 describe('RestParser', () => {
+  beforeAll(() => {
+    mockRandomValues();
+  });
+
   describe('parseRestEntity()', () => {
     it('should parse rest', () => {
       const restEntity = CamelResourceFactory.createCamelResource(

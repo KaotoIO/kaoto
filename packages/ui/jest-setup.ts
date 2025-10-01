@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { setupJestCanvasMock } from 'jest-canvas-mock';
-import { subtle } from 'node:crypto';
+import { getRandomValues, subtle } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'node:util';
 
 Object.defineProperties(global, {
@@ -29,9 +29,7 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-jest
-  .spyOn(global, 'crypto', 'get')
-  .mockImplementation(() => ({ getRandomValues: () => [12345678], subtle }) as unknown as Crypto);
+jest.spyOn(global, 'crypto', 'get').mockImplementation(() => ({ getRandomValues, subtle }) as unknown as Crypto);
 
 jest.spyOn(console, 'warn').mockImplementation((...args) => {
   if (

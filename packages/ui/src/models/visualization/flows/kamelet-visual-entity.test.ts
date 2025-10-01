@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
@@ -71,6 +72,8 @@ describe('KameletVisualEntity', () => {
   });
 
   it('should set a random id if the kamelet name is not provided', () => {
+    mockRandomValues();
+
     kameletDef.metadata.name = undefined as unknown as IKameletMetadata['name'];
     const kameletVisualEntity = new KameletVisualEntity(kameletDef);
     expect(kameletVisualEntity.id).toEqual('kamelet-1234');

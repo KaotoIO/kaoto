@@ -1,20 +1,23 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { SourceSchemaType } from '../../camel';
 import { CatalogKind } from '../../catalog-kind';
 import { NodeLabelType } from '../../settings';
+import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { AddStepMode } from '../base-visual-entity';
-import { SourceSchemaType } from '../../camel';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
 
   beforeAll(async () => {
+    mockRandomValues();
+
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);

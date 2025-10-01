@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { PipeVisualEntity } from '../models';
 import { CamelResource, CamelRouteResource } from '../models/camel';
 import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
-import { camelRouteYaml, kameletYaml, pipeYaml } from '../stubs';
+import { camelRouteYaml, kameletYaml, mockRandomValues, pipeYaml } from '../stubs';
 import { beansYaml } from '../stubs/beans';
 import { kameletAwsCloudtailSourceYaml } from '../stubs/kamelet-aws-cloudtail-source';
 import { kameletWithMultilineXmlPropYaml } from '../stubs/kamelet-with-multiline-xml-prop';
@@ -105,6 +105,8 @@ describe('DocumentationService', () => {
     });
 
     it('should generate rest documentation entities', () => {
+      mockRandomValues();
+
       const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
 
