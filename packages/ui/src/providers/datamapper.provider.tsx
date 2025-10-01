@@ -147,6 +147,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   // Update mapping tree when target document changes
   useEffect(() => {
     refreshMappingTree();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetBodyDocument]);
 
   const refreshSourceParameters = useCallback(() => {

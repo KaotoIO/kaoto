@@ -56,11 +56,23 @@ export class MappingService {
     return MappingService.getConditionalFieldItems(mapping).map((item) => item.field);
   }
 
-  static removeAllMappingsForDocument(mappingTree: MappingTree, documentType: DocumentType, documentId: string) {
+  /**
+   * Removes all mappings for the specified document. When the document is a {@link DocumentType.PARAM},
+   * the 3rd argument {@link documentReferenceId} should indicate the parameter's document reference ID.
+   * Note that it could be different from document ID. For example, JSON document has a suffix `-x`.
+   * @param mappingTree
+   * @param documentType
+   * @param documentReferenceId
+   */
+  static removeAllMappingsForDocument(
+    mappingTree: MappingTree,
+    documentType: DocumentType,
+    documentReferenceId?: string,
+  ) {
     if (documentType === DocumentType.TARGET_BODY) {
       MappingService.doRemoveAllMappingsForTargetDocument(mappingTree);
     } else {
-      MappingService.doRemoveAllMappingsForSourceDocument(mappingTree, documentType, documentId);
+      MappingService.doRemoveAllMappingsForSourceDocument(mappingTree, documentType, documentReferenceId);
     }
     return mappingTree;
   }
@@ -72,11 +84,14 @@ export class MappingService {
   private static doRemoveAllMappingsForSourceDocument(
     item: MappingTree | MappingItem,
     documentType: DocumentType,
-    documentId: string,
+    documentReferenceId?: string,
   ) {
     item.children = item.children.reduce((acc, child) => {
-      MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentId);
-      if (child instanceof ExpressionItem && MappingService.hasStaleSourceDocument(child, documentType, documentId)) {
+      MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentReferenceId);
+      if (
+        child instanceof ExpressionItem &&
+        MappingService.hasStaleSourceDocument(child, documentType, documentReferenceId)
+      ) {
         return acc;
       }
       if (child instanceof FieldItem && child.children.length === 0) return acc;
@@ -88,14 +103,18 @@ export class MappingService {
   private static hasStaleSourceDocument(
     expressionItem: ExpressionItem,
     documentType: DocumentType,
-    documentId: string,
+    documentReferenceId?: string,
   ) {
-    const stalePath = XPathService.extractFieldPaths(expressionItem.expression).find((xpath) => {
-      return (
-        (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
-        (documentType === DocumentType.PARAM && xpath.documentReferenceName === documentId)
-      );
-    });
+    const stalePath = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath).find(
+      (xpath) => {
+        return (
+          (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
+          (documentType === DocumentType.PARAM &&
+            documentReferenceId &&
+            xpath.documentReferenceName === documentReferenceId)
+        );
+      },
+    );
     return !!stalePath;
   }
 

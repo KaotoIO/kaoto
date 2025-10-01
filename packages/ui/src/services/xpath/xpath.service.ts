@@ -269,6 +269,8 @@ export class XPathService {
    * Extracts {@link PathExpression} object representing a field path in the XPath expression.
    * This is used to find all the source fields referred from the expression so that the mapping
    * lines in the DataMapper UI could be drawn. The ability to analyze XPath is limited.
+   * When the 2nd argument {@link contextPath} is passed in, the generated {@link PathExpression}
+   * will be a relative path from the context path.
    * @param expression
    * @param contextPath
    */
