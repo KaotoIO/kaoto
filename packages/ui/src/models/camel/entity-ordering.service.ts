@@ -40,9 +40,12 @@ export class EntityOrderingService {
    * This preserves the existing behavior for error handling entities
    */
   static readonly RUNTIME_PRIORITY_ENTITIES = [
-    EntityType.OnException,
     EntityType.ErrorHandler,
+    EntityType.OnException,
     EntityType.OnCompletion,
+    EntityType.Intercept,
+    EntityType.InterceptFrom,
+    EntityType.InterceptSendToEndpoint,
   ];
 
   /**
