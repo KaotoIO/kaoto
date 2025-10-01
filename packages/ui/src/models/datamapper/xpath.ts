@@ -17,7 +17,10 @@
  */
 export class PathExpression {
   constructor(public contextPath?: PathExpression) {
-    if (contextPath) this.isRelative = true;
+    if (contextPath) {
+      this.isRelative = true;
+      this.documentReferenceName = contextPath.documentReferenceName;
+    }
   }
 
   pathSegments: PathSegment[] = [];

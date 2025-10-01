@@ -19,6 +19,7 @@ import {
   conditionalMappingsToShipOrderJsonXslt,
   conditionalMappingsToShipOrderXslt,
   multipleForEachJsonXslt,
+  shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
@@ -115,6 +116,41 @@ describe('MappingService', () => {
       expect(tree.children[0].children[0].children.length).toEqual(1);
       forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
       expect(forEach1.expression).toEqual('$cart2-x/xf:array/xf:map');
+    });
+
+    it('should not remove parameter mappings when detaching schema from source body', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+
+      const validateForEach = (forEachItem: ForEachItem) => {
+        expect(forEachItem.children.length).toEqual(1);
+        const item = forEachItem.children[0] as FieldItem;
+        expect(item.children.length).toEqual(4);
+        const title = item.children[0] as FieldItem;
+        expect((title.children[0] as ValueSelector).expression).toEqual('Title');
+        const note = item.children[1] as FieldItem;
+        expect((note.children[0] as ValueSelector).expression).toEqual('Note');
+        const quantity = item.children[2] as FieldItem;
+        expect((quantity.children[0] as ValueSelector).expression).toEqual('Quantity');
+        const price = item.children[3] as FieldItem;
+        expect((price.children[0] as ValueSelector).expression).toEqual('Price');
+      };
+
+      expect(tree.children[0].children.length).toEqual(2);
+      const bodyForEach = tree.children[0].children[0] as ForEachItem;
+      let paramForEach = tree.children[0].children[1] as ForEachItem;
+      expect(bodyForEach.expression).toEqual('/ns0:ShipOrder/Item');
+      validateForEach(bodyForEach);
+      expect(paramForEach.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+      validateForEach(paramForEach);
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
+      expect(tree.children[0].children.length).toEqual(1);
+      [paramForEach] = tree.children[0].children as ForEachItem[];
+      expect(paramForEach.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+      validateForEach(paramForEach);
     });
   });
 
