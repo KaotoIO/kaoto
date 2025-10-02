@@ -3,6 +3,7 @@ import path from 'path';
 import { parse } from 'yaml';
 import {
   BaseDocument,
+  BODY_DOCUMENT_ID,
   DocumentDefinitionType,
   DocumentType,
   IDocument,
@@ -104,33 +105,29 @@ export const schemaTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/Sche
 
 export class TestUtil {
   static createSourceOrderDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'ShipOrder.xsd', shipOrderXsd);
+    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, shipOrderXsd);
   }
 
   static createJSONSourceOrderDoc() {
     return JsonSchemaDocumentService.createJsonSchemaDocument(
       DocumentType.SOURCE_BODY,
-      'ShipOrder.schema.json',
+      BODY_DOCUMENT_ID,
       shipOrderJsonSchema,
     );
   }
 
   static createCamelSpringXsdSourceDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(
-      DocumentType.SOURCE_BODY,
-      'camel-spring.xsd',
-      camelSpringXsd,
-    );
+    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, camelSpringXsd);
   }
 
   static createTargetOrderDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.TARGET_BODY, 'ShipOrder.xsd', shipOrderXsd);
+    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, shipOrderXsd);
   }
 
   static createJSONTargetOrderDoc() {
     return JsonSchemaDocumentService.createJsonSchemaDocument(
       DocumentType.TARGET_BODY,
-      'ShipOrder.schema.json',
+      BODY_DOCUMENT_ID,
       shipOrderJsonSchema,
     );
   }

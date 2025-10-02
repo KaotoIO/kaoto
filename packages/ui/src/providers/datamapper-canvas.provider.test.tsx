@@ -31,8 +31,7 @@ describe('CanvasProvider', () => {
   });
 
   it('clearNodeReferencesForPath() should clear for the path', async () => {
-    let first = false;
-    let second = false;
+    let sourceReferencesCleared = false;
     let beforeNodePaths: string[] = [];
     let afterNodePaths: string[] = [];
     const LoadDocuments: FunctionComponent<PropsWithChildren> = ({ children }) => {
@@ -47,15 +46,15 @@ describe('CanvasProvider', () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
-        if (!first) {
-          first = true;
-          return;
-        }
-        if (!second) {
-          second = true;
-          beforeNodePaths = getAllNodePaths();
-          clearNodeReferencesForPath('sourceBody:ShipOrder.xsd://');
+        const nodePaths = getAllNodePaths();
+        if (
+          !sourceReferencesCleared &&
+          nodePaths.find((path) => path.includes(`sourceBody:${BODY_DOCUMENT_ID}://fx`))
+        ) {
+          beforeNodePaths = nodePaths;
+          clearNodeReferencesForPath(`sourceBody:${BODY_DOCUMENT_ID}://`);
           afterNodePaths = getAllNodePaths();
+          sourceReferencesCleared = true;
         }
       }, [clearNodeReferencesForPath, getAllNodePaths, reloadNodeReferences]);
       return <>{children}</>;
@@ -70,13 +69,12 @@ describe('CanvasProvider', () => {
       </DataMapperProvider>,
     );
     await screen.findAllByText('ShipOrder');
-    expect(afterNodePaths.length).toEqual(17);
+    expect(afterNodePaths.length).toEqual(15);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
 
   it('clearNodeReferencesForDocument() should clear for the Document', async () => {
-    let first = false;
-    let second = false;
+    let sourceReferencesCleared = false;
     let beforeNodePaths: string[] = [];
     let afterNodePaths: string[] = [];
     const LoadDocuments: FunctionComponent<PropsWithChildren> = ({ children }) => {
@@ -91,15 +89,15 @@ describe('CanvasProvider', () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
-        if (!first) {
-          first = true;
-          return;
-        }
-        if (!second) {
-          second = true;
-          beforeNodePaths = getAllNodePaths();
+        const nodePaths = getAllNodePaths();
+        if (
+          !sourceReferencesCleared &&
+          nodePaths.find((path) => path.includes(`sourceBody:${BODY_DOCUMENT_ID}://fx`))
+        ) {
+          beforeNodePaths = nodePaths;
           clearNodeReferencesForDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
           afterNodePaths = getAllNodePaths();
+          sourceReferencesCleared = true;
         }
       }, [clearNodeReferencesForDocument, getAllNodePaths, reloadNodeReferences]);
       return <>{children}</>;

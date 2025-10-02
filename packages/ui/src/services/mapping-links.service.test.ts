@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MutableRefObject, RefObject, useRef } from 'react';
-import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';
 import { mockRandomValues } from '../stubs';
@@ -74,12 +74,12 @@ describe('MappingLinksService', () => {
     it('should generate mapping links for the cached type fragments field', () => {
       sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.SOURCE_BODY,
-        'X12-837P.dfdl.xsd',
+        BODY_DOCUMENT_ID,
         x12837PDfdlXsd,
       );
       targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.TARGET_BODY,
-        'Message837.xsd',
+        BODY_DOCUMENT_ID,
         message837Xsd,
       );
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
@@ -119,12 +119,12 @@ describe('MappingLinksService', () => {
     it('should not generate mapping link from the source body root', () => {
       sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.SOURCE_BODY,
-        'X12-850.dfdl.xsd',
+        BODY_DOCUMENT_ID,
         x12850DfdlXsd,
       );
       targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.TARGET_BODY,
-        'Invoice850.xsd',
+        BODY_DOCUMENT_ID,
         invoice850Xsd,
       );
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
@@ -148,7 +148,7 @@ describe('MappingLinksService', () => {
     it('should generate mapping links for JSON documents', () => {
       const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
         DocumentType.TARGET_BODY,
-        'ShipOrder',
+        BODY_DOCUMENT_ID,
         shipOrderJsonSchema,
       );
       tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
@@ -158,12 +158,12 @@ describe('MappingLinksService', () => {
     it('should generate mapping links for parent references', () => {
       const orgSourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.SOURCE_BODY,
-        'Org.xsd',
+        BODY_DOCUMENT_ID,
         orgXsd,
       );
       const contactsTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
         DocumentType.TARGET_BODY,
-        'Contacts.xsd',
+        BODY_DOCUMENT_ID,
         contactsXsd,
       );
 
@@ -199,7 +199,7 @@ describe('MappingLinksService', () => {
     it('should detect selected mapping', () => {
       const { result: refOrderId } = renderHook(() =>
         useRef<NodeReference>({
-          path: 'sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-OrderId-1234',
+          path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
           isSource: true,
           containerRef: null,
           headerRef: null,
@@ -207,7 +207,7 @@ describe('MappingLinksService', () => {
       );
       const { result: refShipToName } = renderHook(() =>
         useRef<NodeReference>({
-          path: 'sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-ShipTo-1234/fx-Name-1234',
+          path: 'sourceBody:Body://fx-ShipOrder-1234/fx-ShipTo-1234/fx-Name-1234',
           isSource: true,
           containerRef: null,
           headerRef: null,
@@ -258,7 +258,7 @@ describe('MappingLinksService', () => {
         } as unknown as SVGSVGElement,
       };
 
-      const refOrderId = getNodeReference('sourceBody:ShipOrder.xsd://fx-ShipOrder-1234/fx-OrderId-1234');
+      const refOrderId = getNodeReference('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234');
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, refOrderId);
       expect(links.length).toEqual(11);
