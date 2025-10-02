@@ -22,7 +22,13 @@ import {
 } from '../models/datamapper/mapping';
 import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  PrimitiveDocument,
+} from '../models/datamapper/document';
 import {
   contactsXsd,
   orgXsd,
@@ -46,7 +52,7 @@ describe('VisualizationService', () => {
     sourceDocNode = new DocumentNodeData(sourceDoc);
     targetDoc = TestUtil.createTargetOrderDoc();
     paramsMap = TestUtil.createParameterMap();
-    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
   });
 
   describe('without pre-populated mappings', () => {
@@ -89,7 +95,11 @@ describe('VisualizationService', () => {
 
       it('should add If on primitive target body', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyIf(targetDocNode);
 
@@ -143,7 +153,11 @@ describe('VisualizationService', () => {
 
       it('should add Choose-When-Otherwise on primitive target body', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyChooseWhenOtherwise(targetDocNode);
 
@@ -200,7 +214,11 @@ describe('VisualizationService', () => {
 
       it('should add When in primitive target body choose', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyChooseWhenOtherwise(targetDocNode);
 
@@ -258,7 +276,11 @@ describe('VisualizationService', () => {
 
       it('should add Otherwise in primitive target body choose', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyChooseWhenOtherwise(targetDocNode);
 
@@ -314,7 +336,11 @@ describe('VisualizationService', () => {
 
       it('should apply value selector on primitive target body', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
         VisualizationService.applyValueSelector(targetDocNode);
 
@@ -327,7 +353,11 @@ describe('VisualizationService', () => {
     describe('getExpressionItemForNode()', () => {
       it('should return ValueSelector for primitive target body', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
@@ -341,7 +371,11 @@ describe('VisualizationService', () => {
     describe('deleteMappingItem()', () => {
       it('should delete primitive target body mapping', () => {
         const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-        tree = new MappingTree(primitiveTargetDoc.documentType, primitiveTargetDoc.documentId);
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
@@ -500,7 +534,11 @@ describe('VisualizationService', () => {
         contactsXsd,
       );
 
-      const orgToContactsTree = new MappingTree(contactsDoc.documentType, contactsDoc.documentId);
+      const orgToContactsTree = new MappingTree(
+        contactsDoc.documentType,
+        contactsDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
       const orgSourceNode = new DocumentNodeData(orgDoc);
       const targetContactsNode = new TargetDocumentNodeData(contactsDoc, orgToContactsTree);
 

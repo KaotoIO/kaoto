@@ -11,7 +11,7 @@ export class MappingTree {
   constructor(
     documentType: DocumentType,
     documentId: string,
-    public documentDefinitionType: DocumentDefinitionType = DocumentDefinitionType.XML_SCHEMA,
+    public documentDefinitionType: DocumentDefinitionType,
   ) {
     this.nodePath = NodePath.fromDocument(documentType, documentId);
   }

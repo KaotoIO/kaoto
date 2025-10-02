@@ -2,7 +2,7 @@ import { TargetNodeActions } from './TargetNodeActions';
 import { render, screen } from '@testing-library/react';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
@@ -10,7 +10,7 @@ import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 describe('TargetNodeActions', () => {
   it('should render', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
-    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const nodeData = new TargetDocumentNodeData(targetDoc, tree);
     render(<TargetNodeActions nodeData={nodeData} onUpdate={jest.fn()} />);
     expect(await screen.findByTestId('transformation-actions-menu-toggle')).toBeTruthy();
@@ -18,7 +18,7 @@ describe('TargetNodeActions', () => {
 
   it('should render expression action', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
-    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(targetDoc, tree);
     const mappingData = new MappingNodeData(docData, new ValueSelector(tree));
     render(

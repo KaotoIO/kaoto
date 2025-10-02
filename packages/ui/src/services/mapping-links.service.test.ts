@@ -39,7 +39,7 @@ describe('MappingLinksService', () => {
     sourceDoc = TestUtil.createSourceOrderDoc();
     targetDoc = TestUtil.createTargetOrderDoc();
     paramsMap = TestUtil.createParameterMap();
-    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
     MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
   });
 
@@ -82,7 +82,7 @@ describe('MappingLinksService', () => {
         'Message837.xsd',
         message837Xsd,
       );
-      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12837PXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.length).toEqual(14);
@@ -127,7 +127,7 @@ describe('MappingLinksService', () => {
         'Invoice850.xsd',
         invoice850Xsd,
       );
-      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12850ForEachXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.find((l) => l.sourceNodePath === 'sourceBody:X12-850.dfdl.xsd://')).toBeUndefined();
@@ -167,7 +167,11 @@ describe('MappingLinksService', () => {
         contactsXsd,
       );
 
-      tree = new MappingTree(contactsTargetDoc.documentType, contactsTargetDoc.documentId);
+      tree = new MappingTree(
+        contactsTargetDoc.documentType,
+        contactsTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
       MappingSerializerService.deserialize(orgToContactsXslt, contactsTargetDoc, tree, paramsMap);
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, orgSourceDoc);

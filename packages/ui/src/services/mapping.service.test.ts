@@ -42,7 +42,7 @@ describe('MappingService', () => {
     sourceDoc = TestUtil.createSourceOrderDoc();
     targetDoc = TestUtil.createTargetOrderDoc();
     paramsMap = TestUtil.createParameterMap();
-    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
     MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
   });
 
@@ -78,7 +78,7 @@ describe('MappingService', () => {
     it('should remove mappings related to the removed param in case of XML schema', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
-      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
 
       expect(tree.children.length).toEqual(1);

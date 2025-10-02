@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
@@ -14,7 +14,7 @@ import { ConditionMenuAction } from './ConditionMenuAction';
 
 describe('ConditionMenuAction', () => {
   const targetDoc = TestUtil.createTargetOrderDoc();
-  const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+  const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
 
   it('should apply ValueSelector', () => {

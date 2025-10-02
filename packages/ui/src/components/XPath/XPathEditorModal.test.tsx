@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
-import { DocumentType } from '../../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { XPathEditorModal } from './XPathEditorModal';
@@ -11,7 +11,7 @@ describe('XPathEditorModal', () => {
     unobserve: jest.fn(),
     disconnect: jest.fn(),
   }));
-  const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+  const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const mapping: ExpressionItem = new ValueSelector(tree);
   mapping.expression = '/to/some/field';
   const onClose = jest.fn();
