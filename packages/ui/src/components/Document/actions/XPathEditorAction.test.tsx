@@ -1,7 +1,7 @@
 import { XPathEditorAction } from './XPathEditorAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
@@ -15,7 +15,7 @@ describe('XPathEditorAction', () => {
       disconnect: jest.fn(),
     }));
     const doc = TestUtil.createTargetOrderDoc();
-    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(doc, tree);
     render(
       <DataMapperProvider>

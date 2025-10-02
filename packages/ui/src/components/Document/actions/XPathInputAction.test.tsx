@@ -1,14 +1,14 @@
 import { XPathInputAction } from './XPathInputAction';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 
 describe('XPathInputAction', () => {
   let tree: MappingTree;
   let mapping: ValueSelector;
 
   beforeEach(() => {
-    tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     mapping = new ValueSelector(tree);
   });
 

@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
-import { DocumentType } from '../../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 
 describe('XPathEditorLayout - Search Field', () => {
@@ -11,7 +11,7 @@ describe('XPathEditorLayout - Search Field', () => {
     unobserve: jest.fn(),
     disconnect: jest.fn(),
   }));
-  const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+  const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const mapping: ExpressionItem = new ValueSelector(tree);
   mapping.expression = '/to/some/field';
   const onUpdate = jest.fn();

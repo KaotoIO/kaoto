@@ -2,7 +2,7 @@ import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
@@ -10,7 +10,7 @@ import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 describe('DeleteMappingItemAction', () => {
   it('should invoke onDelete()', async () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(targetDoc, mappingTree);
     const nodeData = new MappingNodeData(docData, new ValueSelector(mappingTree));
     const onDeleteMock = jest.fn();
