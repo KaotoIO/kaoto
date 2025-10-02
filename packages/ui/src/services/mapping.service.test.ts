@@ -121,7 +121,7 @@ describe('MappingService', () => {
     it('should not remove parameter mappings when detaching schema from source body', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
-      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId);
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
 
       const validateForEach = (forEachItem: ForEachItem) => {
