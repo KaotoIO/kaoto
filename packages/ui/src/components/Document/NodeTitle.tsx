@@ -6,14 +6,15 @@ import './NodeTitle.scss';
 
 interface INodeTitle {
   className?: string;
+  rank: number;
   nodeData: NodeData;
   isDocument: boolean;
 }
 
-export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, nodeData, isDocument }) => {
+export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, nodeData, isDocument }) => {
   const title = nodeData.title;
   const content = (
-    <span title={title} className={clsx('node-title__text', className)}>
+    <span title={title} className={clsx('node-title__text', className)} data-rank={rank}>
       {title}
     </span>
   );

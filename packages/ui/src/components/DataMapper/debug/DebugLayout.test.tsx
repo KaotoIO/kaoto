@@ -103,19 +103,15 @@ describe('DebugLayout', () => {
       fireEvent.click(targetOrderId);
     });
     await waitFor(() => {
-      expect(selectedNodeReference?.current.path).toMatch(
-        /targetBody:ShipOrder.xsd:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/,
-      );
+      expect(selectedNodeReference?.current.path).toMatch(/targetBody:Body:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/);
     });
 
-    const sourceOrderId = await screen.findByTestId(/node-source-fx-OrderId-.*/);
+    const sourceOrderId = await screen.findByTestId(/node-source-selected-fx-OrderId-.*/);
     act(() => {
       fireEvent.click(sourceOrderId);
     });
     await waitFor(() => {
-      expect(selectedNodeReference?.current.path).toMatch(
-        /sourceBody:ShipOrder.xsd:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/,
-      );
+      expect(selectedNodeReference?.current.path).toMatch(/sourceBody:Body:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/);
     });
   });
 

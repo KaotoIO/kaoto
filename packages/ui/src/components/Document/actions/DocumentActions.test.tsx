@@ -15,7 +15,7 @@ describe('DocumentActions', () => {
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
-    expect(await screen.findByTestId('attach-schema-sourceBody-ShipOrder.xsd-button'));
+    expect(await screen.findByTestId('attach-schema-sourceBody-Body-button'));
   });
 
   it('should render for Parameters', async () => {
