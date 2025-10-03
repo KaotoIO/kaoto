@@ -45,6 +45,7 @@ describe('MappingSerializerService / JSON', () => {
     it('should deserialize XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+      expect(targetDoc.fields[0].fields[3].fields[0].fields.length).toEqual(3);
       const namespaces = mappingTree.namespaceMap;
       expect(mappingTree.children.length).toBe(1);
       const root = mappingTree.children[0] as FieldItem;
@@ -156,7 +157,7 @@ describe('MappingSerializerService / JSON', () => {
       const quantity = forEachItem.children[1] as FieldItem;
       const quantityJsonField = quantity.field as JsonSchemaField;
       expect(quantityJsonField.key).toEqual('Quantity');
-      expect(quantityJsonField.type).toEqual(Types.Numeric);
+      expect(quantityJsonField.type).toEqual(Types.Integer);
       expect(quantityJsonField.getExpression(namespaces)).toEqual("xf:number[@key='Quantity']");
       expect(quantity.children.length).toBe(1);
       const quantityValue = quantity.children[0] as ValueSelector;
