@@ -1,11 +1,16 @@
 import {
+  AddMappingNodeData,
   BODY_DOCUMENT_ID,
   DocumentDefinitionType,
   DocumentNodeData,
   DocumentType,
+  FieldItemNodeData,
   FieldNodeData,
   ForEachItem,
+  IDocument,
+  MappingNodeData,
   MappingTree,
+  PrimitiveDocument,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
@@ -17,8 +22,10 @@ import {
   camelYamlDslJsonSchema,
   cartJsonSchema,
   shipOrderJsonSchema,
+  shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { VisualizationService } from './visualization.service';
+import { MappingSerializerService } from './mapping-serializer.service';
 
 describe('VisualizationService / JSON', () => {
   const accountDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
@@ -27,11 +34,18 @@ describe('VisualizationService / JSON', () => {
     accountJsonSchema,
   );
   const cartDoc = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, 'Cart', cartJsonSchema);
+  const orderSequenceDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
   const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
     DocumentType.TARGET_BODY,
     'ShipOrder',
     shipOrderJsonSchema,
   );
+
+  const sourceParameterMap = new Map<string, IDocument>([
+    ['OrderSequence', orderSequenceDoc],
+    ['Account', accountDoc],
+    ['Cart', cartDoc],
+  ]);
 
   let mappingTree: MappingTree;
   let cartDocNode: DocumentNodeData;
@@ -116,6 +130,56 @@ describe('VisualizationService / JSON', () => {
     const titleValueSelector = mappingTree.children[0].children[1].children[0].children[0].children[0]
       .children[0] as ValueSelector;
     expect(titleValueSelector.expression).toEqual("xf:string[@key='Title']");
+  });
+
+  it('should render deserialized mappings', () => {
+    let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
+    mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+    expect(mappingTree.children.length).toEqual(1);
+
+    targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree);
+    const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+    expect(targetChildren.length).toEqual(1);
+    expect(targetChildren[0].title).toEqual('map');
+    const targetMapChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetChildren[0]);
+    expect(targetMapChildren.length).toEqual(4);
+
+    const orderIdSelector = (targetMapChildren[0] as TargetFieldNodeData).mapping!.children[0] as ValueSelector;
+    expect(orderIdSelector.expression).toEqual(
+      "upper-case(concat('ORD-', $Account-x/xf:map/xf:string[@key='AccountId'], '-', $OrderSequence))",
+    );
+    const orderPersonSelector = (targetMapChildren[1] as TargetFieldNodeData).mapping!.children[0] as ValueSelector;
+    expect(orderPersonSelector.expression).toEqual(
+      "$Account-x/xf:map/xf:string[@key='AccountId'], ':', $Account-x/xf:map/xf:string[@key='Name']",
+    );
+    const shipToChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetMapChildren[2]);
+
+    const nameSelector = (shipToChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(nameSelector.expression).toEqual("$Account-x/xf:map/xf:string[@key='Name']");
+    const streetSelector = (shipToChildren[1] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(streetSelector.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Street']");
+    const citySelector = (shipToChildren[2] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(citySelector.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='City']");
+    const stateSelector = (shipToChildren[3] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(stateSelector.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='State']");
+    const countrySelector = (shipToChildren[4] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(countrySelector.expression).toEqual("$Account-x/xf:map/xf:map[@key='Address']/xf:string[@key='Country']");
+
+    const itemArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetMapChildren[3]);
+    expect(itemArrayChildren.length).toEqual(2);
+    const forEach = (itemArrayChildren[0] as MappingNodeData).mapping as ForEachItem;
+    expect(forEach.expression).toEqual('$Cart-x/xf:array/xf:map');
+    const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemArrayChildren[0]);
+    const forEachItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
+
+    const titleSelector = (forEachItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(titleSelector.expression).toEqual("xf:string[@key='Title']");
+    const quantitySelector = (forEachItemChildren[1] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(quantitySelector.expression).toEqual("xf:number[@key='Quantity']");
+    const priceSelector = (forEachItemChildren[2] as FieldItemNodeData).mapping.children[0] as ValueSelector;
+    expect(priceSelector.expression).toEqual("xf:number[@key='Price']");
+
+    expect(itemArrayChildren[1] instanceof AddMappingNodeData).toBeTruthy();
   });
 
   it('should generate nodes from Camel YAML DSL JSON schema', () => {

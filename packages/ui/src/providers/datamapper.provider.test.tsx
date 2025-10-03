@@ -1,7 +1,7 @@
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useDataMapper } from '../hooks/useDataMapper';
-import { FieldItem, ForEachItem, MappingTree } from '../models/datamapper/mapping';
+import { FieldItem, ForEachItem, MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { act, useContext, useEffect } from 'react';
 import {
   DocumentDefinition,
@@ -487,6 +487,14 @@ describe('DataMapperProvider', () => {
       const forEachItem = root?.children[3].children[0];
       expect(forEachItem instanceof ForEachItem).toBeTruthy();
       expect((forEachItem as ForEachItem).expression).toEqual('$Cart-x/xf:array/xf:map');
+
+      expect(forEachItem?.children[0].children.length).toEqual(3);
+      const title = forEachItem?.children[0].children[0].children[0] as ValueSelector;
+      expect(title.expression).toEqual("xf:string[@key='Title']");
+      const quantity = forEachItem?.children[0].children[1].children[0] as ValueSelector;
+      expect(quantity.expression).toEqual("xf:number[@key='Quantity']");
+      const price = forEachItem?.children[0].children[2].children[0] as ValueSelector;
+      expect(price.expression).toEqual("xf:number[@key='Price']");
     });
   });
 });
