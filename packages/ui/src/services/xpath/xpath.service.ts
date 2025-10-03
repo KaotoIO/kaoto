@@ -122,6 +122,24 @@ export class XPathService {
     return answer;
   }
 
+  /**
+   * Extracts the token image from either a direct token or an Identifier node.
+   * The Identifier rule can contain NCName or keyword tokens, so we need to traverse into it.
+   */
+  private static extractTokenImage(node: CstElement | undefined): string | undefined {
+    if (!node) return undefined;
+    if ('image' in node) return node.image as string;
+    if ('children' in node) {
+      const children = node.children as Record<string, CstElement[]>;
+      for (const childArray of Object.values(children)) {
+        if (childArray && childArray.length > 0 && 'image' in childArray[0]) {
+          return childArray[0].image as string;
+        }
+      }
+    }
+    return undefined;
+  }
+
   private static extractPathExpressionFromNode(node: CstNode, contextPath?: PathExpression): PathExpression {
     const answer = new PathExpression(contextPath);
     answer.isRelative = !('Slash' in node.children || 'DoubleSlash' in node.children);
@@ -131,13 +149,14 @@ export class XPathService {
     const stepExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr']);
     if (!stepExpr) return answer;
 
-    const varName = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'VarRef', 'QName', 'NCName']);
+    const varNameIdentifier = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'VarRef', 'VarName', 'Identifier']);
     const contextItem = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'ContextItemExpr']);
     const functionCall = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'FunctionCall']);
 
-    if (varName && 'image' in varName) {
+    const varName = XPathService.extractTokenImage(varNameIdentifier);
+    if (varName) {
       answer.isRelative = false;
-      answer.documentReferenceName = varName.image;
+      answer.documentReferenceName = varName;
     } else if (contextItem && 'image' in contextItem) {
       answer.pathSegments.push(new PathSegment(contextItem.image, false));
     } else if (functionCall) {
@@ -175,16 +194,18 @@ export class XPathService {
     const isAttribute = !!('children' in stepExpr && stepExpr.children['At']);
     const nameTest = XPathService.getSingleNode(stepExpr, ['NodeTest', 'NameTest']);
     if (!nameTest || !('children' in nameTest)) return;
-    const ncNames = nameTest.children['NCName'];
+
+    // Extract identifiers - these can be either Identifier nodes or NCName tokens
+    const identifiers = nameTest.children['Identifier'];
     const colon = nameTest.children['Colon'];
 
     let segmentPrefix = '';
     let segmentName = '';
-    if (ncNames.length === 1 && (!colon || colon.length === 0) && 'image' in ncNames[0]) {
-      segmentName += ncNames[0].image;
-    } else if (ncNames.length === 2 && colon?.length === 1 && 'image' in ncNames[0] && 'image' in ncNames[1]) {
-      segmentPrefix = ncNames[0].image;
-      segmentName = ncNames[1].image;
+    if (identifiers && identifiers.length === 1 && (!colon || colon.length === 0)) {
+      segmentName = XPathService.extractTokenImage(identifiers[0]) ?? '';
+    } else if (identifiers && identifiers.length === 2 && colon?.length === 1) {
+      segmentPrefix = XPathService.extractTokenImage(identifiers[0]) ?? '';
+      segmentName = XPathService.extractTokenImage(identifiers[1]) ?? '';
     }
 
     const predicateList = XPathService.getSingleNode(stepExpr, ['PredicateList']);

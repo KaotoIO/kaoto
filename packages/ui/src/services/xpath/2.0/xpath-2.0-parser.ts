@@ -516,14 +516,81 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.OR([{ ALT: () => this.SUBRULE(this.KindTest) }, { ALT: () => this.SUBRULE(this.NameTest) }]);
   });
 
+  /**
+   * When a reserved keyword is used as variable name or path segment, the lexer tokenize it as a keyword token
+   * instead of NCName. In order to handle that, we need to accept the keyword token as well in the parser. This
+   * {@link Identifier} represents the variable name or path segment name even if it's identical to the one of the
+   * XPath reserved words.
+   * @private
+   */
+  private Identifier = this.RULE('Identifier', () => {
+    this.OR([
+      { ALT: () => this.CONSUME(NCName) },
+      { ALT: () => this.CONSUME(Return) },
+      { ALT: () => this.CONSUME(For) },
+      { ALT: () => this.CONSUME(Intersect) },
+      { ALT: () => this.CONSUME(Instance) },
+      { ALT: () => this.CONSUME(In) },
+      { ALT: () => this.CONSUME(Some) },
+      { ALT: () => this.CONSUME(Every) },
+      { ALT: () => this.CONSUME(Satisfies) },
+      { ALT: () => this.CONSUME(If) },
+      { ALT: () => this.CONSUME(Then) },
+      { ALT: () => this.CONSUME(Else) },
+      { ALT: () => this.CONSUME(Or) },
+      { ALT: () => this.CONSUME(And) },
+      { ALT: () => this.CONSUME(To) },
+      { ALT: () => this.CONSUME(Div) },
+      { ALT: () => this.CONSUME(Idiv) },
+      { ALT: () => this.CONSUME(Mod) },
+      { ALT: () => this.CONSUME(Union) },
+      { ALT: () => this.CONSUME(Except) },
+      { ALT: () => this.CONSUME(Of) },
+      { ALT: () => this.CONSUME(Treat) },
+      { ALT: () => this.CONSUME(Castable) },
+      { ALT: () => this.CONSUME(As) },
+      { ALT: () => this.CONSUME(Cast) },
+      { ALT: () => this.CONSUME(Eq) },
+      { ALT: () => this.CONSUME(Ne) },
+      { ALT: () => this.CONSUME(Lt) },
+      { ALT: () => this.CONSUME(Le) },
+      { ALT: () => this.CONSUME(Gt) },
+      { ALT: () => this.CONSUME(Ge) },
+      { ALT: () => this.CONSUME(Is) },
+      { ALT: () => this.CONSUME(Child) },
+      { ALT: () => this.CONSUME(DescendantOrSelf) },
+      { ALT: () => this.CONSUME(Descendant) },
+      { ALT: () => this.CONSUME(Attribute) },
+      { ALT: () => this.CONSUME(Self) },
+      { ALT: () => this.CONSUME(FollowingSibling) },
+      { ALT: () => this.CONSUME(Following) },
+      { ALT: () => this.CONSUME(Namespace) },
+      { ALT: () => this.CONSUME(Parent) },
+      { ALT: () => this.CONSUME(AncestorOrSelf) },
+      { ALT: () => this.CONSUME(Ancestor) },
+      { ALT: () => this.CONSUME(PrecedingSibling) },
+      { ALT: () => this.CONSUME(Preceding) },
+      { ALT: () => this.CONSUME(Item) },
+      { ALT: () => this.CONSUME(Node) },
+      { ALT: () => this.CONSUME(DocumentNode) },
+      { ALT: () => this.CONSUME(Text) },
+      { ALT: () => this.CONSUME(Comment) },
+      { ALT: () => this.CONSUME(ProcessingInstruction) },
+      { ALT: () => this.CONSUME(SchemaAttribute) },
+      { ALT: () => this.CONSUME(Element) },
+      { ALT: () => this.CONSUME(SchemaElement) },
+      { ALT: () => this.CONSUME(EmptySequence) },
+    ]);
+  });
+
   private NameTest = this.RULE('NameTest', () => {
     this.OR([
       {
         ALT: () => {
-          this.CONSUME(NCName);
+          this.SUBRULE(this.Identifier);
           this.OPTION(() => {
             this.CONSUME(Colon);
-            this.OR2([{ ALT: () => this.CONSUME(Asterisk) }, { ALT: () => this.CONSUME2(NCName) }]);
+            this.OR2([{ ALT: () => this.CONSUME(Asterisk) }, { ALT: () => this.SUBRULE2(this.Identifier) }]);
           });
         },
       },
@@ -532,7 +599,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
           this.CONSUME2(Asterisk);
           this.OPTION2(() => {
             this.CONSUME2(Colon);
-            this.CONSUME3(NCName);
+            this.SUBRULE3(this.Identifier);
           });
         },
       },
@@ -572,7 +639,15 @@ export class XPath2Parser extends CstParser implements XPathParser {
 
   private VarRef = this.RULE('VarRef', () => {
     this.CONSUME(Dollar);
-    this.SUBRULE(this.QName);
+    this.SUBRULE(this.VarName);
+  });
+
+  private VarName = this.RULE('VarName', () => {
+    this.OPTION(() => {
+      this.SUBRULE(this.Identifier);
+      this.CONSUME(Colon);
+    });
+    this.SUBRULE2(this.Identifier);
   });
 
   private ParenthesizedExpr = this.RULE('ParenthesizedExpr', () => {
