@@ -12,7 +12,7 @@
           "type": "string"
         },
         "Quantity": {
-          "type": "number"
+          "type": "integer"
         },
         "Price": {
           "type": "number"

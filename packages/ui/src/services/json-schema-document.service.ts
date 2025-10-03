@@ -159,7 +159,7 @@ export class JsonSchemaDocumentService {
       return (
         'key' in f &&
         f.key === fieldKey &&
-        f.type === type &&
+        JsonSchemaDocumentService.toXsltTypeName(f.type) === JsonSchemaDocumentService.toXsltTypeName(type) &&
         ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI)
       );
     });
