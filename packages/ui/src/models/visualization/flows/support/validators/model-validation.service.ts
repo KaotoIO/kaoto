@@ -101,9 +101,7 @@ export class ModelValidationService {
           schema.required.includes(propertyName) &&
           propertySchema.default === undefined &&
           propertySchema.$ref === undefined &&
-          (!model ||
-            model[propertyName] === undefined ||
-            isMissingRequiredArrayProperty(propertySchema, model, propertyName))
+          (!model || !model[propertyName] || isMissingRequiredArrayProperty(propertySchema, model, propertyName))
         ) {
           answer.push({
             level: 'error',
