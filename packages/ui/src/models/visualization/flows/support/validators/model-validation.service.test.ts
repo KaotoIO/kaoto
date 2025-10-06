@@ -5,6 +5,7 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { CamelCatalogService } from '../../camel-catalog.service';
 import { CamelComponentSchemaService } from '../camel-component-schema.service';
 import { ModelValidationService } from './model-validation.service';
+import { VisualComponentSchema } from '../../../base-visual-entity';
 
 describe('ModelValidationService', () => {
   const camelRoute = {
@@ -106,6 +107,38 @@ describe('ModelValidationService', () => {
     it('should return an empty string if the schema is undefined', () => {
       const result = ModelValidationService.validateNodeStatus(undefined);
 
+      expect(result).toEqual('');
+    });
+  });
+
+  describe('validateNodeStatus() - array required property', () => {
+    const arraySchema = {
+      schema: {
+        properties: {
+          items: {
+            type: 'array',
+          },
+        },
+        required: ['items'],
+        definitions: {},
+      },
+      definition: {},
+    } as VisualComponentSchema;
+
+    it('should report missing required array property when not present', () => {
+      const result = ModelValidationService.validateNodeStatus(arraySchema);
+      expect(result).toEqual('1 required parameter is not yet configured: [ items ]');
+    });
+
+    it('should report missing required array property when empty', () => {
+      const model = { items: [] };
+      const result = ModelValidationService.validateNodeStatus({ ...arraySchema, definition: model });
+      expect(result).toEqual('1 required parameter is not yet configured: [ items ]');
+    });
+
+    it('should not report missing required array property when array is non-empty', () => {
+      const model = { items: [1, 2, 3] };
+      const result = ModelValidationService.validateNodeStatus({ ...arraySchema, definition: model });
       expect(result).toEqual('');
     });
   });
