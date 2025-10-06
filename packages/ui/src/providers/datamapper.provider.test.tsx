@@ -470,8 +470,13 @@ describe('DataMapperProvider', () => {
     };
     const documentInitializationModel = new DocumentInitializationModel(parameters, sourceDocDef, targetDocDef);
 
+    let latestXslt = '';
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <DataMapperProvider documentInitializationModel={documentInitializationModel} initialXsltFile={shipOrderJsonXslt}>
+      <DataMapperProvider
+        documentInitializationModel={documentInitializationModel}
+        initialXsltFile={shipOrderJsonXslt}
+        onUpdateMappings={(xslt) => (latestXslt = xslt)}
+      >
         {children}
       </DataMapperProvider>
     );
@@ -495,6 +500,14 @@ describe('DataMapperProvider', () => {
       expect(quantity.expression).toEqual("xf:number[@key='Quantity']");
       const price = forEachItem?.children[0].children[2].children[0] as ValueSelector;
       expect(price.expression).toEqual("xf:number[@key='Price']");
+
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(latestXslt, 'application/xml');
+      const variables = xmlDoc.getElementsByTagName('xsl:variable');
+      expect(variables[0].getAttribute('name')).toEqual('Account-x');
+      expect(variables[1].getAttribute('name')).toEqual('Cart-x');
+      expect(variables[2].getAttribute('name')).toEqual('mapped-xml');
+      expect(variables.length).toEqual(3);
     });
   });
 });
