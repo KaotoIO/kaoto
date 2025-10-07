@@ -41,6 +41,12 @@
         }
       }
 
+      &__icon-placeholder {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+      }
+
       &:hover,
       [data-toolbar-open='true'] & {
         border-color: var(--custom-node-BorderColor-hover);
@@ -83,10 +89,10 @@
   }
 
   &__warning-icon--floating {
-    border-radius: 15px !important;
+    border-radius: 15px;
 
     .floating-circle {
-      border-radius: 15px !important;
+      border-radius: 15px;
       border-color: var(--pf-topology__node--m-danger--Background--Fill);
     }
   }
