@@ -99,14 +99,11 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           >
             <div className="custom-group__container">
               <div className="custom-group__container__text" title={tooltipContent}>
-                {!doesHaveWarnings ? (
-                  <img alt={tooltipContent} src={vizNode.data.icon} />
+                {doesHaveWarnings ? (
+                  <div className="custom-group__container__icon-placeholder" />
                 ) : (
-                  <div style={{ width: '20px', height: '20px', display: 'inline-block' }}>
-                    {/*<ExclamationCircleIcon />*/}
-                  </div>
+                  <img alt={tooltipContent} src={vizNode.data.icon} />
                 )}
-
                 <span title={label}>{label}</span>
               </div>
 
