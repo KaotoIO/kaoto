@@ -101,7 +101,7 @@ export class ModelValidationService {
           schema.required.includes(propertyName) &&
           propertySchema.default === undefined &&
           propertySchema.$ref === undefined &&
-          (!model || !model[propertyName] || isMissingRequiredArrayProperty(propertySchema, model, propertyName))
+          (!model?.[propertyName] || isMissingRequiredArrayProperty(propertySchema, model, propertyName))
         ) {
           answer.push({
             level: 'error',
@@ -122,9 +122,7 @@ export class ModelValidationService {
           if (model) {
             answer.push(...this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions));
           }
-          return;
         }
-        // check missing required parameter
       });
     }
 
