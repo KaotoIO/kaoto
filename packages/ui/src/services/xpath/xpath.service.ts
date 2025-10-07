@@ -141,46 +141,82 @@ export class XPathService {
   }
 
   private static extractPathExpressionFromNode(node: CstNode, contextPath?: PathExpression): PathExpression {
-    const answer = new PathExpression(contextPath);
-    answer.isRelative = !('Slash' in node.children || 'DoubleSlash' in node.children);
-    if (!('children' in node.children.RelativePathExpr[0])) return answer;
-    const relativePathExpr = XPathService.getSingleNode(node, ['RelativePathExpr']);
-    if (!relativePathExpr) return answer;
-    const stepExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr']);
-    if (!stepExpr) return answer;
+    const isRelative = !('Slash' in node.children || 'DoubleSlash' in node.children);
 
+    if (!('children' in node.children.RelativePathExpr[0])) {
+      return new PathExpression(isRelative ? contextPath : undefined);
+    }
+    const relativePathExpr = XPathService.getSingleNode(node, ['RelativePathExpr']);
+    if (!relativePathExpr) {
+      return new PathExpression(isRelative ? contextPath : undefined);
+    }
+    const stepExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr']);
+    if (!stepExpr) {
+      return new PathExpression(isRelative ? contextPath : undefined);
+    }
+
+    const answer = XPathService.extractPathExpressionBaseFromStepExpr(
+      relativePathExpr,
+      stepExpr,
+      isRelative,
+      contextPath,
+    );
+
+    return XPathService.extractSegmentsFromRelativePathExpr(answer, relativePathExpr);
+  }
+
+  private static extractPathExpressionBaseFromStepExpr(
+    relativePathExpr: CstElement,
+    stepExpr: CstElement,
+    isRelative: boolean,
+    contextPath?: PathExpression,
+  ): PathExpression {
     const varNameIdentifier = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'VarRef', 'VarName', 'Identifier']);
     const contextItem = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'ContextItemExpr']);
     const functionCall = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'FunctionCall']);
 
     const varName = XPathService.extractTokenImage(varNameIdentifier);
+
+    let answer: PathExpression;
+
     if (varName) {
+      answer = new PathExpression();
       answer.isRelative = false;
       answer.documentReferenceName = varName;
-    } else if (contextItem && 'image' in contextItem) {
-      answer.pathSegments.push(new PathSegment(contextItem.image, false));
-    } else if (functionCall) {
-      // Skip function calls in the path expression as they don't represent field paths
-      // The function arguments are already processed by extractPathExprNode/collectPathExprNodes
     } else {
-      const segment = XPathService.extractSegmentFromStepExpr(stepExpr);
-      if (segment) {
-        answer.pathSegments.push(segment);
+      answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
+      if (contextItem && 'image' in contextItem) {
+        answer.pathSegments.push(new PathSegment(contextItem.image, false));
+      } else if (functionCall) {
+        // Skip function calls in the path expression as they don't represent field paths
+        // The function arguments are already processed by extractPathExprNode/collectPathExprNodes
       } else {
-        throw Error('Unknown RelativePathExpr: ' + relativePathExpr);
+        const segment = XPathService.extractSegmentFromStepExpr(stepExpr);
+        if (segment) {
+          answer.pathSegments.push(segment);
+        } else {
+          throw Error('Unknown RelativePathExpr: ' + relativePathExpr);
+        }
       }
     }
+    return answer;
+  }
+
+  private static extractSegmentsFromRelativePathExpr(
+    pathExpression: PathExpression,
+    relativePathExpr: CstElement,
+  ): PathExpression {
     const following =
       relativePathExpr && 'children' in relativePathExpr && relativePathExpr.children.ChildPathSegmentExpr;
 
-    if (!following) return answer;
+    if (!following) return pathExpression;
 
     return following.reduce((acc, value) => {
       const stepExpr = XPathService.getSingleNode(value, ['StepExpr']);
       const segment = stepExpr && XPathService.extractSegmentFromStepExpr(stepExpr);
       if (segment) acc.pathSegments.push(segment);
       return acc;
-    }, answer);
+    }, pathExpression);
   }
 
   private static extractSegmentFromStepExpr(stepExpr: CstElement): PathSegment | undefined {

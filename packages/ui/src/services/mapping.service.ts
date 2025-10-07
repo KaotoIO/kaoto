@@ -105,16 +105,23 @@ export class MappingService {
     documentType: DocumentType,
     documentReferenceId?: string,
   ) {
-    const stalePath = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath).find(
-      (xpath) => {
-        return (
-          (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
-          (documentType === DocumentType.PARAM &&
-            documentReferenceId &&
-            xpath.documentReferenceName === documentReferenceId)
-        );
-      },
-    );
+    let stalePath = undefined;
+    try {
+      stalePath = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath).find(
+        (xpath) => {
+          return (
+            (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
+            (documentType === DocumentType.PARAM &&
+              documentReferenceId &&
+              xpath.documentReferenceName === documentReferenceId)
+          );
+        },
+      );
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } catch (error: any) {
+      // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
+      // on xpath input field, just ignoring here.
+    }
     return !!stalePath;
   }
 
@@ -174,9 +181,17 @@ export class MappingService {
     }, [] as MappingItem[]);
   }
 
-  private static hasStaleSourceField(expressionItem: ExpressionItem, document: IDocument) {
+  private static hasStaleSourceField(expressionItem: ExpressionItem, document: IDocument): boolean {
     const namespaces = expressionItem.mappingTree.namespaceMap;
-    const fieldPaths = XPathService.extractFieldPaths(expressionItem.expression);
+    let fieldPaths = [];
+    try {
+      fieldPaths = XPathService.extractFieldPaths(expressionItem.expression);
+    } catch (error: any) {
+      // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
+      // on xpath input field, just ignoring here.
+      return false;
+    }
+
     const stalePath = fieldPaths.find((xpath) => {
       xpath.contextPath = expressionItem.parent.contextPath;
       xpath.isRelative = !!xpath.contextPath;
