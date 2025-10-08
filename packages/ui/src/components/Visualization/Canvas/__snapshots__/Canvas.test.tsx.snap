@@ -65,6 +65,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-selected="false"
                               data-testid="custom-group__route"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -129,6 +130,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -171,6 +173,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice.when.0"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -213,6 +216,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice.otherwise"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -975,6 +979,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-selected="false"
                               data-testid="custom-group__route"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -1040,6 +1045,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -2690,6 +2696,7 @@ exports[`Canvas should render correctly 1`] = `
                               data-selected="false"
                               data-testid="custom-group__route"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -2755,6 +2762,7 @@ exports[`Canvas should render correctly 1`] = `
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -3518,6 +3526,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-selected="false"
                               data-testid="custom-group__route"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -3582,6 +3591,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -3624,6 +3634,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice.when.0"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject
@@ -3666,6 +3677,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-selected="false"
                               data-testid="custom-group__route.from.steps.1.choice.otherwise"
                               data-toolbar-open="false"
+                              data-verified="false"
                               data-warnings="false"
                             >
                               <foreignobject

@@ -23,7 +23,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
         >
           <li
             class="pf-v6-c-nav__item pf-m-expanded pf-m-current"
-            data-ouia-component-id="OUIA-Generated-NavExpandable-5"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-9"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
             data-testid="Visualization"
@@ -66,7 +66,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
               >
                 <li
                   class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-29"
+                  data-ouia-component-id="OUIA-Generated-NavItem-37"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
                 >
@@ -81,7 +81,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
                 </li>
                 <li
                   class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-30"
+                  data-ouia-component-id="OUIA-Generated-NavItem-38"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
                 >
@@ -98,7 +98,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-31"
+            data-ouia-component-id="OUIA-Generated-NavItem-39"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -112,7 +112,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-32"
+            data-ouia-component-id="OUIA-Generated-NavItem-40"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -126,7 +126,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-33"
+            data-ouia-component-id="OUIA-Generated-NavItem-41"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -140,7 +140,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-34"
+            data-ouia-component-id="OUIA-Generated-NavItem-42"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -154,7 +154,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-35"
+            data-ouia-component-id="OUIA-Generated-NavItem-43"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -165,6 +165,81 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
             >
               Catalog
             </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-10"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Citrus Agent"
+            hidden=""
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Citrus Agent"
+            >
+              Citrus Agent
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Citrus Agent"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-44"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Configuration"
+                    href="/agent-configuration"
+                  >
+                    Configuration
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-45"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Test Results"
+                    href="/test-results"
+                  >
+                    Test Results
+                  </a>
+                </li>
+              </ul>
+            </section>
           </li>
         </ul>
       </nav>
@@ -187,352 +262,6 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
         aria-label="Default global nav"
         class="pf-v6-c-nav"
         data-ouia-component-id="OUIA-Generated-Nav-2"
-        data-ouia-component-type="PF6/Nav"
-        data-ouia-safe="true"
-      >
-        <ul
-          class="pf-v6-c-nav__list"
-          role="list"
-        >
-          <li
-            class="pf-v6-c-nav__item pf-m-expanded pf-m-current"
-            data-ouia-component-id="OUIA-Generated-NavExpandable-2"
-            data-ouia-component-type="PF6/NavExpandable"
-            data-ouia-safe="true"
-            data-testid="Visualization"
-          >
-            <button
-              aria-expanded="true"
-              class="pf-v6-c-nav__link"
-              id="Visualization"
-            >
-              Visualization
-              <span
-                class="pf-v6-c-nav__toggle"
-              >
-                <span
-                  class="pf-v6-c-nav__toggle-icon"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
-                  >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                    />
-                  </svg>
-                </span>
-              </span>
-            </button>
-            <section
-              aria-labelledby="Visualization"
-              class="pf-v6-c-nav__subnav"
-            >
-              <ul
-                class="pf-v6-c-nav__list"
-                role="list"
-              >
-                <li
-                  class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-8"
-                  data-ouia-component-type="PF6/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    aria-current="page"
-                    class="pf-v6-c-nav__link pf-m-current"
-                    data-testid="Design"
-                    href="/"
-                  >
-                    Design
-                  </a>
-                </li>
-                <li
-                  class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-9"
-                  data-ouia-component-type="PF6/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    class="pf-v6-c-nav__link"
-                    data-testid="Source Code"
-                    href="/code"
-                  >
-                    Source Code
-                  </a>
-                </li>
-              </ul>
-            </section>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-10"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Beans"
-              href="/beans"
-            >
-              Beans
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-11"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Metadata"
-              href="/metadata"
-            >
-              Metadata
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-12"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Pipe ErrorHandler"
-              href="/pipe-error-handler"
-            >
-              Pipe ErrorHandler
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-13"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="DataMapper"
-              href="/datamapper"
-            >
-              DataMapper
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-14"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Catalog"
-              href="/catalog"
-            >
-              Catalog
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-</DocumentFragment>
-`;
-
-exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
-<DocumentFragment>
-  <div
-    aria-hidden="false"
-    class="pf-v6-c-page__sidebar pf-m-expanded"
-    id="vertical-sidebar"
-  >
-    <div
-      class="pf-v6-c-page__sidebar-body"
-    >
-      <nav
-        aria-label="Default global nav"
-        class="pf-v6-c-nav"
-        data-ouia-component-id="OUIA-Generated-Nav-4"
-        data-ouia-component-type="PF6/Nav"
-        data-ouia-safe="true"
-      >
-        <ul
-          class="pf-v6-c-nav__list"
-          role="list"
-        >
-          <li
-            class="pf-v6-c-nav__item pf-m-expanded pf-m-current"
-            data-ouia-component-id="OUIA-Generated-NavExpandable-4"
-            data-ouia-component-type="PF6/NavExpandable"
-            data-ouia-safe="true"
-            data-testid="Visualization"
-          >
-            <button
-              aria-expanded="true"
-              class="pf-v6-c-nav__link"
-              id="Visualization"
-            >
-              Visualization
-              <span
-                class="pf-v6-c-nav__toggle"
-              >
-                <span
-                  class="pf-v6-c-nav__toggle-icon"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
-                  >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                    />
-                  </svg>
-                </span>
-              </span>
-            </button>
-            <section
-              aria-labelledby="Visualization"
-              class="pf-v6-c-nav__subnav"
-            >
-              <ul
-                class="pf-v6-c-nav__list"
-                role="list"
-              >
-                <li
-                  class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-22"
-                  data-ouia-component-type="PF6/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    aria-current="page"
-                    class="pf-v6-c-nav__link pf-m-current"
-                    data-testid="Design"
-                    href="/"
-                  >
-                    Design
-                  </a>
-                </li>
-                <li
-                  class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-23"
-                  data-ouia-component-type="PF6/NavItem"
-                  data-ouia-safe="true"
-                >
-                  <a
-                    class="pf-v6-c-nav__link"
-                    data-testid="Source Code"
-                    href="/code"
-                  >
-                    Source Code
-                  </a>
-                </li>
-              </ul>
-            </section>
-          </li>
-          <li
-            class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-24"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Beans"
-              href="/beans"
-            >
-              Beans
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-25"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Metadata"
-              href="/metadata"
-            >
-              Metadata
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-26"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Pipe ErrorHandler"
-              href="/pipe-error-handler"
-            >
-              Pipe ErrorHandler
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-27"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="DataMapper"
-              href="/datamapper"
-            >
-              DataMapper
-            </a>
-          </li>
-          <li
-            class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-28"
-            data-ouia-component-type="PF6/NavItem"
-            data-ouia-safe="true"
-          >
-            <a
-              class="pf-v6-c-nav__link"
-              data-testid="Catalog"
-              href="/catalog"
-            >
-              Catalog
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-</DocumentFragment>
-`;
-
-exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
-<DocumentFragment>
-  <div
-    aria-hidden="false"
-    class="pf-v6-c-page__sidebar pf-m-expanded"
-    id="vertical-sidebar"
-  >
-    <div
-      class="pf-v6-c-page__sidebar-body"
-    >
-      <nav
-        aria-label="Default global nav"
-        class="pf-v6-c-nav"
-        data-ouia-component-id="OUIA-Generated-Nav-3"
         data-ouia-component-type="PF6/Nav"
         data-ouia-safe="true"
       >
@@ -585,7 +314,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
               >
                 <li
                   class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-15"
+                  data-ouia-component-id="OUIA-Generated-NavItem-10"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
                 >
@@ -600,7 +329,255 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
                 </li>
                 <li
                   class="pf-v6-c-nav__item"
-                  data-ouia-component-id="OUIA-Generated-NavItem-16"
+                  data-ouia-component-id="OUIA-Generated-NavItem-11"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Source Code"
+                    href="/code"
+                  >
+                    Source Code
+                  </a>
+                </li>
+              </ul>
+            </section>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-12"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Beans"
+              href="/beans"
+            >
+              Beans
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-13"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Metadata"
+              href="/metadata"
+            >
+              Metadata
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-14"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Pipe ErrorHandler"
+              href="/pipe-error-handler"
+            >
+              Pipe ErrorHandler
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-15"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-16"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Catalog"
+              href="/catalog"
+            >
+              Catalog
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-4"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Citrus Agent"
+            hidden=""
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Citrus Agent"
+            >
+              Citrus Agent
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Citrus Agent"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-17"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Configuration"
+                    href="/agent-configuration"
+                  >
+                    Configuration
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-18"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Test Results"
+                    href="/test-results"
+                  >
+                    Test Results
+                  </a>
+                </li>
+              </ul>
+            </section>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
+<DocumentFragment>
+  <div
+    aria-hidden="false"
+    class="pf-v6-c-page__sidebar pf-m-expanded"
+    id="vertical-sidebar"
+  >
+    <div
+      class="pf-v6-c-page__sidebar-body"
+    >
+      <nav
+        aria-label="Default global nav"
+        class="pf-v6-c-nav"
+        data-ouia-component-id="OUIA-Generated-Nav-4"
+        data-ouia-component-type="PF6/Nav"
+        data-ouia-safe="true"
+      >
+        <ul
+          class="pf-v6-c-nav__list"
+          role="list"
+        >
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-m-current"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-7"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Visualization"
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Visualization"
+            >
+              Visualization
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Visualization"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-28"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    aria-current="page"
+                    class="pf-v6-c-nav__link pf-m-current"
+                    data-testid="Design"
+                    href="/"
+                  >
+                    Design
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-29"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
                 >
@@ -617,7 +594,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-17"
+            data-ouia-component-id="OUIA-Generated-NavItem-30"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -631,7 +608,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-18"
+            data-ouia-component-id="OUIA-Generated-NavItem-31"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -645,7 +622,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-19"
+            data-ouia-component-id="OUIA-Generated-NavItem-32"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -659,7 +636,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item pf-v6-u-hidden"
-            data-ouia-component-id="OUIA-Generated-NavItem-20"
+            data-ouia-component-id="OUIA-Generated-NavItem-33"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -673,7 +650,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
           </li>
           <li
             class="pf-v6-c-nav__item"
-            data-ouia-component-id="OUIA-Generated-NavItem-21"
+            data-ouia-component-id="OUIA-Generated-NavItem-34"
             data-ouia-component-type="PF6/NavItem"
             data-ouia-safe="true"
           >
@@ -684,6 +661,329 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
             >
               Catalog
             </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-8"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Citrus Agent"
+            hidden=""
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Citrus Agent"
+            >
+              Citrus Agent
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Citrus Agent"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-35"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Configuration"
+                    href="/agent-configuration"
+                  >
+                    Configuration
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-36"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Test Results"
+                    href="/test-results"
+                  >
+                    Test Results
+                  </a>
+                </li>
+              </ul>
+            </section>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
+<DocumentFragment>
+  <div
+    aria-hidden="false"
+    class="pf-v6-c-page__sidebar pf-m-expanded"
+    id="vertical-sidebar"
+  >
+    <div
+      class="pf-v6-c-page__sidebar-body"
+    >
+      <nav
+        aria-label="Default global nav"
+        class="pf-v6-c-nav"
+        data-ouia-component-id="OUIA-Generated-Nav-3"
+        data-ouia-component-type="PF6/Nav"
+        data-ouia-safe="true"
+      >
+        <ul
+          class="pf-v6-c-nav__list"
+          role="list"
+        >
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-m-current"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-5"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Visualization"
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Visualization"
+            >
+              Visualization
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Visualization"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-19"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    aria-current="page"
+                    class="pf-v6-c-nav__link pf-m-current"
+                    data-testid="Design"
+                    href="/"
+                  >
+                    Design
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-20"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Source Code"
+                    href="/code"
+                  >
+                    Source Code
+                  </a>
+                </li>
+              </ul>
+            </section>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-21"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Beans"
+              href="/beans"
+            >
+              Beans
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-22"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Metadata"
+              href="/metadata"
+            >
+              Metadata
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-23"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Pipe ErrorHandler"
+              href="/pipe-error-handler"
+            >
+              Pipe ErrorHandler
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavItem-24"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="DataMapper"
+              href="/datamapper"
+            >
+              DataMapper
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item"
+            data-ouia-component-id="OUIA-Generated-NavItem-25"
+            data-ouia-component-type="PF6/NavItem"
+            data-ouia-safe="true"
+          >
+            <a
+              class="pf-v6-c-nav__link"
+              data-testid="Catalog"
+              href="/catalog"
+            >
+              Catalog
+            </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-6"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Citrus Agent"
+            hidden=""
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Citrus Agent"
+            >
+              Citrus Agent
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Citrus Agent"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-26"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Configuration"
+                    href="/agent-configuration"
+                  >
+                    Configuration
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-27"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Test Results"
+                    href="/test-results"
+                  >
+                    Test Results
+                  </a>
+                </li>
+              </ul>
+            </section>
           </li>
         </ul>
       </nav>
@@ -857,6 +1157,81 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
             >
               Catalog
             </a>
+          </li>
+          <li
+            class="pf-v6-c-nav__item pf-m-expanded pf-v6-u-hidden"
+            data-ouia-component-id="OUIA-Generated-NavExpandable-2"
+            data-ouia-component-type="PF6/NavExpandable"
+            data-ouia-safe="true"
+            data-testid="Citrus Agent"
+            hidden=""
+          >
+            <button
+              aria-expanded="true"
+              class="pf-v6-c-nav__link"
+              id="Citrus Agent"
+            >
+              Citrus Agent
+              <span
+                class="pf-v6-c-nav__toggle"
+              >
+                <span
+                  class="pf-v6-c-nav__toggle-icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 256 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
+            <section
+              aria-labelledby="Citrus Agent"
+              class="pf-v6-c-nav__subnav"
+            >
+              <ul
+                class="pf-v6-c-nav__list"
+                role="list"
+              >
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-8"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Configuration"
+                    href="/agent-configuration"
+                  >
+                    Configuration
+                  </a>
+                </li>
+                <li
+                  class="pf-v6-c-nav__item"
+                  data-ouia-component-id="OUIA-Generated-NavItem-9"
+                  data-ouia-component-type="PF6/NavItem"
+                  data-ouia-safe="true"
+                >
+                  <a
+                    class="pf-v6-c-nav__link"
+                    data-testid="Test Results"
+                    href="/test-results"
+                  >
+                    Test Results
+                  </a>
+                </li>
+              </ul>
+            </section>
           </li>
         </ul>
       </nav>

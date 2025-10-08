@@ -43,6 +43,11 @@
           "description": "Control whether to enable drag and drop feature",
           "type": "boolean",
           "default": false
+        },
+        "citrusAgentServiceUrl": {
+          "title": "Citrus Agent Service URL",
+          "description": "URL that connects Kaoto with the Citrus agent service to execute tests.",
+          "type": "string"
         }
       }
     }
