@@ -17,7 +17,7 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
-import { shipOrderXsd } from '../stubs/datamapper/data-mapper';
+import { cartToShipOrderJsonXslt, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {
@@ -29,6 +29,12 @@ describe('mappingSerializerJsonAddon', () => {
       stylesheet.appendChild(template);
 
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
+      MappingSerializerService.deserialize(
+        cartToShipOrderJsonXslt,
+        TestUtil.createTargetOrderDoc(),
+        mappings,
+        TestUtil.createParameterMap(),
+      );
       MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
 
       expect(template.children.length).toBe(1);
@@ -55,6 +61,24 @@ describe('mappingSerializerJsonAddon', () => {
       stylesheet.appendChild(template);
 
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
+      const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
+
+      expect(root).toBeNull();
+      expect(template.children.length).toBe(0);
+
+      expect(stylesheet.children.length).toBe(2);
+      const output = stylesheet.children[0];
+      expect(output.getAttribute('method')).toEqual('xml');
+    });
+
+    it('should not populate a variable in JSON target case when no mappings', () => {
+      const xsltDocument = MappingSerializerService.createNew();
+      const stylesheet = xsltDocument.children[0];
+      const template = xsltDocument.createElementNS(NS_XSL, 'template');
+      template.setAttribute('match', '/');
+      stylesheet.appendChild(template);
+
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
       const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
 
       expect(root).toBeNull();
@@ -99,6 +123,12 @@ describe('mappingSerializerJsonAddon', () => {
 
     it('should populate a FieldItem', () => {
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
+      MappingSerializerService.deserialize(
+        cartToShipOrderJsonXslt,
+        TestUtil.createTargetOrderDoc(),
+        mappings,
+        TestUtil.createParameterMap(),
+      );
       const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
       const doc = new JsonSchemaDocument(DocumentType.TARGET_BODY, 'Body');
 
