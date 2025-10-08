@@ -34,7 +34,8 @@ export class MappingSerializerJsonAddon {
    * @return `xs:variable` element for the mappings to be filled into if the target document is JSON, null otherwise
    */
   static populateJsonTargetBase(mappings: MappingTree, template: Element): Element | null {
-    if (mappings.documentDefinitionType !== DocumentDefinitionType.JSON_SCHEMA) return null;
+    if (mappings.documentDefinitionType !== DocumentDefinitionType.JSON_SCHEMA || mappings.children.length === 0)
+      return null;
 
     const xsltDocument = template.ownerDocument;
     const toJsonXmlVariable = xsltDocument.createElementNS(NS_XSL, 'variable');
