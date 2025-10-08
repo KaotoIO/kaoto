@@ -4,7 +4,7 @@ import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstElement, CstNode, TokenType } from 'chevrotain';
-import { DocumentType, IField, PrimitiveDocument } from '../../models/datamapper/document';
+import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   PathExpression,
   PathSegment,
@@ -450,7 +450,7 @@ export class XPathService {
   ): PathExpression {
     const doc = source.ownerDocument;
     const answer = new PathExpression(contextPath);
-    if (doc.documentType === DocumentType.PARAM) answer.documentReferenceName = doc.getReferenceId(namespaceMap);
+    answer.documentReferenceName = doc.getReferenceId(namespaceMap) || undefined;
 
     const parentAbsPath = contextPath && XPathService.toAbsolutePath(contextPath);
     const fieldStack = DocumentUtilService.getFieldStack(source, true).reverse();
@@ -468,6 +468,13 @@ export class XPathService {
     for (const field of fieldStack) {
       const segment = XPathService.extractSegmentFromField(namespaceMap, field);
       sourceAbsPath.pathSegments.push(segment);
+    }
+
+    // If source and context are from different documents, return absolute path
+    if (parentAbsPath.documentReferenceName !== sourceAbsPath.documentReferenceName) {
+      answer.isRelative = false;
+      answer.pathSegments = sourceAbsPath.pathSegments;
+      return answer;
     }
 
     const contextSegments = parentAbsPath.pathSegments;

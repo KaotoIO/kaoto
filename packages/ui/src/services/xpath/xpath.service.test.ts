@@ -3,7 +3,10 @@ import { createSyntaxDiagramsCode } from 'chevrotain';
 import * as fs from 'fs';
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { FunctionGroup } from './xpath-parser';
-import { PathExpression, PathSegment } from '../../models/datamapper';
+import { BODY_DOCUMENT_ID, PathExpression, PathSegment } from '../../models/datamapper';
+import { DocumentType, IDocument } from '../../models/datamapper/document';
+import { XmlSchemaDocumentService } from '../xml-schema-document.service';
+import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 
 describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
@@ -530,5 +533,114 @@ describe('XPathService', () => {
     pe.documentReferenceName = 'Account-x';
     const xpath = XPathService.toXPathString(pe);
     expect(xpath).toEqual('$Account-x');
+  });
+
+  describe('toPathExpression()', () => {
+    let bodyDoc: IDocument;
+    let cart1Doc: IDocument;
+    let cart2Doc: IDocument;
+
+    beforeEach(() => {
+      bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        BODY_DOCUMENT_ID,
+        shipOrderXsd,
+      );
+      cart1Doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, 'Cart1', cartXsd);
+      cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, 'Cart2', cartXsd);
+    });
+
+    it('should generate relative path when source and context are from same document', () => {
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.pathSegments = [new PathSegment('ShipOrder', false), new PathSegment('Item', false)];
+
+      const shipOrderField = bodyDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const itemField = shipOrderField.fields.find((f) => f.name === 'Item')!;
+      const titleField = itemField.fields.find((f) => f.name === 'Title')!;
+
+      const result = XPathService.toPathExpression({}, titleField, contextPath);
+
+      expect(result.isRelative).toBe(true);
+      expect(result.documentReferenceName).toBeUndefined();
+      expect(result.pathSegments.length).toBe(1);
+      expect(result.pathSegments[0].name).toBe('Title');
+    });
+
+    it('should generate absolute path when source and context are from different documents', () => {
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.documentReferenceName = undefined; // SOURCE_BODY has no reference name
+      contextPath.pathSegments = [new PathSegment('ShipOrder', false), new PathSegment('Item', false)];
+
+      const cartField = cart2Doc.fields.find((f) => f.name === 'Cart')!;
+      const itemField = cartField.fields.find((f) => f.name === 'Item')!;
+      const noteField = itemField.fields.find((f) => f.name === 'Note')!;
+
+      const result = XPathService.toPathExpression({}, noteField, contextPath);
+
+      expect(result.isRelative).toBeFalsy();
+      expect(result.documentReferenceName).toBe('Cart2');
+      expect(result.pathSegments.length).toBe(3);
+      expect(result.pathSegments[0].name).toBe('Cart');
+      expect(result.pathSegments[1].name).toBe('Item');
+      expect(result.pathSegments[2].name).toBe('Note');
+    });
+
+    it('should generate absolute path when context is from param and source is from body', () => {
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.documentReferenceName = 'Cart1';
+      contextPath.pathSegments = [new PathSegment('Cart', false), new PathSegment('Item', false)];
+
+      const shipOrderField = bodyDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const orderPersonField = shipOrderField.fields.find((f) => f.name === 'OrderPerson')!;
+
+      const result = XPathService.toPathExpression({}, orderPersonField, contextPath);
+
+      expect(result.isRelative).toBeFalsy();
+      expect(result.documentReferenceName).toBeUndefined();
+      expect(result.pathSegments.length).toBe(2);
+      expect(result.pathSegments[0].name).toBe('ShipOrder');
+      expect(result.pathSegments[1].name).toBe('OrderPerson');
+    });
+
+    it('should generate relative path when both source and context are from same parameter', () => {
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.documentReferenceName = 'Cart1';
+      contextPath.pathSegments = [new PathSegment('Cart', false), new PathSegment('Item', false)];
+
+      const cartField = cart1Doc.fields.find((f) => f.name === 'Cart')!;
+      const itemField = cartField.fields.find((f) => f.name === 'Item')!;
+      const titleField = itemField.fields.find((f) => f.name === 'Title')!;
+
+      const result = XPathService.toPathExpression({}, titleField, contextPath);
+
+      expect(result.isRelative).toBe(true);
+      expect(result.documentReferenceName).toBe('Cart1');
+      expect(result.pathSegments.length).toBe(1);
+      expect(result.pathSegments[0].name).toBe('Title');
+    });
+
+    it('should generate absolute path when context and source are different parameters', () => {
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.documentReferenceName = 'Cart1';
+      contextPath.pathSegments = [new PathSegment('Cart', false), new PathSegment('Item', false)];
+
+      const cartField = cart2Doc.fields.find((f) => f.name === 'Cart')!;
+      const itemField = cartField.fields.find((f) => f.name === 'Item')!;
+      const noteField = itemField.fields.find((f) => f.name === 'Note')!;
+
+      const result = XPathService.toPathExpression({}, noteField, contextPath);
+
+      expect(result.isRelative).toBe(false);
+      expect(result.documentReferenceName).toBe('Cart2');
+      expect(result.pathSegments.length).toBe(3);
+      expect(result.pathSegments[0].name).toBe('Cart');
+      expect(result.pathSegments[1].name).toBe('Item');
+      expect(result.pathSegments[2].name).toBe('Note');
+    });
   });
 });
