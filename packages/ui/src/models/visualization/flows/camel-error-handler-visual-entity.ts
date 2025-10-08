@@ -158,6 +158,18 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return undefined;
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  hasMessage(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  getMessage(_path?: string): Record<string, unknown> | undefined {
+    return undefined;
+  }
+
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const errorHandlerGroupNode = NodeMapperService.getVizNode(
       this.getRootPath(),

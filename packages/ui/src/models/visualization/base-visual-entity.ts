@@ -77,6 +77,15 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   /** Given a path, retrieve the Node validation status */
   getNodeValidationText(path?: string): string | undefined;
 
+  /** Check if this node has been verified (e.g. with a successful test result) */
+  isVerified(path?: string): boolean | undefined;
+
+  /** Check if this node is associated with a message (e.g. from a reported test result) */
+  hasMessage(path?: string): boolean | undefined;
+
+  /** Gets the message content */
+  getMessage(path?: string): Record<string, unknown> | undefined;
+
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
 
@@ -156,11 +165,20 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   removeChild(): void;
 
-  /** Retrieve the node's validation status, relying into the underlying entity */
+  /** Retrieve the node's validation status, relying on the underlying entity */
   getNodeValidationText(): string | undefined;
 
   /** Return extra icons for the CustomGroup (entity-specific) */
   getGroupIcons(): { icon: string; title: string }[];
+
+  /** Check if this node has been verified (e.g. with a successful test result) */
+  isVerified(): boolean | undefined;
+
+  /** Check if this node is associated with a message (e.g. from a reported test result) */
+  hasMessage(): boolean | undefined;
+
+  /** Gets the message content */
+  getMessage(): Record<string, unknown> | undefined;
 }
 
 export interface IVisualizationNodeData {

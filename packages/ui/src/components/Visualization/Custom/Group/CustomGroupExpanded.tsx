@@ -1,10 +1,22 @@
 import './CustomGroupExpanded.scss';
 
-import { Icon } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Icon,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 import {
   ArrowDownIcon,
   ArrowRightIcon,
   BanIcon,
+  CheckCircleIcon,
   ExclamationCircleIcon,
   PauseIcon,
   PlayIcon,
@@ -22,7 +34,7 @@ import {
   useHover,
   withDndDrop,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useRef } from 'react';
+import { FunctionComponent, MouseEventHandler, useCallback, useContext, useRef, useState } from 'react';
 
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
@@ -49,6 +61,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
+    const verified = vizNode?.isVerified() || false;
     const tooltipContent = vizNode?.getTooltipContent();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
@@ -67,6 +80,19 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
+
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+    const showError: MouseEventHandler<HTMLDivElement> = useCallback(
+      async (event) => {
+        event.stopPropagation();
+        setIsErrorModalOpen(true);
+      },
+      [setIsErrorModalOpen],
+    );
+
+    const onCloseErrorModal = useCallback(() => {
+      setIsErrorModalOpen(false);
+    }, []);
 
     if (!vizNode) {
       return null;
@@ -97,6 +123,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           data-warnings={doesHaveWarnings}
+          data-verified={verified}
           onClick={onSelect}
           onContextMenu={onContextMenu}
         >
@@ -140,8 +167,23 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               height={25}
             >
               <FloatingCircle>
-                <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
+                <Icon status="danger" className="custom-group__warning-icon" title={validationText} onClick={showError}>
                   <ExclamationCircleIcon />
+                </Icon>
+              </FloatingCircle>
+            </foreignObject>
+          )}
+          {verified && !isDisabled && (
+            <foreignObject
+              className="custom-group__success-icon--floating"
+              x={boxRef.current.x - 7}
+              y={boxRef.current.y - 7}
+              width={25}
+              height={25}
+            >
+              <FloatingCircle>
+                <Icon status="success" className="custom-group__success-icon" title="Step verified">
+                  <CheckCircleIcon />
                 </Icon>
               </FloatingCircle>
             </foreignObject>
@@ -184,6 +226,29 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             </foreignObject>
           )}
         </g>
+
+        <Modal isOpen={isErrorModalOpen} variant={ModalVariant.medium} data-testid="validation-error-modal">
+          <ModalHeader title={'FAILURE Details'} titleIconVariant={'danger'} />
+          <ModalBody>
+            <Stack hasGutter>
+              <StackItem>
+                <Alert variant="danger" title={'Validation error'}>
+                  <p>{validationText}</p>
+                </Alert>
+              </StackItem>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="Close"
+              data-testid="validation-error-modal-btn-close"
+              variant="control"
+              onClick={onCloseErrorModal}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
       </Layer>
     );
   },

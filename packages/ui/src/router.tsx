@@ -44,6 +44,14 @@ export const router = createHashRouter([
         lazy: async () => import('./pages/Settings'),
       },
       {
+        path: Links.AgentConfiguration,
+        lazy: async () => import('./pages/AgentConfiguration'),
+      },
+      {
+        path: Links.TestResults,
+        lazy: async () => import('./pages/TestResults'),
+      },
+      {
         path: Links.DataMapper,
         lazy: async () => {
           if (import.meta.env.VITE_ENABLE_DATAMAPPER_DEBUGGER === 'true') {

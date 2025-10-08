@@ -36,6 +36,10 @@
           background-color: var(--custom-node-BorderColor);
         }
 
+        [data-verified='true'] & {
+          background-color: var(--pf-topology__node--m-success--Background--Fill);
+        }
+
         [data-warnings='true'] & {
           background-color: var(--pf-topology__node--m-danger--Background--Fill);
         }
@@ -61,12 +65,18 @@
         @include custom.disabled;
       }
 
+      [data-verified='true'],
       [data-warnings='true'] & {
         &:hover,
         &[data-toolbar-open='true'] {
           border-color: var(--pf-topology__node--m-danger--Background--Fill);
           box-shadow: var(--custom-node-Shadow);
         }
+      }
+
+      [data-verified='true'][data-selected='true'] & {
+        border-color: var(--pf-topology__node--m-success--Background--Fill);
+        box-shadow: var(--custom-node-Shadow);
       }
 
       [data-warnings='true'][data-selected='true'] & {
@@ -107,6 +117,15 @@
     .floating-circle {
       border-radius: 15px;
       border-color: var(--pf-topology__node--m-danger--Background--Fill);
+    }
+  }
+
+  &__success-icon--floating {
+    border-radius: 15px;
+
+    .floating-circle {
+      border-radius: 15px;
+      border-color: var(--pf-topology__node--m-success--Background--Fill);
     }
   }
 }

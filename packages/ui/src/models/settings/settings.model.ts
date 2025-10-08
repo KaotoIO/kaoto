@@ -21,6 +21,7 @@ export interface ISettingsModel {
   colorScheme: ColorScheme;
   experimentalFeatures: {
     enableDragAndDrop: boolean;
+    citrusAgentServiceUrl?: string;
   };
 }
 

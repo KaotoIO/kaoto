@@ -8,6 +8,7 @@ import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog'
 import { ICamelProcessorDefinition } from '../../camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
+import { ICitrusComponentDefinition } from '../../test-catalog';
 
 export class CamelCatalogService {
   private static catalogs: ComponentsCatalog = {};
@@ -37,6 +38,30 @@ export class CamelCatalogService {
     loadBalancerName?: string,
   ): ICamelLoadBalancerDefinition | undefined;
   static getComponent(catalogKey: CatalogKind.Kamelet, componentName?: string): IKameletDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestActionGroup,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestAction,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestContainer,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestEndpoint,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestFunction,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.TestValidationMatcher,
+    componentName?: string,
+  ): ICitrusComponentDefinition | undefined;
   static getComponent(
     catalogKey: CatalogKind.Function,
     componentName?: string,

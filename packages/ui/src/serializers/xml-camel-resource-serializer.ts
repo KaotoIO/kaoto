@@ -3,6 +3,7 @@ import xmlFormat from 'xml-formatter';
 
 import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
 import { EntityType } from '../models/camel/entities';
+import { Test } from '../models/citrus/entities/Test';
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
 import { EntityDefinition } from './xml/serializers/entitiy-definition';
 import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
@@ -28,7 +29,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     return isXML(code as string);
   }
 
-  parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
+  parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test {
     const xmlParser = new KaotoXmlParser();
 
     this.metadata.xmlDeclaration = this.parseXmlDeclaration(code as string);

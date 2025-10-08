@@ -274,6 +274,26 @@ describe('CatalogLoaderProvider', () => {
         expect(call[0]).toEqual(CatalogKind.Function);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
+      } else if (Object.keys(call[1])[0].endsWith(`/citrus-catalog-aggregate-test-actions.json`)) {
+        expect(call[0]).toEqual(CatalogKind.TestAction);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0].endsWith(`/citrus-catalog-aggregate-test-containers.json`)) {
+        expect(call[0]).toEqual(CatalogKind.TestContainer);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0].endsWith(`/citrus-catalog-aggregate-endpoints.json`)) {
+        expect(call[0]).toEqual(CatalogKind.TestEndpoint);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0].endsWith(`/citrus-catalog-aggregate-functions.json`)) {
+        expect(call[0]).toEqual(CatalogKind.TestFunction);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0].endsWith(`/citrus-catalog-aggregate-validation-matcher.json`)) {
+        expect(call[0]).toEqual(CatalogKind.TestValidationMatcher);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
       } else {
         throw new Error(call);
       }

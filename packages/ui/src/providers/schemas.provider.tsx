@@ -46,6 +46,21 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           {} as Record<string, KaotoSchemaDefinition>,
         );
 
+        // ToDo: load from npm package
+        const testSchema = await CatalogSchemaLoader.fetchFile(
+          '/src/assets/citrus-catalog/citrus/4.9.0/citrus-testcase.json',
+        );
+        const testSchemaDefinition: KaotoSchemaDefinition = {
+          name: 'citrus-yaml',
+          tags: ['citrus', 'test'],
+          version: '4.9.0',
+          uri: testSchema.uri,
+          schema: testSchema.body as KaotoSchemaDefinition['schema'],
+        };
+        setSchema('citrus-yaml', testSchemaDefinition);
+        sourceSchemaConfig.setSchema('citrus-yaml', testSchemaDefinition);
+        combinedSchemas['citrus-yaml'] = testSchemaDefinition;
+
         setSchemas(combinedSchemas);
       })
       .then(() => {

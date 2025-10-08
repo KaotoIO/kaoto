@@ -254,6 +254,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return [];
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  hasMessage(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  getMessage(_path?: string): Record<string, unknown> | undefined {
+    return undefined;
+  }
+
   toVizNode(): IVisualizationNode {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
       catalogKind: CatalogKind.Entity,

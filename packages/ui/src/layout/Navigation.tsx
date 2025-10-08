@@ -45,6 +45,14 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
         hidden: () => !NAVIGATION_ELEMENTS.DataMapper.includes(currentSchemaType),
       },
       { title: 'Catalog', to: Links.Catalog },
+      {
+        title: 'Citrus Agent',
+        children: [
+          { title: 'Configuration', to: Links.AgentConfiguration },
+          { title: 'Test Results', to: Links.TestResults },
+        ],
+        hidden: () => !NAVIGATION_ELEMENTS.TestResults.includes(currentSchemaType),
+      },
     ],
     [currentSchemaType],
   );
@@ -120,4 +128,5 @@ const NAVIGATION_ELEMENTS = {
   ],
   PipeErrorHandler: [SourceSchemaType.KameletBinding, SourceSchemaType.Pipe],
   DataMapper: [SourceSchemaType.Route, SourceSchemaType.Kamelet],
+  TestResults: [SourceSchemaType.Test],
 };

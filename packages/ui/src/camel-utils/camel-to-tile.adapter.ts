@@ -1,5 +1,11 @@
 import { ITile } from '../components/Catalog/Catalog.models';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
+import {
+  CatalogKind,
+  ICamelComponentDefinition,
+  ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
+  IKameletDefinition,
+} from '../models';
 
 export const camelComponentToTile = (componentDef: ICamelComponentDefinition): ITile => {
   const { name, title, description, supportLevel, label, provider, version } = componentDef.component;
@@ -82,6 +88,23 @@ export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
     name: kameletDef.metadata.name,
     title: kameletDef.spec.definition.title,
     description: kameletDef.spec.definition.description,
+    headerTags,
+    tags,
+    version,
+  };
+};
+
+export const citrusComponentToTile = (componentDefinition: ICitrusComponentDefinition): ITile => {
+  const headerTags: string[] = [componentDefinition.kind];
+  const tags: string[] = [];
+  const version = '4.9.0';
+
+  return {
+    type:
+      componentDefinition.kind === CatalogKind.TestActionGroup ? CatalogKind.TestActionGroup : componentDefinition.kind,
+    name: componentDefinition.name,
+    title: componentDefinition.title || componentDefinition.name,
+    description: componentDefinition.description,
     headerTags,
     tags,
     version,

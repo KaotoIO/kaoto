@@ -1,3 +1,5 @@
+// Citrus test action icons
+import icon_citrus_logo from '../../assets/citrus-logo.png';
 import icon_component_activemq from '../../assets/components/activemq.svg';
 import icon_component_amqp from '../../assets/components/amqp.svg';
 import icon_component_arangodb from '../../assets/components/arangodb.svg';
@@ -238,6 +240,31 @@ import icon_eip_when from '../../assets/eip/when.png';
 import icon_eip_wiretap from '../../assets/eip/wiretap.png';
 import expandIcon from '../../assets/expand.svg';
 import questionIcon from '../../assets/question-mark.svg';
+import icon_action_async from '../../assets/test-actions/async-action.svg';
+import icon_action_camel from '../../assets/test-actions/camel-action.svg';
+import icon_action_conditional from '../../assets/test-actions/conditional-action.svg';
+import icon_action_create_endpoint from '../../assets/test-actions/create-endpoint-action.svg';
+import icon_action_create_variables from '../../assets/test-actions/create-variables-action.svg';
+import icon_action_delay from '../../assets/test-actions/delay-action.svg';
+import icon_action_generic from '../../assets/test-actions/generic-action.svg';
+import icon_action_groovy from '../../assets/test-actions/groovy-action.png';
+import icon_action_http from '../../assets/test-actions/http-action.svg';
+import icon_action_iterate from '../../assets/test-actions/iterate-action.svg';
+import icon_action_jbang from '../../assets/test-actions/jbang-action.png';
+import icon_action_knative from '../../assets/test-actions/knative-action.png';
+import icon_action_kubernetes from '../../assets/test-actions/kubernetes-action.png';
+import icon_action_openapi from '../../assets/test-actions/openapi-action.png';
+import icon_action_parallel from '../../assets/test-actions/parallel-action.svg';
+import icon_action_print from '../../assets/test-actions/print-action.svg';
+import icon_action_receive from '../../assets/test-actions/receive-action.svg';
+import icon_action_repeat from '../../assets/test-actions/repeat-action.svg';
+import icon_action_repeat_on_error from '../../assets/test-actions/repeat-on-error-action.svg';
+import icon_action_selenium from '../../assets/test-actions/selenium-action.png';
+import icon_action_send from '../../assets/test-actions/send-action.svg';
+import icon_action_sequential from '../../assets/test-actions/sequential-action.svg';
+import icon_action_soap from '../../assets/test-actions/soap-action.svg';
+import icon_action_testcontainers from '../../assets/test-actions/testcontainers-action.png';
+import icon_action_wait from '../../assets/test-actions/wait-action.svg';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog';
 import { EntityType } from '../../models/camel/entities';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -262,6 +289,13 @@ export class NodeIconResolver {
         return this.getEIPIcon(elementName) ?? this.getDefaultCamelIcon();
       case CatalogKind.Entity:
         return this.getVisualEntityIcon(elementName) ?? this.getDefaultCamelIcon();
+      case CatalogKind.TestAction:
+      case CatalogKind.TestActionGroup:
+      case CatalogKind.TestContainer:
+      case CatalogKind.TestEndpoint:
+      case CatalogKind.TestFunction:
+      case CatalogKind.TestValidationMatcher:
+        return this.getActionIcon(elementName) ?? this.getDefaultCitrusIcon();
       default:
         return this.getDefaultCamelIcon();
     }
@@ -269,6 +303,10 @@ export class NodeIconResolver {
 
   static getDefaultCamelIcon(): string {
     return icon_component_generic;
+  }
+
+  static getDefaultCitrusIcon(): string {
+    return icon_citrus_logo;
   }
 
   private static getUnknownIcon(): string {
@@ -282,6 +320,86 @@ export class NodeIconResolver {
     );
 
     return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'];
+  }
+
+  private static getActionIcon(elementName: string): string | undefined {
+    if (elementName.startsWith('agent')) {
+      return icon_citrus_logo;
+    }
+
+    if (elementName.startsWith('camel')) {
+      return icon_action_camel;
+    }
+
+    if (elementName.startsWith('http')) {
+      return icon_action_http;
+    }
+
+    if (elementName.startsWith('soap')) {
+      return icon_action_soap;
+    }
+
+    if (elementName.startsWith('kubernetes')) {
+      return icon_action_kubernetes;
+    }
+
+    if (elementName.startsWith('knative')) {
+      return icon_action_knative;
+    }
+
+    if (elementName.startsWith('openapi')) {
+      return icon_action_openapi;
+    }
+
+    if (elementName.startsWith('testcontainers')) {
+      return icon_action_testcontainers;
+    }
+
+    if (elementName.startsWith('selenium')) {
+      return icon_action_selenium;
+    }
+
+    switch (elementName) {
+      case 'test':
+        // Test case icon
+        return icon_citrus_logo;
+      case 'createVariables':
+        return icon_action_create_variables;
+      case 'createEndpoint':
+        return icon_action_create_endpoint;
+      case 'iterate':
+        return icon_action_iterate;
+      case 'repeat':
+        return icon_action_repeat;
+      case 'repeatOnError':
+        return icon_action_repeat_on_error;
+      case 'sequential':
+        return icon_action_sequential;
+      case 'parallel':
+        return icon_action_parallel;
+      case 'conditional':
+        return icon_action_conditional;
+      case 'async':
+        return icon_action_async;
+      case 'print':
+      case 'echo':
+        return icon_action_print;
+      case 'groovy':
+        return icon_action_groovy;
+      case 'jbang':
+        return icon_action_jbang;
+      case 'delay':
+      case 'sleep':
+        return icon_action_delay;
+      case 'receive':
+        return icon_action_receive;
+      case 'send':
+        return icon_action_send;
+      case 'waitFor':
+        return icon_action_wait;
+      default:
+        return icon_action_generic;
+    }
   }
 
   private static getComponentIcon(elementName: string): string | undefined {

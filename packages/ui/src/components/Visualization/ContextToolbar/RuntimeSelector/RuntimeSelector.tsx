@@ -4,6 +4,7 @@ import { Icon, Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle 
 import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
 
 import camelLogo from '../../../../assets/camel-logo.svg';
+import citrusLogo from '../../../../assets/citrus-logo.png';
 import quarkusLogo from '../../../../assets/quarkus-logo.svg';
 import redhatLogo from '../../../../assets/redhat-logo.svg';
 import springBootLogo from '../../../../assets/springboot-logo.svg';
@@ -17,6 +18,12 @@ const getIcon = (name: string) => {
     return (
       <Icon>
         <img src={redhatLogo} alt="Red Hat logo" />
+      </Icon>
+    );
+  } else if (name.includes('Citrus')) {
+    return (
+      <Icon>
+        <img src={citrusLogo} />
       </Icon>
     );
   } else if (name.includes('Quarkus')) {

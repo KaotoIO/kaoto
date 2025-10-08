@@ -26,6 +26,13 @@ import {
   CamelProcessorsProvider,
 } from './providers/camel-components.provider';
 import { CamelKameletsProvider } from './providers/camel-kamelets.provider';
+import {
+  CitrusTestActionsProvider,
+  CitrusTestContainersProvider,
+  CitrusTestEndpointsProvider,
+  CitrusTestFunctionsProvider,
+  CitrusTestValidationMatcherProvider,
+} from './providers/citrus-components.provider';
 
 export const CatalogContext = createContext<IDynamicCatalogRegistry>(DynamicCatalogRegistry.get());
 
@@ -55,7 +62,7 @@ export const CatalogLoaderProvider: FunctionComponent<
         const camelComponentsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Component]>(
           `${relativeBasePath}/${catalogIndex.catalogs.components.file}`,
         );
-        /** Full list of Camel Models, used as lookup for processors definitions definitions */
+        /** Full list of Camel Models, used as lookup for processors definitions */
         const camelModelsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Processor]>(
           `${relativeBasePath}/${catalogIndex.catalogs.models.file}`,
         );
@@ -130,6 +137,43 @@ export const CatalogLoaderProvider: FunctionComponent<
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
         CamelCatalogService.setCatalogKey(CatalogKind.Function, functions.body);
 
+        // ToDo: Load from npm package
+        const citrusCatalogBase = '/src/assets/citrus-catalog/citrus/4.9.0';
+        /** Citrus test actions */
+        const actionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestAction]>(
+          `${citrusCatalogBase}/citrus-catalog-aggregate-test-actions.json`,
+        );
+        /** Citrus test containers */
+        const containerFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestContainer]>(
+          `${citrusCatalogBase}/citrus-catalog-aggregate-test-containers.json`,
+        );
+        /** Citrus test endpoints */
+        const endpointFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestEndpoint]>(
+          `${citrusCatalogBase}/citrus-catalog-aggregate-endpoints.json`,
+        );
+        /** Citrus test functions */
+        const functionFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestFunction]>(
+          `${citrusCatalogBase}/citrus-catalog-aggregate-functions.json`,
+        );
+        /** Citrus test validation matcher */
+        const validationMatcherFiles = CatalogSchemaLoader.fetchFile<
+          ComponentsCatalog[CatalogKind.TestValidationMatcher]
+        >(`${citrusCatalogBase}/citrus-catalog-aggregate-validation-matcher.json`);
+
+        const [testActions, testContainers, testEndpoints, testFunctions, testValidationMatcher] = await Promise.all([
+          actionsFiles,
+          containerFiles,
+          endpointFiles,
+          functionFiles,
+          validationMatcherFiles,
+        ]);
+
+        CamelCatalogService.setCatalogKey(CatalogKind.TestAction, testActions.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, testContainers.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.TestEndpoint, testEndpoints.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.TestFunction, testFunctions.body);
+        CamelCatalogService.setCatalogKey(CatalogKind.TestValidationMatcher, testValidationMatcher.body);
+
         DynamicCatalogRegistry.get().setCatalog(
           CatalogKind.Component,
           new DynamicCatalog(new CamelComponentsProvider(camelComponents.body)),
@@ -167,6 +211,31 @@ export const CatalogLoaderProvider: FunctionComponent<
         DynamicCatalogRegistry.get().setCatalog(
           CatalogKind.Function,
           new DynamicCatalog(new CamelFunctionProvider(functions.body)),
+        );
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.TestAction,
+          new DynamicCatalog(new CitrusTestActionsProvider(testActions.body)),
+        );
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.TestContainer,
+          new DynamicCatalog(new CitrusTestContainersProvider(testContainers.body)),
+        );
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.TestEndpoint,
+          new DynamicCatalog(new CitrusTestEndpointsProvider(testEndpoints.body)),
+        );
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.TestFunction,
+          new DynamicCatalog(new CitrusTestFunctionsProvider(testFunctions.body)),
+        );
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.TestValidationMatcher,
+          new DynamicCatalog(new CitrusTestValidationMatcherProvider(testValidationMatcher.body)),
         );
       })
       .then(() => {
