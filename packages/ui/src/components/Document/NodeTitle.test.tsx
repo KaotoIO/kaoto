@@ -14,7 +14,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={true} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={true} rank={0} />);
 
     const titleElement = screen.getByRole('heading', { level: 5 });
     expect(titleElement).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe('NodeTitle', () => {
     const mockField = createMockField();
     const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
 
-    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} />);
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
     expect(screen.getByText(mockField.displayName)).toBeInTheDocument();
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={false} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={false} rank={0} />);
 
     const element = screen.getByText('Body');
     expect(element).toHaveClass('node-title__text');
@@ -48,7 +48,7 @@ describe('NodeTitle', () => {
     const documentNodeData = new DocumentNodeData(primitiveDoc);
     const customClass = 'custom-test-class';
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={true} className={customClass} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={true} className={customClass} rank={0} />);
 
     const titleElement = screen.getByRole('heading', { level: 5 });
     expect(titleElement).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'primitive-doc');
     const primitiveNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={primitiveNodeData} isDocument={true} />);
+    render(<NodeTitle nodeData={primitiveNodeData} isDocument={true} rank={0} />);
 
     const titleElement = screen.getByRole('heading', { level: 5 });
     expect(titleElement).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, longTitle);
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={true} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={true} rank={0} />);
 
     const titleElement = screen.getByRole('heading', { level: 5 });
     expect(titleElement).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={false} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={false} rank={0} />);
 
     const element = screen.getByText('Body');
     expect(element).toHaveClass('node-title__text');
@@ -92,7 +92,7 @@ describe('NodeTitle', () => {
     const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
-    render(<NodeTitle nodeData={documentNodeData} isDocument={false} className={undefined} />);
+    render(<NodeTitle nodeData={documentNodeData} isDocument={false} className={undefined} rank={0} />);
 
     const element = screen.getByText('Body');
     expect(element).toHaveClass('node-title__text');

@@ -224,7 +224,10 @@ export class DataMapperMetadataService {
     await api.saveResourceContent(metadata.xsltPath, xsltFile);
   }
 
-  static async selectDocumentSchema(api: IMetadataApi, fileNamePattern: string) {
+  static async selectDocumentSchema(
+    api: IMetadataApi,
+    fileNamePattern: string,
+  ): Promise<string[] | string | undefined> {
     return await api.askUserForFileSelection(fileNamePattern, undefined, {
       canPickMany: false, // TODO set to true once we support xs:include/xs:import, i.e. multiple files
       placeHolder:

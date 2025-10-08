@@ -15,11 +15,11 @@ import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef } 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
+import { NodeReference } from '../../models/datamapper';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
-import { SourceDocument } from './SourceDocument';
-import { NodeReference } from '../../models/datamapper';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
+import { SourceDocument } from './SourceDocument';
 
 type ParametersProps = {
   isReadOnly: boolean;

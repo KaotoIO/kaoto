@@ -10,6 +10,9 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
     <div
       id="simple-zustand-devtools-SourceCode Store"
     />
+    <div
+      id="simple-zustand-devtools-Document Tree Store"
+    />
     <div>
       <div
         class="pf-v6-l-bullseye"
