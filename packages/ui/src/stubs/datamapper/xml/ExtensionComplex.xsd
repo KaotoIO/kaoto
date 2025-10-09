@@ -1,0 +1,60 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.example.com/TEST"
+            xmlns="http://www.example.com/TEST"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:element name="Request">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="BaseRequest">
+                    <xsd:sequence>
+                        <xsd:element name="name" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="SecondRequest">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="BaseRequest">
+                    <xsd:sequence>
+                        <xsd:element name="user" type="xsd:string"/>
+                        <xsd:element name="message" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType abstract="true" name="BaseRequest">
+        <xsd:complexContent>
+            <xsd:extension base="Message">
+                <xsd:sequence>
+                    <xsd:element name="user" nillable="true" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>blah blah</xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType abstract="true" name="Message">
+        <xsd:sequence>
+            <xsd:annotation>
+                <xsd:documentation>Message body.
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:element minOccurs="0" name="timestamp" nillable="true" type="xsd:dateTime">
+                <xsd:annotation>
+                    <xsd:documentation>Timestamp when message was sent.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
