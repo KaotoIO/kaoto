@@ -98,6 +98,9 @@ export const multipleForEachJsonXslt = fs
 export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
 export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
 export const orgToContactsXslt = fs.readFileSync(path.resolve(__dirname, './xml/OrgToContacts.xsl')).toString();
+export const extensionSimpleXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionSimple.xsd')).toString();
+export const extensionComplexXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionComplex.xsd')).toString();
+export const schemaTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/SchemaTest.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {

@@ -31,7 +31,10 @@ import {
 } from '../models/datamapper/document';
 import {
   contactsXsd,
+  extensionComplexXsd,
+  extensionSimpleXsd,
   orgXsd,
+  schemaTestXsd,
   shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderInvalidForEachXslt,
   shipOrderToShipOrderMultipleForEachXslt,
@@ -607,6 +610,130 @@ describe('VisualizationService', () => {
       valueSelector = targetEmailField.mapping?.children[0] as ValueSelector;
       expect(valueSelector).toBeDefined();
       expect(valueSelector.expression).toEqual('.');
+    });
+
+    it('should render ExtensionSimple.xsd', () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        BODY_DOCUMENT_ID,
+        extensionSimpleXsd,
+      );
+      const docNode = new DocumentNodeData(doc);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+      expect(docChildren.length).toEqual(1);
+
+      const product = docChildren[0];
+      expect(product.title).toEqual('Product');
+      const productChildren = VisualizationService.generateNonDocumentNodeDataChildren(product);
+      expect(productChildren.length).toEqual(2);
+
+      const nameField = productChildren.find((child) => child.title === 'name') as FieldNodeData;
+      expect(nameField).toBeDefined();
+      const nameChildren = VisualizationService.generateNonDocumentNodeDataChildren(nameField);
+
+      expect(nameChildren.length).toEqual(2);
+      const langAttr = nameChildren.find((child) => child.title === 'lang');
+      expect(langAttr).toBeDefined();
+      const formatAttr = nameChildren.find((child) => child.title === 'format');
+      expect(formatAttr).toBeDefined();
+
+      const priceField = productChildren.find((child) => child.title === 'price') as FieldNodeData;
+      expect(priceField).toBeDefined();
+      const priceChildren = VisualizationService.generateNonDocumentNodeDataChildren(priceField);
+
+      expect(priceChildren.length).toEqual(3);
+      const discountAttr = priceChildren.find((child) => child.title === 'discount');
+      expect(discountAttr).toBeDefined();
+      const currencyAttr = priceChildren.find((child) => child.title === 'currency');
+      expect(currencyAttr).toBeDefined();
+      const taxIncludedAttr = priceChildren.find((child) => child.title === 'taxIncluded');
+      expect(taxIncludedAttr).toBeDefined();
+    });
+
+    it('should render ExtensionComplex.xsd', () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        BODY_DOCUMENT_ID,
+        extensionComplexXsd,
+        { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
+      );
+      const docNode = new DocumentNodeData(doc);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+      expect(docChildren.length).toEqual(1);
+
+      const request = docChildren[0];
+      expect(request.title).toEqual('Request');
+      const requestChildren = VisualizationService.generateNonDocumentNodeDataChildren(request);
+
+      expect(requestChildren.length).toEqual(3);
+
+      const nameField = requestChildren.find((child) => child.title === 'name');
+      expect(nameField).toBeDefined();
+
+      const userField = requestChildren.find((child) => child.title === 'user');
+      expect(userField).toBeDefined();
+
+      const timestampField = requestChildren.find((child) => child.title === 'timestamp');
+      expect(timestampField).toBeDefined();
+    });
+
+    it('should render SchemaTest.xsd', () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        DocumentType.SOURCE_BODY,
+        BODY_DOCUMENT_ID,
+        schemaTestXsd,
+      );
+      const docNode = new DocumentNodeData(doc);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+      expect(docChildren.length).toEqual(1);
+
+      const root = docChildren[0];
+      expect(root.title).toEqual('Root');
+      const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(root);
+      expect(rootChildren.length).toEqual(2);
+
+      const personField = rootChildren.find((child) => child.title === 'person') as FieldNodeData;
+      expect(personField).toBeDefined();
+      const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(personField);
+
+      expect(personChildren.length).toEqual(11);
+
+      const nameField = personChildren.find((child) => child.title === 'name');
+      expect(nameField).toBeDefined();
+
+      const streetField = personChildren.find((child) => child.title === 'street');
+      expect(streetField).toBeDefined();
+
+      const cityField = personChildren.find((child) => child.title === 'city');
+      expect(cityField).toBeDefined();
+
+      const emailField = personChildren.find((child) => child.title === 'email');
+      expect(emailField).toBeDefined();
+
+      const phoneField = personChildren.find((child) => child.title === 'phone');
+      expect(phoneField).toBeDefined();
+
+      const faxField = personChildren.find((child) => child.title === 'fax');
+      expect(faxField).toBeDefined();
+
+      const createdByField = personChildren.find((child) => child.title === 'createdBy');
+      expect(createdByField).toBeDefined();
+
+      const createdDateField = personChildren.find((child) => child.title === 'createdDate');
+      expect(createdDateField).toBeDefined();
+
+      // Attributes from ExtendedAttributes -> CommonAttributes
+      const idAttr = personChildren.find((child) => child.title === 'id');
+      expect(idAttr).toBeDefined();
+
+      const versionAttr = personChildren.find((child) => child.title === 'version');
+      expect(versionAttr).toBeDefined();
+
+      const statusAttr = personChildren.find((child) => child.title === 'status');
+      expect(statusAttr).toBeDefined();
+
+      const restrictedField = rootChildren.find((child) => child.title === 'restricted') as FieldNodeData;
+      expect(restrictedField).toBeDefined();
     });
   });
 

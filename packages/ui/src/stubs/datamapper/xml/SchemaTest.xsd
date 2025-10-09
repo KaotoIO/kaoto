@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/test"
+           xmlns:test="http://www.example.com/test"
+           elementFormDefault="qualified">
+
+  <xs:attributeGroup name="CommonAttributes">
+    <xs:attribute name="id" type="xs:string" use="required"/>
+    <xs:attribute name="version" type="xs:string" use="optional"/>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="ExtendedAttributes">
+    <xs:attributeGroup ref="test:CommonAttributes"/>
+    <xs:attribute name="status" type="xs:string" use="prohibited"/>
+  </xs:attributeGroup>
+
+  <xs:group name="AddressGroup">
+    <xs:sequence>
+      <xs:element name="street" type="xs:string"/>
+      <xs:element name="city" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="ContactGroup">
+    <xs:choice>
+      <xs:element name="email" type="xs:string"/>
+      <xs:element name="phone" type="xs:string"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="AuditGroup">
+    <xs:sequence>
+      <xs:element name="createdBy" type="xs:string"/>
+      <xs:element name="createdDate" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="RestrictedString">
+    <xs:simpleContent>
+      <xs:restriction base="xs:string">
+        <xs:maxLength value="100"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="BaseType">
+    <xs:sequence>
+      <xs:element name="baseField" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RestrictedType">
+    <xs:complexContent>
+      <xs:restriction base="test:BaseType">
+        <xs:sequence>
+          <xs:element name="baseField" type="xs:string"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="PersonType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:group ref="test:AddressGroup"/>
+      <xs:choice>
+        <xs:group ref="test:ContactGroup"/>
+        <xs:element name="fax" type="xs:string"/>
+      </xs:choice>
+      <xs:sequence>
+        <xs:group ref="test:AuditGroup"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="test:ExtendedAttributes"/>
+  </xs:complexType>
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="person" type="test:PersonType"/>
+        <xs:element name="restricted" type="test:RestrictedType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

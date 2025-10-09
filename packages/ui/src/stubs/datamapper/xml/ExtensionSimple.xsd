@@ -1,0 +1,47 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.example.com/SIMPLE"
+            xmlns="http://www.example.com/SIMPLE"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:element name="Product">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="name" type="ExtendedString"/>
+                <xsd:element name="price" type="PriceType"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="ExtendedString">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="lang" type="xsd:string"/>
+                <xsd:attribute name="format" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="PriceType">
+        <xsd:simpleContent>
+            <xsd:extension base="BasePrice">
+                <xsd:attribute name="discount" type="xsd:decimal"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="BasePrice">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:decimal">
+                <xsd:attribute name="currency" type="CurrencyType"/>
+                <xsd:attribute name="taxIncluded" type="xsd:boolean"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="CurrencyType">
+        <xsd:restriction base="xsd:decimal">
+            <xsd:length value="3"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>
