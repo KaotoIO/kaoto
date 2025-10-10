@@ -11,20 +11,30 @@
  * the relative path is calculated from what is specified in the `for-each` selector. In this case, the path
  * of `for-each` selector is the context path and {@link PathExpression.pathSegments} only holds the relative
  * path segments traced from the context path. {@link PathExpression.isRelative} must be `true` in that case.
+ * Even if it's not inside the `for-each` context, the xpath could be relative from the root. For example,
+ * the path `/aaa/bbb/ccc` is equal to `aaa/bbb/ccc` if it's not in any context. In both case, they should have
+ * {@link PathExpression.contextPath} undefined. However, `/aaa/bbb/ccc` should have `isRelative=false` while
+ * `aaa/bbb/ccc` should have `isRelative=true`.
  * @see {@link PathSegment}
  * @see {@link Predicate}
  * @see {@link XPathService}
  */
 export class PathExpression {
-  constructor(public contextPath?: PathExpression) {
+  constructor(
+    public contextPath?: PathExpression,
+    public isRelative?: boolean,
+  ) {
     if (contextPath) {
-      this.isRelative = true;
+      if (isRelative === undefined) {
+        this.isRelative = true;
+      }
       this.documentReferenceName = contextPath.documentReferenceName;
+    } else if (isRelative === undefined) {
+      this.isRelative = false;
     }
   }
 
   pathSegments: PathSegment[] = [];
-  isRelative: boolean = false;
   documentReferenceName?: string;
 }
 

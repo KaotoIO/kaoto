@@ -152,6 +152,48 @@ describe('MappingService', () => {
       expect(paramForEach.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
       validateForEach(paramForEach);
     });
+
+    it('should ignore mappings with XPath parse errors and continue removing valid stale mappings', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+
+      const bodyForEach = tree.children[0].children[0] as ForEachItem;
+      const paramForEach = tree.children[0].children[1] as ForEachItem;
+      bodyForEach.expression = 'invalid[[xpath]]syntax';
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
+
+      expect(tree.children[0].children.length).toEqual(2);
+      expect(tree.children[0].children[0]).toBe(bodyForEach);
+      expect(tree.children[0].children[1]).toBe(paramForEach);
+    });
+
+    it('should remove stale mapping in the nested item', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+
+      const bodyForEach = tree.children[0].children[0] as ForEachItem;
+      expect(bodyForEach.children[0].children.length).toEqual(4);
+      const bodyForEachTitleSelector = bodyForEach.children[0].children[0].children[0] as ValueSelector;
+      expect(bodyForEachTitleSelector.expression).toEqual('Title');
+      bodyForEachTitleSelector.expression = '$sourceParam1/ns0:ShipOrder/Item[0]/Title';
+
+      const paramForEach = tree.children[0].children[1] as ForEachItem;
+      expect(paramForEach.children[0].children.length).toEqual(4);
+      const paramForEachTitleSelector = paramForEach.children[0].children[0].children[0] as ValueSelector;
+      expect(paramForEachTitleSelector.expression).toEqual('Title');
+      paramForEachTitleSelector.expression = '/ns0:ShipOrder/Item[0]/Title';
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
+
+      expect(tree.children[0].children.length).toEqual(1);
+      expect(tree.children[0].children[0]).toBe(paramForEach);
+      expect(paramForEach.children[0].children.length).toEqual(3);
+    });
   });
 
   describe('renameParameterInMappings()', () => {
@@ -394,6 +436,44 @@ describe('MappingService', () => {
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links.length).toEqual(1);
       expect(links[0].targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy();
+    });
+
+    it('should ignore mappings with XPath parse errors and remove valid stale source field mappings', () => {
+      expect(tree.children[0].children.length).toEqual(4);
+
+      const orderIdFieldItem = tree.children[0].children[0] as FieldItem;
+      const valueSelector = orderIdFieldItem.children[0] as ValueSelector;
+      valueSelector.expression = 'invalid[[xpath]]syntax';
+
+      // Remove the OrderPerson field from the source document (second field)
+      const orderIdField = sourceDoc.fields[0].fields[0];
+      expect(orderIdField.name).toEqual('OrderId');
+      const orderPersonField = sourceDoc.fields[0].fields[1];
+      expect(orderPersonField.name).toEqual('OrderPerson');
+      sourceDoc.fields[0].fields.splice(0, 2);
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(tree.children[0].children.length).toEqual(3);
+      expect((tree.children[0].children[0].children[0] as ValueSelector).expression).toBe('invalid[[xpath]]syntax');
+      expect(tree.children[0].children[1].name).toContain('ShipTo');
+    });
+
+    it('should ignore mappings with XPath parse errors and remove valid stale target field mappings', () => {
+      expect(tree.children[0].children.length).toEqual(4);
+
+      const ifConditionItem = tree.children[0].children[1] as IfItem;
+      ifConditionItem.expression = 'invalid[[xpath]]syntax';
+
+      const orderIdField = targetDoc.fields[0].fields[0];
+      expect(orderIdField.name).toEqual('OrderId');
+      targetDoc.fields[0].fields.splice(0, 1);
+
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+
+      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children[0]).toBe(ifConditionItem);
+      expect(ifConditionItem.expression).toEqual('invalid[[xpath]]syntax');
     });
   });
 

@@ -7,6 +7,7 @@ import { BODY_DOCUMENT_ID, PathExpression, PathSegment } from '../../models/data
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { XmlSchemaDocumentService } from '../xml-schema-document.service';
 import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { Predicate } from '../../models/datamapper/xpath';
 
 describe('XPathService', () => {
   it('Generate Syntax Diagram', () => {
@@ -407,6 +408,44 @@ describe('XPathService', () => {
       expect(xpathString).toEqual('.');
     });
 
+    it('extract field paths from empty parenthesized expression', () => {
+      const paths = XPathService.extractFieldPaths('()');
+      expect(paths.length).toEqual(0);
+    });
+
+    it('extract field paths from nested parenthesized expression', () => {
+      const paths = XPathService.extractFieldPaths('((/aaa/bbb))');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[0].name).toEqual('aaa');
+      expect(paths[0].pathSegments[1].name).toEqual('bbb');
+    });
+
+    it('extract field paths from context item in parentheses', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments = [new PathSegment('Root'), new PathSegment('Element')];
+      const paths = XPathService.extractFieldPaths('(.)', contextPath);
+      expect(paths.length).toEqual(1);
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[0].name).toEqual('Root');
+      expect(paths[0].pathSegments[1].name).toEqual('Element');
+    });
+
+    it('extract field paths with predicates containing PathExpression', () => {
+      const paths = XPathService.extractFieldPaths('/Root/Element[@key=../OtherElement]');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[1].predicates.length).toEqual(1);
+    });
+
+    it('extract absolute path without leading slash when relative', () => {
+      const paths = XPathService.extractFieldPaths('aaa');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(1);
+      expect(paths[0].pathSegments[0].name).toEqual('aaa');
+    });
+
     describe('should extract field paths with reserved keyword', () => {
       it('to', () => {
         const paths = XPathService.extractFieldPaths('/note/to');
@@ -499,6 +538,156 @@ describe('XPathService', () => {
         expect(paths[0].pathSegments[1].name).toEqual('item');
         expect(paths[0].pathSegments[2].name).toEqual('node');
       });
+    });
+  });
+
+  describe('toXPathString()', () => {
+    it('should generate XPath with document reference', () => {
+      const pe = new PathExpression();
+      pe.documentReferenceName = 'Account-x';
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual('$Account-x');
+    });
+
+    it('should generate XPath with predicates', () => {
+      const pe = new PathExpression();
+      const key = new PathExpression(undefined, true);
+      key.pathSegments = [new PathSegment('key', true)];
+      pe.pathSegments.push(new PathSegment('Element', false, '', [new Predicate(key, 'Equal' as any, 'value')]));
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual("/Element[@key='value']");
+    });
+
+    it('should generate XPath with namespace prefix', () => {
+      const pe = new PathExpression();
+      pe.pathSegments.push(new PathSegment('Element', false, 'ns0'));
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual('/ns0:Element');
+    });
+
+    it('should generate XPath with attribute', () => {
+      const pe = new PathExpression();
+      pe.pathSegments.push(new PathSegment('attr', true, 'ns0'));
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual('/ns0:@attr');
+    });
+
+    it('should generate XPath with multiple predicates using and', () => {
+      const pe = new PathExpression();
+
+      const key1 = new PathExpression(undefined, true);
+      key1.pathSegments = [new PathSegment('key1', true)];
+      const key2 = new PathExpression(undefined, true);
+      key2.pathSegments.push(new PathSegment('key2', true));
+
+      pe.pathSegments.push(
+        new PathSegment('Element', false, '', [
+          new Predicate(key1, 'Equal' as any, 'value1'),
+          new Predicate(key2, 'Equal' as any, 'value2'),
+        ]),
+      );
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual("/Element[@key1='value1' and @key2='value2']");
+    });
+
+    it('should generate XPath with PathExpression in predicate', () => {
+      const predicatePath = new PathExpression(undefined, true);
+      predicatePath.pathSegments.push(new PathSegment('OtherElement'));
+
+      const pe = new PathExpression();
+      pe.pathSegments.push(
+        new PathSegment('Element', false, '', [new Predicate(predicatePath, 'Equal' as any, 'value')]),
+      );
+      const xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual("/Element[OtherElement='value']");
+    });
+
+    it('should generate relative XPath with document reference and slash separator', () => {
+      const pe = new PathExpression();
+      pe.isRelative = true;
+      pe.documentReferenceName = 'param1';
+      pe.pathSegments.push(new PathSegment('Element'));
+      let xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual('Element');
+
+      pe.isRelative = false;
+      xpath = XPathService.toXPathString(pe);
+      expect(xpath).toEqual('$param1/Element');
+    });
+  });
+
+  describe('toAbsolutePath()', () => {
+    it('should return same path if already absolute', () => {
+      const absolutePath = new PathExpression();
+      absolutePath.pathSegments.push(new PathSegment('Root'), new PathSegment('Element'));
+
+      const result = XPathService.toAbsolutePath(absolutePath);
+      expect(result).toBe(absolutePath);
+      expect(result.pathSegments.length).toEqual(2);
+    });
+
+    it('should convert relative path with parent references', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments.push(new PathSegment('Root'), new PathSegment('Parent'), new PathSegment('Current'));
+
+      const relativePath = new PathExpression(contextPath);
+      relativePath.pathSegments.push(new PathSegment('..'), new PathSegment('Sibling'));
+
+      const absolutePath = XPathService.toAbsolutePath(relativePath);
+      expect(absolutePath.pathSegments.length).toEqual(3);
+      expect(absolutePath.pathSegments[0].name).toEqual('Root');
+      expect(absolutePath.pathSegments[1].name).toEqual('Parent');
+      expect(absolutePath.pathSegments[2].name).toEqual('Sibling');
+    });
+
+    it('should handle multiple parent references', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments.push(new PathSegment('A'), new PathSegment('B'), new PathSegment('C'));
+
+      const relativePath = new PathExpression(contextPath);
+      relativePath.pathSegments.push(new PathSegment('..'), new PathSegment('..'), new PathSegment('D'));
+
+      const absolutePath = XPathService.toAbsolutePath(relativePath);
+      expect(absolutePath.pathSegments.length).toEqual(2);
+      expect(absolutePath.pathSegments[0].name).toEqual('A');
+      expect(absolutePath.pathSegments[1].name).toEqual('D');
+    });
+
+    it('should propagate documentReferenceName from nested context paths', () => {
+      const rootContext = new PathExpression();
+      rootContext.documentReferenceName = 'param1';
+      rootContext.pathSegments.push(new PathSegment('Root'));
+
+      const nestedContext = new PathExpression(rootContext);
+      nestedContext.pathSegments.push(new PathSegment('Nested'));
+
+      const relativePath = new PathExpression(nestedContext);
+      relativePath.pathSegments.push(new PathSegment('Field'));
+
+      const absolutePath = XPathService.toAbsolutePath(relativePath);
+      expect(absolutePath.documentReferenceName).toEqual('param1');
+      expect(absolutePath.pathSegments.length).toEqual(3);
+      expect(absolutePath.pathSegments[0].name).toEqual('Root');
+      expect(absolutePath.pathSegments[1].name).toEqual('Nested');
+      expect(absolutePath.pathSegments[2].name).toEqual('Field');
+    });
+  });
+
+  describe('addSource()', () => {
+    it('should add source to empty expression', () => {
+      const source = new PathExpression();
+      source.pathSegments.push(new PathSegment('Field'));
+
+      const result = XPathService.addSource('', source);
+      expect(result).toEqual('/Field');
+    });
+
+    it('should add source to existing expression with comma', () => {
+      const source = new PathExpression();
+      source.pathSegments.push(new PathSegment('Field2'));
+
+      const result = XPathService.addSource('/Field1', source);
+      expect(result).toEqual('/Field1, /Field2');
     });
   });
 
