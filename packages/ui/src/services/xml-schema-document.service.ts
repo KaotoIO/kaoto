@@ -45,6 +45,10 @@ import { NodePath } from '../models/datamapper/nodepath';
 import { DocumentUtilService } from './document-util.service';
 import { QName } from '../xml-schema-ts/QName';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
+import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
+import { XmlSchemaSimpleTypeList } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeList';
+import { XmlSchemaSimpleTypeUnion } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
+import { XmlSchemaSimpleTypeContent } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeContent';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
@@ -72,6 +76,8 @@ export class XmlSchemaDocument extends BaseDocument {
     if (!this.rootElement) {
       this.rootElement = XmlSchemaDocumentService.getFirstElement(this.xmlSchema);
     }
+
+    XmlSchemaDocumentService.populateNamedTypeFragments(this);
 
     XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
     this.definitionType = DocumentDefinitionType.XML_SCHEMA;
@@ -164,6 +170,67 @@ export class XmlSchemaDocumentService {
   }
 
   /**
+   * Populate all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
+   * This must be done before processing elements to ensure base types are available for extensions.
+   * @param document
+   */
+  static populateNamedTypeFragments(document: XmlSchemaDocument) {
+    const schemaTypes = document.xmlSchema.getSchemaTypes();
+    for (const [typeQName, schemaType] of schemaTypes.entries()) {
+      if (schemaType instanceof XmlSchemaComplexType) {
+        const typeFragmentName = typeQName.toString();
+        const fields: XmlSchemaField[] = [];
+        const typeFragment: XmlSchemaTypeFragment = { fields, namedTypeFragmentRefs: [] };
+        document.namedTypeFragments[typeFragmentName] = typeFragment;
+
+        XmlSchemaDocumentService.populateContentModel(document, typeFragment, schemaType.getContentModel());
+        const attributes = schemaType.getAttributes();
+        for (const attr of attributes) {
+          XmlSchemaDocumentService.populateAttributeOrGroupRef(document, fields, attr);
+        }
+        XmlSchemaDocumentService.populateParticle(document, fields, schemaType.getParticle());
+      } else if (schemaType instanceof XmlSchemaSimpleType) {
+        const typeFragmentName = typeQName.toString();
+        const fields: XmlSchemaField[] = [];
+        const typeFragment: XmlSchemaTypeFragment = { fields, namedTypeFragmentRefs: [] };
+        document.namedTypeFragments[typeFragmentName] = typeFragment;
+
+        const simpleContent = schemaType.getContent();
+        simpleContent && XmlSchemaDocumentService.populateSimpleTypeContent(document, typeFragment, simpleContent);
+      }
+    }
+  }
+
+  private static populateSimpleTypeContent(
+    document: XmlSchemaDocument,
+    typeFragment: XmlSchemaTypeFragment,
+    content: XmlSchemaSimpleTypeContent,
+  ) {
+    if (content instanceof XmlSchemaSimpleTypeRestriction) {
+      const baseTypeQName = content.getBaseTypeName();
+      // check if the base type is defined in the schema - built-in types are not there
+      const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
+
+      if (baseTypeQName && userDefinedBaseType) {
+        typeFragment.namedTypeFragmentRefs.push(baseTypeQName.toString());
+      } else if (baseTypeQName && !typeFragment.type) {
+        // built-in type - if the type is not yet set, use the base type
+        typeFragment.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
+      }
+
+      // TODO collect&store restrictions to somewhere in the XmlSchemaField
+    } else if (content instanceof XmlSchemaSimpleTypeList) {
+      // TODO
+    } else if (content instanceof XmlSchemaSimpleTypeUnion) {
+      // TODO
+    }
+  }
+
+  static getFieldTypeFromName(name: string | null): Types {
+    return (name && Types[capitalize(name) as keyof typeof Types]) || Types.AnyType;
+  }
+
+  /**
    * Populate XML Element as a field into {@link fields} array passed in as an argument.
    * @param parent
    * @param fields
@@ -183,53 +250,38 @@ export class XmlSchemaDocumentService {
     fields.push(field);
 
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
-    const cachedTypeFragments = ownerDoc.namedTypeFragments;
     ownerDoc.totalFieldCount++;
-    XmlSchemaDocumentService.populateSchemaType(cachedTypeFragments, field, resolvedElement.getSchemaType());
+    XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, resolvedElement.getSchemaType());
   }
 
   private static populateSchemaType(
-    cachedTypeFragments: Record<string, XmlSchemaTypeFragment>,
+    ownerDocument: XmlSchemaDocument,
     field: XmlSchemaField,
     schemaType: XmlSchemaType | null,
-    parentTypeFragment?: XmlSchemaTypeFragment,
   ) {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
       const simple = schemaType as XmlSchemaSimpleType;
-      field.type = Types[capitalize(simple.getName()!) as keyof typeof Types] || Types.AnyType;
+      field.type = XmlSchemaDocumentService.getFieldTypeFromName(simple.getName());
+      return;
+    } else if (!(schemaType instanceof XmlSchemaComplexType)) {
+      throw new TypeError(`Unknown schema type class: ${typeof schemaType}`);
+    }
+
+    const complex = schemaType as XmlSchemaComplexType;
+    field.type = Types.Container;
+    const typeQName = complex.getQName();
+    if (typeQName) {
+      field.namedTypeFragmentRefs.push(typeQName.toString());
       return;
     }
-    field.type = Types.Container;
-    if (schemaType instanceof XmlSchemaComplexType) {
-      const complex = schemaType as XmlSchemaComplexType;
-      const typeQName = complex.getQName();
-      const children: XmlSchemaField[] = [];
-      const typeFragment: XmlSchemaTypeFragment = { fields: children, namedTypeFragmentRefs: [] };
-      if (typeQName) {
-        parentTypeFragment
-          ? parentTypeFragment.namedTypeFragmentRefs.push(typeQName.toString())
-          : field.namedTypeFragmentRefs.push(typeQName.toString());
-        const cached = typeQName && cachedTypeFragments[typeQName.toString()];
-        if (cached) return;
-        cachedTypeFragments[typeQName.toString()] = typeFragment;
-      } else {
-        field.fields = children;
-      }
 
-      XmlSchemaDocumentService.populateContentModel(
-        cachedTypeFragments,
-        field,
-        children,
-        complex.getContentModel(),
-        typeFragment,
-      );
-      const attributes: XmlSchemaAttributeOrGroupRef[] = complex.getAttributes();
-      attributes.forEach((attr) => {
-        XmlSchemaDocumentService.populateAttributeOrGroupRef(field, children, attr);
-      });
-      XmlSchemaDocumentService.populateParticle(field, children, complex.getParticle());
-    }
+    XmlSchemaDocumentService.populateContentModel(ownerDocument, field, complex.getContentModel());
+    const attributes: XmlSchemaAttributeOrGroupRef[] = complex.getAttributes();
+    attributes.forEach((attr) => {
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(field, field.fields, attr);
+    });
+    XmlSchemaDocumentService.populateParticle(field, field.fields, complex.getParticle());
   }
 
   private static populateAttributeOrGroupRef(
@@ -260,6 +312,12 @@ export class XmlSchemaDocumentService {
 
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     ownerDoc.totalFieldCount++;
+
+    const attrSchemaTypeQName = attr.getSchemaTypeName();
+    const userDefinedAttrType = attrSchemaTypeQName && ownerDoc.xmlSchema.getSchemaTypes().get(attrSchemaTypeQName);
+    if (userDefinedAttrType) {
+      field.namedTypeFragmentRefs.push(attrSchemaTypeQName.toString());
+    }
 
     const use = attr.getUse();
     switch (use) {
@@ -370,7 +428,10 @@ export class XmlSchemaDocumentService {
   }
 
   private static populateGroupRef(parent: XmlSchemaParentType, fields: XmlSchemaField[], groupRef: XmlSchemaGroupRef) {
-    XmlSchemaDocumentService.populateGroupParticle(parent, fields, groupRef.getParticle());
+    const groupRefQName = groupRef.getRefName();
+    const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const group = groupRefQName && doc.xmlSchema.getGroups().get(groupRefQName);
+    group && XmlSchemaDocumentService.populateGroup(parent, fields, group);
   }
 
   private static populateChoiceMember(
@@ -412,73 +473,78 @@ export class XmlSchemaDocumentService {
   }
 
   private static populateContentModel(
-    cachedTypeFragments: Record<string, XmlSchemaTypeFragment>,
-    parent: XmlSchemaField,
-    fields: XmlSchemaField[],
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
     contentModel: XmlSchemaContentModel | null,
-    parentTypeFragment?: XmlSchemaTypeFragment,
   ) {
     if (!contentModel) return;
     const content = contentModel.getContent();
     if (content instanceof XmlSchemaSimpleContentExtension) {
-      XmlSchemaDocumentService.populateSimpleContentExtension(parent, fields, content);
+      XmlSchemaDocumentService.populateSimpleContentExtension(document, parent, content);
     } else if (content instanceof XmlSchemaSimpleContentRestriction) {
-      XmlSchemaDocumentService.populateSimpleContentRestriction(parent, fields, content);
+      XmlSchemaDocumentService.populateSimpleContentRestriction(document, parent, content);
     } else if (content instanceof XmlSchemaComplexContentExtension) {
-      XmlSchemaDocumentService.populateComplexContentExtension(
-        cachedTypeFragments,
-        parent,
-        fields,
-        content,
-        parentTypeFragment,
-      );
+      XmlSchemaDocumentService.populateComplexContentExtension(document, parent, content);
     } else if (content instanceof XmlSchemaComplexContentRestriction) {
-      XmlSchemaDocumentService.populateComplexContentRestriction(parent, fields, content);
+      XmlSchemaDocumentService.populateComplexContentRestriction(document, parent, content);
     }
   }
 
   private static populateSimpleContentExtension(
-    parent: XmlSchemaField,
-    fields: XmlSchemaField[],
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaSimpleContentExtension,
   ) {
+    const baseTypeQName = extension.getBaseTypeName();
+    // check if the base type is defined in the schema - built-in types are not there, which we should skip
+    const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
+
+    if (baseTypeQName && userDefinedBaseType instanceof XmlSchemaComplexType) {
+      parent.namedTypeFragmentRefs.push(baseTypeQName.toString());
+    } else if (baseTypeQName && !parent.type) {
+      parent.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
+    }
+
     const attributes = extension.getAttributes();
     attributes.forEach((attr) => {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parent, fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
     });
   }
 
   private static populateSimpleContentRestriction(
-    _parent: XmlSchemaField,
-    _fields: XmlSchemaField[],
+    _document: XmlSchemaDocument,
+    _parent: XmlSchemaField | XmlSchemaTypeFragment,
     _restriction: XmlSchemaSimpleContentRestriction,
   ) {
     // TODO restriction support
   }
 
   private static populateComplexContentExtension(
-    cachedTypeFragments: Record<string, XmlSchemaTypeFragment>,
-    parent: XmlSchemaField,
-    fields: XmlSchemaField[],
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
-    parentTypeFragment?: XmlSchemaTypeFragment,
   ) {
-    const baseTypeName = extension.getBaseTypeName();
-    const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
-    const baseType = baseTypeName ? doc.xmlSchema.getSchemaTypes().get(baseTypeName) : undefined;
-    if (baseType) {
-      XmlSchemaDocumentService.populateSchemaType(cachedTypeFragments, parent, baseType, parentTypeFragment);
+    const baseTypeQName = extension.getBaseTypeName();
+    // check if the base type is defined in the schema - built-in types are not there, which we should skip
+    const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
+
+    if (baseTypeQName && userDefinedBaseType instanceof XmlSchemaComplexType) {
+      parent.namedTypeFragmentRefs.push(baseTypeQName.toString());
+    } else if (baseTypeQName && !parent.type) {
+      parent.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
     }
+
     const attributes = extension.getAttributes();
     attributes.forEach((attr) => {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parent, fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
     });
-    XmlSchemaDocumentService.populateParticle(parent, fields, extension.getParticle());
+
+    XmlSchemaDocumentService.populateParticle(document, parent.fields, extension.getParticle());
   }
 
   private static populateComplexContentRestriction(
-    _parent: XmlSchemaField,
-    _fields: XmlSchemaField[],
+    _document: XmlSchemaDocument,
+    _parent: XmlSchemaField | XmlSchemaTypeFragment,
     _restriction: XmlSchemaComplexContentRestriction,
   ) {
     // TODO restriction support
