@@ -11,7 +11,7 @@
   "resolutions": {
     "@patternfly/patternfly": "6.3.1",
     "@patternfly/react-code-editor": "6.3.1",
-    "@patternfly/react-core": "6.3.1-prerelease.13",
+    "@patternfly/react-core": "6.3.1",
     "@patternfly/react-icons": "6.3.1",
     "@patternfly/react-table": "6.3.1",
     "@patternfly/react-topology": "6.3.0",
