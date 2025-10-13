@@ -308,6 +308,7 @@ export class XmlSchemaDocumentService {
     field.namespaceURI = attr.getWireName()!.getNamespaceURI();
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
+    field.type = Types[capitalize(attr.getSchemaTypeName()!.getLocalPart()!) as keyof typeof Types] || Types.AnyType;
     fields.push(field);
 
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
