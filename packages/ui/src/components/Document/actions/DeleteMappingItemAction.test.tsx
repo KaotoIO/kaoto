@@ -1,11 +1,12 @@
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { conditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 
 describe('DeleteMappingItemAction', () => {
   it('should invoke onDelete()', async () => {
@@ -33,6 +34,42 @@ describe('DeleteMappingItemAction', () => {
     act(() => {
       fireEvent.click(deleteBtn);
     });
+    const confirmBtn = screen.getByTestId('delete-mapping-confirm-btn');
+    act(() => {
+      fireEvent.click(confirmBtn);
+    });
+    expect(onDeleteMock.mock.calls.length).toBe(1);
+  });
+
+  it('should show warning when there are child mappings', async () => {
+    const targetDoc = TestUtil.createTargetOrderDoc();
+    const paramsMap = TestUtil.createParameterMap();
+    const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+    MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+    const docData = new TargetDocumentNodeData(targetDoc, tree);
+    const nodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);
+    const onDeleteMock = jest.fn();
+    render(
+      <DataMapperProvider>
+        <DataMapperCanvasProvider>
+          <DeleteMappingItemAction nodeData={nodeData} onDelete={onDeleteMock} />
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>,
+    );
+    const deleteBtn = await screen.findByTestId('delete-mapping-btn');
+    act(() => {
+      fireEvent.click(deleteBtn);
+    });
+    act(() => {
+      fireEvent.click(deleteBtn);
+    });
+
+    expect(screen.getByTestId('delete-mapping-modal')).toBeInTheDocument();
+    expect(screen.getByText('Delete for-each mapping?')).toBeInTheDocument();
+    expect(
+      screen.getByText('Deleting a for-each mapping will also remove all its child mappings.'),
+    ).toBeInTheDocument();
     const confirmBtn = screen.getByTestId('delete-mapping-confirm-btn');
     act(() => {
       fireEvent.click(confirmBtn);

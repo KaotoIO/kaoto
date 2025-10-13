@@ -34,6 +34,15 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
     closeModal();
   }, [clearNodeReferencesForPath, closeModal, nodeData, onDelete, reloadNodeReferences]);
   const title = `Delete ${nodeData.title} mapping`;
+  let warningMessage = undefined;
+  if (
+    nodeData.mapping &&
+    nodeData.mapping instanceof ConditionItem &&
+    nodeData.mapping.children.length > 0 &&
+    nodeData.mapping.children[0].children.length > 0
+  ) {
+    warningMessage = `Deleting a ${nodeData.title} mapping will also remove all its child mappings.`;
+  }
 
   return (
     <ActionListItem key="delete-item">
@@ -52,8 +61,11 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
         onClose={closeModal}
         data-testid="delete-mapping-modal"
       >
-        <ModalHeader title={title} />
-        <ModalBody>{title}?</ModalBody>
+        <ModalHeader title={title} titleIconVariant={warningMessage ? 'warning' : undefined} />
+        <ModalBody>
+          <p>{title}?</p>
+          {warningMessage && <p>{warningMessage}</p>}
+        </ModalBody>
         <ModalFooter>
           <Button key="confirm" variant="primary" onClick={onConfirmDelete} data-testid="delete-mapping-confirm-btn">
             Confirm
