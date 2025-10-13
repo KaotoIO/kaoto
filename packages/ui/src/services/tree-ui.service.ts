@@ -1,4 +1,4 @@
-import { DocumentTree, INITIAL_PARSE_DEPTH } from '../models/datamapper/tree';
+import { DocumentTree, INITIAL_PARSE_DEPTH } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../store/document-tree.store';
 import { TreeParsingService } from './tree-parsing.service';
@@ -7,7 +7,7 @@ import { TreeParsingService } from './tree-parsing.service';
  * Service to manage tree UI state and operations
  */
 export class TreeUIService {
-  private static trees: Map<string, DocumentTree> = new Map();
+  private static readonly trees: Map<string, DocumentTree> = new Map();
 
   /**
    * Create a tree for a document

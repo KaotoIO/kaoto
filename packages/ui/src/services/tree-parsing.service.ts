@@ -1,4 +1,5 @@
-import { DocumentTree, DocumentTreeNode } from '../models/datamapper/tree';
+import { DocumentTree } from '../models/datamapper/document-tree';
+import { DocumentTreeNode } from '../models/datamapper/document-tree-node';
 import { DocumentNodeData, FieldNodeData, NodeData } from '../models/datamapper/visualization';
 import { DocumentUtilService } from './document-util.service';
 import { DocumentService } from './document.service';
