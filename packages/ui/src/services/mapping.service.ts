@@ -409,7 +409,8 @@ export class MappingService {
   private static deleteFromParent(item: MappingItem) {
     item.parent.children = item.parent.children.filter((child) => child !== item);
     const isParentFieldItem = item.parent instanceof FieldItem;
-    const isParentParentFieldItem = 'parent' in item.parent && item.parent.parent instanceof FieldItem;
+    const isParentParentFieldItem =
+      'parent' in item.parent && (item.parent.parent instanceof FieldItem || item.parent.parent instanceof MappingTree);
     const areNoChildren = item.parent.children.length === 0;
     if (isParentFieldItem && isParentParentFieldItem && areNoChildren) {
       MappingService.deleteFromParent(item.parent as FieldItem);
