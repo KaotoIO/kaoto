@@ -6,7 +6,7 @@ import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { useToggle } from '../../hooks/useToggle';
-import { DocumentTreeNode } from '../../models/datamapper/tree';
+import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { NodeReference } from '../../models/datamapper/visualization';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
@@ -61,7 +61,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
     [hasChildren, documentId, treeNode.path, reloadNodeReferences],
   );
 
-  // TODO: Move all this node aspects to the DocumentTree store
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -113,13 +112,13 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
               <FieldIcon className="node__spacer" type={nodeData.type} />
 
               {isCollectionField && (
-                <Icon className="node__spacer">
+                <Icon className="node__spacer" data-testid="collection-field-icon">
                   <LayerGroupIcon />
                 </Icon>
               )}
 
               {isAttributeField && (
-                <Icon className="node__spacer">
+                <Icon className="node__spacer" data-testid="attribute-field-icon">
                   <At />
                 </Icon>
               )}

@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { IDocument } from '../../models/datamapper/document';
-import { DocumentTree } from '../../models/datamapper/tree';
+import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import './Document.scss';

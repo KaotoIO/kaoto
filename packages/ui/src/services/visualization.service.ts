@@ -39,9 +39,9 @@ export class VisualizationService {
     const isPrimitive = nodeData.isPrimitive;
 
     if (isDocument && isPrimitive) {
-      return VisualizationService.generatePrimitiveDocumentChildren(nodeData as DocumentNodeData);
+      return VisualizationService.generatePrimitiveDocumentChildren(nodeData);
     } else if (isDocument && !isPrimitive) {
-      return VisualizationService.generateStructuredDocumentChildren(nodeData as DocumentNodeData);
+      return VisualizationService.generateStructuredDocumentChildren(nodeData);
     } else {
       return VisualizationService.generateNonDocumentNodeDataChildren(nodeData);
     }
