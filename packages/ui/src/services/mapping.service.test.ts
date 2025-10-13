@@ -559,5 +559,15 @@ describe('MappingService', () => {
       MappingService.deleteMappingItem(orderIdValueSelector);
       expect(tree.children[0].children.length).toEqual(3);
     });
+
+    it('should delete the empty root field item when it has no children', () => {
+      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+      expect(tree.children[0].children.length).toEqual(1);
+      const forEachItem = tree.children[0].children[0] as ForEachItem;
+      expect(forEachItem.expression).toEqual('$cart/ns0:Cart/Item');
+      MappingService.deleteMappingItem(forEachItem);
+      expect(tree.children.length).toEqual(0);
+    });
   });
 });
