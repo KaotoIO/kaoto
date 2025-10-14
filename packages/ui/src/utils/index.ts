@@ -17,6 +17,7 @@ export * from './is-to-processor';
 export * from './is-xslt-component';
 export * from './node-icon-resolver';
 export * from './pipe-custom-schema';
+export * from './process-tree-node';
 export * from './promise-timeout';
 export * from './set-value';
 export * from './update-kamelet-from-custom-schema';

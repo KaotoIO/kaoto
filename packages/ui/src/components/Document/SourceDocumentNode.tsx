@@ -8,7 +8,6 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { useToggle } from '../../hooks/useToggle';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { NodeReference } from '../../models/datamapper/visualization';
-import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
@@ -48,7 +47,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
   const nodeData = treeNode.nodeData;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const hasChildren = TreeParsingService.canNodeHaveChildren(nodeData);
+  const hasChildren = VisualizationService.hasChildren(nodeData);
 
   const handleClickToggle = useCallback(
     (event: MouseEvent) => {

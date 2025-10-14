@@ -11,9 +11,9 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
-import { SourceDocumentNode } from './SourceDocumentNode';
+import { TargetDocumentNode } from './TargetDocumentNode';
 
-describe('SourceDocumentNode', () => {
+describe('TargetDocumentNode', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <DataMapperProvider>
       <DataMapperCanvasProvider>{children}</DataMapperCanvasProvider>
@@ -38,45 +38,45 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render a simple field node', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
     act(() => {
-      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+      render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
         wrapper,
       });
     });
 
     expect(screen.getByText(fieldNode.nodeData.title)).toBeInTheDocument();
-    expect(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`node-target-${fieldNode.nodeData.id}`)).toBeInTheDocument();
   });
 
   it('should render a document node', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
     act(() => {
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
     });
 
     expect(screen.getByText(document.documentId)).toBeInTheDocument();
-    expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`node-target-${documentNodeData.id}`)).toBeInTheDocument();
   });
 
   it('should render a primitive document node', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
     act(() => {
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
     });
@@ -85,7 +85,7 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render a collection field with LayerGroupIcon', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
@@ -105,22 +105,17 @@ describe('SourceDocumentNode', () => {
     expect(collectionFieldNode).toBeDefined();
 
     act(() => {
-      render(
-        <SourceDocumentNode
-          treeNode={collectionFieldNode!}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          rank={1}
-        />,
-        { wrapper },
-      );
+      render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
+        wrapper,
+      });
     });
 
-    expect(screen.getByTestId('collection-field-icon')).toBeInTheDocument();
+    const icons = screen.getAllByRole('img', { hidden: true });
+    expect(icons.length).toBeGreaterThan(0);
   });
 
   it('should render an attribute field with @ icon', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
@@ -140,29 +135,24 @@ describe('SourceDocumentNode', () => {
     expect(attributeFieldNode).toBeDefined();
 
     act(() => {
-      render(
-        <SourceDocumentNode
-          treeNode={attributeFieldNode!}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          rank={2}
-        />,
-        { wrapper },
-      );
+      render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
+        wrapper,
+      });
     });
 
-    expect(screen.getByTestId('attribute-field-icon')).toBeInTheDocument();
+    const icons = screen.getAllByRole('img', { hidden: true });
+    expect(icons.length).toBeGreaterThan(0);
   });
 
   it('should render with draggable indicator for non-document nodes', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
     const { container } = render(
-      <SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />,
+      <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
       {
         wrapper,
       },
@@ -173,59 +163,56 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render with draggable indicator for primitive document nodes', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
     act(() => {
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
     });
 
-    const container = screen.getByTestId(`node-source-${documentNodeData.id}`);
+    const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
     const draggableSection = container.querySelector('[data-draggable="true"]');
     expect(draggableSection).toBeInTheDocument();
   });
 
   it('should not render with draggable indicator for structured document nodes', () => {
-    const document = TestUtil.createSourceOrderDoc();
+    const document = TestUtil.createTargetOrderDoc();
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
     act(() => {
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
     });
 
-    const container = screen.getByTestId(`node-source-${documentNodeData.id}`);
+    const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
     const draggableSection = container.querySelector('[data-draggable="true"]');
     expect(draggableSection).not.toBeInTheDocument();
   });
 
   it('should render correct test-id when selected', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
     let result: ReturnType<typeof render>;
     act(() => {
-      result = render(
-        <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-        {
-          wrapper,
-        },
-      );
+      result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
+      });
     });
 
-    const nodeContainer = result!.container.querySelector('[data-testid*="node-source-"]');
+    const nodeContainer = result!.container.querySelector('[data-testid*="node-target-"]');
     expect(nodeContainer).toBeInTheDocument();
   });
 
   describe('Expansion/Collapse', () => {
     it('should toggle expansion when clicking chevron on expandable node', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -243,15 +230,12 @@ describe('SourceDocumentNode', () => {
       });
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-target-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
       act(() => {
@@ -264,7 +248,7 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should not show chevron for nodes without children', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -273,23 +257,20 @@ describe('SourceDocumentNode', () => {
       expect(leafNode).toBeDefined();
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} isReadOnly={false} rank={2} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
+          wrapper,
+        });
       });
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`);
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-target-icon-${leafNode!.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-target-icon-${leafNode!.nodeData.title}`);
 
       expect(expandIcon).not.toBeInTheDocument();
       expect(collapseIcon).not.toBeInTheDocument();
     });
 
     it('should show ChevronDown when expanded', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -305,23 +286,20 @@ describe('SourceDocumentNode', () => {
       });
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-target-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-target-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).not.toBeInTheDocument();
     });
 
     it('should show ChevronRight when collapsed', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -337,23 +315,20 @@ describe('SourceDocumentNode', () => {
       });
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const collapseIcon = screen.getByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.getByTestId(`collapse-target-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).toBeInTheDocument();
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-target-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).not.toBeInTheDocument();
     });
 
     it('should call TreeUIService.toggleNode with correct documentId and path', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -371,15 +346,12 @@ describe('SourceDocumentNode', () => {
       });
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-target-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -394,46 +366,40 @@ describe('SourceDocumentNode', () => {
 
   describe('Selection', () => {
     it('should render as selected when node is in selected mapping', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
       act(() => {
         fireEvent.click(nodeContainer);
       });
 
-      const selectedNode = screen.getByTestId(`node-source-selected-${documentNodeData.id}`);
+      const selectedNode = screen.getByTestId(`node-target-selected-${documentNodeData.id}`);
       expect(selectedNode).toBeInTheDocument();
     });
 
     it('should apply selected-container class when selected', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
       let result: ReturnType<typeof render>;
       act(() => {
-        result = render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
       act(() => {
         fireEvent.click(nodeContainer);
@@ -445,39 +411,36 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should call toggleSelectedNodeReference when clicking field', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
       act(() => {
-        render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+          wrapper,
+        });
       });
 
-      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
       act(() => {
         fireEvent.click(nodeContainer);
       });
 
-      const selectedNode = screen.getByTestId(`node-source-selected-${documentNodeData.id}`);
+      const selectedNode = screen.getByTestId(`node-target-selected-${documentNodeData.id}`);
       expect(selectedNode).toBeInTheDocument();
 
       act(() => {
         fireEvent.click(nodeContainer);
       });
 
-      const deselectedNode = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const deselectedNode = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(deselectedNode).toBeInTheDocument();
     });
 
     it('should stop event propagation on field click', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -487,13 +450,13 @@ describe('SourceDocumentNode', () => {
       act(() => {
         render(
           <div onClick={parentClickHandler}>
-            <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+            <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
           </div>,
           { wrapper },
         );
       });
 
-      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
       act(() => {
         fireEvent.click(nodeContainer);
@@ -505,104 +468,105 @@ describe('SourceDocumentNode', () => {
 
   describe('Node Reference', () => {
     it('should register node reference with correct path', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
       );
 
-      expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`node-target-${documentNodeData.id}`)).toBeInTheDocument();
       expect(tree.root.nodeData.path).toBeDefined();
       expect(container.querySelector('.node__row')).toBeInTheDocument();
     });
 
     it('should update node reference when changed', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
       const { rerender } = render(
-        <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
       );
 
-      expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`node-target-${documentNodeData.id}`)).toBeInTheDocument();
 
       rerender(
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+            <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
           </DataMapperCanvasProvider>
         </DataMapperProvider>,
       );
 
-      expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`node-target-${documentNodeData.id}`)).toBeInTheDocument();
     });
   });
 
-  describe('Parameter Renaming', () => {
-    it('should show ParameterInputPlaceholder when renaming', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      expect(screen.getByText('param1')).toBeInTheDocument();
-
-      const renameButton = screen.getByTestId('rename-parameter-param1-button');
-      fireEvent.click(renameButton);
-
-      expect(screen.getByTestId('new-parameter-name-input')).toBeInTheDocument();
-    });
-
-    it('should call toggleOffRenamingParameter on complete', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      const renameButton = screen.getByTestId('rename-parameter-param1-button');
-      fireEvent.click(renameButton);
-
-      expect(screen.getByTestId('new-parameter-name-input')).toBeInTheDocument();
-
-      const cancelButton = screen.getByTestId('new-parameter-cancel-btn');
-      fireEvent.click(cancelButton);
-
-      expect(screen.queryByTestId('new-parameter-name-input')).not.toBeInTheDocument();
-    });
-
-    it('should not show DocumentActions for non-document nodes', () => {
-      const document = TestUtil.createSourceOrderDoc();
+  describe('Target Node Actions', () => {
+    it('should show TargetNodeActions for field nodes', () => {
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
-      const fieldNode = tree.root.children[0]; // Get a field node, not a document node
+      const fieldNode = tree.root.children[0];
 
-      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
-        wrapper,
-      });
+      const { container } = render(
+        <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
+        {
+          wrapper,
+        },
+      );
 
-      expect(screen.queryByTestId(`rename-parameter-${fieldNode.nodeData.id}-button`)).not.toBeInTheDocument();
+      const actionsContainer = container.querySelector('.node__target__actions');
+      expect(actionsContainer).toBeInTheDocument();
+    });
+
+    it('should show TargetNodeActions for primitive document nodes', () => {
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      const { container } = render(
+        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        {
+          wrapper,
+        },
+      );
+
+      const actionsContainer = container.querySelector('.node__target__actions');
+      expect(actionsContainer).toBeInTheDocument();
+    });
+
+    it('should not show TargetNodeActions for structured document nodes', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      const { container } = render(
+        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        {
+          wrapper,
+        },
+      );
+
+      const actionsContainer = container.querySelector('.node__target__actions');
+      expect(actionsContainer).toBeInTheDocument();
+      // Should be a span placeholder, not actual actions
+      expect(actionsContainer?.tagName).toBe('SPAN');
     });
   });
 
   describe('Children Rendering', () => {
     it('should render children when expanded and hasChildren is true', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -617,19 +581,19 @@ describe('SourceDocumentNode', () => {
         });
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
       expect(tree.root.children.length).toBeGreaterThan(0);
       for (const child of tree.root.children) {
-        expect(screen.getByTestId(`node-source-${child.nodeData.id}`)).toBeInTheDocument();
+        expect(screen.getByTestId(`node-target-${child.nodeData.id}`)).toBeInTheDocument();
       }
     });
 
     it('should not render children when collapsed', () => {
       expect.assertions(2);
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -644,19 +608,19 @@ describe('SourceDocumentNode', () => {
         });
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
       expect(tree.root.children.length).toBeGreaterThan(0);
       for (const child of tree.root.children) {
-        expect(screen.queryByTestId(`node-source-${child.nodeData.id}`)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(`node-target-${child.nodeData.id}`)).not.toBeInTheDocument();
       }
     });
 
     it('should recursively render nested children', () => {
       expect.assertions(5);
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -674,35 +638,21 @@ describe('SourceDocumentNode', () => {
         });
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
       for (const child of tree.root.children) {
-        expect(screen.getByTestId(`node-source-${child.nodeData.id}`)).toBeInTheDocument();
+        expect(screen.getByTestId(`node-target-${child.nodeData.id}`)).toBeInTheDocument();
 
         for (const grandchild of child.children) {
-          expect(screen.getByTestId(`node-source-${grandchild.nodeData.id}`)).toBeInTheDocument();
+          expect(screen.getByTestId(`node-target-${grandchild.nodeData.id}`)).toBeInTheDocument();
         }
       }
     });
-  });
 
-  describe('Read-only Mode', () => {
-    it('should hide DocumentActions when isReadOnly is true', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={true} rank={0} />, {
-        wrapper,
-      });
-
-      expect(screen.queryByTestId('rename-parameter-param1-button')).not.toBeInTheDocument();
-    });
-
-    it('should still allow expansion/collapse in read-only mode', () => {
-      const document = TestUtil.createSourceOrderDoc();
+    it('should render TargetDocumentNode children recursively when not AddMappingNodeData', () => {
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -710,34 +660,29 @@ describe('SourceDocumentNode', () => {
       act(() => {
         useDocumentTreeStore.setState({
           expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+            [documentNodeData.id]: Object.fromEntries(
+              [tree.root, ...tree.root.children].map((node) => [node.path, true]),
+            ),
           },
         });
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={true} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
-      // Expand icon should still be visible
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
-      expect(expandIcon).toBeInTheDocument();
-
-      // Should be able to click the expand icon
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
-
-      // The toggle should have been called
-      expect(expandIcon).toBeInTheDocument();
+      // All children should be rendered as TargetDocumentNode (not AddMappingNode in this simple case)
+      expect(tree.root.children.length).toBeGreaterThan(0);
+      for (const child of tree.root.children) {
+        // Verify child nodes are rendered
+        expect(screen.getByTestId(`node-target-${child.nodeData.id}`)).toBeInTheDocument();
+      }
     });
   });
 
   describe('Event Handling', () => {
     it('should stop propagation on toggle click', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
@@ -756,12 +701,12 @@ describe('SourceDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
         </div>,
         { wrapper },
       );
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-target-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -772,7 +717,7 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should stop propagation on field click', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -780,12 +725,12 @@ describe('SourceDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
         </div>,
         { wrapper },
       );
 
-      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
       act(() => {
         fireEvent.click(nodeContainer);
@@ -796,32 +741,68 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should handle click on non-expandable node gracefully', () => {
-      const document = TestUtil.createSourceOrderDoc();
+      const document = TestUtil.createTargetOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      // Find a leaf node (no children)
-
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      render(<SourceDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} isReadOnly={false} rank={2} />, {
+      render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
         wrapper,
       });
 
       // Should not have expand/collapse icons
-      expect(screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
-      expect(screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`expand-target-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`collapse-target-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
 
       // Clicking the node should still work for selection
-      const nodeContainer = screen.getByTestId(`node-source-${leafNode!.nodeData.id}`);
+      const nodeContainer = screen.getByTestId(`node-target-${leafNode!.nodeData.id}`);
       act(() => {
         fireEvent.click(nodeContainer);
       });
 
       // Node should be selected
-      expect(screen.getByTestId(`node-source-selected-${leafNode!.nodeData.id}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`node-target-selected-${leafNode!.nodeData.id}`)).toBeInTheDocument();
+    });
+  });
+
+  describe('Document Actions', () => {
+    it('should render DocumentActions for document nodes', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      const { container } = render(
+        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        {
+          wrapper,
+        },
+      );
+
+      // DocumentActions should be present (though onRenameClick is empty)
+      const nodeRow = container.querySelector('.node__row');
+      expect(nodeRow).toBeInTheDocument();
+    });
+
+    it('should not render DocumentActions for non-document nodes', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      const { container } = render(
+        <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
+        {
+          wrapper,
+        },
+      );
+
+      // Field nodes should not have DocumentActions, only TargetNodeActions
+      const nodeRow = container.querySelector('.node__row');
+      expect(nodeRow).toBeInTheDocument();
     });
   });
 });

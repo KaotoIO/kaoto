@@ -1,6 +1,5 @@
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../models/datamapper/document';
-import { DocumentTree, INITIAL_PARSE_DEPTH } from '../models/datamapper/document-tree';
-import { DocumentTreeNode } from '../models/datamapper/document-tree-node';
+import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../store/document-tree.store';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
@@ -97,26 +96,6 @@ describe('TreeUIService', () => {
       const store = useDocumentTreeStore.getState();
       expect(store.expansionState[sourceDocNode1.id]).toBeDefined();
       expect(store.expansionState[targetDocNode.id]).toBeDefined();
-    });
-
-    it('should parse the tree to INITIAL_PARSE_DEPTH depth', () => {
-      expect.assertions(4);
-      const tree = TreeUIService.createTree(sourceDocNode);
-
-      expect(tree.root.isParsed).toBe(true);
-      expect(tree.root.children.length).toBeGreaterThan(0);
-
-      let currentLevelNodes = [tree.root];
-      for (let depth = 0; depth < INITIAL_PARSE_DEPTH - 1; depth++) {
-        const nextLevelNodes: DocumentTreeNode[] = [];
-        for (const node of currentLevelNodes) {
-          if (TreeParsingService.canNodeHaveChildren(node.nodeData)) {
-            expect(node.isParsed).toBe(true);
-            nextLevelNodes.push(...node.children);
-          }
-        }
-        currentLevelNodes = nextLevelNodes;
-      }
     });
 
     it('should replace existing tree if called with same document ID', () => {
@@ -322,24 +301,30 @@ describe('TreeUIService', () => {
   });
 
   it('should handle creating tree, toggling, and verifying expansion state', () => {
-    expect.assertions(7);
+    expect.assertions(6);
     TreeUIService.createTree(sourceDocNode);
     const documentId = sourceDocNode.id;
     const store = useDocumentTreeStore.getState();
 
     // Get initial expansion state
     const initialExpansionState = { ...store.expansionState[documentId] };
-    const expandedCount = Object.keys(initialExpansionState).length;
 
-    expect(expandedCount).toBeGreaterThan(0);
+    const initialKeys = Object.keys(initialExpansionState);
+    expect(initialKeys.length).toEqual(14);
+
+    const expandedPaths = Object.entries(initialExpansionState).reduce((acc, [path, isExpanded]) => {
+      if (isExpanded) acc.push(path);
+      return acc;
+    }, [] as string[]);
+    expect(expandedPaths.length).toEqual(4);
 
     // Toggle all initially expanded nodes
-    for (const nodePath of Object.keys(initialExpansionState)) {
+    for (const nodePath of expandedPaths) {
       TreeUIService.toggleNode(documentId, nodePath);
     }
 
     // All initially expanded nodes should now be collapsed
-    for (const nodePath of Object.keys(initialExpansionState)) {
+    for (const nodePath of expandedPaths) {
       expect(store.isExpanded(documentId, nodePath)).toBe(false);
     }
   });

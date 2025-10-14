@@ -1,7 +1,9 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { IDocument } from '../../models/datamapper/document';
+import { DocumentTree } from '../../models/datamapper/document-tree';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
+import { TreeUIService } from '../../services/tree-ui.service';
 import './Document.scss';
 import { TargetDocumentNode } from './TargetDocumentNode';
 
@@ -9,16 +11,25 @@ type DocumentProps = {
   document: IDocument;
 };
 
+/**
+ * Tree-based target document component for virtual scrolling implementation
+ * Uses pre-parsed tree structure with simplified UI state management
+ * Rebuilds tree when mappings change while preserving expansion state
+ */
 export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) => {
   const { mappingTree } = useDataMapper();
-  const nodeData = new TargetDocumentNodeData(document, mappingTree);
+  const documentNodeData = useMemo(() => new TargetDocumentNodeData(document, mappingTree), [document, mappingTree]);
 
-  return (
-    <TargetDocumentNode
-      nodeData={nodeData}
-      expandAll={document.totalFieldCount < 100}
-      initialExpandedRank={1}
-      rank={0}
-    />
-  );
+  const documentId = documentNodeData.id;
+  const [tree, setTree] = useState<DocumentTree | undefined>(undefined);
+
+  useEffect(() => {
+    setTree(TreeUIService.createTree(documentNodeData));
+  }, [documentNodeData]);
+
+  if (!tree) {
+    return <div>Loading tree...</div>;
+  }
+
+  return <TargetDocumentNode treeNode={tree.root} documentId={documentId} rank={0} />;
 };
