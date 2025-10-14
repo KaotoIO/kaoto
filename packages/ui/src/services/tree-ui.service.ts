@@ -1,4 +1,4 @@
-import { DocumentTree, INITIAL_PARSE_DEPTH } from '../models/datamapper/document-tree';
+import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../store/document-tree.store';
 import { TreeParsingService } from './tree-parsing.service';
@@ -10,16 +10,15 @@ export class TreeUIService {
   private static readonly trees: Map<string, DocumentTree> = new Map();
 
   /**
-   * Create a tree for a document
+   * Create a tree for a document (works for both Source and Target documents)
+   * For Target documents that may change due to mapping updates, use rebuildTargetTree() instead
    */
   static createTree(documentNodeData: DocumentNodeData): DocumentTree {
     const tree = new DocumentTree(documentNodeData);
-    TreeParsingService.parseTreeToDepth(tree, INITIAL_PARSE_DEPTH);
-    const initialExpandedState = TreeParsingService.getExpandTreeToDepth(tree, INITIAL_PARSE_DEPTH);
+    TreeParsingService.parseTree(tree);
 
-    const documentId = documentNodeData.id;
-    this.trees.set(documentId, tree);
-    useDocumentTreeStore.getState().setTreeExpansion(documentId, initialExpandedState);
+    this.trees.set(tree.documentId, tree);
+    useDocumentTreeStore.getState().updateTreeExpansion(tree);
 
     return tree;
   }

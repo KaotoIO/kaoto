@@ -30,6 +30,7 @@ describe('document-tree.ts', () => {
         const tree = new DocumentTree(mockDocumentNodeData);
 
         expect(tree).toBeInstanceOf(DocumentTree);
+        expect(tree.documentId).toEqual(mockDocumentNodeData.id);
         expect(tree.root).toBeInstanceOf(DocumentTreeNode);
         expect(tree.root.nodeData).toBe(mockDocumentNodeData);
       });
