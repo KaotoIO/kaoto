@@ -27,6 +27,7 @@ import {
   TargetNodeData,
 } from '../models/datamapper/visualization';
 import {
+  conditionalMappingsToShipOrderXslt,
   contactsXsd,
   extensionComplexXsd,
   extensionSimpleXsd,
@@ -962,5 +963,24 @@ describe('VisualizationService', () => {
     expect(addMappingNode.id).toContain('add-mapping-fx-Item');
     expect(addMappingNode.field.name).toEqual('Item');
     expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
+  });
+
+  describe('isDeletableNode', () => {
+    it('should identify deletable nodes', () => {
+      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      const docData = new TargetDocumentNodeData(targetDoc, tree);
+
+      const fieldNodeData = new FieldItemNodeData(docData, tree.children[0] as FieldItem);
+      expect(VisualizationService.isDeletableNode(fieldNodeData)).toBeFalsy();
+
+      const forEachNodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);
+      expect(VisualizationService.isDeletableNode(forEachNodeData)).toBeTruthy();
+
+      const valueSelectorNodeData = new MappingNodeData(
+        docData,
+        tree.children[0].children[0].children[0] as ValueSelector,
+      );
+      expect(VisualizationService.isDeletableNode(valueSelectorNodeData)).toBeTruthy();
+    });
   });
 });
