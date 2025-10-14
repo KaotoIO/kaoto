@@ -209,7 +209,7 @@ export class VisualizationService {
   }
 
   static isDeletableNode(nodeData: TargetNodeData) {
-    if (nodeData instanceof MappingNodeData) return true;
+    if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) return true;
     return VisualizationService.getFieldValueSelector(nodeData) !== undefined;
   }
 
