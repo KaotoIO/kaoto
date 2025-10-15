@@ -70,8 +70,8 @@
       }
 
       [data-warnings='true'][data-selected='true'] & {
-        border-color: var(--pf-topology__node--m-danger--Background--Fill) !important;
-        box-shadow: var(--custom-node-Shadow) !important;
+        border-color: var(--pf-topology__node--m-danger--Background--Fill);
+        box-shadow: var(--custom-node-Shadow);
       }
     }
 
