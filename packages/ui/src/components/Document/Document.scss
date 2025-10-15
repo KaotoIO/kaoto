@@ -1,10 +1,27 @@
 @use '../../styles/dnd';
 
+.document-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card__body {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+    padding: var(--pf-t--global--spacer--xs);
+  }
+}
+
 .node {
   &__row {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+    gap: var(--pf-t--global--spacer--xs);
+    padding: 2px 0;
 
     &[data-draggable='false'] [data-drag-handler] {
       display: none;
@@ -16,20 +33,17 @@
   }
 
   &__container {
-    padding: 5px;
-    padding-left: var(--pf-t--global--spacer--md);
+    padding: 0;
   }
 
-  &__header,
-  &__children {
-    border-bottom: 1px solid var(--pf-t--global--color--disabled--100);
-    border-left: 1px solid var(--pf-t--global--color--disabled--100);
-    padding-left: var(--pf-t--global--spacer--md);
-    border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+  &__header {
+    padding: 2px var(--pf-t--global--spacer--xs);
   }
 
   &__children {
-    padding: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
+    margin-top: 2px;
+    padding-left: var(--pf-t--global--spacer--md);
+    margin-left: var(--pf-t--global--spacer--xs);
   }
 
   &__row &__expand {
@@ -37,20 +51,21 @@
   }
 
   &__spacer {
-    margin: var(--pf-t--global--spacer--sm) 0 var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm);
+    margin: 0;
   }
 
   &__target__actions {
     flex-grow: 1;
-    justify-content: end;
+    display: flex;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--xs);
   }
 
   &__add__mapping {
     &__header {
-      border-bottom: 1px dashed var(--pf-t--global--color--disabled--100);
-      border-left: 1px dashed var(--pf-t--global--color--disabled--100);
-      padding-left: var(--pf-t--global--spacer--md);
-      border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+      border: 1px dashed var(--pf-t--global--color--disabled--100);
+      padding: 2px var(--pf-t--global--spacer--xs);
+      background-color: var(--pf-v6-c-card--BackgroundColor);
     }
 
     &__text {
@@ -78,21 +93,42 @@ img {
   padding-right: 0.5rem;
 
   .pf-v6-c-button {
-    --pf-v6-c-button--PaddingLeft: 0.5rem;
-    --pf-v6-c-button--PaddingRight: 0.5rem;
+    --pf-v6-c-button--PaddingTop: 0;
+    --pf-v6-c-button--PaddingBottom: 0;
+    --pf-v6-c-button--PaddingLeft: 2px;
+    --pf-v6-c-button--PaddingRight: 2px;
+    --pf-v6-c-button--MinHeight: 0;
+    --pf-v6-c-button--FontSize: var(--pf-t--global--font--size--body--xs);
+    min-height: 0;
+    height: auto;
+    line-height: 1;
   }
 
   .pf-v6-c-menu-toggle.pf-m-plain:not(.pf-m-text) {
-    --pf-v6-c-menu-toggle--PaddingLeft: 0.5rem;
-    --pf-v6-c-menu-toggle--PaddingRight: 0.5rem;
+    --pf-v6-c-menu-toggle--PaddingTop: 0;
+    --pf-v6-c-menu-toggle--PaddingBottom: 0;
+    --pf-v6-c-menu-toggle--PaddingLeft: 2px;
+    --pf-v6-c-menu-toggle--PaddingRight: 2px;
+    --pf-v6-c-menu-toggle--MinHeight: 0;
+    --pf-v6-c-menu-toggle--FontSize: var(--pf-t--global--font--size--body--sm);
+    min-height: 0;
+    height: auto;
+    line-height: 1;
   }
 }
 
 .parameter-card {
+  border-radius: var(--pf-v6-c-card--BorderRadius);
+
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-card__header {
-    padding-block: 0;
-    padding-inline: 0;
+    padding-block: 2px;
+    padding-inline: var(--pf-t--global--spacer--xs);
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card__body {
+    padding: var(--pf-t--global--spacer--xs);
   }
 }
 
@@ -104,15 +140,19 @@ img {
   --pf-v6-c-action-list--group--spacer-base: 0.5rem;
 
   .pf-v6-c-button {
-    --pf-v6-c-button--PaddingLeft: 0.5rem;
-    --pf-v6-c-button--PaddingRight: 0.5rem;
+    --pf-v6-c-button--PaddingTop: 0;
+    --pf-v6-c-button--PaddingBottom: 0;
+    --pf-v6-c-button--PaddingLeft: 2px;
+    --pf-v6-c-button--PaddingRight: 2px;
+    --pf-v6-c-button--MinHeight: 0;
+    --pf-v6-c-button--FontSize: var(--pf-t--global--font--size--body--sm);
+    min-height: 0;
+    height: auto;
+    line-height: 1;
   }
 }
 
 .selected-container {
   font-weight: bold;
-  border-style: solid;
-  border-color: var(--pf-v6-c-draggable--m-dragging--after--BorderColor);
   background-color: var(--pf-v6-c-draggable--m-dragging--BackgroundColor);
-  border-radius: var(--pf-v6-c-draggable--m-dragging--after--BorderRadius);
 }

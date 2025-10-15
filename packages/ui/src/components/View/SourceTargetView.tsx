@@ -24,7 +24,7 @@ export const SourceTargetView: FunctionComponent = () => {
 
   return (
     <Split className="source-target-view">
-      <SplitItem className="source-target-view__source-split" isFilled>
+      <SplitItem className="source-target-view__source-split">
         <SourcePanel />
       </SplitItem>
       <SplitItem className="source-target-view__line-blank">

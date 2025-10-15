@@ -26,7 +26,11 @@ type ParametersProps = {
 };
 
 export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) => {
-  const { sourceParameterMap, isSourceParametersExpanded, setSourceParametersExpanded } = useDataMapper();
+  const {
+    sourceParameterMap,
+    isSourceParametersExpanded,
+    setSourceParametersExpanded,
+  } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
   const {
     state: isAddingNewParameter,
@@ -83,7 +87,6 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
     <Card
       id="card-source-parameters"
       isCompact
-      isPlain
       isExpanded={isSourceParametersExpanded}
       className="parameter-card"
     >
@@ -104,11 +107,13 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
                 <ParameterInputPlaceholder onComplete={() => toggleOffAddNewParameter()} />
               </StackItem>
             )}
-            {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
-              <StackItem key={documentId}>
-                <SourceDocument document={doc} isReadOnly={isReadOnly} />
-              </StackItem>
-            ))}
+            {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => {
+              return (
+                <StackItem key={documentId}>
+                  <SourceDocument document={doc} isReadOnly={isReadOnly} />
+                </StackItem>
+              );
+            })}
           </Stack>
         </CardBody>
       </CardExpandableContent>

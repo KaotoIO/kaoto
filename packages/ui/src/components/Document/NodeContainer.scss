@@ -13,11 +13,7 @@
 .draggable-container {
   font-weight: bold;
   color: var(--pf-t--global--icon--color--brand--default);
-  border-style: solid;
-  border-width: var(--pf-v6-c-draggable--m-dragging--after--BorderWidth);
-  border-color: var(--pf-v6-c-draggable--m-dragging--after--BorderColor);
   background-color: var(--pf-v6-c-draggable--m-dragging--BackgroundColor);
-  border-radius: var(--pf-v6-c-draggable--m-dragging--after--BorderRadius);
   box-sizing: border-box;
 
   @include dnd.cursor-grab;
