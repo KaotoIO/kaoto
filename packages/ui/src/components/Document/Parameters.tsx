@@ -7,30 +7,51 @@ import {
   CardExpandableContent,
   CardHeader,
   CardTitle,
-  Stack,
-  StackItem,
 } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
+import { DocumentTree } from '../../models/datamapper/document-tree';
+import { IDocument } from '../../models/datamapper/document';
 import { NodeReference } from '../../models/datamapper';
+import { DocumentNodeData } from '../../models/datamapper/visualization';
+import { TreeUIService } from '../../services/tree-ui.service';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
-import { SourceDocument } from './SourceDocument';
+import { SourceDocumentNode } from './SourceDocumentNode';
 
 type ParametersProps = {
   isReadOnly: boolean;
 };
 
+type ParameterItemProps = {
+  document: IDocument;
+  isReadOnly: boolean;
+};
+
+// Renders a parameter without the Card wrapper (unlike SourceDocument)
+const ParameterItem: FunctionComponent<ParameterItemProps> = ({ document, isReadOnly }) => {
+  const documentNodeData = useMemo(() => new DocumentNodeData(document), [document]);
+  const [treeNode, setTreeNode] = useState<DocumentTree | undefined>(undefined);
+  const documentId = documentNodeData.id;
+
+  useEffect(() => {
+    const tree = TreeUIService.createTree(documentNodeData);
+    setTreeNode(tree);
+  }, [documentNodeData]);
+
+  if (!treeNode) {
+    return null;
+  }
+
+  return <SourceDocumentNode treeNode={treeNode.root} documentId={documentId} isReadOnly={isReadOnly} rank={1} />;
+};
+
 export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) => {
-  const {
-    sourceParameterMap,
-    isSourceParametersExpanded,
-    setSourceParametersExpanded,
-  } = useDataMapper();
+  const { sourceParameterMap, isSourceParametersExpanded, setSourceParametersExpanded } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
   const {
     state: isAddingNewParameter,
@@ -84,12 +105,7 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
   }, [handleAddNewParameter, isReadOnly]);
 
   return (
-    <Card
-      id="card-source-parameters"
-      isCompact
-      isExpanded={isSourceParametersExpanded}
-      className="parameter-card"
-    >
+    <Card id="card-source-parameters" isCompact isExpanded={isSourceParametersExpanded} className="parameter-card">
       <NodeContainer ref={headerRef}>
         <CardHeader
           data-testid="card-source-parameters-header"
@@ -100,21 +116,11 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
         </CardHeader>
       </NodeContainer>
       <CardExpandableContent>
-        <CardBody>
-          <Stack>
-            {isAddingNewParameter && (
-              <StackItem>
-                <ParameterInputPlaceholder onComplete={() => toggleOffAddNewParameter()} />
-              </StackItem>
-            )}
-            {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => {
-              return (
-                <StackItem key={documentId}>
-                  <SourceDocument document={doc} isReadOnly={isReadOnly} />
-                </StackItem>
-              );
-            })}
-          </Stack>
+        <CardBody className="parameter-card__body">
+          {isAddingNewParameter && <ParameterInputPlaceholder onComplete={() => toggleOffAddNewParameter()} />}
+          {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => {
+            return <ParameterItem key={documentId} document={doc} isReadOnly={isReadOnly} />;
+          })}
         </CardBody>
       </CardExpandableContent>
     </Card>

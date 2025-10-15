@@ -41,7 +41,7 @@ export const TargetDocument: FunctionComponent<DocumentProps> = ({ document, cus
     <Card className="document-panel">
       <CardBody onScroll={onScroll}>
         <TargetDocumentNode
-          tree={tree?.root}
+          treeNode={tree.root}
           documentId={documentId}
           rank={0}
         />
