@@ -12,13 +12,8 @@ interface IValidationResult {
   message: string;
 }
 
-function isMissingRequiredArrayProperty(
-  propertySchema: KaotoSchemaDefinition['schema'],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: any,
-  propertyName: string,
-): boolean {
-  return propertySchema.type === 'array' && (!Array.isArray(model[propertyName]) || model[propertyName].length === 0);
+function isEmptyOrNotArray(value: unknown): boolean {
+  return !Array.isArray(value) || value.length === 0;
 }
 /**
  * Service for validating the model of a node.
@@ -101,7 +96,7 @@ export class ModelValidationService {
           schema.required.includes(propertyName) &&
           propertySchema.default === undefined &&
           propertySchema.$ref === undefined &&
-          (!model?.[propertyName] || isMissingRequiredArrayProperty(propertySchema, model, propertyName))
+          (!model?.[propertyName] || (propertySchema.type === 'array' && isEmptyOrNotArray(model[propertyName])))
         ) {
           answer.push({
             level: 'error',
