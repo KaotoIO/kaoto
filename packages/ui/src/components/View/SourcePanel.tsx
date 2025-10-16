@@ -7,7 +7,6 @@ import {
   PanelMain,
   Stack,
   StackItem,
-  Truncate,
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
@@ -29,7 +28,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
       <PanelHeader>
         <Content>
           <Content component={ContentVariants.h3}>
-            <Truncate content="Source" className="source-target-view__truncate" />
+            <span className="source-target-view__truncate">Source</span>
           </Content>
         </Content>
       </PanelHeader>
