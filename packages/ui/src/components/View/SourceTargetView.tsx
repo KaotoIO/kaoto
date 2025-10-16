@@ -1,4 +1,6 @@
 import {
+  Content,
+  ContentVariants,
   Divider,
   Panel,
   PanelHeader,
@@ -7,19 +9,16 @@ import {
   SplitItem,
   Stack,
   StackItem,
-  Content,
-  ContentVariants,
-  Truncate,
 } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useRef } from 'react';
-import { useDataMapper } from '../../hooks/useDataMapper';
-import { MappingLinksContainer } from './MappingLinkContainer';
-import './SourceTargetView.scss';
 import { useCanvas } from '../../hooks/useCanvas';
-import { SourcePanel } from './SourcePanel';
+import { useDataMapper } from '../../hooks/useDataMapper';
+import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { TargetDocument } from '../Document/TargetDocument';
-import { useMappingLinks } from '../../hooks/useMappingLinks';
+import { MappingLinksContainer } from './MappingLinkContainer';
+import { SourcePanel } from './SourcePanel';
+import './SourceTargetView.scss';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();
@@ -49,7 +48,7 @@ export const SourceTargetView: FunctionComponent = () => {
           <PanelHeader>
             <Content>
               <Content component={ContentVariants.h3}>
-                <Truncate content="Target" className="source-target-view__truncate" />
+                <span className="source-target-view__truncate">Target</span>
               </Content>
             </Content>
           </PanelHeader>
