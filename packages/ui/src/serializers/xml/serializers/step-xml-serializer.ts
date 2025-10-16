@@ -225,6 +225,12 @@ export class StepXmlSerializer {
         },
       );
     }
+
+    // This fallback applies only when the component does not define a syntax (e.g., for Kamelets or Components without syntax).
+    if (step.parameters && Object.keys(step.parameters).length > 0) {
+      return CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters);
+    }
+
     return uri;
   }
 

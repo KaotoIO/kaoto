@@ -78,6 +78,7 @@ describe('step-xml-serializer tests', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
     domParser = new DOMParser();
     xmlSerializer = new XMLSerializer();
   });
@@ -163,6 +164,20 @@ describe('step-xml-serializer tests', () => {
       const result = StepXmlSerializer.serialize('from', fileStep, getDocument());
       expect(result.tagName).toBe('from');
       expect(result.getAttribute('uri')).toBe('file:data?noop=true&recursive=true&delete=false');
+    });
+
+    it('creates URI from kamelet parameters correctly', () => {
+      const kameletStep = {
+        uri: 'kamelet:beer-source',
+        parameters: {
+          period: 1000,
+          beers: 'Pilsner Urquell',
+        },
+      };
+
+      const result = StepXmlSerializer.serialize('from', kameletStep, getDocument());
+      expect(result.tagName).toBe('from');
+      expect(result.getAttribute('uri')).toBe('kamelet:beer-source?period=1000&beers=Pilsner%20Urquell');
     });
 
     it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {
