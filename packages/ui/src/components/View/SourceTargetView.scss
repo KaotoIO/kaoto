@@ -8,16 +8,6 @@
     min-width: 300px;
   }
 
-  &__source-panel {
-    height: 100%;
-  }
-
-  &__source-panel-main {
-    height: 100%;
-    max-height: 100%;
-    overflow: clip auto;
-  }
-
   &__line-blank {
     width: 10%;
     min-width: 1px;
@@ -29,23 +19,12 @@
     min-width: 300px;
   }
 
-  &__target-panel {
+  &__source-split,
+  &__target-split {
+    position: relative;
     display: flex;
     flex-flow: column;
-    height: 100%;
-    min-width: 400px;
-  }
-
-  &__target-panel-main {
-    height: 100%;
-    max-height: 100%;
-  }
-
-  &__truncate {
-    --pf-v6-c-truncate--MinWidth: 0;
-  }
-
-  &__divider {
-    padding-bottom: 0.5rem;
+    border-radius: var(--pf-t--global--border--radius--small);
+    border: 1px solid var(--pf-t--global--border--color--default);
   }
 }

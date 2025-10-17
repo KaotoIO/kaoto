@@ -24,8 +24,7 @@
   &__children {
     border-bottom: 1px solid var(--pf-t--global--color--disabled--100);
     border-left: 1px solid var(--pf-t--global--color--disabled--100);
-    padding-left: var(--pf-t--global--spacer--md);
-    border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+    border-bottom-left-radius: var(--pf-t--global--border--radius--small);
   }
 
   &__children {
@@ -50,7 +49,7 @@
       border-bottom: 1px dashed var(--pf-t--global--color--disabled--100);
       border-left: 1px dashed var(--pf-t--global--color--disabled--100);
       padding-left: var(--pf-t--global--spacer--md);
-      border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+      border-bottom-left-radius: var(--pf-t--global--border--radius--small);
     }
 
     &__text {
