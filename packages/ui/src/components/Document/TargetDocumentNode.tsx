@@ -23,6 +23,7 @@ import './Document.scss';
 import { FieldIcon } from './FieldIcon';
 import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
+import { useIntersectionObserver } from 'usehooks-ts';
 
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
@@ -88,8 +89,18 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     [toggleSelectedNodeReference],
   );
 
+  const { isIntersecting, ref: outerDivRef } = useIntersectionObserver({
+    threshold: 0,
+    rootMargin: '500px 0px',
+  });
+
+  if (!isIntersecting) {
+    return <div ref={outerDivRef} style={{ height: 40 }} />;
+  }
+
   return (
     <div
+      ref={outerDivRef}
       data-testid={`node-target-${isSelected ? 'selected-' : ''}${nodeData.id}`}
       className={clsx({ node__container: !isDocument })}
       onClick={handleClickField}
