@@ -40,8 +40,8 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
     <Page isContentFilled masthead={header}>
       <BrowserFilePickerMetadataProvider>
         <DataMapperMonitor />
-        <CanvasMonitor />
-        <DataMapperDnDMonitor />
+        {/* <CanvasMonitor /> */}
+        {/* <DataMapperDnDMonitor /> */}
         <PageSection isFilled hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
           <DataMapperControl />
         </PageSection>

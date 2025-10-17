@@ -3,6 +3,7 @@ import { Icon, StackItem } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
+import { useIntersectionObserver } from 'usehooks-ts';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { useToggle } from '../../hooks/useToggle';
@@ -87,8 +88,18 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
     [toggleSelectedNodeReference],
   );
 
+  const { isIntersecting, ref: outerDivRef } = useIntersectionObserver({
+    threshold: 0,
+    rootMargin: '500px 0px',
+  });
+
+  if (!isIntersecting) {
+    return <div ref={outerDivRef} style={{ height: 40 }} />;
+  }
+
   return (
     <div
+      ref={outerDivRef}
       data-testid={`node-source-${isSelected ? 'selected-' : ''}${nodeData.id}`}
       className={clsx({ node__container: !isDocument })}
       onClick={handleClickField}
