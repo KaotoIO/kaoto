@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/INHERIT"
+           xmlns:tns="http://www.example.com/INHERIT"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="GrandparentType">
+    <xs:sequence>
+      <xs:element name="timestamp" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="version" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="BaseType">
+    <xs:complexContent>
+      <xs:extension base="tns:GrandparentType">
+        <xs:sequence>
+          <xs:element name="required" type="xs:string" minOccurs="2" maxOccurs="5"/>
+          <xs:element name="optional" type="xs:string" minOccurs="0" maxOccurs="10"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="RestrictedType">
+    <xs:complexContent>
+      <xs:restriction base="tns:BaseType">
+        <xs:sequence>
+          <xs:element name="timestamp" type="xs:string"/>
+          <xs:element name="required" type="xs:string"/>
+          <xs:element name="optional" type="xs:string" maxOccurs="3"/>
+        </xs:sequence>
+        <xs:attribute name="version" type="xs:string"/>
+        <xs:attribute name="id" type="xs:string"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Data" type="tns:RestrictedType"/>
+</xs:schema>

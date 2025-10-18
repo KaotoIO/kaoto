@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/MULTI"
+           xmlns:tns="http://www.example.com/MULTI"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="GrandparentType">
+    <xs:sequence>
+      <xs:element name="grandparentField" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="grandparentAttr" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ParentType">
+    <xs:complexContent>
+      <xs:extension base="tns:GrandparentType">
+        <xs:sequence>
+          <xs:element name="parentField" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="parentAttr" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ChildType">
+    <xs:complexContent>
+      <xs:extension base="tns:ParentType">
+        <xs:sequence>
+          <xs:element name="childField" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="childAttr" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Data" type="tns:ChildType"/>
+</xs:schema>

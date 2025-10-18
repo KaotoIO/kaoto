@@ -112,7 +112,7 @@ export class SchemaBuilder {
     }
   }
 
-  getMaxOccurs(el: Element) {
+  getMaxOccurs(el: Element): number | null {
     if (el.getAttributeNode('maxOccurs') != null) {
       const value = el.getAttribute('maxOccurs')!;
       if ('unbounded' === value) {
@@ -121,10 +121,10 @@ export class SchemaBuilder {
         return parseInt(value);
       }
     }
-    return 1;
+    return null;
   }
 
-  getMinOccurs(el: Element) {
+  getMinOccurs(el: Element): number | null {
     if (el.getAttributeNode('minOccurs') != null) {
       const value = el.getAttribute('minOccurs')!;
       if ('unbounded' === value) {
@@ -133,7 +133,7 @@ export class SchemaBuilder {
         return parseInt(value);
       }
     }
-    return 1;
+    return null;
   }
 
   /**
@@ -397,8 +397,10 @@ export class SchemaBuilder {
       element.setSubstitutionGroup(this.getRefQName(substitutionGroup, el));
     }
 
-    element.setMinOccurs(this.getMinOccurs(el));
-    element.setMaxOccurs(this.getMaxOccurs(el));
+    const minOccurs = this.getMinOccurs(el);
+    minOccurs != null && element.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(el);
+    maxOccurs != null && element.setMaxOccurs(maxOccurs);
 
     // process extra attributes and elements
     this.processExtensibilityComponents(element, el, true);
@@ -718,8 +720,10 @@ export class SchemaBuilder {
     const all = new XmlSchemaAll();
 
     // handle min and max occurences
-    all.setMinOccurs(this.getMinOccurs(allEl));
-    all.setMaxOccurs(this.getMaxOccurs(allEl));
+    const minOccurs = this.getMinOccurs(allEl);
+    minOccurs != null && all.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(allEl);
+    maxOccurs != null && all.setMaxOccurs(maxOccurs);
 
     for (
       let el = XDOMUtil.getFirstChildElementNS(allEl, XmlSchema.SCHEMA_NS);
@@ -758,8 +762,10 @@ export class SchemaBuilder {
       const annotation = this.handleAnnotation(annotationEl);
       any.setAnnotation(annotation);
     }
-    any.setMinOccurs(this.getMinOccurs(anyEl));
-    any.setMaxOccurs(this.getMaxOccurs(anyEl));
+    const minOccurs = this.getMinOccurs(anyEl);
+    minOccurs != null && any.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(anyEl);
+    maxOccurs != null && any.setMaxOccurs(maxOccurs);
 
     return any;
   }
@@ -949,8 +955,10 @@ export class SchemaBuilder {
       choice.setId(choiceEl.getAttribute('id'));
     }
 
-    choice.setMinOccurs(this.getMinOccurs(choiceEl));
-    choice.setMaxOccurs(this.getMaxOccurs(choiceEl));
+    const minOccurs = this.getMinOccurs(choiceEl);
+    minOccurs != null && choice.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(choiceEl);
+    maxOccurs != null && choice.setMaxOccurs(maxOccurs);
 
     for (
       let el = XDOMUtil.getFirstChildElementNS(choiceEl, XmlSchema.SCHEMA_NS);
@@ -1200,8 +1208,10 @@ export class SchemaBuilder {
   private handleGroupRef(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
     const group = new XmlSchemaGroupRef();
 
-    group.setMaxOccurs(this.getMaxOccurs(groupEl));
-    group.setMinOccurs(this.getMinOccurs(groupEl));
+    const minOccurs = this.getMinOccurs(groupEl);
+    minOccurs != null && group.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(groupEl);
+    maxOccurs != null && group.setMaxOccurs(maxOccurs);
 
     const annotationEl = XDOMUtil.getFirstChildElementNS(groupEl, XmlSchema.SCHEMA_NS, 'annotation');
 
@@ -1380,8 +1390,10 @@ export class SchemaBuilder {
     const sequence = new XmlSchemaSequence();
 
     // handle min and max occurences
-    sequence.setMinOccurs(this.getMinOccurs(sequenceEl));
-    sequence.setMaxOccurs(this.getMaxOccurs(sequenceEl));
+    const minOccurs = this.getMinOccurs(sequenceEl);
+    minOccurs != null && sequence.setMinOccurs(minOccurs);
+    const maxOccurs = this.getMaxOccurs(sequenceEl);
+    maxOccurs != null && sequence.setMaxOccurs(maxOccurs);
 
     for (
       let el = XDOMUtil.getFirstChildElementNS(sequenceEl, XmlSchema.SCHEMA_NS);

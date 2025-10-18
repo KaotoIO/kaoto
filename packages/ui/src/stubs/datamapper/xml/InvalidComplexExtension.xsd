@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/CONFLICT"
+           xmlns:tns="http://www.example.com/CONFLICT"
+           elementFormDefault="qualified">
+
+  <!-- Base type with an element that has a default value and specific occurrences -->
+  <xs:complexType name="BaseProduct">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" default="Unknown" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="price" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Extension that attempts to redefine base elements with different constraints
+       Note: This is technically invalid XSD (extensions can't redefine base elements),
+       but the parser resolves the duplicate (use base and ignore the extension element declaration) -->
+  <xs:complexType name="ExtendedProduct">
+    <xs:complexContent>
+      <xs:extension base="tns:BaseProduct">
+        <xs:sequence>
+          <!-- Attempting to redefine 'name' with different constraints -->
+          <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Product" type="tns:ExtendedProduct"/>
+</xs:schema>
