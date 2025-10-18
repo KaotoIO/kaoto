@@ -90,6 +90,8 @@ export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
   namespaceURI: string | null = null;
   namespacePrefix: string | null = null;
+  minOccursExplicit: boolean = false;
+  maxOccursExplicit: boolean = false;
 
   constructor(
     public parent: XmlSchemaParentType,
@@ -102,19 +104,22 @@ export class XmlSchemaField extends BaseField {
     this.path = NodePath.childOf(parent.path, this.id);
   }
 
-  adopt(parent: IField) {
+  adopt(parent: IField): IField {
     if (!(parent instanceof XmlSchemaField)) return super.adopt(parent);
 
     const adopted = new XmlSchemaField(parent, this.name, this.isAttribute);
     adopted.type = this.type;
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
+    adopted.minOccursExplicit = this.minOccursExplicit;
+    adopted.maxOccursExplicit = this.maxOccursExplicit;
     adopted.defaultValue = this.defaultValue;
     adopted.namespacePrefix = this.namespacePrefix;
     adopted.namespaceURI = this.namespaceURI;
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.fields = this.fields.map((child) => child.adopt(adopted) as XmlSchemaField);
     parent.fields.push(adopted);
+    parent.ownerDocument.totalFieldCount++;
     return adopted;
   }
 
@@ -123,6 +128,12 @@ export class XmlSchemaField extends BaseField {
     const prefix = nsPrefix ? `${nsPrefix}:` : '';
     const name = this.isAttribute ? `@${this.name}` : this.name;
     return prefix + name;
+  }
+
+  isIdentical(other: IField): boolean {
+    if (this.name !== other.name) return false;
+    if (this.isAttribute !== other.isAttribute) return false;
+    return this.namespaceURI === other.namespaceURI;
   }
 }
 
@@ -208,16 +219,7 @@ export class XmlSchemaDocumentService {
   ) {
     if (content instanceof XmlSchemaSimpleTypeRestriction) {
       const baseTypeQName = content.getBaseTypeName();
-      // check if the base type is defined in the schema - built-in types are not there
-      const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
-
-      if (baseTypeQName && userDefinedBaseType) {
-        typeFragment.namedTypeFragmentRefs.push(baseTypeQName.toString());
-      } else if (baseTypeQName && !typeFragment.type) {
-        // built-in type - if the type is not yet set, use the base type
-        typeFragment.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
-      }
-
+      XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(document, typeFragment, baseTypeQName);
       // TODO collect&store restrictions to somewhere in the XmlSchemaField
     } else if (content instanceof XmlSchemaSimpleTypeList) {
       // TODO
@@ -240,16 +242,24 @@ export class XmlSchemaDocumentService {
     const name = element.getWireName()!.getLocalPart()!;
     const refTarget = element.getRef().getTarget();
     const resolvedElement = refTarget ? refTarget : element;
+    const namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+
+    const existing = fields.find((f) => f.name === name && !f.isAttribute && f.namespaceURI === namespaceURI);
+    if (existing) {
+      return;
+    }
+
     const field: XmlSchemaField = new XmlSchemaField(parent, name, false);
-    field.namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
+    field.namespaceURI = namespaceURI;
     field.namespacePrefix = resolvedElement.getWireName()!.getPrefix();
     field.defaultValue = resolvedElement.defaultValue || resolvedElement.fixedValue;
-    // The occurrences must be taken from the referrer as opposed to the other attributes
     field.minOccurs = element.getMinOccurs();
     field.maxOccurs = element.getMaxOccurs();
+    field.minOccursExplicit = element.isMinOccursExplicit();
+    field.maxOccursExplicit = element.isMaxOccursExplicit();
     fields.push(field);
 
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     ownerDoc.totalFieldCount++;
     XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, resolvedElement.getSchemaType());
   }
@@ -262,7 +272,10 @@ export class XmlSchemaDocumentService {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
       const simple = schemaType as XmlSchemaSimpleType;
-      field.type = XmlSchemaDocumentService.getFieldTypeFromName(simple.getName());
+      const newType = XmlSchemaDocumentService.getFieldTypeFromName(simple.getName());
+      if (!field.type || field.type === Types.AnyType) {
+        field.type = newType;
+      }
       return;
     } else if (!(schemaType instanceof XmlSchemaComplexType)) {
       throw new TypeError(`Unknown schema type class: ${typeof schemaType}`);
@@ -272,7 +285,9 @@ export class XmlSchemaDocumentService {
     field.type = Types.Container;
     const typeQName = complex.getQName();
     if (typeQName) {
-      field.namedTypeFragmentRefs.push(typeQName.toString());
+      if (!field.namedTypeFragmentRefs.includes(typeQName.toString())) {
+        field.namedTypeFragmentRefs.push(typeQName.toString());
+      }
       return;
     }
 
@@ -304,14 +319,21 @@ export class XmlSchemaDocumentService {
    */
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
     const name = attr.getWireName()!.getLocalPart()!;
+    const namespaceURI = attr.getWireName()!.getNamespaceURI();
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+
+    const existing = fields.find((f) => f.name === name && f.isAttribute && f.namespaceURI === namespaceURI);
+    if (existing) {
+      return;
+    }
+
     const field = new XmlSchemaField(parent, name, true);
-    field.namespaceURI = attr.getWireName()!.getNamespaceURI();
+    field.namespaceURI = namespaceURI;
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     field.type = Types[capitalize(attr.getSchemaTypeName()!.getLocalPart()!) as keyof typeof Types] || Types.AnyType;
     fields.push(field);
 
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     ownerDoc.totalFieldCount++;
 
     const attrSchemaTypeQName = attr.getSchemaTypeName();
@@ -325,14 +347,20 @@ export class XmlSchemaDocumentService {
       case XmlSchemaUse.PROHIBITED:
         field.maxOccurs = 0;
         field.minOccurs = 0;
+        field.minOccursExplicit = true;
+        field.maxOccursExplicit = true;
         break;
       case XmlSchemaUse.REQUIRED:
         field.minOccurs = 1;
         field.maxOccurs = 1;
+        field.minOccursExplicit = true;
+        field.maxOccursExplicit = true;
         break;
-      default: // OPTIONAL, NONE or not specified
+      default:
         field.minOccurs = 0;
         field.maxOccurs = 1;
+        field.minOccursExplicit = true;
+        field.maxOccursExplicit = true;
         break;
     }
   }
@@ -491,64 +519,284 @@ export class XmlSchemaDocumentService {
     }
   }
 
+  private static populateContentModelAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    contentModel: XmlSchemaContentModel | null,
+  ) {
+    if (!contentModel) return;
+    const content = contentModel.getContent();
+    if (content instanceof XmlSchemaSimpleContentExtension) {
+      XmlSchemaDocumentService.populateSimpleContentExtension(document, parent, content);
+    } else if (content instanceof XmlSchemaSimpleContentRestriction) {
+      XmlSchemaDocumentService.populateSimpleContentRestriction(document, parent, content);
+    } else if (content instanceof XmlSchemaComplexContentExtension) {
+      XmlSchemaDocumentService.populateComplexContentExtensionAttributes(document, parent, content);
+    } else if (content instanceof XmlSchemaComplexContentRestriction) {
+      XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(document, parent, content);
+    }
+  }
+
+  private static populateContentModelElements(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    contentModel: XmlSchemaContentModel | null,
+  ) {
+    if (!contentModel) return;
+    const content = contentModel.getContent();
+    // SimpleContent doesn't have elements, only ComplexContent does
+    if (content instanceof XmlSchemaComplexContentExtension) {
+      XmlSchemaDocumentService.populateComplexContentExtensionElements(document, parent, content);
+    } else if (content instanceof XmlSchemaComplexContentRestriction) {
+      XmlSchemaDocumentService.populateParticle(document, parent.fields, content.getParticle());
+    }
+  }
+
+  private static resolveBaseType(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    baseTypeQName: QName | null,
+  ): XmlSchemaType | null {
+    if (!baseTypeQName) return null;
+
+    const userDefinedBaseType = document.xmlSchema.getSchemaTypes().get(baseTypeQName);
+
+    if (!userDefinedBaseType) {
+      if (!parent.type) {
+        parent.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
+      }
+      return null;
+    }
+
+    return userDefinedBaseType;
+  }
+
+  private static populateExtensionBaseAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    baseTypeQName: QName | null,
+  ) {
+    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    if (!userDefinedBaseType) return;
+
+    if (userDefinedBaseType instanceof XmlSchemaComplexType) {
+      const complexBase = userDefinedBaseType;
+      const contentModel = complexBase.getContentModel();
+
+      if (contentModel) {
+        XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
+      } else {
+        for (const attr of complexBase.getAttributes()) {
+          XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+        }
+      }
+    } else if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
+      const simpleBase = userDefinedBaseType;
+      const simpleContent = simpleBase.getContent();
+      if (simpleContent) {
+        XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
+      }
+      if (!parent.type) {
+        parent.type = XmlSchemaDocumentService.getFieldTypeFromName(simpleBase.getName());
+      }
+    }
+  }
+
+  private static populateExtensionBaseElements(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    baseTypeQName: QName | null,
+  ) {
+    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    if (!userDefinedBaseType) return;
+
+    if (userDefinedBaseType instanceof XmlSchemaComplexType) {
+      const complexBase = userDefinedBaseType;
+      const contentModel = complexBase.getContentModel();
+
+      if (contentModel) {
+        XmlSchemaDocumentService.populateContentModelElements(document, parent, contentModel);
+      } else {
+        XmlSchemaDocumentService.populateParticle(document, parent.fields, complexBase.getParticle());
+      }
+    }
+  }
+
+  private static populateSimpleContentRestrictionBaseType(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    baseTypeQName: QName | null,
+  ) {
+    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    if (!userDefinedBaseType) return;
+
+    if (userDefinedBaseType instanceof XmlSchemaComplexType) {
+      const contentModel = userDefinedBaseType.getContentModel();
+
+      if (contentModel) {
+        const content = contentModel.getContent();
+        if (
+          content instanceof XmlSchemaSimpleContentExtension ||
+          content instanceof XmlSchemaSimpleContentRestriction
+        ) {
+          XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
+        }
+      }
+    } else if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
+      const simpleBase = userDefinedBaseType;
+      const simpleContent = simpleBase.getContent();
+      if (simpleContent) {
+        XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
+      }
+      if (!parent.type) {
+        parent.type = XmlSchemaDocumentService.getFieldTypeFromName(simpleBase.getName());
+      }
+    }
+  }
+
+  /**
+   * The simple {@code <xs:extension>} adds attributes in addition to what is defined in base. The base attributes
+   * should come first.
+   * @param document
+   * @param parent
+   * @param extension
+   * @private
+   */
   private static populateSimpleContentExtension(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaSimpleContentExtension,
   ) {
-    const baseTypeQName = extension.getBaseTypeName();
-    // check if the base type is defined in the schema - built-in types are not there, which we should skip
-    const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
-
-    if (baseTypeQName && userDefinedBaseType instanceof XmlSchemaComplexType) {
-      parent.namedTypeFragmentRefs.push(baseTypeQName.toString());
-    } else if (baseTypeQName && !parent.type) {
-      parent.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
-    }
-
-    const attributes = extension.getAttributes();
-    attributes.forEach((attr) => {
+    XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, extension.getBaseTypeName());
+    for (const attr of extension.getAttributes()) {
       XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
-    });
+    }
   }
 
+  /**
+   * The simple {@code <xs:restriction>} restricts the attributes defined in base.
+   * @param document
+   * @param parent
+   * @param restriction
+   * @private
+   */
   private static populateSimpleContentRestriction(
-    _document: XmlSchemaDocument,
-    _parent: XmlSchemaField | XmlSchemaTypeFragment,
-    _restriction: XmlSchemaSimpleContentRestriction,
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    restriction: XmlSchemaSimpleContentRestriction,
   ) {
-    // TODO restriction support
+    for (const attr of restriction.getAttributes()) {
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+    }
+    XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(document, parent, restriction.getBaseTypeName());
   }
 
+  /**
+   * The complex {@code <xs:extension>} adds elements and/or attributes. The base attributes and elements have
+   * to come first. In order to show attributes before any elements in the DataMapper UI, attributes have to
+   *  be added first, then elements. Therefore, the order is:
+   *  <ol>
+   *    <li>base attributes</li>
+   *    <li>extension attributes</li>
+   *    <li>base elements</li>
+   *    <li>extension elements</li>
+   *  </ol>
+   * @param document
+   * @param parent
+   * @param extension
+   * @private
+   */
   private static populateComplexContentExtension(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
   ) {
+    XmlSchemaDocumentService.populateComplexContentExtensionAttributes(document, parent, extension);
+    XmlSchemaDocumentService.populateComplexContentExtensionElements(document, parent, extension);
+  }
+
+  private static populateComplexContentExtensionAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    extension: XmlSchemaComplexContentExtension,
+  ) {
     const baseTypeQName = extension.getBaseTypeName();
-    // check if the base type is defined in the schema - built-in types are not there, which we should skip
-    const userDefinedBaseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : undefined;
+    const baseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : null;
+    const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
 
-    if (baseTypeQName && userDefinedBaseType instanceof XmlSchemaComplexType) {
-      parent.namedTypeFragmentRefs.push(baseTypeQName.toString());
-    } else if (baseTypeQName && !parent.type) {
-      parent.type = XmlSchemaDocumentService.getFieldTypeFromName(baseTypeQName.getLocalPart());
+    if (baseHasContentModel) {
+      XmlSchemaDocumentService.populateContentModelAttributes(document, parent, baseHasContentModel);
+    } else {
+      XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, baseTypeQName);
     }
-
-    const attributes = extension.getAttributes();
-    attributes.forEach((attr) => {
+    for (const attr of extension.getAttributes()) {
       XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
-    });
+    }
+  }
 
+  private static populateComplexContentExtensionElements(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    extension: XmlSchemaComplexContentExtension,
+  ) {
+    const baseTypeQName = extension.getBaseTypeName();
+    const baseType = baseTypeQName ? document.xmlSchema.getSchemaTypes().get(baseTypeQName) : null;
+    const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
+
+    if (baseHasContentModel) {
+      XmlSchemaDocumentService.populateContentModelElements(document, parent, baseHasContentModel);
+    } else {
+      XmlSchemaDocumentService.populateExtensionBaseElements(document, parent, baseTypeQName);
+    }
     XmlSchemaDocumentService.populateParticle(document, parent.fields, extension.getParticle());
   }
 
+  /**
+   * The complex {@code <xs:restriction>} restricts the attributes and/or elements defined in base.
+   * @param document
+   * @param parent
+   * @param restriction
+   * @private
+   */
   private static populateComplexContentRestriction(
-    _document: XmlSchemaDocument,
-    _parent: XmlSchemaField | XmlSchemaTypeFragment,
-    _restriction: XmlSchemaComplexContentRestriction,
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    restriction: XmlSchemaComplexContentRestriction,
   ) {
-    // TODO restriction support
+    XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(document, parent, restriction);
+    XmlSchemaDocumentService.populateParticle(document, parent.fields, restriction.getParticle());
+  }
+
+  private static populateComplexContentRestrictionAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    restriction: XmlSchemaComplexContentRestriction,
+  ) {
+    for (const attr of restriction.getAttributes()) {
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+    }
+
+    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(
+      document,
+      parent,
+      restriction.getBaseTypeName(),
+    );
+    if (!userDefinedBaseType) {
+      return;
+    }
+
+    if (userDefinedBaseType instanceof XmlSchemaComplexType) {
+      const complexBase = userDefinedBaseType;
+      const contentModel = complexBase.getContentModel();
+
+      if (contentModel) {
+        XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
+      } else {
+        for (const attr of complexBase.getAttributes()) {
+          XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+        }
+      }
+    }
   }
 
   static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {

@@ -102,6 +102,25 @@ export const orgToContactsXslt = fs.readFileSync(path.resolve(__dirname, './xml/
 export const extensionSimpleXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionSimple.xsd')).toString();
 export const extensionComplexXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionComplex.xsd')).toString();
 export const schemaTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/SchemaTest.xsd')).toString();
+export const restrictionComplexXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/RestrictionComplex.xsd'))
+  .toString();
+export const restrictionSimpleXsd = fs.readFileSync(path.resolve(__dirname, './xml/RestrictionSimple.xsd')).toString();
+export const restrictionInheritanceXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/RestrictionInheritance.xsd'))
+  .toString();
+export const multiLevelExtensionXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/MultiLevelExtension.xsd'))
+  .toString();
+export const multiLevelRestrictionXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/MultiLevelRestriction.xsd'))
+  .toString();
+export const invalidComplexExtensionXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/InvalidComplexExtension.xsd'))
+  .toString();
+export const simpleTypeInheritanceXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/SimpleTypeInheritance.xsd'))
+  .toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
