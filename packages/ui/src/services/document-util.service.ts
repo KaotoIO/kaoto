@@ -36,10 +36,7 @@ export class DocumentUtilService {
     if (fragment.type) field.type = fragment.type;
     if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
-    fragment.fields.forEach((f) => {
-      f.adopt(field);
-      field.ownerDocument.totalFieldCount++;
-    });
+    fragment.fields.forEach((f) => f.adopt(field));
     fragment.namedTypeFragmentRefs.forEach((childRef) => {
       const childFragment = doc.namedTypeFragments[childRef];
       DocumentUtilService.adoptTypeFragment(field, childFragment);

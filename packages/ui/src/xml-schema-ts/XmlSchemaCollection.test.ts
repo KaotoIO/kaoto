@@ -11,10 +11,12 @@ import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 import {
   camelSpringXsd,
   namedTypesXsd,
+  restrictionInheritanceXsd,
   shipOrderEmptyFirstLineXsd,
   shipOrderXsd,
   testDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
+import { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
 
 describe('XmlSchemaCollection', () => {
   it('should parse ShipOrder XML schema', () => {
@@ -137,5 +139,81 @@ describe('XmlSchemaCollection', () => {
       return;
     }
     fail('No error was thrown');
+  });
+
+  it('should track explicit minOccurs/maxOccurs flags in ShipOrder elements', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(shipOrderXsd, () => {});
+
+    const shipOrderElement = xmlSchema.getElements().get(new QName('io.kaoto.datamapper.poc.test', 'ShipOrder'));
+    expect(shipOrderElement).toBeDefined();
+    expect(shipOrderElement!.getMinOccurs()).toEqual(1);
+    expect(shipOrderElement!.getMaxOccurs()).toEqual(1);
+    expect(shipOrderElement!.isMinOccursExplicit()).toBe(false);
+    expect(shipOrderElement!.isMaxOccursExplicit()).toBe(false);
+
+    const shipOrderComplexType = shipOrderElement!.getSchemaType() as XmlSchemaComplexType;
+    const shipOrderSequence = shipOrderComplexType.getParticle() as XmlSchemaSequence;
+    const item = shipOrderSequence.getItems()[2] as XmlSchemaElement;
+    expect(item.getName()).toEqual('Item');
+    expect(item.getMaxOccurs()).toBe(Number.MAX_SAFE_INTEGER);
+    expect(item.isMaxOccursExplicit()).toBe(true);
+    expect(item.isMinOccursExplicit()).toBe(false);
+
+    const itemSchemaType = item.getSchemaType() as XmlSchemaComplexType;
+    const itemSequence = itemSchemaType.getParticle() as XmlSchemaSequence;
+    const itemNote = itemSequence.getItems()[1] as XmlSchemaElement;
+    expect(itemNote.getName()).toEqual('Note');
+    expect(itemNote.getMinOccurs()).toEqual(0);
+    expect(itemNote.isMinOccursExplicit()).toBe(true);
+    expect(itemNote.isMaxOccursExplicit()).toBe(false);
+  });
+
+  it('should correctly handle explicit flags in RestrictionInheritance.xsd', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(restrictionInheritanceXsd, () => {});
+
+    const restrictedType = xmlSchema
+      .getSchemaTypes()
+      .get(new QName('http://www.example.com/INHERIT', 'RestrictedType')) as XmlSchemaComplexType;
+    expect(restrictedType).toBeDefined();
+
+    const complexContentRestriction = restrictedType.getContentModel()?.getContent();
+    expect(complexContentRestriction).toBeDefined();
+
+    const restrictionParticle = (
+      complexContentRestriction as XmlSchemaComplexContentRestriction
+    ).getParticle() as XmlSchemaSequence;
+    expect(restrictionParticle).toBeDefined();
+
+    const restrictionElements = restrictionParticle.getItems();
+    expect(restrictionElements.length).toEqual(3);
+
+    const requiredElement = restrictionElements[1] as XmlSchemaElement;
+    expect(requiredElement).toBeDefined();
+    expect(requiredElement.getName()).toEqual('required');
+    expect(requiredElement.isMinOccursExplicit()).toBe(false);
+    expect(requiredElement.isMaxOccursExplicit()).toBe(false);
+
+    const optionalElement = restrictionElements[2] as XmlSchemaElement;
+    expect(optionalElement).toBeDefined();
+    expect(optionalElement.getName()).toEqual('optional');
+    expect(optionalElement.getMaxOccurs()).toEqual(3);
+    expect(optionalElement.isMaxOccursExplicit()).toBe(true);
+    expect(optionalElement.isMinOccursExplicit()).toBe(false);
+  });
+
+  it('should handle explicit flags in sequence particles', () => {
+    const collection = new XmlSchemaCollection();
+    const xmlSchema = collection.read(shipOrderXsd, () => {});
+
+    const shipOrderElement = xmlSchema.getElements().get(new QName('io.kaoto.datamapper.poc.test', 'ShipOrder'));
+    const shipOrderComplexType = shipOrderElement!.getSchemaType() as XmlSchemaComplexType;
+    const shipOrderSequence = shipOrderComplexType.getParticle() as XmlSchemaSequence;
+
+    expect(shipOrderSequence.getMinOccurs()).toEqual(1);
+    expect(shipOrderSequence.getMaxOccurs()).toEqual(1);
+    expect(shipOrderSequence.isMinOccursExplicit()).toBe(false);
+    expect(shipOrderSequence.isMaxOccursExplicit()).toBe(false);
   });
 });

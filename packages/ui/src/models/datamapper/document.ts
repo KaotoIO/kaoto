@@ -2,9 +2,10 @@ import { Types } from './types';
 import { NodePath } from './nodepath';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { Predicate } from './xpath';
+import { XmlSchemaParticle } from '../../xml-schema-ts/particle/XmlSchemaParticle';
 
-export const DEFAULT_MIN_OCCURS = 0;
-export const DEFAULT_MAX_OCCURS = 1;
+export const DEFAULT_MIN_OCCURS = XmlSchemaParticle.DEFAULT_MIN_OCCURS;
+export const DEFAULT_MAX_OCCURS = XmlSchemaParticle.DEFAULT_MAX_OCCURS;
 
 export interface INamespace {
   alias: string;
@@ -34,8 +35,28 @@ export interface IField {
   namespaceURI: string | null;
   namedTypeFragmentRefs: string[];
   predicates: Predicate[];
+
+  /**
+   * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.
+   * If there's existing field that is identical, i.e. {@link isIdentical()} returns true, it should inherit the
+   * field properties from base if it's not yet defined, or keep the current property value if it's already defined
+   * in descendant (override).
+   * @param parent
+   */
   adopt(parent: IField): IField;
+
+  /**
+   * Gets an expression to represent this field.
+   * @param namespaceMap
+   */
   getExpression(namespaceMap: { [prefix: string]: string }): string;
+
+  /**
+   * Returns `true` if the passed-in field is identical with this, otherwise returns `false`. Whether two fields
+   * are identical or not depends on field types, for example XML field needs to also verify if they're in the same namespace.
+   * @param other
+   */
+  isIdentical(other: IField): boolean;
 }
 
 export interface ITypeFragment {
@@ -120,6 +141,11 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   adopt(_field: IField) {
     return this;
   }
+
+  isIdentical(_other: IField): boolean {
+    // Just a placeholder to be also IField, there should be no identical PrimitiveDocument
+    return false;
+  }
 }
 
 export class BaseField implements IField {
@@ -148,6 +174,17 @@ export class BaseField implements IField {
   predicates: Predicate[] = [];
 
   adopt(parent: IField): BaseField {
+    const existing = parent.fields.find((f) => f.isIdentical(this));
+    if (existing) {
+      if (this.type && this.type !== Types.AnyType) existing.type = this.type;
+      if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
+      for (const ref of this.namedTypeFragmentRefs) {
+        !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
+      }
+      for (const child of this.fields) child.adopt(existing);
+      return existing;
+    }
+
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
@@ -159,11 +196,16 @@ export class BaseField implements IField {
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);
+    parent.ownerDocument.totalFieldCount++;
     return adopted;
   }
 
   getExpression(_namespaceMap: { [prefix: string]: string }): string {
     return this.name;
+  }
+
+  isIdentical(other: IField): boolean {
+    return this.name === other.name;
   }
 }
 

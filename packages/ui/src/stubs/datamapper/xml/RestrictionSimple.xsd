@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/RESTRICT"
+           xmlns:tns="http://www.example.com/RESTRICT"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="BasePrice">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string"/>
+        <xs:attribute name="taxIncluded" type="xs:boolean"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="EuroPrice">
+    <xs:simpleContent>
+      <xs:restriction base="tns:BasePrice">
+        <xs:attribute name="currency" type="xs:string" use="required" fixed="EUR"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="Price" type="tns:EuroPrice"/>
+</xs:schema>

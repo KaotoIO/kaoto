@@ -419,4 +419,103 @@ describe('JsonSchemaDocumentService', () => {
       JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).not.toThrow();
   });
+
+  it('should handle anyOf with conflicting types - first concrete type wins', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        foo: { type: 'string' },
+      },
+      anyOf: [
+        {
+          properties: {
+            foo: { type: 'number' },
+          },
+        },
+      ],
+    };
+
+    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'test',
+      JSON.stringify(schema),
+    );
+
+    const root = doc.fields[0];
+    expect(root.fields.length).toBe(1);
+
+    const fooField = root.fields.find((f) => f.key === 'foo');
+    expect(fooField).toBeDefined();
+    expect(fooField!.type).toBe(Types.String);
+  });
+
+  it('should refine AnyType to concrete type via composition', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        bar: {},
+      },
+      anyOf: [
+        {
+          properties: {
+            bar: { type: 'string' },
+          },
+        },
+      ],
+    };
+
+    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'test',
+      JSON.stringify(schema),
+    );
+
+    const root = doc.fields[0];
+    const barField = root.fields.find((f) => f.key === 'bar');
+    expect(barField).toBeDefined();
+    expect(barField!.type).toBe(Types.String);
+  });
+
+  it('should merge child fields from allOf composition', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        obj: {
+          type: 'object',
+          properties: {
+            a: { type: 'string' },
+          },
+        },
+      },
+      allOf: [
+        {
+          properties: {
+            obj: {
+              properties: {
+                b: { type: 'number' },
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      DocumentType.SOURCE_BODY,
+      'test',
+      JSON.stringify(schema),
+    );
+
+    const root = doc.fields[0];
+    const objField = root.fields.find((f) => f.key === 'obj');
+    expect(objField).toBeDefined();
+    expect(objField!.fields.length).toBe(2);
+
+    const aField = objField!.fields.find((f) => f.key === 'a');
+    const bField = objField!.fields.find((f) => f.key === 'b');
+    expect(aField).toBeDefined();
+    expect(bField).toBeDefined();
+    expect(aField!.type).toBe(Types.String);
+    expect(bField!.type).toBe(Types.Numeric);
+  });
 });

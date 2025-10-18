@@ -106,6 +106,6 @@ describe('processTreeNodeToDepth', () => {
     };
 
     expect(fn).not.toThrow();
-    expect(processedNodePaths).toHaveLength(3518);
+    expect(processedNodePaths).toHaveLength(3517);
   });
 });
