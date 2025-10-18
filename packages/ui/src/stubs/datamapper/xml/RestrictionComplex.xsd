@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/RESTRICT"
+           xmlns:tns="http://www.example.com/RESTRICT"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="BaseAddress">
+    <xs:sequence>
+      <xs:element name="street" type="xs:string"/>
+      <xs:element name="city" type="xs:string"/>
+      <xs:element name="zip" type="xs:string"/>
+      <xs:element name="country" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string"/>
+    <xs:attribute name="type" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="SimpleAddress">
+    <xs:complexContent>
+      <xs:restriction base="tns:BaseAddress">
+        <xs:sequence>
+          <xs:element name="street" type="xs:string"/>
+          <xs:element name="city" type="xs:string"/>
+          <xs:element name="zip" type="xs:string"/>
+          <xs:element name="country" type="xs:string" maxOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Address" type="tns:SimpleAddress"/>
+</xs:schema>

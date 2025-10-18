@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/MULTIRESTRICT"
+           xmlns:tns="http://www.example.com/MULTIRESTRICT"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="BasePrice">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string" use="optional"/>
+        <xs:attribute name="taxIncluded" type="xs:boolean" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="EuroPrice">
+    <xs:simpleContent>
+      <xs:restriction base="tns:BasePrice">
+        <xs:attribute name="currency" type="xs:string" fixed="EUR" use="required"/>
+        <xs:attribute name="taxIncluded" type="xs:boolean"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="StrictEuroPrice">
+    <xs:simpleContent>
+      <xs:restriction base="tns:EuroPrice">
+        <xs:attribute name="currency" type="xs:string" fixed="EUR"/>
+        <xs:attribute name="taxIncluded" type="xs:boolean" fixed="true"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="Data" type="tns:StrictEuroPrice"/>
+</xs:schema>

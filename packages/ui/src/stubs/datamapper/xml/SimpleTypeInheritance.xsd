@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/SIMPLEINHERIT"
+           xmlns:tns="http://www.example.com/SIMPLEINHERIT"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="BaseStringType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DerivedStringType">
+    <xs:restriction base="tns:BaseStringType">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ExtendedValueType">
+    <xs:simpleContent>
+      <xs:extension base="tns:DerivedStringType">
+        <xs:attribute name="lang" type="xs:string" use="optional"/>
+        <xs:attribute name="format" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="RestrictedValueType">
+    <xs:simpleContent>
+      <xs:restriction base="tns:DerivedStringType">
+        <xs:attribute name="lang" type="xs:string" fixed="en"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:simpleType name="NamedSimpleBase">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ComplexExtendingSimple">
+    <xs:complexContent>
+      <xs:extension base="tns:ExtendedValueType">
+        <xs:sequence>
+          <xs:element name="extra" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="ExtendedValue" type="tns:ExtendedValueType"/>
+
+  <xs:element name="RestrictedValue" type="tns:RestrictedValueType"/>
+
+  <xs:element name="ComplexValue" type="tns:ComplexExtendingSimple"/>
+
+</xs:schema>
