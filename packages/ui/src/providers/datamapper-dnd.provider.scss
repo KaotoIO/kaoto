@@ -1,7 +1,7 @@
 @use '../styles/dnd';
 
 .dragging-container {
-  padding: 5px;
+  padding: var(--pf-t--global--spacer--xs);
   font-weight: bold;
   color: var(--pf-t--global--icon--color--brand--default);
   border-style: solid;

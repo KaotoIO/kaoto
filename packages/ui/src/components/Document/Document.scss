@@ -5,6 +5,7 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+    gap: var(--pf-t--global--spacer--xs);
 
     &[data-draggable='false'] [data-drag-handler] {
       display: none;
@@ -16,40 +17,44 @@
   }
 
   &__container {
-    padding: 5px;
-    padding-left: var(--pf-t--global--spacer--md);
+    padding-right: 5px;
+    padding-left: var(--pf-t--global--spacer--sm);
   }
 
   &__header,
   &__children {
-    border-bottom: 1px solid var(--pf-t--global--color--disabled--100);
-    border-left: 1px solid var(--pf-t--global--color--disabled--100);
-    border-bottom-left-radius: var(--pf-t--global--border--radius--small);
-  }
-
-  &__children {
-    padding: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
+    padding-left: var(--pf-t--global--spacer--md);
+    margin-left: var(--pf-t--global--spacer--xs);
+    border-left: 1px dotted var(--pf-t--global--color--disabled--100);
   }
 
   &__row &__expand {
+    padding-left: 3px;
     cursor: pointer;
   }
 
   &__spacer {
-    margin: var(--pf-t--global--spacer--sm) 0 var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm);
+    margin: var(--pf-t--global--spacer--xs) 0 var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--xs);
   }
 
   &__target__actions {
     flex-grow: 1;
     justify-content: end;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-menu-toggle {
+      // Reduced height to improve vertical density and DnD positioning accuracy
+      height: 24px;
+    }
   }
 
   &__add__mapping {
     &__header {
-      border-bottom: 1px dashed var(--pf-t--global--color--disabled--100);
-      border-left: 1px dashed var(--pf-t--global--color--disabled--100);
+      border-bottom: 1px dotted var(--pf-t--global--color--disabled--100);
+      border-left: 1px dotted var(--pf-t--global--color--disabled--100);
       padding-left: var(--pf-t--global--spacer--md);
-      border-bottom-left-radius: var(--pf-t--global--border--radius--small);
+      border-bottom-left-radius: var(--pf-v6-c-panel--BorderRadius);
+      margin-left: 4px;
     }
 
     &__text {
