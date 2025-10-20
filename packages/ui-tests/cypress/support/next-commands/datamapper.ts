@@ -123,14 +123,14 @@ Cypress.Commands.add('engageMapping', (sourceNodePath: string[], targetNodePath:
 
   targetNode.find('[id^="droppable-"]').first().trigger('mousemove', { dataTransfer, force: true });
 
-  cy.get('.source-target-view__source-panel').find('[data-dnd-draggable]').should('exist');
+  cy.get('.source-panel').find('[data-dnd-draggable]').should('exist');
 
   targetNode
     .trigger('mouseenter', { dataTransfer, force: true })
     .trigger('mouseover', { dataTransfer, force: true })
     .trigger('mousemove', { dataTransfer, force: true });
 
-  cy.get('.source-target-view__target-panel-main').find('[data-dnd-droppable]').should('exist');
+  cy.get('.target-panel').find('[data-dnd-droppable]').should('exist');
 
   targetNode.trigger('mouseup', { dataTransfer, force: true });
 

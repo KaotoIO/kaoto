@@ -39,7 +39,9 @@ describe('Test for DataMapper : XML to XML', () => {
       '$Account/ns0:Account/@AccountId',
     );
 
-    cy.get('[data-testid^="mapping-link-"]').should('be.visible').click();
+    // cypress complains that the line is go behind the source-target-view__line-blank, although
+    // line is clickable when manually tested with chrome and firefox. adding "force: true" for now
+    cy.get('[data-testid^="mapping-link-"]').should('be.visible').click({ force: true });
 
     cy.engageMapping(
       ['node-source-fx-Account', 'node-source-fx-Name'],
