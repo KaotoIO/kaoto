@@ -111,7 +111,7 @@ describe('MappingSerializerService', () => {
       expect(itemFieldItem.field.type).toEqual(Types.Container);
       expect(itemFieldItem.field.isAttribute).toBeFalsy();
       expect(itemFieldItem.field.namespaceURI).toEqual('');
-      expect(itemFieldItem.field.maxOccurs).toBeGreaterThan(1);
+      expect(itemFieldItem.field.maxOccurs).toEqual('unbounded');
       expect(itemFieldItem.children.length).toEqual(4);
 
       const titleFieldItem = itemFieldItem.children[0] as FieldItem;

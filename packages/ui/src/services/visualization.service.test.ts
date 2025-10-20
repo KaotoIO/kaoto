@@ -922,7 +922,7 @@ describe('VisualizationService', () => {
     expect(addMappingNode.title).toEqual('Item');
     expect(addMappingNode.id).toContain('add-mapping-fx-Item');
     expect(addMappingNode.field.name).toEqual('Item');
-    expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
+    expect(addMappingNode.field.maxOccurs).toEqual('unbounded');
   });
 
   it('should generate for multiple indexed collection mappings on a same collection target field', () => {
@@ -963,7 +963,7 @@ describe('VisualizationService', () => {
     expect(addMappingNode.title).toEqual('Item');
     expect(addMappingNode.id).toContain('add-mapping-fx-Item');
     expect(addMappingNode.field.name).toEqual('Item');
-    expect(addMappingNode.field.maxOccurs).toBeGreaterThan(1);
+    expect(addMappingNode.field.maxOccurs).toEqual('unbounded');
   });
 
   describe('isDeletableNode', () => {

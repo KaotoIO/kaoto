@@ -112,11 +112,11 @@ export class SchemaBuilder {
     }
   }
 
-  getMaxOccurs(el: Element): number | null {
+  getMaxOccurs(el: Element): number | string | null {
     if (el.getAttributeNode('maxOccurs') != null) {
       const value = el.getAttribute('maxOccurs')!;
       if ('unbounded' === value) {
-        return Number.MAX_SAFE_INTEGER;
+        return 'unbounded';
       } else {
         return parseInt(value);
       }
@@ -124,11 +124,11 @@ export class SchemaBuilder {
     return null;
   }
 
-  getMinOccurs(el: Element): number | null {
+  getMinOccurs(el: Element): number | string | null {
     if (el.getAttributeNode('minOccurs') != null) {
       const value = el.getAttribute('minOccurs')!;
       if ('unbounded' === value) {
-        return Number.MAX_SAFE_INTEGER;
+        return 'unbounded';
       } else {
         return parseInt(value);
       }

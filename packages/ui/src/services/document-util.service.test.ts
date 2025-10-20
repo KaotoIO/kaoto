@@ -67,7 +67,7 @@ describe('DocumentUtilService', () => {
       // https://github.com/KaotoIO/kaoto/issues/2457
       // occurrences must be taken from the referrer as opposed to the other attributes
       expect(route?.minOccurs).toEqual(0);
-      expect(route?.maxOccurs).toBeGreaterThan(1);
+      expect(route?.maxOccurs).toEqual('unbounded');
     });
   });
 });

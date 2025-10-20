@@ -29,8 +29,8 @@ export interface IField {
   fields: IField[];
   isAttribute: boolean;
   defaultValue: string | null;
-  minOccurs: number;
-  maxOccurs: number;
+  minOccurs: number | string;
+  maxOccurs: number | string;
   namespacePrefix: string | null;
   namespaceURI: string | null;
   namedTypeFragmentRefs: string[];
@@ -61,8 +61,8 @@ export interface IField {
 
 export interface ITypeFragment {
   type?: Types;
-  minOccurs?: number;
-  maxOccurs?: number;
+  minOccurs?: number | string;
+  maxOccurs?: number | string;
   fields: IField[];
   namedTypeFragmentRefs: string[];
 }
@@ -124,8 +124,8 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   ownerDocument: IDocument = this;
   defaultValue: string | null = null;
   isAttribute: boolean = false;
-  maxOccurs: number = 1;
-  minOccurs: number = 0;
+  maxOccurs: number | string = 1;
+  minOccurs: number | string = 0;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   parent: IParentType = this;
@@ -165,8 +165,8 @@ export class BaseField implements IField {
   fields: IField[] = [];
   isAttribute: boolean = false;
   type = Types.AnyType;
-  minOccurs: number = DEFAULT_MIN_OCCURS;
-  maxOccurs: number = DEFAULT_MAX_OCCURS;
+  minOccurs: number | string = DEFAULT_MIN_OCCURS;
+  maxOccurs: number | string = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;

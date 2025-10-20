@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { FunctionComponent, useCallback, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
-import { AddMappingNodeData, NodeReference } from '../../models/datamapper/visualization';
+import { AddMappingNodeData, NodeReference, TargetFieldNodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
 import { ConditionMenuAction } from './actions/ConditionMenuAction';
 import './Document.scss';
@@ -50,7 +50,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData }>
                 </Icon>
                 <NodeTitle
                   className="node__spacer node__add__mapping__text"
-                  nodeData={nodeData}
+                  nodeData={nodeData as TargetFieldNodeData}
                   isDocument={false}
                   rank={0}
                 />

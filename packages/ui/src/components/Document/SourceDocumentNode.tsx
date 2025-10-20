@@ -7,7 +7,7 @@ import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { useToggle } from '../../hooks/useToggle';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { NodeReference } from '../../models/datamapper/visualization';
+import { FieldNodeData, NodeReference } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
@@ -135,7 +135,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
                 <NodeTitle
                   className="node__spacer"
                   data-rank={rank}
-                  nodeData={nodeData}
+                  nodeData={nodeData as FieldNodeData}
                   isDocument={isDocument}
                   rank={rank}
                 />

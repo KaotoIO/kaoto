@@ -1,4 +1,4 @@
-import { NodeData } from './visualization';
+import { FieldNodeData, NodeData } from './visualization';
 
 /**
  * Tree node for DataMapper virtual scrolling implementation
@@ -10,7 +10,7 @@ export class DocumentTreeNode {
   public children: DocumentTreeNode[] = [];
 
   constructor(
-    public nodeData: NodeData,
+    public nodeData: FieldNodeData | NodeData,
     public parent?: DocumentTreeNode,
   ) {
     this.parent = parent;

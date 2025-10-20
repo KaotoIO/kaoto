@@ -11,6 +11,7 @@ import {
   AddMappingNodeData,
   NodeReference,
   TargetDocumentNodeData,
+  TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
@@ -123,7 +124,12 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
                 </Icon>
               )}
 
-              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />
+              <NodeTitle
+                className="node__spacer"
+                nodeData={nodeData as TargetFieldNodeData}
+                isDocument={isDocument}
+                rank={rank}
+              />
 
               {showNodeActions ? (
                 <TargetNodeActions
