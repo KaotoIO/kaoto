@@ -11,7 +11,7 @@ import {
 } from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
-import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 
 describe('VisualizationNode', () => {
   let node: IVisualizationNode;

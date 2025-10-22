@@ -3,11 +3,11 @@ import { IVisualizationNode } from '../../../../models/visualization/base-visual
 import { ACTION_ID_CANCEL, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
 import {
-  findModalCustomizationRecursively,
-  processNodeInteractionAddonRecursively,
-} from '../ContextMenu/item-delete-helper';
+  findOnDeleteModalCustomizationRecursively,
+  processOnDeleteAddonRecursively,
+} from '../ContextMenu/item-interaction-helper';
 
 export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
   const entitiesContext = useContext(EntitiesContext);
@@ -18,8 +18,8 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
 
   const onDeleteGroup = useCallback(async () => {
     if (!vizNode) return;
-    const modalCustoms = findModalCustomizationRecursively(vizNode, (vn) =>
-      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    const modalCustoms = findOnDeleteModalCustomizationRecursively(vizNode, (vn) =>
+      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
     );
     const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
     const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
@@ -33,8 +33,8 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
 
     if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
 
-    processNodeInteractionAddonRecursively(vizNode, modalAnswer, (vn) =>
-      getRegisteredInteractionAddons(IInteractionAddonType.ON_DELETE, vn),
+    processOnDeleteAddonRecursively(vizNode, modalAnswer, (vn) =>
+      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
     );
 
     entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined);

@@ -1,7 +1,7 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef } from 'react';
 import { IVisualizationNode } from '../../../models';
 import {
-  IInteractionAddonType,
+  IInteractionType,
   INodeInteractionAddonContext,
   IRegisteredInteractionAddon,
 } from './node-interaction-addon.model';
@@ -14,15 +14,18 @@ export const NodeInteractionAddonContext = createContext<INodeInteractionAddonCo
 export const NodeInteractionAddonProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const registeredInteractionAddons = useRef<IRegisteredInteractionAddon[]>([]);
 
-  const registerInteractionAddon = useCallback((interaction: IRegisteredInteractionAddon) => {
-    registeredInteractionAddons.current.push(interaction);
-  }, []);
+  const registerInteractionAddon = useCallback(
+    <T extends IInteractionType>(interaction: IRegisteredInteractionAddon<T>) => {
+      registeredInteractionAddons.current.push(interaction);
+    },
+    [],
+  );
 
   const getRegisteredInteractionAddons = useCallback(
-    (interaction: IInteractionAddonType, vizNode: IVisualizationNode) => {
+    <T extends IInteractionType>(interaction: T, vizNode: IVisualizationNode) => {
       return registeredInteractionAddons.current.filter(
         (addon) => addon.type === interaction && addon.activationFn(vizNode),
-      );
+      ) as IRegisteredInteractionAddon<T>[];
     },
     [],
   );

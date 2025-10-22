@@ -6,7 +6,11 @@ import {
 } from '../../../../providers/action-confirmation-modal.provider';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import {
+  IInteractionType,
+  IOnDeleteAddon,
+  IRegisteredInteractionAddon,
+} from '../../../registers/interactions/node-interaction-addon.model';
 import { EntityType } from '../../../../models/camel/entities';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
@@ -82,9 +86,13 @@ describe('ItemDeleteGroup', () => {
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {
       registerInteractionAddon: jest.fn(),
-      getRegisteredInteractionAddons: (_interaction: IInteractionAddonType, _vizNode: IVisualizationNode) => [
-        { type: IInteractionAddonType.ON_DELETE, activationFn: () => true, callback: mockAddon },
-      ],
+      getRegisteredInteractionAddons: <T extends IInteractionType>(
+        _interaction: IInteractionType,
+        _vizNode: IVisualizationNode,
+      ): IRegisteredInteractionAddon<T>[] =>
+        [
+          { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: mockAddon } as IOnDeleteAddon,
+        ] as IRegisteredInteractionAddon<T>[],
     };
 
     const wrapper = render(

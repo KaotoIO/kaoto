@@ -1,4 +1,4 @@
-import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';

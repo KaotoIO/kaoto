@@ -7,11 +7,21 @@ import { updateIds } from '../../../../utils/update-ids';
 import { cloneDeep } from 'lodash';
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
+import { processOnCopyAddonRecursively } from '../ContextMenu/item-interaction-helper';
 
 export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
-  const vizNodeContent = vizNode.getCopiedContent();
+  const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
+  let vizNodeContent = vizNode.getCopiedContent();
+
+  if (vizNodeContent) {
+    vizNodeContent = processOnCopyAddonRecursively(vizNode, vizNodeContent, (vn) =>
+      nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vn),
+    );
+  }
   const parentVizNode = vizNode.getParentNode();
 
   const canDuplicate = useMemo(() => {

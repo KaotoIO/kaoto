@@ -12,7 +12,7 @@ import {
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
-import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../clipboard';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {

@@ -15,19 +15,19 @@ import {
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { IMetadataApi } from '../../../../providers/metadata.provider';
 import {
-  IInteractionAddonType,
+  IInteractionType,
   INodeInteractionAddonContext,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
-  findModalCustomizationRecursively,
-  processNodeInteractionAddonRecursively,
-} from '../ContextMenu/item-delete-helper';
+  findOnDeleteModalCustomizationRecursively,
+  processOnDeleteAddonRecursively,
+} from '../ContextMenu/item-interaction-helper';
 import { useReplaceStep } from './replace-step.hook';
 
-jest.mock('../ContextMenu/item-delete-helper', () => ({
-  findModalCustomizationRecursively: jest.fn(),
-  processNodeInteractionAddonRecursively: jest.fn(),
+jest.mock('../ContextMenu/item-interaction-helper', () => ({
+  findOnDeleteModalCustomizationRecursively: jest.fn(),
+  processOnDeleteAddonRecursively: jest.fn(),
 }));
 
 describe('useReplaceStep', () => {
@@ -83,8 +83,8 @@ describe('useReplaceStep', () => {
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
     jest.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
-    (processNodeInteractionAddonRecursively as jest.Mock).mockImplementation(() => {});
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
+    (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -260,7 +260,7 @@ describe('useReplaceStep', () => {
     };
     const nonPlaceholderChild = createVisualizationNode('child', { isPlaceholder: false });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
@@ -283,28 +283,24 @@ describe('useReplaceStep', () => {
 
     await result.current.onReplaceNode();
 
-    expect(findModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
+    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
 
-    const callback = (findModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
+    const callback = (findOnDeleteModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
     callback(mockVizNode);
     expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionAddonType.ON_DELETE,
+      IInteractionType.ON_DELETE,
       mockVizNode,
     );
   });
 
-  it('should call processNodeInteractionAddonRecursively with correct parameters', async () => {
+  it('should call processOnDeleteAddonRecursively with correct parameters', async () => {
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { result } = renderHook(() => useReplaceStep(mockVizNode), { wrapper });
 
     await result.current.onReplaceNode();
 
-    expect(processNodeInteractionAddonRecursively).toHaveBeenCalledWith(
-      mockVizNode,
-      ACTION_ID_CONFIRM,
-      expect.any(Function),
-    );
+    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
   });
 
   it('should handle missing metadata context gracefully', async () => {

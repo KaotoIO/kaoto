@@ -13,7 +13,7 @@ import {
 } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../clipboard';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
