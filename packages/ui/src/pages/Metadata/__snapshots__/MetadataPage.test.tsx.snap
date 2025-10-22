@@ -535,6 +535,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <div
               class="pf-v6-c-card__title-text"
             >
+               
               finalizers
                
               <div
@@ -974,6 +975,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <div
               class="pf-v6-c-card__title-text"
             >
+               
               managedFields
                
               <div
@@ -1293,6 +1295,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <div
               class="pf-v6-c-card__title-text"
             >
+               
               ownerReferences
                
               <div
