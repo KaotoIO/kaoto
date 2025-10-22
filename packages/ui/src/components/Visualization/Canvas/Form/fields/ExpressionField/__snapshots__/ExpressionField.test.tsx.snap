@@ -98,6 +98,7 @@ exports[`ExpressionField renders empty expression field with schema 1`] = `
           <div
             class="pf-v6-c-card__title-text"
           >
+             
             Expression
              
             <div
@@ -266,6 +267,7 @@ exports[`ExpressionField renders expression field with selection 1`] = `
           <div
             class="pf-v6-c-card__title-text"
           >
+             
             Simple
              
             <div
