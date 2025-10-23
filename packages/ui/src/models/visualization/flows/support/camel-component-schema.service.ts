@@ -16,7 +16,7 @@ import { VisualComponentSchema } from '../../base-visual-entity';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentFilterService } from './camel-component-filter.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
-import { IClipboardCopyObject } from '../../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../../clipboard';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = [

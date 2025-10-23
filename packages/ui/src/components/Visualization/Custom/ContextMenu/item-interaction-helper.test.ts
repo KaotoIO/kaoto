@@ -1,25 +1,26 @@
-import { processNodeInteractionAddonRecursively } from './item-delete-helper';
+import { processOnDeleteAddonRecursively } from './item-interaction-helper';
 import { createVisualizationNode } from '../../../../models';
 import {
-  IInteractionAddonType,
+  IInteractionType,
+  IOnDeleteAddon,
   IRegisteredInteractionAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { ACTION_ID_CONFIRM } from '../../../../providers';
 
-describe('item-delete-helper', () => {
-  describe('processNodeInteractionAddonRecursively', () => {
+describe('item-interaction-helper', () => {
+  describe('processOnDeleteAddonRecursively', () => {
     it('should process children', () => {
       const addons: Record<string, IRegisteredInteractionAddon[]> = {};
       const vizNode = createVisualizationNode('test', {});
       const childVn = createVisualizationNode('child', {});
       const mockAddon: IRegisteredInteractionAddon = {
-        type: IInteractionAddonType.ON_DELETE,
+        type: IInteractionType.ON_DELETE,
         activationFn: () => true,
         callback: jest.fn(),
       };
       addons[childVn.id] = [mockAddon];
       vizNode.addChild(childVn);
-      processNodeInteractionAddonRecursively(vizNode, ACTION_ID_CONFIRM, (vn) => addons[vn.id] ?? []);
+      processOnDeleteAddonRecursively(vizNode, ACTION_ID_CONFIRM, (vn) => (addons[vn.id] ?? []) as IOnDeleteAddon[]);
       expect(mockAddon.callback).toHaveBeenCalled();
     });
   });

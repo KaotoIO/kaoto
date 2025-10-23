@@ -1,6 +1,6 @@
 import { ClipboardManager } from './ClipboardManager';
 import { updateIds } from './update-ids';
-import { IClipboardCopyObject } from '../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 
 // Mock the `updateIds` function

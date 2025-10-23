@@ -6,8 +6,14 @@ import {
   ACTION_ID_DELETE_STEP_ONLY,
   onDeleteDataMapper,
 } from '../DataMapper/on-delete-datamapper';
+import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
 import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
-import { IInteractionAddonType, IRegisteredInteractionAddon } from './interactions/node-interaction-addon.model';
+import {
+  IInteractionType,
+  IOnCopyAddon,
+  IOnDeleteAddon,
+  IRegisteredInteractionAddon,
+} from './interactions/node-interaction-addon.model';
 import { ButtonVariant } from '@patternfly/react-core';
 
 export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren> = ({ children }) => {
@@ -15,9 +21,9 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
   const { registerInteractionAddon } = useContext(NodeInteractionAddonContext);
   const addonsToRegister = useRef<IRegisteredInteractionAddon[]>([
     {
-      type: IInteractionAddonType.ON_DELETE,
+      type: IInteractionType.ON_DELETE,
       activationFn: datamapperActivationFn,
-      callback: (vizNode, modalAnswer) => {
+      callback: ({ vizNode, modalAnswer }) => {
         metadataApi && onDeleteDataMapper(metadataApi, vizNode, modalAnswer);
       },
       modalCustomization: {
@@ -34,12 +40,17 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
           },
         },
       },
-    },
+    } as IOnDeleteAddon,
+    {
+      type: IInteractionType.ON_COPY,
+      activationFn: datamapperActivationFn,
+      callback: onCopyDataMapper,
+    } as IOnCopyAddon,
   ]);
 
-  addonsToRegister.current.forEach((interaction) => {
+  for (const interaction of addonsToRegister.current) {
     registerInteractionAddon(interaction);
-  });
+  }
 
   return <>{children}</>;
 };

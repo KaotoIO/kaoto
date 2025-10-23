@@ -11,7 +11,7 @@ import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../b
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
-import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../clipboard';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {

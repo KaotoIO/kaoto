@@ -1,22 +1,30 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
-
-export interface IClipboardCopyObject {
-  type: SourceSchemaType;
-  name: string;
-  definition: object;
-}
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const useCopyStep = (vizNode: IVisualizationNode) => {
+  const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
+
   const onCopyStep = useCallback(async () => {
-    const copiedNodeContent = vizNode.getCopiedContent();
+    let copiedNodeContent = vizNode.getCopiedContent();
+
+    if (!copiedNodeContent) return;
+
+    copiedNodeContent = processOnCopyAddon(
+      vizNode,
+      copiedNodeContent,
+      (vizNode) =>
+        nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode) as IOnCopyAddon[],
+    );
+
     /** Copy the node model */
     if (copiedNodeContent) {
       ClipboardManager.copy(copiedNodeContent);
     }
-  }, [vizNode]);
+  }, [nodeInteractionAddonContext, vizNode]);
 
   const value = useMemo(
     () => ({

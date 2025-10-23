@@ -27,7 +27,7 @@ import { ModelValidationService } from './support/validators/model-validation.se
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CatalogKind } from '../../catalog-kind';
-import { IClipboardCopyObject } from '../../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../clipboard';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {

@@ -5,7 +5,11 @@ import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
-import { IInteractionAddonType } from '../../../registers/interactions/node-interaction-addon.model';
+import {
+  IInteractionType,
+  IOnDeleteAddon,
+  IRegisteredInteractionAddon,
+} from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 
 describe('ItemDeleteStep', () => {
@@ -68,9 +72,13 @@ describe('ItemDeleteStep', () => {
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {
       registerInteractionAddon: jest.fn(),
-      getRegisteredInteractionAddons: (_interaction: IInteractionAddonType, _vizNode: IVisualizationNode) => [
-        { type: IInteractionAddonType.ON_DELETE, activationFn: () => true, callback: mockAddon },
-      ],
+      getRegisteredInteractionAddons: (
+        _interaction: IInteractionType,
+        _vizNode: IVisualizationNode,
+      ): IRegisteredInteractionAddon[] =>
+        [
+          { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: mockAddon } as IOnDeleteAddon,
+        ] as IRegisteredInteractionAddon[],
     };
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>

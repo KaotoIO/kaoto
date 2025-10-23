@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { IClipboardCopyObject } from './copy-step.hook';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';

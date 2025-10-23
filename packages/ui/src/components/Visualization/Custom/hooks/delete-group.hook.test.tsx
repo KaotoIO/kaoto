@@ -6,19 +6,19 @@ import { createVisualizationNode } from '../../../../models/visualization/visual
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import {
-  IInteractionAddonType,
+  IInteractionType,
   INodeInteractionAddonContext,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
-  findModalCustomizationRecursively,
-  processNodeInteractionAddonRecursively,
-} from '../ContextMenu/item-delete-helper';
+  findOnDeleteModalCustomizationRecursively,
+  processOnDeleteAddonRecursively,
+} from '../ContextMenu/item-interaction-helper';
 import { useDeleteGroup } from './delete-group.hook';
 
-jest.mock('../ContextMenu/item-delete-helper', () => ({
-  findModalCustomizationRecursively: jest.fn(),
-  processNodeInteractionAddonRecursively: jest.fn(),
+jest.mock('../ContextMenu/item-interaction-helper', () => ({
+  findOnDeleteModalCustomizationRecursively: jest.fn(),
+  processOnDeleteAddonRecursively: jest.fn(),
 }));
 
 describe('useDeleteGroup', () => {
@@ -45,8 +45,8 @@ describe('useDeleteGroup', () => {
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test-group', {});
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
-    (processNodeInteractionAddonRecursively as jest.Mock).mockImplementation(() => {});
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
+    (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -96,11 +96,7 @@ describe('useDeleteGroup', () => {
     });
     expect(removeEntitySpy).toHaveBeenCalledWith(['test-group']);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
-    expect(processNodeInteractionAddonRecursively).toHaveBeenCalledWith(
-      mockVizNode,
-      ACTION_ID_CONFIRM,
-      expect.any(Function),
-    );
+    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
   });
 
   it('should not delete group when modal is cancelled', async () => {
@@ -114,7 +110,7 @@ describe('useDeleteGroup', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).toHaveBeenCalled();
     expect(removeEntitySpy).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(processNodeInteractionAddonRecursively).not.toHaveBeenCalled();
+    expect(processOnDeleteAddonRecursively).not.toHaveBeenCalled();
   });
 
   it('should not delete group when modal returns undefined', async () => {
@@ -135,7 +131,7 @@ describe('useDeleteGroup', () => {
       buttonOptions: { confirm: 'Delete Now', cancel: 'Keep It' },
     };
     jest.spyOn(mockVizNode, 'getId').mockReturnValue('test-group');
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
     const { result } = renderHook(() => useDeleteGroup(mockVizNode), { wrapper });
@@ -157,12 +153,12 @@ describe('useDeleteGroup', () => {
 
     await result.current.onDeleteGroup();
 
-    expect(findModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
+    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
 
-    const callback = (findModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
+    const callback = (findOnDeleteModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
     callback(mockVizNode);
     expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionAddonType.ON_DELETE,
+      IInteractionType.ON_DELETE,
       mockVizNode,
     );
   });

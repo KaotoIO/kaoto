@@ -3,7 +3,7 @@ import { AddStepMode, IVisualizationNode } from '../../../../models/visualizatio
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
-import { IClipboardCopyObject } from './copy-step.hook';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 

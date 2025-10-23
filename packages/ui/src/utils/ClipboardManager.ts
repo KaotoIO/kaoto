@@ -1,4 +1,4 @@
-import { IClipboardCopyObject } from '../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { updateIds } from './update-ids';
 
 export class ClipboardManager {

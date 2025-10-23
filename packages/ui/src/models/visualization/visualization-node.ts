@@ -10,7 +10,7 @@ import {
   NodeInteraction,
   VisualComponentSchema,
 } from './base-visual-entity';
-import { IClipboardCopyObject } from '../../components/Visualization/Custom/hooks/copy-step.hook';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
   id: string,

@@ -6,19 +6,19 @@ import { createVisualizationNode } from '../../../../models/visualization/visual
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import {
-  IInteractionAddonType,
+  IInteractionType,
   INodeInteractionAddonContext,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
-  findModalCustomizationRecursively,
-  processNodeInteractionAddonRecursively,
-} from '../ContextMenu/item-delete-helper';
+  findOnDeleteModalCustomizationRecursively,
+  processOnDeleteAddonRecursively,
+} from '../ContextMenu/item-interaction-helper';
 import { useDeleteStep } from './delete-step.hook';
 
-jest.mock('../ContextMenu/item-delete-helper', () => ({
-  findModalCustomizationRecursively: jest.fn(),
-  processNodeInteractionAddonRecursively: jest.fn(),
+jest.mock('../ContextMenu/item-interaction-helper', () => ({
+  findOnDeleteModalCustomizationRecursively: jest.fn(),
+  processOnDeleteAddonRecursively: jest.fn(),
 }));
 
 describe('useDeleteStep', () => {
@@ -47,8 +47,8 @@ describe('useDeleteStep', () => {
     mockVizNode = createVisualizationNode('test-step', {});
     mockVizNode.removeChild = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
-    (processNodeInteractionAddonRecursively as jest.Mock).mockImplementation(() => {});
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
+    (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -91,11 +91,7 @@ describe('useDeleteStep', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).not.toHaveBeenCalled();
     expect(mockVizNode.removeChild).toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
-    expect(processNodeInteractionAddonRecursively).toHaveBeenCalledWith(
-      mockVizNode,
-      ACTION_ID_CONFIRM,
-      expect.any(Function),
-    );
+    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
   });
 
   it('should delete step without confirmation when only placeholder child', async () => {
@@ -142,7 +138,7 @@ describe('useDeleteStep', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).toHaveBeenCalled();
     expect(mockVizNode.removeChild).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(processNodeInteractionAddonRecursively).not.toHaveBeenCalled();
+    expect(processOnDeleteAddonRecursively).not.toHaveBeenCalled();
   });
 
   it('should not delete step when modal returns undefined', async () => {
@@ -163,7 +159,7 @@ describe('useDeleteStep', () => {
       additionalText: 'Custom warning text',
       buttonOptions: { confirm: 'Remove Step', cancel: 'Keep Step' },
     };
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
     const { result } = renderHook(() => useDeleteStep(mockVizNode), { wrapper });
@@ -183,7 +179,7 @@ describe('useDeleteStep', () => {
       additionalText: 'Custom text',
       buttonOptions: undefined,
     };
-    (findModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
+    (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
@@ -202,12 +198,12 @@ describe('useDeleteStep', () => {
 
     await result.current.onDeleteStep();
 
-    expect(findModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
+    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
 
-    const callback = (findModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
+    const callback = (findOnDeleteModalCustomizationRecursively as jest.Mock).mock.calls[0][1];
     callback(mockVizNode);
     expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionAddonType.ON_DELETE,
+      IInteractionType.ON_DELETE,
       mockVizNode,
     );
   });
