@@ -69,6 +69,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
               key={0}
               title={<TabTitleText>Field</TabTitleText>}
               className="xpath-editor--full-height"
+              data-testid="xpath-editor-tab-field"
             >
               <TabContent id="fields" className="xpath-editor--full-height xpath-editor__tab">
                 <SourcePanel isReadOnly={true} />
@@ -81,6 +82,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
               key={1}
               title={<TabTitleText>Function</TabTitleText>}
               className="xpath-editor--full-height"
+              data-testid="xpath-editor-tab-function"
             >
               <TabContent id="functions" className="xpath-editor--full-height xpath-editor__tab">
                 <SearchInput
