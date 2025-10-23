@@ -31,6 +31,7 @@ import {
   contactsXsd,
   extensionComplexXsd,
   extensionSimpleXsd,
+  nestedConditionalsToShipOrderXslt,
   orgXsd,
   schemaTestXsd,
   shipOrderToShipOrderCollectionIndexXslt,
@@ -981,6 +982,92 @@ describe('VisualizationService', () => {
         tree.children[0].children[0].children[0] as ValueSelector,
       );
       expect(VisualizationService.isDeletableNode(valueSelectorNodeData)).toBeTruthy();
+    });
+  });
+
+  describe('with nested conditional mappings', () => {
+    beforeEach(() => {
+      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    });
+
+    it('should generate nested if statements', () => {
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      const outerIfNode = shipOrderChildren.find((child) => child.title === 'if') as MappingNodeData;
+      expect(outerIfNode).toBeDefined();
+      expect(outerIfNode.mapping).toBeInstanceOf(IfItem);
+
+      const outerIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerIfNode);
+      expect(outerIfChildren.length).toEqual(1);
+
+      const innerIfNode = outerIfChildren[0] as MappingNodeData;
+      expect(innerIfNode.title).toEqual('if');
+      expect(innerIfNode.mapping).toBeInstanceOf(IfItem);
+
+      const innerIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerIfNode);
+      expect(innerIfChildren.length).toEqual(1);
+      expect(innerIfChildren[0].title).toEqual('OrderPerson');
+      expect(innerIfChildren[0]).toBeInstanceOf(FieldItemNodeData);
+    });
+
+    it('should generate choose inside if', () => {
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      const ifNodes = shipOrderChildren.filter((child) => child.title === 'if');
+      const shipToIfNode = ifNodes[1] as MappingNodeData;
+      expect(shipToIfNode).toBeDefined();
+      expect(shipToIfNode.mapping).toBeInstanceOf(IfItem);
+
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipToIfNode);
+      expect(ifChildren.length).toEqual(1);
+
+      const chooseNode = ifChildren[0] as MappingNodeData;
+      expect(chooseNode.title).toEqual('choose');
+      expect(chooseNode.mapping).toBeInstanceOf(ChooseItem);
+
+      const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseNode);
+      expect(chooseChildren.length).toEqual(2);
+      expect(chooseChildren[0].title).toEqual('when');
+      expect(chooseChildren[1].title).toEqual('otherwise');
+    });
+
+    it('should generate if inside for-each', () => {
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      const ifNodes = shipOrderChildren.filter((child) => child.title === 'if');
+      const itemIfNode = ifNodes[2] as MappingNodeData;
+      expect(itemIfNode).toBeDefined();
+      expect(itemIfNode.mapping).toBeInstanceOf(IfItem);
+
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemIfNode);
+      expect(ifChildren.length).toEqual(1);
+
+      const forEachNode = ifChildren[0] as MappingNodeData;
+      expect(forEachNode.title).toEqual('for-each');
+      expect(forEachNode.mapping).toBeInstanceOf(ForEachItem);
+
+      const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode);
+      expect(forEachChildren.length).toEqual(1);
+      expect(forEachChildren[0].title).toEqual('Item');
+
+      const itemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
+      expect(itemChildren.length).toEqual(4);
+      expect(itemChildren[0].title).toEqual('Title');
+
+      const noteIfNode = itemChildren[1] as MappingNodeData;
+      expect(noteIfNode.title).toEqual('if');
+      expect(noteIfNode.mapping).toBeInstanceOf(IfItem);
+
+      const noteIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(noteIfNode);
+      expect(noteIfChildren.length).toEqual(1);
+      expect(noteIfChildren[0].title).toEqual('Note');
+
+      expect(itemChildren[2].title).toEqual('Quantity');
+      expect(itemChildren[3].title).toEqual('Price');
     });
   });
 });

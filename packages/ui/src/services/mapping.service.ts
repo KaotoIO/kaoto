@@ -45,7 +45,11 @@ export class MappingService {
       mapping instanceof ForEachItem
     ) {
       return mapping.children.reduce((acc, child) => {
-        child instanceof FieldItem && acc.push(child);
+        if (child instanceof FieldItem) {
+          acc.push(child);
+        } else if (child instanceof ConditionItem) {
+          acc.push(...MappingService.getConditionalFieldItems(child));
+        }
         return acc;
       }, [] as FieldItem[]);
     }
