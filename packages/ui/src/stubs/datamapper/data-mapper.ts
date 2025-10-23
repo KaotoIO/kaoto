@@ -69,6 +69,9 @@ export const shipOrderToShipOrderMultipleForEachXslt = fs
 export const shipOrderToShipOrderCollectionIndexXslt = fs
   .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderCollectionIndex.xsl'))
   .toString();
+export const nestedConditionalsToShipOrderXslt = fs
+  .readFileSync(path.resolve(__dirname, './xml/NestedConditionalsToShipOrder.xsl'))
+  .toString();
 
 export const x12837PDfdlXsd = fs.readFileSync(path.resolve(__dirname, './xml/X12-837P.dfdl.xsd')).toString();
 export const message837Xsd = fs.readFileSync(path.resolve(__dirname, './xml/Message837.xsd')).toString();

@@ -19,6 +19,7 @@ import {
   conditionalMappingsToShipOrderJsonXslt,
   conditionalMappingsToShipOrderXslt,
   multipleForEachJsonXslt,
+  nestedConditionalsToShipOrderXslt,
   shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
   TestUtil,
@@ -53,6 +54,97 @@ describe('MappingService', () => {
       expect((filtered[0] as FieldItem).field).toEqual(targetDoc.fields[0]);
       filtered = MappingService.filterMappingsForField(tree.children, targetDoc.fields[0].fields[0]);
       expect(filtered.length).toEqual(0);
+    });
+
+    it('should filter fields inside nested if', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+      const shipOrderField = targetDoc.fields[0];
+      const orderPersonField = targetDoc.fields[0].fields[1];
+
+      const shipOrderFiltered = MappingService.filterMappingsForField(tree.children, shipOrderField);
+      expect(shipOrderFiltered.length).toEqual(1);
+
+      const shipOrderFieldItem = shipOrderFiltered[0] as FieldItem;
+      const orderPersonFiltered = MappingService.filterMappingsForField(shipOrderFieldItem.children, orderPersonField);
+      expect(orderPersonFiltered.length).toEqual(1);
+      expect(orderPersonFiltered[0]).toBeInstanceOf(IfItem);
+
+      const outerIfItem = orderPersonFiltered[0] as IfItem;
+      expect(outerIfItem.children.length).toEqual(1);
+      expect(outerIfItem.children[0]).toBeInstanceOf(IfItem);
+
+      const innerIfItem = outerIfItem.children[0] as IfItem;
+      expect(innerIfItem.children.length).toEqual(1);
+      expect(innerIfItem.children[0]).toBeInstanceOf(FieldItem);
+      expect((innerIfItem.children[0] as FieldItem).field).toEqual(orderPersonField);
+    });
+
+    it('should filter fields inside choose within if', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+      const shipToField = targetDoc.fields[0].fields[2];
+      const shipToNameField = targetDoc.fields[0].fields[2].fields[0];
+
+      const shipOrderField = tree.children[0] as FieldItem;
+      const shipToFiltered = MappingService.filterMappingsForField(shipOrderField.children, shipToField);
+      expect(shipToFiltered.length).toEqual(1);
+      expect(shipToFiltered[0]).toBeInstanceOf(IfItem);
+
+      const ifItem = shipToFiltered[0] as IfItem;
+      expect(ifItem.children.length).toEqual(1);
+      expect(ifItem.children[0]).toBeInstanceOf(ChooseItem);
+
+      const chooseItem = ifItem.children[0] as ChooseItem;
+      const whenItem = chooseItem.when[0];
+      expect(whenItem.children.length).toEqual(1);
+      expect(whenItem.children[0]).toBeInstanceOf(FieldItem);
+
+      const shipToFieldItem = whenItem.children[0] as FieldItem;
+      expect(shipToFieldItem.field).toEqual(shipToField);
+      const nameFiltered = MappingService.filterMappingsForField(shipToFieldItem.children, shipToNameField);
+      expect(nameFiltered.length).toEqual(1);
+      expect(nameFiltered[0]).toBeInstanceOf(FieldItem);
+      expect((nameFiltered[0] as FieldItem).field.name).toEqual('Name');
+    });
+
+    it('should filter fields inside if within for-each', () => {
+      targetDoc = TestUtil.createTargetOrderDoc();
+      paramsMap = TestUtil.createParameterMap();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+
+      const itemField = targetDoc.fields[0].fields[3];
+      const noteField = targetDoc.fields[0].fields[3].fields[1];
+
+      const shipOrderField = tree.children[0] as FieldItem;
+      const itemFiltered = MappingService.filterMappingsForField(shipOrderField.children, itemField);
+      expect(itemFiltered.length).toEqual(1);
+      expect(itemFiltered[0]).toBeInstanceOf(IfItem);
+
+      const outerIfItem = itemFiltered[0] as IfItem;
+      expect(outerIfItem.children.length).toEqual(1);
+      expect(outerIfItem.children[0]).toBeInstanceOf(ForEachItem);
+
+      const forEachItem = outerIfItem.children[0] as ForEachItem;
+      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children[0]).toBeInstanceOf(FieldItem);
+
+      const itemFieldItem = forEachItem.children[0] as FieldItem;
+      const noteFiltered = MappingService.filterMappingsForField(itemFieldItem.children, noteField);
+      expect(noteFiltered.length).toEqual(1);
+      expect(noteFiltered[0]).toBeInstanceOf(IfItem);
+
+      const innerIfItem = noteFiltered[0] as IfItem;
+      expect(innerIfItem.children.length).toEqual(1);
+      expect(innerIfItem.children[0]).toBeInstanceOf(FieldItem);
+      expect((innerIfItem.children[0] as FieldItem).field).toEqual(noteField);
     });
   });
 
