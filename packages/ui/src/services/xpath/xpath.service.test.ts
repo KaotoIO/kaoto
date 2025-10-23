@@ -279,6 +279,11 @@ describe('XPathService', () => {
       const result = XPathService.validate('upper-case()');
       expect(result.hasErrors()).toBeFalsy();
     });
+
+    it('should not get error with path in function call', () => {
+      const result = XPathService.validate('upper-case(/aaa/bbb/ccc)');
+      expect(result.hasErrors()).toBeFalsy();
+    });
   });
 
   describe('extractFieldPaths()', () => {
@@ -305,6 +310,17 @@ describe('XPathService', () => {
     });
 
     it('extract fields from function calls', () => {
+      const paths = XPathService.extractFieldPaths('upper-case(/aaa/bbb/ddd)');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeFalsy();
+      expect(paths[0].documentReferenceName).toBeUndefined();
+      expect(paths[0].pathSegments.length).toEqual(3);
+      expect(paths[0].pathSegments[0].name).toEqual('aaa');
+      expect(paths[0].pathSegments[1].name).toEqual('bbb');
+      expect(paths[0].pathSegments[2].name).toEqual('ddd');
+    });
+
+    it('extract fields from nested function calls', () => {
       const paths = XPathService.extractFieldPaths(
         'concatenate(/aaa/bbb/ccc, upper-case(aaa/bbb/ddd), lower-case($param1/eee/fff))',
       );
@@ -444,6 +460,36 @@ describe('XPathService', () => {
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments.length).toEqual(1);
       expect(paths[0].pathSegments[0].name).toEqual('aaa');
+    });
+
+    it('extract path with current() without context path i.e. from root', () => {
+      let paths = XPathService.extractFieldPaths('current()/Price');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(1);
+      expect(paths[0].pathSegments[0].name).toEqual('Price');
+
+      paths = XPathService.extractFieldPaths('current()/../Price');
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[1].name).toEqual('Price');
+    });
+
+    it('extract path with current() with context path', () => {
+      const contextPath = new PathExpression();
+      contextPath.pathSegments = [new PathSegment('Root'), new PathSegment('Element')];
+      let paths = XPathService.extractFieldPaths('current()/Price', contextPath);
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(1);
+      expect(paths[0].pathSegments[0].name).toEqual('Price');
+
+      paths = XPathService.extractFieldPaths('current()/../Price', contextPath);
+      expect(paths.length).toEqual(1);
+      expect(paths[0].isRelative).toBeTruthy();
+      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments[1].name).toEqual('Price');
     });
 
     describe('should extract field paths with reserved keyword', () => {
